@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Diagnostics;
 
 namespace IceInternal
@@ -212,13 +213,13 @@ namespace IceInternal
             };
         }
 
-        internal List<Ice.Connection>? SwapReapedConnections()
+        internal IEnumerable<Ice.Connection> SwapReapedConnections()
         {
             lock (this)
             {
                 if (_reapedConnections.Count == 0)
                 {
-                    return null;
+                    return Enumerable.Empty<Ice.Connection>();
                 }
                 List<Ice.Connection> connections = _reapedConnections;
                 _reapedConnections = new List<Ice.Connection>();

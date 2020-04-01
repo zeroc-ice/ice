@@ -59,11 +59,9 @@ testUOE(const Ice::CommunicatorPtr& communicator)
 
 void clear(const CPtr&);
 
-#ifdef ICE_CPP11_MAPPING
 void
 clear(const BPtr& b)
 {
-    // No GC with the C++11 mapping
     if(dynamic_pointer_cast<B>(b->theA))
     {
         auto tmp = b->theA;
@@ -78,33 +76,17 @@ clear(const BPtr& b)
     }
     b->theC = nullptr;
 }
-#else
-void
-clear(const BPtr&)
-{
-}
-#endif
 
-#ifdef ICE_CPP11_MAPPING
 void
 clear(const CPtr& c)
 {
-    // No GC with the C++11 mapping
     clear(c->theB);
     c->theB = nullptr;
 }
-#else
-void
-clear(const CPtr&)
-{
-}
-#endif
 
-#ifdef ICE_CPP11_MAPPING
 void
 clear(const DPtr& d)
 {
-    // No GC with the C++11 mapping
     if(dynamic_pointer_cast<B>(d->theA))
     {
         clear(dynamic_pointer_cast<B>(d->theA));
@@ -113,12 +95,6 @@ clear(const DPtr& d)
     clear(d->theB);
     d->theB = nullptr;
 }
-#else
-void
-clear(const DPtr&)
-{
-}
-#endif
 
 }
 
@@ -135,11 +111,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     InitialPrxPtr initial = ICE_CHECKED_CAST(InitialPrx, base);
     test(initial);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(initial, base));
-#else
-    test(initial == base);
-#endif
     cout << "ok" << endl;
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
@@ -154,21 +126,17 @@ allTests(Test::TestHelper* helper)
     test(ba2->theS.str == "hello");
     test(ba2->str == "hi");
 
-#ifdef ICE_CPP11_MAPPING
     test(*ba1 < *ba2);
     test(*ba2 > *ba1);
     test(*ba1 != *ba2);
-#endif
 
     *ba1 = *ba2;
     test(ba1->theS.str == "hello");
     test(ba1->str == "hi");
 
-#ifdef ICE_CPP11_MAPPING
     test(*ba1 == *ba2);
     test(*ba1 >= *ba2);
     test(*ba1 <= *ba2);
-#endif
 
     BasePtr bp1 = ICE_MAKE_SHARED(Base);
     *bp1 = *ba2;
@@ -183,20 +151,6 @@ allTests(Test::TestHelper* helper)
     test(bp1->theS.str == bp2->theS.str);
     test(bp1->str == bp2->str);
 
-#ifndef ICE_CPP11_MAPPING
-    //
-    // With C++11 mapping value classes are never abstracts.
-    //
-    AbstractBasePtr abp1 = new AbstractBaseI();
-    try
-    {
-        abp1->ice_clone();
-        test(false);
-    }
-    catch(const Ice::CloneNotImplementedException&)
-    {
-    }
-#endif
     cout << "ok" << endl;
 
     cout << "getting B1... " << flush;
@@ -221,19 +175,11 @@ allTests(Test::TestHelper* helper)
 
     cout << "checking consistency... " << flush;
     test(b1 != b2);
-#ifdef ICE_CPP11_MAPPING
     test(b1 != dynamic_pointer_cast<B>(c));
     test(b1 != dynamic_pointer_cast<B>(d));
     test(b2 != dynamic_pointer_cast<B>(c));
     test(b2 != dynamic_pointer_cast<B>(d));
     test(c != dynamic_pointer_cast<C>(d));
-#else
-    test(b1 != c);
-    test(b1 != d);
-    test(b2 != c);
-    test(b2 != d);
-    test(c != d);
-#endif
     test(b1->theB == b1);
     test(b1->theC == ICE_NULLPTR);
     test(ICE_DYNAMIC_CAST(B, b1->theA));
@@ -246,13 +192,8 @@ allTests(Test::TestHelper* helper)
     test(b1->postUnmarshalInvoked);
     test(b1->theA->preMarshalInvoked);
     test(b1->theA->postUnmarshalInvoked);
-#ifdef ICE_CPP11_MAPPING
     test(dynamic_pointer_cast<B>(b1->theA)->theC->preMarshalInvoked);
     test(dynamic_pointer_cast<B>(b1->theA)->theC->postUnmarshalInvoked);
-#else
-    test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
-    test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked);
-#endif
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2->theA == b2);
     test(d->theC == ICE_NULLPTR);
@@ -272,7 +213,6 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "checking consistency... " << flush;
-#ifdef ICE_CPP11_MAPPING
     test(b1 != b2);
     test(b1 != dynamic_pointer_cast<B>(c));
     test(b1 != dynamic_pointer_cast<B>(d));
@@ -289,24 +229,6 @@ allTests(Test::TestHelper* helper)
     test(d->theA == dynamic_pointer_cast<A>(b1));
     test(d->theB == dynamic_pointer_cast<B>(b2));
     test(d->theC == nullptr);
-#else
-    test(b1 != b2);
-    test(b1 != c);
-    test(b1 != d);
-    test(b2 != c);
-    test(b2 != d);
-    test(c != d);
-    test(b1->theA == b2);
-    test(b1->theB == b1);
-    test(b1->theC == ICE_NULLPTR);
-    test(b2->theA == b2);
-    test(b2->theB == b1);
-    test(b2->theC == c);
-    test(c->theB == b2);
-    test(d->theA == b1);
-    test(d->theB == b2);
-    test(d->theC == ICE_NULLPTR);
-#endif
     test(d->preMarshalInvoked);
     test(d->postUnmarshalInvoked);
     test(d->theA->preMarshalInvoked);
@@ -325,29 +247,15 @@ allTests(Test::TestHelper* helper)
 
     EIPtr e = ICE_DYNAMIC_CAST(EI, initial->getE());
     FIPtr f = ICE_DYNAMIC_CAST(FI, initial->getF());
-#ifndef ICE_CPP11_MAPPING
-    test(e->checkValues());
-    test(f->checkValues());
-    test(ICE_DYNAMIC_CAST(EI, f->e2)->checkValues());
-#endif
     cout << "ok" << endl;
 
     cout << "getting I, J and H... " << flush;
-#ifdef ICE_CPP11_MAPPING
     shared_ptr<Ice::Value> i = initial->getI();
     test(i->ice_id() == "::Test::I");
     shared_ptr<Ice::Value> j = initial->getJ();
     test(j->ice_id() == "::Test::J");
     shared_ptr<Ice::Value> h = initial->getH();
     test(h && dynamic_pointer_cast<H>(h));
-#else
-    IPtr i = initial->getI();
-    test(i);
-    IPtr j = initial->getJ();
-    test(j && JPtr::dynamicCast(j));
-    IPtr h = initial->getH();
-    test(h && HPtr::dynamicCast(h));
-#endif
     cout << "ok" << endl;
 
     cout << "getting K... " << flush;
@@ -496,11 +404,7 @@ allTests(Test::TestHelper* helper)
     b1 = initial->getMB();
     test(b1 && b1->theB == b1);
     clear(b1);
-#ifdef ICE_CPP11_MAPPING
     b1 = initial->getAMDMBAsync().get();
-#else
-    b1 = initial->end_getAMDMB(initial->begin_getAMDMB());
-#endif
     test(b1 && b1->theB == b1);
     clear(b1);
     cout << "ok" << endl;

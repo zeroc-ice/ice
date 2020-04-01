@@ -19,7 +19,6 @@ public:
 
 protected:
 
-#ifdef ICE_CPP11_MAPPING
     virtual shared_ptr<::Ice::Object>
     newServantAndCookie(shared_ptr<void>& cookie) const
     {
@@ -34,22 +33,6 @@ protected:
         test(co);
         test(co->message() == "blahblah");
     }
-#else
-    virtual Ice::ObjectPtr
-    newServantAndCookie(Ice::LocalObjectPtr& cookie) const
-    {
-        cookie = new Cookie();
-        return new TestI();
-    }
-
-    virtual void
-    checkCookie(const Ice::LocalObjectPtr& cookie) const
-    {
-        CookiePtr co = CookiePtr::dynamicCast(cookie);
-        test(co);
-        test(co->message() == "blahblah");
-    }
-#endif
 
     virtual void
     throwTestIntfUserException() const

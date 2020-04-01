@@ -4658,11 +4658,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // handler, causing compiler warnings and resulting in the base exception
     // being marshaled instead of the derived exception.
     //
-#if defined(__SUNPRO_CC)
-    throws.sort(Slice::derivedToBaseCompare);
-#else
     throws.sort(Slice::DerivedToBaseCompare());
-#endif
 
     const string contextParamName = getEscapedParamName(p, "context");
     const string contextDoc = "@param " + contextParamName +" The Context map to send with the invocation.";

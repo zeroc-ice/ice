@@ -20,18 +20,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(OutgoingAsyncBase* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(ProxyOutgoingAsyncBase* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(OutgoingAsync* p) { return p; }
-#endif
-
 const unsigned char OutgoingAsyncBase::OK = 0x1;
 const unsigned char OutgoingAsyncBase::Sent = 0x2;
-#ifndef ICE_CPP11_MAPPING
-const unsigned char OutgoingAsyncBase::Done = 0x4;
-const unsigned char OutgoingAsyncBase::EndCalled = 0x8;
-#endif
 
 OutgoingAsyncCompletionCallback::~OutgoingAsyncCompletionCallback()
 {
@@ -204,7 +194,6 @@ OutgoingAsyncBase::invokeResponse()
 
     try
     {
-#ifdef ICE_CPP11_MAPPING
         try
         {
             handleInvokeResponse(_state & OK, this);
@@ -220,9 +209,6 @@ OutgoingAsyncBase::invokeResponse()
         {
             rethrow_exception(ex);
         }
-#else
-        handleInvokeResponse(_state & OK, this);
-#endif
     }
     catch(const std::exception& ex)
     {
@@ -284,14 +270,6 @@ OutgoingAsyncBase::sentImpl(bool done)
         _cancellationHandler = 0;
     }
 
-#ifndef ICE_CPP11_MAPPING
-    if(done)
-    {
-        _state |= Done | OK;
-    }
-    _m.notifyAll();
-#endif
-
     bool invoke = handleSent(done, alreadySent);
     if(!invoke && _doneInSent)
     {
@@ -313,11 +291,6 @@ OutgoingAsyncBase::exceptionImpl(const Exception& ex)
     _cancellationHandler = 0;
     _observer.failed(ex.ice_id());
 
-#ifndef ICE_CPP11_MAPPING
-    _state |= Done;
-    _m.notifyAll();
-#endif
-
     bool invoke = handleException(ex);
     if(!invoke)
     {
@@ -336,11 +309,6 @@ OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
     }
 
     _cancellationHandler = 0;
-
-#ifndef ICE_CPP11_MAPPING
-    _state |= Done;
-    _m.notifyAll();
-#endif
 
     try
     {
@@ -373,192 +341,6 @@ OutgoingAsyncBase::cancel(const Ice::LocalException& ex)
     }
     handler->asyncRequestCanceled(ICE_SHARED_FROM_THIS, ex);
 }
-
-#ifndef ICE_CPP11_MAPPING
-
-Int
-OutgoingAsyncBase::getHash() const
-{
-    return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
-}
-
-CommunicatorPtr
-OutgoingAsyncBase::getCommunicator() const
-{
-    return 0;
-}
-
-ConnectionPtr
-OutgoingAsyncBase::getConnection() const
-{
-    return 0;
-}
-
-ObjectPrxPtr
-OutgoingAsyncBase::getProxy() const
-{
-    return 0;
-}
-
-Ice::LocalObjectPtr
-OutgoingAsyncBase::getCookie() const
-{
-    return _cookie;
-}
-
-const std::string&
-OutgoingAsyncBase::getOperation() const
-{
-    assert(false); // Must be overriden
-    static string empty;
-    return empty;
-}
-
-bool
-OutgoingAsyncBase::isCompleted() const
-{
-    Lock sync(_m);
-    return (_state & Done) > 0;
-}
-
-void
-OutgoingAsyncBase::waitForCompleted()
-{
-    Lock sync(_m);
-    while(!(_state & Done))
-    {
-        _m.wait();
-    }
-}
-
-bool
-OutgoingAsyncBase::isSent() const
-{
-    Lock sync(_m);
-    return (_state & Sent) > 0;
-}
-
-void
-OutgoingAsyncBase::waitForSent()
-{
-    Lock sync(_m);
-    while(!(_state & Sent) && !_ex.get())
-    {
-        _m.wait();
-    }
-}
-
-bool
-OutgoingAsyncBase::sentSynchronously() const
-{
-    return _sentSynchronously;
-}
-
-void
-OutgoingAsyncBase::throwLocalException() const
-{
-    Lock sync(_m);
-    if(_ex.get())
-    {
-        _ex->ice_throw();
-    }
-}
-
-bool
-OutgoingAsyncBase::_waitForResponse()
-{
-    Lock sync(_m);
-    if(_state & EndCalled)
-    {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "end_ method called more than once");
-    }
-    _state |= EndCalled;
-    while(!(_state & Done))
-    {
-        _m.wait();
-    }
-
-    if(_ex.get())
-    {
-        _ex->ice_throw();
-    }
-    return _state & OK;
-}
-
-Ice::InputStream*
-OutgoingAsyncBase::_startReadParams()
-{
-    _is.startEncapsulation();
-    return &_is;
-}
-
-void
-OutgoingAsyncBase::_endReadParams()
-{
-    _is.endEncapsulation();
-}
-
-void
-OutgoingAsyncBase::_readEmptyParams()
-{
-    _is.skipEmptyEncapsulation();
-}
-
-void
-OutgoingAsyncBase::_readParamEncaps(const ::Ice::Byte*& encaps, ::Ice::Int& sz)
-{
-    _is.readEncapsulation(encaps, sz);
-}
-
-void
-OutgoingAsyncBase::_throwUserException()
-{
-    try
-    {
-        _is.startEncapsulation();
-        _is.throwException();
-    }
-    catch(const Ice::UserException&)
-    {
-        _is.endEncapsulation();
-        throw;
-    }
-}
-
-void
-OutgoingAsyncBase::_scheduleCallback(const CallbackPtr& cb)
-{
-    //
-    // NOTE: for internal use only. This should only be called when the invocation has
-    // completed. Accessing _cachedConnection is not safe otherwise.
-    //
-
-    class WorkItem : public DispatchWorkItem
-    {
-    public:
-
-        WorkItem(const ConnectionPtr& connection, const CallbackPtr& cb) :
-            DispatchWorkItem(connection), _cb(cb)
-        {
-        }
-
-        virtual void run()
-        {
-            _cb->run();
-        }
-
-    private:
-
-        CallbackPtr _cb;
-    };
-
-    //
-    // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
-    //
-    _instance->clientThreadPool()->dispatch(new WorkItem(_cachedConnection, cb));
-}
-
-#endif
 
 void
 OutgoingAsyncBase::warning(const std::exception& exc) const
@@ -685,20 +467,6 @@ ProxyOutgoingAsyncBase::abort(const Ice::Exception& ex)
         ex.ice_throw();
     }
 }
-
-#ifndef ICE_CPP11_MAPPING
-Ice::ObjectPrx
-ProxyOutgoingAsyncBase::getProxy() const
-{
-    return _proxy;
-}
-
-Ice::CommunicatorPtr
-ProxyOutgoingAsyncBase::getCommunicator() const
-{
-    return _proxy->ice_getCommunicator();
-}
-#endif
 
 ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(const ObjectPrxPtr& prx) :
     OutgoingAsyncBase(prx->_getReference()->getInstance()),
@@ -1128,7 +896,6 @@ OutgoingAsync::invoke(const string& operation)
     invokeImpl(true); // userThread = true
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 OutgoingAsync::invoke(const string& operation,
                       Ice::OperationMode mode,
@@ -1176,10 +943,6 @@ OutgoingAsync::throwUserException()
     }
 }
 
-#endif
-
-#ifdef ICE_CPP11_MAPPING
-
 bool
 LambdaInvoke::handleSent(bool, bool alreadySent)
 {
@@ -1222,91 +985,3 @@ LambdaInvoke::handleInvokeResponse(bool ok, OutgoingAsyncBase*) const
 {
     _response(ok);
 }
-
-#else // C++98
-
-namespace
-{
-
-//
-// Dummy class derived from CallbackBase
-// We use this class for the dummyCallback extern pointer in OutgoingAsync. In turn,
-// this allows us to test whether the user supplied a null delegate instance to the
-// generated begin_ method without having to generate a separate test to throw IllegalArgumentException
-// in the inlined versions of the begin_ method. In other words, this reduces the amount of generated
-// object code.
-//
-class DummyCallback : public CallbackBase
-{
-public:
-
-    DummyCallback()
-    {
-    }
-
-    virtual void
-    completed(const Ice::AsyncResultPtr&) const
-    {
-         assert(false);
-    }
-
-    virtual CallbackBasePtr
-    verify(const Ice::LocalObjectPtr&)
-    {
-        //
-        // Called by the AsyncResult constructor to verify the delegate. The dummy
-        // delegate is passed when the user used a begin_ method without delegate.
-        // By returning 0 here, we tell the AsyncResult that no delegates was
-        // provided.
-        //
-        return 0;
-    }
-
-    virtual void
-    sent(const AsyncResultPtr&) const
-    {
-         assert(false);
-    }
-
-    virtual bool
-    hasSentCallback() const
-    {
-        assert(false);
-        return false;
-    }
-};
-
-}
-
-//
-// This gives a pointer value to compare against in the generated
-// begin_ method to decide whether the caller passed a null pointer
-// versus the generated inline version of the begin_ method having
-// passed a pointer to the dummy delegate.
-//
-CallbackBasePtr IceInternal::dummyCallback = new DummyCallback;
-
-CallbackBase::~CallbackBase()
-{
-    // Out of line to avoid weak vtable
-}
-
-void
-CallbackBase::checkCallback(bool obj, bool cb)
-{
-    if(!obj)
-    {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback object cannot be null");
-    }
-    if(!cb)
-    {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "callback cannot be null");
-    }
-}
-
-GenericCallbackBase::~GenericCallbackBase()
-{
-    // Out of line to avoid weak vtable
-}
-
-#endif

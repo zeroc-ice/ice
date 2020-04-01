@@ -36,11 +36,7 @@ public:
     }
 
     virtual Ice::ObjectProxySeq
-#ifdef ICE_CPP11_MAPPING
     addProxies(Ice::ObjectProxySeq, const Ice::Current&)
-#else
-    addProxies(const Ice::ObjectProxySeq&, const Ice::Current&)
-#endif
     {
         return Ice::ObjectProxySeq();
     }
@@ -62,11 +58,7 @@ ServantLocatorI::~ServantLocatorI()
 }
 
 Ice::ObjectPtr
-#ifdef ICE_CPP11_MAPPING
 ServantLocatorI::locate(const Ice::Current& current, std::shared_ptr<void>& cookie)
-#else
-ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
-#endif
 {
     test(!_deactivated);
 
@@ -84,11 +76,7 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, const std::shared_ptr<void>& cookie)
-#else
-ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, const Ice::LocalObjectPtr& cookie)
-#endif
 {
     test(!_deactivated);
     if(current.id.name == "router")
@@ -96,11 +84,7 @@ ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr&, co
         return;
     }
 
-#ifdef ICE_CPP11_MAPPING
     shared_ptr<Cookie> co = static_pointer_cast<Cookie>(cookie);
-#else
-    CookiePtr co = CookiePtr::dynamicCast(cookie);
-#endif
     test(co);
     test(co->message() == "blahblah");
 }

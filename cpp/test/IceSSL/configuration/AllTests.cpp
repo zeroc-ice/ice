@@ -18,11 +18,7 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING
 #   define ICE_TARGET_EQUAL_TO(A,B) Ice::targetEqualTo(A, B)
-#else
-#   define ICE_TARGET_EQUAL_TO(A,B) A == B
-#endif
 
 #if defined(__APPLE__)
 #   define ICE_USE_SECURE_TRANSPORT 1
@@ -266,9 +262,6 @@ public:
 #endif
 
 class PasswordPromptI ICE_FINAL
-#ifndef ICE_CPP11_MAPPING
- : public IceSSL::PasswordPrompt
-#endif
 {
 public:
 
@@ -295,9 +288,6 @@ private:
 ICE_DEFINE_PTR(PasswordPromptIPtr, PasswordPromptI);
 
 class CertificateVerifierI ICE_FINAL
-#ifndef ICE_CPP11_MAPPING
-: public IceSSL::CertificateVerifier
-#endif
 {
 public:
 
@@ -802,11 +792,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(serverCert->checkValidity());
 
-#   ifdef ICE_CPP11_MAPPING
             test(!serverCert->checkValidity(std::chrono::system_clock::time_point()));
-#   else
-            test(!serverCert->checkValidity(IceUtil::Time::seconds(0)));
-#   endif
 #endif
 
 #  if defined(_WIN32) && defined(ICE_USE_OPENSSL)
@@ -820,11 +806,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(caCert->checkValidity());
 
-#   ifdef ICE_CPP11_MAPPING
             test(!caCert->checkValidity(std::chrono::system_clock::time_point()));
-#   else
-            test(!caCert->checkValidity(IceUtil::Time::seconds(0)));
-#   endif
 #endif
 
             test(!serverCert->verify(serverCert));
@@ -845,13 +827,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->certs[0]->checkValidity() && info->certs[1]->checkValidity());
 
-#   ifdef ICE_CPP11_MAPPING
             test(!info->certs[0]->checkValidity(std::chrono::system_clock::time_point()) &&
                  !info->certs[1]->checkValidity(std::chrono::system_clock::time_point()));
-#   else
-            test(!info->certs[0]->checkValidity(IceUtil::Time::seconds(0)) &&
-                 !info->certs[1]->checkValidity(IceUtil::Time::seconds(0)));
-#   endif
 #endif
             test(info->certs[0]->verify(info->certs[1]));
             test(info->certs.size() == 2 &&
@@ -1742,12 +1719,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         test(plugin);
         CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
 
-#ifdef ICE_CPP11_MAPPING
         plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
                                        { return verifier->verify(infoP); });
-#else
-        plugin->setCertificateVerifier(verifier);
-#endif
 
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
@@ -1818,12 +1791,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         test(plugin);
         CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
 
-#ifdef ICE_CPP11_MAPPING
         plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
                                        { return verifier->verify(infoP); });
-#else
-        plugin->setCertificateVerifier(verifier);
-#endif
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, p12, "s_rsa_ca1", "cacert1");
@@ -2313,11 +2282,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         test(plugin);
         PasswordPromptIPtr prompt = ICE_MAKE_SHARED(PasswordPromptI, "client");
 
-#ifdef ICE_CPP11_MAPPING
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
-#else
-        plugin->setPasswordPrompt(prompt);
-#endif
         pm->initializePlugins();
         test(prompt->count() == 1);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
@@ -2349,11 +2314,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         test(plugin);
         prompt = ICE_MAKE_SHARED(PasswordPromptI, "invalid");
 
-#ifdef ICE_CPP11_MAPPING
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
-#else
-        plugin->setPasswordPrompt(prompt);
-#endif
         try
         {
             pm->initializePlugins();

@@ -38,11 +38,7 @@ public:
     virtual X509ExtensionPtr getX509Extension(const std::string&) const;
 
     virtual bool checkValidity() const;
-#  ifdef ICE_CPP11_MAPPING
     virtual bool checkValidity(const std::chrono::system_clock::time_point& now) const;
-#  else
-    virtual bool checkValidity(const IceUtil::Time& now) const;
-#  endif
 
     virtual std::string toString() const;
 

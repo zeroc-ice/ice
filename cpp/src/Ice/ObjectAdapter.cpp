@@ -32,8 +32,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -42,24 +40,3 @@ namespace
 Ice::ObjectAdapter::~ObjectAdapter()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-Ice::ObjectAdapter::~ObjectAdapter()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(ObjectAdapter* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

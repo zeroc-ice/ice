@@ -52,7 +52,6 @@ namespace Ice
         public enum ConnectionState
         {
             ConnectionStateValidating,
-            ConnectionStateHolding,
             ConnectionStateActive,
             ConnectionStateClosing,
             ConnectionStateClosed

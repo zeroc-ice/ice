@@ -36,8 +36,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -60,28 +58,6 @@ using LoggerPtr = ::std::shared_ptr<Logger>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class Logger;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(Logger*);
-/// \endcond
-typedef ::IceInternal::Handle< Logger> LoggerPtr;
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

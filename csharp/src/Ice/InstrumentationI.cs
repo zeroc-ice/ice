@@ -202,8 +202,6 @@ namespace IceInternal
             {
                 case Ice.Instrumentation.ConnectionState.ConnectionStateValidating:
                     return "validating";
-                case Ice.Instrumentation.ConnectionState.ConnectionStateHolding:
-                    return "holding";
                 case Ice.Instrumentation.ConnectionState.ConnectionStateActive:
                     return "active";
                 case Ice.Instrumentation.ConnectionState.ConnectionStateClosing:
@@ -458,7 +456,7 @@ namespace IceInternal
                     {
                         os.Append(_proxy.Clone(endpoints: _emptyEndpoints)).Append(" [").Append(_operation).Append(']');
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
                         os.Append(_proxy.Identity.ToString(_proxy.Communicator.ToStringMode));

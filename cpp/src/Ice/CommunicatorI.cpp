@@ -26,10 +26,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(CommunicatorFlushBatchAsync* p) { return p; }
-#endif
-
 CommunicatorFlushBatchAsync::~CommunicatorFlushBatchAsync()
 {
     // Out of line to avoid weak vtable
@@ -404,8 +400,6 @@ const ::std::string flushBatchRequests_name = "flushBatchRequests";
 
 }
 
-#ifdef ICE_CPP11_MAPPING
-
 ::std::function<void()>
 Ice::CommunicatorI::flushBatchRequestsAsync(CompressBatch compress,
                                             function<void(exception_ptr)> ex,
@@ -426,83 +420,6 @@ Ice::CommunicatorI::flushBatchRequestsAsync(CompressBatch compress,
     outAsync->invoke(flushBatchRequests_name, compress);
     return [outAsync]() { outAsync->cancel(); };
 }
-
-#else
-
-void
-Ice::CommunicatorI::flushBatchRequests(CompressBatch compress)
-{
-    end_flushBatchRequests(begin_flushBatchRequests(compress));
-}
-
-AsyncResultPtr
-Ice::CommunicatorI::begin_flushBatchRequests(CompressBatch compress)
-{
-    return _iceI_begin_flushBatchRequests(compress, ::IceInternal::dummyCallback, 0);
-}
-
-AsyncResultPtr
-Ice::CommunicatorI::begin_flushBatchRequests(CompressBatch compress,
-                                             const CallbackPtr& cb,
-                                             const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
-}
-
-AsyncResultPtr
-Ice::CommunicatorI::begin_flushBatchRequests(CompressBatch compress,
-                                             const Callback_Communicator_flushBatchRequestsPtr& cb,
-                                             const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
-}
-
-AsyncResultPtr
-Ice::CommunicatorI::_iceI_begin_flushBatchRequests(CompressBatch compress,
-                                                   const IceInternal::CallbackBasePtr& cb,
-                                                   const LocalObjectPtr& cookie)
-{
-    class CommunicatorFlushBatchAsyncWithCallback : public CommunicatorFlushBatchAsync, public CallbackCompletion
-    {
-    public:
-
-        CommunicatorFlushBatchAsyncWithCallback(const Ice::CommunicatorPtr& communicator,
-                                                const InstancePtr& instance,
-                                                const CallbackBasePtr& callback,
-                                                const Ice::LocalObjectPtr& cookie) :
-            CommunicatorFlushBatchAsync(instance), CallbackCompletion(callback, cookie), _communicator(communicator)
-        {
-            _cookie = cookie;
-        }
-
-        virtual Ice::CommunicatorPtr getCommunicator() const
-        {
-            return _communicator;
-        }
-
-        virtual const std::string&
-        getOperation() const
-        {
-            return flushBatchRequests_name;
-        }
-
-    private:
-
-        Ice::CommunicatorPtr _communicator;
-    };
-
-    CommunicatorFlushBatchAsyncPtr result = new CommunicatorFlushBatchAsyncWithCallback(this, _instance, cb, cookie);
-    result->invoke(flushBatchRequests_name, compress);
-    return result;
-}
-
-void
-Ice::CommunicatorI::end_flushBatchRequests(const AsyncResultPtr& r)
-{
-    AsyncResult::_check(r, this, flushBatchRequests_name);
-    r->_waitForResponse();
-}
-#endif
 
 ObjectPrxPtr
 Ice::CommunicatorI::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId)

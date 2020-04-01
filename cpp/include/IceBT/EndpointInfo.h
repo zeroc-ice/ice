@@ -37,8 +37,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace IceBT
 {
 
@@ -108,86 +106,6 @@ using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace IceBT
-{
-
-class EndpointInfo;
-/// \cond INTERNAL
-ICEBT_API ::Ice::LocalObject* upCast(EndpointInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< EndpointInfo> EndpointInfoPtr;
-
-}
-
-namespace IceBT
-{
-
-/**
- * Provides access to Bluetooth endpoint information.
- * \headerfile IceBT/IceBT.h
- */
-class ICEBT_API EndpointInfo : public ::Ice::EndpointInfo
-{
-public:
-
-    typedef EndpointInfoPtr PointerType;
-
-    virtual ~EndpointInfo();
-
-    EndpointInfo()
-    {
-    }
-
-    /**
-     * One-shot constructor to initialize all data members.
-     * @param underlying The information of the underyling endpoint of null if there's no underlying endpoint.
-     * @param timeout The timeout for the endpoint in milliseconds.
-     * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-     * @param addr The address configured with the endpoint.
-     * @param uuid The UUID configured with the endpoint.
-     */
-    EndpointInfo(const ::Ice::EndpointInfoPtr& underlying, ::Ice::Int timeout, bool compress, const ::std::string& addr, const ::std::string& uuid) :
-        ::Ice::EndpointInfo(underlying, timeout, compress),
-        addr(addr),
-        uuid(uuid)
-    {
-    }
-
-    /**
-     * The address configured with the endpoint.
-     */
-    ::std::string addr;
-    /**
-     * The UUID configured with the endpoint.
-     */
-    ::std::string uuid;
-};
-
-/// \cond INTERNAL
-inline bool operator==(const EndpointInfo& lhs, const EndpointInfo& rhs)
-{
-    return static_cast<const ::Ice::LocalObject&>(lhs) == static_cast<const ::Ice::LocalObject&>(rhs);
-}
-
-inline bool operator<(const EndpointInfo& lhs, const EndpointInfo& rhs)
-{
-    return static_cast<const ::Ice::LocalObject&>(lhs) < static_cast<const ::Ice::LocalObject&>(rhs);
-}
-/// \endcond
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

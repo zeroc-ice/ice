@@ -32,10 +32,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-Ice::LocalObject* Ice::upCast(ConnectionI* p) { return p; }
-#endif
-
 namespace
 {
 
@@ -777,7 +773,6 @@ Ice::ConnectionI::getBatchRequestQueue() const
     return _batchRequestQueue;
 }
 
-#ifdef ICE_CPP11_MAPPING
 std::function<void()>
 Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
                                           ::std::function<void(::std::exception_ptr)> ex,
@@ -799,95 +794,6 @@ Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
     outAsync->invoke(flushBatchRequests_name, compress);
     return [outAsync]() { outAsync->cancel(); };
 }
-#else
-void
-Ice::ConnectionI::flushBatchRequests(CompressBatch compress)
-{
-    end_flushBatchRequests(begin_flushBatchRequests(compress));
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress)
-{
-    return _iceI_begin_flushBatchRequests(compress, dummyCallback, 0);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress,
-                                           const CallbackPtr& cb,
-                                           const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress,
-                                           const Callback_Connection_flushBatchRequestsPtr& cb,
-                                           const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::_iceI_begin_flushBatchRequests(CompressBatch compress,
-                                                 const CallbackBasePtr& cb,
-                                                 const LocalObjectPtr& cookie)
-{
-    class ConnectionFlushBatchAsyncWithCallback : public ConnectionFlushBatchAsync, public CallbackCompletion
-    {
-    public:
-
-        ConnectionFlushBatchAsyncWithCallback(const Ice::ConnectionIPtr& connection,
-                                              const Ice::CommunicatorPtr& communicator,
-                                              const InstancePtr& instance,
-                                              const CallbackBasePtr& callback,
-                                              const Ice::LocalObjectPtr& cookie) :
-            ConnectionFlushBatchAsync(connection, instance),
-            CallbackCompletion(callback, cookie),
-            _communicator(communicator),
-            _connection(connection)
-        {
-            _cookie = cookie;
-        }
-
-        virtual Ice::CommunicatorPtr getCommunicator() const
-        {
-            return _communicator;
-        }
-
-        virtual Ice::ConnectionPtr getConnection() const
-        {
-            return _connection;
-        }
-
-        virtual const std::string&
-        getOperation() const
-        {
-            return flushBatchRequests_name;
-        }
-
-    private:
-
-        Ice::CommunicatorPtr _communicator;
-        Ice::ConnectionPtr _connection;
-    };
-
-    ConnectionFlushBatchAsyncPtr result = new ConnectionFlushBatchAsyncWithCallback(this,
-                                                                                    _communicator,
-                                                                                    _instance,
-                                                                                    cb,
-                                                                                    cookie);
-    result->invoke(flushBatchRequests_name, compress);
-    return result;
-}
-
-void
-Ice::ConnectionI::end_flushBatchRequests(const AsyncResultPtr& r)
-{
-    AsyncResult::_check(r, this, flushBatchRequests_name);
-    r->_waitForResponse();
-}
-#endif
 
 namespace
 {
@@ -973,7 +879,6 @@ typedef IceUtil::Handle<HeartbeatAsync> HeartbeatAsyncPtr;
 
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::ConnectionI::heartbeat()
 {
@@ -1000,62 +905,6 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
     outAsync->invoke();
     return [outAsync]() { outAsync->cancel(); };
 }
-#else
-void
-Ice::ConnectionI::heartbeat()
-{
-    end_heartbeat(begin_heartbeat());
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_heartbeat()
-{
-    return _iceI_begin_heartbeat(dummyCallback, 0);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_heartbeat(const CallbackPtr& cb, const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_heartbeat(cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_heartbeat(const Callback_Connection_heartbeatPtr& cb, const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_heartbeat(cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::_iceI_begin_heartbeat(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
-{
-    class HeartbeatCallback : public HeartbeatAsync, public CallbackCompletion
-    {
-    public:
-
-        HeartbeatCallback(const ConnectionIPtr& connection,
-                          const CommunicatorPtr& communicator,
-                          const InstancePtr& instance,
-                          const CallbackBasePtr& callback,
-                          const LocalObjectPtr& cookie) :
-            HeartbeatAsync(connection, communicator, instance),
-            CallbackCompletion(callback, cookie)
-        {
-            _cookie = cookie;
-        }
-    };
-
-    HeartbeatAsyncPtr result = new HeartbeatCallback(this, _communicator, _instance, cb, cookie);
-    result->invoke();
-    return result;
-}
-
-void
-Ice::ConnectionI::end_heartbeat(const AsyncResultPtr& r)
-{
-    AsyncResult::_check(r, this, heartbeat_name);
-    r->_waitForResponse();
-}
-#endif
 
 void
 Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) callback)
@@ -1082,11 +931,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
 
                 CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(ICE_DELEGATE(CloseCallback)) callback) :
                     _connection(connection),
-#ifdef ICE_CPP11_MAPPING
                     _callback(move(callback))
-#else
-                    _callback(callback)
-#endif
                 {
                 }
 
@@ -1100,11 +945,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
                 const ConnectionIPtr _connection;
                 const ICE_DELEGATE(CloseCallback) _callback;
             };
-#ifdef ICE_CPP11_MAPPING
             _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, move(callback)));
-#else
-            _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, callback));
-#endif
         }
     }
     else
@@ -1118,11 +959,7 @@ Ice::ConnectionI::closeCallback(const ICE_DELEGATE(CloseCallback)& callback)
 {
     try
     {
-#ifdef ICE_CPP11_MAPPING
         callback(ICE_SHARED_FROM_THIS);
-#else
-        callback->closed(ICE_SHARED_FROM_THIS);
-#endif
     }
     catch(const std::exception& ex)
     {
@@ -1144,11 +981,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(timeout && *timeout < 0)
     {
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument("invalid negative ACM timeout value");
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid negative ACM timeout value");
-#endif
     }
     if(!_monitor || _state >= StateClosed)
     {
@@ -1925,11 +1758,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
             heartbeatCallback(ICE_SHARED_FROM_THIS);
-#else
-            heartbeatCallback->heartbeat(ICE_SHARED_FROM_THIS);
-#endif
         }
         catch(const std::exception& ex)
         {

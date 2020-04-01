@@ -16,14 +16,7 @@ using namespace IceUtilInternal;
 using namespace IceBox;
 using namespace std;
 
-#ifdef ICE_CPP11_MAPPING
 typedef IceBox::Service* (*ServiceFactory)(const shared_ptr<Communicator>&);
-#else
-//
-// We copy the CommunicatorPtr to maintain compatibility with earlier releases
-//
-typedef IceBox::Service* (*ServiceFactory)(CommunicatorPtr);
-#endif
 
 namespace
 {
@@ -78,9 +71,6 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
     _pendingStatusChanges(false),
     _traceServiceObserver(0)
 {
-#ifndef ICE_CPP11_MAPPING
-    const_cast<CallbackPtr&>(_observerCompletedCB) = newCallback(this, &ServiceManagerI::observerCompleted);
-#endif
     _logger = _communicator->getLogger();
 
     PropertiesPtr props = _communicator->getProperties();
@@ -294,11 +284,7 @@ IceBox::ServiceManagerI::addObserver(ICE_IN(ServiceObserverPrxPtr) observer, con
 
         if(activeServices.size() > 0)
         {
-#ifdef ICE_CPP11_MAPPING
             observer->servicesStartedAsync(activeServices, nullptr, makeObserverCompletedCallback(observer));
-#else
-            observer->begin_servicesStarted(activeServices, _observerCompletedCB);
-#endif
         }
     }
 }
@@ -802,25 +788,7 @@ IceBox::ServiceManagerI::stopAll()
         // the library is released since the library will destroy its global state.
         //
 
-#ifdef ICE_CPP11_MAPPING
         info.service = 0;
-#else
-        try
-        {
-            info.service = 0;
-        }
-        catch(const Exception& ex)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: exception while stopping service " << info.name << ":\n";
-            out << ex;
-        }
-        catch(...)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: unknown exception while stopping service " << info.name;
-        }
-#endif
         if(info.communicator)
         {
             removeAdminFacets("IceBox.Service." + info.name + ".");
@@ -858,12 +826,7 @@ IceBox::ServiceManagerI::stopAll()
 
     servicesStopped(stoppedServices, _observers);
 
-#ifndef ICE_CPP11_MAPPING
-    _observerCompletedCB = 0; // Break cyclic reference count.
-#endif
 }
-
-#ifdef ICE_CPP11_MAPPING
 
 function<void(exception_ptr)>
 IceBox::ServiceManagerI::makeObserverCompletedCallback(const shared_ptr<ServiceObserverPrx>& observer)
@@ -927,51 +890,6 @@ IceBox::ServiceManagerI::observerRemoved(const shared_ptr<ServiceObserverPrx>& o
         }
     }
 }
-#else
-
-void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrx>& observers)
-{
-    if(services.size() > 0)
-    {
-        for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
-        {
-            (*p)->begin_servicesStarted(services, _observerCompletedCB);
-        }
-    }
-}
-
-void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrx>& observers)
-{
-    if(services.size() > 0)
-    {
-        for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
-        {
-            (*p)->begin_servicesStopped(services, _observerCompletedCB);
-        }
-    }
-}
-
-void
-IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, const std::exception& ex)
-{
-    if(_traceServiceObserver >= 1)
-    {
-        //
-        // CommunicatorDestroyedException may occur during shutdown. The observer notification has
-        // been sent, but the communicator was destroyed before the reply was received. We do not
-        // log a message for this exception.
-        //
-        if(dynamic_cast<const CommunicatorDestroyedException*>(&ex) == 0)
-        {
-            Trace out(_logger, "IceBox.ServiceObserver");
-            out << "Removed service observer " << _communicator->proxyToString(observer)
-                << "\nafter catching " << ex.what();
-        }
-    }
-}
-#endif
 
 Ice::PropertiesPtr
 IceBox::ServiceManagerI::createServiceProperties(const string& service)
@@ -1006,7 +924,6 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
     return properties;
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 ServiceManagerI::observerCompleted(const shared_ptr<ServiceObserverPrx>& observer, exception_ptr ex)
 {
@@ -1023,33 +940,6 @@ ServiceManagerI::observerCompleted(const shared_ptr<ServiceObserverPrx>& observe
         observerRemoved(found, ex);
     }
 }
-#else
-void
-ServiceManagerI::observerCompleted(const Ice::AsyncResultPtr& result)
-{
-     try
-     {
-         result->throwLocalException();
-     }
-     catch(const Ice::LocalException& ex)
-     {
-        ServiceObserverPrx observer = ServiceObserverPrx::uncheckedCast(result->getProxy());
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-        //
-        // It's possible to remove several times the same observer, e.g. multiple concurrent
-        // requests that fail
-        //
-        set<ServiceObserverPrx>::iterator p = _observers.find(observer);
-        if(p != _observers.end())
-        {
-            observer = *p;
-            _observers.erase(p);
-            observerRemoved(observer, ex);
-        }
-     }
-}
-#endif
 
 void
 IceBox::ServiceManagerI::destroyServiceCommunicator(const string& service, const CommunicatorPtr& communicator)

@@ -28,17 +28,12 @@ class UserException;
 template<typename T> inline void
 patchHandle(void* addr, const ValuePtr& v)
 {
-#ifdef ICE_CPP11_MAPPING
     ::std::shared_ptr<T>* handle = static_cast<::std::shared_ptr<T>*>(addr);
     *handle = ::std::dynamic_pointer_cast<T>(v);
     if(v && !(*handle))
     {
         IceInternal::Ex::throwUOE(T::ice_staticId(), v);
     }
-#else
-    IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
-    _icePatchObjectPtr(*p, v); // Generated _icePatchObjectPtr function, necessary for forward declarations.
-#endif
 }
 /// \endcond
 
@@ -183,13 +178,10 @@ public:
             clear(); // Not inlined.
         }
 
-#ifdef ICE_CPP11_MAPPING
-
         for(auto d: _deleters)
         {
             d();
         }
-#endif
     }
 
     /**
@@ -245,21 +237,7 @@ public:
      *
      * @param r The compact ID resolver.
      */
-#ifdef ICE_CPP11_MAPPING
     void setCompactIdResolver(std::function<std::string(int)> r);
-#else
-    void setCompactIdResolver(const CompactIdResolverPtr& r);
-#endif
-
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Indicates whether to mark instances of Slice classes as collectable. If the stream is
-     * initialized with a communicator, this setting defaults to the value of the
-     * Ice.CollectObjects property, otherwise the setting defaults to false.
-     * @param b True to mark instances as collectable, false otherwise.
-     */
-    void setCollectObjects(bool b);
-#endif
 
     /**
      * Indicates whether to slice instances of Slice classes to a known Slice type when a more
@@ -660,11 +638,7 @@ public:
                                              StreamableTraits<T>::helper,
                                              StreamableTraits<T>::fixedLength>::optionalFormat))
         {
-#ifdef ICE_CPP11_MAPPING
             v.emplace();
-#else
-            v.__setIsSet();
-#endif
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
                                  StreamableTraits<T>::fixedLength>::read(this, *v);
@@ -674,8 +648,6 @@ public:
             v = IceUtil::None;
         }
     }
-
-#ifdef ICE_CPP11_MAPPING
 
     /**
      * Extracts a sequence of data values from the stream.
@@ -735,8 +707,6 @@ public:
         readAll(tags, ve...);
     }
 
-#endif
-
     /**
      * Determine if an optional value is available for reading.
      *
@@ -783,20 +753,6 @@ public:
      */
     void read(std::pair<const Byte*, const Byte*>& v);
 
-#ifndef ICE_CPP11_MAPPING
-    /**
-     * Reads a sequence of bytes from the stream.
-     * @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
-     * sequence elements.
-     * @param arr A scoped array.
-     */
-    void read(std::pair<const Byte*, const Byte*>& v, ::IceUtil::ScopedArray<Byte>& arr)
-    {
-        arr.reset();
-        read(v);
-    }
-#endif
-
     /**
      * Reads a bool from the stream.
      * @param v The extracted bool.
@@ -816,22 +772,12 @@ public:
      */
     void read(std::vector<bool>& v);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a sequence of boolean values from the stream.
      * @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
      * sequence elements.
      */
     void read(std::pair<const bool*, const bool*>& v);
-#else
-    /**
-     * Reads a sequence of boolean values from the stream.
-     * @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
-     * sequence elements.
-     * @param arr A scoped array.
-     */
-    void read(std::pair<const bool*, const bool*>& v, ::IceUtil::ScopedArray<bool>& arr);
-#endif
 
     /**
      * Reads a short from the stream.
@@ -845,20 +791,11 @@ public:
      */
     void read(std::vector<Short>& v);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a sequence of boolean values from the stream.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const short*, const short*>& v);
-#else
-    /**
-     * Reads a sequence of shorts from the stream.
-     * @param v A pair of pointers representing the start and end of the sequence elements.
-     * @param arr A scoped array.
-     */
-    void read(std::pair<const Short*, const Short*>& v, ::IceUtil::ScopedArray<Short>& arr);
-#endif
 
     /**
      * Reads an int from the stream.
@@ -893,20 +830,11 @@ public:
      */
     void read(std::vector<Int>& v);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a sequence of ints from the stream.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const int*, const int*>& v);
-#else
-    /**
-     * Reads a sequence of ints from the stream.
-     * @param v A pair of pointers representing the start and end of the sequence elements.
-     * @param arr A scoped array.
-     */
-    void read(std::pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<Int>& arr);
-#endif
 
     /**
      * Reads a long from the stream.
@@ -920,20 +848,11 @@ public:
      */
     void read(std::vector<Long>& v);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a sequence of longs from the stream.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const long long*, const long long*>& v);
-#else
-    /**
-     * Reads a sequence of longs from the stream.
-     * @param v A pair of pointers representing the start and end of the sequence elements.
-     * @param arr A scoped array.
-     */
-    void read(std::pair<const Long*, const Long*>& v, ::IceUtil::ScopedArray<Long>& arr);
-#endif
 
     /**
      * Reads a float from the stream.
@@ -947,20 +866,11 @@ public:
      */
     void read(std::vector<Float>& v);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a sequence of floats from the stream.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const float*, const float*>& v);
-#else
-    /**
-     * Reads a sequence of floats from the stream.
-     * @param v A pair of pointers representing the start and end of the sequence elements.
-     * @param arr A scoped array.
-     */
-    void read(std::pair<const Float*, const Float*>& v, ::IceUtil::ScopedArray<Float>& arr);
-#endif
 
     /**
      * Reads a double from the stream.
@@ -974,20 +884,11 @@ public:
      */
     void read(std::vector<Double>& v);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a sequence of doubles from the stream.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const double*, const double*>& v);
-#else
-    /**
-     * Reads a sequence of doubles from the stream.
-     * @param v A pair of pointers representing the start and end of the sequence elements.
-     * @param arr A scoped array.
-     */
-    void read(std::pair<const Double*, const Double*>& v, ::IceUtil::ScopedArray<Double>& arr);
-#endif
 
     /**
      * Reads a string from the stream.
@@ -997,7 +898,6 @@ public:
      */
     void read(std::string& v, bool convert = true);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a string from the stream.
      * @param vdata A pointer to the beginning of the string.
@@ -1006,24 +906,6 @@ public:
      * is installed. The default behavior is to convert strings.
      */
     void read(const char*& vdata, size_t& vsize, bool convert = true);
-#else
-    // For custom strings, convert = false
-    /**
-     * Reads a string from the stream. String conversion is disabled.
-     * @param vdata A pointer to the beginning of the string.
-     * @param vsize The number of bytes in the string.
-     */
-    void read(const char*& vdata, size_t& vsize);
-
-    // For custom strings, convert = true
-    /**
-     * Reads a string from the stream. String conversion is enabled.
-     * @param vdata A pointer to the beginning of the string.
-     * @param vsize The number of bytes in the string.
-     * @param holder Holds the string contents.
-     */
-    void read(const char*& vdata, size_t& vsize, std::string& holder);
-#endif
 
     /**
      * Reads a sequence of strings from the stream.
@@ -1045,7 +927,6 @@ public:
      */
     void read(std::vector<std::wstring>& v);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Reads a proxy from the stream.
      * @return The proxy as the base ObjectPrx type.
@@ -1070,39 +951,16 @@ public:
             v->_copyFrom(proxy);
         }
     }
-#else
-    /**
-     * Reads a proxy from the stream.
-     * @param v The proxy as the base ObjectPrx type.
-     */
-    void read(ObjectPrx& v);
-
-    /**
-     * Reads a typed proxy from the stream.
-     * @param v The proxy as a user-defined type.
-     */
-    template<typename T> void read(IceInternal::ProxyHandle<T>& v)
-    {
-        _readProxy(this, v); // Generated _readProxy method, necessary for forward declarations.
-    }
-#endif
 
     /**
      * Reads a value (instance of a Slice class) from the stream.
      * @param v The instance.
      */
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
     template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
     void read(::std::shared_ptr<T>& v)
     {
         read(&patchHandle<T>, &v);
     }
-#else // C++98 mapping
-    template<typename T> void read(IceInternal::Handle<T>& v)
-    {
-        read(&patchHandle<T>, &v);
-    }
-#endif
 
     /**
      * Reads a value (instance of a Slice class) from the stream.
@@ -1226,11 +1084,7 @@ private:
 
     LoggerPtr logger() const;
 
-#ifdef ICE_CPP11_MAPPING
     std::function<std::string(int)> compactIdResolver() const;
-#else
-    CompactIdResolverPtr compactIdResolver() const;
-#endif
 
     typedef std::vector<ValuePtr> ValueList;
 
@@ -1480,10 +1334,6 @@ private:
 
     Encaps _preAllocatedEncaps;
 
-#ifndef ICE_CPP11_MAPPING
-    bool _collectObjects;
-#endif
-
     bool _traceSlicing;
 
     size_t _classGraphDepthMax;
@@ -1497,15 +1347,9 @@ private:
 
     ValueFactoryManagerPtr _valueFactoryManager;
     LoggerPtr _logger;
-#ifdef ICE_CPP11_MAPPING
     std::function<std::string(int)> _compactIdResolver;
-#else
-    CompactIdResolverPtr _compactIdResolver;
-#endif
 
-#ifdef ICE_CPP11_MAPPING
     std::vector<std::function<void()>> _deleters;
-#endif
 
 };
 

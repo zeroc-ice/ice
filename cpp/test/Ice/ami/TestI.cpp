@@ -100,7 +100,6 @@ TestIntfI::sleep(Ice::Int ms, const Ice::Current&)
     timedWait(IceUtil::Time::milliSeconds(ms));
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)>,
                               const Ice::Current&)
@@ -117,25 +116,6 @@ TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void
     }
     _pending = move(response);
 }
-#else
-void
-TestIntfI::startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr& cb, const Ice::Current&)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    if(_shutdown)
-    {
-        // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
-        // before start dispatch.
-        cb->ice_response();
-        return;
-    }
-    else if(_pending)
-    {
-        _pending->ice_response();
-    }
-    _pending = cb;
-}
-#endif
 
 void
 TestIntfI::finishDispatch(const Ice::Current&)
@@ -147,13 +127,8 @@ TestIntfI::finishDispatch(const Ice::Current&)
     }
     else if(_pending) // Pending might not be set yet if startDispatch is dispatch out-of-order
     {
-#ifdef ICE_CPP11_MAPPING
         _pending();
         _pending = nullptr;
-#else
-        _pending->ice_response();
-        _pending = 0;
-#endif
     }
 }
 
@@ -164,13 +139,8 @@ TestIntfI::shutdown(const Ice::Current& current)
     _shutdown = true;
     if(_pending)
     {
-#ifdef ICE_CPP11_MAPPING
         _pending();
         _pending = nullptr;
-#else
-        _pending->ice_response();
-        _pending = 0;
-#endif
     }
     current.adapter->getCommunicator()->shutdown();
 }
@@ -190,13 +160,7 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
 void
 TestIntfI::pingBiDir(ICE_IN(Test::PingReplyPrxPtr) reply, const Ice::Current& current)
 {
-#ifdef ICE_CPP11_MAPPING
     reply->ice_fixed(current.con)->replyAsync().get();
-#else
-    Test::PingReplyPrx fprx = reply->ice_fixed(current.con);
-    Ice::AsyncResultPtr result = fprx->begin_reply();
-    fprx->end_reply(result);
-#endif
 }
 
 void

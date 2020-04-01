@@ -69,11 +69,6 @@ namespace Ice.stream
             output.Write("testing primitive types... ");
             output.Flush();
 
-            {
-                byte[] data = new byte[0];
-                istr = new InputStream(communicator, data);
-            }
-
             // TODO rework this once the new streaming API is finished
             /*{
                 ostr = new OutputStream(communicator);

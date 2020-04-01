@@ -25,7 +25,7 @@ namespace Ice.adapterDeactivation
     {
         private readonly IRouter _router = new Router();
 
-        public ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream istr, Current current)
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
             IObject? servant;
             if (current.Id.Name.Equals("router"))
@@ -38,7 +38,7 @@ namespace Ice.adapterDeactivation
                 test(current.Id.Name.Equals("test"));
                 servant = new TestIntf();
             }
-            return servant.DispatchAsync(istr, current);
+            return servant.DispatchAsync(request, current);
         }
 
         private static void test(bool b)

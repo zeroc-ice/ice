@@ -1068,8 +1068,8 @@ relpathfromdir  = $(if $(findstring /,$1),$(call relpathfromdir,$(call dirname,$
 # $(call platform-and-config-var,$1=varname,$2=component,$3=platform,$4=config,$5=comp[platform-config],$6=value)
 #
 # Check for platform and configuration specific variable. For example, if variable
-# is `objdir', for the configuration `cpp11-static' and the `osx' platform, the
-# resulting value will be: $(osx_objdir) $(cpp11_objdir) $(static_objdir).
+# is `objdir', for the configuration `cpp-static' and the `osx' platform, the
+# resulting value will be: $(osx_objdir) $(cpp_objdir) $(static_objdir).
 #
 # The configuration value is decomposed based on the dash character and the value
 # of each individual configurations is recomposed with a dash (so for the config

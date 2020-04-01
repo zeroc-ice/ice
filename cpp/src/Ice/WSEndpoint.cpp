@@ -76,10 +76,6 @@ ICEregisterIceWS(bool loadOnInitialize)
     Ice::registerIceWS(loadOnInitialize);
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(WSEndpoint* p) { return p; }
-#endif
-
 WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communicator)
 {
     assert(communicator);
@@ -387,11 +383,7 @@ IceInternal::WSEndpoint::options() const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::WSEndpoint::operator==(const Endpoint& r) const
-#else
-IceInternal::WSEndpoint::operator==(const LocalObject& r) const
-#endif
 {
     const WSEndpoint* p = dynamic_cast<const WSEndpoint*>(&r);
     if(!p)
@@ -418,11 +410,7 @@ IceInternal::WSEndpoint::operator==(const LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::WSEndpoint::operator<(const Endpoint& r) const
-#else
-IceInternal::WSEndpoint::operator<(const LocalObject& r) const
-#endif
 {
     const WSEndpoint* p = dynamic_cast<const WSEndpoint*>(&r);
     if(!p)

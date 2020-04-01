@@ -5,8 +5,6 @@
 #ifndef ICE_EXCEPTION_HELPERS_H
 #define ICE_EXCEPTION_HELPERS_H
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 #include <Ice/InputStream.h>
 #include <Ice/OutputStream.h>
 
@@ -68,7 +66,5 @@ protected:
 };
 
 }
-
-#endif // C++11 mapping end
 
 #endif

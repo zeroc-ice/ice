@@ -44,9 +44,6 @@ public:
  */
 template<typename charT>
 class BasicStringConverter
-#ifndef ICE_CPP11_MAPPING
-    : public IceUtil::Shared
-#endif
 {
 public:
 

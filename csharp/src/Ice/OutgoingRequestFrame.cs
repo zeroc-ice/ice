@@ -80,7 +80,19 @@ namespace Ice
         // Position of the start of the payload.
         private OutputStream.Position _payloadStart;
 
-        public static OutgoingRequestFrame WithParameters<T>(
+        /// <summary>Create a new OutgoingRequestFrame.</summary>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
+        /// encoding and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
+        /// the communicator's default format is used.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
+        /// <param name="value">The parameter to marshal in the frame.</param>
+        /// <param name="writer">The delegate into marshal the parameter to the frame.</param>
+        /// <returns>A new OutgoingRequestFrame</returns>
+        public static OutgoingRequestFrame WithParamList<T>(
             IObjectPrx proxy, string operation, bool idempotent, FormatType? format,
             IReadOnlyDictionary<string, string>? context,
             T value, OutputStreamWriter<T> writer)
@@ -93,7 +105,20 @@ namespace Ice
             return request;
         }
 
-        public static OutgoingRequestFrame WithParameters<T>(
+        /// <summary>Create a new OutgoingRequestFrame.</summary>
+        /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
+        /// encoding and context of this proxy to create the request frame.</param>
+        /// <param name="operation">The operation to invoke on the target Ice object.</param>
+        /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
+        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
+        /// the communicator's default format is used.</param>
+        /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
+        /// proxy and the communicator's current context (if any).</param>
+        /// <param name="value">The parameter to marshal in the frame, when the request frame contain multiple
+        /// parameters they must be passed as a tuple.</param>
+        /// <param name="writer">The delegate to marshal the parameters into the frame.</param>
+        /// <returns>A new OutgoingRequestFrame</returns>
+        public static OutgoingRequestFrame WithParamList<T>(
             IObjectPrx proxy, string operation, bool idempotent, FormatType? format,
             IReadOnlyDictionary<string, string>? context,
             in T value, OutputStreamStructWriter<T> writer) where T : struct
@@ -113,8 +138,8 @@ namespace Ice
         /// <param name="idempotent">True when operation is idempotent, otherwise false.</param>
         /// <param name="context">An optional explicit context. When non null, it overrides both the context of the
         /// proxy and the communicator's current context (if any).</param>
-        public static OutgoingRequestFrame WithNoParameter(IObjectPrx proxy, string operation, bool idempotent,
-                                                           IReadOnlyDictionary<string, string>? context = null)
+        public static OutgoingRequestFrame WithEmptyParamList(IObjectPrx proxy, string operation, bool idempotent,
+                                                              IReadOnlyDictionary<string, string>? context = null)
             => new OutgoingRequestFrame(proxy, operation, idempotent, context, writeEmptyParamList: true);
 
         /// <summary>Creates a new outgoing request frame with the given payload.</summary>

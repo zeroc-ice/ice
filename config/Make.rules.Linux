@@ -137,7 +137,7 @@ shared_ldflags      = $(if $(filter-out program,$($1_target)),\
         -pie $(if $(filter yes,$(new_dtags)),-Wl$(comma)--enable-new-dtags,-Wl$(comma)--disable-new-dtags) \
         $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
-cppflags        = -DICE_CPP11_MAPPING -std=c++17 -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror \
+cppflags        = -std=c++17 -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror \
                   -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
 

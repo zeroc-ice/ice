@@ -16,12 +16,6 @@ IconvInitializationException::IconvInitializationException(const char* file, int
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-IconvInitializationException::~IconvInitializationException() throw()
-{
-}
-#endif
-
 void
 IconvInitializationException::ice_print(ostream& out) const
 {
@@ -34,14 +28,6 @@ IconvInitializationException::ice_id() const
 {
     return "::Ice::IconvInitializationException";
 }
-
-#ifndef ICE_CPP11_MAPPING
-IconvInitializationException*
-IconvInitializationException::ice_clone() const
-{
-    return new IconvInitializationException(*this);
-}
-#endif
 
 string
 IconvInitializationException::reason() const

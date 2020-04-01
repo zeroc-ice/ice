@@ -15,12 +15,6 @@ IceUtilInternal::APIException::APIException(const char* file, int line, const st
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-IceUtilInternal::APIException::~APIException() throw()
-{
-}
-#endif
-
 string
 IceUtilInternal::APIException::ice_id() const
 {
@@ -37,14 +31,6 @@ IceUtilInternal::APIException::ice_print(ostream& out) const
     }
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtilInternal::APIException*
-IceUtilInternal::APIException::ice_clone() const
-{
-    return new APIException(*this);
-}
-#endif
-
 ostream&
 IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::APIException& ex)
 {
@@ -56,12 +42,6 @@ IceUtilInternal::BadOptException::BadOptException(const char* file, int line, co
     : IceUtil::ExceptionHelper<BadOptException>(file, line), reason(r)
 {
 }
-
-#ifndef ICE_CPP11_COMPILER
-IceUtilInternal::BadOptException::~BadOptException() throw()
-{
-}
-#endif
 
 string
 IceUtilInternal::BadOptException::ice_id() const
@@ -78,14 +58,6 @@ IceUtilInternal::BadOptException::ice_print(ostream& out) const
         out << ": " << reason;
     }
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceUtilInternal::BadOptException*
-IceUtilInternal::BadOptException::ice_clone() const
-{
-    return new BadOptException(*this);
-}
-#endif
 
 ostream&
 IceUtilInternal::operator<<(ostream& out, const IceUtilInternal::BadOptException& ex)

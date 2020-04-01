@@ -2,4 +2,5 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-TestSuite(__name__, libDirs=["testtransport"], options={ "mx": [False] })
+# SSL doesn't work with this test when holding on reading on the server side
+TestSuite(__name__, libDirs=["testtransport"], options={ "mx": [False], "protocol": ["tcp", "ws"] })

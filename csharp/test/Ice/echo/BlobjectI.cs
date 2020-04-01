@@ -8,14 +8,11 @@ using Ice;
 
 public class BlobjectI : IObject
 {
-    public ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream inputStream, Current current)
+    public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
     {
-        var request = new IncomingRequestFrame(inputStream, current); // Temporary
-
         Debug.Assert(current.Connection != null);
-        var proxy = current.Connection.CreateProxy(current.Id, IObjectPrx.Factory).Clone(facet: current.Facet,
+        IObjectPrx proxy = current.Connection.CreateProxy(current.Id, IObjectPrx.Factory).Clone(facet: current.Facet,
             oneway: current.IsOneway);
-
-        return proxy.ForwardAsync(request);
+        return proxy.ForwardAsync(current.IsOneway, request);
     }
 }

@@ -18,7 +18,6 @@
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
     <PropertyGroup>
-        <Cpp11Compiler>yes</Cpp11Compiler>
         <IceConfiguration Condition="$(Configuration.Contains('Release'))">Release</IceConfiguration>
         <IceConfiguration Condition="$(Configuration.Contains('Debug'))">Debug</IceConfiguration>
     </PropertyGroup>

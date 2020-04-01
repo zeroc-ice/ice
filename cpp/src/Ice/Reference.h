@@ -37,9 +37,6 @@ class Reference : public IceUtil::Shared
 public:
 
     class GetConnectionCallback
-#ifndef ICE_CPP11_MAPPING
-        : public virtual IceUtil::Shared
-#endif
     {
     public:
 

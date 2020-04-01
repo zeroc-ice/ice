@@ -36,8 +36,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -60,28 +58,6 @@ using ImplicitContextPtr = ::std::shared_ptr<ImplicitContext>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class ImplicitContext;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(ImplicitContext*);
-/// \endcond
-typedef ::IceInternal::Handle< ImplicitContext> ImplicitContextPtr;
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

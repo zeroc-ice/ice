@@ -73,13 +73,8 @@ public:
     virtual bool verify(const CertificatePtr&) const;
     virtual string encode() const;
 
-#ifdef ICE_CPP11_MAPPING
     virtual chrono::system_clock::time_point getNotAfter() const;
     virtual chrono::system_clock::time_point getNotBefore() const;
-#else
-    virtual IceUtil::Time getNotAfter() const;
-    virtual IceUtil::Time getNotBefore() const;
-#endif
     virtual string getSerialNumber() const;
     virtual DistinguishedName getIssuerDN() const;
     virtual vector<pair<int, string> > getIssuerAlternativeNames() const;
@@ -138,11 +133,7 @@ loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const string& file)
     loadCertificate(cert, &buffer[0], static_cast<DWORD>(buffer.size()));
 }
 
-#  ifdef ICE_CPP11_MAPPING
 chrono::system_clock::time_point
-#  else
-IceUtil::Time
-#  endif
 filetimeToTime(FILETIME ftime)
 {
     Ice::Long value = 0;
@@ -152,11 +143,7 @@ filetimeToTime(FILETIME ftime)
 
     IceUtil::Time time = IceUtil::Time::milliSeconds((value / TICKS_PER_MSECOND) - MSECS_TO_EPOCH);
 
-#  ifdef ICE_CPP11_MAPPING
     return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
-#  else
-    return time;
-#  endif
 }
 
 string
@@ -307,11 +294,7 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
 {
     if(!_cert)
     {
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument("Invalid certificate reference");
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Invalid certificate reference");
-#endif
     }
 
     try
@@ -467,21 +450,13 @@ SChannelCertificateI::encode() const
     return s;
 }
 
-#  ifdef ICE_CPP11_MAPPING
 chrono::system_clock::time_point
-#  else
-IceUtil::Time
-#  endif
 SChannelCertificateI::getNotAfter() const
 {
     return filetimeToTime(_certInfo->NotAfter);
 }
 
-#  ifdef ICE_CPP11_MAPPING
 chrono::system_clock::time_point
-#  else
-IceUtil::Time
-#  endif
 SChannelCertificateI::getNotBefore() const
 {
     return filetimeToTime(_certInfo->NotBefore);

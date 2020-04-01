@@ -12,12 +12,7 @@ namespace IceInternal
 {
 
 class ConnectRequestHandler;
-#ifdef ICE_CPP11_MAPPING
 using ConnectRequestHandlerPtr = ::std::shared_ptr<ConnectRequestHandler>;
-#else
-IceUtil::Shared* upCast(ConnectRequestHandler*);
-typedef IceInternal::Handle<ConnectRequestHandler> ConnectRequestHandlerPtr;
-#endif
 
 }
 

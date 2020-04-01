@@ -15,12 +15,6 @@ Slice::FileException::FileException(const char* file, int line, const string& r)
 {
 }
 
-#ifndef ICE_CPP11_COMPILER
-Slice::FileException::~FileException() throw()
-{
-}
-#endif
-
 string
 Slice::FileException::ice_id() const
 {
@@ -34,19 +28,11 @@ Slice::FileException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-#ifdef ICE_CPP11_MAPPING
 Slice::FileException*
 Slice::FileException::ice_cloneImpl() const
 {
     return new FileException(*this);
 }
-#else
-Slice::FileException*
-Slice::FileException::ice_clone() const
-{
-    return new FileException(*this);
-}
-#endif
 
 void
 Slice::FileException::ice_throw() const

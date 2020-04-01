@@ -125,11 +125,7 @@ public:
     void setDefaultRouter(const Ice::RouterPrxPtr&);
 
     void setLogger(const Ice::LoggerPtr&);
-#ifdef ICE_CPP11_MAPPING
     void setThreadHook(std::function<void()>, std::function<void()>);
-#else
-    void setThreadHook(const Ice::ThreadNotificationPtr&);
-#endif
 
     const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
     const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
@@ -217,11 +213,7 @@ public:
     ProcessI(const Ice::CommunicatorPtr&);
 
     virtual void shutdown(const Ice::Current&);
-#ifdef ICE_CPP11_MAPPING
     virtual void writeMessage(std::string, Ice::Int, const Ice::Current&);
-#else
-    virtual void writeMessage(const std::string&, Ice::Int, const Ice::Current&);
-#endif
 
 private:
 

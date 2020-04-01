@@ -15,9 +15,7 @@ namespace
 //
 
 class NullLogger : public Ice::Logger
-#ifdef ICE_CPP11_MAPPING
                  , public std::enable_shared_from_this<NullLogger>
-#endif
 {
 public:
 
@@ -52,11 +50,7 @@ public:
 
 RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
-#ifdef ICE_CPP11_MAPPING
     _removeCallback(nullptr)
-#else
-    _hasCallback(false)
-#endif
 {
 }
 
@@ -71,11 +65,7 @@ RemoteCommunicatorI::getChanges(const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-#ifdef ICE_CPP11_MAPPING
     if(_removeCallback)
-#else
-    if(_hasCallback)
-#endif
     {
        return _changes;
     }
@@ -95,13 +85,8 @@ RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
     {
         Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
         assert(admin);
-#ifdef ICE_CPP11_MAPPING
         _removeCallback =
             admin->addUpdateCallback([this](const Ice::PropertyDict& changes) { updated(changes); });
-#else
-        admin->addUpdateCallback(this);
-        _hasCallback = true;
-#endif
     }
 }
 
@@ -115,16 +100,11 @@ RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
     {
         Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
         assert(admin);
-#ifdef ICE_CPP11_MAPPING
         if(_removeCallback)
         {
             _removeCallback();
             _removeCallback = nullptr;
         }
-#else
-        admin->removeUpdateCallback(this);
-        _hasCallback = false;
-#endif
     }
 
 }

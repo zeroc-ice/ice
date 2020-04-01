@@ -8,7 +8,7 @@ namespace Ice.objects
 {
     public sealed class UnexpectedObjectExceptionTest : IObject
     {
-        public ValueTask<OutgoingResponseFrame> DispatchAsync(InputStream istr, Current current)
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
             var ae = new Test.AlsoEmpty();
             var responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null,

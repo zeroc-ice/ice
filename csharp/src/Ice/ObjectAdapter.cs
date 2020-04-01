@@ -123,33 +123,22 @@ namespace Ice
         public void Activate()
         {
             LocatorInfo? locatorInfo = null;
-            bool printAdapterReady = false;
 
             lock (_mutex)
             {
                 CheckForDeactivation();
 
-                // If we've previously been initialized we just need to activate the incoming connection factories
-                // and we're done.
+                // Activating twice the object adapter is incorrect
                 if (_state != State.Uninitialized)
                 {
-                    foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
-                    {
-                        icf.Activate();
-                    }
-                    return;
+                    throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
 
-                // One-off initializations of the adapter: update the locator registry and print the "adapter ready"
-                // message. We set set state to State.Activating to prevent deactivation from other threads while these
-                // one-off initializations are performed.
+                // Update the locator registry. We set set state to State.Activating to prevent deactivation from
+                // other threads while the call is performed.
                 _state = State.Activating;
 
                 locatorInfo = _locatorInfo;
-                if (Name.Length > 0)
-                {
-                    printAdapterReady = Communicator.GetPropertyAsInt("Ice.PrintAdapterReady") > 0;
-                }
             }
 
             try
@@ -160,7 +149,6 @@ namespace Ice
             {
                 // If we couldn't update the locator registry, we let the exception go through and don't activate the
                 // adapter to allow to user code to retry activating the adapter later.
-                //
                 lock (_mutex)
                 {
                     _state = State.Uninitialized;
@@ -169,7 +157,7 @@ namespace Ice
                 throw;
             }
 
-            if (printAdapterReady)
+            if (Communicator.GetPropertyAsInt("Ice.PrintAdapterReady") > 0 && Name.Length > 0)
             {
                 Console.Out.WriteLine($"{Name} ready");
             }
@@ -184,53 +172,6 @@ namespace Ice
 
                 _state = State.Active;
                 System.Threading.Monitor.PulseAll(_mutex);
-            }
-        }
-
-        /// <summary>
-        /// Temporarily hold receiving and dispatching requests.
-        /// The object
-        /// adapter can be reactivated with the activate operation.
-        ///
-        /// Holding is not immediate, i.e., after hold
-        /// returns, the object adapter might still be active for some
-        /// time. You can use waitForHold to wait until holding is
-        /// complete.
-        ///
-        /// </summary>
-        public void Hold()
-        {
-            lock (_mutex)
-            {
-                CheckForDeactivation();
-                _state = State.Held;
-                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    factory.Hold();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Wait until the object adapter holds requests.
-        /// Calling hold
-        /// initiates holding of requests, and waitForHold only returns
-        /// when holding of requests has been completed.
-        ///
-        /// </summary>
-        public void WaitForHold()
-        {
-            List<IncomingConnectionFactory> incomingConnectionFactories;
-            lock (_mutex)
-            {
-                CheckForDeactivation();
-
-                incomingConnectionFactories = new List<IncomingConnectionFactory>(_incomingConnectionFactories);
-            }
-
-            foreach (IncomingConnectionFactory factory in incomingConnectionFactories)
-            {
-                factory.WaitUntilHolding();
             }
         }
 
@@ -1411,7 +1352,6 @@ namespace Ice
         private enum State
         {
             Uninitialized,
-            Held,
             Activating,
             Active,
             Deactivating,

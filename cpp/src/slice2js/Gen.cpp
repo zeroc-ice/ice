@@ -1708,11 +1708,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ExceptionList throws = op->throws();
                 throws.sort();
                 throws.unique();
-#if defined(__SUNPRO_CC)
-                throws.sort(derivedToBaseCompare);
-#else
                 throws.sort(Slice::DerivedToBaseCompare());
-#endif
                 if(throws.empty())
                 {
                     _out << " ";

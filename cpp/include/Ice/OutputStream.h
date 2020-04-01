@@ -448,8 +448,6 @@ public:
         }
     }
 
-#ifdef ICE_CPP11_MAPPING
-
     /**
      * Writes a list of mandatory data values.
      */
@@ -507,8 +505,6 @@ public:
         write(*(tags.begin() + index), v);
         writeAll(tags, ve...);
     }
-
-#endif
 
     /**
      * Writes the tag and format of an optional value.
@@ -745,7 +741,6 @@ public:
      */
     void write(const std::wstring* begin, const std::wstring* end);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Writes a proxy to the stream.
      * @param v The proxy to be written.
@@ -761,24 +756,7 @@ public:
     {
         writeProxy(::std::static_pointer_cast<ObjectPrx>(v));
     }
-#else
-    /**
-     * Writes a proxy to the stream.
-     * @param v The proxy to be written.
-     */
-    void write(const ObjectPrx& v);
 
-    /**
-     * Writes a proxy to the stream.
-     * @param v The proxy to be written.
-     */
-    template<typename T> void write(const IceInternal::ProxyHandle<T>& v)
-    {
-        write(ObjectPrx(upCast(v.get())));
-    }
-#endif
-
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
     /**
      * Writes a value instance to the stream.
      * @param v The value to be written.
@@ -789,26 +767,6 @@ public:
         initEncaps();
         _currentEncaps->encoder->write(v);
     }
-#else // C++98 mapping
-    /**
-     * Writes a value instance to the stream.
-     * @param v The value to be written.
-     */
-    void write(const ObjectPtr& v)
-    {
-        initEncaps();
-        _currentEncaps->encoder->write(v);
-    }
-
-    /**
-     * Writes a value instance to the stream.
-     * @param v The value to be written.
-     */
-    template<typename T> void write(const IceInternal::Handle<T>& v)
-    {
-        write(ObjectPtr(upCast(v.get())));
-    }
-#endif
 
     /**
      * Writes an enumerator to the stream.

@@ -91,13 +91,11 @@ Ice::UserException::ice_staticId()
     return userException_ids[0];
 }
 
-#ifdef ICE_CPP11_MAPPING
 unique_ptr<Ice::UserException>
 Ice::UserException::ice_clone() const
 {
     return unique_ptr<UserException>(static_cast<UserException*>(ice_cloneImpl()));
 }
-#endif
 
 Ice::SlicedDataPtr
 Ice::UserException::ice_getSlicedData() const
@@ -133,20 +131,15 @@ Ice::LocalException::LocalException(const char* file, int line) :
 }
 
 Ice::LocalException::~LocalException()
-#ifndef ICE_CPP11_COMPILER
-    throw()
-#endif
 {
    // Out of line to avoid weak vtable
 }
 
-#ifdef ICE_CPP11_MAPPING
 unique_ptr<Ice::LocalException>
 Ice::LocalException::ice_clone() const
 {
     return unique_ptr<LocalException>(static_cast<LocalException*>(ice_cloneImpl()));
 }
-#endif
 
 namespace
 {
@@ -170,19 +163,14 @@ Ice::SystemException::SystemException(const char* file, int line) :
 }
 
 Ice::SystemException::~SystemException()
-#ifndef ICE_CPP11_COMPILER
-    throw()
-#endif
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 unique_ptr<Ice::SystemException>
 Ice::SystemException::ice_clone() const
 {
     return unique_ptr<SystemException>(static_cast<SystemException*>(ice_cloneImpl()));
 }
-#endif
 
 namespace
 {

@@ -23,11 +23,7 @@ TestIntfI::sleep(Ice::Int to, const Ice::Current&)
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 TestIntfI::opWithPayload(Ice::ByteSeq, const Ice::Current&)
-#else
-TestIntfI::opWithPayload(const Ice::ByteSeq&, const Ice::Current&)
-#endif
 {
     test(Dispatcher::isDispatcherThread());
 }

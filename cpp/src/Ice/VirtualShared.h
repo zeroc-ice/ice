@@ -5,8 +5,6 @@
 #ifndef ICE_VIRTUAL_SHARED_H
 #define ICE_VIRTUAL_SHARED_H
 
-#ifdef ICE_CPP11_MAPPING
-
 namespace IceInternal
 {
 
@@ -34,5 +32,4 @@ public:
 };
 
 }
-#endif
 #endif

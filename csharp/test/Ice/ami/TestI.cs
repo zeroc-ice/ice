@@ -150,13 +150,4 @@ namespace Ice.ami
     {
         public (int, int) op(int i, Current current) => (i, i);
     }
-
-    public class TestControllerIntf : Test.ITestIntfController
-    {
-        public void holdAdapter(Current current) => _adapter.Hold();
-        public void resumeAdapter(Current current) => _adapter.Activate();
-        public TestControllerIntf(ObjectAdapter adapter) => _adapter = adapter;
-
-        private ObjectAdapter _adapter;
-    }
 }

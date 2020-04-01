@@ -39,11 +39,7 @@ private:
 
     void waitStreamInUse(bool);
 
-#ifdef ICE_CPP11_MAPPING
     std::function<void(const Ice::BatchRequest&, int, int)> _interceptor;
-#else
-    Ice::BatchRequestInterceptorPtr _interceptor;
-#endif
     Ice::OutputStream _batchStream;
     bool _batchStreamInUse;
     bool _batchStreamCanFlush;

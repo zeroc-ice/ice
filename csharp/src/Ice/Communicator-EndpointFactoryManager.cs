@@ -33,7 +33,7 @@ namespace Ice
             string[]? arr = IceUtilInternal.StringUtil.SplitString(str, " \t\r\n");
             if (arr == null)
             {
-                throw new System.FormatException("mismatched quote");
+                throw new FormatException("mismatched quote");
             }
 
             if (arr.Length == 0)
@@ -112,7 +112,7 @@ namespace Ice
                     ostr.WriteShort(ue.Type());
                     ue.StreamWrite(ostr);
                     // TODO avoid copy OutputStream buffers
-                    var iss = new InputStream(this, Ice1Definitions.Encoding, ostr.ToArray());
+                    var iss = new InputStream(this, ostr.ToArray());
                     iss.Pos = 0;
                     iss.ReadShort(); // type
                     iss.StartEndpointEncapsulation();
@@ -141,33 +141,32 @@ namespace Ice
             }
         }
 
-        public Endpoint ReadEndpoint(InputStream s)
+        public Endpoint ReadEndpoint(InputStream istr)
         {
             lock (this)
             {
-                short type = s.ReadShort();
+                short type = istr.ReadShort();
 
                 IEndpointFactory? factory = GetEndpointFactory(type);
                 Endpoint? e = null;
 
-                s.StartEndpointEncapsulation();
-
+                (Encoding encoding, int size) = istr.StartEndpointEncapsulation();
                 if (factory != null)
                 {
-                    e = factory.Read(s);
+                    e = factory.Read(istr);
                 }
-                //
+
                 // If the factory failed to read the endpoint, return an opaque endpoint. This can
                 // occur if for example the factory delegates to another factory and this factory
                 // isn't available. In this case, the factory needs to make sure the stream position
                 // is preserved for reading the opaque endpoint.
-                //
                 if (e == null)
                 {
-                    e = new OpaqueEndpointI(type, s);
+                    byte[] data = new byte[size];
+                    istr.ReadSpan(data);
+                    e = new OpaqueEndpointI(type, encoding, data);
                 }
-
-                s.EndEndpointEncapsulation();
+                istr.EndEndpointEncapsulation();
 
                 return e;
             }

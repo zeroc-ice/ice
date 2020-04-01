@@ -16,9 +16,7 @@ namespace
 //
 
 class NullLogger : public Ice::Logger
-#ifdef ICE_CPP11_MAPPING
                  , public std::enable_shared_from_this<NullLogger>
-#endif
 {
 public:
 

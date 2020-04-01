@@ -19,8 +19,6 @@
 
 #include <deque>
 
-#ifdef ICE_CPP11_MAPPING
-
 namespace Ice
 {
 
@@ -55,8 +53,6 @@ protected:
 
 }
 
-#endif
-
 namespace IceInternal
 {
 
@@ -69,9 +65,7 @@ public:
     void writeEmptyParams();
     void writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
 
-#ifdef ICE_CPP11_MAPPING
     void setMarshaledResult(const Ice::MarshaledResult&);
-#endif
 
     void response(bool);
     void exception(const std::exception&, bool);
@@ -93,11 +87,7 @@ protected:
     Ice::Current _current;
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
-#ifdef ICE_CPP11_MAPPING
     ::std::shared_ptr<void> _cookie;
-#else
-    Ice::LocalObjectPtr _cookie;
-#endif
     DispatchObserver _observer;
     bool _response;
     Ice::Byte _compress;
@@ -110,12 +100,8 @@ protected:
     //
     ResponseHandler* _responseHandler;
 
-#ifdef ICE_CPP11_MAPPING
     using DispatchInterceptorCallbacks = std::deque<std::pair<std::function<bool()>,
                                                               std::function<bool(std::exception_ptr)>>>;
-#else
-    typedef std::deque<Ice::DispatchInterceptorAsyncCallbackPtr> DispatchInterceptorCallbacks;
-#endif
     DispatchInterceptorCallbacks _interceptorCBs;
 };
 
@@ -136,11 +122,7 @@ public:
         return _current;
     }
 
-#ifdef ICE_CPP11_MAPPING
     void push(std::function<bool()>, std::function<bool(std::exception_ptr)>);
-#else
-    void push(const Ice::DispatchInterceptorAsyncCallbackPtr&);
-#endif
     void pop();
 
     void setAsync(const IncomingAsyncPtr& in)

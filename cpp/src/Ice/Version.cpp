@@ -28,16 +28,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 }
-
-#else // C++98 mapping
-
-namespace Ice
-{
-}
-
-#endif

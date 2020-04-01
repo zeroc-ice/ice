@@ -494,30 +494,6 @@ IceInternal::Reference::operator<(const Reference& r) const
     return false;
 }
 
-#ifndef ICE_CPP11_COMPILER
-class ConnectionIsDatagram : public unary_function<ConnectionIPtr, bool>
-{
-public:
-
-    bool
-    operator()(ConnectionIPtr p) const
-    {
-        return p->endpoint()->datagram();
-    }
-};
-
-class ConnectionIsSecure : public unary_function<ConnectionIPtr, bool>
-{
-public:
-
-    bool
-    operator()(ConnectionIPtr p) const
-    {
-        return p->endpoint()->secure();
-    }
-};
-#endif
-
 IceInternal::Reference::Reference(const InstancePtr& instance,
                                   const CommunicatorPtr& communicator,
                                   const Identity& id,
@@ -1376,16 +1352,12 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
-#ifdef ICE_CPP11_MAPPING
     //
     // TODO: With C++14 we could use the version that receives four iterators and we don't need to explicitly
     // check the sizes are equal.
     //
     if(_endpoints.size() != rhs->_endpoints.size() ||
        !equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), Ice::TargetCompare<shared_ptr<EndpointI>, std::equal_to>()))
-#else
-    if(_endpoints != rhs->_endpoints)
-#endif
     {
         return false;
     }
@@ -1507,12 +1479,8 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     {
         return false;
     }
-#ifdef ICE_CPP11_MAPPING
     if(lexicographical_compare(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(),
                                Ice::TargetCompare<shared_ptr<EndpointI>, std::less>()))
-#else
-    if(_endpoints < rhs->_endpoints)
-#endif
     {
         return true;
     }
@@ -1880,24 +1848,6 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 {
 }
 
-namespace
-{
-
-#ifndef ICE_CPP11_COMPILER
-struct EndpointIsOpaque : public unary_function<EndpointIPtr, bool>
-{
-public:
-
-    bool
-    operator()(EndpointIPtr p) const
-    {
-        return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
-    }
-};
-#endif
-
-}
-
 vector<EndpointIPtr>
 IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allEndpoints) const
 {
@@ -1906,16 +1856,12 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     // Filter out unknown endpoints.
     //
-#ifdef ICE_CPP11_COMPILER
     endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                               [](const EndpointIPtr& p)
                               {
                                   return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
                               }),
                     endpoints.end());
-#else
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsOpaque()), endpoints.end());
-#endif
     //
     // Filter out endpoints according to the mode of the reference.
     //
@@ -1928,17 +1874,12 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
             //
             // Filter out datagram endpoints.
             //
-#ifdef ICE_CPP11_COMPILER
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                                       [](const EndpointIPtr& p)
                                       {
                                           return p->datagram();
                                       }),
                             endpoints.end());
-#else
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::datagram)),
-                            endpoints.end());
-#endif
             break;
         }
 
@@ -1948,18 +1889,12 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
             //
             // Filter out non-datagram endpoints.
             //
-#ifdef ICE_CPP11_COMPILER
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                                       [](const EndpointIPtr& p)
                                       {
                                           return !p->datagram();
                                       }),
                             endpoints.end());
-#else
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      not1(Ice::constMemFun(&EndpointI::datagram))),
-                            endpoints.end());
-#endif
             break;
         }
     }
@@ -1995,17 +1930,12 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
     if(overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
     {
-#ifdef ICE_CPP11_COMPILER
         endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                                   [](const EndpointIPtr& p)
                                   {
                                       return !p->secure();
                                   }),
                         endpoints.end());
-#else
-        endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
-                        endpoints.end());
-#endif
     }
     else if(getPreferSecure())
     {
@@ -2014,15 +1944,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-#ifdef ICE_CPP11_COMPILER
         stable_partition(endpoints.begin(), endpoints.end(),
                          [](const EndpointIPtr& p)
                          {
                              return p->secure();
                          });
-#else
-        stable_partition(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::secure));
-#endif
     }
     else
     {
@@ -2031,15 +1957,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-#ifdef ICE_CPP11_COMPILER
         stable_partition(endpoints.begin(), endpoints.end(),
                          [](const EndpointIPtr& p)
                          {
                              return !p->secure();
                          });
-#else
-        stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure)));
-#endif
     }
 
     return endpoints;

@@ -581,57 +581,45 @@ public class AllTests : Test.AllTests
             test(map["active"].Current == 1);
 
             IControllerPrx controller = IControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", communicator);
-            controller.hold();
-
-            map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]);
-            test(map["active"].Current == 1);
-            map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]);
-            test(map["holding"].Current == 1);
 
             metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
 
             map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]);
             test(map["closing"].Current == 1);
-            map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]);
-            test(map["holding"].Current == 1);
-
-            controller.resume();
-
-            map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]);
-            test(map["holding"].Current == 0);
 
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
             metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
 
-            metrics.Clone(connectionTimeout: 500).IcePing();
-            controller.hold();
-            try
-            {
-                metrics.Clone(connectionTimeout: 500).opByteS(new byte[10000000]);
-                test(false);
-            }
-            catch (Ice.ConnectTimeoutException)
-            {
-            }
-            controller.resume();
+            // TODO: remove or refactor depending on what we decide for connection timeouts
+            // metrics.Clone(connectionTimeout: 500).IcePing();
+            // controller.hold();
+            // try
+            // {
+            //     metrics.Clone(connectionTimeout: 500).opByteS(new byte[10000000]);
+            //     test(false);
+            // }
+            // catch (Ice.ConnectTimeoutException)
+            // {
+            // }
+            // controller.resume();
 
-            cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-            while (true)
-            {
-                sm1 = (IceMX.ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-                if (sm1.Failures >= 2)
-                {
-                    break;
-                }
-                Thread.Sleep(10);
-            }
-            test(cm1.Failures == 2 && sm1.Failures >= 2);
+            // cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
+            // while (true)
+            // {
+            //     sm1 = (IceMX.ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
+            //     if (sm1.Failures >= 2)
+            //     {
+            //         break;
+            //     }
+            //     Thread.Sleep(10);
+            // }
+            // test(cm1.Failures == 2 && sm1.Failures >= 2);
 
-            checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectionTimeoutException", 1, output);
-            checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectTimeoutException", 1, output);
-            checkFailure(serverMetrics, "Connection", sm1.Id, "Ice.ConnectionLostException", 0, output);
+            // checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectionTimeoutException", 1, output);
+            // checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectTimeoutException", 1, output);
+            // checkFailure(serverMetrics, "Connection", sm1.Id, "Ice.ConnectionLostException", 0, output);
 
             IMetricsPrx m = metrics.Clone(connectionTimeout: 500, connectionId: "Con1");
             m.IcePing();
@@ -1025,7 +1013,6 @@ public class AllTests : Test.AllTests
         test(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
         test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-        System.Console.WriteLine($"rim1.Size {rim1.Size} rim1.ReplySize {rim1.ReplySize}");
         test(rim1.Size == 42 && rim1.ReplySize == 14);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUserException"];

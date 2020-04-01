@@ -16,7 +16,6 @@ template<typename R> struct ReferenceWrapper
     }
 };
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 template<typename R> struct ReferenceWrapper<::std::shared_ptr<R> >
 {
     static R* get(const ::std::shared_ptr<R>& v)
@@ -32,39 +31,6 @@ template<typename R> struct ReferenceWrapper<const ::std::shared_ptr<R>& >
         return v.get();
     }
 };
-#else // C++98 mapping
-template<typename R> struct ReferenceWrapper<IceInternal::ProxyHandle<R> >
-{
-    static R* get(const IceInternal::ProxyHandle<R>& v)
-    {
-        return v.get();
-    }
-};
-
-template<typename R> struct ReferenceWrapper<const IceInternal::ProxyHandle<R>& >
-{
-    static R* get(const IceInternal::ProxyHandle<R>& v)
-    {
-        return v.get();
-    }
-};
-
-template<typename R> struct ReferenceWrapper<IceInternal::Handle<R> >
-{
-    static R* get(const IceInternal::Handle<R>& v)
-    {
-        return v.get();
-    }
-};
-
-template<typename R> struct ReferenceWrapper<const IceInternal::Handle<R>& >
-{
-    static R* get(const IceInternal::Handle<R>& v)
-    {
-        return v.get();
-    }
-};
-#endif
 
 template<typename R> struct ReferenceWrapper<R*>
 {

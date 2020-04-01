@@ -12,8 +12,6 @@ using namespace std;
 namespace
 {
 
-#ifdef ICE_CPP11_MAPPING
-
 void breakCycles(shared_ptr<Ice::Value>);
 
 template<typename T>
@@ -133,15 +131,6 @@ void breakCycles(shared_ptr<Ice::Value> o)
         u->cycle = nullptr;
     }
 }
-#else
-
-template<typename T>
-void breakCycles(T)
-{
-    // no op, we rely on C++98 collection.
-}
-
-#endif
 }
 
 TestI::TestI()
@@ -150,12 +139,10 @@ TestI::TestI()
 
 TestI::~TestI()
 {
-#ifdef ICE_CPP11_MAPPING
     for(auto e : _values)
     {
         breakCycles(e);
     }
-#endif
 }
 
 Ice::ValuePtr
@@ -216,11 +203,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
     SUnknownPtr su = ICE_MAKE_SHARED(SUnknown);
     su->su = "SUnknown.su";
     su->cycle = su;
-#ifndef ICE_CPP11_MAPPING
-    su->ice_collectable(true);
-#else
     _values.push_back(su);
-#endif
     return su;
 }
 
@@ -237,9 +220,7 @@ TestI::checkSUnknown(ICE_IN(Ice::ValuePtr) obj, const ::Ice::Current& current)
         test(su);
         test(su->su == "SUnknown.su");
     }
-#ifdef ICE_CPP11_MAPPING
     su->cycle = nullptr;
-#endif
 }
 
 BPtr
@@ -248,11 +229,7 @@ TestI::oneElementCycle(const ::Ice::Current&)
     BPtr b = ICE_MAKE_SHARED(B);
     b->sb = "B1.sb";
     b->pb = b;
-#ifndef ICE_CPP11_MAPPING
-    b->ice_collectable(true);
-#else
     _values.push_back(b);
-#endif
     return b;
 }
 
@@ -265,11 +242,7 @@ TestI::twoElementCycle(const ::Ice::Current&)
     b2->sb = "B2.sb";
     b2->pb = b1;
     b1->pb = b2;
-#ifndef ICE_CPP11_MAPPING
-    b1->ice_collectable(true);
-#else
     _values.push_back(b1);
-#endif
     return b1;
 }
 
@@ -286,11 +259,7 @@ TestI::D1AsB(const ::Ice::Current&)
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-#ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
-#else
     _values.push_back(d1);
-#endif
     return d1;
 }
 
@@ -307,11 +276,7 @@ TestI::D1AsD1(const ::Ice::Current&)
     d2->pd2 = d1;
     d1->pb = d2;
     d1->pd1 = d2;
-#ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
-#else
     _values.push_back(d1);
-#endif
     return d1;
 }
 
@@ -328,11 +293,7 @@ TestI::D2AsB(const ::Ice::Current&)
     d1->pd1 = d2;
     d2->pb = d1;
     d2->pd2 = d1;
-#ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
-#else
     _values.push_back(d1);
-#endif
     return d2;
 }
 
@@ -351,11 +312,7 @@ TestI::paramTest1(BPtr& p1, BPtr& p2, const ::Ice::Current&)
     d1->pd1 = d2;
     p1 = d1;
     p2 = d2;
-#ifndef ICE_CPP11_MAPPING
-    d1->ice_collectable(true);
-#else
     _values.push_back(d1);
-#endif
 }
 
 void
@@ -394,12 +351,10 @@ TestI::paramTest3(BPtr& p1, BPtr& p2, const ::Ice::Current&)
     d3->pd1 = 0;
     d4->pd2 = d3;
 
-#ifdef ICE_CPP11_MAPPING
     _values.push_back(d1);
     _values.push_back(d2);
     _values.push_back(d3);
     _values.push_back(d4);
-#endif
     return d3;
 }
 
@@ -414,9 +369,7 @@ TestI::paramTest4(BPtr& p1, const ::Ice::Current&)
     d4->p2 = ICE_MAKE_SHARED(B);
     d4->p2->sb = "B.sb (2)";
     p1 = d4;
-#ifdef ICE_CPP11_MAPPING
     _values.push_back(d4);
-#endif
     return d4->p2;
 }
 
@@ -436,7 +389,6 @@ TestI::returnTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
     return p1;
 }
 
-#ifdef ICE_CPP11_MAPPING
 BPtr
 TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr) p2, const ::Ice::Current&)
 {
@@ -444,13 +396,6 @@ TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr) p2, const ::Ice::Current&)
     _values.push_back(p2);
     return p1;
 }
-#else
-BPtr
-TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr), const ::Ice::Current&)
-{
-    return p1;
-}
-#endif
 
 SS3
 TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)
@@ -458,10 +403,8 @@ TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)
     SS3 ss;
     ss.c1 = p1;
     ss.c2 = p2;
-#ifdef ICE_CPP11_MAPPING
     _values.push_back(p1);
     _values.push_back(p2);
-#endif
     return ss;
 }
 
@@ -477,11 +420,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
         d2->pb = b->pb;
         d2->sd2 = "D2";
         d2->pd2 = d2;
-#ifndef ICE_CPP11_MAPPING
-        d2->ice_collectable(true);
-#else
         _values.push_back(d2);
-#endif
         bout[i * 10] = d2;
     }
     BDict r;
@@ -494,11 +433,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
         d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
         d1->sd1 = s.str();
         d1->pd1 = d1;
-#ifndef ICE_CPP11_MAPPING
-        d1->ice_collectable(true);
-#else
         _values.push_back(d1);
-#endif
         r[i * 20] = d1;
     }
     return r;
@@ -507,9 +442,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
 Test::PBasePtr
 TestI::exchangePBase(ICE_IN(Test::PBasePtr) pb, const Ice::Current&)
 {
-#ifdef ICE_CPP11_MAPPING
     _values.push_back(pb);
-#endif
     return pb;
 }
 
@@ -553,16 +486,10 @@ TestI::checkPBSUnknown(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
                                             function<void(exception_ptr)>,
                                             const Ice::Current&)
-#else
-void
-TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownAsPreservedWithGraphPtr& cb,
-                                            const Ice::Current&)
-#endif
 {
     PSUnknownPtr r = ICE_MAKE_SHARED(PSUnknown);
     r->pi = 5;
@@ -572,11 +499,7 @@ TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownA
     r->graph->next = ICE_MAKE_SHARED(PNode);
     r->graph->next->next = ICE_MAKE_SHARED(PNode);
     r->graph->next->next->next = r->graph;
-#ifdef ICE_CPP11_MAPPING
     response(r);
-#else
-    cb->ice_response(r);
-#endif
     r->graph->next->next->next = 0; // Break the cycle.
 }
 
@@ -603,26 +526,16 @@ TestI::checkPBSUnknownWithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
                                              function<void(exception_ptr)>,
                                              const Ice::Current&)
-#else
-void
-TestI::PBSUnknown2AsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknown2AsPreservedWithGraphPtr& cb,
-                                             const Ice::Current&)
-#endif
 {
     PSUnknown2Ptr r = ICE_MAKE_SHARED(PSUnknown2);
     r->pi = 5;
     r->ps = "preserved";
     r->pb = r;
-#ifdef ICE_CPP11_MAPPING
     response(r);
-#else
-    cb->ice_response(r);
-#endif
     r->pb = 0; // Break the cycle.
 }
 
@@ -649,9 +562,7 @@ TestI::checkPBSUnknown2WithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Curren
 Test::PNodePtr
 TestI::exchangePNode(ICE_IN(Test::PNodePtr) pn, const Ice::Current&)
 {
-#ifdef ICE_CPP11_MAPPING
     _values.push_back(pn);
-#endif
     return pn;
 }
 
@@ -663,11 +574,7 @@ TestI::throwBaseAsBase(const ::Ice::Current&)
     be.pb = ICE_MAKE_SHARED(B);
     be.pb->sb = "sb";
     be.pb->pb = be.pb;
-#ifndef ICE_CPP11_MAPPING
-    be.pb->ice_collectable(true);
-#else
     _values.push_back(be.pb);
-#endif
     throw be;
 }
 
@@ -685,13 +592,8 @@ TestI::throwDerivedAsBase(const ::Ice::Current&)
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
-#ifndef ICE_CPP11_MAPPING
-    de.pb->ice_collectable(true);
-    de.pd1->ice_collectable(true);
-#else
     _values.push_back(de.pb);
     _values.push_back(de.pd1);
-#endif
     throw de;
 }
 
@@ -709,13 +611,8 @@ TestI::throwDerivedAsDerived(const ::Ice::Current&)
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
     de.pd1->pd1 = de.pd1;
-#ifndef ICE_CPP11_MAPPING
-    de.pb->ice_collectable(true);
-    de.pd1->ice_collectable(true);
-#else
     _values.push_back(de.pb);
     _values.push_back(de.pd1);
-#endif
     throw de;
 }
 
@@ -727,11 +624,7 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     d2->pb = d2;
     d2->sd2 = "sd2 d2";
     d2->pd2 = d2;
-#ifndef ICE_CPP11_MAPPING
-    d2->ice_collectable(true);
-#else
     _values.push_back(d2);
-#endif
     UnknownDerivedException ude;
     ude.sbe = "sbe";
     ude.pb = d2;
@@ -740,22 +633,16 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     throw ude;
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::throwPreservedExceptionAsync(function<void()>,
                                      function<void(exception_ptr)> exception,
                                      const ::Ice::Current&)
-#else
-void
-TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionPtr& cb, const ::Ice::Current&)
-#endif
 {
     PSUnknownException ue;
     ue.p = ICE_MAKE_SHARED(PSUnknown2);
     ue.p->pi = 5;
     ue.p->ps = "preserved";
     ue.p->pb = ue.p;
-#ifdef ICE_CPP11_MAPPING
     try
     {
         throw ue;
@@ -764,9 +651,6 @@ TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionP
     {
         exception(current_exception());
     }
-#else
-    cb->ice_exception(ue);
-#endif
     ue.p->pb = 0; // Break the cycle.
 }
 
@@ -776,11 +660,7 @@ TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
     f = ICE_MAKE_SHARED(Forward);
     f->h = ICE_MAKE_SHARED(Hidden);
     f->h->f = f;
-#ifndef ICE_CPP11_MAPPING
-    f->ice_collectable(true);
-#else
     _values.push_back(f);
-#endif
 }
 
 void

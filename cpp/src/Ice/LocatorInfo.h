@@ -40,13 +40,9 @@ private:
 
     const bool _background;
 
-#ifdef ICE_CPP11_MAPPING
     using LocatorInfoTable = std::map<std::shared_ptr<Ice::LocatorPrx>,
                                       LocatorInfoPtr,
                                       Ice::TargetCompare<std::shared_ptr<Ice::LocatorPrx>, std::less>>;
-#else
-    typedef std::map<Ice::LocatorPrx, LocatorInfoPtr> LocatorInfoTable;
-#endif
     LocatorInfoTable _table;
     LocatorInfoTable::iterator _tableHint;
 

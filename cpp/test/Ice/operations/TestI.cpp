@@ -21,11 +21,7 @@ bool
 MyDerivedClassI::ice_isA(ICE_IN(string) id, const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
     return Test::MyDerivedClass::ice_isA(move(id), current);
-#else
-    return Test::MyDerivedClass::ice_isA(id, current);
-#endif
 }
 
 void
@@ -42,11 +38,7 @@ MyDerivedClassI::ice_ids(const Ice::Current& current) const
     return Test::MyDerivedClass::ice_ids(current);
 }
 
-#ifdef ICE_CPP11_MAPPING
 std::string
-#else
-const std::string&
-#endif
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
@@ -831,7 +823,6 @@ MyDerivedClassI::opWStringLiterals(const Ice::Current&)
     return data;
 }
 
-#ifdef ICE_CPP11_MAPPING
 MyDerivedClassI::OpMStruct1MarshaledResult
 MyDerivedClassI::opMStruct1(const Ice::Current& current)
 {
@@ -879,57 +870,3 @@ void
 BI::opB(const Ice::Current&)
 {
 }
-
-#else
-
-Test::Structure
-MyDerivedClassI::opMStruct1(const Ice::Current&)
-{
-    Test::Structure s;
-    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
-    return s;
-}
-
-Test::Structure
-MyDerivedClassI::opMStruct2(ICE_IN(Test::Structure) p1, Test::Structure& p2, const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-Test::StringS
-MyDerivedClassI::opMSeq1(const Ice::Current&)
-{
-    return Test::StringS();
-}
-
-Test::StringS
-MyDerivedClassI::opMSeq2(ICE_IN(Test::StringS) p1, Test::StringS& p2, const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-Test::StringStringD
-MyDerivedClassI::opMDict1(const Ice::Current&)
-{
-    return Test::StringStringD();
-}
-
-Test::StringStringD
-MyDerivedClassI::opMDict2(ICE_IN(Test::StringStringD) p1, Test::StringStringD& p2, const Ice::Current&)
-{
-    p2 = p1;
-    return p1;
-}
-
-void
-BI::opIntf(const Ice::Current&)
-{
-}
-
-void
-BI::opB(const Ice::Current&)
-{
-}
-#endif
