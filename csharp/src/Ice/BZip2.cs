@@ -172,6 +172,7 @@ namespace Ice
             ConfigError = -9
         }
 
+        internal static string LibName { get; }
         internal static bool Supported { get; }
 
         private static readonly BZCompressInit _compressInit;
@@ -189,29 +190,29 @@ namespace Ice
             // Find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function
             // in the library. If we get an exception, the library is not available.
             Supported = false;
-            string bzlibName = string.Empty;
+            LibName = string.Empty;
             try
             {
                 if (IceInternal.AssemblyUtil.IsWindows)
                 {
-                    bzlibName = "bzip2.dll";
+                    LibName = "bzip2.dll";
                     SafeNativeMethods.WindowsBZ2_bzlibVersion();
                 }
                 else if (IceInternal.AssemblyUtil.IsMacOS)
                 {
-                    bzlibName = "libbz2.dylib";
+                    LibName = "libbz2.dylib";
                     SafeNativeMethods.MacOSBZ2_bzlibVersion();
                 }
                 else
                 {
                     try
                     {
-                        bzlibName = "libbz2.so.1.0";
+                        LibName = "libbz2.so.1.0";
                         SafeNativeMethods.UnixBZ2_10_bzlibVersion();
                     }
                     catch (TypeLoadException)
                     {
-                        bzlibName = "libbz2.so.1";
+                        LibName = "libbz2.so.1";
                         SafeNativeMethods.UnixBZ2_1_bzlibVersion();
                     }
                 }
@@ -219,7 +220,7 @@ namespace Ice
             }
             catch (EntryPointNotFoundException)
             {
-                Console.Error.WriteLine($"warning: found {bzlibName} but entry point BZ2_bzlibVersion is missing.");
+                Console.Error.WriteLine($"warning: found {LibName} but entry point BZ2_bzlibVersion is missing.");
             }
             catch (TypeLoadException)
             {
@@ -227,10 +228,10 @@ namespace Ice
             }
             catch (BadImageFormatException)
             {
-                Console.Error.Write($"warning: {bzlibName} could not be loaded (likely due to 32/64-bit mismatch).");
+                Console.Error.Write($"warning: {LibName} could not be loaded (likely due to 32/64-bit mismatch).");
                 if (IntPtr.Size == 8)
                 {
-                    Console.Error.Write($" Make sure the directory containing the 64-bit {bzlibName} is in your PATH.");
+                    Console.Error.Write($" Make sure the directory containing the 64-bit {LibName} is in your PATH.");
                 }
                 Console.Error.WriteLine();
             }
@@ -271,7 +272,7 @@ namespace Ice
 
                 _compressEnd = (ref BZStream stream) => SafeNativeMethods.MacOSBZ2_bzCompressEnd(ref stream);
             }
-            else if (bzlibName == "libbz2.so.1.0")
+            else if (LibName == "libbz2.so.1.0")
             {
                 _decompressInit = (ref BZStream stream, int verbosity, int small) =>
                     SafeNativeMethods.UnixBZ2_10_bzDecompressInit(ref stream, verbosity, small);

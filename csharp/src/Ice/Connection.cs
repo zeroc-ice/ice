@@ -2189,8 +2189,7 @@ namespace Ice
                     }
                     else
                     {
-                        string lib = AssemblyUtil.IsWindows ? "bzip2.dll" : "libbz2.so.1";
-                        throw new LoadException($"cannot uncompress compressed message: {lib} not found");
+                        throw new LoadException($"cannot uncompress compressed message: {BZip2.LibName} not found");
                     }
                 }
 
