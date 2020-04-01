@@ -73,7 +73,7 @@ namespace Ice
         {
             _communicator = communicator;
             byte replyStatus = payload[0];
-            if (replyStatus < 0 || replyStatus > 7)
+            if (replyStatus > 7)
             {
                 throw new InvalidDataException(
                     $"received ice1 response frame with unknown reply status `{replyStatus}'");

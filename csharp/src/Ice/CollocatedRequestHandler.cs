@@ -232,7 +232,7 @@ namespace IceInternal
                 {
                     byte[] responseBuffer = VectoredBufferExtensions.ToArray(responseData);
                     var iss = new InputStream(_adapter.Communicator, responseBuffer);
-                    iss.Pos = Ice1Definitions.ReplyHeader.Length + 4;
+                    iss.Pos = Ice1Definitions.HeaderSize + 4;
                     TraceUtil.TraceRecv(iss, _logger, _traceLevels);
                 }
 

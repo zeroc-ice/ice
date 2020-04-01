@@ -81,7 +81,6 @@ namespace Ice
         private OutputStream.Position _payloadStart;
 
         /// <summary>Create a new OutgoingRequestFrame.</summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>
@@ -107,7 +106,6 @@ namespace Ice
         }
 
         /// <summary>Create a new OutgoingRequestFrame.</summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="proxy">A proxy to the target Ice object. This method uses the communicator, identity, facet,
         /// encoding and context of this proxy to create the request frame.</param>
         /// <param name="operation">The operation to invoke on the target Ice object.</param>

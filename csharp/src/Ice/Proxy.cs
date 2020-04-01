@@ -196,7 +196,7 @@ namespace Ice
 
         private static void IceI_getConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completed, bool synchronous)
         {
-            var outgoing = new ProxyGetConnection(prx, completed, null!);
+            var outgoing = new ProxyGetConnection(prx, completed);
             try
             {
                 outgoing.Invoke("ice_getConnection", synchronous);

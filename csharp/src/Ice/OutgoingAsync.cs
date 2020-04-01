@@ -817,8 +817,8 @@ namespace IceInternal
     //
     internal class ProxyGetConnection : ProxyOutgoingAsyncBase
     {
-        public ProxyGetConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback, 
-            OutgoingRequestFrame request) : base(prx, completionCallback, request)
+        public ProxyGetConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback)
+            : base(prx, completionCallback, null!)
         {
         }
 

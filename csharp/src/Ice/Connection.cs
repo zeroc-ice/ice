@@ -1167,7 +1167,6 @@ namespace Ice
             //
             if (info.InvokeNum > 0)
             {
-                Debug.Assert(info.Request != null);
                 ValueTask vt = InvokeAllAsync(info.Data, info.InvokeNum, info.RequestId, info.Compress,
                     info.Adapter!);
 
@@ -2295,8 +2294,6 @@ namespace Ice
                             {
                                 TraceUtil.TraceRecv(new InputStream(_communicator, info.Data), _logger, _traceLevels);
                                 info.RequestId = InputStream.ReadInt(info.Data.AsSpan(Ice1Definitions.HeaderSize, 4));
-                                info.Request = new IncomingRequestFrame(_communicator,
-                                    info.Data.Slice(Ice1Definitions.HeaderSize + 4));
                                 info.InvokeNum = 1;
                                 info.Adapter = _adapter;
                                 ++info.MessageDispatchCount;
@@ -2417,7 +2414,7 @@ namespace Ice
             try
             {
                 var request = new IncomingRequestFrame(adapter.Communicator,
-                    data.Slice(Ice1Definitions.RequestHeaderSzie));
+                    data.Slice(Ice1Definitions.HeaderSize + 4));
                 var current = new Current(adapter, request, requestId, this);
 
                 // Then notify and set dispatch observer, if any.
