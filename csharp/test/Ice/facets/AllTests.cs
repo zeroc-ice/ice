@@ -64,11 +64,11 @@ namespace Ice.facets
             output.Flush();
             var d = IDPrx.UncheckedCast(prx);
             test(d.Facet.Length == 0);
-            var df = IDPrx.UncheckedCast(prx.Clone(facet: "facetABCD"));
+            var df = prx.Clone("facetABCD", IDPrx.Factory);
             test(df.Facet == "facetABCD");
             var df2 = IDPrx.UncheckedCast(df);
             test(df2.Facet == "facetABCD");
-            var df3 = IDPrx.UncheckedCast(df.Clone(facet: ""));
+            var df3 = df.Clone(facet: "", IDPrx.Factory);
             test(df3.Facet.Length == 0);
             output.WriteLine("ok");
 
@@ -76,11 +76,11 @@ namespace Ice.facets
             output.Flush();
             d = IDPrx.CheckedCast(prx);
             test(d.Facet.Length == 0);
-            df = IDPrx.CheckedCast(prx.Clone(facet: "facetABCD"));
+            df = IDPrx.CheckedCast(prx.Clone(facet: "facetABCD", IObjectPrx.Factory));
             test(df.Facet == "facetABCD");
             df2 = IDPrx.CheckedCast(df);
             test(df2.Facet == "facetABCD");
-            df3 = IDPrx.CheckedCast(df.Clone(facet: ""));
+            df3 = IDPrx.CheckedCast(df.Clone(facet: "", IObjectPrx.Factory));
             test(df3.Facet.Length == 0);
             output.WriteLine("ok");
 
@@ -97,7 +97,7 @@ namespace Ice.facets
 
             output.Write("testing facets A, B, C, and D... ");
             output.Flush();
-            df = IDPrx.CheckedCast(d.Clone(facet: "facetABCD"));
+            df = IDPrx.CheckedCast(d.Clone(facet: "facetABCD", IObjectPrx.Factory));
             test(df != null);
             test(df.callA().Equals("A"));
             test(df.callB().Equals("B"));
@@ -107,14 +107,14 @@ namespace Ice.facets
 
             output.Write("testing facets E and F... ");
             output.Flush();
-            var ff = IFPrx.CheckedCast(d.Clone(facet: "facetEF"));
+            var ff = IFPrx.CheckedCast(d.Clone(facet: "facetEF", IObjectPrx.Factory));
             test(ff.callE().Equals("E"));
             test(ff.callF().Equals("F"));
             output.WriteLine("ok");
 
             output.Write("testing facet G... ");
             output.Flush();
-            var gf = IGPrx.CheckedCast(ff.Clone(facet: "facetGH"));
+            var gf = IGPrx.CheckedCast(ff.Clone(facet: "facetGH", IObjectPrx.Factory));
             test(gf.callG().Equals("G"));
             output.WriteLine("ok");
 

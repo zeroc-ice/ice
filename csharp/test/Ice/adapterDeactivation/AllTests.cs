@@ -119,7 +119,7 @@ namespace Ice
                 output.Flush();
                 {
                     var routerId = new Identity("router", "");
-                    var router = IRouterPrx.UncheckedCast(baseprx.Clone(routerId, connectionId: "rc"));
+                    var router = baseprx.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
                     var adapter = communicator.CreateObjectAdapterWithRouter(router);
                     test(adapter.GetPublishedEndpoints().Length == 1);
                     var endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
@@ -141,7 +141,7 @@ namespace Ice
                     try
                     {
                         routerId = new Identity("test", "");
-                        router = IRouterPrx.UncheckedCast(baseprx.Clone(routerId));
+                        router = baseprx.Clone(routerId, IRouterPrx.Factory);
                         communicator.CreateObjectAdapterWithRouter(router);
                         test(false);
                     }

@@ -1954,7 +1954,7 @@ namespace Ice
 
             if (locator != null && serverId != null)
             {
-                var process = IProcessPrx.UncheckedCast(admin.Clone(facet: "Process"));
+                var process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
                 try
                 {
                     //

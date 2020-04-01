@@ -36,10 +36,10 @@ namespace IceDiscovery
         {
             LookupCount = lookups.Count;
             FailureCount = 0;
-            var id = new Identity(_requestId, "");
+            var identity = new Identity(_requestId, "");
             foreach (KeyValuePair<ILookupPrx, ILookupReplyPrx?> entry in lookups)
             {
-                InvokeWithLookup(domainId, entry.Key, ILookupReplyPrx.UncheckedCast(entry.Value!.Clone(id)));
+                InvokeWithLookup(domainId, entry.Key, entry.Value!.Clone(identity, ILookupReplyPrx.Factory));
             }
         }
 

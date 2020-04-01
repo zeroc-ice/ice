@@ -23,7 +23,7 @@ public class AllTests : Test.AllTests
             //
             // Test: Verify that the custom facet is present.
             //
-            facet = ITestFacetPrx.CheckedCast(admin.Clone(facet: "TestFacet"));
+            facet = ITestFacetPrx.CheckedCast(admin.Clone(facet: "TestFacet", IObjectPrx.Factory));
             facet.IcePing();
         }
         Console.Out.WriteLine("ok");
@@ -31,7 +31,8 @@ public class AllTests : Test.AllTests
         Console.Out.Write("testing properties facet... ");
         Console.Out.Flush();
         {
-            var pa = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
+            var pa = IPropertiesAdminPrx.CheckedCast(
+                admin.Clone(facet: "IceBox.Service.TestService.Properties", IObjectPrx.Factory));
 
             //
             // Test: PropertiesAdmin::getProperty()
@@ -84,8 +85,10 @@ public class AllTests : Test.AllTests
         Console.Out.Write("testing metrics admin facet... ");
         Console.Out.Flush();
         {
-            var ma = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Metrics"));
-            var pa = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "IceBox.Service.TestService.Properties"));
+            var ma = IceMX.IMetricsAdminPrx.CheckedCast(
+                admin.Clone(facet: "IceBox.Service.TestService.Metrics", IObjectPrx.Factory));
+            var pa = IPropertiesAdminPrx.CheckedCast(
+                admin.Clone(facet: "IceBox.Service.TestService.Properties", IObjectPrx.Factory));
 
             string[] views;
             string[] disabledViews;
@@ -103,7 +106,8 @@ public class AllTests : Test.AllTests
             test(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            views = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics")).GetMetricsViewNames().ReturnValue;
+            views = IceMX.IMetricsAdminPrx.
+                CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory)).GetMetricsViewNames().ReturnValue;
             test(views.Length == 0);
         }
         Console.Out.WriteLine("ok");

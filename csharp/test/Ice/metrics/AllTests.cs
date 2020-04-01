@@ -404,13 +404,17 @@ public class AllTests : Test.AllTests
         output.Write("testing metrics admin facet checkedCast... ");
         output.Flush();
         IObjectPrx admin = communicator.GetAdmin();
-        IPropertiesAdminPrx clientProps = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
-        IceMX.IMetricsAdminPrx clientMetrics = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
+        IPropertiesAdminPrx clientProps =
+            IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties", IObjectPrx.Factory));
+        IceMX.IMetricsAdminPrx clientMetrics =
+            IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory));
         test(clientProps != null && clientMetrics != null);
 
         admin = metrics.getAdmin();
-        IPropertiesAdminPrx serverProps = IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties"));
-        IceMX.IMetricsAdminPrx serverMetrics = IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics"));
+        IPropertiesAdminPrx serverProps =
+            IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties", IObjectPrx.Factory));
+        IceMX.IMetricsAdminPrx serverMetrics =
+            IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory));
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);

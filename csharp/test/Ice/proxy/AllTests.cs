@@ -407,7 +407,7 @@ namespace Ice.proxy
                 b2 = b1.GetConnection().CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
                 string str = b2.ToString();
                 test(b2.ToString() == str);
-                string str2 = b1.Clone(b2.Identity).Clone(secure: b2.IsSecure).ToString();
+                string str2 = b1.Clone(b2.Identity, IObjectPrx.Factory).Clone(secure: b2.IsSecure).ToString();
 
                 // Verify that the stringified fixed proxy is the same as a regular stringified proxy
                 // but without endpoints
@@ -596,7 +596,7 @@ namespace Ice.proxy
 
             output.Write("testing proxy methods... ");
 
-            test(baseProxy.Clone(facet: "facet").Facet.Equals("facet"));
+            test(baseProxy.Clone(facet: "facet", IObjectPrx.Factory).Facet.Equals("facet"));
             test(baseProxy.Clone(adapterId: "id").AdapterId.Equals("id"));
             test(!baseProxy.Clone(invocationMode: InvocationMode.Twoway).IsOneway);
             test(baseProxy.Clone(invocationMode: InvocationMode.Oneway).IsOneway);
@@ -702,8 +702,10 @@ namespace Ice.proxy
 
             var compObj = IObjectPrx.Parse("foo", communicator);
 
-            test(compObj.Clone(facet: "facet").Equals(compObj.Clone(facet: "facet")));
-            test(!compObj.Clone(facet: "facet").Equals(compObj.Clone(facet: "facet1")));
+            test(compObj.Clone(facet: "facet", IObjectPrx.Factory).Equals(
+                compObj.Clone(facet: "facet", IObjectPrx.Factory)));
+            test(!compObj.Clone(facet: "facet", IObjectPrx.Factory).Equals(
+                compObj.Clone(facet: "facet1", IObjectPrx.Factory)));
 
             test(compObj.Clone(invocationMode: InvocationMode.Oneway).Equals(
                 compObj.Clone(invocationMode: InvocationMode.Oneway)));
@@ -819,7 +821,7 @@ namespace Ice.proxy
             test(cl.Equals(derived));
             try
             {
-                Test.IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet"));
+                Test.IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet", IObjectPrx.Factory));
                 test(false);
             }
             catch (ObjectNotExistException)
@@ -859,7 +861,7 @@ namespace Ice.proxy
                     catch (ArgumentException)
                     {
                     }
-                    test(cl.Clone(facet: "facet", fixedConnection: connection).Facet.Equals("facet"));
+                    test(cl.Clone("facet", IObjectPrx.Factory, fixedConnection: connection).Facet.Equals("facet"));
                     test(cl.Clone(invocationMode: InvocationMode.Oneway, fixedConnection: connection).IsOneway);
                     Dictionary<string, string> ctx = new Dictionary<string, string>();
                     ctx["one"] = "hello";
