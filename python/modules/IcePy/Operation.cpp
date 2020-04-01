@@ -2177,6 +2177,9 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const I
     //
     Ice::UnknownUserException uue(__FILE__, __LINE__, "unknown exception");
     return convertException(uue);
+#ifdef __SUNPRO_CC
+    return 0;
+#endif
 }
 
 bool
