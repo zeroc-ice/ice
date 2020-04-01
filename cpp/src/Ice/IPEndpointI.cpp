@@ -42,9 +42,6 @@ Init init;
 
 }
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(IPEndpointI* p) { return p; }
-#endif
 IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
 
 IceInternal::IPEndpointInfoI::IPEndpointInfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
@@ -273,11 +270,7 @@ IceInternal::IPEndpointI::options() const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::IPEndpointI::operator==(const Endpoint& r) const
-#else
-IceInternal::IPEndpointI::operator==(const LocalObject& r) const
-#endif
 {
     const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
     if(!p)
@@ -313,11 +306,7 @@ IceInternal::IPEndpointI::operator==(const LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::IPEndpointI::operator<(const Endpoint& r) const
-#else
-IceInternal::IPEndpointI::operator<(const LocalObject& r) const
-#endif
 {
     const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
     if(!p)

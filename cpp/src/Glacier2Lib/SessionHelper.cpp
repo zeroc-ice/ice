@@ -16,11 +16,7 @@ namespace Glacier2
 {
 
 class SessionThreadCallback :
-#ifdef ICE_CPP11_MAPPING
         public std::enable_shared_from_this<SessionThreadCallback>
-#else
-        public virtual IceUtil::Shared
-#endif
 {
 public:
 
@@ -46,9 +42,6 @@ namespace
 {
 
 class ConnectStrategy
-#ifndef ICE_CPP11_MAPPING
-    : public Ice::LocalObject
-#endif
 {
 
 public:
@@ -82,9 +75,7 @@ private:
 };
 
 class SessionHelperI : public Glacier2::SessionHelper
-#ifdef ICE_CPP11_MAPPING
     , public std::enable_shared_from_this<SessionHelperI>
-#endif
 {
 
 public:
@@ -309,20 +300,6 @@ Glacier2::SessionHelper::~SessionHelper()
 {
     // Out of line to avoid weak vtable
 }
-
-#ifndef ICE_CPP11_MAPPING
-bool
-Glacier2::SessionHelper::operator==(const Glacier2::SessionHelper& other) const
-{
-    return this == &other;
-}
-
-bool
-Glacier2::SessionHelper::operator!=(const Glacier2::SessionHelper& other) const
-{
-    return this != &other;
-}
-#endif
 
 Ice::ObjectAdapterPtr
 SessionHelperI::internalObjectAdapter()
@@ -704,27 +681,6 @@ private:
     const Glacier2::SessionHelperPtr _session;
 };
 
-#ifndef ICE_CPP11_MAPPING // C++98
-class CloseCallbackI : public Ice::CloseCallback
-{
-public:
-
-    CloseCallbackI(const SessionHelperIPtr& sessionHelper) : _sessionHelper(sessionHelper)
-    {
-    }
-
-    virtual void
-    closed(const Ice::ConnectionPtr&)
-    {
-        _sessionHelper->destroy();
-    }
-
-private:
-
-    SessionHelperIPtr _sessionHelper;
-};
-#endif
-
 }
 
 void
@@ -786,15 +742,11 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
                 Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                 assert(connection);
                 connection->setACM(acmTimeout, IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
-#ifdef ICE_CPP11_MAPPING
                 auto self = shared_from_this();
                 connection->setCloseCallback([self](Ice::ConnectionPtr)
                 {
                     self->destroy();
                 });
-#else
-                connection->setCloseCallback(ICE_MAKE_SHARED(CloseCallbackI, this));
-#endif
             }
         }
     }
@@ -818,15 +770,11 @@ SessionHelperI::dispatchCallback(const Ice::DispatcherCallPtr& call, const Ice::
 {
     if(_initData.dispatcher)
     {
-#ifdef ICE_CPP11_MAPPING
         _initData.dispatcher([call]()
             {
                 call->run();
             },
             conn);
-#else
-        _initData.dispatcher->dispatch(call, conn);
-#endif
     }
     else
     {
@@ -870,15 +818,11 @@ SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, cons
     {
         IceUtilInternal::CountDownLatch cdl(1);
         Ice::DispatcherCallPtr callWait = new DispatcherCallWait(cdl, call);
-#ifdef ICE_CPP11_MAPPING
         _initData.dispatcher([callWait]()
             {
                 callWait->run();
             },
             conn);
-#else
-        _initData.dispatcher->dispatch(callWait, conn);
-#endif
         cdl.await();
     }
     else
@@ -1027,11 +971,7 @@ Glacier2::SessionFactoryHelper::setProtocol(const string& protocol)
        protocol != "ws" &&
        protocol != "wss")
     {
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument("Unknown protocol `" + protocol + "'");
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Unknown protocol `" + protocol + "'");
-#endif
     }
     _protocol = protocol;
 }

@@ -18,12 +18,7 @@ typedef IceInternal::Handle<OutgoingConnectionFactory> OutgoingConnectionFactory
 
 class IncomingConnectionFactory;
 
-#ifdef ICE_CPP11_MAPPING
 using IncomingConnectionFactoryPtr = ::std::shared_ptr<IncomingConnectionFactory>;
-#else
-IceUtil::Shared* upCast(IncomingConnectionFactory*);
-typedef IceInternal::Handle<IncomingConnectionFactory> IncomingConnectionFactoryPtr;
-#endif
 
 }
 

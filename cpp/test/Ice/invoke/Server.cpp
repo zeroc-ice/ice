@@ -39,7 +39,6 @@ public:
         }
     }
 
-#ifdef ICE_CPP11_MAPPING
     virtual Ice::ObjectPtr
     locate(const Ice::Current&, shared_ptr<void>&)
     {
@@ -50,18 +49,6 @@ public:
     finished(const Ice::Current&, const Ice::ObjectPtr&, const shared_ptr<void>&)
     {
     }
-#else
-    virtual Ice::ObjectPtr
-    locate(const Ice::Current&, Ice::LocalObjectPtr&)
-    {
-        return _blobject;
-    }
-
-    virtual void
-    finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
-    {
-    }
-#endif
     virtual void
     deactivate(const string&)
     {

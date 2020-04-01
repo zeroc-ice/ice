@@ -28,8 +28,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -62,72 +60,3 @@ Ice::WSEndpointInfo::~WSEndpointInfo()
 Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-Ice::EndpointInfo::~EndpointInfo()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(EndpointInfo* p) { return p; }
-/// \endcond
-
-Ice::Endpoint::~Endpoint()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(Endpoint* p) { return p; }
-/// \endcond
-
-Ice::IPEndpointInfo::~IPEndpointInfo()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(IPEndpointInfo* p) { return p; }
-/// \endcond
-
-Ice::TCPEndpointInfo::~TCPEndpointInfo()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(TCPEndpointInfo* p) { return p; }
-/// \endcond
-
-Ice::UDPEndpointInfo::~UDPEndpointInfo()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(UDPEndpointInfo* p) { return p; }
-/// \endcond
-
-Ice::WSEndpointInfo::~WSEndpointInfo()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(WSEndpointInfo* p) { return p; }
-/// \endcond
-
-Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(OpaqueEndpointInfo* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

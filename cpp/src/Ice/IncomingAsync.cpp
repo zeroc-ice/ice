@@ -18,21 +18,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(IncomingAsync* p) { return p; }
-IceUtil::Shared* Ice::upCast(AMD_Object_ice_invoke* p) { return p; }
-
-Ice::AMDCallback::~AMDCallback()
-{
-    // Out of line to avoid weak vtable
-}
-
-Ice::AMD_Object_ice_invoke::~AMD_Object_ice_invoke()
-{
-    // Out of line to avoid weak vtable
-}
-#endif
-
 namespace
 {
 
@@ -63,12 +48,8 @@ IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     _responseSent(false),
     _responseHandlerCopy(ICE_GET_SHARED_FROM_THIS(_responseHandler))
 {
-#ifndef ICE_CPP11_MAPPING
-    in.setAsync(this);
-#endif
 }
 
-#ifdef ICE_CPP11_MAPPING
 shared_ptr<IncomingAsync>
 IceInternal::IncomingAsync::create(Incoming& in)
 {
@@ -76,54 +57,6 @@ IceInternal::IncomingAsync::create(Incoming& in)
     in.setAsync(async);
     return async;
 }
-#endif
-
-#ifndef ICE_CPP11_MAPPING
-void
-IceInternal::IncomingAsync::ice_exception(const ::std::exception& exc)
-{
-    try
-    {
-        for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
-        {
-            if(!(*p)->exception(exc))
-            {
-                return;
-            }
-        }
-    }
-    catch(...)
-    {
-        return;
-    }
-
-    checkResponseSent();
-    IncomingBase::exception(exc, true); // User thread
-}
-
-void
-IceInternal::IncomingAsync::ice_exception()
-{
-    try
-    {
-        for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
-        {
-            if(!(*p)->exception())
-            {
-                return;
-            }
-        }
-    }
-    catch(...)
-    {
-        return;
-    }
-
-    checkResponseSent();
-    IncomingBase::exception("unknown c++ exception", true); // User thread
-}
-
-#endif
 
 void
 IceInternal::IncomingAsync::kill(Incoming& in)
@@ -139,11 +72,7 @@ IceInternal::IncomingAsync::completed()
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
             if(p->first && !p->first())
-#else
-            if(!(*p)->response())
-#endif
             {
                 return;
             }
@@ -157,7 +86,6 @@ IceInternal::IncomingAsync::completed()
     IncomingBase::response(true); // User thread
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 IceInternal::IncomingAsync::completed(exception_ptr ex)
 {
@@ -189,7 +117,6 @@ IceInternal::IncomingAsync::completed(exception_ptr ex)
         IncomingBase::exception("unknown c++ exception", true); // User thread
     }
 }
-#endif
 
 void
 IceInternal::IncomingAsync::checkResponseSent()
@@ -201,30 +128,3 @@ IceInternal::IncomingAsync::checkResponseSent()
     }
     _responseSent = true;
 }
-
-#ifndef ICE_CPP11_MAPPING
-IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) : IncomingAsync(in)
-{
-}
-
-void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& outEncaps)
-{
-    if(outEncaps.empty())
-    {
-        writeParamEncaps(0, 0, ok);
-    }
-    else
-    {
-        writeParamEncaps(&outEncaps[0], static_cast<Int>(outEncaps.size()), ok);
-    }
-    completed();
-}
-
-void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byte*, const Byte*>& outEncaps)
-{
-    writeParamEncaps(outEncaps.first, static_cast<Int>(outEncaps.second - outEncaps.first), ok);
-    completed();
-}
-#endif

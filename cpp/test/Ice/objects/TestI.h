@@ -53,7 +53,6 @@ public:
 };
 ICE_DEFINE_PTR(FIPtr, FI);
 
-#ifdef ICE_CPP11_MAPPING
 class II : public ::Ice::InterfaceByValue<Test::I>
 {
 };
@@ -61,15 +60,6 @@ class II : public ::Ice::InterfaceByValue<Test::I>
 class JI : public ::Ice::InterfaceByValue<Test::J>
 {
 };
-#else
-class II : public Test::I
-{
-};
-
-class JI : public Test::J
-{
-};
-#endif
 
 class HI : public Test::H
 {
@@ -93,27 +83,16 @@ public:
     virtual void setRecursive(ICE_IN(Test::RecursivePtr), const Ice::Current&);
     virtual bool supportsClassGraphDepthMax(const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual GetMBMarshaledResult getMB(const Ice::Current&);
     virtual void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
-#else
-    virtual Test::BPtr getMB(const Ice::Current&);
-    virtual void getAMDMB_async(const Test::AMD_Initial_getAMDMBPtr&, const Ice::Current&);
-#endif
 
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual ::std::shared_ptr<::Ice::Value> getI(const Ice::Current&);
     virtual ::std::shared_ptr<::Ice::Value> getJ(const Ice::Current&);
     virtual ::std::shared_ptr<::Ice::Value> getH(const Ice::Current&);
-#else
-    virtual Test::IPtr getI(const Ice::Current&);
-    virtual Test::IPtr getJ(const Ice::Current&);
-    virtual Test::IPtr getH(const Ice::Current&);
-#endif
 
     virtual Test::KPtr getK(const Ice::Current&);
 
@@ -126,11 +105,7 @@ public:
 
     virtual void setG(ICE_IN(Test::GPtr), const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void setI(::std::shared_ptr<::Ice::Value>, const Ice::Current&);
-#else
-    virtual void setI(const Test::IPtr&, const Ice::Current&);
-#endif
     virtual Test::BaseSeq opBaseSeq(ICE_IN(Test::BaseSeq), Test::BaseSeq&, const Ice::Current&);
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);

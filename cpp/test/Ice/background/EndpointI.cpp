@@ -263,11 +263,7 @@ EndpointI::getInfo() const ICE_NOEXCEPT
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 EndpointI::operator==(const Ice::Endpoint& r) const
-#else
-EndpointI::operator==(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -284,11 +280,7 @@ EndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 EndpointI::operator<(const Ice::Endpoint& r) const
-#else
-EndpointI::operator<(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)

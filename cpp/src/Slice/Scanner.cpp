@@ -1148,13 +1148,6 @@ char *yytext;
 #   endif
 #endif
 
-#ifdef __SUNPRO_CC
-#   ifdef slice_wrap
-#      undef slice_wrap
-#      define slice_wrap() 1
-#   endif
-#endif
-
 using namespace std;
 using namespace Slice;
 
@@ -1214,11 +1207,6 @@ void yynoreturn fatalError(const char* msg);
   /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
 #define YY_NO_INPUT 1
   /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
-
-
-
-
-
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
@@ -1509,7 +1497,6 @@ YY_DECL
 	{
 /* %% [7.0] user's declarations go here */
 #line 136 "src/Slice/Scanner.l"
-
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
@@ -3154,7 +3141,6 @@ void yyfree (void * ptr )
 
 #line 552 "src/Slice/Scanner.l"
 
-
 namespace Slice
 {
 
@@ -3395,4 +3381,3 @@ void yynoreturn fatalError(const char* msg)
 }
 
 }
-

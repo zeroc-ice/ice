@@ -63,8 +63,7 @@ cpp_projects          = %
 
 #
 # If building on a Linux multilib platform, we restrict what we build for
-# the 32-bits architecture. We basically, build the same set of components
-# as C++11 (libraries and icebox executable).
+# the 32-bits architecture.
 #
 ifeq ($(multilib-platform),yes)
 x86_components          = $(coreandstub_components) IceDB IceStormService icebox

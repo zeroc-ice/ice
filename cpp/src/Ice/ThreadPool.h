@@ -134,11 +134,7 @@ private:
 #ifdef ICE_SWIFT
     const dispatch_queue_t _dispatchQueue;
 #else // Ice for Swift does not support a dispatcher
-#   ifdef ICE_CPP11_MAPPING
     std::function<void(std::function<void()>, const std::shared_ptr<Ice::Connection>&)> _dispatcher;
-#   else
-    const Ice::DispatcherPtr _dispatcher;
-#   endif
 #endif
     ThreadPoolWorkQueuePtr _workQueue;
     bool _destroyed;

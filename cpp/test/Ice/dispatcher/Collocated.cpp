@@ -21,15 +21,11 @@ Collocated::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-#ifdef ICE_CPP11_MAPPING
     IceUtil::Handle<Dispatcher> dispatcher = new Dispatcher;
     initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
         {
             dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
         };
-#else
-    initData.dispatcher = new Dispatcher();
-#endif
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());

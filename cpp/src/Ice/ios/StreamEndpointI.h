@@ -89,17 +89,12 @@ public:
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
     virtual std::string options() const;
 
-#ifdef ICE_CPP11_MAPPING
     std::shared_ptr<StreamEndpointI> shared_from_this()
     {
         return std::static_pointer_cast<StreamEndpointI>(IceInternal::IPEndpointI::shared_from_this());
     }
     virtual bool operator==(const Ice::Endpoint&) const;
     virtual bool operator<(const Ice::Endpoint&) const;
-#else
-    virtual bool operator==(const Ice::LocalObject&) const;
-    virtual bool operator<(const Ice::LocalObject&) const;
-#endif
 
     StreamEndpointIPtr endpoint(const StreamAcceptorPtr&) const;
 

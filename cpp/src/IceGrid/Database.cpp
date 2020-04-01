@@ -2528,15 +2528,7 @@ Database::checkUpdate(const ApplicationHelper& oldApp,
             }
             if(!unreachableNodes.empty())
             {
-#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
-                Ice::StringSeq nodes;
-                for(set<string>::const_iterator r = unreachableNodes.begin(); r != unreachableNodes.end(); ++r)
-                {
-                    nodes.push_back(*r);
-                }
-#else
                 Ice::StringSeq nodes(unreachableNodes.begin(), unreachableNodes.end());
-#endif
                 if(nodes.size() == 1)
                 {
                     os << "\nthe node `" << nodes[0] << "' is down";

@@ -24,7 +24,7 @@
 #endif
 
 //
-// Automatically link IceDB37[D|++11|++11D].lib with Visual C++
+// Automatically link IceDB37[D].lib with Visual C++
 //
 #if !defined(ICE_BUILDING_ICE_DB) && defined(ICE_DB_API_EXPORTS)
 #   define ICE_BUILDING_ICE_DB
@@ -48,17 +48,10 @@ class ICE_DB_API LMDBException : public IceUtil::Exception
 public:
 
     LMDBException(const char*, int, int);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~LMDBException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifdef ICE_CPP11_MAPPING
     virtual IceUtil::Exception* ice_cloneImpl() const;
-#else
-    virtual LMDBException* ice_clone() const;
-#endif
     virtual void ice_throw() const;
 
     int error() const;
@@ -78,17 +71,10 @@ class ICE_DB_API KeyTooLongException : public IceUtil::Exception
 public:
 
     KeyTooLongException(const char*, int, size_t);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~KeyTooLongException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifdef ICE_CPP11_MAPPING
     virtual IceUtil::Exception* ice_cloneImpl() const;
-#else
-    virtual KeyTooLongException* ice_clone() const;
-#endif
     virtual void ice_throw() const;
 
 private:
@@ -106,17 +92,10 @@ class ICE_DB_API BadEnvException : public IceUtil::Exception
 public:
 
     BadEnvException(const char*, int, size_t);
-#ifndef ICE_CPP11_COMPILER
-    virtual ~BadEnvException() throw();
-#endif
 
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifdef ICE_CPP11_MAPPING
     virtual IceUtil::Exception* ice_cloneImpl() const;
-#else
-    virtual BadEnvException* ice_clone() const;
-#endif
     virtual void ice_throw() const;
 
 private:

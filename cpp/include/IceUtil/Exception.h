@@ -34,10 +34,6 @@ public:
      */
     Exception(const char* file, int line);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~Exception() throw() = 0;
-#endif
-
     /**
      * Returns the type ID of this exception. This corresponds to the Slice
      * type ID for Slice-defined exceptions, and to a similar fully scoped name
@@ -57,23 +53,12 @@ public:
      * @return The description.
      */
     virtual const char* what() const ICE_NOEXCEPT;
-#ifdef ICE_CPP11_MAPPING
 
     /**
      * Returns a shallow polymorphic copy of this exception.
      * @return A unique_ptr to the new shallow copy.
      */
     std::unique_ptr<Exception> ice_clone() const;
-#else
-    /**
-     * Returns a shallow polymorphic copy of this exception.
-     * @return A pointer to the new shallow copy. The caller owns the returned object.
-     */
-    virtual Exception* ice_clone() const = 0;
-
-    ICE_DEPRECATED_API("ice_name() is deprecated, use ice_id() instead.")
-    std::string ice_name() const;
-#endif
 
     /**
      * Throws this exception.
@@ -100,11 +85,9 @@ public:
 
 protected:
 
-#ifdef ICE_CPP11_MAPPING
     /// \cond INTERNAL
     virtual Exception* ice_cloneImpl() const = 0;
     /// \endcond
-#endif
 
 private:
 
@@ -115,8 +98,6 @@ private:
 };
 
 ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
-
-#ifdef ICE_CPP11_MAPPING
 
 /**
  * Helper template for the implementation of Ice::Exception.
@@ -150,33 +131,6 @@ protected:
     /// \endcond
 };
 
-#else // C++98 mapping
-
-/**
- * Helper template for the implementation of Ice::Exception. It implements ice_throw.
- * \headerfile Ice/Ice.h
- */
-template<typename E>
-class ExceptionHelper : public Exception
-{
-public:
-
-    ExceptionHelper()
-    {
-    }
-
-    ExceptionHelper(const char* file, int line) : Exception(file, line)
-    {
-    }
-
-    virtual void ice_throw() const
-    {
-        throw static_cast<const E&>(*this);
-    }
-};
-
-#endif
-
 /**
  * This exception indicates an attempt to dereference a null IceUtil::Handle or
  * IceInternal::Handle.
@@ -189,9 +143,6 @@ public:
     NullHandleException(const char*, int);
     virtual std::string ice_id() const;
 
-#ifndef ICE_CPP11_MAPPING
-    virtual NullHandleException* ice_clone() const;
-#endif
 };
 
 /**
@@ -207,16 +158,8 @@ public:
     IllegalArgumentException(const char*, int);
     IllegalArgumentException(const char*, int, const std::string&);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~IllegalArgumentException() throw();
-#endif
-
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-
-#ifndef ICE_CPP11_MAPPING
-    virtual IllegalArgumentException* ice_clone() const;
-#endif
 
     /**
      * Provides the reason this exception was thrown.
@@ -240,16 +183,8 @@ public:
     IllegalConversionException(const char*, int);
     IllegalConversionException(const char*, int, const std::string&);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~IllegalConversionException() throw();
-#endif
-
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-
-#ifndef ICE_CPP11_MAPPING
-    virtual IllegalConversionException* ice_clone() const;
-#endif
 
     /**
      * Provides the reason this exception was thrown.
@@ -272,16 +207,8 @@ public:
 
     SyscallException(const char*, int, int);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~SyscallException() throw();
-#endif
-
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-
-#ifndef ICE_CPP11_MAPPING
-    virtual SyscallException* ice_clone() const;
-#endif
 
     /**
      * Provides the error number returned by the system call.
@@ -294,35 +221,8 @@ private:
     const int _error;
 };
 
-#ifdef ICE_CPP11_MAPPING
-
 template<typename E>
 using SyscallExceptionHelper = ExceptionHelper<E, SyscallException>;
-
-#else // C++98 mapping
-
-/**
-* Helper template for the implementation of SyscallException. It implements
-* ice_throw.
-* \headerfile Ice/Ice.h
-*/
-template<typename E>
-class SyscallExceptionHelper : public SyscallException
-{
-public:
-
-    SyscallExceptionHelper(const char* file, int line, int errorCode) :
-        SyscallException(file, line, errorCode)
-    {
-    }
-
-    virtual void ice_throw() const
-    {
-        throw static_cast<const E&>(*this);
-    }
-};
-
-#endif
 
 /**
  * This exception indicates the failure to lock a file.
@@ -334,16 +234,8 @@ public:
 
     FileLockException(const char*, int, int, const std::string&);
 
-#ifndef ICE_CPP11_COMPILER
-    virtual ~FileLockException() throw();
-#endif
-
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-
-#ifndef ICE_CPP11_MAPPING
-    virtual FileLockException* ice_clone() const;
-#endif
 
     /**
      * Returns the path to the file.
@@ -375,9 +267,6 @@ public:
     OptionalNotSetException(const char*, int);
     virtual std::string ice_id() const;
 
-#ifndef ICE_CPP11_MAPPING
-    virtual OptionalNotSetException* ice_clone() const;
-#endif
 };
 
 }

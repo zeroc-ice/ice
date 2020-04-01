@@ -19,19 +19,11 @@ class ClockI : public Clock
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     virtual void
     tick(string time, const Ice::Current&)
     {
         cout << time << endl;
     }
-#else
-    virtual void
-    tick(const string& time, const Ice::Current&)
-    {
-        cout << time << endl;
-    }
-#endif
 };
 
 class SessionCallbackI : public Glacier2::SessionCallback
@@ -117,22 +109,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("subscriber" ,"tcp");
         Ice::ObjectPrxPtr subscriber = adapter->addWithUUID(ICE_MAKE_SHARED(ClockI));
         adapter->activate();
-#ifdef ICE_CPP11_MAPPING
         assert(!topic);
-#else
-        try
-        {
-            topic->subscribeAndGetPublisher(qos, subscriber);
-            test(false);
-        }
-        catch(const IceStorm::AlreadySubscribed&)
-        {
-            test(false);
-        }
-        catch(const IceUtil::NullHandleException&)
-        {
-        }
-#endif
         cout << "ok" << endl;
     }
 
@@ -155,18 +132,7 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::LocalException&)
         {
         }
-#ifdef ICE_CPP11_MAPPING
         assert(!admin);
-#else
-        try
-        {
-            admin = session->getAdmin();
-            test(false);
-        }
-        catch(const IceUtil::NullHandleException&)
-        {
-        }
-#endif
         cout << "ok" << endl;
     }
 }

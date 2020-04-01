@@ -36,8 +36,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -60,28 +58,6 @@ using ServantLocatorPtr = ::std::shared_ptr<ServantLocator>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class ServantLocator;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(ServantLocator*);
-/// \endcond
-typedef ::IceInternal::Handle< ServantLocator> ServantLocatorPtr;
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

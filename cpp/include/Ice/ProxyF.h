@@ -8,7 +8,6 @@
 #include <Ice/Config.h>
 #include <Ice/ProxyHandle.h>
 
-#ifdef ICE_CPP11_MAPPING
 namespace Ice
 {
 
@@ -27,27 +26,4 @@ template<typename P>
 
 }
 
-#else // C++98 mapping
-namespace IceProxy
-{
-
-namespace Ice
-{
-
-class Object;
-inline Object* upCast(Object* o) { return o; }
-
-}
-
-}
-
-namespace Ice
-{
-
-typedef IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
-typedef ObjectPrx ObjectPrxPtr;
-
-}
-
-#endif
 #endif

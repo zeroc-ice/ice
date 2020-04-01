@@ -36,8 +36,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -75,39 +73,6 @@ using CommunicatorObserverPtr = ::std::shared_ptr<CommunicatorObserver>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-namespace Instrumentation
-{
-
-class Observer;
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* upCast(Observer*);
-/// \endcond
-typedef ::IceInternal::Handle< Observer> ObserverPtr;
-
-class CommunicatorObserver;
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* upCast(CommunicatorObserver*);
-/// \endcond
-typedef ::IceInternal::Handle< CommunicatorObserver> CommunicatorObserverPtr;
-
-}
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

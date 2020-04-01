@@ -79,12 +79,6 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _e(new EI),
     _f(new FI(_e))
 {
-#ifndef ICE_CPP11_MAPPING
-    _b1->ice_collectable(true);
-    _b2->ice_collectable(true);
-    _c->ice_collectable(true);
-    _d->ice_collectable(true);
-#endif
 
     _b1->theA = _b2; // Cyclic reference to another B
     _b1->theB = _b1; // Self reference.
@@ -108,8 +102,6 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 
 InitialI::~InitialI()
 {
-#ifdef ICE_CPP11_MAPPING
-    // No GC with the C++11 mapping
     _b1->theA = ICE_NULLPTR;
     _b1->theB = ICE_NULLPTR;
 
@@ -118,7 +110,6 @@ InitialI::~InitialI()
     _b2->theC = ICE_NULLPTR;
 
     _c->theB = ICE_NULLPTR;
-#endif
 }
 
 void
@@ -187,7 +178,6 @@ InitialI::supportsClassGraphDepthMax(const Ice::Current&)
     return true;
 }
 
-#ifdef ICE_CPP11_MAPPING
 InitialI::GetMBMarshaledResult
 InitialI::getMB(const Ice::Current& current)
 {
@@ -201,19 +191,6 @@ InitialI::getAMDMBAsync(function<void(const GetAMDMBMarshaledResult&)> response,
 {
     response(GetAMDMBMarshaledResult(_b1, current));
 }
-#else
-Test::BPtr
-InitialI::getMB(const Ice::Current&)
-{
-    return _b1;
-}
-
-void
-InitialI::getAMDMB_async(const Test::AMD_Initial_getAMDMBPtr& cb, const Ice::Current&)
-{
-    cb->ice_response(_b1);
-}
-#endif
 
 void
 InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
@@ -233,7 +210,6 @@ InitialI::setG(ICE_IN(Test::GPtr), const Ice::Current&)
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 shared_ptr<Ice::Value>
 InitialI::getI(const Ice::Current&)
 {
@@ -244,18 +220,6 @@ void
 InitialI::setI(ICE_IN(shared_ptr<Ice::Value>), const Ice::Current&)
 {
 }
-#else
-IPtr
-InitialI::getI(const Ice::Current&)
-{
-    return new II();
-}
-
-void
-InitialI::setI(const IPtr&, const Ice::Current&)
-{
-}
-#endif
 
 BaseSeq
 InitialI::opBaseSeq(ICE_IN(BaseSeq) inSeq, BaseSeq& outSeq, const Ice::Current&)
@@ -298,7 +262,6 @@ InitialI::throwInnerSubEx(const Ice::Current&)
     throw ex;
 }
 
-#ifdef ICE_CPP11_MAPPING
 shared_ptr<Ice::Value>
 InitialI::getJ(const Ice::Current&)
 {
@@ -310,19 +273,6 @@ InitialI::getH(const Ice::Current&)
 {
     return make_shared<HI>();
 }
-#else
-IPtr
-InitialI::getJ(const Ice::Current&)
-{
-    return new JI();
-}
-
-IPtr
-InitialI::getH(const Ice::Current&)
-{
-    return new HI();
-}
-#endif
 
 KPtr
 InitialI::getK(const Ice::Current&)

@@ -36,12 +36,6 @@
 #   pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 #endif
 
-#ifdef __SUNPRO_CC
-#   ifdef ICE_64
-#       pragma error_messages(off,truncwarn)
-#   endif
-#endif
-
 #if defined(__clang__)
 #   pragma clang diagnostic ignored "-Wconversion"
 #   pragma clang diagnostic ignored "-Wsign-conversion"

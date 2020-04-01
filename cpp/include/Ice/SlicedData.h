@@ -17,9 +17,6 @@ namespace Ice
  * \headerfile Ice/Ice.h
  */
 struct ICE_API SliceInfo
-#ifndef ICE_CPP11_MAPPING
-    : public ::IceUtil::Shared
-#endif
 {
     /**
      * The Slice type ID for this slice.
@@ -57,15 +54,8 @@ struct ICE_API SliceInfo
  * \headerfile Ice/Ice.h
  */
 class ICE_API SlicedData
-#ifndef ICE_CPP11_MAPPING
-    : public ::IceUtil::Shared
-#endif
 {
 public:
-
-#ifndef ICE_CPP11_MAPPING
-    virtual ~SlicedData();
-#endif
 
     SlicedData(const SliceInfoSeq&);
 
@@ -77,12 +67,6 @@ public:
      */
     void clear();
 
-#ifndef ICE_CPP11_MAPPING
-    /// \cond INTERNAL
-    void _iceGcVisitMembers(IceInternal::GCVisitor&);
-    /// \endcond
-#endif
-
 };
 
 /**
@@ -90,11 +74,7 @@ public:
  * \headerfile Ice/Ice.h
  */
 class ICE_API UnknownSlicedValue :
-#ifdef ICE_CPP11_MAPPING
     public Value
-#else
-    public IceInternal::GCObject
-#endif
 {
 public:
 
@@ -104,7 +84,6 @@ public:
      */
     UnknownSlicedValue(const std::string& unknownTypeId);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Obtains the sliced data associated with this instance.
      * @return The sliced data if the value has a preserved-slice base class and has been sliced during
@@ -134,32 +113,6 @@ protected:
     /// \cond INTERNAL
     virtual std::shared_ptr<Value> _iceCloneImpl() const override;
     /// \endcond
-
-#else
-
-    /**
-     * Obtains the sliced data associated with this instance.
-     * @return The sliced data if the value has a preserved-slice base class and has been sliced during
-     * unmarshaling of the value, or nil otherwise.
-     */
-    virtual SlicedDataPtr ice_getSlicedData() const;
-
-    /**
-     * Determine the Slice type ID associated with this instance.
-     * @param current The current object for this invocation.
-     * @return The type ID supplied to the constructor.
-     */
-    virtual const std::string& ice_id(const Current& current = Ice::emptyCurrent) const;
-
-    /// \cond INTERNAL
-    virtual void _iceGcVisitMembers(IceInternal::GCVisitor&);
-    /// \endcond
-
-    /// \cond STREAM
-    virtual void _iceWrite(::Ice::OutputStream*) const;
-    virtual void _iceRead(::Ice::InputStream*);
-    /// \endcond
-#endif
 
 private:
 

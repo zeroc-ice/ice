@@ -22,11 +22,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(obj, base));
-#else
-    test(obj == base);
-#endif
     cout << "ok" << endl;
 
     {
@@ -49,11 +45,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "creating/activating/deactivating object adapter in one operation... " << flush;
     obj->transient();
-#ifdef ICE_CPP11_MAPPING
     obj->transientAsync().get();
-#else
-    obj->end_transient(obj->begin_transient());
-#endif
     cout << "ok" << endl;
 
     {
@@ -63,11 +55,7 @@ allTests(Test::TestHelper* helper)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             Ice::CommunicatorHolder comm(initData);
-#ifdef ICE_CPP11_MAPPING
             comm->stringToProxy("test:" + helper->getTestEndpoint())->ice_pingAsync();
-#else
-            comm->stringToProxy("test:" + helper->getTestEndpoint())->begin_ice_ping();
-#endif
         }
         cout << "ok" << endl;
     }
@@ -133,11 +121,7 @@ allTests(Test::TestHelper* helper)
             adapter->setPublishedEndpoints(router->ice_getEndpoints());
             test(false);
         }
-#if defined(ICE_CPP11_MAPPING)
         catch(const invalid_argument&)
-#else
-        catch(const IceUtil::IllegalArgumentException&)
-#endif
         {
             // Expected.
         }

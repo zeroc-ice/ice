@@ -38,9 +38,6 @@ namespace Test
 {
 
 class TEST_API ControllerHelper
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 

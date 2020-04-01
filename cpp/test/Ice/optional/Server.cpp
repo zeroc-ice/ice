@@ -20,9 +20,6 @@ void
 Server::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-#ifndef ICE_CPP11_MAPPING
-    properties->setProperty("Ice.CollectObjects", "1");
-#endif
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");

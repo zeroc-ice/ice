@@ -25,8 +25,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace IceSSL
 {
 
@@ -34,20 +32,5 @@ class ConnectionInfo;
 using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
 
 }
-
-#else // C++98 mapping
-
-namespace IceSSL
-{
-
-class ConnectionInfo;
-/// \cond INTERNAL
-ICESSL_API ::Ice::LocalObject* upCast(ConnectionInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< ConnectionInfo> ConnectionInfoPtr;
-
-}
-
-#endif
 
 #endif

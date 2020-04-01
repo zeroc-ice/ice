@@ -6,7 +6,7 @@
 #define ICE_GRID_CONFIG_H
 
 //
-// Automatically link with IceGrid[D|++11|++11D].lib
+// Automatically link with IceGrid[D].lib
 //
 
 #if !defined(ICE_BUILDING_ICE_GRID) && defined(ICEGRID_API_EXPORTS)

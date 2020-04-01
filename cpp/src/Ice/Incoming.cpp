@@ -32,7 +32,6 @@ extern bool printStackTraces;
 
 }
 
-#ifdef ICE_CPP11_MAPPING
 Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
     ostr(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
 {
@@ -40,7 +39,6 @@ Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
     ostr->write(current.requestId);
     ostr->write(replyOK);
 }
-#endif
 
 IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* responseHandler,
                                         Ice::Connection* connection, const ObjectAdapterPtr& adapter,
@@ -52,12 +50,8 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
     _responseHandler(responseHandler)
 {
     _current.adapter = adapter;
-#ifdef ICE_CPP11_MAPPING
     ::Ice::ConnectionI* conn = dynamic_cast<::Ice::ConnectionI*>(connection);
     _current.con = conn ? conn->shared_from_this() : nullptr;
-#else
-    _current.con = connection;
-#endif
     _current.requestId = requestId;
     _current.encoding.major = 0;
     _current.encoding.minor = 0;
@@ -143,13 +137,11 @@ IncomingBase::writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 IceInternal::IncomingBase::setMarshaledResult(const Ice::MarshaledResult& result)
 {
     result.getOutputStream()->swap(_os);
 }
-#endif
 
 void
 IceInternal::IncomingBase::response(bool amd)
@@ -563,19 +555,11 @@ IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHan
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 IceInternal::Incoming::push(function<bool()> response, function<bool(exception_ptr)> exception)
 {
     _interceptorCBs.push_front(make_pair(response, exception));
 }
-#else
-void
-IceInternal::Incoming::push(const Ice::DispatchInterceptorAsyncCallbackPtr& cb)
-{
-    _interceptorCBs.push_front(cb);
-}
-#endif
 
 void
 IceInternal::Incoming::pop()

@@ -916,23 +916,12 @@ IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
     _initData.logger = logger;
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 IceInternal::Instance::setThreadHook(function<void()> threadStart, function<void()> threadStop)
 {
     _initData.threadStart = move(threadStart);
     _initData.threadStop = move(threadStop);
 }
-#else
-void
-IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHook)
-{
-    //
-    // No locking, as it can only be called during plug-in loading
-    //
-    _initData.threadHook = threadHook;
-}
-#endif
 
 namespace
 {
@@ -1430,13 +1419,9 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
             //
             if(propsAdmin)
             {
-#ifdef ICE_CPP11_MAPPING
                 auto metricsAdmin = observer->getFacet();
                 propsAdmin->addUpdateCallback(
                     [metricsAdmin](const PropertyDict& changes) { metricsAdmin->updated(changes); });
-#else
-                propsAdmin->addUpdateCallback(observer->getFacet());
-#endif
             }
         }
     }
@@ -1682,15 +1667,10 @@ IceInternal::Instance::destroy()
         _endpointHostResolver->getThreadControl().join();
     }
 
-#ifdef ICE_CPP11_COMPILER
     for(const auto& p : _objectFactoryMap)
     {
         p.second->destroy();
     }
-#else
-    for_each(_objectFactoryMap.begin(), _objectFactoryMap.end(),
-        Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
-#endif
     _objectFactoryMap.clear();
 
     if(_routerManager)
@@ -1862,33 +1842,11 @@ IceInternal::Instance::addObjectFactory(const Ice::ObjectFactoryPtr& factory, co
     // Create a ValueFactory wrapper around the given ObjectFactory and register the wrapper
     // with the value factory manager. This may raise AlreadyRegisteredException.
     //
-#ifdef ICE_CPP11_MAPPING
     _initData.valueFactoryManager->add([factory](const string& ident)
                                        {
                                            return factory->create(ident);
                                        },
                                        id);
-#else
-    class ValueFactoryWrapper: public Ice::ValueFactory
-    {
-    public:
-
-        ValueFactoryWrapper(const Ice::ObjectFactoryPtr& factory) :  _objectFactory(factory)
-        {
-        }
-
-        Ice::ValuePtr create(const std::string& id)
-        {
-            return _objectFactory->create(id);
-        }
-
-    private:
-
-        Ice::ObjectFactoryPtr _objectFactory;
-    };
-
-    _initData.valueFactoryManager->add(new ValueFactoryWrapper(factory), id);
-#endif
 
     //
     // Also record the object factory in our own map.
@@ -1941,11 +1899,7 @@ IceInternal::ProcessI::shutdown(const Current&)
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 IceInternal::ProcessI::writeMessage(string message, Int fd, const Current&)
-#else
-IceInternal::ProcessI::writeMessage(const string& message, Int fd, const Current&)
-#endif
 {
     switch(fd)
     {

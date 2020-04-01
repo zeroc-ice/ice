@@ -36,8 +36,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace Ice
 {
 
@@ -47,20 +45,6 @@ namespace Ice
 using FacetMap = ::std::map<::std::string, ::std::shared_ptr<Object>>;
 
 }
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-/**
- * A mapping from facet name to servant.
- */
-typedef ::std::map< ::std::string, ObjectPtr> FacetMap;
-
-}
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

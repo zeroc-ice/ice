@@ -7,8 +7,6 @@
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
 
-#ifdef ICE_CPP11_MAPPING
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -72,5 +70,3 @@ Ice::Value::ice_getSlicedData() const
 {
     return nullptr;
 }
-
-#endif

@@ -37,8 +37,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace IceIAP
 {
 
@@ -123,101 +121,6 @@ using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace IceIAP
-{
-
-class EndpointInfo;
-/// \cond INTERNAL
-ICEIAP_API ::Ice::LocalObject* upCast(EndpointInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< EndpointInfo> EndpointInfoPtr;
-
-}
-
-namespace IceIAP
-{
-
-/**
- * Provides access to an IAP endpoint information.
- * \headerfile IceIAP/IceIAP.h
- */
-class ICEIAP_API EndpointInfo : public ::Ice::EndpointInfo
-{
-public:
-
-    typedef EndpointInfoPtr PointerType;
-
-    virtual ~EndpointInfo();
-
-    EndpointInfo()
-    {
-    }
-
-    /**
-     * One-shot constructor to initialize all data members.
-     * @param underlying The information of the underyling endpoint of null if there's no underlying endpoint.
-     * @param timeout The timeout for the endpoint in milliseconds.
-     * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-     * @param manufacturer The accessory manufacturer or empty to not match against a manufacturer.
-     * @param modelNumber The accessory model number or empty to not match against a model number.
-     * @param name The accessory name or empty to not match against the accessory name.
-     * @param protocol The protocol supported by the accessory.
-     */
-    EndpointInfo(const ::Ice::EndpointInfoPtr& underlying, ::Ice::Int timeout, bool compress, const ::std::string& manufacturer, const ::std::string& modelNumber, const ::std::string& name, const ::std::string& protocol) :
-        ::Ice::EndpointInfo(underlying, timeout, compress),
-        manufacturer(manufacturer),
-        modelNumber(modelNumber),
-        name(name),
-        protocol(protocol)
-    {
-    }
-
-    /**
-     * The accessory manufacturer or empty to not match against
-     * a manufacturer.
-     */
-    ::std::string manufacturer;
-    /**
-     * The accessory model number or empty to not match against
-     * a model number.
-     */
-    ::std::string modelNumber;
-    /**
-     * The accessory name or empty to not match against
-     * the accessory name.
-     */
-    ::std::string name;
-    /**
-     * The protocol supported by the accessory.
-     */
-    ::std::string protocol;
-};
-
-/// \cond INTERNAL
-inline bool operator==(const EndpointInfo& lhs, const EndpointInfo& rhs)
-{
-    return static_cast<const ::Ice::LocalObject&>(lhs) == static_cast<const ::Ice::LocalObject&>(rhs);
-}
-
-inline bool operator<(const EndpointInfo& lhs, const EndpointInfo& rhs)
-{
-    return static_cast<const ::Ice::LocalObject&>(lhs) < static_cast<const ::Ice::LocalObject&>(rhs);
-}
-/// \endcond
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

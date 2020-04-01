@@ -25,11 +25,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
     Test::MyInterfacePtr servant = ICE_DYNAMIC_CAST(Test::MyInterface, o);
     test(servant);
 
-#ifdef ICE_CPP11_MAPPING
     auto proxy = dynamic_pointer_cast<Test::MyInterfacePrx>(p);
-#else
-    Test::MyInterfacePrx proxy = dynamic_cast<IceProxy::Test::MyInterface*>(p.get());
-#endif
     test(proxy);
 
     proxy->op(false);

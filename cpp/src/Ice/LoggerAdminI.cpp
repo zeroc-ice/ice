@@ -23,29 +23,18 @@ namespace
 const char* traceCategory = "Admin.Logger";
 
 class LoggerAdminI : public Ice::LoggerAdmin
-#ifdef ICE_CPP11_MAPPING
                    , public std::enable_shared_from_this<LoggerAdminI>
-#endif
 {
 public:
 
     LoggerAdminI(const PropertiesPtr&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void attachRemoteLogger(shared_ptr<RemoteLoggerPrx>, LogMessageTypeSeq,
                                     StringSeq, Int, const Current&);
 
     virtual bool detachRemoteLogger(shared_ptr<RemoteLoggerPrx>, const Current&);
 
     virtual LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, Int, string&, const Current&);
-#else
-    virtual void attachRemoteLogger(const RemoteLoggerPrx&, const LogMessageTypeSeq&,
-                                    const StringSeq&, Int, const Current&);
-
-    virtual bool detachRemoteLogger(const RemoteLoggerPrx&, const Current&);
-
-    virtual LogMessageSeq getLog(const LogMessageTypeSeq&, const StringSeq&, Int, string&, const Current&);
-#endif
 
     void destroy();
 
@@ -61,10 +50,6 @@ public:
 private:
 
     bool removeRemoteLogger(const RemoteLoggerPrxPtr&);
-
-#ifndef ICE_CPP11_MAPPING // C++98 mapping begin_init callback
-    void initCompleted(const AsyncResultPtr&);
-#endif
 
     IceUtil::Mutex _mutex;
     list<LogMessage> _queue;
@@ -135,9 +120,7 @@ public:
 typedef IceUtil::Handle<Job> JobPtr;
 
 class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger
-#ifdef ICE_CPP11_MAPPING
                          , public std::enable_shared_from_this<LoggerAdminLoggerI>
-#endif
 
 {
 public:
@@ -165,9 +148,6 @@ public:
 private:
 
     void log(const LogMessage&);
-#ifndef ICE_CPP11_MAPPING // C++98 mapping begin_log callback
-    void logCompleted(const AsyncResultPtr&);
-#endif
 
     LoggerPtr _localLogger;
     const LoggerAdminIPtr _loggerAdmin;
@@ -332,19 +312,11 @@ LoggerAdminI::LoggerAdminI(const PropertiesPtr& props) :
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
                                  LogMessageTypeSeq messageTypes,
                                  StringSeq categories,
                                  Int messageMax,
                                  const Current& current)
-#else
-LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
-                                 const LogMessageTypeSeq& messageTypes,
-                                 const StringSeq& categories,
-                                 Int messageMax,
-                                 const Current& current)
-#endif
 {
     if(!prx)
     {
@@ -404,7 +376,6 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
         filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
     }
 
-#ifdef ICE_CPP11_MAPPING
     try
     {
         auto self = shared_from_this();
@@ -434,26 +405,10 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
         deadRemoteLogger(remoteLogger, logger, ex, "init");
         throw;
     }
-#else
-    CallbackPtr initCompletedCb = newCallback(this, &LoggerAdminI::initCompleted);
-    try
-    {
-        remoteLogger->begin_init(logger->getPrefix(), initLogMessages, initCompletedCb, logger);
-    }
-    catch(const LocalException& ex)
-    {
-        deadRemoteLogger(remoteLogger, logger, ex, "init");
-        throw;
-    }
-#endif
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 LoggerAdminI::detachRemoteLogger(shared_ptr<RemoteLoggerPrx> remoteLogger, const Current& current)
-#else
-LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrx& remoteLogger, const Current& current)
-#endif
 {
     if(remoteLogger == 0)
     {
@@ -482,13 +437,8 @@ LoggerAdminI::detachRemoteLogger(const RemoteLoggerPrx& remoteLogger, const Curr
 }
 
 LogMessageSeq
-#ifdef ICE_CPP11_MAPPING
 LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
                      Int messageMax, string& prefix, const Current& current)
-#else
-LoggerAdminI::getLog(const LogMessageTypeSeq& messageTypes, const StringSeq& categories,
-                     Int messageMax, string& prefix, const Current& current)
-#endif
 {
     LogMessageSeq logMessages;
     {
@@ -650,33 +600,6 @@ LoggerAdminI::removeRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger)
     return _remoteLoggerMap.erase(remoteLogger) > 0;
 }
 
-#ifndef ICE_CPP11_MAPPING
-//
-// begin_init callback method for C++98 mapping
-//
-void
-LoggerAdminI::initCompleted(const AsyncResultPtr& r)
-{
-    RemoteLoggerPrxPtr remoteLogger = ICE_UNCHECKED_CAST(RemoteLoggerPrx, r->getProxy());
-
-    try
-    {
-        remoteLogger->end_init(r);
-
-        if(_traceLevel > 1)
-        {
-            LoggerPtr logger = ICE_DYNAMIC_CAST(Logger, r->getCookie());
-            Trace trace(logger, traceCategory);
-            trace << r->getOperation() << " on `" << remoteLogger << "' completed successfully";
-        }
-    }
-    catch(const LocalException& ex)
-    {
-        deadRemoteLogger(remoteLogger, ICE_DYNAMIC_CAST(Logger, r->getCookie()), ex, r->getOperation());
-    }
-}
-#endif
-
 //
 // LoggerAdminLoggerI
 //
@@ -813,10 +736,6 @@ LoggerAdminLoggerI::run()
         trace << "send log thread started";
     }
 
-#ifndef ICE_CPP11_MAPPING
-    CallbackPtr logCompletedCb = newCallback(this, &LoggerAdminLoggerI::logCompleted);
-#endif
-
     for(;;)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -844,7 +763,6 @@ LoggerAdminLoggerI::run()
 
             try
             {
-#ifdef ICE_CPP11_MAPPING
                 RemoteLoggerPrxPtr remoteLogger = *p;
                 auto self = shared_from_this();
                 remoteLogger->logAsync(job->logMessage,
@@ -871,12 +789,6 @@ LoggerAdminLoggerI::run()
                             self->_loggerAdmin->deadRemoteLogger(remoteLogger, self->_localLogger, ex, "log");
                         }
                     });
-#else
-                //
-                // *p is a proxy associated with the _sendLogCommunicator
-                //
-                (*p)->begin_log(job->logMessage, logCompletedCb);
-#endif
             }
             catch(const LocalException& ex)
             {
@@ -891,36 +803,6 @@ LoggerAdminLoggerI::run()
         trace << "send log thread completed";
     }
 }
-
-#ifndef ICE_CPP11_MAPPING
-//
-// begin_log callback for C++98 mapping
-//
-void
-LoggerAdminLoggerI::logCompleted(const AsyncResultPtr& r)
-{
-    RemoteLoggerPrxPtr remoteLogger = ICE_UNCHECKED_CAST(RemoteLoggerPrx, r->getProxy());
-
-    try
-    {
-        remoteLogger->end_log(r);
-
-        if(_loggerAdmin->getTraceLevel() > 1)
-        {
-            Trace trace(_localLogger, traceCategory);
-            trace << r->getOperation() << " on `" << remoteLogger << "' completed successfully";
-        }
-    }
-    catch(const CommunicatorDestroyedException&)
-    {
-        // expected if there are outstanding calls during communicator destruction
-    }
-    catch(const LocalException& ex)
-    {
-        _loggerAdmin->deadRemoteLogger(remoteLogger, _localLogger, ex, r->getOperation());
-    }
-}
-#endif
 
 //
 // SendLogThread

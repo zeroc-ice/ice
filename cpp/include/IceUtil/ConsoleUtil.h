@@ -18,9 +18,6 @@ class ConsoleUtil;
 ICE_DEFINE_PTR(ConsoleUtilPtr, ConsoleUtil);
 
 class ICE_API ConsoleUtil
-#  ifndef ICE_CPP11_MAPPING
-    : public IceUtil::Shared
-#  endif
 {
 public:
 

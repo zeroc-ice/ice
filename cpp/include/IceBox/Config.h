@@ -6,7 +6,7 @@
 #define ICEBOX_CONFIG_H
 
 //
-// Automatically link with IceBox[D|++11|++11D].lib
+// Automatically link with IceBox[D].lib
 //
 
 #if !defined(ICE_BUILDING_ICEBOX) && defined(ICEBOX_API_EXPORTS)

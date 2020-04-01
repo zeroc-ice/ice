@@ -115,22 +115,14 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os,
 
         if(_maxSize > 0 && _batchStream.b.size() >= _maxSize)
         {
-#ifdef ICE_CPP11_MAPPING
             proxy->ice_flushBatchRequestsAsync();
-#else
-            proxy->begin_ice_flushBatchRequests();
-#endif
         }
 
         assert(_batchMarker < _batchStream.b.size());
         if(_interceptor)
         {
             BatchRequestI request(*this, proxy, operation, static_cast<int>(_batchStream.b.size() - _batchMarker));
-#ifdef ICE_CPP11_MAPPING
             _interceptor(request, _batchRequestNum, static_cast<int>(_batchMarker));
-#else
-            _interceptor->enqueue(request, _batchRequestNum, static_cast<int>(_batchMarker));
-#endif
         }
         else
         {
@@ -213,11 +205,7 @@ void
 BatchRequestQueue::destroy(const Ice::LocalException& ex)
 {
     Lock sync(*this);
-#ifdef ICE_CPP11_MAPPING
     _exception = ex.ice_clone();
-#else
-    _exception.reset(ex.ice_clone());
-#endif
 }
 
 bool

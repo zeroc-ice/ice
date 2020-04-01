@@ -27,15 +27,11 @@ Client::run(int argc, char** argv)
     //
     initData.properties->setProperty("Ice.TCP.SndSize", "50000");
 
-#ifdef ICE_CPP11_MAPPING
     IceUtil::Handle<Dispatcher> dispatcher = new Dispatcher;
     initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
         {
             dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
         };
-#else
-    initData.dispatcher = new Dispatcher();
-#endif
     // The communicator must be destroyed before the dispatcher is terminated.
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);

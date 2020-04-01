@@ -9,317 +9,6 @@
 using namespace std;
 using namespace Test;
 
-#ifndef ICE_CPP11_MAPPING
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    CallbackBase() :
-        _called(false)
-    {
-    }
-
-    virtual ~CallbackBase()
-    {
-    }
-
-    void check()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
-        _called = false;
-    }
-
-protected:
-
-    void called()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        assert(!_called);
-        _called = true;
-        notify();
-    }
-
-private:
-
-    bool _called;
-};
-
-class Callback : public CallbackBase, public IceUtil::Shared
-{
-public:
-
-    void
-    response()
-    {
-        test(false);
-    }
-
-    void
-    exception_baseAsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Base& b)
-        {
-            test(b.b == "Base.b");
-            test(b.ice_id() =="::Test::Base");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_unknownDerivedAsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Base& b)
-        {
-            test(b.b == "UnknownDerived.b");
-            test(b.ice_id() == "::Test::Base");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_knownDerivedAsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownDerived& k)
-        {
-            test(k.b == "KnownDerived.b");
-            test(k.kd == "KnownDerived.kd");
-            test(k.ice_id() == "::Test::KnownDerived");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_knownDerivedAsKnownDerived(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownDerived& k)
-        {
-            test(k.b == "KnownDerived.b");
-            test(k.kd == "KnownDerived.kd");
-            test(k.ice_id() == "::Test::KnownDerived");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_unknownIntermediateAsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Base& b)
-        {
-            test(b.b == "UnknownIntermediate.b");
-            test(b.ice_id() == "::Test::Base");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_knownIntermediateAsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownIntermediate& ki)
-        {
-            test(ki.b == "KnownIntermediate.b");
-            test(ki.ki == "KnownIntermediate.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_knownMostDerivedAsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownMostDerived& kmd)
-        {
-            test(kmd.b == "KnownMostDerived.b");
-            test(kmd.ki == "KnownMostDerived.ki");
-            test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_knownIntermediateAsKnownIntermediate(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownIntermediate& ki)
-        {
-            test(ki.b == "KnownIntermediate.b");
-            test(ki.ki == "KnownIntermediate.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_knownMostDerivedAsKnownMostDerived(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownMostDerived& kmd)
-        {
-            test(kmd.b == "KnownMostDerived.b");
-            test(kmd.ki == "KnownMostDerived.ki");
-            test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_knownMostDerivedAsKnownIntermediate(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownMostDerived& kmd)
-        {
-            test(kmd.b == "KnownMostDerived.b");
-            test(kmd.ki == "KnownMostDerived.ki");
-            test(kmd.kmd == "KnownMostDerived.kmd");
-            test(kmd.ice_id() == "::Test::KnownMostDerived");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_unknownMostDerived1AsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownIntermediate& ki)
-        {
-            test(ki.b == "UnknownMostDerived1.b");
-            test(ki.ki == "UnknownMostDerived1.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_unknownMostDerived1AsKnownIntermediate(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const KnownIntermediate& ki)
-        {
-            test(ki.b == "UnknownMostDerived1.b");
-            test(ki.ki == "UnknownMostDerived1.ki");
-            test(ki.ice_id() == "::Test::KnownIntermediate");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    void
-    exception_unknownMostDerived2AsBase(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Base& b)
-        {
-            test(b.b == "UnknownMostDerived2.b");
-            test(b.ice_id() == "::Test::Base");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-};
-typedef IceUtil::Handle<Callback> CallbackPtr;
-#endif
-
 class RelayI : public Relay
 {
     virtual void knownPreservedAsBase(const ::Ice::Current&)
@@ -391,7 +80,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "base (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->baseAsBaseAsync();
         try
         {
@@ -408,12 +96,6 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
 
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_baseAsBase(
-            newCallback_TestIntf_baseAsBase(cb, &Callback::response, &Callback::exception_baseAsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -438,7 +120,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown derived (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->unknownDerivedAsBaseAsync();
         try
         {
@@ -454,13 +135,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_unknownDerivedAsBase(
-            newCallback_TestIntf_unknownDerivedAsBase(cb, &Callback::response,
-                                                      &Callback::exception_unknownDerivedAsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -486,7 +160,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known derived as base (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->knownDerivedAsBaseAsync();
         try
         {
@@ -503,12 +176,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_knownDerivedAsBase(
-            newCallback_TestIntf_knownDerivedAsBase(cb, &Callback::response, &Callback::exception_knownDerivedAsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -534,7 +201,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known derived as derived (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->knownDerivedAsKnownDerivedAsync();
         try
         {
@@ -550,13 +216,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_knownDerivedAsKnownDerived(
-            newCallback_TestIntf_knownDerivedAsKnownDerived(cb, &Callback::response,
-                                                            &Callback::exception_knownDerivedAsKnownDerived));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -581,7 +240,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown intermediate as base (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->unknownIntermediateAsBaseAsync();
         try
         {
@@ -597,13 +255,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_unknownIntermediateAsBase(
-            newCallback_TestIntf_unknownIntermediateAsBase(cb, &Callback::response,
-                                                           &Callback::exception_unknownIntermediateAsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -629,7 +280,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of known intermediate as base (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->knownIntermediateAsBaseAsync();
         try
         {
@@ -646,13 +296,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_knownIntermediateAsBase(
-            newCallback_TestIntf_knownIntermediateAsBase(cb, &Callback::response,
-                                                         &Callback::exception_knownIntermediateAsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -679,7 +322,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of known most derived as base (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->knownMostDerivedAsBaseAsync();
         try
         {
@@ -697,13 +339,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_knownMostDerivedAsBase(
-            newCallback_TestIntf_knownMostDerivedAsBase(cb, &Callback::response,
-                                                        &Callback::exception_knownMostDerivedAsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -729,7 +364,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known intermediate as intermediate (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->knownIntermediateAsKnownIntermediateAsync();
         try
         {
@@ -746,13 +380,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_knownIntermediateAsKnownIntermediate(
-            newCallback_TestIntf_knownIntermediateAsKnownIntermediate(cb, &Callback::response,
-                                                        &Callback::exception_knownIntermediateAsKnownIntermediate));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -779,7 +406,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known most derived as intermediate (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->knownMostDerivedAsKnownIntermediateAsync();
         try
         {
@@ -797,13 +423,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_knownMostDerivedAsKnownIntermediate(
-            newCallback_TestIntf_knownMostDerivedAsKnownIntermediate(cb, &Callback::response,
-                                                        &Callback::exception_knownMostDerivedAsKnownIntermediate));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -830,7 +449,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known most derived as most derived (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->knownMostDerivedAsKnownMostDerivedAsync();
         try
         {
@@ -848,13 +466,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_knownMostDerivedAsKnownMostDerived(
-            newCallback_TestIntf_knownMostDerivedAsKnownMostDerived(cb, &Callback::response,
-                                                        &Callback::exception_knownMostDerivedAsKnownMostDerived));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -880,7 +491,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown most derived, known intermediate as base (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->unknownMostDerived1AsBaseAsync();
         try
         {
@@ -897,13 +507,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_unknownMostDerived1AsBase(
-            newCallback_TestIntf_unknownMostDerived1AsBase(cb, &Callback::response,
-                                                           &Callback::exception_unknownMostDerived1AsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -929,7 +532,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown most derived, known intermediate as intermediate (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->unknownMostDerived1AsKnownIntermediateAsync();
         try
         {
@@ -946,13 +548,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_unknownMostDerived1AsKnownIntermediate(
-            newCallback_TestIntf_unknownMostDerived1AsKnownIntermediate(cb, &Callback::response,
-                                                         &Callback::exception_unknownMostDerived1AsKnownIntermediate));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 
@@ -977,7 +572,6 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown most derived, unknown intermediate as base (AMI)... " << flush;
     {
-#ifdef ICE_CPP11_MAPPING
         auto result = test->unknownMostDerived2AsBaseAsync();
         try
         {
@@ -993,13 +587,6 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-#else
-        CallbackPtr cb = new Callback;
-        test->begin_unknownMostDerived2AsBase(
-            newCallback_TestIntf_unknownMostDerived2AsBase(cb, &Callback::response,
-                                                         &Callback::exception_unknownMostDerived2AsBase));
-        cb->check();
-#endif
     }
     cout << "ok" << endl;
 

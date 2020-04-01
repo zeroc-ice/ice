@@ -473,13 +473,6 @@ using namespace IceStorm;
 #   endif
 #endif
 
-#ifdef __SUNPRO_CC
-#   ifdef yywrap
-#      undef yywrap
-#      define yywrap() 1
-#   endif
-#endif
-
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
 namespace IceStorm
@@ -711,7 +704,6 @@ YY_DECL
 
 	{
 #line 55 "src/IceStorm/Scanner.l"
-
 
 #line 716 "src/IceStorm/Scanner.cpp"
 
@@ -1951,7 +1943,6 @@ void yyfree (void * ptr )
 
 #line 203 "src/IceStorm/Scanner.l"
 
-
 namespace IceStorm {
 
 //
@@ -1978,4 +1969,3 @@ initScanner()
 }
 
 }
-

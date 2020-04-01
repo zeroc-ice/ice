@@ -24,17 +24,10 @@ public:
         return "SystemFailure";
     }
 
-#ifdef ICE_CPP11_MAPPING
     virtual IceUtil::Exception* ice_cloneImpl() const
     {
         return new SystemFailure(*this);
     }
-#else
-    virtual SystemException* ice_clone() const
-    {
-        return new SystemFailure(*this);
-    }
-#endif
 
     virtual void ice_throw() const
     {

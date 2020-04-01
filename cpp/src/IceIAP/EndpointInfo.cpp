@@ -28,8 +28,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -38,24 +36,3 @@ namespace
 IceIAP::EndpointInfo::~EndpointInfo()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-IceIAP::EndpointInfo::~EndpointInfo()
-{
-}
-
-/// \cond INTERNAL
-ICEIAP_API ::Ice::LocalObject* IceIAP::upCast(EndpointInfo* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

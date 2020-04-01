@@ -121,15 +121,9 @@
 #define ICE_GRID_ENABLE 295
 #define ICE_GRID_DISABLE 296
 
-
-
-
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef int YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
 #endif
-
-
-

@@ -36,10 +36,6 @@ toCFString(const std::string& s)
 }
 #endif
 
-#ifdef ICE_CPP11_MAPPING
-//
-// Adapts the C++11 functions to C++98-like callbacks
-//
 class ICESSL_API CertificateVerifier
 {
 public:
@@ -65,7 +61,6 @@ private:
     std::function<std::string()> _prompt;
 };
 using PasswordPromptPtr = std::shared_ptr<PasswordPrompt>;
-#endif
 
 //
 // Constants for X509 certificate alt names (AltNameOther, AltNameORAddress, AltNameEDIPartyName and

@@ -13,7 +13,7 @@ using namespace Test;
 //
 // Work-around for strange VS2017 15.5 optimizer bug, see ICE-8611
 //
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG)
 #   pragma optimize("g", off)
 #endif
 
@@ -218,7 +218,7 @@ testExceptions(const TestIntfPrxPtr& obj)
 //
 // See above
 //
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG)
 #   pragma optimize("g", on)
 #endif
 
@@ -235,11 +235,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     test(obj);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(obj, base));
-#else
-    test(obj == base);
-#endif
     cout << "ok" << endl;
 
     cout << "testing ice_ids... " << flush;

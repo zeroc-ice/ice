@@ -36,9 +36,6 @@ const int GLACIER2_TCP_PORT = 4063;
  * \headerfile Glacier2/Glacier2.h
  */
 class GLACIER2_API SessionHelper
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
     virtual ~SessionHelper();
@@ -91,11 +88,6 @@ public:
      */
     virtual Ice::ObjectAdapterPtr objectAdapter() = 0;
 
-#ifndef ICE_CPP11_MAPPING
-    bool operator==(const SessionHelper&) const;
-    bool operator!=(const SessionHelper&) const;
-#endif
-
 };
 ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
 
@@ -104,9 +96,6 @@ ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
  * \headerfile Glacier2/Glacier2.h
  */
 class GLACIER2_API SessionCallback
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
     virtual ~SessionCallback();
@@ -147,11 +136,7 @@ class SessionThreadCallback;
  * \headerfile Glacier2/Glacier2.h
  */
 class GLACIER2_API SessionFactoryHelper
-#ifdef ICE_CPP11_MAPPING
     : public std::enable_shared_from_this<SessionFactoryHelper>
-#else
-    : public virtual IceUtil::Shared
-#endif
 {
     /// \cond INTERNAL
     friend class SessionThreadCallback; // To access thread functions

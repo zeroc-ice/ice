@@ -16,9 +16,7 @@ namespace IceBox
 
 class ServiceManagerI : public ServiceManager,
                         public IceUtil::Monitor<IceUtil::Mutex>
-#ifdef ICE_CPP11_MAPPING
                       , public std::enable_shared_from_this<ServiceManagerI>
-#endif
 {
 public:
 
@@ -37,11 +35,7 @@ public:
     bool start();
     void stop();
 
-#ifdef ICE_CPP11_MAPPING
     void observerCompleted(const std::shared_ptr<ServiceObserverPrx>&, std::exception_ptr);
-#else
-    void observerCompleted(const Ice::AsyncResultPtr&);
-#endif
 
 private:
 
@@ -70,12 +64,8 @@ private:
     void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
     void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
 
-#ifdef ICE_CPP11_MAPPING
     std::function<void(std::exception_ptr)> makeObserverCompletedCallback(const std::shared_ptr<ServiceObserverPrx>&);
     void observerRemoved(const std::shared_ptr<ServiceObserverPrx>&, std::exception_ptr);
-#else
-    void observerRemoved(const ServiceObserverPrx&, const std::exception&);
-#endif
 
     Ice::PropertiesPtr createServiceProperties(const std::string&);
     void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);
@@ -94,9 +84,6 @@ private:
 
     std::set<ServiceObserverPrxPtr> _observers;
     int _traceServiceObserver;
-#ifndef ICE_CPP11_MAPPING
-    ::Ice::CallbackPtr _observerCompletedCB;
-#endif
 };
 ICE_DEFINE_PTR(ServiceManagerIPtr, ServiceManagerI);
 

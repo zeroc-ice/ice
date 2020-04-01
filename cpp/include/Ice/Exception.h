@@ -36,22 +36,14 @@ public:
      */
     LocalException(const char* file, int line);
 
-#ifdef ICE_CPP11_COMPILER
     LocalException(const LocalException&) = default;
     virtual ~LocalException();
-#else
-    virtual ~LocalException() throw();
-#endif
 
     /**
      * Polymporphically clones this exception.
      * @return A shallow copy of this exception.
      */
-#ifdef ICE_CPP11_MAPPING
     std::unique_ptr<LocalException> ice_clone() const;
-#else
-    virtual LocalException* ice_clone() const = 0;
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -72,11 +64,7 @@ public:
      * Polymporphically clones this exception.
      * @return A shallow copy of this exception.
      */
-#ifdef ICE_CPP11_MAPPING
     std::unique_ptr<UserException> ice_clone() const;
-#else
-    virtual UserException* ice_clone() const = 0;
-#endif
     virtual Ice::SlicedDataPtr ice_getSlicedData() const;
 
     /**
@@ -118,22 +106,14 @@ public:
      */
     SystemException(const char* file, int line);
 
-#ifdef ICE_CPP11_COMPILER
     SystemException(const SystemException&) = default;
     virtual ~SystemException();
-#else
-    virtual ~SystemException() throw();
-#endif
 
     /**
      * Polymporphically clones this exception.
      * @return A shallow copy of this exception.
      */
-#ifdef ICE_CPP11_MAPPING
     std::unique_ptr<SystemException> ice_clone() const;
-#else
-    virtual SystemException* ice_clone() const = 0;
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.

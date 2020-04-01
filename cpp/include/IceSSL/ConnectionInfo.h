@@ -39,8 +39,6 @@
 #   endif
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace IceSSL
 {
 
@@ -117,93 +115,6 @@ using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace IceSSL
-{
-
-class ConnectionInfo;
-/// \cond INTERNAL
-ICESSL_API ::Ice::LocalObject* upCast(ConnectionInfo*);
-/// \endcond
-typedef ::IceInternal::Handle< ConnectionInfo> ConnectionInfoPtr;
-
-}
-
-namespace IceSSL
-{
-
-/**
- * Provides access to the connection details of an SSL connection
- * \headerfile IceSSL/IceSSL.h
- */
-class ICESSL_API ConnectionInfo : public ::Ice::ConnectionInfo
-{
-public:
-
-    typedef ConnectionInfoPtr PointerType;
-
-    virtual ~ConnectionInfo();
-
-    ConnectionInfo()
-    {
-    }
-
-    /**
-     * One-shot constructor to initialize all data members.
-     * @param underlying The information of the underyling transport or null if there's no underlying transport.
-     * @param incoming Whether or not the connection is an incoming or outgoing connection.
-     * @param adapterName The name of the adapter associated with the connection.
-     * @param connectionId The connection id.
-     * @param cipher The negotiated cipher suite.
-     * @param certs The certificate chain.
-     * @param verified The certificate chain verification status.
-     */
-    ConnectionInfo(const ::Ice::ConnectionInfoPtr& underlying, bool incoming, const ::std::string& adapterName, const ::std::string& connectionId, const ::std::string& cipher, const std::vector<CertificatePtr>& certs, bool verified) :
-        ::Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
-        cipher(cipher),
-        certs(certs),
-        verified(verified)
-    {
-    }
-
-    /**
-     * The negotiated cipher suite.
-     */
-    ::std::string cipher;
-    /**
-     * The certificate chain.
-     */
-    std::vector<CertificatePtr> certs;
-    /**
-     * The certificate chain verification status.
-     */
-    bool verified;
-};
-
-/// \cond INTERNAL
-inline bool operator==(const ConnectionInfo& lhs, const ConnectionInfo& rhs)
-{
-    return static_cast<const ::Ice::LocalObject&>(lhs) == static_cast<const ::Ice::LocalObject&>(rhs);
-}
-
-inline bool operator<(const ConnectionInfo& lhs, const ConnectionInfo& rhs)
-{
-    return static_cast<const ::Ice::LocalObject&>(lhs) < static_cast<const ::Ice::LocalObject&>(rhs);
-}
-/// \endcond
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

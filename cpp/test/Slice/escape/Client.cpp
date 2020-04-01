@@ -13,7 +13,6 @@ class breakI : public _cpp_and::_cpp_break
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     virtual void caseAsync(::Ice::Int,
                            function<void(int)> response,
                            function<void(exception_ptr)>,
@@ -21,12 +20,6 @@ public:
     {
         response(0);
     }
-#else
-    virtual void case_async(const ::_cpp_and::AMD_break_casePtr& cb, ::Ice::Int, const ::Ice::Current&)
-    {
-        cb->ice_response(0);
-    }
-#endif
 };
 
 class charI: public _cpp_and::_cpp_char
@@ -46,11 +39,7 @@ public:
 class switchI: public _cpp_and::_cpp_switch
 {
 public:
-#ifdef ICE_CPP11_MAPPING
     virtual void foo(shared_ptr<_cpp_and::charPrx>, Ice::Int&, const ::Ice::Current&)
-#else
-    virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
-#endif
     {
     }
 };
@@ -58,18 +47,12 @@ public:
 class doI : public _cpp_and::_cpp_do
 {
 public:
-#ifdef ICE_CPP11_MAPPING
     virtual void caseAsync(int,
                            ::std::function<void(int)>,
                            ::std::function<void(::std::exception_ptr)>,
                            const ::Ice::Current&)
     {
     }
-#else
-    virtual void case_async(const ::_cpp_and::AMD_break_casePtr&, ::Ice::Int, const ::Ice::Current&)
-    {
-    }
-#endif
     virtual void _cpp_explicit(const ::Ice::Current&)
     {
     }
@@ -85,26 +68,16 @@ public:
 void
 testtypes()
 {
-#ifdef ICE_CPP11_MAPPING
     _cpp_and::_cpp_continue a = _cpp_and::_cpp_continue::_cpp_asm;
     test(a == _cpp_and::_cpp_continue::_cpp_asm);
-#else
-    _cpp_and::_cpp_continue a = _cpp_and::_cpp_asm;
-    test(a);
-#endif
 
     _cpp_and::_cpp_auto b, b2;
     b._cpp_default = 0;
     b2._cpp_default = b._cpp_default;
     b._cpp_default = b2._cpp_default;
 
-#ifdef ICE_CPP11_MAPPING
     _cpp_and::_cpp_delete c;
     c._cpp_else = "";
-#else
-    _cpp_and::deletePtr c = new _cpp_and::_cpp_delete();
-    c->_cpp_else = "";
-#endif
 
     _cpp_and::breakPrxPtr d;
     int d2;

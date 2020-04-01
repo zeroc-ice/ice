@@ -28,8 +28,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
 namespace
 {
 
@@ -42,32 +40,3 @@ Ice::Plugin::~Plugin()
 Ice::PluginManager::~PluginManager()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-Ice::Plugin::~Plugin()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(Plugin* p) { return p; }
-/// \endcond
-
-Ice::PluginManager::~PluginManager()
-{
-}
-
-/// \cond INTERNAL
-ICE_API ::Ice::LocalObject* Ice::upCast(PluginManager* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

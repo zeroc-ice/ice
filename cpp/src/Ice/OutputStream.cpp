@@ -760,11 +760,7 @@ Ice::OutputStream::write(const wstring* begin, const wstring* end)
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 Ice::OutputStream::writeProxy(const shared_ptr<ObjectPrx>& v)
-#else
-Ice::OutputStream::write(const ObjectPrx& v)
-#endif
 {
     if(v)
     {

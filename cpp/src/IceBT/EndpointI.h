@@ -17,9 +17,7 @@ namespace IceBT
 {
 
 class EndpointI : public IceInternal::EndpointI
-#ifdef ICE_CPP11_MAPPING
                 , public std::enable_shared_from_this<EndpointI>
-#endif
 {
 public:
 
@@ -46,13 +44,8 @@ public:
     virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
-#ifdef ICE_CPP11_MAPPING
     virtual bool operator==(const Ice::Endpoint&) const;
     virtual bool operator<(const Ice::Endpoint&) const;
-#else
-    virtual bool operator==(const Ice::LocalObject&) const;
-    virtual bool operator<(const Ice::LocalObject&) const;
-#endif
 
     virtual Ice::Int hash() const;
 

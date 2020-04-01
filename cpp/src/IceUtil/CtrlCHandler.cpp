@@ -57,14 +57,6 @@ CtrlCHandlerException::ice_id() const
     return "::IceUtil::CtrlCHandlerException";
 }
 
-#ifndef ICE_CPP11_MAPPING
-CtrlCHandlerException*
-CtrlCHandlerException::ice_clone() const
-{
-    return new CtrlCHandlerException(*this);
-}
-#endif
-
 CtrlCHandlerCallback
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {
