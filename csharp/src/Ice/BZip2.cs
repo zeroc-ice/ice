@@ -63,13 +63,14 @@ namespace Ice
         [DllImport("bzip2.dll", EntryPoint = "BZ2_bzCompressEnd", ExactSpelling = true)]
         internal static extern int WindowsBZ2_bzCompressEnd(ref BZStream stream);
 
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-        internal static extern int WindowsBZ2_bzBuffToBuffDecompress(byte[] dest,
-                                                                     ref int destLen,
-                                                                     byte[] source,
-                                                                     int sourceLen,
-                                                                     int small,
-                                                                     int verbosity);
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressInit", ExactSpelling = true)]
+        internal static extern int WindowsBZ2_bzDecompressInit(ref BZStream stream, int verbosity, int small);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompress", ExactSpelling = true)]
+        internal static extern int WindowsBZ2_bzDecompress(ref BZStream stream);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
+        internal static extern int WindowsBZ2_bzDecompressEnd(ref BZStream stream);
 
         [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         internal static extern IntPtr UnixBZ2_1_bzlibVersion();
@@ -84,13 +85,14 @@ namespace Ice
         [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzCompressEnd", ExactSpelling = true)]
         internal static extern int UnixBZ2_1_bzCompressEnd(ref BZStream stream);
 
-        [DllImport("libbz2.so.1", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-        internal static extern int UnixBZ2_1_bzBuffToBuffDecompress(byte[] dest,
-                                                                    ref int destLen,
-                                                                    byte[] source,
-                                                                    int sourceLen,
-                                                                    int small,
-                                                                    int verbosity);
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressInit", ExactSpelling = true)]
+        internal static extern int UnixBZ2_1_bzDecompressInit(ref BZStream stream, int verbosity, int small);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompress", ExactSpelling = true)]
+        internal static extern int UnixBZ2_1_bzDecompress(ref BZStream stream);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
+        internal static extern int UnixBZ2_1_bzDecompressEnd(ref BZStream stream);
 
         [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         internal static extern IntPtr UnixBZ2_10_bzlibVersion();
@@ -105,13 +107,14 @@ namespace Ice
         [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzCompressEnd", ExactSpelling = true)]
         internal static extern int UnixBZ2_10_bzCompressEnd(ref BZStream stream);
 
-        [DllImport("libbz2.so.1.0", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-        internal static extern int UnixBZ2_10_bzBuffToBuffDecompress(byte[] dest,
-                                                                     ref int destLen,
-                                                                     byte[] source,
-                                                                     int sourceLen,
-                                                                     int small,
-                                                                     int verbosity);
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressInit", ExactSpelling = true)]
+        internal static extern int UnixBZ2_10_bzDecompressInit(ref BZStream stream, int verbosity, int small);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompress", ExactSpelling = true)]
+        internal static extern int UnixBZ2_10_bzDecompress(ref BZStream stream);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
+        internal static extern int UnixBZ2_10_bzDecompressEnd(ref BZStream stream);
 
         [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         internal static extern IntPtr MacOSBZ2_bzlibVersion();
@@ -126,33 +129,23 @@ namespace Ice
         [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzCompressEnd", ExactSpelling = true)]
         internal static extern int MacOSBZ2_bzCompressEnd(ref BZStream stream);
 
-        [DllImport("libbz2.dylib", EntryPoint = "BZ2_bzBuffToBuffDecompress", ExactSpelling = true)]
-        internal static extern int MacOSBZ2_bzBuffToBuffDecompress(byte[] dest,
-                                                                   ref int destLen,
-                                                                   byte[] source,
-                                                                   int sourceLen,
-                                                                   int small,
-                                                                   int verbosity);
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressInit", ExactSpelling = true)]
+        internal static extern int MacOSBZ2_bzDecompressInit(ref BZStream stream, int verbosity, int small);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompress", ExactSpelling = true)]
+        internal static extern int MacOSBZ2_bzDecompress(ref BZStream stream);
+
+        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
+        internal static extern int MacOSBZ2_bzDecompressEnd(ref BZStream stream);
     }
-
-    internal delegate int CompressBuffer(byte[] dest,
-                                         ref int destLen,
-                                         byte[] source,
-                                         int sourceLen,
-                                         int blockSize100k,
-                                         int verbosity,
-                                         int workFactor);
-
-    internal delegate int DecompressBuffer(byte[] dest,
-                                           ref int destLen,
-                                           byte[] source,
-                                           int sourceLen,
-                                           int small,
-                                           int verbosity);
 
     internal delegate int BZCompressInit(ref BZStream stream, int blockSize100k, int verbosity, int workFactor);
     internal delegate int BZCompress(ref BZStream stream, int action);
     internal delegate int BZCompressEnd(ref BZStream stream);
+
+    internal delegate int BZDeompressInit(ref BZStream stream, int verbosity, int small);
+    internal delegate int BZDeompress(ref BZStream stream);
+    internal delegate int BZDeompressEnd(ref BZStream stream);
 
     internal class BZip2
     {
@@ -223,12 +216,13 @@ namespace Ice
 
             if (IceInternal.AssemblyUtil.IsWindows)
             {
-                _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                     int verbosity) =>
-                    {
-                        return SafeNativeMethods.WindowsBZ2_bzBuffToBuffDecompress(dest, ref destLen, source, sourceLen,
-                                                                                   small, verbosity);
-                    };
+                _decompressInit = (ref BZStream stream, int verbosity, int small) =>
+                    SafeNativeMethods.WindowsBZ2_bzDecompressInit(ref stream, verbosity, small);
+
+                _decompress = (ref BZStream stream) => SafeNativeMethods.WindowsBZ2_bzDecompress(ref stream);
+
+                _decompressEnd = (ref BZStream stream) =>
+                    SafeNativeMethods.WindowsBZ2_bzDecompressEnd(ref stream);
 
                 _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
                     SafeNativeMethods.WindowsBZ2_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
@@ -240,12 +234,14 @@ namespace Ice
             }
             else if (IceInternal.AssemblyUtil.IsMacOS)
             {
-                _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                     int verbosity) =>
-                    {
-                        return SafeNativeMethods.MacOSBZ2_bzBuffToBuffDecompress(dest, ref destLen, source, sourceLen,
-                                                                                 small, verbosity);
-                    };
+                _decompressInit = (ref BZStream stream, int verbosity, int small) =>
+                    SafeNativeMethods.MacOSBZ2_bzDecompressInit(ref stream, verbosity, small);
+
+                _decompress = (ref BZStream stream) => SafeNativeMethods.MacOSBZ2_bzDecompress(ref stream);
+
+                _decompressEnd = (ref BZStream stream) =>
+                    SafeNativeMethods.MacOSBZ2_bzDecompressEnd(ref stream);
+
                 _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
                     SafeNativeMethods.MacOSBZ2_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
 
@@ -258,12 +254,13 @@ namespace Ice
             {
                 if (_bzlibName == "libbz2.so.1.0")
                 {
-                    _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                         int verbosity) =>
-                        {
-                            return SafeNativeMethods.UnixBZ2_10_bzBuffToBuffDecompress(dest, ref destLen, source,
-                                                                                       sourceLen, small, verbosity);
-                        };
+                    _decompressInit = (ref BZStream stream, int verbosity, int small) =>
+                        SafeNativeMethods.UnixBZ2_10_bzDecompressInit(ref stream, verbosity, small);
+
+                    _decompress = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_10_bzDecompress(ref stream);
+
+                    _decompressEnd = (ref BZStream stream) =>
+                        SafeNativeMethods.UnixBZ2_10_bzDecompressEnd(ref stream);
 
                     _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
                         SafeNativeMethods.UnixBZ2_10_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
@@ -275,12 +272,14 @@ namespace Ice
                 }
                 else
                 {
-                    _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
-                                         int verbosity) =>
-                        {
-                            return SafeNativeMethods.UnixBZ2_1_bzBuffToBuffDecompress(dest, ref destLen, source,
-                                                                                      sourceLen, small, verbosity);
-                        };
+                    _decompressInit = (ref BZStream stream, int verbosity, int small) =>
+                        SafeNativeMethods.UnixBZ2_1_bzDecompressInit(ref stream, verbosity, small);
+
+                    _decompress = (ref BZStream stream) => SafeNativeMethods.UnixBZ2_1_bzDecompress(ref stream);
+
+                    _decompressEnd = (ref BZStream stream) =>
+                        SafeNativeMethods.UnixBZ2_1_bzDecompressEnd(ref stream);
+
                     _compressInit = (ref BZStream stream, int blockSize100k, int verbosity, int workFactor) =>
                         SafeNativeMethods.UnixBZ2_1_bzCompressInit(ref stream, blockSize100k, verbosity, workFactor);
 
@@ -470,27 +469,35 @@ namespace Ice
                     $"uncompressed size of {uncompressedSize} bytes is greater than Ice.MessageSizeMax value");
             }
 
-            // TODO this is not optimal we copy the compressed data to feed Bzip2 with a single array,
-            // that doesn't include the uncompressed header, then we allocate an array to hold the
-            // uncompressed data and copy the uncompressed data to the uncompressed stream after the
-            // header.
-            int compressedLen = compressed.Count - headerSize - 4;
-            byte[] compressedData = new byte[compressedLen];
-            compressed.Slice(headerSize + 4).CopyTo(compressedData);
             int uncompressedLen = uncompressedSize - headerSize;
-
-            byte[] uncompressedData = new byte[uncompressedLen];
-            int rc = _decompressBuffer(uncompressedData, ref uncompressedLen, compressedData, compressedLen, 0, 0);
-            if (rc < 0)
-            {
-                throw new Ice.InvalidDataException($"bzip2 decompression failed: {GetBZ2Error(rc)}");
-            }
-
-            // Copy the header from the compressed buffer to the uncompressed one. We should
-            // avoid the copy see comment above.
             byte[] uncompressed = new byte[uncompressedSize];
-            compressed.Slice(0, headerSize).CopyTo(uncompressed);
-            uncompressedData.AsSpan().CopyTo(uncompressed.AsSpan(headerSize));
+
+            // Prevent GC from moving the byte array, this allow to take the object address
+            // and pass it to bzip2 calls.
+            var uncompressedHandle = GCHandle.Alloc(uncompressed, GCHandleType.Pinned);
+            var compressedHandle = GCHandle.Alloc(compressed.Array, GCHandleType.Pinned);
+            var bzStream = new BZStream(uncompressedHandle.AddrOfPinnedObject() + headerSize,
+                (uint)(uncompressedSize - headerSize));
+
+            try
+            {
+                _decompressInit(ref bzStream, 0, 0);
+
+                bzStream.NextIn = compressedHandle.AddrOfPinnedObject() + compressed.Offset + headerSize + 4;
+                bzStream.AvailIn = (uint)(compressed.Count - headerSize - 4);
+                int rc = _decompress(ref bzStream);
+                if (rc != BzStreamEnd)
+                {
+                    throw new TransportException($"bzip2 decompression failed: {GetBZ2Error(rc)}");
+                }
+            }
+            finally
+            {
+                _decompressEnd(ref bzStream);
+                uncompressedHandle.Free();
+                compressedHandle.Free();
+            }
+            compressed.AsSpan(0, headerSize).CopyTo(uncompressed);
             return uncompressed;
         }
 
@@ -501,7 +508,9 @@ namespace Ice
         private static readonly BZCompress _compress;
         private static readonly BZCompressEnd _compressEnd;
 
-        private static readonly DecompressBuffer _decompressBuffer;
+        private static readonly BZDeompressInit _decompressInit;
+        private static readonly BZDeompress _decompress;
+        private static readonly BZDeompressEnd _decompressEnd;
 
         private const int BzSequenceError = -1;
         private const int BzParamError = -2;
