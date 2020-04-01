@@ -14,7 +14,7 @@ namespace Ice
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
 
-        /// <summary>True for a sealed frame, false otherwise. Once sealed, a frame is readonly.</summary>
+        /// <summary>True for a sealed frame, false otherwise. Once sealed, a frame is read-only.</summary>
         public bool IsSealed { get; private set; }
 
         /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
@@ -32,6 +32,13 @@ namespace Ice
         public static OutgoingResponseFrame WithVoidReturnValue(Current current)
             => new OutgoingResponseFrame(current.Encoding, writeVoidReturnValue: true);
 
+        /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
+        /// <param name="current">The Current object for the corresponding incoming request.</param>
+        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
+        /// the communicator's default format is used.</param>
+        /// <param name="value">The return value to marshal.</param>
+        /// <param name="writer">A delegate that must write the value to the frame.</param>
+        /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(Current current, FormatType? format, in T value,
             OutputStreamWriter<T> writer)
         {
@@ -47,6 +54,14 @@ namespace Ice
             return response;
         }
 
+        /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
+        /// <param name="current">The Current object for the corresponding incoming request.</param>
+        /// <param name="format">The format type used to marshal classes and exceptions, when this parameter is null
+        /// the communicator's default format is used.</param>
+        /// <param name="value">The return value to marshal, when the response frame contains multiple return
+        /// values they must be passed in a tuple.</param>
+        /// <param name="writer">A delegate that must write the value to the frame.</param>
+        /// <returns>A new OutgoingResponseFrame.</returns>
         public static OutgoingResponseFrame WithReturnValue<T>(Current current, FormatType? format, T value,
             OutputStreamStructWriter<T> writer) where T : struct
         {
@@ -188,14 +203,7 @@ namespace Ice
             if (writeVoidReturnValue)
             {
                 Encoding.CheckSupported();
-                byte[] buffer = new byte[256];
-                int pos = 0;
-                buffer[pos++] = (byte)ReplyStatus.OK;
-                OutputStream.WriteInt(6, buffer.AsSpan(pos, 4));
-                pos += 4;
-                buffer[pos++] = encoding.Major;
-                buffer[pos++] = encoding.Minor;
-                Data.Add(new ArraySegment<byte>(buffer, 0, pos));
+                Data.Add(Ice1Definitions.EmptyResponsePayload);;
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }

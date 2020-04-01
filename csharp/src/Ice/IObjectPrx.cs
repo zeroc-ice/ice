@@ -65,7 +65,7 @@ namespace Ice
         /// <returns>True if the target object implements the Slice interface identified by id</returns>.
         public bool IceIsA(string id, IReadOnlyDictionary<string, string>? context = null)
         {
-            var request = OutgoingRequestFrame.WithParameters(this, "ice_isA", idempotent: true, null, context,
+            var request = OutgoingRequestFrame.WithParamList(this, "ice_isA", idempotent: true, null, context,
                                                               id, OutputStream.IceWriterFromString);
             var response = IceInvoke(request, oneway: false);
             return response.ReadReturnValue(InputStream.IceReaderIntoBool);
@@ -84,7 +84,7 @@ namespace Ice
                                       IProgress<bool>? progress = null,
                                       CancellationToken cancel = default)
         {
-            var request = OutgoingRequestFrame.WithParameters(this, "ice_isA", idempotent: true, null, context,
+            var request = OutgoingRequestFrame.WithParamList(this, "ice_isA", idempotent: true, null, context,
                                                               id, OutputStream.IceWriterFromString);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
             return IceReadResponseAsync(task, InputStream.IceReaderIntoBool);
@@ -96,7 +96,7 @@ namespace Ice
         /// <param name="context">The context dictionary for the invocation.</param>
         public void IcePing(IReadOnlyDictionary<string, string>? context = null)
         {
-            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ping", idempotent: true, context);
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ping", idempotent: true, context);
             var response = IceInvoke(request, IsOneway);
 
             if (!IsOneway)
@@ -116,7 +116,7 @@ namespace Ice
                                  IProgress<bool>? progress = null,
                                  CancellationToken cancel = default)
         {
-            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ping", idempotent: true, context);
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ping", idempotent: true, context);
             var task = IceInvokeAsync(request, oneway: IsOneway, progress, cancel);
             return IsOneway ? task : IceReadVoidResponseAsync(task);
         }
@@ -129,7 +129,7 @@ namespace Ice
         /// order. The first element of the returned array is always ::Ice::IObject.</returns>
         public string[] IceIds(IReadOnlyDictionary<string, string>? context = null)
         {
-            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ids", idempotent: true, context);
             var response = IceInvoke(request, oneway: false);
             return response.ReadReturnValue(InputStream.IceReaderIntoStringArray);
         }
@@ -145,7 +145,7 @@ namespace Ice
                                           IProgress<bool>? progress = null,
                                           CancellationToken cancel = default)
         {
-            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_ids", idempotent: true, context);
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ids", idempotent: true, context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
             return IceReadResponseAsync(task, InputStream.IceReaderIntoStringArray);
         }
@@ -156,7 +156,7 @@ namespace Ice
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         public string IceId(IReadOnlyDictionary<string, string>? context = null)
         {
-            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_id", idempotent: true, context);
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_id", idempotent: true, context);
             var response = IceInvoke(request, oneway: false);
             return response.ReadReturnValue(InputStream.IceReaderIntoString);
         }
@@ -172,7 +172,7 @@ namespace Ice
                                        IProgress<bool>? progress = null,
                                        CancellationToken cancel = default)
         {
-            var request = OutgoingRequestFrame.WithNoParameter(this, "ice_id", idempotent: true, context);
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_id", idempotent: true, context);
             var task = IceInvokeAsync(request, oneway: false, progress, cancel);
             return IceReadResponseAsync(task, InputStream.IceReaderIntoString);
         }
@@ -413,26 +413,29 @@ namespace Ice
         // Temporary helper class for IceInvokeAsync
         private class InvokeTaskCompletionCallback : TaskCompletionCallback<IncomingResponseFrame>
         {
-            internal InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken) :
-                base(progress, cancellationToken)
+            internal InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken)
+                : base(progress, cancellationToken)
             {
             }
 
             public override void HandleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
-                                              OutgoingAsyncBase og)
+                OutgoingAsyncBase outgoing)
             {
                 if (Progress != null && !alreadySent)
                 {
                     Progress.Report(sentSynchronously);
                 }
+
                 if (done)
                 {
-                    SetResult(new IncomingResponseFrame(ReplyStatus.OK, og.GetIs()));
+                    IncomingResponseFrame? response = ((ProxyOutgoingAsyncBase)outgoing).ResponseFrame;
+                    Debug.Assert(response != null);
+                    SetResult(response);
                 }
             }
 
-            public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
-                SetResult(new IncomingResponseFrame(ok ? ReplyStatus.OK : ReplyStatus.UserException, og.GetIs()));
+            public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase outgoing) =>
+                SetResult(((ProxyOutgoingAsyncBase)outgoing).ResponseFrame!);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

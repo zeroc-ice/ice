@@ -29,11 +29,11 @@ namespace IceInternal
             }
         }
 
-        public OpaqueEndpointI(short type, Ice.InputStream s)
+        public OpaqueEndpointI(short type, Ice.Encoding encoding, byte[] rawBytes)
         {
             _type = type;
-            _rawEncoding = s.Encoding;
-            _rawBytes = s.ReadBlob(s.GetEncapsulationSize());
+            _rawEncoding = encoding;
+            _rawBytes = rawBytes;
         }
 
         //

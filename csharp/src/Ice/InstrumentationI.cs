@@ -458,7 +458,7 @@ namespace IceInternal
                     {
                         os.Append(_proxy.Clone(endpoints: _emptyEndpoints)).Append(" [").Append(_operation).Append(']');
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
                         os.Append(_proxy.Identity.ToString(_proxy.Communicator.ToStringMode));

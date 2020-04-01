@@ -11,12 +11,12 @@ namespace IceInternal
 {
     internal sealed class TraceUtil
     {
-        internal static void TraceSend(Communicator communicator, Encoding encoding,
+        internal static void TraceSend(Communicator communicator,
             byte[] buffer, ILogger logger, TraceLevels tl)
         {
             if (tl.Protocol >= 1)
             {
-                var iss = new InputStream(communicator, encoding, buffer);
+                var iss = new InputStream(communicator, buffer);
                 iss.Pos = 0;
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);

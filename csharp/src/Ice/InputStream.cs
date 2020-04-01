@@ -35,15 +35,6 @@ namespace Ice
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
 
-        /// <summary>
-        /// The encoding used when reading from this stream.
-        /// </summary>
-        /// <value>The encoding.</value>
-        public Encoding Encoding { get; private set; }
-
-        /// <summary>A read only view of the contents of the stream.</summary>
-        internal ReadOnlyMemory<byte> Buffer => new ReadOnlyMemory<byte>(_buffer.Array, 0, _buffer.Count);
-
         // Returns the sliced data held by the current instance.
         internal SlicedData? SlicedData
         {
@@ -56,7 +47,8 @@ namespace Ice
                 }
                 else
                 {
-                    return new SlicedData(Encoding, _current.Slices);
+                    Debug.Assert(_encoding != null);
+                    return new SlicedData(_encoding.Value, _current.Slices);
                 }
             }
         }
@@ -82,9 +74,6 @@ namespace Ice
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
 
-        // See StartEncapsulation/RestartEncapsulation
-        private MainEncapsBackup? _mainEncapsBackup;
-
         // When set, we are reading an endpoint encapsulation. An endpoint encaps is a lightweight encaps that cannot
         // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
         // when _mainEncaps is set (so nested inside _mainEncaps).
@@ -93,11 +82,11 @@ namespace Ice
         // Temporary upper limit set by an encapsulation. See Remaining.
         private int? _limit;
 
-        // The sum of all the mininum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
+        // The sum of all the minimum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
         private int _minTotalSeqSize = 0;
 
-        private ArraySegment<byte> _buffer;
+        private readonly ArraySegment<byte> _buffer;
         private int _pos;
 
         // Map of type ID index to type ID string.
@@ -118,28 +107,20 @@ namespace Ice
         // Since the map is actually a list, we use instance ID - 2 to lookup an instance.
         private List<AnyClass>? _instanceMap;
         private int _classGraphDepth = 0;
+        private Encoding? _encoding;
 
          // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData? _current;
 
-        /// <summary>This constructor uses the communicator's default encoding version.</summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="buffer">The stream initial data.</param>
-        public InputStream(Communicator communicator, ArraySegment<byte>? buffer = null)
-            : this(communicator, communicator.DefaultsAndOverrides.DefaultEncoding, buffer)
-        {
-        }
-
         /// <summary>This constructor uses the given encoding version.</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="encoding">The desired encoding version.</param>
         /// <param name="buffer">The stream initial data.</param>
-        public InputStream(Communicator communicator, Encoding encoding, ArraySegment<byte>? buffer = null)
+        /// <param name="pos">The zero base byte offset for the next read operation.</param>
+        internal InputStream(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
         {
             Communicator = communicator;
-            Encoding = encoding;
-            _buffer = buffer ?? ArraySegment<byte>.Empty;
-            _pos = 0;
+            _buffer = buffer;
+            _pos = pos;
         }
 
         /// <summary>Reads the start of an encapsulation.</summary>
@@ -149,13 +130,9 @@ namespace Ice
             Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
-            _mainEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
-            Encoding = encapsHeader.Encoding;
+            _mainEncaps = new Encaps(_limit, encapsHeader.Size);
             _limit = _pos + encapsHeader.Size - 6;
-
-            // _mainEncapsBackup is usually null here, but can be set in the event we are reading a batch request
-            // message/frame with multiple main encaps (one per request in the batch).
-            _mainEncapsBackup = new MainEncapsBackup(_mainEncaps.Value, _pos, Encoding, _minTotalSeqSize);
+            _encoding = encapsHeader.Encoding;
             return encapsHeader.Encoding;
         }
 
@@ -170,34 +147,7 @@ namespace Ice
                 throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in encapsulation");
             }
             _limit = _mainEncaps.Value.OldLimit;
-            Encoding = _mainEncaps.Value.OldEncoding;
-            ResetEncapsulation();
         }
-
-        /// <summary>Restarts the most recently started encapsulation.</summary>
-        public void RestartEncapsulation()
-        {
-            if (_mainEncapsBackup == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            if (_mainEncaps != null || _endpointEncaps != null)
-            {
-                ResetEncapsulation();
-            }
-
-            // Restore backup:
-            _mainEncaps = _mainEncapsBackup.Value.Encaps;
-            _pos = _mainEncapsBackup.Value.Pos;
-            Encoding = _mainEncapsBackup.Value.Encoding;
-            _minTotalSeqSize = _mainEncapsBackup.Value.MinTotalSeqSize;
-            _limit = _pos + _mainEncaps.Value.Size - 6;
-        }
-
-        /// <summary>Verifies if this InputStream can read data encoded using its current encoding.
-        /// Throws Ice.UnsupportedEncodingException if it cannot.</summary>
-        public void CheckIsReadable() => Encoding.CheckSupported();
 
         /// <summary>Go to the end of the current main encapsulation, if we are in one.</summary>
         public void SkipCurrentEncapsulation()
@@ -211,20 +161,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Skips an empty encapsulation.
-        /// </summary>
-        /// <returns>The encapsulation's encoding version.</returns>
-        public Encoding SkipEmptyEncapsulation()
-        {
-            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
-            // Skip the optional content of the encapsulation if we are expecting an
-            // empty encapsulation.
-            _pos += encapsHeader.Size - 6;
-            return encapsHeader.Encoding;
-        }
-
-        /// <summary>
         /// Returns a blob of bytes representing an encapsulation. The encapsulation's encoding version
         /// is returned in the argument.
         /// </summary>
@@ -235,7 +171,7 @@ namespace Ice
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             _pos -= 6;
             encoding = encapsHeader.Encoding;
-            var data = _buffer.Slice(_pos, encapsHeader.Size);
+            ArraySegment<byte> data = _buffer.Slice(_pos, encapsHeader.Size);
             _pos += encapsHeader.Size;
             return data;
         }
@@ -355,6 +291,22 @@ namespace Ice
             return size;
         }
 
+        public static int ReadSize(ArraySegment<byte> buffer)
+        {
+            byte b = buffer[0];
+            if (b < 255)
+            {
+                return b;
+            }
+
+            int size = ReadInt(buffer.AsSpan(1, 4));
+            if (size < 0)
+            {
+                throw new InvalidDataException($"read invalid size: {size}");
+            }
+            return size;
+        }
+
         /// <summary>
         /// Reads a sequence size and make sure there is enough space in the underlying buffer to read the sequence.
         /// This validation is performed to make sure we do not allocate a large container based on an invalid encoded
@@ -382,21 +334,6 @@ namespace Ice
                 throw new InvalidDataException("invalid sequence size");
             }
             return sz;
-        }
-
-        /// <summary>Reads a blob of bytes from the stream.</summary>
-        /// <param name="sz">The number of bytes to read.</param>
-        /// <returns>The requested bytes as a byte array.</returns>
-        public byte[] ReadBlob(int sz)
-        {
-            if (_buffer.Count - _pos < sz)
-            {
-                throw new IndexOutOfRangeException($"cannot read {sz} bytes");
-            }
-            byte[] v = new byte[sz];
-            _buffer.Slice(_pos).CopyTo(v);
-            _pos += sz;
-            return v;
         }
 
         /// <summary>Determine if an optional value is available for reading.</summary>
@@ -489,7 +426,6 @@ namespace Ice
         public void ReadSpan(Span<byte> span)
         {
             int length = span.Length;
-            Debug.Assert(_buffer.Count - _pos >= length);
             _buffer.AsSpan(_pos, length).CopyTo(span);
             _pos += length;
         }
@@ -882,6 +818,19 @@ namespace Ice
             return value;
         }
 
+        public static string ReadString(ArraySegment<byte> buffer)
+        {
+            int size = ReadSize(buffer);
+            if (size == 0)
+            {
+                return "";
+            }
+            else
+            {
+                return _utf8.GetString(buffer.AsSpan(size < 254 ? 1 : 4, size));
+            }
+        }
+
         /// <summary>
         /// Extracts an optional string from the stream.
         /// </summary>
@@ -1005,18 +954,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Read an enumerated value.
-        /// </summary>
-        /// <param name="maxValue">The maximum enumerator value in the definition.</param>
-        /// <returns>The enumerator.</returns>
-        public int ReadEnum(int maxValue)
-        {
-            // TODO: eliminate maxValue
-            Debug.Assert(Encoding == Encoding.V1_1); // TODO: temporary
-            return ReadSize();
-        }
-
-        /// <summary>
         /// Read an instance of class T.
         /// </summary>
         /// <returns>The class instance, or null.</returns>
@@ -1064,14 +1001,13 @@ namespace Ice
         /// <summary>
         /// Extracts a remote exception from the stream and throws it.
         /// </summary>
-        public void ThrowException()
+        public RemoteException ReadException()
         {
             Push(InstanceType.Exception);
             Debug.Assert(_current != null);
 
             // Read the first slice header, and exception's type ID cannot be null.
             string typeId = ReadSliceHeaderIntoCurrent()!;
-            string mostDerivedId = typeId;
             ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately
 
             while (true)
@@ -1098,7 +1034,7 @@ namespace Ice
                     remoteEx.ConvertToUnhandled = true;
                     remoteEx.Read(this);
                     Pop(null);
-                    throw remoteEx;
+                    return remoteEx;
                 }
 
                 // Slice off what we don't understand.
@@ -1110,7 +1046,7 @@ namespace Ice
                     Debug.Assert(SlicedData != null);
                     remoteEx = new RemoteException(SlicedData.Value);
                     remoteEx.ConvertToUnhandled = true;
-                    throw remoteEx;
+                    return remoteEx;
                 }
 
                 typeId = ReadSliceHeaderIntoCurrent()!;
@@ -1143,14 +1079,13 @@ namespace Ice
             }
         }
 
-        internal Encoding StartEndpointEncapsulation()
+        internal (Encoding, int) StartEndpointEncapsulation()
         {
             Debug.Assert(_endpointEncaps == null);
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            _endpointEncaps = new Encaps(_limit, Encoding, encapsHeader.Size);
-            Encoding = encapsHeader.Encoding;
+            _endpointEncaps = new Encaps(_limit, encapsHeader.Size);
             _limit = _pos + encapsHeader.Size - 6;
-            return encapsHeader.Encoding;
+            return (encapsHeader.Encoding, encapsHeader.Size - 6);
         }
 
         internal void EndEndpointEncapsulation()
@@ -1163,46 +1098,13 @@ namespace Ice
             }
 
             _limit = _endpointEncaps.Value.OldLimit;
-            Encoding = _endpointEncaps.Value.OldEncoding;
             _endpointEncaps = null;
         }
 
-       // Swaps the contents of one stream with another.
-        internal void Swap(InputStream other)
+        internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
-            Debug.Assert(Communicator == other.Communicator);
-
-            (_buffer, other._buffer) = (other._buffer, _buffer);
-            (Encoding, other.Encoding) = (other.Encoding, Encoding);
-            (_pos, other._pos) = (other._pos, _pos);
-
-            // Swap is never called for InputStreams that have encapsulations being read. However,
-            // encapsulations might still be set in case un-marshalling failed. We just
-            // reset the encapsulations if there are still some set.
-            ResetEncapsulation();
-            other.ResetEncapsulation();
-
-            int tmpMinTotalSeqSize = other._minTotalSeqSize;
-            other._minTotalSeqSize = _minTotalSeqSize;
-            _minTotalSeqSize = tmpMinTotalSeqSize;
-        }
-
-        private void ResetEncapsulation()
-        {
-            _mainEncaps = null;
-            _endpointEncaps = null;
-            _instanceMap?.Clear();
-            _classGraphDepth = 0;
-            _typeIdMap?.Clear();
-            _posAfterLatestInsertedTypeId = 0;
-            _current = null;
-            _limit = null;
-        }
-
-        private (Encoding Encoding, int Size) ReadEncapsulationHeader()
-        {
-            // With the 1.1 encoding, the encaps size is encoded on a 4-bytes int and not on a variable-length size,
-            // for ease of marshaling.
+            // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and
+            // not on a variable-length size, for ease of marshaling.
             int sz = ReadInt();
             if (sz < 6)
             {
@@ -1214,8 +1116,7 @@ namespace Ice
             }
             byte major = ReadByte();
             byte minor = ReadByte();
-            var encoding = new Encoding(major, minor);
-            return (encoding, sz);
+            return (new Encoding(major, minor), sz);
         }
 
         private void SkipTagged(OptionalFormat format)
@@ -1299,7 +1200,7 @@ namespace Ice
                 int index = ReadSize();
                 if (index > 0 && index - 1 < _typeIdMap.Count)
                 {
-                    // The encoded type-id indices start at 1, not 0.
+                    // The encoded type-id indexes start at 1, not 0.
                     return _typeIdMap[index - 1];
                 }
                 throw new InvalidDataException($"read invalid type ID index {index}");
@@ -1794,16 +1695,12 @@ namespace Ice
             // Previous upper limit of the buffer, if set
             internal readonly int? OldLimit;
 
-            // Old Encoding
-            internal readonly Encoding OldEncoding;
-
             // Size of the encaps, as read from the stream
             internal readonly int Size;
 
-            internal Encaps(int? oldLimit, Encoding oldEncoding, int size)
+            internal Encaps(int? oldLimit, int size)
             {
                 OldLimit = oldLimit;
-                OldEncoding = oldEncoding;
                 Size = size;
             }
         }

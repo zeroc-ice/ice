@@ -247,23 +247,25 @@ namespace Ice
             => proxy.IceInvokeAsync(request, oneway, progress, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
+        /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
+        /// two-way request.</param>
         /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="request">The incoming request frame.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
         public static async ValueTask<OutgoingResponseFrame> ForwardAsync(this IObjectPrx proxy,
+                                                                          bool oneway,
                                                                           IncomingRequestFrame request,
                                                                           IProgress<bool>? progress = null,
                                                                           CancellationToken cancel = default)
         {
-            var forwardedRequest = new OutgoingRequestFrame(proxy, request.Current.Operation,
-                request.Current.IsIdempotent, request.Current.Context, request.TakePayload());
-
+            var forwardedRequest = new OutgoingRequestFrame(proxy, request.Operation, request.IsIdempotent,
+                request.Context, request.Payload);
             IncomingResponseFrame response =
-                await proxy.InvokeAsync(forwardedRequest, oneway: request.Current.IsOneway, progress, cancel)
+                await proxy.InvokeAsync(forwardedRequest, oneway: oneway, progress, cancel)
                     .ConfigureAwait(false);
-            return new OutgoingResponseFrame(request.Current.Encoding, response.TakePayload());
+            return new OutgoingResponseFrame(request.Encoding, response.Payload);
         }
 
         private class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>

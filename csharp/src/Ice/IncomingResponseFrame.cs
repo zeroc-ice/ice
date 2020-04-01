@@ -8,13 +8,13 @@ using System.Diagnostics;
 
 namespace Ice
 {
-    public enum ResultType : byte { Success, Failure };
-
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
-        public InputStream InputStream { get; }
+        /// <summary>The encoding of the frame payload</summary>
+        public Encoding Encoding { get; }
 
+        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus { get; }
 
         /// <summary>The response context. Always null with Ice1.</summary>
@@ -22,96 +22,140 @@ namespace Ice
 
         /// <summary>The payload of this response frame. The bytes inside the payload should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
-        public ArraySegment<byte> Payload
-        {
-            get
-            {
-                if (_payload == null)
-                {
-                    // TODO, it should never be empty, but currently it is when fulfilled by Sent
-                    if (InputStream.Size == 0)
-                    {
-                        _payload = ArraySegment<byte>.Empty;
-                    }
-                    else
-                    {
-                        // TODO: for other reply status,return the non-encaps payload.
-                        Debug.Assert(ReplyStatus == ReplyStatus.OK || ReplyStatus == ReplyStatus.UserException);
+        public ArraySegment<byte> Payload { get; }
 
-                        // TODO: works only when Payload called first before reading anything. Need a better version!
-                        // TODO: provide Encoding property
-                        ArraySegment<byte> payload = InputStream.ReadEncapsulation(out Encoding _);
-                        // The payload must included the byte before the encapsulation
-                        // corresponding to the reply status.
-                        Debug.Assert(payload.Array.Length >= payload.Count + 1);
-                        _payload = new ArraySegment<byte>(payload.Array, payload.Offset - 1, payload.Count + 1);
-                    }
-                }
-                return _payload.Value;
-            }
-        }
+        /// <summary>The frame byte count.</summary>
+        public int Size => Payload.Count;
 
-        private ArraySegment<byte>? _payload;
+        private readonly Communicator _communicator;
 
-        /// <summary>Take the payload from this response frame. After calling this method, the payload can no longer
-        /// be read.</summary>
-        public ArraySegment<byte> TakePayload()
-        {
-            // TODO: make this method destructive with memory pooling.
-            return Payload;
-        }
-
-        /// <summary>Starts reading the result carried by this response frame.</summary>
-        /// <returns>The type of the result, either Success or Failure, and an InputStream iterator over this result.
-        /// </returns>
-        public (ResultType ResultType, InputStream InputStream) ReadResult()
-        {
-            InputStream.StartEncapsulation();
-            switch (ReplyStatus)
-            {
-                case ReplyStatus.OK:
-                    return (ResultType.Success, InputStream);
-                case ReplyStatus.UserException:
-                    return (ResultType.Failure, InputStream);
-                default:
-                    throw new InvalidOperationException(); // TODO: better exception and message
-            }
-        }
-
-        /// <summary>Reads the return value carried by this response frame using the provided InputStreamReader.
-        /// If the response frame carries a failure, ReadReturnValue reads and throws this exception.</summary>
-        /// <param name="reader">InputStreamReader that reads the return value.</param>
-        /// <returns>The return value.</returns>
+        /// <summary>Reads the return value carried by this response frame. If the response frame carries
+        /// a failure, reads and throws this exception.</summary>
+        /// <param name="reader">An input stream reader used to read the frame return value, when the frame
+        /// return value contain multiple values the reader must use a tuple to return the values.</param>
+        /// <returns>The frame return value.</returns>
         public T ReadReturnValue<T>(InputStreamReader<T> reader)
         {
-            if (ReadResult().ResultType == ResultType.Failure)
+            if (ReplyStatus == ReplyStatus.OK)
             {
-                // TODO: would be nicer to read then EndEncaps then throw the exception
-                InputStream.ThrowException();
+                var istr = new InputStream(_communicator, Payload, 1);
+                istr.StartEncapsulation();
+                T ret = reader(istr);
+                istr.EndEncapsulation();
+                return ret;
             }
-
-            var returnValue = reader(InputStream);
-
-            InputStream.EndEncapsulation();
-
-            return returnValue;
+            else
+            {
+                throw ReadException();
+            }
         }
 
-        /// <summary>Reads an empty return value from the response frame.</summary>
+        /// <summary>Reads an empty return value from the response frame. If the response frame carries
+        /// a failure, reads and throws this exception.</summary>
         public void ReadVoidReturnValue()
         {
-            if (ReadResult().ResultType == ResultType.Failure)
+            if (ReplyStatus == ReplyStatus.OK)
             {
-                // TODO: would be nicer to read then EndEncaps then throw the exception
-                InputStream.ThrowException();
+                var istr = new InputStream(_communicator, Payload, 1);
+                istr.StartEncapsulation();
+                istr.EndEncapsulation();
             }
-            InputStream.EndEncapsulation();
+            else
+            {
+                throw ReadException();
+            }
         }
 
-        internal IncomingResponseFrame(ReplyStatus replyStatus, InputStream inputStream)
+        /// <summary>Creates a new IncomingResponse Frame</summary>
+        /// <param name="communicator">The communicator to use when initializing the stream.</param>
+        /// <param name="payload">The frame data as an array segment.</param>
+        public IncomingResponseFrame(Communicator communicator, ArraySegment<byte> payload)
         {
-            InputStream = inputStream;
-            ReplyStatus = replyStatus;
+            _communicator = communicator;
+            byte replyStatus = payload[0];
+            if (replyStatus > 7)
+            {
+                throw new InvalidDataException(
+                    $"received ice1 response frame with unknown reply status `{replyStatus}'");
+            }
+            ReplyStatus = (ReplyStatus)replyStatus;
+            Payload = payload;
+            if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
+            {
+                int size = InputStream.ReadInt(Payload.Slice(1, 4));
+                if (size != Payload.Count - 1)
+                {
+                    throw new InvalidDataException($"invalid encapsulation size: `{size}'");
+                }
+                Encoding = new Encoding(payload[5], payload[6]);
+            }
+            else
+            {
+                Encoding = Encoding.V1_1;
+            }
+        }
+
+        // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
+        // the frame has a single segment.
+        public IncomingResponseFrame(Communicator communicator, OutgoingResponseFrame frame)
+            : this(communicator, frame.Payload.ToArray())
+        {
+        }
+
+        private Exception ReadException()
+        {
+            switch (ReplyStatus)
+            {
+                case ReplyStatus.UserException:
+                {
+                    var istr = new InputStream(_communicator, Payload, 1);
+                    istr.StartEncapsulation();
+                    RemoteException ex = istr.ReadException();
+                    istr.EndEncapsulation();
+                    return ex;
+                }
+                case ReplyStatus.ObjectNotExistException:
+                case ReplyStatus.FacetNotExistException:
+                case ReplyStatus.OperationNotExistException:
+                {
+                    return ReadDispatchException();
+                }
+                default:
+                {
+                    Debug.Assert(ReplyStatus == ReplyStatus.UnknownException ||
+                                 ReplyStatus == ReplyStatus.UnknownLocalException ||
+                                 ReplyStatus == ReplyStatus.UnknownUserException);
+                    return ReadUnhandledException();
+                }
+            }
+        }
+
+        internal UnhandledException ReadUnhandledException() =>
+            new UnhandledException(InputStream.ReadString(Payload.Slice(1)), Identity.Empty, "", "");
+
+        internal DispatchException ReadDispatchException()
+        {
+            var istr = new InputStream(_communicator, Payload, 1);
+            var identity = new Identity(istr);
+
+            // For compatibility with the old FacetPath.
+            string[] facetPath = istr.ReadStringArray();
+            if (facetPath.Length > 1)
+            {
+                throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
+            }
+            string facet = facetPath.Length > 0 ? facetPath[0] : "";
+
+            string operation = istr.ReadString();
+
+            if (ReplyStatus == ReplyStatus.OperationNotExistException)
+            {
+                return new OperationNotExistException(identity, facet, operation);
+            }
+            else
+            {
+                return new ObjectNotExistException(identity, facet, operation);
+            }
         }
     }
 }
