@@ -63,7 +63,7 @@ public:
     DispatchCall(const ConnectionIPtr& connection, const ConnectionI::StartCallbackPtr& startCB,
                  const vector<ConnectionI::OutgoingMessage>& sentCBs, Byte compress, Int requestId,
                  Int invokeNum, const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter,
-                 const OutgoingAsyncBasePtr& outAsync, const ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback,
+                 const OutgoingAsyncBasePtr& outAsync, const HeartbeatCallback& heartbeatCallback,
                  InputStream& stream) :
         DispatchWorkItem(connection),
         _connection(connection),
@@ -99,7 +99,7 @@ private:
     const ServantManagerPtr _servantManager;
     const ObjectAdapterPtr _adapter;
     const OutgoingAsyncBasePtr _outAsync;
-    const ICE_DELEGATE(HeartbeatCallback) _heartbeatCallback;
+    const HeartbeatCallback _heartbeatCallback;
     InputStream _stream;
 };
 
@@ -907,7 +907,7 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
 }
 
 void
-Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) callback)
+Ice::ConnectionI::setHeartbeatCallback(ICE_IN(HeartbeatCallback) callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -918,7 +918,7 @@ Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) c
 }
 
 void
-Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
+Ice::ConnectionI::setCloseCallback(ICE_IN(CloseCallback) callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -929,7 +929,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
             {
             public:
 
-                CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(ICE_DELEGATE(CloseCallback)) callback) :
+                CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(CloseCallback) callback) :
                     _connection(connection),
                     _callback(move(callback))
                 {
@@ -943,7 +943,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
             private:
 
                 const ConnectionIPtr _connection;
-                const ICE_DELEGATE(CloseCallback) _callback;
+                const CloseCallback _callback;
             };
             _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), move(callback)));
         }
@@ -955,7 +955,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
 }
 
 void
-Ice::ConnectionI::closeCallback(const ICE_DELEGATE(CloseCallback)& callback)
+Ice::ConnectionI::closeCallback(const CloseCallback& callback)
 {
     try
     {
@@ -1418,7 +1418,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     ServantManagerPtr servantManager;
     ObjectAdapterPtr adapter;
     OutgoingAsyncBasePtr outAsync;
-    ICE_DELEGATE(HeartbeatCallback) heartbeatCallback;
+    HeartbeatCallback heartbeatCallback;
     int dispatchCount = 0;
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
@@ -1703,7 +1703,7 @@ void
 ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMessage>& sentCBs,
                       Byte compress, Int requestId, Int invokeNum, const ServantManagerPtr& servantManager,
                       const ObjectAdapterPtr& adapter, const OutgoingAsyncBasePtr& outAsync,
-                      const ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback, InputStream& stream)
+                      const HeartbeatCallback& heartbeatCallback, InputStream& stream)
 {
     int dispatchedCount = 0;
 
@@ -3070,7 +3070,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 SocketOperation
 Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
                                ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter,
-                               OutgoingAsyncBasePtr& outAsync, ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback,
+                               OutgoingAsyncBasePtr& outAsync, HeartbeatCallback& heartbeatCallback,
                                int& dispatchCount)
 {
     assert(_state > StateNotValidated && _state < StateClosed);

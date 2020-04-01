@@ -159,8 +159,8 @@ public:
                             ::std::function<void(::std::exception_ptr)>,
                             ::std::function<void(bool)> = nullptr);
 
-    virtual void setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)));
-    virtual void setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)));
+    virtual void setCloseCallback(ICE_IN(CloseCallback));
+    virtual void setHeartbeatCallback(ICE_IN(HeartbeatCallback));
 
     virtual void heartbeat();
 
@@ -215,10 +215,10 @@ public:
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncBasePtr&,
-                  const ICE_DELEGATE(HeartbeatCallback)&, Ice::InputStream&);
+                  const HeartbeatCallback&, Ice::InputStream&);
     void finish(bool);
 
-    void closeCallback(const ICE_DELEGATE(CloseCallback)&);
+    void closeCallback(const CloseCallback&);
 
     virtual ~ConnectionI();
 
@@ -266,7 +266,7 @@ private:
 
     IceInternal::SocketOperation parseMessage(Ice::InputStream&, Int&, Int&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
-                                              IceInternal::OutgoingAsyncBasePtr&, ICE_DELEGATE(HeartbeatCallback)&, int&);
+                                              IceInternal::OutgoingAsyncBasePtr&, HeartbeatCallback&, int&);
 
     void invokeAll(Ice::InputStream&, Int, Int, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
@@ -341,8 +341,8 @@ private:
     bool _initialized;
     bool _validated;
 
-    ICE_DELEGATE(CloseCallback) _closeCallback;
-    ICE_DELEGATE(HeartbeatCallback) _heartbeatCallback;
+    CloseCallback _closeCallback;
+    HeartbeatCallback _heartbeatCallback;
 };
 
 }
