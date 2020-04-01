@@ -544,7 +544,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         }
         else if(err != SEC_E_OK)
         {
-            throw SecurityException(__FILE__, __LINE__, "IceSSL: protocol error during read:\n" +
+            throw ProtocolException(__FILE__, __LINE__, "IceSSL: protocol error during read:\n" +
                                     secStatusToString(err));
         }
 
@@ -617,7 +617,7 @@ SChannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
     SECURITY_STATUS err = EncryptMessage(&_ssl, 0, &buffersDesc, 0);
     if(err != SEC_E_OK)
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: protocol error encrypting message:\n" +
+        throw ProtocolException(__FILE__, __LINE__, "IceSSL: protocol error encrypting message:\n" +
                                 secStatusToString(err));
     }
 
