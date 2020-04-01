@@ -4,7 +4,7 @@
 
 known_distributions             := centos rhel fedora debian ubuntu amzn sles
 linux_ids                       := $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID} $${ID_LIKE}),)
-linux_id                        := $(word 1,$(or $(filter $(known_distributions),$(linux_ids)),$(linux_ids)))
+linux_id                        ?= $(word 1,$(or $(filter $(known_distributions),$(linux_ids)),$(linux_ids)))
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
 ifneq ($(OECORE_SDK_VERSION),)
@@ -27,7 +27,7 @@ $(build-platform)_objdir       =
 # system install directory
 system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
 
-else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
+else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64,$(shell uname -m))),)
 
 #
 # MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)
