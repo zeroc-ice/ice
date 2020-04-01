@@ -107,7 +107,7 @@ namespace Ice
                 {
                     if (value.Count == 0)
                     {
-                        _defaultContext = IceInternal.Reference.EmptyContext;
+                        _defaultContext = Reference.EmptyContext;
                     }
                     else
                     {
@@ -171,7 +171,7 @@ namespace Ice
         private readonly string[] _compactIdNamespaces;
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
-        private IReadOnlyDictionary<string, string> _defaultContext = IceInternal.Reference.EmptyContext;
+        private IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
         private ILocatorPrx? _defaultLocator;
         private IRouterPrx? _defaultRouter;
 

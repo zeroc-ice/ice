@@ -2315,7 +2315,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "internal _" << p->name() << "Prx(global::IceInternal.Reference reference)";
+    _out << nl << "internal _" << p->name() << "Prx(global::Ice.Reference reference)";
     _out.inc();
     _out << nl << ": base(reference)";
     _out.dec();
@@ -2324,7 +2324,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << getUnqualified("Ice.IObjectPrx", ns) << " " << getUnqualified("Ice.IObjectPrx", ns)
-        << ".IceClone(global::IceInternal.Reference reference) => new _" << p->name() << "Prx(reference);";
+        << ".IceClone(global::Ice.Reference reference) => new _" << p->name() << "Prx(reference);";
 
     _out << eb;
 }
