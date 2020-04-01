@@ -769,15 +769,14 @@ namespace Ice
         }
 
         // Marshal the reference.
-        internal void StreamWrite(OutputStream ostr)
+        internal void Write(OutputStream ostr)
         {
             if (IsFixed)
             {
                 throw new NotSupportedException("cannot marshal a fixed proxy");
             }
 
-            // Don't write the identity here. Operations calling StreamWrite write the identity.
-            // TODO: why not write identity here?
+            Identity.IceWrite(ostr);
 
             // For compatibility with the old FacetPath
             if (Facet.Length == 0)
@@ -834,7 +833,7 @@ namespace Ice
             if (RouterInfo != null)
             {
                 Dictionary<string, string> routerProperties =
-                    RouterInfo.Router.IceReference.ToProperty(prefix + ".Router");
+                    RouterInfo.Router.ToProperty(prefix + ".Router");
                 foreach (KeyValuePair<string, string> entry in routerProperties)
                 {
                     properties[entry.Key] = entry.Value;
@@ -843,7 +842,7 @@ namespace Ice
             if (LocatorInfo != null)
             {
                 Dictionary<string, string> locatorProperties =
-                    LocatorInfo.Locator.IceReference.ToProperty(prefix + ".Locator");
+                    LocatorInfo.Locator.ToProperty(prefix + ".Locator");
                 foreach (KeyValuePair<string, string> entry in locatorProperties)
                 {
                     properties[entry.Key] = entry.Value;

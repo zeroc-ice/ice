@@ -330,11 +330,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceWrite(OutputStream os)
-        {
-            Identity.IceWrite(os);
-            IceReference.StreamWrite(os);
-        }
+        public void IceWrite(OutputStream ostr) => IceReference.Write(ostr);
 
         public TaskScheduler Scheduler => IceReference.ThreadPool;
 
