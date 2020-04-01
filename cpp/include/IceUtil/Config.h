@@ -292,8 +292,5 @@ typedef long long Int64;
 #define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
 #define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
 #define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
-#define ICE_DELEGATE(T) T
-#define ICE_IN(...) __VA_ARGS__
-#define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
 
 #endif

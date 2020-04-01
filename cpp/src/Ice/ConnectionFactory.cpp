@@ -1339,7 +1339,7 @@ IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
     }
     catch(const Ice::LocalException& ex)
     {
-        ICE_SET_EXCEPTION_FROM_CLONE(_acceptorException, ex.ice_clone());
+        _acceptorException = ex.ice_clone();
         _acceptor->getNativeInfo()->completed(SocketOperationRead);
     }
     return true;

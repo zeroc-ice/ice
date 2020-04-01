@@ -282,7 +282,7 @@ bool
 OutgoingAsyncBase::exceptionImpl(const Exception& ex)
 {
     Lock sync(_m);
-    ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());
+    _ex = ex.ice_clone();
     if(_childObserver)
     {
         _childObserver.failed(ex.ice_id());
@@ -316,7 +316,7 @@ OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
     }
     catch(const Ice::Exception& ex)
     {
-        ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());
+        _ex = ex.ice_clone();
         invoke = handleException(ex);
     }
     if(!invoke)
@@ -334,7 +334,7 @@ OutgoingAsyncBase::cancel(const Ice::LocalException& ex)
         Lock sync(_m);
         if(!_cancellationHandler)
         {
-            ICE_SET_EXCEPTION_FROM_CLONE(_cancellationException, ex.ice_clone());
+            _cancellationException = ex.ice_clone();
             return;
         }
         handler = _cancellationHandler;

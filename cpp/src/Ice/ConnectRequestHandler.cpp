@@ -170,7 +170,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         Lock sync(*this);
         assert(!_flushing && !_initialized && !_exception);
         _flushing = true; // Ensures request handler is removed before processing new requests.
-        ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+        _exception = ex.ice_clone();
     }
 
     //
@@ -282,7 +282,7 @@ ConnectRequestHandler::flushRequests()
         }
         catch(const RetryException& ex)
         {
-            ICE_SET_EXCEPTION_FROM_CLONE(exception, ex.get()->ice_clone());
+            exception = ex.get()->ice_clone();
 
             // Remove the request handler before retrying.
             _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
@@ -291,7 +291,7 @@ ConnectRequestHandler::flushRequests()
         }
         catch(const Ice::LocalException& ex)
         {
-            ICE_SET_EXCEPTION_FROM_CLONE(exception, ex.ice_clone());
+            exception = ex.ice_clone();
 
             if(req->exception(ex))
             {
