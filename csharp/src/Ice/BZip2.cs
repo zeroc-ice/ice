@@ -182,7 +182,9 @@ namespace Ice
         private static readonly BZDeompress _decompress;
         private static readonly BZDeompressEnd _decompressEnd;
 
+#pragma warning disable CA1810 // Initialize reference type static fields inline
         static BZip2()
+#pragma warning restore CA1810 // Initialize reference type static fields inline
         {
             //
             // Simple trick to find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function in the
