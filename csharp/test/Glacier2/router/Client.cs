@@ -291,7 +291,7 @@ public class Client : Test.TestHelper
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
                 ICallbackPrx otherCategoryTwoway =
-                    ICallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c2/callback")));
+                    twoway.Clone(Identity.Parse("c2/callback"), ICallbackPrx.Factory);
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -305,7 +305,7 @@ public class Client : Test.TestHelper
                 try
                 {
                     ICallbackPrx otherCategoryTwoway =
-                        ICallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("c3/callback")));
+                        twoway.Clone(Identity.Parse("c3/callback"), ICallbackPrx.Factory);
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 }
@@ -321,7 +321,7 @@ public class Client : Test.TestHelper
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
                 ICallbackPrx otherCategoryTwoway =
-                    ICallbackPrx.UncheckedCast(twoway.Clone(Identity.Parse("_userid/callback")));
+                    twoway.Clone(Identity.Parse("_userid/callback"), ICallbackPrx.Factory);
                 otherCategoryTwoway.initiateCallback(twowayR, context);
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");

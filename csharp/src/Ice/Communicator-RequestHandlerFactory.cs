@@ -9,7 +9,9 @@ namespace Ice
 {
     public sealed partial class Communicator
     {
-        internal IRequestHandler GetRequestHandler(RoutableReference rf)
+        // All the reference here are routable references.
+
+        internal IRequestHandler GetRequestHandler(Reference rf)
         {
             if (rf.IsCollocationOptimized)
             {
@@ -47,7 +49,7 @@ namespace Ice
             return rf.SetRequestHandler(handler.Connect(rf));
         }
 
-        internal void RemoveConnectRequestHandler(RoutableReference rf, ConnectRequestHandler handler)
+        internal void RemoveConnectRequestHandler(Reference rf, ConnectRequestHandler handler)
         {
             if (rf.IsConnectionCached)
             {
@@ -61,7 +63,7 @@ namespace Ice
             }
         }
 
-        private readonly Dictionary<RoutableReference, ConnectRequestHandler> _handlers =
-            new Dictionary<RoutableReference, ConnectRequestHandler>();
+        private readonly Dictionary<Reference, ConnectRequestHandler> _handlers =
+            new Dictionary<Reference, ConnectRequestHandler>();
     }
 }

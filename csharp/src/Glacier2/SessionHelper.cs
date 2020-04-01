@@ -427,7 +427,7 @@ namespace Glacier2
                         // In case of error getting router identity from RouterFinder use default identity.
                         //
                         _communicator.SetDefaultRouter(
-                                Ice.IRouterPrx.UncheckedCast(finder.Clone(new Identity("router", "Glacier2"))));
+                                finder.Clone(new Identity("router", "Glacier2"), Ice.IRouterPrx.Factory));
                     }
                 }
 

@@ -299,7 +299,7 @@ namespace Ice
         /// </summary>
         /// <returns>True if this is a fixed proxy, false otherwise.
         /// </returns>
-        public bool IsFixed => IceReference is FixedReference;
+        public bool IsFixed => IceReference.IsFixed;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected internal IncomingResponseFrame IceInvoke(OutgoingRequestFrame request, bool oneway)
@@ -330,11 +330,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceWrite(OutputStream os)
-        {
-            Identity.IceWrite(os);
-            IceReference.StreamWrite(os);
-        }
+        public void IceWrite(OutputStream ostr) => IceReference.Write(ostr);
 
         public TaskScheduler Scheduler => IceReference.ThreadPool;
 
@@ -376,7 +372,10 @@ namespace Ice
         public int IceHandleException(System.Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
                                       ref int cnt)
         {
-            (IceReference as RoutableReference)?.UpdateRequestHandler(handler, null); // Clear the request handler
+            if (!IceReference.IsFixed)
+            {
+                IceReference.UpdateRequestHandler(handler, null); // Clear the request handler
+            }
 
             // We only retry after failing with a DispatchException or a local exception.
             //
