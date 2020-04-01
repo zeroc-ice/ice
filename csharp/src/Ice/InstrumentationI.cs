@@ -315,11 +315,11 @@ namespace IceInternal
             if (_id == null)
             {
                 var os = new StringBuilder();
-                if (_current.Id.Category != null && _current.Id.Category.Length > 0)
+                if (_current.Identity.Category != null && _current.Identity.Category.Length > 0)
                 {
-                    os.Append(_current.Id.Category).Append('/');
+                    os.Append(_current.Identity.Category).Append('/');
                 }
-                os.Append(_current.Id.Name).Append(" [").Append(_current.Operation).Append(']');
+                os.Append(_current.Identity.Name).Append(" [").Append(_current.Operation).Append(']');
                 _id = os.ToString();
             }
             return _id;
@@ -358,7 +358,7 @@ namespace IceInternal
 
         public Current GetCurrent() => _current;
 
-        public string GetIdentity() => _current.Id.ToString(_current.Adapter!.Communicator.ToStringMode);
+        public string GetIdentity() => _current.Identity.ToString(_current.Adapter!.Communicator.ToStringMode);
 
         private readonly Current _current;
         private readonly int _size;

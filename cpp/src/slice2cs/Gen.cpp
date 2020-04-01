@@ -2731,7 +2731,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "default:";
     _out << sb;
     _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-            << "(current.Id, current.Facet, current.Operation);";
+            << "(current.Identity, current.Facet, current.Operation);";
     _out << eb;
 
     _out << eb; // switch

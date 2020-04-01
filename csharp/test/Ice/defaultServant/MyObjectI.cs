@@ -8,7 +8,7 @@ namespace Ice.DefaultServant
     {
         public void IcePing(Current current)
         {
-            string name = current.Id.Name;
+            string name = current.Identity.Name;
 
             if (name == "ObjectNotExist")
             {
@@ -18,7 +18,7 @@ namespace Ice.DefaultServant
 
         public string GetName(Current current)
         {
-            string name = current.Id.Name;
+            string name = current.Identity.Name;
 
             if (name == "ObjectNotExist")
             {

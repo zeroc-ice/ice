@@ -2366,12 +2366,12 @@ namespace Ice
                 OutgoingResponseFrame? response = null;
                 try
                 {
-                    IObject? servant = current.Adapter.Find(current.Id, current.Facet);
+                    IObject? servant = current.Adapter.Find(current.Identity, current.Facet);
                     if (servant == null)
                     {
                         // TODO if we want to support incoming batch request we need
                         // to skip current encapsulation.
-                        throw new ObjectNotExistException(current.Id, current.Facet, current.Operation);
+                        throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(request, current);
@@ -2392,7 +2392,7 @@ namespace Ice
                         }
                         else
                         {
-                            actualEx = new UnhandledException(current.Id, current.Facet, current.Operation, ex);
+                            actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
                         }
                         Incoming.ReportException(actualEx, dispatchObserver, current);
                         response = new OutgoingResponseFrame(current, actualEx);

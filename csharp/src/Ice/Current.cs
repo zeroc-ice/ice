@@ -14,7 +14,7 @@ namespace Ice
         public Dictionary<string, string> Context { get; }
         public Encoding Encoding { get; }
         public string Facet { get; }
-        public Identity Id { get; }
+        public Identity Identity { get; }
         public bool IsIdempotent { get; }
         public bool IsOneway => RequestId == 0;
         public string Operation { get; }
@@ -29,7 +29,7 @@ namespace Ice
             Context = new Dictionary<string, string>(request.Context);
             Encoding = request.Encoding;
             Facet = request.Facet;
-            Id = request.Identity;
+            Identity = request.Identity;
             IsIdempotent = request.IsIdempotent;
             Operation = request.Operation;
             RequestId = requestId;
