@@ -92,7 +92,7 @@ public:
 void
 sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
 {
-    if(selType == Ice::ICE_ENUM(EndpointSelectionType, Random))
+    if(selType == Ice::EndpointSelectionType::Random)
     {
         IceUtilInternal::shuffle(addrs.begin(), addrs.end());
     }
@@ -148,7 +148,7 @@ setTcpLoopbackFastPath(SOCKET fd)
     DWORD NumberOfBytesReturned = 0;
 
     int status =
-        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), ICE_NULLPTR, 0, &NumberOfBytesReturned, 0, 0);
+        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), nullptr, 0, &NumberOfBytesReturned, 0, 0);
     if(status == SOCKET_ERROR)
     {
             // On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
@@ -222,20 +222,20 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback, bool singleAdd
     }
 
     DWORD size;
-    DWORD rv = GetAdaptersAddresses(family, 0, ICE_NULLPTR, ICE_NULLPTR, &size);
+    DWORD rv = GetAdaptersAddresses(family, 0, nullptr, nullptr, &size);
     if(rv == ERROR_BUFFER_OVERFLOW)
     {
         PIP_ADAPTER_ADDRESSES adapter_addresses = (PIP_ADAPTER_ADDRESSES) malloc(size);
-        rv = GetAdaptersAddresses(family, 0, ICE_NULLPTR, adapter_addresses, &size);
+        rv = GetAdaptersAddresses(family, 0, nullptr, adapter_addresses, &size);
         if(rv == ERROR_SUCCESS)
         {
-            for(PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != ICE_NULLPTR; aa = aa->Next)
+            for(PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != nullptr; aa = aa->Next)
             {
                 if(aa->OperStatus != IfOperStatusUp)
                 {
                     continue;
                 }
-                for(PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != ICE_NULLPTR; ua = ua->Next)
+                for(PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != nullptr; ua = ua->Next)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
@@ -926,7 +926,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
         throw DNSException(__FILE__, __LINE__, rs, host);
     }
 
-    for(struct addrinfo* p = info; p != ICE_NULLPTR; p = p->ai_next)
+    for(struct addrinfo* p = info; p != nullptr; p = p->ai_next)
     {
         memcpy(&addr.saStorage, p->ai_addr, p->ai_addrlen);
         if(p->ai_family == PF_INET)
@@ -994,7 +994,7 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
         }
         return addr;
     }
-    vector<Address> addrs = getAddresses(host, port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+    vector<Address> addrs = getAddresses(host, port, protocol, Ice::EndpointSelectionType::Ordered,
                                          preferIPv6, canBlock);
     return addrs.empty() ? Address() : addrs[0];
 }
@@ -1696,7 +1696,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 Address
 IceInternal::getNumericAddress(const std::string& address)
 {
-    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::ICE_ENUM(EndpointSelectionType, Ordered), false,
+    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::EndpointSelectionType::Ordered, false,
                                          false);
     if(addrs.empty())
     {
@@ -2171,7 +2171,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
-    LPFN_CONNECTEX ConnectEx = ICE_NULLPTR; // a pointer to the 'ConnectEx()' function
+    LPFN_CONNECTEX ConnectEx = nullptr; // a pointer to the 'ConnectEx()' function
     GUID GuidConnectEx = WSAID_CONNECTEX; // The Guid
     DWORD dwBytes;
     if(WSAIoctl(fd,
@@ -2181,8 +2181,8 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
                 &ConnectEx,
                 sizeof(ConnectEx),
                 &dwBytes,
-                ICE_NULLPTR,
-                ICE_NULLPTR) == SOCKET_ERROR)
+                nullptr,
+                nullptr) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
@@ -2232,7 +2232,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
         }
     }
 
-    if(setsockopt(fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, ICE_NULLPTR, 0) == SOCKET_ERROR)
+    if(setsockopt(fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, nullptr, 0) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }

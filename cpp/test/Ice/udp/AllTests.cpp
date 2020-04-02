@@ -60,7 +60,7 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ReplyAdapter");
-    PingReplyIPtr replyI = ICE_MAKE_SHARED(PingReplyI);
+    PingReplyIPtr replyI = std::make_shared<PingReplyI>();
     PingReplyPrxPtr reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     adapter->activate();
 
@@ -84,7 +84,7 @@ allTests(Test::TestHelper* helper)
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
-        replyI = ICE_MAKE_SHARED(PingReplyI);
+        replyI = std::make_shared<PingReplyI>();
         reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
     test(ret);
@@ -112,7 +112,7 @@ allTests(Test::TestHelper* helper)
         {
             test(seq.size() > 16384);
         }
-        obj->ice_getConnection()->close(ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        obj->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
         communicator->getProperties()->setProperty("Ice.UDP.SndSize", "64000");
         seq.resize(50000);
         try
@@ -175,7 +175,7 @@ allTests(Test::TestHelper* helper)
         {
             break; // Success
         }
-        replyI = ICE_MAKE_SHARED(PingReplyI);
+        replyI = std::make_shared<PingReplyI>();
         reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
     if(!ret)
@@ -205,7 +205,7 @@ allTests(Test::TestHelper* helper)
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
-        replyI = ICE_MAKE_SHARED(PingReplyI);
+        replyI = std::make_shared<PingReplyI>();
         reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
     }
     test(ret);

@@ -823,7 +823,7 @@ OpenSSL::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 OpenSSL::TransceiverI::getInfo() const
 {
-    ConnectionInfoPtr info = ICE_MAKE_SHARED(ConnectionInfo);
+    ConnectionInfoPtr info = std::make_shared<ConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;

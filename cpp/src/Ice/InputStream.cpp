@@ -1208,7 +1208,7 @@ Ice::InputStream::readEnum(Int maxValue)
 }
 
 void
-Ice::InputStream::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::throwException(UserExceptionFactory factory)
 {
     initEncaps();
     _currentEncaps->decoder->throwException(factory);
@@ -1272,37 +1272,37 @@ Ice::InputStream::skipOptional(OptionalFormat type)
 {
     switch(type)
     {
-        case ICE_SCOPED_ENUM(OptionalFormat, F1):
+        case OptionalFormat::F1:
         {
             skip(1);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F2):
+        case OptionalFormat::F2:
         {
             skip(2);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F4):
+        case OptionalFormat::F4:
         {
             skip(4);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F8):
+        case OptionalFormat::F8:
         {
             skip(8);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, Size):
+        case OptionalFormat::Size:
         {
             skipSize();
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, VSize):
+        case OptionalFormat::VSize:
         {
             skip(static_cast<size_t>(readSize()));
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, FSize):
+        case OptionalFormat::FSize:
         {
             Int sz;
             read(sz);
@@ -1313,7 +1313,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
             skip(static_cast<size_t>(sz));
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, Class):
+        case OptionalFormat::Class:
         {
             read(0, 0);
             break;
@@ -1713,7 +1713,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
 {
     assert(_sliceType == NoSlice);
 
@@ -1735,7 +1735,7 @@ Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExcept
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
+    UserExceptionFactory exceptionFactory = factory;
     while(true)
     {
         //
@@ -2039,7 +2039,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
 {
     assert(!_current);
 
@@ -2050,7 +2050,7 @@ Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExcept
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
+    UserExceptionFactory exceptionFactory = factory;
     while(true)
     {
         //
@@ -2269,7 +2269,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     //
     // Preserve this slice.
     //
-    SliceInfoPtr info = ICE_MAKE_SHARED(SliceInfo);
+    SliceInfoPtr info = std::make_shared<SliceInfo>();
     info->typeId = _current->typeId;
     info->compactId = _current->compactId;
     info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
@@ -2407,7 +2407,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, 
             v = newInstance(Object::ice_staticId());
             if(!v)
             {
-                v = ICE_MAKE_SHARED(UnknownSlicedValue, mostDerivedId);
+                v = std::make_shared<UnknownSlicedValue>(mostDerivedId);
             }
 
             break;
@@ -2474,5 +2474,5 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
             addPatchEntry(*p, &patchHandle<Value>, &instances[j++]);
         }
     }
-    return ICE_MAKE_SHARED(SlicedData, _current->slices);
+    return std::make_shared<SlicedData>(_current->slices);
 }

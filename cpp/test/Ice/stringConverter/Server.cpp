@@ -15,13 +15,13 @@ class MyObjectI : public Test::MyObject
 {
 public:
 
-    virtual wstring widen(ICE_IN(string) msg, const Ice::Current&)
+    virtual wstring widen(string msg, const Ice::Current&)
     {
         return stringToWstring(msg, Ice::getProcessStringConverter(),
                                Ice::getProcessWstringConverter());
     }
 
-    virtual string narrow(ICE_IN(wstring) wmsg, const Ice::Current&)
+    virtual string narrow(wstring wmsg, const Ice::Current&)
     {
         return wstringToString(wmsg, Ice::getProcessStringConverter(),
                                Ice::getProcessWstringConverter());
@@ -46,7 +46,7 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(MyObjectI), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<MyObjectI>(), Ice::stringToIdentity("test"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

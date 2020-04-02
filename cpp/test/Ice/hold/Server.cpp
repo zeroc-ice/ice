@@ -27,7 +27,7 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Serialize", "0");
     Ice::ObjectAdapterPtr adapter1 = communicator->createObjectAdapter("TestAdapter1");
-    adapter1->add(ICE_MAKE_SHARED(HoldI, timer, adapter1), Ice::stringToIdentity("hold"));
+    adapter1->add(std::make_shared<HoldI>(timer, adapter1), Ice::stringToIdentity("hold"));
 
     communicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Size", "5");
@@ -35,7 +35,7 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
     communicator->getProperties()->setProperty("TestAdapter2.ThreadPool.Serialize", "1");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
-    adapter2->add(ICE_MAKE_SHARED(HoldI, timer, adapter2), Ice::stringToIdentity("hold"));
+    adapter2->add(std::make_shared<HoldI>(timer, adapter2), Ice::stringToIdentity("hold"));
 
     adapter1->activate();
     adapter2->activate();

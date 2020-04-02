@@ -34,28 +34,28 @@ TestIntfI::opSimple(Test::SimpleEnum s1, Test::SimpleEnum& s2, const Ice::Curren
 }
 
 Test::ByteEnumSeq
-TestIntfI::opByteSeq(ICE_IN(Test::ByteEnumSeq) bs1, Test::ByteEnumSeq& bs2, const Ice::Current&)
+TestIntfI::opByteSeq(Test::ByteEnumSeq bs1, Test::ByteEnumSeq& bs2, const Ice::Current&)
 {
     bs2 = bs1;
     return bs1;
 }
 
 Test::ShortEnumSeq
-TestIntfI::opShortSeq(ICE_IN(Test::ShortEnumSeq) ss1, Test::ShortEnumSeq& ss2, const ::Ice::Current&)
+TestIntfI::opShortSeq(Test::ShortEnumSeq ss1, Test::ShortEnumSeq& ss2, const ::Ice::Current&)
 {
     ss2 = ss1;
     return ss1;
 }
 
 Test::IntEnumSeq
-TestIntfI::opIntSeq(ICE_IN(Test::IntEnumSeq) is1, Test::IntEnumSeq& is2, const ::Ice::Current&)
+TestIntfI::opIntSeq(Test::IntEnumSeq is1, Test::IntEnumSeq& is2, const ::Ice::Current&)
 {
     is2 = is1;
     return is1;
 }
 
 Test::SimpleEnumSeq
-TestIntfI::opSimpleSeq(ICE_IN(Test::SimpleEnumSeq) ss1, Test::SimpleEnumSeq& ss2, const ::Ice::Current&)
+TestIntfI::opSimpleSeq(Test::SimpleEnumSeq ss1, Test::SimpleEnumSeq& ss2, const ::Ice::Current&)
 {
     ss2 = ss1;
     return ss1;

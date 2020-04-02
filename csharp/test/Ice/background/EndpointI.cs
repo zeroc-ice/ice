@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -27,13 +29,13 @@ internal class Endpoint : IceInternal.Endpoint
 
     public override void StreamWriteImpl(Ice.OutputStream s)
     {
-        s.WriteShort(_endpoint.Type());
+        s.WriteShort((short)_endpoint.Type());
         _endpoint.StreamWriteImpl(s);
     }
 
-    public override short Type()
+    public override EndpointType Type()
     {
-        return (short)(TYPE_BASE + _endpoint.Type());
+        return (EndpointType)(TYPE_BASE + (short)_endpoint.Type());
     }
 
     public override string Transport()

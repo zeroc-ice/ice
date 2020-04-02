@@ -172,12 +172,12 @@ namespace IceInternal
                 bool amd = true;
                 try
                 {
-                    IObject? servant = current.Adapter.Find(current.Id, current.Facet);
+                    IObject? servant = current.Adapter.Find(current.Identity, current.Facet);
 
                     if (servant == null)
                     {
                         amd = false;
-                        throw new Ice.ObjectNotExistException(current.Id, current.Facet, current.Operation);
+                        throw new Ice.ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
@@ -200,7 +200,7 @@ namespace IceInternal
                         }
                         else
                         {
-                            actualEx = new UnhandledException(current.Id, current.Facet, current.Operation, ex);
+                            actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
                         }
 
                         Incoming.ReportException(actualEx, dispatchObserver, current);

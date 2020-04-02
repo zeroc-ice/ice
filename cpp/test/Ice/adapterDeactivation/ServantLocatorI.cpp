@@ -24,7 +24,7 @@ public:
     virtual Ice::ObjectPrxPtr
     getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual Ice::ObjectPrxPtr
@@ -48,7 +48,7 @@ private:
 
 }
 
-ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(ICE_MAKE_SHARED(RouterI))
+ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(std::make_shared<RouterI>())
 {
 }
 
@@ -70,9 +70,9 @@ ServantLocatorI::locate(const Ice::Current& current, std::shared_ptr<void>& cook
     test(current.id.category == "");
     test(current.id.name == "test");
 
-    cookie = ICE_MAKE_SHARED(Cookie);
+    cookie = std::make_shared<Cookie>();
 
-    return ICE_MAKE_SHARED(TestI);
+    return std::make_shared<TestI>();
 }
 
 void

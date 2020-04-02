@@ -541,7 +541,7 @@ IceUtil::Exception::ice_print(ostream& out) const
 }
 
 const char*
-IceUtil::Exception::what() const ICE_NOEXCEPT
+IceUtil::Exception::what() const noexcept
 {
     try
     {

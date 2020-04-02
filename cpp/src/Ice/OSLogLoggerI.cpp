@@ -51,7 +51,7 @@ Ice::OSLogLoggerI::getPrefix()
 LoggerPtr
 Ice::OSLogLoggerI::cloneWithPrefix(const std::string& prefix)
 {
-    return ICE_MAKE_SHARED(OSLogLoggerI, prefix);
+    return std::make_shared<OSLogLoggerI>(prefix);
 }
 
 #endif

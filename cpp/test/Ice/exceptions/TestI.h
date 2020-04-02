@@ -35,7 +35,7 @@ public:
     virtual void throwLocalException(const Ice::Current&);
     virtual void throwNonIceException(const Ice::Current&);
     virtual void throwAssertException(const Ice::Current&);
-    virtual Ice::ByteSeq throwMemoryLimitException(ICE_IN(Ice::ByteSeq), const Ice::Current&);
+    virtual Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq, const Ice::Current&);
 
     virtual void throwLocalExceptionIdempotent(const Ice::Current&);
 

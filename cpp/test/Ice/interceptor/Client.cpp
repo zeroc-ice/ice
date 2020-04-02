@@ -59,9 +59,9 @@ Client::run(int argc, char* argv[])
     //
     Ice::ObjectAdapterPtr oa = communicator->createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
 
-    Ice::ObjectPtr servant = ICE_MAKE_SHARED(MyObjectI);
-    InterceptorIPtr interceptor = ICE_MAKE_SHARED(InterceptorI, servant);
-    AMDInterceptorIPtr amdInterceptor = ICE_MAKE_SHARED(AMDInterceptorI, servant);
+    Ice::ObjectPtr servant = std::make_shared<MyObjectI>();
+    InterceptorIPtr interceptor = std::make_shared<InterceptorI>(servant);
+    AMDInterceptorIPtr amdInterceptor = std::make_shared<AMDInterceptorI>(servant);
 
     Test::MyObjectPrxPtr prx = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(interceptor));
     Test::MyObjectPrxPtr prxForAMD = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(amdInterceptor));

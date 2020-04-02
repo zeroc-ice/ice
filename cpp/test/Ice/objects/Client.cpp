@@ -49,7 +49,7 @@ public:
 
     virtual Ice::ValuePtr create(const string&)
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     virtual void destroy()

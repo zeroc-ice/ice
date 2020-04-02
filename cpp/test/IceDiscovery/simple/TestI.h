@@ -18,11 +18,11 @@ class ControllerI : public Test::Controller
 {
 public:
 
-    virtual void activateObjectAdapter(ICE_IN(std::string), ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
-    virtual void deactivateObjectAdapter(ICE_IN(std::string), const Ice::Current&);
+    virtual void activateObjectAdapter(std::string, std::string, std::string, const Ice::Current&);
+    virtual void deactivateObjectAdapter(std::string, const Ice::Current&);
 
-    virtual void addObject(ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
-    virtual void removeObject(ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
+    virtual void addObject(std::string, std::string, const Ice::Current&);
+    virtual void removeObject(std::string, std::string, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 

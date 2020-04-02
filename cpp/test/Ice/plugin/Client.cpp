@@ -244,7 +244,7 @@ Client::run(int argc, char** argv)
         test(pm->getPlugin("PluginTwo"));
         test(pm->getPlugin("PluginThree"));
 
-        MyPluginPtr p4 = ICE_MAKE_SHARED(MyPlugin);
+        MyPluginPtr p4 = std::make_shared<MyPlugin>();
         pm->addPlugin("PluginFour", p4);
         test(pm->getPlugin("PluginFour"));
 

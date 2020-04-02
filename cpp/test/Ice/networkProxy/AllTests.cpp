@@ -23,7 +23,7 @@ getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
             return ipInfo;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 }

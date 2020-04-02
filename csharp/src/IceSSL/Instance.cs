@@ -9,7 +9,7 @@ namespace IceSSL
 {
     internal class Instance : IceInternal.TransportInstance
     {
-        internal Instance(SSLEngine engine, short type, string transport) :
+        internal Instance(SSLEngine engine, Ice.EndpointType type, string transport) :
             base(engine.Communicator(), type, transport, true) => _engine = engine;
 
         internal SSLEngine Engine() => _engine;

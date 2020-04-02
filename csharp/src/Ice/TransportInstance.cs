@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
 using System.Net;
 
 namespace IceInternal
 {
     public class TransportInstance
     {
-        public TransportInstance(Ice.Communicator communicator, short type, string transport, bool secure)
+        public TransportInstance(Ice.Communicator communicator, EndpointType type, string transport, bool secure)
         {
             Communicator = communicator;
             TraceLevel = Communicator.TraceLevels.Network;
@@ -23,7 +24,7 @@ namespace IceInternal
         public string TraceCategory { get; protected set; }
         public Ice.ILogger Logger { get; protected set; }
         public string Transport { get; protected set; }
-        public short Type { get; protected set; }
+        public EndpointType Type { get; protected set; }
         public bool Secure { get; protected set; }
         public Ice.Communicator Communicator { get; protected set; }
         public bool PreferIPv6 => Communicator.PreferIPv6;
@@ -35,13 +36,13 @@ namespace IceInternal
         public int MessageSizeMax => Communicator.MessageSizeMax;
         public INetworkProxy? NetworkProxy => Communicator.NetworkProxy;
 
-        public IEndpointFactory? GetEndpointFactory(short type) => Communicator.GetEndpointFactory(type);
+        public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.GetEndpointFactory(type);
         public void Resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
                             IEndpointConnectors callback) =>
             Communicator.Resolve(host, port, type, endpt, callback);
-        public void SetSndBufSizeWarn(short type, int size) => Communicator.SetSndBufSizeWarn(type, size);
-        public void SetRcvBufSizeWarn(short type, int size) => Communicator.SetRcvBufSizeWarn(type, size);
+        public void SetSndBufSizeWarn(EndpointType type, int size) => Communicator.SetSndBufSizeWarn(type, size);
+        public void SetRcvBufSizeWarn(EndpointType type, int size) => Communicator.SetRcvBufSizeWarn(type, size);
 
-        internal Ice.BufSizeWarnInfo GetBufSizeWarn(short type) => Communicator.GetBufSizeWarn(type);
+        internal Ice.BufSizeWarnInfo GetBufSizeWarn(EndpointType type) => Communicator.GetBufSizeWarn(type);
     }
 }

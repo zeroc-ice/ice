@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -44,7 +46,7 @@ namespace IceInternal
         {
             public InfoI(Endpoint e) => _endpoint = e;
 
-            public override short Type() => _endpoint.Type();
+            public override EndpointType Type() => _endpoint.Type();
 
             public override bool Datagram() => _endpoint.Datagram();
 
@@ -63,7 +65,7 @@ namespace IceInternal
             return info;
         }
 
-        public override short Type() => _delegate.Type();
+        public override EndpointType Type() => _delegate.Type();
 
         public override string Transport() => _delegate.Transport();
 
@@ -293,11 +295,11 @@ namespace IceInternal
 
     public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
-        public WSEndpointFactory(TransportInstance instance, short type) : base(instance, type)
+        public WSEndpointFactory(TransportInstance instance, EndpointType type) : base(instance, type)
         {
         }
 
-        public override IEndpointFactory CloneWithUnderlying(TransportInstance instance, short underlying) =>
+        public override IEndpointFactory CloneWithUnderlying(TransportInstance instance, EndpointType underlying) =>
             new WSEndpointFactory(instance, underlying);
 
         protected override Endpoint CreateWithUnderlying(Endpoint? underlying, List<string> args, bool oaEndpoint) =>

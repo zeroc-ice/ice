@@ -376,16 +376,16 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                Identity id = Identity.Parse("does not exist");
+                Identity identity = Identity.Parse("does not exist");
                 try
                 {
-                    var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(id));
+                    var thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                     thrower2.IcePing();
                     test(false);
                 }
                 catch (ObjectNotExistException ex)
                 {
-                    test(ex.Id.Equals(id));
+                    test(ex.Id.Equals(identity));
                     test(ex.Message.Contains("servant")); // verify we don't get system message
                 }
                 catch (System.Exception)
@@ -401,7 +401,7 @@ namespace Ice.exceptions
 
             try
             {
-                var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
+                var thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
                     thrower2.IcePing();
@@ -807,8 +807,8 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                Identity id = Identity.Parse("does not exist");
-                var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(id));
+                Identity identity = Identity.Parse("does not exist");
+                var thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();
@@ -822,7 +822,7 @@ namespace Ice.exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.Id.Equals(id));
+                        test(ex.Id.Equals(identity));
                     }
                     catch (System.Exception)
                     {
@@ -837,7 +837,7 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
+                var thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();
@@ -1040,8 +1040,8 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                Identity id = Identity.Parse("does not exist");
-                var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(id));
+                Identity identity = Identity.Parse("does not exist");
+                var thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();
@@ -1055,7 +1055,7 @@ namespace Ice.exceptions
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.Id.Equals(id));
+                        test(ex.Id.Equals(identity));
                     }
                     catch (System.Exception)
                     {
@@ -1070,7 +1070,7 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                var thrower2 = IThrowerPrx.UncheckedCast(thrower.Clone(facet: "no such facet"));
+                var thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();

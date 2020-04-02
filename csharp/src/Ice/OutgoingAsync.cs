@@ -413,7 +413,10 @@ namespace IceInternal
                 //
 
                 // Clear request handler and always retry.
-                (Proxy.IceReference as RoutableReference)?.UpdateRequestHandler(Handler, null);
+                if (!Proxy.IceReference.IsFixed)
+                {
+                    Proxy.IceReference.UpdateRequestHandler(Handler, null);
+                }
                 Communicator.AddRetryTask(this, 0);
             }
             catch (Exception ex)
@@ -504,7 +507,10 @@ namespace IceInternal
                     catch (RetryException)
                     {
                         // Clear request handler and always retry.
-                        (Proxy.IceReference as RoutableReference)?.UpdateRequestHandler(Handler, null);
+                        if (!Proxy.IceReference.IsFixed)
+                        {
+                            Proxy.IceReference.UpdateRequestHandler(Handler, null);
+                        }
                     }
                     catch (Exception ex)
                     {

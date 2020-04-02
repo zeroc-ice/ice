@@ -85,7 +85,7 @@ CFDictionaryRef
 IceSSL::SecureTransport::getCertificateProperty(SecCertificateRef cert, CFTypeRef key)
 {
     UniqueRef<CFDictionaryRef> property;
-    UniqueRef<CFArrayRef> keys(CFArrayCreate(ICE_NULLPTR, &key , 1, &kCFTypeArrayCallBacks));
+    UniqueRef<CFArrayRef> keys(CFArrayCreate(nullptr, &key , 1, &kCFTypeArrayCallBacks));
     UniqueRef<CFErrorRef> err;
     UniqueRef<CFDictionaryRef> values(SecCertificateCopyValues(cert, keys.get(), &err.get()));
     if(err)

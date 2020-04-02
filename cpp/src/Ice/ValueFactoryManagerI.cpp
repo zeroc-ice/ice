@@ -10,7 +10,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_DELEGATE(ValueFactory)) factory, const string& id)
+IceInternal::ValueFactoryManagerI::add(ValueFactory factory, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -20,11 +20,11 @@ IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_DELEGATE(ValueFactory)) factor
         throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
     }
 
-    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ICE_DELEGATE(ValueFactory)>(id, factory));
+    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ValueFactory>(id, factory));
 }
 
-ICE_DELEGATE(ValueFactory)
-IceInternal::ValueFactoryManagerI::find(const string& id) const ICE_NOEXCEPT
+ValueFactory
+IceInternal::ValueFactoryManagerI::find(const string& id) const noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -51,7 +51,7 @@ IceInternal::ValueFactoryManagerI::find(const string& id) const ICE_NOEXCEPT
     }
     else
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 }
 

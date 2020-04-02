@@ -53,27 +53,27 @@ IceInternal::IPEndpointInfoI::~IPEndpointInfoI()
 }
 
 Ice::Short
-IceInternal::IPEndpointInfoI::type() const ICE_NOEXCEPT
+IceInternal::IPEndpointInfoI::type() const noexcept
 {
     return _endpoint->type();
 }
 
 bool
-IceInternal::IPEndpointInfoI::datagram() const ICE_NOEXCEPT
+IceInternal::IPEndpointInfoI::datagram() const noexcept
 {
     return _endpoint->datagram();
 }
 
 bool
-IceInternal::IPEndpointInfoI::secure() const ICE_NOEXCEPT
+IceInternal::IPEndpointInfoI::secure() const noexcept
 {
     return _endpoint->secure();
 }
 
 Ice::EndpointInfoPtr
-IceInternal::IPEndpointI::getInfo() const ICE_NOEXCEPT
+IceInternal::IPEndpointI::getInfo() const noexcept
 {
-    Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+    Ice::IPEndpointInfoPtr info = std::make_shared<IPEndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
     fillEndpointInfo(info.get());
     return info;
 }
@@ -174,7 +174,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     vector<Address> addrs = getAddresses(_host,
                                          _port,
                                          _instance->protocolSupport(),
-                                         Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+                                         Ice::EndpointSelectionType::Ordered,
                                          _instance->preferIPv6(),
                                          true);
 
@@ -618,7 +618,7 @@ IceInternal::EndpointHostResolver::run()
 
         if(threadObserver)
         {
-            threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateIdle), ICE_ENUM(ThreadState, ThreadStateInUseForOther));
+            threadObserver->stateChanged(ThreadState::ThreadStateIdle, ThreadState::ThreadStateInUseForOther);
         }
 
         try
@@ -645,8 +645,8 @@ IceInternal::EndpointHostResolver::run()
 
             if(threadObserver)
             {
-                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                             ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(ThreadState::ThreadStateInUseForOther,
+                                             ThreadState::ThreadStateIdle);
             }
 
         }
@@ -654,8 +654,8 @@ IceInternal::EndpointHostResolver::run()
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(ICE_ENUM(ThreadState, ThreadStateInUseForOther),
-                                             ICE_ENUM(ThreadState, ThreadStateIdle));
+                threadObserver->stateChanged(ThreadState::ThreadStateInUseForOther,
+                                             ThreadState::ThreadStateIdle);
             }
             if(r.observer)
             {
@@ -693,7 +693,7 @@ IceInternal::EndpointHostResolver::updateObserver()
     {
         _observer.attach(obsv->getThreadObserver("Communicator",
                                                  name(),
-                                                 ICE_ENUM(ThreadState, ThreadStateIdle),
+                                                 ThreadState::ThreadStateIdle,
                                                  _observer.get()));
     }
 }

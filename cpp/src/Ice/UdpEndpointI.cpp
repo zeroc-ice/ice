@@ -102,9 +102,9 @@ IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
 }
 
 EndpointInfoPtr
-IceInternal::UdpEndpointI::getInfo() const ICE_NOEXCEPT
+IceInternal::UdpEndpointI::getInfo() const noexcept
 {
-    Ice::UDPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::UDPEndpointInfo>,
+    Ice::UDPEndpointInfoPtr info = std::make_shared<InfoI<Ice::UDPEndpointInfo>>(
                                                    ICE_DYNAMIC_CAST(UdpEndpointI, ICE_SHARED_FROM_CONST_THIS(UdpEndpointI)));
     fillEndpointInfo(info.get());
     return info;
@@ -137,7 +137,7 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return ICE_MAKE_SHARED(UdpEndpointI, _instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl,
+        return std::make_shared<UdpEndpointI>(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl,
                                _connect, _connectionId, compress);
     }
 }
@@ -171,7 +171,7 @@ IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
     }
     else
     {
-        return ICE_MAKE_SHARED(UdpEndpointI, _instance, _host, port, _sourceAddr, _mcastInterface,_mcastTtl, _connect,
+        return std::make_shared<UdpEndpointI>(_instance, _host, port, _sourceAddr, _mcastInterface,_mcastTtl, _connect,
                                _connectionId, _compress);
     }
 }
@@ -452,7 +452,7 @@ IceInternal::UdpEndpointI::createConnector(const Address& address, const Network
 IPEndpointIPtr
 IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return ICE_MAKE_SHARED(UdpEndpointI, _instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
+    return std::make_shared<UdpEndpointI>(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
                            connectionId, _compress);
 }
 
@@ -479,7 +479,7 @@ IceInternal::UdpEndpointFactory::protocol() const
 EndpointIPtr
 IceInternal::UdpEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
 {
-    IPEndpointIPtr endpt = ICE_MAKE_SHARED(UdpEndpointI, _instance);
+    IPEndpointIPtr endpt = std::make_shared<UdpEndpointI>(_instance);
     endpt->initWithOptions(args, oaEndpoint);
     return endpt;
 }
@@ -487,7 +487,7 @@ IceInternal::UdpEndpointFactory::create(vector<string>& args, bool oaEndpoint) c
 EndpointIPtr
 IceInternal::UdpEndpointFactory::read(InputStream* s) const
 {
-    return ICE_MAKE_SHARED(UdpEndpointI, _instance, s);
+    return std::make_shared<UdpEndpointI>(_instance, s);
 }
 
 void

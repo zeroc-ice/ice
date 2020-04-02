@@ -73,8 +73,8 @@ namespace IceSSL
             //
             // SSL based on TCP
             //
-            var instance = new Instance(_engine, SSLEndpointType.Value, "ssl");
-            facade.AddEndpointFactory(new EndpointFactoryI(instance, TCPEndpointType.Value));
+            var instance = new Instance(_engine, EndpointType.SSL, "ssl");
+            facade.AddEndpointFactory(new EndpointFactoryI(instance, EndpointType.TCP));
         }
 
         public void Initialize() => _engine.Initialize();

@@ -376,7 +376,7 @@ IceXML::Parser::parse(const string& file, Handler& handler) // The given filenam
 void
 IceXML::Parser::parse(istream& in, Handler& handler)
 {
-    XML_Parser parser = XML_ParserCreate(ICE_NULLPTR);
+    XML_Parser parser = XML_ParserCreate(nullptr);
     CallbackData cb;
     cb.parser = parser;
     cb.handler = &handler;

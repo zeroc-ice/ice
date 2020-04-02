@@ -103,7 +103,7 @@ namespace Ice.ami
         }
 
         Test.ITestIntfPrx self(Current current) =>
-            current.Adapter.CreateProxy(current.Id, Test.ITestIntfPrx.Factory);
+            current.Adapter.CreateProxy(current.Identity, Test.ITestIntfPrx.Factory);
 
         public ValueTask startDispatchAsync(Ice.Current current)
         {

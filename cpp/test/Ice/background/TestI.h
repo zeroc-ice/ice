@@ -18,7 +18,7 @@ class BackgroundI : public virtual Test::Background
 public:
 
     virtual void op(const Ice::Current&);
-    virtual void opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&);
+    virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
     BackgroundI(const BackgroundControllerIPtr&);
@@ -32,8 +32,8 @@ class BackgroundControllerI : public Test::BackgroundController, IceUtil::Monito
 {
 public:
 
-    virtual void pauseCall(ICE_IN(std::string), const Ice::Current&);
-    virtual void resumeCall(ICE_IN(std::string), const Ice::Current&);
+    virtual void pauseCall(std::string, const Ice::Current&);
+    virtual void resumeCall(std::string, const Ice::Current&);
     virtual void checkCallPause(const Ice::Current&);
 
     virtual void holdAdapter(const Ice::Current&);

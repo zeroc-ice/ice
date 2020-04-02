@@ -59,7 +59,7 @@ allTests(Test::TestHelper* helper)
        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
-        Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
+        Ice::ObjectPtr obj = std::make_shared<EmptyI>();
         adapter->add(obj, Ice::stringToIdentity("d"));
         adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
         try
@@ -82,11 +82,11 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
 
         cout << "testing removeAllFacets... " << flush;
-        Ice::ObjectPtr obj1 = ICE_MAKE_SHARED(EmptyI);
-        Ice::ObjectPtr obj2 = ICE_MAKE_SHARED(EmptyI);
+        Ice::ObjectPtr obj1 = std::make_shared<EmptyI>();
+        Ice::ObjectPtr obj2 = std::make_shared<EmptyI>();
         adapter->addFacet(obj1, Ice::stringToIdentity("id1"), "f1");
         adapter->addFacet(obj2, Ice::stringToIdentity("id1"), "f2");
-        Ice::ObjectPtr obj3 = ICE_MAKE_SHARED(EmptyI);
+        Ice::ObjectPtr obj3 = std::make_shared<EmptyI>();
         adapter->addFacet(obj1, Ice::stringToIdentity("id2"), "f1");
         adapter->addFacet(obj2, Ice::stringToIdentity("id2"), "f2");
         adapter->addFacet(obj3, Ice::stringToIdentity("id2"), "");

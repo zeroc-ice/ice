@@ -23,10 +23,10 @@ public:
     ServiceManagerI(Ice::CommunicatorPtr, int&, char*[]);
     virtual ~ServiceManagerI();
 
-    virtual void startService(ICE_IN(std::string), const ::Ice::Current&);
-    virtual void stopService(ICE_IN(std::string), const ::Ice::Current&);
+    virtual void startService(std::string, const ::Ice::Current&);
+    virtual void stopService(std::string, const ::Ice::Current&);
 
-    virtual void addObserver(ICE_IN(ServiceObserverPrxPtr), const Ice::Current&);
+    virtual void addObserver(ServiceObserverPrxPtr, const Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);
 

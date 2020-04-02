@@ -27,7 +27,7 @@ public:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
 
-    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
+    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual bool datagram() const;

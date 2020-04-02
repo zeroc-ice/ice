@@ -12,7 +12,7 @@
 namespace IceInternal
 {
 
-class ConnectionRequestHandler ICE_FINAL : public RequestHandler
+class ConnectionRequestHandler final : public RequestHandler
                                , public std::enable_shared_from_this<ConnectionRequestHandler>
 {
 public:

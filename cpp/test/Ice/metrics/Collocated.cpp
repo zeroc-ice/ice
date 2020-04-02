@@ -27,18 +27,18 @@ Collocated::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-    CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
+    CommunicatorObserverIPtr observer = std::make_shared<CommunicatorObserverI>();
     initData.observer = observer;
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(MetricsI), Ice::stringToIdentity("metrics"));
+    adapter->add(std::make_shared<MetricsI>(), Ice::stringToIdentity("metrics"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
-    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
+    controllerAdapter->add(std::make_shared<ControllerI>(adapter), Ice::stringToIdentity("controller"));
     //controllerAdapter->activate(); // Don't activate OA to ensure collocation is used.
 
     MetricsPrxPtr allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);

@@ -28,14 +28,14 @@ namespace Ice.adapterDeactivation
         public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
             IObject? servant;
-            if (current.Id.Name.Equals("router"))
+            if (current.Identity.Name.Equals("router"))
             {
                 servant = _router;
             }
             else
             {
-                test(current.Id.Category.Length == 0);
-                test(current.Id.Name.Equals("test"));
+                test(current.Identity.Category.Length == 0);
+                test(current.Identity.Name.Equals("test"));
                 servant = new TestIntf();
             }
             return servant.DispatchAsync(request, current);

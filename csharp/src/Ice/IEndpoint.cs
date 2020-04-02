@@ -5,49 +5,20 @@
 
 namespace Ice
 {
-    public abstract class TCPEndpointType
+    /// <summary>Each endpoint's type is identified by a short value. The enumerators of EndpointType represent the
+    /// types of endpoints that the Ice runtime knows and implements. Other endpoint types, with values not represented
+    /// by these enumerators, can be implemented and registered using transport plug-ins.</summary>
+    public enum EndpointType : short
     {
-        public const short Value = 1;
-    }
-
-    public abstract class SSLEndpointType
-    {
-        public const short Value = 2;
-    }
-
-    public abstract class UDPEndpointType
-    {
-        public const short Value = 3;
-    }
-
-    public abstract class WSEndpointType
-    {
-        public const short Value = 4;
-    }
-
-    public abstract class WSSEndpointType
-    {
-        public const short Value = 5;
-    }
-
-    public abstract class BTEndpointType
-    {
-        public const short Value = 6;
-    }
-
-    public abstract class BTSEndpointType
-    {
-        public const short Value = 7;
-    }
-
-    public abstract class iAPEndpointType
-    {
-        public const short Value = 8;
-    }
-
-    public abstract class iAPSEndpointType
-    {
-        public const short Value = 9;
+        TCP = 1,
+        SSL = 2,
+        UDP = 3,
+        WS = 4,
+        WSS = 5,
+        BT = 6,
+        BTS = 7,
+        iAP = 8,
+        iAPS = 9
     }
 
     [System.Serializable]
@@ -61,7 +32,7 @@ namespace Ice
         /// Returns the type of the endpoint.
         /// </summary>
         /// <returns>The endpoint type.</returns>
-        public abstract short Type();
+        public abstract EndpointType Type();
 
         /// <summary>
         /// Returns true if this endpoint is a datagram endpoint.

@@ -186,7 +186,7 @@ RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const
 }
 
 void
-RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const shared_ptr<ReplicaGroupFilter>& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const shared_ptr<ReplicaGroupFilter>& filter) noexcept
 {
     lock_guard lock(_mutex);
     map<string, vector<shared_ptr<ReplicaGroupFilter>> >::iterator p = _replicaGroupFilters.find(id);
@@ -198,7 +198,7 @@ RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const shared_ptr<
 }
 
 bool
-RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const shared_ptr<ReplicaGroupFilter>& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const shared_ptr<ReplicaGroupFilter>& filter) noexcept
 {
     lock_guard lock(_mutex);
 
@@ -223,7 +223,7 @@ RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const shared_p
 }
 
 void
-RegistryPluginFacadeI::addTypeFilter(const string& id, const shared_ptr<TypeFilter>& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::addTypeFilter(const string& id, const shared_ptr<TypeFilter>& filter) noexcept
 {
     lock_guard lock(_mutex);
     map<string, vector<shared_ptr<TypeFilter>> >::iterator p = _typeFilters.find(id);
@@ -235,7 +235,7 @@ RegistryPluginFacadeI::addTypeFilter(const string& id, const shared_ptr<TypeFilt
 }
 
 bool
-RegistryPluginFacadeI::removeTypeFilter(const string& id, const shared_ptr<TypeFilter>& filter) ICE_NOEXCEPT
+RegistryPluginFacadeI::removeTypeFilter(const string& id, const shared_ptr<TypeFilter>& filter) noexcept
 {
     lock_guard lock(_mutex);
 

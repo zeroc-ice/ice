@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 namespace IceInternal
 {
     public interface IConnector
@@ -12,7 +14,7 @@ namespace IceInternal
         //
         ITransceiver Connect();
 
-        short Type();
+        EndpointType Type();
     }
 
 }

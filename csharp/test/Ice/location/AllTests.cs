@@ -211,7 +211,7 @@ namespace Ice.location
             output.Write("testing locator cache timeout... ");
             output.Flush();
 
-            var basencc = IObjectPrx.Parse("test@TestAdapter", communicator).Clone(connectionCached: false);
+            var basencc = IObjectPrx.Parse("test@TestAdapter", communicator).Clone(cacheConnection: false);
             int count = locator.getRequestCount();
             basencc.Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
             test(++count == locator.getRequestCount());
@@ -259,7 +259,7 @@ namespace Ice.location
 
             output.Write("testing locator request queuing... ");
             output.Flush();
-            hello = obj.getReplicatedHello().Clone(locatorCacheTimeout: 0, connectionCached: false);
+            hello = obj.getReplicatedHello().Clone(locatorCacheTimeout: 0, cacheConnection: false);
             count = locator.getRequestCount();
             hello.IcePing();
             test(++count == locator.getRequestCount());
