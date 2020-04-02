@@ -914,66 +914,6 @@ namespace Ice.binding
                 output.WriteLine("ok");
             }
 
-            // On Windows, the FD limit is very high and there's no way to limit the number of FDs
-            // for the server so we don't run this test.
-            if(!IceInternal.AssemblyUtil.IsWindows)
-            {
-                output.Write("testing FD limit... ");
-                output.Flush();
-
-                Test.IRemoteObjectAdapterPrx? adapter = com.createObjectAdapter("Adapter", "default");
-
-                Test.ITestIntfPrx? testPrx = adapter!.getTestIntf();
-                int i = 0;
-                while(true)
-                {
-                    try
-                    {
-                        testPrx!.Clone(connectionId: $"{i++}").IcePing();
-                    }
-                    catch(Exception ex)
-                    {
-                        break;
-                    }
-                }
-
-                try
-                {
-                    testPrx!.Clone(connectionId: $"{i}").IcePing();
-                    test(false);
-                }
-                catch(Ice.TransportException)
-                {
-                    // Close the connection now to free a FD (it could be done after the sleep but
-                    // there could be race condition since the connection might not be closed
-                    // immediately due to threading).
-                    testPrx!.Clone(connectionId: "0").GetConnection().Close(ConnectionClose.GracefullyWithWait);
-
-                    //
-                    // The server closed the acceptor, wait one second and retry after freeing a FD.
-                    //
-                    System.Threading.Thread.Sleep(1100);
-                    int nRetry = 10;
-                    bool success = false;
-                    while(--nRetry > 0)
-                    {
-                        try
-                        {
-                            testPrx!.Clone(connectionId: $"{i}").IcePing();
-                            success = true;
-                            break;
-                        }
-                        catch(Exception)
-                        {
-                        }
-                        System.Threading.Thread.Sleep(100);
-                    }
-                    test(success);
-                }
-
-                output.WriteLine("ok");
-            }
-
             com.shutdown();
         }
 
