@@ -77,7 +77,7 @@ namespace IceInternal
             {
                 _completionCallback.HandleInvokeSent(SentSynchronously, _doneInSent, _alreadySent, this);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Warning(ex);
             }
@@ -95,7 +95,7 @@ namespace IceInternal
             {
                 _completionCallback.HandleInvokeException(_ex, this);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Warning(ex);
             }
@@ -133,7 +133,7 @@ namespace IceInternal
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Warning(ex);
             }
@@ -155,7 +155,7 @@ namespace IceInternal
                     {
                         throw _cancellationException;
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                         _cancellationException = null;
                         throw;
@@ -436,7 +436,7 @@ namespace IceInternal
             {
                 InvokeExceptionAsync();
             }
-            else if (ex is Ice.CommunicatorDestroyedException)
+            else if (ex is CommunicatorDestroyedException)
             {
                 //
                 // If it's a communicator destroyed exception, swallow
@@ -453,7 +453,6 @@ namespace IceInternal
             base(prx.Communicator, completionCallback)
         {
             Proxy = prx;
-            IsIdempotent = false;
             IsOneway = false;
             _cnt = 0;
             _sent = false;
@@ -608,9 +607,9 @@ namespace IceInternal
             return context;
         }
 
-        protected readonly Ice.IObjectPrx Proxy;
-        protected IRequestHandler? Handler;
         protected bool IsIdempotent;
+        protected readonly IObjectPrx Proxy;
+        protected IRequestHandler? Handler;
 
         // true for a oneway-capable operation called on a oneway proxy, false otherwise
         protected internal bool IsOneway;
@@ -631,6 +630,7 @@ namespace IceInternal
             Encoding = Proxy.Encoding;
             Synchronous = false;
             IsOneway = oneway;
+            IsIdempotent = requestFrame.IsIdempotent;
         }
 
         public override bool Sent() => base.SentImpl(IsOneway); // done = true
@@ -690,7 +690,7 @@ namespace IceInternal
             }
         }
 
-        public override int InvokeRemote(Ice.Connection connection, bool compress, bool response)
+        public override int InvokeRemote(Connection connection, bool compress, bool response)
         {
             CachedConnection = connection;
             return connection.SendAsyncRequest(this, compress, response);
@@ -707,12 +707,11 @@ namespace IceInternal
             return handler.InvokeAsyncRequest(this, Synchronous);
         }
 
-        public new void Abort(System.Exception ex)
+        public new void Abort(Exception ex)
         {
-            Ice.InvocationMode mode = Proxy.IceReference.InvocationMode;
-
-            Debug.Assert(mode != Ice.InvocationMode.BatchOneway &&
-                         mode != Ice.InvocationMode.BatchDatagram); // not implemented
+            InvocationMode mode = Proxy.IceReference.InvocationMode;
+            // not implemented
+            Debug.Assert(mode != InvocationMode.BatchOneway && mode != InvocationMode.BatchDatagram);
             base.Abort(ex);
         }
 
@@ -727,16 +726,16 @@ namespace IceInternal
         protected void Invoke(bool synchronous)
         {
             Synchronous = synchronous;
-            Ice.InvocationMode mode = Proxy.IceReference.InvocationMode;
-            if (mode == Ice.InvocationMode.BatchOneway || mode == Ice.InvocationMode.BatchDatagram)
+            InvocationMode mode = Proxy.IceReference.InvocationMode;
+            if (mode == InvocationMode.BatchOneway || mode == InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // not implemented
                 return;
             }
 
-            if (mode == Ice.InvocationMode.Datagram && !IsOneway)
+            if (mode == InvocationMode.Datagram && !IsOneway)
             {
-                throw new System.InvalidOperationException("cannot make two-way call on a datagram proxy");
+                throw new InvalidOperationException("cannot make two-way call on a datagram proxy");
             }
 
             //
@@ -748,7 +747,6 @@ namespace IceInternal
         }
 
         public void Invoke(string operation,
-                           bool idempotent,
                            bool oneway,
                            IReadOnlyDictionary<string, string>? context,
                            bool synchronous)
@@ -756,8 +754,6 @@ namespace IceInternal
             try
             {
                 Proxy.IceReference.Protocol.CheckSupported();
-
-                IsIdempotent = idempotent;
                 IsOneway = oneway;
                 context ??= ProxyAndCurrentContext();
                 Observer = ObserverHelper.GetInvocationObserver(Proxy, operation, context);
@@ -782,51 +778,13 @@ namespace IceInternal
         protected readonly Encoding Encoding;
     }
 
-    public class OutgoingAsyncT<T> : OutgoingAsync
-    {
-        public OutgoingAsyncT(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
-                              OutgoingRequestFrame requestFrame) :
-            base(prx, completionCallback, requestFrame)
-        {
-        }
-
-        public void Invoke(string operation,
-                           bool idempotent,
-                           bool oneway,
-                           IReadOnlyDictionary<string, string>? context,
-                           bool synchronous,
-                           InputStreamReader<T>? read = null)
-        {
-            Read = read;
-            base.Invoke(operation, idempotent, oneway, context, synchronous);
-        }
-
-        public T GetResult()
-        {
-            Debug.Assert(ResponseFrame != null);
-            if (Read == null)
-            {
-                ResponseFrame.ReadVoidReturnValue();
-                return default;
-            }
-            else
-            {
-                return ResponseFrame.ReadReturnValue(Read);
-            }
-        }
-
-        protected InputStreamReader<T>? Read;
-    }
-
     //
     // Class for handling the proxy's begin_ice_getConnection request.
     //
     internal class ProxyGetConnection : ProxyOutgoingAsyncBase
     {
         public ProxyGetConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback)
-            : base(prx, completionCallback, null!)
-        {
-        }
+            : base(prx, completionCallback, null!) => IsIdempotent = false;
 
         public override int InvokeRemote(Connection connection, bool compress, bool response)
         {
@@ -942,16 +900,5 @@ namespace IceInternal
         private readonly CancellationToken _cancellationToken;
 
         protected readonly IProgress<bool>? Progress;
-    }
-
-    public class OperationTaskCompletionCallback<T> : TaskCompletionCallback<T>
-    {
-        public OperationTaskCompletionCallback(System.IProgress<bool>? progress, CancellationToken cancellationToken) :
-            base(progress, cancellationToken)
-        {
-        }
-
-        public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase outgoing)
-            => SetResult(((OutgoingAsyncT<T>)outgoing).GetResult());
     }
 }

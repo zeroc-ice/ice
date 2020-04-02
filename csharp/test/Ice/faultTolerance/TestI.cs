@@ -3,40 +3,15 @@
 //
 
 using System.Diagnostics;
-using System.Threading;
 using Test;
 
 public sealed class TestIntf : ITestIntf
 {
-    public TestIntf()
-    {
-        lock (this)
-        {
-            _p = Process.GetCurrentProcess();
-            _pid = _p.Id;
-        }
-    }
+    public void abort(Ice.Current current) => Process.GetCurrentProcess().Kill();
 
-    private void commitSuicide()
-    {
-        _p.Kill();
-        Thread.Sleep(5000); // Give other threads time to die.
-    }
+    public void idempotentAbort(Ice.Current current) => Process.GetCurrentProcess().Kill();
 
-    public void abort(Ice.Current current) => commitSuicide();
-
-    public void idempotentAbort(Ice.Current current) => commitSuicide();
-
-    public int pid(Ice.Current current)
-    {
-        lock (this)
-        {
-            return _pid;
-        }
-    }
+    public int pid(Ice.Current current) => Process.GetCurrentProcess().Id;
 
     public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
-
-    private Process _p;
-    private int _pid;
 }

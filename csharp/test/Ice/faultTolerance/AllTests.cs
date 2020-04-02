@@ -10,40 +10,7 @@ using Test;
 
 public class AllTests : Test.AllTests
 {
-    private class Callback
-    {
-        internal Callback()
-        {
-            _called = false;
-        }
-
-        public virtual void check()
-        {
-            lock (this)
-            {
-                while (!_called)
-                {
-                    System.Threading.Monitor.Wait(this);
-                }
-
-                _called = false;
-            }
-        }
-
-        public virtual void called()
-        {
-            lock (this)
-            {
-                Debug.Assert(!_called);
-                _called = true;
-                System.Threading.Monitor.Pulse(this);
-            }
-        }
-
-        private bool _called;
-    }
-
-    private static void exceptAbortI(System.Exception ex, TextWriter output)
+    private static void exceptAbortI(Exception ex, TextWriter output)
     {
         try
         {
@@ -65,7 +32,7 @@ public class AllTests : Test.AllTests
         }
     }
 
-    public static void allTests(Test.TestHelper helper, List<int> ports)
+    public static void allTests(TestHelper helper, List<int> ports)
     {
         Ice.Communicator communicator = helper.communicator();
         var output = helper.getWriter();
@@ -226,7 +193,7 @@ public class AllTests : Test.AllTests
             obj.IcePing();
             test(false);
         }
-        catch (System.Exception)
+        catch (Exception)
         {
             output.WriteLine("ok");
         }

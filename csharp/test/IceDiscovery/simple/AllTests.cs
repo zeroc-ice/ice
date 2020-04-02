@@ -9,10 +9,10 @@ using Ice;
 public class AllTests : Test.AllTests
 {
     public static void
-    allTests(Test.TestHelper helper, int num)
+    allTests(TestHelper helper, int num)
     {
         var output = helper.getWriter();
-        Ice.Communicator communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         List<IControllerPrx> proxies = new List<IControllerPrx>();
         List<IControllerPrx> indirectProxies = new List<IControllerPrx>();
         for (int i = 0; i < num; ++i)
@@ -230,9 +230,16 @@ public class AllTests : Test.AllTests
                 string port = communicator.GetProperty("IceDiscovery.Port") ?? "";
                 properties["IceDiscovery.Lookup"] =
                     $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
-                Communicator comm = new Communicator(properties);
+                var comm = new Communicator(properties);
                 test(comm.GetDefaultLocator() != null);
-                IObjectPrx.Parse("controller0@control0", comm).IcePing();
+                try
+                {
+                    IObjectPrx.Parse("controller0@control0", comm).IcePing();
+                    test(false);
+                }
+                catch (NoEndpointException)
+                {
+                }
                 comm.Destroy();
             }
         }
