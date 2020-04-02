@@ -10,6 +10,7 @@ namespace IceSSL
     using System.IO;
     using System.Net.Security;
     using System.Net.Sockets;
+    using System.Threading.Tasks;
     using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
@@ -136,9 +137,9 @@ namespace IceSSL
             int packetSz = getRecvPacketSize(buf.b.remaining());
             try
             {
-                _readCallback = callback;
-                _readResult = _sslStream.BeginRead(buf.b.rawBytes(), buf.b.position(), packetSz, readCompleted, state);
-                return _readResult.CompletedSynchronously;
+                _readResult = _sslStream.ReadAsync(buf.b.rawBytes(), buf.b.position(), packetSz);
+                _readResult.ContinueWith(task => callback(state), TaskScheduler.Default);
+                return false;
             }
             catch(IOException ex)
             {
@@ -178,8 +179,15 @@ namespace IceSSL
             Debug.Assert(_readResult != null);
             try
             {
-                int ret = _sslStream.EndRead(_readResult);
-                _readResult = null;
+                int ret;
+                try
+                {
+                    ret = _readResult.Result;
+                }
+                catch (AggregateException ex)
+                {
+                    throw ex.InnerException;
+                }
 
                 if(ret == 0)
                 {
@@ -235,11 +243,10 @@ namespace IceSSL
             int packetSize = getSendPacketSize(buf.b.remaining());
             try
             {
-                _writeCallback = cb;
-                _writeResult = _sslStream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted,
-                                                     state);
+                _writeResult = _sslStream.WriteAsync(buf.b.rawBytes(), buf.b.position(), packetSize);
+                _writeResult.ContinueWith(task => cb(state), TaskScheduler.Default);
                 completed = packetSize == buf.b.remaining();
-                return _writeResult.CompletedSynchronously;
+                return false;
             }
             catch(IOException ex)
             {
@@ -285,12 +292,18 @@ namespace IceSSL
                 return;
             }
 
-            Debug.Assert(_writeResult != null);
             int sent = getSendPacketSize(buf.b.remaining());
+            Debug.Assert(_writeResult != null);
             try
             {
-                _sslStream.EndWrite(_writeResult);
-                _writeResult = null;
+                try
+                {
+                    _writeResult.Wait();
+                }
+                catch (AggregateException ex)
+                {
+                    throw ex.InnerException;
+                }
                 buf.b.position(buf.b.position() + sent);
             }
             catch(IOException ex)
@@ -378,18 +391,16 @@ namespace IceSSL
         {
             try
             {
-                _writeCallback = callback;
                 if(!_incoming)
                 {
                     //
                     // Client authentication.
                     //
-                    _writeResult = _sslStream.BeginAuthenticateAsClient(_host,
+                    _writeResult = _sslStream.AuthenticateAsClientAsync(_host,
                                                                         _instance.certs(),
                                                                         _instance.protocols(),
-                                                                        _instance.checkCRL() > 0,
-                                                                        writeCompleted,
-                                                                        state);
+                                                                        _instance.checkCRL() > 0);
+                    _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                 }
                 else
                 {
@@ -405,12 +416,11 @@ namespace IceSSL
                         cert = certs[0];
                     }
 
-                    _writeResult = _sslStream.BeginAuthenticateAsServer(cert,
+                    _writeResult = _sslStream.AuthenticateAsServerAsync(cert,
                                                                         _verifyPeer > 0,
                                                                         _instance.protocols(),
-                                                                        _instance.checkCRL() > 0,
-                                                                        writeCompleted,
-                                                                        state);
+                                                                        _instance.checkCRL() > 0);
+                    _writeResult.ContinueWith(task => callback(state), TaskScheduler.Default);
                 }
             }
             catch(IOException ex)
@@ -437,7 +447,7 @@ namespace IceSSL
             }
 
             Debug.Assert(_writeResult != null);
-            return _writeResult.CompletedSynchronously;
+            return false;
         }
 
         private void finishAuthenticate()
@@ -446,13 +456,13 @@ namespace IceSSL
 
             try
             {
-                if(!_incoming)
+                try
                 {
-                    _sslStream.EndAuthenticateAsClient(_writeResult);
+                    _writeResult.Wait();
                 }
-                else
+                catch (AggregateException ex)
                 {
-                    _sslStream.EndAuthenticateAsServer(_writeResult);
+                    throw ex.InnerException;
                 }
             }
             catch(IOException ex)
@@ -754,23 +764,6 @@ namespace IceSSL
 #endif
             }
         }
-
-        internal void readCompleted(IAsyncResult result)
-        {
-            if(!result.CompletedSynchronously)
-            {
-                _readCallback(result.AsyncState);
-            }
-        }
-
-        internal void writeCompleted(IAsyncResult result)
-        {
-            if(!result.CompletedSynchronously)
-            {
-                _writeCallback(result.AsyncState);
-            }
-        }
-
         private int getSendPacketSize(int length)
         {
             return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
@@ -790,10 +783,8 @@ namespace IceSSL
         private int _verifyPeer;
         private bool _isConnected;
         private bool _authenticated;
-        private IAsyncResult _writeResult;
-        private IAsyncResult _readResult;
-        private IceInternal.AsyncCallback _readCallback;
-        private IceInternal.AsyncCallback _writeCallback;
+        private Task _writeResult;
+        private Task<int> _readResult;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
         private string _cipher;
