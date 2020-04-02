@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Reflection;
-using System.IO;
 
 namespace Ice
 {
@@ -269,19 +268,19 @@ namespace Ice
             }
             else if (IceInternal.AssemblyUtil.IsMacOS)
             {
-                LibName = Path.ChangeExtension(libraryName, ".dylib");
+                LibName = "libbz2.dylib";
                 return NativeLibrary.Load(LibName, assembly, searchPath);
             }
             else
             {
                 try
                 {
-                    LibName = Path.ChangeExtension(libraryName, ".so.1.0");
+                    LibName = "libbz2.so.1.0";
                     return NativeLibrary.Load(LibName, assembly, searchPath);
                 }
                 catch (DllNotFoundException)
                 {
-                    LibName = Path.ChangeExtension(libraryName, ".so.1");
+                    LibName = "libbz2.so.1";
                     return NativeLibrary.Load(LibName, assembly, searchPath);
                 }
             }
