@@ -42,7 +42,7 @@ namespace IceInternal
         {
             public InfoI(UdpEndpoint e) => _endpoint = e;
 
-            public override short Type() => _endpoint.Type();
+            public override EndpointType Type() => _endpoint.Type();
 
             public override bool Datagram() => _endpoint.Datagram();
 
@@ -375,7 +375,7 @@ namespace IceInternal
         {
         }
 
-        public short Type() => _instance!.Type;
+        public EndpointType Type() => _instance!.Type;
 
         public string Transport() => _instance!.Transport;
 

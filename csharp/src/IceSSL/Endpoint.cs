@@ -19,7 +19,7 @@ namespace IceSSL
         private sealed class InfoI : EndpointInfo
         {
             public InfoI(Endpoint e) => _endpoint = e;
-            public override short Type() => _endpoint.Type();
+            public override Ice.EndpointType Type() => _endpoint.Type();
             public override bool Datagram() => _endpoint.Datagram();
             public override bool Secure() => _endpoint.Secure();
 
@@ -35,7 +35,7 @@ namespace IceSSL
             return info;
         }
 
-        public override short Type() => _delegate.Type();
+        public override Ice.EndpointType Type() => _delegate.Type();
 
         public override string Transport() => _delegate.Transport();
 
@@ -206,10 +206,10 @@ namespace IceSSL
 
     internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
     {
-        public EndpointFactoryI(Instance instance, short type) : base(instance, type) => _instance = instance;
+        public EndpointFactoryI(Instance instance, Ice.EndpointType type) : base(instance, type) => _instance = instance;
 
         public override IceInternal.IEndpointFactory
-        CloneWithUnderlying(IceInternal.TransportInstance inst, short underlying) =>
+        CloneWithUnderlying(IceInternal.TransportInstance inst, Ice.EndpointType underlying) =>
             new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Transport), underlying);
 
         protected override IceInternal.Endpoint

@@ -801,7 +801,7 @@ namespace Ice
                 Debug.Assert(AdapterId.Length == 0);
                 foreach (Endpoint endpoint in Endpoints)
                 {
-                    ostr.WriteShort(endpoint.Type());
+                    ostr.WriteShort((short)endpoint.Type());
                     endpoint.StreamWrite(ostr);
                 }
             }

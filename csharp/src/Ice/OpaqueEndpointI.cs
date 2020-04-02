@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -11,15 +13,20 @@ namespace IceInternal
 {
     internal sealed class OpaqueEndpointI : Endpoint
     {
+        private EndpointType _type;
+        private Ice.Encoding _rawEncoding;
+        private byte[] _rawBytes;
+        private int _hashCode = 0; // 0 is a special value that means not initialized.
+
         public OpaqueEndpointI(List<string> args)
         {
-            _type = -1;
+            _type = (EndpointType)(short)-1;
             _rawEncoding = Ice.Encoding.V1_1;
             _rawBytes = System.Array.Empty<byte>();
 
             InitWithOptions(args);
 
-            if (_type < 0)
+            if ((short)_type < 0)
             {
                 throw new FormatException($"no -t option in endpoint {this}");
             }
@@ -29,7 +36,7 @@ namespace IceInternal
             }
         }
 
-        public OpaqueEndpointI(short type, Ice.Encoding encoding, byte[] rawBytes)
+        public OpaqueEndpointI(EndpointType type, Ice.Encoding encoding, byte[] rawBytes)
         {
             _type = type;
             _rawEncoding = encoding;
@@ -59,16 +66,16 @@ namespace IceInternal
 
         private sealed class InfoI : Ice.OpaqueEndpointInfo
         {
-            public InfoI(short type, Ice.Encoding rawEncoding, byte[] rawBytes) :
+            public InfoI(EndpointType type, Ice.Encoding rawEncoding, byte[] rawBytes) :
                 base(null, -1, false, rawEncoding, rawBytes) => _type = type;
 
-            public override short Type() => _type;
+            public override EndpointType Type() => _type;
 
             public override bool Datagram() => false;
 
             public override bool Secure() => false;
 
-            private readonly short _type;
+            private readonly EndpointType _type;
         }
 
         //
@@ -79,7 +86,7 @@ namespace IceInternal
         //
         // Return the endpoint type
         //
-        public override short Type() => _type;
+        public override EndpointType Type() => _type;
 
         //
         // Return the transport name;
@@ -192,7 +199,7 @@ namespace IceInternal
         public override string Options()
         {
             string s = "";
-            if (_type > -1)
+            if ((short)_type > -1)
             {
                 s += " -t " + _type;
             }
@@ -276,7 +283,7 @@ namespace IceInternal
             {
                 case 't':
                     {
-                        if (_type > -1)
+                        if ((short)_type > -1)
                         {
                             throw new FormatException($"multiple -t options in endpoint {endpoint}");
                         }
@@ -286,10 +293,10 @@ namespace IceInternal
                             throw new FormatException($"no argument provided for -t option in endpoint {endpoint}");
                         }
 
-                        int t;
+                        short t;
                         try
                         {
-                            t = int.Parse(argument, CultureInfo.InvariantCulture);
+                            t = short.Parse(argument, CultureInfo.InvariantCulture);
                         }
                         catch (FormatException ex)
                         {
@@ -301,7 +308,7 @@ namespace IceInternal
                             throw new FormatException($"type value `{argument}' out of range in endpoint {endpoint}");
                         }
 
-                        _type = (short)t;
+                        _type = (EndpointType)t;
                         return true;
                     }
 
@@ -352,11 +359,5 @@ namespace IceInternal
                     }
             }
         }
-
-        private short _type;
-        private Ice.Encoding _rawEncoding;
-        private byte[] _rawBytes;
-        private int _hashCode = 0; // 0 is a special value that means not initialized.
     }
-
 }

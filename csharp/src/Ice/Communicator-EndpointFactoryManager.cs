@@ -109,7 +109,7 @@ namespace Ice
                     // the actual endpoint.
                     //
                     var ostr = new OutputStream(Ice1Definitions.Encoding, new List<ArraySegment<byte>>());
-                    ostr.WriteShort(ue.Type());
+                    ostr.WriteShort((short)ue.Type());
                     ue.StreamWrite(ostr);
                     // TODO avoid copy OutputStream buffers
                     var iss = new InputStream(this, ostr.ToArray());
@@ -126,7 +126,7 @@ namespace Ice
             return null;
         }
 
-        public IEndpointFactory? GetEndpointFactory(short type)
+        public IEndpointFactory? GetEndpointFactory(EndpointType type)
         {
             lock (this)
             {
@@ -145,7 +145,7 @@ namespace Ice
         {
             lock (this)
             {
-                short type = istr.ReadShort();
+                EndpointType type = (EndpointType)istr.ReadShort();
 
                 IEndpointFactory? factory = GetEndpointFactory(type);
                 Endpoint? e = null;

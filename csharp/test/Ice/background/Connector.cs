@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 internal class Connector : IceInternal.IConnector
 {
     public IceInternal.ITransceiver Connect()
@@ -10,9 +12,9 @@ internal class Connector : IceInternal.IConnector
         return new Transceiver(_connector.Connect());
     }
 
-    public short Type()
+    public EndpointType Type()
     {
-        return (short)(Endpoint.TYPE_BASE + _connector.Type());
+        return (EndpointType)(Endpoint.TYPE_BASE + (short)_connector.Type());
     }
 
     //

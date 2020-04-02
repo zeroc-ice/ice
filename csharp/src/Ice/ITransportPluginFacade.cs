@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 namespace IceInternal
 {
     public interface ITransportPluginFacade
@@ -20,7 +22,7 @@ namespace IceInternal
         //
         // Get an EndpointFactory.
         //
-        IEndpointFactory? GetEndpointFactory(short type);
+        IEndpointFactory? GetEndpointFactory(EndpointType type);
 
         //
         // Obtain the type for a name.
@@ -46,7 +48,7 @@ namespace IceInternal
         //
         // Get an EndpointFactory.
         //
-        public IEndpointFactory? GetEndpointFactory(short type) => Communicator.GetEndpointFactory(type);
+        public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.GetEndpointFactory(type);
 
         //
         // Obtain the type for a name.

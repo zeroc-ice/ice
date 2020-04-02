@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
 using System.Collections.Generic;
 
@@ -48,7 +50,7 @@ namespace IceInternal
         //
         // Return the endpoint type.
         //
-        public abstract short Type();
+        public abstract EndpointType Type();
 
         //
         // Return the transport name.

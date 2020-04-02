@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -37,7 +39,7 @@ namespace IceInternal
         {
             public Info(IPEndpoint e) => _endpoint = e;
 
-            public override short Type() => _endpoint.Type();
+            public override EndpointType Type() => _endpoint.Type();
 
             public override bool Datagram() => _endpoint.Datagram();
 
@@ -260,7 +262,7 @@ namespace IceInternal
         {
         }
 
-        public short Type() => _instance!.Type;
+        public EndpointType Type() => _instance!.Type;
 
         public string Transport() => _instance!.Transport;
 
