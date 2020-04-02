@@ -1792,7 +1792,7 @@ namespace Ice
                           Array.Empty<Endpoint>(), adapterId, null);
         }
 
-        internal Reference CreateReference(Identity ident, Connection connection)
+        internal Reference CreateReference(Identity identity, Connection connection)
         {
             // Fixed reference
             return new Reference(
@@ -1802,11 +1802,10 @@ namespace Ice
                 encoding: DefaultsAndOverrides.DefaultEncoding,
                 facet: "",
                 fixedConnection: connection,
-                identity: ident,
+                identity: identity,
                 invocationMode: ((Endpoint)connection.Endpoint).Datagram() ?
                     InvocationMode.Datagram : InvocationMode.Twoway,
-                invocationTimeout: -1,
-                secure: ((Endpoint)connection.Endpoint).Secure());
+                invocationTimeout: -1);
         }
 
         internal BufSizeWarnInfo GetBufSizeWarn(short type)

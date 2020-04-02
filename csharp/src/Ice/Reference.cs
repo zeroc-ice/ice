@@ -443,8 +443,7 @@ namespace Ice
                            Connection fixedConnection,
                            Identity identity,
                            InvocationMode invocationMode,
-                           int invocationTimeout,
-                           bool secure)
+                           int invocationTimeout)
         {
             AdapterId = "";
             Communicator = communicator;
@@ -461,6 +460,7 @@ namespace Ice
             InvocationTimeout = invocationTimeout;
             IsCollocationOptimized = false;
             IsPreferSecure = false;
+            IsSecure = fixedConnection.Endpoint.GetInfo().Secure();
             LocatorCacheTimeout = 0;
             LocatorInfo = null;
             Protocol = Protocol.Ice1; // it's really the connection's protocol
@@ -481,25 +481,21 @@ namespace Ice
                 throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
             }
 
-            // If a secure connection is requested or secure overrides is set, check if the connection is secure.
-            DefaultsAndOverrides defaultsAndOverrides = Communicator.DefaultsAndOverrides;
-            if (defaultsAndOverrides.OverrideSecure)
+            // If secure override is set, check if the connection is secure.
+            if (Communicator.DefaultsAndOverrides.OverrideSecure)
             {
-                secure = defaultsAndOverrides.OverrideSecureValue; // TODO: rework defaultAndOverrides
+                if (Communicator.DefaultsAndOverrides.OverrideSecureValue && !IsSecure)
+                {
+                    throw new ArgumentException("cannot create secure fixed proxy over non-secure connection",
+                        nameof(fixedConnection));
+                }
             }
-
-            if (secure && !((Endpoint)_fixedConnection.Endpoint).Secure())
+            if (Communicator.DefaultsAndOverrides.OverrideCompress)
             {
-                throw new ArgumentException("cannot create secure fixed proxy over non-secure connection",
-                    nameof(fixedConnection));
+                compress = Communicator.DefaultsAndOverrides.OverrideCompressValue;
             }
 
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-
-            if (defaultsAndOverrides.OverrideCompress)
-            {
-                compress = defaultsAndOverrides.OverrideCompressValue;
-            }
             _requestHandler = new ConnectionRequestHandler(_fixedConnection, compress ?? false);
         }
 
@@ -641,6 +637,11 @@ namespace Ice
                 {
                     throw new ArgumentException("cannot change the router of a fixed proxy", nameof(clearRouter));
                 }
+                if (secure != null)
+                {
+                    throw new ArgumentException("cannot change the secure configuration of a fixed proxy",
+                        nameof(secure));
+                }
 
                 var clone = new Reference(Communicator,
                                           compress ?? Compress,
@@ -650,8 +651,7 @@ namespace Ice
                                           (fixedConnection ?? _fixedConnection)!,
                                           identity ?? Identity,
                                           invocationMode ?? InvocationMode,
-                                          invocationTimeout ?? InvocationTimeout,
-                                          secure ?? IsSecure);
+                                          invocationTimeout ?? InvocationTimeout);
                 return clone == this ? this : clone;
             }
             else
