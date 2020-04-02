@@ -27,7 +27,7 @@ $(build-platform)_objdir       =
 # system install directory
 system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
 
-else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64,$(shell uname -m))),)
+else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
 
 #
 # MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)
