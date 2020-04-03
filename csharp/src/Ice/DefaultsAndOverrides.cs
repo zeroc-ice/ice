@@ -100,7 +100,8 @@ namespace IceInternal
                 OverrideCompressValue = communicator.GetPropertyAsInt("Ice.Override.Compress") > 0;
                 if (!BZip2.Supported && OverrideCompressValue)
                 {
-                    Console.Error.WriteLine($"warning: {BZip2.LibName} not found, Ice.Override.Compress ignored.");
+                    logger.Warning(@$"compression not supported {BZip2.LibName
+                                      } not found, Ice.Override.Compress ignored");
                     OverrideCompressValue = false;
                 }
             }

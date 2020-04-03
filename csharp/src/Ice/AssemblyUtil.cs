@@ -17,6 +17,10 @@ namespace IceInternal
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         public static readonly bool IsMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
 
+        // Register a delegate to load native libraries used by Ice assembly.
+        static AssemblyUtil() =>
+            NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(AssemblyUtil))!, DllImportResolver);
+
         public static Type? FindType(string csharpId)
         {
             lock (_mutex)
@@ -50,6 +54,26 @@ namespace IceInternal
             {
                 LoadAssemblies(); // Lazy initialization
             }
+        }
+
+        internal static string GetPlatformNativeLibraryName(string name, DllImportSearchPath? searchPath)
+        {
+            if (name == "bzip2")
+            {
+                if (IsWindows)
+                {
+                    return "bzip2.dll";
+                }
+                else if (IsMacOS)
+                {
+                    return "libbz2.dylib";
+                }
+                else
+                {
+                    return "libbz2.so.1.0";
+                }
+            }
+            return string.Empty;
         }
 
         //
@@ -112,6 +136,10 @@ namespace IceInternal
                 // Some platforms like UWP do not support using GetReferencedAssemblies
             }
         }
+
+        private static IntPtr DllImportResolver(string libraryName, Assembly assembly,
+            DllImportSearchPath? searchPath) =>
+            NativeLibrary.Load(GetPlatformNativeLibraryName(libraryName, searchPath), assembly, searchPath);
 
         private static readonly Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
         private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.

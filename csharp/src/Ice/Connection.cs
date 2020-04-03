@@ -186,7 +186,7 @@ namespace Ice
             }
         }
 
-        internal void Destroy(System.Exception ex)
+        internal void Destroy(Exception ex)
         {
             lock (this)
             {
@@ -2188,7 +2188,7 @@ namespace Ice
                     }
                     else
                     {
-                        throw new LoadException($"cannot uncompress compressed message: {BZip2.LibName} not found");
+                        throw new LoadException($"compression not supported, {BZip2.LibName} not found");
                     }
                 }
 

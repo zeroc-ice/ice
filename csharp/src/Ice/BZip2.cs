@@ -6,8 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Reflection;
-using System.IO;
+using IceInternal;
 
 namespace Ice
 {
@@ -75,42 +74,40 @@ namespace Ice
             ConfigError = -9
         }
 
-        internal static string LibName { get; private set; }
-        internal static bool Supported { get; }
+        internal static string LibName => _libname.Value;
+        internal static bool Supported => _supported.Value;
 
-#pragma warning disable CA1810 // Initialize reference type static fields inline
-        static BZip2()
-#pragma warning restore CA1810 // Initialize reference type static fields inline
-        {
-            LibName = "";
-            // Find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function
-            // in the library. If we get an exception, the library is not available.
-            // Register a dll import delegate to load native libraries used by Ice assembly.
-            NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(BZip2))!, DllImportResolver);
-            Supported = false;
-            try
+        private static readonly Lazy<string> _libname =
+            new Lazy<string>(() => AssemblyUtil.GetPlatformNativeLibraryName("bzip2", null));
+
+        private static readonly Lazy<bool> _supported =
+            new Lazy<bool>(() =>
             {
-                BZ2_bzLibVersion();
-                Supported = true;
-            }
-            catch (EntryPointNotFoundException)
-            {
-                Console.Error.WriteLine($"warning: found {LibName} but entry point BZ2_bzlibVersion is missing.");
-            }
-            catch (TypeLoadException)
-            {
-                // Expected -- bzip2 lib not installed or not in PATH.
-            }
-            catch (BadImageFormatException)
-            {
-                Console.Error.Write($"warning: {LibName} could not be loaded (likely due to 32/64-bit mismatch).");
-                if (IntPtr.Size == 8)
+                bool supported = false;
+                try
                 {
-                    Console.Error.Write($" Make sure the directory containing the 64-bit {LibName} is in your PATH.");
+                    BZ2_bzLibVersion();
+                    supported = true;
                 }
-                Console.Error.WriteLine();
-            }
-        }
+                catch (EntryPointNotFoundException)
+                {
+                    Console.Error.WriteLine($"warning: found {LibName} but entry point BZ2_bzlibVersion is missing.");
+                }
+                catch (TypeLoadException)
+                {
+                    // Expected -- bzip2 lib not installed or not in PATH.
+                }
+                catch (BadImageFormatException)
+                {
+                    Console.Error.Write($"warning: {LibName} could not be loaded (likely due to 32/64-bit mismatch).");
+                    if (IntPtr.Size == 8)
+                    {
+                        Console.Error.Write($" Make sure the directory containing the 64-bit {LibName} is in your PATH.");
+                    }
+                    Console.Error.WriteLine();
+                }
+                return supported;
+            });
 
         internal static List<ArraySegment<byte>>? Compress(
             List<ArraySegment<byte>> data, int size, int headerSize, int compressionLevel)
@@ -259,54 +256,26 @@ namespace Ice
             return decompressed;
         }
 
-        private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
-        {
-            Debug.Assert(libraryName == "bzip2.dll");
-            if (IceInternal.AssemblyUtil.IsWindows)
-            {
-                LibName = libraryName;
-                return NativeLibrary.Load(libraryName, assembly, searchPath);
-            }
-            else if (IceInternal.AssemblyUtil.IsMacOS)
-            {
-                LibName = Path.ChangeExtension(libraryName, ".dylib");
-                return NativeLibrary.Load(LibName, assembly, searchPath);
-            }
-            else
-            {
-                try
-                {
-                    LibName = Path.ChangeExtension(libraryName, ".so.1.0");
-                    return NativeLibrary.Load(LibName, assembly, searchPath);
-                }
-                catch (DllNotFoundException)
-                {
-                    LibName = Path.ChangeExtension(libraryName, ".so.1");
-                    return NativeLibrary.Load(LibName, assembly, searchPath);
-                }
-            }
-        }
-
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
+        [DllImport("bzip2", EntryPoint = "BZ2_bzlibVersion", ExactSpelling = true)]
         private static extern IntPtr BZ2_bzLibVersion();
 
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzCompressInit", ExactSpelling = true)]
+        [DllImport("bzip2", EntryPoint = "BZ2_bzCompressInit", ExactSpelling = true)]
         private static extern int BZ2_bzCompressInit(ref BZStream stream, int blockSize100k, int verbosity,
             int workFactor);
 
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzCompress", ExactSpelling = true)]
+        [DllImport("bzip2", EntryPoint = "BZ2_bzCompress", ExactSpelling = true)]
         private static extern int BZ2_bzCompress(ref BZStream stream, int action);
 
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzCompressEnd", ExactSpelling = true)]
+        [DllImport("bzip2", EntryPoint = "BZ2_bzCompressEnd", ExactSpelling = true)]
         private static extern int BZ2_bzCompressEnd(ref BZStream stream);
 
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressInit", ExactSpelling = true)]
+        [DllImport("bzip2", EntryPoint = "BZ2_bzDecompressInit", ExactSpelling = true)]
         private static extern int BZ2_bzDecompressInit(ref BZStream stream, int verbosity, int small);
 
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompress", ExactSpelling = true)]
+        [DllImport("bzip2", EntryPoint = "BZ2_bzDecompress", ExactSpelling = true)]
         private static extern int BZ2_bzDecompress(ref BZStream stream);
 
-        [DllImport("bzip2.dll", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
+        [DllImport("bzip2", EntryPoint = "BZ2_bzDecompressEnd", ExactSpelling = true)]
         private static extern int BZ2_bzDecompressEnd(ref BZStream stream);
     }
 }
