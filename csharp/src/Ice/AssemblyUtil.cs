@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -56,24 +57,24 @@ namespace IceInternal
             }
         }
 
-        internal static string GetPlatformNativeLibraryName(string name, DllImportSearchPath? searchPath)
+        internal static string[] GetPlatformNativeLibraryNames(string name)
         {
             if (name == "bzip2")
             {
                 if (IsWindows)
                 {
-                    return "bzip2.dll";
+                    return new string[] { "bzip2.dll" };
                 }
                 else if (IsMacOS)
                 {
-                    return "libbz2.dylib";
+                    return new string[] { "libbz2.dylib" };
                 }
                 else
                 {
-                    return "libbz2.so.1.0";
+                    return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
                 }
             }
-            return string.Empty;
+            return Array.Empty<string>();
         }
 
         //
@@ -138,8 +139,26 @@ namespace IceInternal
         }
 
         private static IntPtr DllImportResolver(string libraryName, Assembly assembly,
-            DllImportSearchPath? searchPath) =>
-            NativeLibrary.Load(GetPlatformNativeLibraryName(libraryName, searchPath), assembly, searchPath);
+            DllImportSearchPath? searchPath)
+        {
+            string[] names = GetPlatformNativeLibraryNames(libraryName);
+            for (int i = 0; i < names.Length;)
+            {
+                try
+                {
+                    return NativeLibrary.Load(names[i], assembly, searchPath);
+                }
+                catch(DllNotFoundException)
+                {
+                    if(i++ == names.Length)
+                    {
+                        throw;
+                    }
+                }
+            }
+            Debug.Assert(false);
+            return IntPtr.Zero;
+        }
 
         private static readonly Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
         private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.

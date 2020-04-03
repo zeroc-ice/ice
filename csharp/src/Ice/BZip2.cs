@@ -74,24 +74,24 @@ namespace Ice
             ConfigError = -9
         }
 
-        internal static string LibName => _libname.Value;
-        internal static bool Supported => _supported.Value;
+        internal static bool IsLoaded => _loaded.Value;
 
-        private static readonly Lazy<string> _libname =
-            new Lazy<string>(() => AssemblyUtil.GetPlatformNativeLibraryName("bzip2", null));
-
-        private static readonly Lazy<bool> _supported =
+        private static readonly Lazy<bool> _loaded =
             new Lazy<bool>(() =>
             {
-                bool supported = false;
+                // important: The call to AssemblyUtil here ensures that AssemblyUtil static constructor
+                // runs before we try to load Bzip2 library, this is required to use the custom DLL
+                // resolver register in AssemblyUtil constructor
+                string libNames = string.Join(", ", AssemblyUtil.GetPlatformNativeLibraryNames("bzip2")).TrimEnd();
+                bool loaded = false;
                 try
                 {
                     BZ2_bzLibVersion();
-                    supported = true;
+                    loaded = true;
                 }
                 catch (EntryPointNotFoundException)
                 {
-                    Console.Error.WriteLine($"warning: found {LibName} but entry point BZ2_bzlibVersion is missing.");
+                    Console.Error.WriteLine("warning: found {libNames} but entry point BZ2_bzlibVersion is missing.");
                 }
                 catch (TypeLoadException)
                 {
@@ -99,20 +99,20 @@ namespace Ice
                 }
                 catch (BadImageFormatException)
                 {
-                    Console.Error.Write($"warning: {LibName} could not be loaded (likely due to 32/64-bit mismatch).");
+                    Console.Error.Write($"warning: {libNames} could not be loaded (likely due to 32/64-bit mismatch).");
                     if (IntPtr.Size == 8)
                     {
-                        Console.Error.Write($" Make sure the directory containing the 64-bit {LibName} is in your PATH.");
+                        Console.Error.Write($" Make sure the directory containing the 64-bit {libNames} is in your PATH.");
                     }
                     Console.Error.WriteLine();
                 }
-                return supported;
+                return loaded;
             });
 
         internal static List<ArraySegment<byte>>? Compress(
             List<ArraySegment<byte>> data, int size, int headerSize, int compressionLevel)
         {
-            Debug.Assert(Supported);
+            Debug.Assert(IsLoaded);
 
             // Compress the message body, but not the header.
             int decompressedLen = size - headerSize;
@@ -212,7 +212,7 @@ namespace Ice
 
         internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int messageSizeMax)
         {
-            Debug.Assert(Supported);
+            Debug.Assert(IsLoaded);
             int decompressedSize = InputStream.ReadInt(compressed.AsSpan(headerSize, 4));
             if (decompressedSize <= headerSize)
             {

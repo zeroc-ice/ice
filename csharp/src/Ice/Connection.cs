@@ -2134,7 +2134,7 @@ namespace Ice
 
         private List<ArraySegment<byte>> DoCompress(List<ArraySegment<byte>> data, int size, bool compress)
         {
-            if (_compressionSupported && compress && size >= 100)
+            if (BZip2.IsLoaded && compress && size >= 100)
             {
                 List<ArraySegment<byte>>? compressedData =
                     BZip2.Compress(data, size, Ice1Definitions.HeaderSize, _compressionLevel);
@@ -2146,7 +2146,7 @@ namespace Ice
 
             ArraySegment<byte> header = data[0];
             // Write the compression status and the message size.
-            header[9] = (byte)(_compressionSupported && compress ? 1 : 0);
+            header[9] = (byte)(BZip2.IsLoaded && compress ? 1 : 0);
             return data;
         }
 
@@ -2182,13 +2182,13 @@ namespace Ice
                 info.Compress = info.Data[9];
                 if (info.Compress == 2)
                 {
-                    if (_compressionSupported)
+                    if (BZip2.IsLoaded)
                     {
                         info.Data = BZip2.Decompress(info.Data, Ice1Definitions.HeaderSize, _messageSizeMax);
                     }
                     else
                     {
-                        throw new LoadException($"compression not supported, {BZip2.LibName} not found");
+                        throw new LoadException("compression not supported, bzip2 library not found");
                     }
                 }
 
@@ -2733,8 +2733,6 @@ namespace Ice
         private bool _shutdownInitiated = false;
         private bool _initialized = false;
         private bool _validated = false;
-
-        private static readonly bool _compressionSupported = BZip2.Supported;
 
         private ConnectionInfo? _info;
 
