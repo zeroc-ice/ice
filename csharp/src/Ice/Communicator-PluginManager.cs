@@ -314,7 +314,7 @@ namespace Ice
             Debug.Assert(entryPoint != null);
             //
             // Always check the static plugin factory table first, it takes
-            // precedence over the the entryPoint specified in the plugin
+            // precedence over the entryPoint specified in the plugin
             // property value.
             //
             if (!_pluginFactories.TryGetValue(name, out IPluginFactory? pluginFactory))
@@ -358,7 +358,7 @@ namespace Ice
                     {
                         pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         try
                         {
@@ -372,7 +372,7 @@ namespace Ice
                         }
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     throw new LoadException(
                         $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);

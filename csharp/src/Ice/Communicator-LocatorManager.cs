@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using IceInternal;
 
 namespace Ice
 {
@@ -16,7 +16,7 @@ namespace Ice
         public interface IGetEndpointsCallback
         {
             void SetEndpoints(Endpoint[] endpoints, bool cached);
-            void SetException(System.Exception ex);
+            void SetException(Exception ex);
         }
 
         private class RequestCallback
@@ -115,7 +115,7 @@ namespace Ice
             protected readonly Reference Ref;
 
             private readonly List<RequestCallback> _callbacks = new List<RequestCallback>();
-            private System.Exception? _exception;
+            private Exception? _exception;
             private IObjectPrx? _proxy;
             private bool _response;
             private bool _sent;
@@ -216,7 +216,8 @@ namespace Ice
                             {
                                 Exception(ex.InnerException!);
                             }
-                        });
+                        },
+                        TaskScheduler.Default);
                 }
                 catch (Exception ex)
                 {
@@ -247,7 +248,8 @@ namespace Ice
                             {
                                 Exception(ex.InnerException!);
                             }
-                        });
+                        },
+                        TaskScheduler.Default);
                 }
                 catch (System.Exception ex)
                 {

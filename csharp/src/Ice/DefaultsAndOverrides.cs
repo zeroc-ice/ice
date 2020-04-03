@@ -3,7 +3,6 @@
 //
 
 using Ice;
-using System;
 using System.Net;
 
 namespace IceInternal

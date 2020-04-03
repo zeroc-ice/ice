@@ -344,14 +344,14 @@ namespace Ice
                     Debug.Assert(programName != null);
                     if (logfile != null)
                     {
-                        Logger = new FileLoggerI(programName, logfile);
+                        Logger = new FileLogger(programName, logfile);
                     }
-                    else if (Util.GetProcessLogger() is LoggerI)
+                    else if (Util.GetProcessLogger() is Logger)
                     {
                         //
                         // Ice.ConsoleListener is enabled by default.
                         //
-                        Logger = new TraceLoggerI(programName, (GetPropertyAsInt("Ice.ConsoleListener") ?? 1) > 0);
+                        Logger = new TraceLogger(programName, (GetPropertyAsInt("Ice.ConsoleListener") ?? 1) > 0);
                     }
                     // else already set to process logger
                 }
@@ -465,7 +465,7 @@ namespace Ice
 
                 //
                 // Initialize the endpoint factories once all the plugins are loaded. This gives
-                // the opportunity for the endpoint factories to find underyling factories.
+                // the opportunity for the endpoint factories to find underlying factories.
                 //
                 foreach (IEndpointFactory f in _endpointFactories)
                 {
@@ -561,7 +561,7 @@ namespace Ice
                     _timer = new IceInternal.Timer(this, IceInternal.Util.StringToThreadPriority(
                                                    GetProperty("Ice.ThreadPriority")));
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error($"cannot create thread for timer:\n{ex}");
                     throw;
@@ -573,7 +573,7 @@ namespace Ice
                     UpdateEndpointHostResolverObserver();
                     _endpointHostResolverThread.Start(IceInternal.Util.StringToThreadPriority(GetProperty("Ice.ThreadPriority")));
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error($"cannot create thread for endpoint host resolver:\n{ex}");
                     throw;
@@ -639,7 +639,7 @@ namespace Ice
                     GetAdmin();
                 }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 Destroy();
                 throw;
@@ -737,7 +737,7 @@ namespace Ice
                 {
                     _adminAdapter.Activate();
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     // We cleanup _adminAdapter, however this error is not recoverable
                     // (can't call again getAdmin() after fixing the problem)
@@ -1346,7 +1346,7 @@ namespace Ice
                 {
                     Plugin.Destroy();
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Util.GetProcessLogger().Warning(
                         $"unexpected exception raised by plug-in `{Name}' destruction:\n{ex}");
@@ -1366,9 +1366,9 @@ namespace Ice
             }
 
             {
-                if (Logger != null && Logger is FileLoggerI)
+                if (Logger != null && Logger is FileLogger)
                 {
-                    ((FileLoggerI)Logger).Destroy();
+                    ((FileLogger)Logger).Destroy();
                 }
             }
             _currentContext.Dispose();
@@ -1480,7 +1480,7 @@ namespace Ice
             {
                 adminAdapter.Activate();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 // We cleanup _adminAdapter, however this error is not recoverable
                 // (can't call again getAdmin() after fixing the problem)
@@ -1959,7 +1959,7 @@ namespace Ice
 
             if (locator != null && serverId != null)
             {
-                var process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
+                IProcessPrx process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
                 try
                 {
                     //
@@ -1968,7 +1968,7 @@ namespace Ice
                     //
                     locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     if (TraceLevels.Location >= 1)
                     {

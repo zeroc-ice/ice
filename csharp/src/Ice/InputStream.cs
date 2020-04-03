@@ -74,9 +74,9 @@ namespace Ice
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
 
-        // When set, we are reading an endpoint encapsulation. An endpoint encaps is a lightweight encaps that cannot
-        // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
-        // when _mainEncaps is set (so nested inside _mainEncaps).
+        // When set, we are reading an endpoint encapsulation. An endpoint encapsulation is a lightweight
+        // encapsulation that cannot contain classes, exceptions, tagged members/parameters, or another
+        // endpoint. It is often but not always set when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
 
         // Temporary upper limit set by an encapsulation. See Remaining.
@@ -342,7 +342,7 @@ namespace Ice
         /// <returns>True if the value is present, false otherwise.</returns>
         public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
-            // Tagged members/parameters can only be in the main encaps
+            // Tagged members/parameters can only be in the main encapsulation
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
             // The current slice has no tagged member
@@ -1216,7 +1216,7 @@ namespace Ice
 
                 // The typeIds of slices in indirection tables can be read several times: when we skip the
                 // indirection table and later on when we read it. We only want to add this typeId to the list
-                // and assign it an index when it's the first time we read it, so we save the largest pos we
+                // and assign it an index when it's the first time we read it, so we save the largest position we
                 // read to figure out when to add to the list.
                 if (_pos > _posAfterLatestInsertedTypeId)
                 {
@@ -1701,7 +1701,7 @@ namespace Ice
             // Previous upper limit of the buffer, if set
             internal readonly int? OldLimit;
 
-            // Size of the encaps, as read from the stream
+            // Size of the encapsulation, as read from the stream
             internal readonly int Size;
 
             internal Encaps(int? oldLimit, int size)

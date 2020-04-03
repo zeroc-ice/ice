@@ -11,7 +11,7 @@ namespace Ice
     /// <summary>Base class for exceptions that can be transmitted in responses to Ice requests. The derived exception
     /// classes are generated from exceptions defined in Slice.</summary>
     [Serializable]
-    public class RemoteException : System.Exception
+    public class RemoteException : Exception
     {
         public override string Message => _hasCustomMessage || DefaultMessage == null ? base.Message : DefaultMessage;
 
@@ -41,19 +41,13 @@ namespace Ice
         /// <summary>Constructs a remote exception with the provided message.</summary>
         /// <param name="message">Message that describes the exception.</param>
         protected RemoteException(string message)
-            : base(message)
-        {
-            _hasCustomMessage = true;
-        }
+            : base(message) => _hasCustomMessage = true;
 
         /// <summary>Constructs a remote exception with the provided message and inner exception.</summary>
         /// <param name="message">Message that describes the exception.</param>
         /// <param name="innerException">The inner exception.</param>
-        protected RemoteException(string message, System.Exception innerException)
-            : base(message, innerException)
-        {
-            _hasCustomMessage = true;
-        }
+        protected RemoteException(string message, Exception innerException)
+            : base(message, innerException) => _hasCustomMessage = true;
 
         /// <summary>Initializes a new instance of the remote exception with serialized data.</summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>

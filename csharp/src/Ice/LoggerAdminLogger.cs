@@ -170,8 +170,8 @@ namespace IceInternal
                                         // expected if there are outstanding calls during communicator destruction
                                     }
 
-                                    _loggerAdmin.DeadRemoteLogger(p, _localLogger,
-                                                                  ae.InnerException, "log");
+                                    Debug.Assert(ae.InnerException != null);
+                                    _loggerAdmin.DeadRemoteLogger(p, _localLogger, ae.InnerException, "log");
 
                                 }
                             },
