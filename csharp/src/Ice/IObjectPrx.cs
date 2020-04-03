@@ -177,120 +177,85 @@ namespace Ice
             return IceReadResponseAsync(task, InputStream.IceReaderIntoString);
         }
 
-        /// <summary>
-        /// Returns the identity embedded in this proxy.
-        /// <returns>The identity of the target object.</returns>
-        /// </summary>
+        /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity => IceReference.Identity;
 
-        /// <summary>Returns the context of this proxy.</summary>
+        /// <summary>The context of this proxy, which will be sent with each invocation made using this proxy.</summary>
         public IReadOnlyDictionary<string, string> Context => IceReference.Context;
 
-        /// <summary>
-        /// Returns the facet for this proxy.
+        /// <summary>The facet to use on the target Ice object. The empty string corresponds to the default facet.
         /// </summary>
-        /// <returns>The facet for this proxy. If the proxy uses the default facet, the return value is the
-        /// empty string.</returns>
         public string Facet => IceReference.Facet;
 
-        /// <summary>
-        /// Returns the adapter ID for this proxy.
-        /// </summary>
-        /// <returns>The adapter ID. If the proxy does not have an adapter ID, the return value is the
-        /// empty string.</returns>
+        /// <summary>The adapter ID of this proxy, or an empty string if this proxy does not have an adapter ID.
+        /// A proxy with an adapter ID is an indirect proxy. </summary>
         public string AdapterId => IceReference.AdapterId;
 
-        /// <summary>
-        /// Returns the endpoints used by this proxy.
-        /// </summary>
-        /// <returns>The endpoints used by this proxy.</returns>
+        /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IEndpoint[] Endpoints => (IEndpoint[])IceReference.Endpoints.Clone();
 
-        /// <summary>
-        /// Returns the locator cache timeout of this proxy.
-        /// </summary>
-        /// <returns>The locator cache timeout value (in seconds).</returns>
+        /// <summary>The locator cache timout of this proxy, in seconds.</summary>
         public int LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
-        /// <summary>
-        /// Returns the invocation timeout of this proxy.
-        /// </summary>
-        /// <returns>The invocation timeout value (in seconds).</returns>
+        /// <summary>The invocation timeout of this proxy, in seconds.</summary>
         public int InvocationTimeout => IceReference.InvocationTimeout;
 
-        /// <summary>
-        /// Returns whether this proxy caches connections.
-        /// </summary>
-        /// <returns>True if this proxy caches connections; false, otherwise.</returns>
+        /// <summary>Indicates whether or not this proxy caches its connection.</summary>
+        /// <value>True when the proxy caches its connection; otherwise, false.</value>
         public bool IsConnectionCached => IceReference.IsConnectionCached;
 
-        /// <summary>
-        /// Returns how this proxy selects endpoints (randomly or ordered).
-        /// </summary>
-        /// <returns>The endpoint selection policy.</returns>
+        /// <summary>The endpoint selection policy of this proxy, which can be Random or Ordered.</summary>
         public EndpointSelectionType EndpointSelection => IceReference.EndpointSelection;
 
-        /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
-        /// <returns>The encoding version.</returns>
+        /// <summary>The encoding used to marshal request parameters.</summary>
         public Encoding Encoding => IceReference.Encoding;
 
-        /// <summary>Returns whether this proxy prefers non-secure connections.</summary>
-        /// <returns>True if the proxy attempts to establish a non-secure connection if such a connection is available;
-        /// false, otherwise.</returns>
+        /// <summary>Indicates whether or not this proxy prefers non-secure connections.</summary>
+        /// <value>When true, the proxy attempts to establish a non-secure connection if such a connection is available;
+        /// when false, the proxy attempts first to establish a secure connection and falls back to a non-secure
+        /// connection. The fallback to a non-secure connection applies only when using the ice1 protocol.</value>
         public bool PreferNonSecure => IceReference.PreferNonSecure;
 
-        /// <summary>
-        /// Returns the router for this proxy.
-        /// </summary>
-        /// <returns>The router for the proxy. If no router is configured for the proxy, the return value
-        /// is null.</returns>
+        /// <summary>The router associated with this proxy. This property is null when no router is associated with this
+        /// proxy.</summary>
         public IRouterPrx? Router => IceReference.RouterInfo?.Router;
 
-        /// <summary>
-        /// Returns the locator for this proxy.
-        /// </summary>
-        /// <returns>The locator for this proxy. If no locator is configured, the return value is null.</returns>
+        /// <summary>The locator associated with this proxy. This property is null when no locator is associated with
+        /// this proxy.</summary>
         public ILocatorPrx? Locator => IceReference.LocatorInfo?.Locator;
 
-        /// <summary>
-        /// Returns whether this proxy uses collocation optimization.
-        /// </summary>
-        /// <returns>True if the proxy uses collocation optimization; false, otherwise.</returns>
+        /// <summary>Indicates whether this proxy uses collocation optimization.</summary>
+        /// <value>When true, the proxy uses collocation optimization; otherwise, the value is false.</value>
         public bool IsCollocationOptimized => IceReference.IsCollocationOptimized;
 
-        /// <summary>Returns whether or not an operation invoked on this proxy returns a response.</summary>
-        /// <returns>True if invoking an operation on this proxy does not return a response. This corresponds to
-        /// several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. Otherwise,
-        /// returns false.</returns>
+        /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
+        /// waits for an empty response from the target Ice object.</summary>
+        /// <value>When true, invoking such an operation does not wait for the response from the target object. This
+        /// corresponds to several <see cref="InvocationMode"/> enumerators, such as Oneway and Datagram. When false,
+        /// invoking such an operation waits for the empty response from the target object, unless this behavior is
+        /// overridden by metadata on the Slice operation's definition.</value>
         public bool IsOneway => IceReference.InvocationMode != InvocationMode.Twoway;
 
+        /// <summary>The invocation mode of this proxy. </summary>
         public InvocationMode InvocationMode => IceReference.InvocationMode;
 
-        /// <summary>
-        /// Obtains the compression override setting of this proxy.
-        /// </summary>
-        /// <returns>The compression override setting. If no optional value is present, no override is
-        /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
+        /// <summary>The compression override setting of this proxy.</summary>
+        /// <value>When null, no override is set and the compress setting of the endpoint(s) is used. When true,
+        /// override the compress setting of all endpoints to enable compression. When false, override the compress
+        /// setting of all endpoint to disable compression.</value>
         public bool? Compress => IceReference.Compress;
 
-        /// <summary>
-        /// Obtains the timeout override of this proxy.
-        /// </summary>
-        /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
-        /// returns the timeout override value.</returns>
+        /// <summary>The connection timeout override setting of this proxy, in milliseconds.</summary>
+        /// <value>When null, no override is set and the timeout setting of the endpoint(s) is used. When non-null,
+        /// overrides the timeout setting of all endpoints.</value>
         public int? ConnectionTimeout => IceReference.ConnectionTimeout;
 
-        /// <summary>
-        /// Returns the connection id of this proxy.
-        /// </summary>
-        /// <returns>The connection id.</returns>
+        /// <summary>The connection ID of this proxy.</summary>
         public string ConnectionId => IceReference.ConnectionId;
 
-        /// <summary>
-        /// Returns whether this proxy is a fixed proxy.
-        /// </summary>
-        /// <returns>True if this is a fixed proxy, false otherwise.
-        /// </returns>
+        /// <summary>Indicates whether or not this proxy is fixed proxy.</summary>
+        /// <value>When true, the proxy is a fixed proxy; when false, the proxy is a regular proxy, not bound to
+        /// any connection.</value>
         public bool IsFixed => IceReference.IsFixed;
 
         [EditorBrowsable(EditorBrowsableState.Never)]

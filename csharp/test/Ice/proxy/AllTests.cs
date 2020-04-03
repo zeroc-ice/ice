@@ -1043,15 +1043,12 @@ namespace Ice.proxy
                 pstr = p1.ToString();
                 if (ssl)
                 {
-                    Console.WriteLine($"ssl: {pstr}");
-
-                    // test(pstr.Equals("test -t -p ice1 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
+                    test(pstr.Equals("test -t -p ice1 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
                 }
                 else if (tcp)
                 {
-                    Console.WriteLine($"tcp: {pstr}");
-                    // test(pstr.Equals(
-                    //    "test -t -p ice1 -e 1.1:opaque -t 2 -e 1.1 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.1 -v abch"));
+                    test(pstr.Equals(
+                        "test -t -p ice1 -e 1.1:opaque -t 2 -e 1.1 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.1 -v abch"));
                 }
             }
 
