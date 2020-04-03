@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -16,6 +17,10 @@ namespace IceInternal
         public static readonly bool IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         public static readonly bool IsMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
+
+        // Register a delegate to load native libraries used by Ice assembly.
+        static AssemblyUtil() =>
+            NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(AssemblyUtil))!, DllImportResolver);
 
         public static Type? FindType(string csharpId)
         {
@@ -50,6 +55,26 @@ namespace IceInternal
             {
                 LoadAssemblies(); // Lazy initialization
             }
+        }
+
+        internal static string[] GetPlatformNativeLibraryNames(string name)
+        {
+            if (name == "bzip2")
+            {
+                if (IsWindows)
+                {
+                    return new string[] { "bzip2.dll" };
+                }
+                else if (IsMacOS)
+                {
+                    return new string[] { "libbz2.dylib" };
+                }
+                else
+                {
+                    return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
+                }
+            }
+            return Array.Empty<string>();
         }
 
         //
@@ -111,6 +136,25 @@ namespace IceInternal
             {
                 // Some platforms like UWP do not support using GetReferencedAssemblies
             }
+        }
+
+        private static IntPtr DllImportResolver(string libraryName, Assembly assembly,
+            DllImportSearchPath? searchPath)
+        {
+            DllNotFoundException? failure = null;
+            foreach (string name in GetPlatformNativeLibraryNames(libraryName))
+            {
+                try
+                {
+                    return NativeLibrary.Load(name, assembly, searchPath);
+                }
+                catch (DllNotFoundException ex)
+                {
+                    failure = ex;
+                }
+            }
+            Debug.Assert(failure != null);
+            throw failure;
         }
 
         private static readonly Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.

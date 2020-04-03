@@ -98,16 +98,15 @@ namespace IceInternal
             {
                 OverrideCompress = true;
                 OverrideCompressValue = communicator.GetPropertyAsInt("Ice.Override.Compress") > 0;
-                if (!BZip2.Supported() && OverrideCompressValue)
+                if (!BZip2.IsLoaded && OverrideCompressValue)
                 {
-                    string lib = AssemblyUtil.IsWindows ? "bzip2.dll" : "libbz2.so.1";
-                    Console.Error.WriteLine("warning: " + lib + " not found, Ice.Override.Compress ignored.");
+                    logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
                     OverrideCompressValue = false;
                 }
             }
             else
             {
-                OverrideCompress = !BZip2.Supported();
+                OverrideCompress = !BZip2.IsLoaded;
                 OverrideCompressValue = false;
             }
 
