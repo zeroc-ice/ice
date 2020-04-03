@@ -8,9 +8,9 @@ using System.IO;
 
 namespace Ice
 {
-    public abstract class LoggerI : ILogger
+    public abstract class Logger : ILogger
     {
-        public LoggerI(string prefix)
+        public Logger(string prefix)
         {
             Prefix = prefix;
 
@@ -89,27 +89,27 @@ namespace Ice
         internal static object GlobalMutex = new object();
     }
 
-    public sealed class ConsoleLoggerI : LoggerI
+    public sealed class ConsoleLogger : Logger
     {
-        public ConsoleLoggerI(string prefix) : base(prefix)
+        public ConsoleLogger(string prefix) : base(prefix)
         {
         }
 
-        public override ILogger CloneWithPrefix(string prefix) => new ConsoleLoggerI(prefix);
+        public override ILogger CloneWithPrefix(string prefix) => new ConsoleLogger(prefix);
 
         protected override void Write(string message) => System.Console.Error.WriteLine(message);
     }
 
-    public sealed class FileLoggerI : LoggerI
+    public sealed class FileLogger : Logger
     {
-        public FileLoggerI(string prefix, string file) :
+        public FileLogger(string prefix, string file) :
             base(prefix)
         {
             _file = file;
             _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
         }
 
-        public override ILogger CloneWithPrefix(string prefix) => new FileLoggerI(prefix, _file);
+        public override ILogger CloneWithPrefix(string prefix) => new FileLogger(prefix, _file);
 
         protected override void Write(string message)
         {
@@ -160,9 +160,9 @@ namespace Ice
         private const string Time = "HH:mm:ss:fff";
     }
 
-    public sealed class TraceLoggerI : LoggerI
+    public sealed class TraceLogger : Logger
     {
-        public TraceLoggerI(string prefix, bool console) : base(prefix)
+        public TraceLogger(string prefix, bool console) : base(prefix)
         {
             _console = console;
             if (console && !System.Diagnostics.Trace.Listeners.Contains(_consoleListener))
@@ -192,7 +192,7 @@ namespace Ice
             }
         }
 
-        public override ILogger CloneWithPrefix(string prefix) => new TraceLoggerI(prefix, _console);
+        public override ILogger CloneWithPrefix(string prefix) => new TraceLogger(prefix, _console);
 
         protected override void Write(string message)
         {

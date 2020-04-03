@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Globalization;
 using System.Threading;
 
 namespace Ice
@@ -23,7 +22,7 @@ namespace Ice
             {
                 if (_processLogger == null)
                 {
-                    _processLogger = new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
+                    _processLogger = new ConsoleLogger(AppDomain.CurrentDomain.FriendlyName);
                 }
                 return _processLogger;
             }

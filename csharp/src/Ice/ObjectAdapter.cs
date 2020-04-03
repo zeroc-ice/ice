@@ -213,7 +213,7 @@ namespace Ice
 
                 UpdateLocatorRegistry(_locatorInfo, null);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
             }
@@ -749,7 +749,7 @@ namespace Ice
             {
                 UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 lock (_mutex)
                 {
@@ -797,7 +797,7 @@ namespace Ice
             {
                 UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 lock (_mutex)
                 {

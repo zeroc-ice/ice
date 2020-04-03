@@ -12,7 +12,7 @@ namespace IceInternal
         // Get the Communicator instance with which this facade is
         // associated.
         //
-        Ice.Communicator Communicator { get; }
+        Communicator Communicator { get; }
 
         //
         // Register an EndpointFactory.
@@ -32,13 +32,13 @@ namespace IceInternal
 
     public sealed class TransportPluginFacade : ITransportPluginFacade
     {
-        public TransportPluginFacade(Ice.Communicator communicator) => Communicator = communicator;
+        public TransportPluginFacade(Communicator communicator) => Communicator = communicator;
 
         //
         // Get the Communicator instance with which this facade is
         // associated.
         //
-        public Ice.Communicator Communicator { get; private set; }
+        public Communicator Communicator { get; private set; }
 
         //
         // Register an EndpointFactory.

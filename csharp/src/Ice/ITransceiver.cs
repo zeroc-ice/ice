@@ -15,8 +15,8 @@ namespace IceInternal
         /// <summary>
         /// Initialize the transport, this method returns SocketOperation.None once the transport has been initialized,
         /// if the initialization needs to write data it must write the data to the write buffer and return
-        /// SocketOperation.Write, likewise if the initilization needs to read data it must resize the read buffer to
-        /// the apropiate size and returns SocketOperation.Read.
+        /// SocketOperation.Write, likewise if the initialization needs to read data it must resize the read buffer to
+        /// the appropriate size and returns SocketOperation.Read.
         /// </summary>
         /// <param name="readBuffer">An empty buffer used for read operations</param>
         /// <param name="writeBuffer">An empty buffer used for write operations</param>
@@ -37,7 +37,7 @@ namespace IceInternal
         /// <param name="offset">The zero based byte offset into the buffer. The offset is increase by
         /// the amount of bytes written.</param>
         /// <returns>A constant indicating if all data was wrote to the socket, SocketOperation.None
-        /// indicate there is no more data to write, SocketOperation.Write inidicates there is still
+        /// indicate there is no more data to write, SocketOperation.Write indicates there is still
         /// data to write in the buffer.</returns>
         int Write(IList<ArraySegment<byte>> buffer, ref int offset);
         int Read(ref ArraySegment<byte> buffer, ref int offset);
@@ -67,22 +67,22 @@ namespace IceInternal
 
         /// <summary>Starts an asynchronous write operation of the buffer data to the transport
         /// starting at the given offset, completed is set to true if the write operation
-        /// account for the remaining of the buffer data or false otheriwse, returns whenever
+        /// account for the remaining of the buffer data or false otherwise, returns whenever
         /// the asynchronous operation completed synchronously or not.</summary>
         /// <param name="buffer">The data to write to the socket as a list of byte array segments.</param>
         /// <param name="offset">The zero based byte offset into the buffer at what start writing.</param>
-        /// <param name="callback">The asyncrhonous completion callback.</param>
-        /// <param name="state">A state object that is asocciated with the asynchronous operation.</param>
+        /// <param name="callback">The asynchronous completion callback.</param>
+        /// <param name="state">A state object that is associated with the asynchronous operation.</param>
         /// <param name="completed">True if the write operation accounts for the buffer remaining data, from
         /// offset to the end of the buffer.</param>
-        /// <returns>True if the asynchronous operation compled synchronously otherwise false.</returns>
+        /// <returns>True if the asynchronous operation completed synchronously otherwise false.</returns>
         bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state, out bool completed);
 
         /// <summary>Finish an asynchronous write operation, the offset is increase with the
         /// number of bytes wrote to the transport.</summary>
         /// <param name="buffer">The buffer of data to write to the socket.</param>
         /// <param name="offset">The offset at what the write operation starts, the offset is increase
-        /// with the number of bytes suscefully wrote to the socket.</param>
+        /// with the number of bytes successfully wrote to the socket.</param>
         void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset);
 
         string Transport();

@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections.Generic;
 using IceInternal;
+using System.Collections.Generic;
 
 namespace Ice
 {

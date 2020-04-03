@@ -1076,7 +1076,7 @@ namespace IceInternal
             }
 
             // _connections is immutable in this state
-            foreach (var connection in _connections)
+            foreach (Connection connection in _connections)
             {
                 connection.WaitUntilFinished();
             }
@@ -1444,12 +1444,12 @@ namespace IceInternal
             Finished
         }
 
-        private IAcceptor? _acceptor;
+        private readonly IAcceptor? _acceptor;
         private System.Exception? _acceptorException;
-        private Ice.ObjectAdapter? _adapter;
-        private readonly Ice.Communicator _communicator;
+        private readonly ObjectAdapter? _adapter;
+        private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private Endpoint _endpoint;
+        private readonly Endpoint _endpoint;
         private readonly FactoryACMMonitor _monitor;
         private readonly Endpoint? _publishedEndpoint;
         private State _state;

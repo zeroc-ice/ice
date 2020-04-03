@@ -425,7 +425,7 @@ namespace Ice
                 if (response)
                 {
                     //
-                    // Add to the async requests map.
+                    // Add to the asynchronous requests map.
                     //
                     _asyncRequests[requestId] = outgoing;
                 }
@@ -456,7 +456,7 @@ namespace Ice
                             {
                                 callback(this);
                             }
-                            catch (System.Exception ex)
+                            catch (Exception ex)
                             {
                                 _logger.Error("connection callback exception:\n" + ex + '\n' + _desc);
                             }
