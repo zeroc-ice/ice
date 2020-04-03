@@ -589,7 +589,8 @@ public class AllTests : Test.AllTests
             metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
 
             map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]);
-            test(map["closing"].Current == 1);
+            // The connection might already be closed so it can be 0 or 1
+            test(map["closing"].Current == 0 || map["closing"].Current == 1);
 
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");

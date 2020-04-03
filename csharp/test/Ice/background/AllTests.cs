@@ -1017,106 +1017,109 @@ public class AllTests
         IBackgroundPrx backgroundOneway = background.Clone(oneway: true);
         test(backgroundOneway.GetConnection() == background.GetConnection());
 
-        ctl.readReady(false); // Hold to block in request send.
+        // TODO: This test relied on the connection hold behavior which has been removed. The test is disabled
+        // for now and until the background tests are rewritten when we'll refactor the transport + thread pool.
+        //
+        // ctl.readReady(false); // Hold to block in request send.
 
-        byte[] seq = new byte[1000 * 1024];
-        (new System.Random()).NextBytes(seq);
-        OpAMICallback cbWP = new OpAMICallback();
+        // byte[] seq = new byte[1000 * 1024];
+        // (new System.Random()).NextBytes(seq);
+        // OpAMICallback cbWP = new OpAMICallback();
 
-        // Fill up the receive and send buffers
-        for (int i = 0; i < 10; ++i) // 10MB
-        {
-            backgroundOneway.opWithPayloadAsync(seq);
-        }
+        // // Fill up the receive and send buffers
+        // for (int i = 0; i < 10; ++i) // 10MB
+        // {
+        //     backgroundOneway.opWithPayloadAsync(seq);
+        // }
 
-        OpAMICallback cb = new OpAMICallback();
-        bool t1Sent = false;
-        var t1 = background.opAsync(progress: new Progress<bool>(value =>
-        {
-            cb.sent(value);
-            t1Sent = true;
-        }));
+        // OpAMICallback cb = new OpAMICallback();
+        // bool t1Sent = false;
+        // var t1 = background.opAsync(progress: new Progress<bool>(value =>
+        // {
+        //     cb.sent(value);
+        //     t1Sent = true;
+        // }));
 
-        t1.ContinueWith(p =>
-        {
-            try
-            {
-                p.Wait();
-                cb.response();
-            }
-            catch (System.Exception ex)
-            {
-                cb.exception(ex);
-            }
-        });
-        test(!t1Sent);
+        // t1.ContinueWith(p =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //         cb.response();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cb.exception(ex);
+        //     }
+        // });
+        // test(!t1Sent);
 
-        OpAMICallback cb2 = new OpAMICallback();
-        var t2Sent = false;
-        var t2 = background.opAsync(progress: new Progress<bool>(value =>
-        {
-            cb2.sent(value);
-            t2Sent = true;
-        }));
-        t2.ContinueWith((Task p) =>
-        {
-            try
-            {
-                p.Wait();
-                cb2.response();
-            }
-            catch (System.Exception ex)
-            {
-                cb2.noException(ex);
-            }
-        });
-        test(!t2Sent);
+        // OpAMICallback cb2 = new OpAMICallback();
+        // var t2Sent = false;
+        // var t2 = background.opAsync(progress: new Progress<bool>(value =>
+        // {
+        //     cb2.sent(value);
+        //     t2Sent = true;
+        // }));
+        // t2.ContinueWith((Task p) =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //         cb2.response();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cb2.noException(ex);
+        //     }
+        // });
+        // test(!t2Sent);
 
-        var t3SentSynchronously = false;
-        var t3 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
-        {
-            t3SentSynchronously = value;
-        }));
-        test(!t3SentSynchronously);
-        t3.ContinueWith((Task p) =>
-        {
-            try
-            {
-                p.Wait();
-            }
-            catch (System.Exception ex)
-            {
-                cbWP.noException(ex);
-            }
-        });
+        // var t3SentSynchronously = false;
+        // var t3 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        // {
+        //     t3SentSynchronously = value;
+        // }));
+        // test(!t3SentSynchronously);
+        // t3.ContinueWith((Task p) =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cbWP.noException(ex);
+        //     }
+        // });
 
-        var t4SentSynchronously = false;
-        var t4 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
-        {
-            t4SentSynchronously = value;
-        }));
-        test(!t4SentSynchronously);
-        t4.ContinueWith((Task p) =>
-        {
-            try
-            {
-                p.Wait();
-            }
-            catch (System.Exception ex)
-            {
-                cbWP.noException(ex);
-            }
-        });
+        // var t4SentSynchronously = false;
+        // var t4 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        // {
+        //     t4SentSynchronously = value;
+        // }));
+        // test(!t4SentSynchronously);
+        // t4.ContinueWith((Task p) =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cbWP.noException(ex);
+        //     }
+        // });
 
-        test(!cb.checkResponse(false));
-        test(!cb2.checkResponse(false));
-        ctl.readReady(true);
-        cb.checkResponseAndSent();
-        cb2.checkResponseAndSent();
-        test(t1Sent);
-        test(t1.IsCompleted);
-        test(t2Sent);
-        test(t2.IsCompleted);
+        // test(!cb.checkResponse(false));
+        // test(!cb2.checkResponse(false));
+        // ctl.readReady(true);
+        // cb.checkResponseAndSent();
+        // cb2.checkResponseAndSent();
+        // test(t1Sent);
+        // test(t1.IsCompleted);
+        // test(t2Sent);
+        // test(t2.IsCompleted);
 
         try
         {
