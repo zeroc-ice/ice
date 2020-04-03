@@ -101,7 +101,7 @@ public class AllTests
 
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
-        if (IceInternal.AssemblyUtil.IsWindows)
+        if (AssemblyUtil.IsWindows)
         {
             try
             {
@@ -538,7 +538,7 @@ public class AllTests
                             //
                             // macOS catalina does not check the certificate common name
                             //
-                            if (!IceInternal.AssemblyUtil.IsMacOS)
+                            if (!AssemblyUtil.IsMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -726,7 +726,7 @@ public class AllTests
                             //
                             // macOS catalina does not check the certificate common name
                             //
-                            if (!IceInternal.AssemblyUtil.IsMacOS)
+                            if (!AssemblyUtil.IsMacOS)
                             {
                                 Console.WriteLine(ex.ToString());
                                 test(false);
@@ -800,7 +800,7 @@ public class AllTests
                 certStore.Open(OpenFlags.ReadWrite);
                 X509Certificate2Collection certs = new X509Certificate2Collection();
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                if (IceInternal.AssemblyUtil.IsMacOS)
+                if (AssemblyUtil.IsMacOS)
                 {
                     //
                     // On macOS, we need to mark the key exportable because the addition of the key to the
@@ -945,7 +945,7 @@ public class AllTests
                     }
                     comm.Destroy();
 
-                    if (IceInternal.AssemblyUtil.IsWindows)
+                    if (AssemblyUtil.IsWindows)
                     {
                         //
                         // The certificate chain on Linux doesn't include the intermeidate
@@ -1299,7 +1299,7 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if (IceInternal.AssemblyUtil.IsWindows && isAdministrator)
+            if (AssemblyUtil.IsWindows && isAdministrator)
             {
                 //
                 // LocalMachine certificate store is not supported on non
@@ -2189,7 +2189,7 @@ public class AllTests
                 X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
                 certStore.Open(OpenFlags.ReadWrite);
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                if (IceInternal.AssemblyUtil.IsMacOS)
+                if (AssemblyUtil.IsMacOS)
                 {
                     //
                     // On macOS, we need to mark the key exportable because the addition of the key to the
@@ -2302,7 +2302,7 @@ public class AllTests
                 clientProperties["IceSSL.DefaultDir"] = "";
                 clientProperties["IceSSL.VerifyDepthMax"] = "4";
                 clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
-                if (IceInternal.AssemblyUtil.IsWindows)
+                if (AssemblyUtil.IsWindows)
                 {
                     //
                     // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
@@ -2352,7 +2352,7 @@ public class AllTests
                 clientProperties["IceSSL.VerifyDepthMax"] = "4";
                 clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
                 clientProperties["IceSSL.UsePlatformCAs"] = "1";
-                if (IceInternal.AssemblyUtil.IsWindows)
+                if (AssemblyUtil.IsWindows)
                 {
                     //
                     // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
@@ -2397,7 +2397,7 @@ public class AllTests
         }
         finally
         {
-            if (IceInternal.AssemblyUtil.IsWindows && isAdministrator)
+            if (AssemblyUtil.IsWindows && isAdministrator)
             {
                 store.Remove(caCert1);
                 store.Remove(caCert2);

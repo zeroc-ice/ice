@@ -161,7 +161,7 @@ namespace Ice.udp
             if (communicator.GetProperty("Ice.IPv6") == "1")
             {
                 endpoint.Append("udp -h \"ff15::1:1\"");
-                if (IceInternal.AssemblyUtil.IsWindows || IceInternal.AssemblyUtil.IsMacOS)
+                if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
                 {
                     endpoint.Append(" --interface \"::1\"");
                 }
@@ -169,7 +169,7 @@ namespace Ice.udp
             else
             {
                 endpoint.Append("udp -h 239.255.1.1");
-                if (IceInternal.AssemblyUtil.IsWindows || IceInternal.AssemblyUtil.IsMacOS)
+                if (AssemblyUtil.IsWindows || AssemblyUtil.IsMacOS)
                 {
                     endpoint.Append(" --interface 127.0.0.1");
                 }
