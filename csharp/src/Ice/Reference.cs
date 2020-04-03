@@ -43,10 +43,10 @@ namespace Ice
         internal bool IsConnectionCached => IsFixed || _requestHandlerMutex != null;
         internal bool IsFixed => _fixedConnection != null;
         internal bool IsIndirect => !IsFixed && Endpoints.Length == 0;
-        internal bool PreferNonSecure { get; }
         internal bool IsWellKnown => !IsFixed && Endpoints.Length == 0 && AdapterId.Length == 0;
         internal int LocatorCacheTimeout { get; }
         internal LocatorInfo? LocatorInfo { get; }
+        internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
         internal ThreadPool ThreadPool => IsFixed ? _fixedConnection!.ThreadPool : Communicator.ClientThreadPool();
@@ -130,15 +130,15 @@ namespace Ice
                 {
                     return false;
                 }
-                if (PreferNonSecure != other.PreferNonSecure)
-                {
-                    return false;
-                }
                 if (LocatorCacheTimeout != other.LocatorCacheTimeout)
                 {
                     return false;
                 }
                 if (LocatorInfo != other.LocatorInfo)
+                {
+                    return false;
+                }
+                if (PreferNonSecure != other.PreferNonSecure)
                 {
                     return false;
                 }
@@ -225,13 +225,13 @@ namespace Ice
                     hash.Add(Collections.GetHashCode(Endpoints));
                     hash.Add(IsCollocationOptimized);
                     hash.Add(IsConnectionCached);
-                    hash.Add(PreferNonSecure);
                     hash.Add(EndpointSelection);
                     hash.Add(LocatorCacheTimeout);
                     if (LocatorInfo != null)
                     {
                         hash.Add(LocatorInfo);
                     }
+                    hash.Add(PreferNonSecure);
                     if (RouterInfo != null)
                     {
                         hash.Add(RouterInfo);
@@ -409,9 +409,9 @@ namespace Ice
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
             IsCollocationOptimized = collocationOptimized;
-            PreferNonSecure = preferNonSecure;
             LocatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
+            PreferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
 
@@ -446,9 +446,9 @@ namespace Ice
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
             IsCollocationOptimized = false;
-            PreferNonSecure = false;
             LocatorCacheTimeout = 0;
             LocatorInfo = null;
+            PreferNonSecure = false;
             Protocol = Protocol.Ice1; // it's really the connection's protocol
             RouterInfo = null;
 
