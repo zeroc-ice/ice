@@ -141,23 +141,20 @@ namespace IceInternal
         private static IntPtr DllImportResolver(string libraryName, Assembly assembly,
             DllImportSearchPath? searchPath)
         {
-            string[] names = GetPlatformNativeLibraryNames(libraryName);
-            for (int i = 0; i < names.Length;)
+            DllNotFoundException? failure = null;
+            foreach (string name in GetPlatformNativeLibraryNames(libraryName))
             {
                 try
                 {
-                    return NativeLibrary.Load(names[i], assembly, searchPath);
+                    return NativeLibrary.Load(name, assembly, searchPath);
                 }
-                catch(DllNotFoundException)
+                catch (DllNotFoundException ex)
                 {
-                    if(i++ == names.Length)
-                    {
-                        throw;
-                    }
+                    failure = ex;
                 }
             }
-            Debug.Assert(false);
-            return IntPtr.Zero;
+            Debug.Assert(failure != null);
+            throw failure;
         }
 
         private static readonly Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
