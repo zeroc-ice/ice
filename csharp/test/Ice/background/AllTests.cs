@@ -755,23 +755,26 @@ public class AllTests
         }
 
         {
-            ctl.readReady(false); // Hold to block in connection validation
-            var t1SentSynchronously = false;
-            var t2SentSynchronously = false;
-            var t1 = background.opAsync(progress: new Progress<bool>(value =>
-            {
-                t1SentSynchronously = value;
-            }));
-            var t2 = background.opAsync(progress: new Progress<bool>(value =>
-            {
-                t2SentSynchronously = value;
-            }));
-            test(!t1SentSynchronously && !t2SentSynchronously);
-            test(!t1.IsCompleted && !t2.IsCompleted);
-            ctl.readReady(true);
-            t1.Wait();
-            t2.Wait();
-            test(t1.IsCompleted && t2.IsCompleted);
+            // TODO: This test relied on the connection hold behavior which has been removed. The test is disabled
+            // for now and until the background tests are rewritten when we'll refactor the transport + thread pool.
+            //
+            // ctl.readReady(false); // Hold to block in connection validation
+            // var t1SentSynchronously = false;
+            // var t2SentSynchronously = false;
+            // var t1 = background.opAsync(progress: new Progress<bool>(value =>
+            // {
+            //     t1SentSynchronously = value;
+            // }));
+            // var t2 = background.opAsync(progress: new Progress<bool>(value =>
+            // {
+            //     t2SentSynchronously = value;
+            // }));
+            // test(!t1SentSynchronously && !t2SentSynchronously);
+            // test(!t1.IsCompleted && !t2.IsCompleted);
+            // ctl.readReady(true);
+            // t1.Wait();
+            // t2.Wait();
+            // test(t1.IsCompleted && t2.IsCompleted);
         }
 
         try
