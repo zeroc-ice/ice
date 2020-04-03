@@ -40,7 +40,7 @@ namespace IceInternal
             _hashCode = hash.ToHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (!(obj is UdpConnector))
             {

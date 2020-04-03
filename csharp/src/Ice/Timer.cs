@@ -105,7 +105,7 @@ namespace IceInternal
                     return false;
                 }
 
-                if (!_tasks.TryGetValue(task, out Token token))
+                if (!_tasks.TryGetValue(task, out Token? token))
                 {
                     return false;
                 }
@@ -273,8 +273,9 @@ namespace IceInternal
                 Task = task;
             }
 
-            public int CompareTo(object o)
+            public int CompareTo(object? o)
             {
+                Debug.Assert(o != null);
                 //
                 // Token are sorted by scheduled time and token id.
                 //
@@ -300,7 +301,7 @@ namespace IceInternal
                 return 0;
             }
 
-            public override bool Equals(object o)
+            public override bool Equals(object? o)
             {
                 if (ReferenceEquals(this, o))
                 {

@@ -301,7 +301,7 @@ namespace IceSSL
 
         public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 
-        public override string ToString() => _delegate.ToString();
+        public override string ToString() => _delegate.ToString()!;
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 

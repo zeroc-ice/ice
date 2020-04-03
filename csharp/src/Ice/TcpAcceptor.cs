@@ -53,6 +53,7 @@ namespace IceInternal
                                           {
                                               if (!result.CompletedSynchronously)
                                               {
+                                                  Debug.Assert(result.AsyncState != null);
                                                   callback(result.AsyncState);
                                               }
                                           }, state);

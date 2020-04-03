@@ -73,7 +73,7 @@ namespace Ice
 
         public static bool operator !=(Reference? lhs, Reference? rhs) => !(lhs == rhs);
 
-        public override bool Equals(object obj) => Equals(obj as Reference);
+        public override bool Equals(object? obj) => Equals(obj as Reference);
 
         public bool Equals(Reference? other)
         {

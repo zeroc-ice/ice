@@ -305,6 +305,7 @@ namespace Ice
             }
             catch (AggregateException ex)
             {
+                Debug.Assert(ex.InnerException != null);
                 throw ex.InnerException;
             }
         }
@@ -480,7 +481,9 @@ namespace Ice
                 throw new ArgumentException("cannot deserialize proxy: Ice.Communicator not found in StreamingContext",
                     nameof(context));
             }
-            IceReference = communicator.CreateReference(info.GetString("proxy"), null);
+            string? str = info.GetString("proxy");
+            Debug.Assert(str != null);
+            IceReference = communicator.CreateReference(str, null);
         }
     }
 }

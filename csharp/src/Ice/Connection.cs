@@ -53,7 +53,7 @@ namespace Ice
         public bool Equals(ACM other) =>
             Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
 
-        public override bool Equals(object other) =>
+        public override bool Equals(object? other) =>
             ReferenceEquals(this, other) || (other is ACM value && Equals(value));
 
         public static bool operator ==(ACM lhs, ACM rhs) => Equals(lhs, rhs);
@@ -532,7 +532,7 @@ namespace Ice
                 }
                 catch (RetryException ex)
                 {
-                    if (Exception(ex.InnerException))
+                    if (Exception(ex.InnerException!))
                     {
                         InvokeExceptionAsync();
                     }
@@ -640,7 +640,7 @@ namespace Ice
                     // If the request is being sent, don't remove it from the send streams,
                     // it will be removed once the sending is finished.
                     //
-                    if (o == _outgoingMessages.First.Value)
+                    if (o == _outgoingMessages.First!.Value)
                     {
                         o.Canceled();
                     }
@@ -781,7 +781,7 @@ namespace Ice
                     if (completed && _outgoingMessages.Count > 0)
                     {
                         // The whole message is written, assume it's sent now for at-most-once semantics.
-                        _outgoingMessages.First.Value.IsSent = true;
+                        _outgoingMessages.First!.Value.IsSent = true;
                     }
                 }
                 else if ((operation & SocketOperation.Read) != 0)
@@ -921,7 +921,7 @@ namespace Ice
                                     return;
                                 }
 
-                                if (size > _readBuffer.Array.Length)
+                                if (size > _readBuffer.Array!.Length)
                                 {
                                     // Allocate a new array and copy the header over
                                     byte[] readBuffer = new byte[size];
@@ -1262,7 +1262,7 @@ namespace Ice
                 {
                     // Return the stream to the outgoing call. This is important for
                     // retriable AMI calls which are not marshalled again.
-                    OutgoingMessage message = _outgoingMessages.First.Value;
+                    OutgoingMessage message = _outgoingMessages.First!.Value;
                     Debug.Assert(message.OutgoingData != null);
                     _writeBufferOffset = 0;
                     _writeBufferSize = 0;
@@ -1532,7 +1532,7 @@ namespace Ice
             _communicator = communicator;
             _monitor = monitor;
             _transceiver = transceiver;
-            _desc = transceiver.ToString();
+            _desc = transceiver.ToString()!;
             _type = transceiver.Transport();
             _connector = connector;
             _endpoint = endpoint;
@@ -1778,7 +1778,7 @@ namespace Ice
                          _exception is ObjectAdapterDeactivatedException ||
                          (_exception is ConnectionLostException && _state >= StateClosing)))
                     {
-                        _observer.Failed(_exception.GetType().FullName);
+                        _observer.Failed(_exception.GetType().FullName!);
                     }
                 }
             }
@@ -1863,7 +1863,7 @@ namespace Ice
             //
             // Update the connection description once the transceiver is initialized.
             //
-            _desc = _transceiver.ToString();
+            _desc = _transceiver.ToString()!;
             _initialized = true;
             SetState(StateNotValidated);
             return true;
@@ -1998,7 +1998,7 @@ namespace Ice
                     //
                     // Notify the message that it was sent.
                     //
-                    OutgoingMessage message = _outgoingMessages.First.Value;
+                    OutgoingMessage message = _outgoingMessages.First!.Value;
                     _writeBuffer = _emptyBuffer;
                     _writeBufferOffset = 0;
                     _writeBufferSize = 0;
@@ -2042,7 +2042,7 @@ namespace Ice
                     message.OutgoingData = DoCompress(message.OutgoingData, message.Size, message.Compress);
                     message.Size = message.OutgoingData.GetByteCount();
 
-                    TraceUtil.TraceSend(_communicator, data.GetSegment(0, message.Size).Array, _logger, _traceLevels);
+                    TraceUtil.TraceSend(_communicator, data.GetSegment(0, message.Size).Array!, _logger, _traceLevels);
                     _writeBuffer = message.OutgoingData;
                     _writeBufferSize = message.Size;
                     _writeBufferOffset = 0;
@@ -2280,7 +2280,7 @@ namespace Ice
                                 // sent yet, we queue the reply instead of processing it right away. It
                                 // will be processed once the write callback is invoked for the message.
                                 //
-                                OutgoingMessage? message = _outgoingMessages.Count > 0 ? _outgoingMessages.First.Value : null;
+                                OutgoingMessage? message = _outgoingMessages.Count > 0 ? _outgoingMessages.First!.Value : null;
                                 if (message != null && message.OutAsync == info.OutAsync)
                                 {
                                     message.ReceivedReply = true;

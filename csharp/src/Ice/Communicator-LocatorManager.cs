@@ -214,11 +214,11 @@ namespace Ice
                             }
                             catch (AggregateException ex)
                             {
-                                Exception(ex.InnerException);
+                                Exception(ex.InnerException!);
                             }
                         });
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Exception(ex);
                 }
@@ -245,7 +245,7 @@ namespace Ice
                             }
                             catch (AggregateException ex)
                             {
-                                Exception(ex.InnerException);
+                                Exception(ex.InnerException!);
                             }
                         });
                 }
@@ -527,7 +527,7 @@ namespace Ice
 
             lock (this)
             {
-                if (_adapterRequests.TryGetValue(reference.AdapterId, out Request request))
+                if (_adapterRequests.TryGetValue(reference.AdapterId, out Request? request))
                 {
                     return request;
                 }
@@ -551,7 +551,7 @@ namespace Ice
 
             lock (this)
             {
-                if (_objectRequests.TryGetValue(reference.Identity, out Request request))
+                if (_objectRequests.TryGetValue(reference.Identity, out Request? request))
                 {
                     return request;
                 }
@@ -635,7 +635,7 @@ namespace Ice
 
             public bool Equals(LocatorKey other) => _id.Equals(other._id) && _encoding.Equals(other._encoding);
 
-            public override bool Equals(object obj) => (obj is LocatorKey other) && Equals(other);
+            public override bool Equals(object? obj) => (obj is LocatorKey other) && Equals(other);
 
             public override int GetHashCode() => HashCode.Combine(_id, _encoding);
 
@@ -663,7 +663,7 @@ namespace Ice
             //
             lock (_locatorInfoMap)
             {
-                if (!_locatorInfoMap.TryGetValue(locator, out LocatorInfo info))
+                if (!_locatorInfoMap.TryGetValue(locator, out LocatorInfo? info))
                 {
                     //
                     // Rely on locator identity for the adapter table. We want to
@@ -671,7 +671,7 @@ namespace Ice
                     // proxy).
                     //
                     var key = new LocatorKey(locator);
-                    if (!_locatorTableMap.TryGetValue(key, out LocatorTable table))
+                    if (!_locatorTableMap.TryGetValue(key, out LocatorTable? table))
                     {
                         table = new LocatorTable();
                         _locatorTableMap[key] = table;

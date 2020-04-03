@@ -3,13 +3,12 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace IceInternal
+namespace Ice
 {
     public static class AssemblyUtil
     {
@@ -26,7 +25,7 @@ namespace IceInternal
         {
             lock (_mutex)
             {
-                if (_typeTable.TryGetValue(csharpId, out Type t))
+                if (_typeTable.TryGetValue(csharpId, out Type? t))
                 {
                     return t;
                 }
@@ -44,10 +43,7 @@ namespace IceInternal
             return null;
         }
 
-        public static object CreateInstance(Type t)
-        {
-            return Activator.CreateInstance(t);
-        }
+        public static object? CreateInstance(Type t) => Activator.CreateInstance(t);
 
         public static void PreloadAssemblies()
         {
@@ -90,12 +86,12 @@ namespace IceInternal
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             var newAssemblies = new List<Assembly>();
-            foreach (Assembly a in assemblies)
+            foreach (Assembly assembly in assemblies)
             {
-                if (!_loadedAssemblies.Contains(a.FullName))
+                if (!_loadedAssemblies.ContainsKey(assembly.FullName!))
                 {
-                    newAssemblies.Add(a);
-                    _loadedAssemblies[a.FullName] = a;
+                    newAssemblies.Add(assembly);
+                    _loadedAssemblies[assembly.FullName!] = assembly;
                 }
             }
 
@@ -116,14 +112,14 @@ namespace IceInternal
                     {
                         try
                         {
-                            var ra = Assembly.Load(name);
+                            var loadedAssembly = Assembly.Load(name);
                             //
-                            // The value of name.FullName may not match that of ra.FullName, so
-                            // we record the assembly using both keys.
+                            // The value of name.FullName may not match that of loadedAssembly.FullName,
+                            // so we record the assembly using both keys.
                             //
-                            _loadedAssemblies[name.FullName] = ra;
-                            _loadedAssemblies[ra.FullName] = ra;
-                            LoadReferencedAssemblies(ra);
+                            _loadedAssemblies[name.FullName] = loadedAssembly;
+                            _loadedAssemblies[loadedAssembly.FullName!] = loadedAssembly;
+                            LoadReferencedAssemblies(loadedAssembly);
                         }
                         catch (Exception)
                         {
@@ -157,8 +153,9 @@ namespace IceInternal
             throw failure;
         }
 
-        private static readonly Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
-        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.
+        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
+        // <type name, Type> pairs.
+        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>();
         private static readonly object _mutex = new object();
     }
 }

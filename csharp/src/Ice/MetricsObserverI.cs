@@ -30,7 +30,7 @@ namespace IceMX
                         object? result = Resolve(obj);
                         if (result != null)
                         {
-                            return result.ToString();
+                            return result.ToString()!;
                         }
                         return "";
                     }
@@ -113,7 +113,7 @@ namespace IceMX
 
                 protected override object? Resolve(object obj)
                 {
-                    object o = _method.Invoke(obj, null);
+                    object? o = _method.Invoke(obj, null);
                     if (o != null)
                     {
                         return GetField(_field, o);
@@ -138,7 +138,7 @@ namespace IceMX
 
                 protected override object? Resolve(object obj)
                 {
-                    object o = _method.Invoke(obj, null);
+                    object? o = _method.Invoke(obj, null);
                     if (o != null)
                     {
                         return _subMethod.Invoke(o, null);
@@ -163,7 +163,7 @@ namespace IceMX
 
                 protected override object? Resolve(object obj)
                 {
-                    object o = _method.Invoke(obj, null);
+                    object? o = _method.Invoke(obj, null);
                     if (o != null)
                     {
                         return _property.GetValue(o, null);
@@ -181,7 +181,7 @@ namespace IceMX
 
             public string Resolve(MetricsHelper<T> helper, string attribute)
             {
-                if (!_attributes.TryGetValue(attribute, out MetricsHelper<T>.AttributeResolver.Resolver resolver))
+                if (!_attributes.TryGetValue(attribute, out MetricsHelper<T>.AttributeResolver.Resolver? resolver))
                 {
                     if (attribute.Equals("none"))
                     {

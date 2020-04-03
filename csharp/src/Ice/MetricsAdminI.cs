@@ -337,7 +337,7 @@ namespace IceInternal
         {
             lock (this)
             {
-                if (_objects.TryGetValue(id, out MetricsMap<T>.Entry e))
+                if (_objects.TryGetValue(id, out MetricsMap<T>.Entry? e))
                 {
                     return e.GetFailures();
                 }
@@ -351,7 +351,7 @@ namespace IceInternal
             {
                 return null;
             }
-            if (_subMaps.TryGetValue(subMapName, out ISubMapCloneFactory factory))
+            if (_subMaps.TryGetValue(subMapName, out ISubMapCloneFactory? factory))
             {
                 return factory.Create();
             }
@@ -420,7 +420,7 @@ namespace IceInternal
                     return previous;
                 }
 
-                if (!_objects.TryGetValue(key, out MetricsMap<T>.Entry e))
+                if (!_objects.TryGetValue(key, out MetricsMap<T>.Entry? e))
                 {
                     try
                     {
@@ -453,10 +453,10 @@ namespace IceInternal
             Debug.Assert(_detachedQueue.Count <= _retain);
 
             // Compress the queue by removing entries which are no longer detached.
-            LinkedListNode<Entry> p = _detachedQueue.First;
+            LinkedListNode<Entry>? p = _detachedQueue.First;
             while (p != null)
             {
-                LinkedListNode<Entry> next = p.Next;
+                LinkedListNode<Entry>? next = p.Next;
                 if (p.Value == entry || !p.Value.IsDetached())
                 {
                     _detachedQueue.Remove(p);
@@ -467,7 +467,7 @@ namespace IceInternal
             // If there's still no room, remove the oldest entry (at the front).
             if (_detachedQueue.Count == _retain)
             {
-                _objects.Remove(_detachedQueue.First.Value.GetId());
+                _objects.Remove(_detachedQueue.First!.Value.GetId());
                 _detachedQueue.RemoveFirst();
             }
 
@@ -550,7 +550,7 @@ namespace IceInternal
                 return _maps.Remove(mapName);
             }
 
-            if (_maps.TryGetValue(mapName, out IMetricsMap m) && Ice.Collections.Equals(m.GetProperties(), mapProps))
+            if (_maps.TryGetValue(mapName, out IMetricsMap? m) && Ice.Collections.Equals(m.GetProperties(), mapProps))
             {
                 return false; // The map configuration didn't change, no need to re-create.
             }
@@ -585,7 +585,7 @@ namespace IceInternal
 
         internal IceMX.MetricsFailures[] GetFailures(string mapName)
         {
-            if (_maps.TryGetValue(mapName, out IMetricsMap m))
+            if (_maps.TryGetValue(mapName, out IMetricsMap? m))
             {
                 return m.GetFailures();
             }
@@ -594,7 +594,7 @@ namespace IceInternal
 
         internal IceMX.MetricsFailures? GetFailures(string mapName, string id)
         {
-            if (_maps.TryGetValue(mapName, out IMetricsMap m))
+            if (_maps.TryGetValue(mapName, out IMetricsMap? m))
             {
                 return m.GetFailures(id);
             }
@@ -605,7 +605,7 @@ namespace IceInternal
 
         internal MetricsMap<T>? GetMap<T>(string mapName) where T : IceMX.Metrics, new()
         {
-            if (_maps.TryGetValue(mapName, out IMetricsMap m))
+            if (_maps.TryGetValue(mapName, out IMetricsMap? m))
             {
                 return (MetricsMap<T>)m;
             }
@@ -725,7 +725,7 @@ namespace IceInternal
                     //
                     // Create the view or update it.
                     //
-                    if (!_views.TryGetValue(viewName, out MetricsViewI v))
+                    if (!_views.TryGetValue(viewName, out MetricsViewI? v))
                     {
                         v = new MetricsViewI(viewName);
                     }
@@ -855,7 +855,7 @@ namespace IceInternal
             where S : IceMX.Metrics, new()
         {
             bool updated;
-            IMetricsMapFactory factory;
+            IMetricsMapFactory? factory;
             lock (this)
             {
                 if (!_factories.TryGetValue(map, out factory))
@@ -875,7 +875,7 @@ namespace IceInternal
         public void UnregisterMap(string mapName)
         {
             bool updated;
-            IMetricsMapFactory factory;
+            IMetricsMapFactory? factory;
             lock (this)
             {
                 if (!_factories.TryGetValue(mapName, out factory))
@@ -930,7 +930,7 @@ namespace IceInternal
 
         private MetricsViewI? GetMetricsView(string name)
         {
-            if (!_views.TryGetValue(name, out MetricsViewI view))
+            if (!_views.TryGetValue(name, out MetricsViewI? view))
             {
                 if (!_disabledViews.Contains(name))
                 {

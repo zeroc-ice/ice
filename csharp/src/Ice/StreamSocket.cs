@@ -36,7 +36,7 @@ namespace IceInternal
             // the data in several chunks. Otherwise, we would only be
             // notified when all the data is received/written. The
             // connection timeout could easily be triggered when
-            // receiging/sending large messages.
+            // receiving/sending large messages.
             //
             _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd));
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));
@@ -52,7 +52,7 @@ namespace IceInternal
             {
                 _desc = Network.FdToString(_fd);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 Network.CloseSocketNoThrow(_fd);
                 throw;
@@ -72,7 +72,7 @@ namespace IceInternal
             // the data in several chunks. Otherwise, we would only be
             // notified when all the data is received/written. The
             // connection timeout could easily be triggered when
-            // receiging/sending large messages.
+            // receiving/sending large messages.
             //
             _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd));
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));
@@ -96,7 +96,7 @@ namespace IceInternal
                 Debug.Assert(_writeEventArgs != null);
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    var ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                    var ex = new SocketException((int)_writeEventArgs.SocketError);
                     if (Network.ConnectionRefused(ex))
                     {
                         throw new ConnectionRefusedException(ex);
@@ -184,7 +184,7 @@ namespace IceInternal
         /// <param name="offset">The zero based byte offset into the buffer. The offset is increased
         /// by the amount of bytes written.</param>
         /// <returns>A constant indicating if all data was wrote to the socket, SocketOperation.None
-        /// indicate there is no more data to write, SocketOperation.Write inidicates there is still
+        /// indicate there is no more data to write, SocketOperation.Write indicates there is still
         /// data to write in the buffer.</returns>
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset)
         {
@@ -224,13 +224,13 @@ namespace IceInternal
                 _readEventArgs.SetBuffer(buffer.Array, buffer.Offset + offset, packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
                     throw new ConnectionLostException(ex);
                 }
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -246,7 +246,7 @@ namespace IceInternal
             {
                 if (_readEventArgs.SocketError != SocketError.Success)
                 {
-                    throw new System.Net.Sockets.SocketException((int)_readEventArgs.SocketError);
+                    throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 int ret = _readEventArgs.BytesTransferred;
                 _readEventArgs.SetBuffer(null, 0, 0);
@@ -263,13 +263,13 @@ namespace IceInternal
                     _state = ToState(_proxy.EndRead(ref buffer, offset));
                 }
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -279,15 +279,15 @@ namespace IceInternal
 
         /// <summary>Starts an asynchronous write operation of the buffer data to the socket
         /// starting at the given offset, completed is set to true if the write operation
-        /// account for the remaining of the buffer data or false otheriwse, returns whenever
+        /// account for the remaining of the buffer data or false otherwise, returns whenever
         /// the asynchronous operation completed synchronously or not.</summary>
         /// <param name="buffer">The data to write to the socket as a list of byte array segments.</param>
         /// <param name="offset">The zero based byte offset into the buffer at what start writing.</param>
-        /// <param name="callback">The asyncrhonous completion callback.</param>
-        /// <param name="state">A state object that is asocciated with the asynchronous operation.</param>
+        /// <param name="callback">The asynchronous completion callback.</param>
+        /// <param name="state">A state object that is associated with the asynchronous operation.</param>
         /// <param name="completed">True if the write operation accounts for the buffer remaining data, from
         /// offset to the end of the buffer.</param>
-        /// <returns>True if the asynchronous operation compled synchronously otherwise false.</returns>
+        /// <returns>True if the asynchronous operation completed synchronously otherwise false.</returns>
         public bool StartWrite(IList<ArraySegment<byte>> buffer, int offset, AsyncCallback callback, object state,
             out bool completed)
         {
@@ -312,9 +312,9 @@ namespace IceInternal
                     _writeEventArgs.UserToken = state;
                     return !_fd.ConnectAsync(_writeEventArgs);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
-                    throw new Ice.TransportException(ex);
+                    throw new TransportException(ex);
                 }
             }
 
@@ -330,7 +330,7 @@ namespace IceInternal
                 completed = _maxSendPacketSize >= remaining;
                 return completedSynchronously;
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
@@ -345,10 +345,10 @@ namespace IceInternal
         }
 
         /// <summary>Finish an asynchronous write operation, the offset is increase with the
-        /// number of bytes acutally wrote to the socket.</summary>
+        /// number of bytes actually wrote to the socket.</summary>
         /// <param name="buffer">The buffer of data to write to the socket.</param>
         /// <param name="offset">The offset at what the write operation starts, the offset is increase
-        /// with the number of bytes suscefully wrote to the socket.</param>
+        /// with the number of bytes successfully wrote to the socket.</param>
         public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset)
         {
             if (_writeEventArgs.BufferList != null)
@@ -378,7 +378,7 @@ namespace IceInternal
             {
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    throw new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                    throw new SocketException((int)_writeEventArgs.SocketError);
                 }
                 int ret = _writeEventArgs.BytesTransferred;
                 if (ret == 0)
@@ -393,14 +393,14 @@ namespace IceInternal
                 }
                 offset += ret;
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
                     throw new ConnectionLostException(ex);
                 }
 
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
@@ -458,7 +458,7 @@ namespace IceInternal
                     }
                     bytesTransferred += ret;
                 }
-                catch (System.Net.Sockets.SocketException ex)
+                catch (SocketException ex)
                 {
                     if (Network.WouldBlock(ex))
                     {
@@ -473,7 +473,7 @@ namespace IceInternal
                         throw new ConnectionLostException(ex);
                     }
 
-                    throw new Ice.TransportException(ex);
+                    throw new TransportException(ex);
                 }
             }
             return bytesTransferred;
@@ -497,7 +497,7 @@ namespace IceInternal
             {
                 //
                 // On Windows, limiting the buffer size is important to prevent
-                // poor throughput performances when transfering large amount of
+                // poor throughput performances when transferring large amount of
                 // data. See Microsoft KB article KB823764.
                 //
                 if (_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
@@ -518,7 +518,7 @@ namespace IceInternal
                     Debug.Assert(ret > 0);
                     sent += ret;
                 }
-                catch (System.Net.Sockets.SocketException ex)
+                catch (SocketException ex)
                 {
                     if (Network.WouldBlock(ex))
                     {
@@ -528,12 +528,12 @@ namespace IceInternal
                     {
                         throw new ConnectionLostException(ex);
                     }
-                    throw new Ice.TransportException(ex);
+                    throw new TransportException(ex);
                 }
             }
             return sent;
         }
-        private void IoCompleted(object sender, SocketAsyncEventArgs e)
+        private void IoCompleted(object? sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
             {

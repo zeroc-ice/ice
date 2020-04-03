@@ -436,6 +436,7 @@ namespace IceInternal
                             int size = buffer.Count;
                             buffer = buffer.Slice(0, offset + readSz);
                             s = _delegate.Read(ref buffer, ref offset);
+                            Debug.Assert(buffer.Array != null);
                             buffer = new ArraySegment<byte>(buffer.Array, 0, size);
                         }
                         else
@@ -503,6 +504,7 @@ namespace IceInternal
                         int size = buffer.Count;
                         buffer = buffer.Slice(0, offset + readSz);
                         bool completedSynchronously = _delegate.StartRead(ref buffer, ref offset, callback, state);
+                        Debug.Assert(buffer.Array != null);
                         buffer = new ArraySegment<byte>(buffer.Array, 0, size);
                         return completedSynchronously;
                     }
@@ -657,7 +659,7 @@ namespace IceInternal
 
         public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 
-        public override string ToString() => _delegate.ToString();
+        public override string ToString() => _delegate.ToString()!;
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 

@@ -61,7 +61,7 @@ namespace IceInternal
 
                 if (!Initialized())
                 {
-                    LinkedListNode<ProxyOutgoingAsyncBase> p = _requests.First;
+                    LinkedListNode<ProxyOutgoingAsyncBase>? p = _requests.First;
                     while (p != null)
                     {
                         if (p.Value == outAsync)

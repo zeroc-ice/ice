@@ -63,6 +63,7 @@ namespace IceLocatorDiscovery
                         }
                         catch (AggregateException ae)
                         {
+                            Debug.Assert(ae.InnerException != null);
                             Exception(ae.InnerException);
                         }
                     },
@@ -254,8 +255,16 @@ namespace IceLocatorDiscovery
         {
             lock (this)
             {
-                if (locator == null ||
-                   (_instanceName.Length > 0 && !locator.Identity.Category.Equals(_instanceName)))
+                if (locator == null)
+                {
+                    if (_traceLevel > 2)
+                    {
+                        _lookup.Communicator.Logger.Trace("Lookup", "ignoring locator reply: (null locator)");
+                    }
+                    return;
+                }
+
+                if (_instanceName.Length > 0 && !locator.Identity.Category.Equals(_instanceName))
                 {
                     if (_traceLevel > 2)
                     {
@@ -426,6 +435,7 @@ namespace IceLocatorDiscovery
                                     }
                                     catch (AggregateException ex)
                                     {
+                                        Debug.Assert(ex.InnerException != null);
                                         Exception(ex.InnerException);
                                     }
                                 }, l.Key.Scheduler); // Send multicast request.
@@ -548,6 +558,7 @@ namespace IceLocatorDiscovery
                                 }
                                 catch (AggregateException ex)
                                 {
+                                    Debug.Assert(ex.InnerException != null);
                                     Exception(ex.InnerException);
                                 }
                             }, l.Key.Scheduler); // Send multicast request.
@@ -555,7 +566,7 @@ namespace IceLocatorDiscovery
                         _timer.Schedule(this, _timeout);
                         return;
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                     }
                     _pendingRetryCount = 0;
@@ -626,7 +637,7 @@ namespace IceLocatorDiscovery
     internal class PluginI : Ice.IPlugin
     {
         public
-        PluginI(string name, Ice.Communicator communicator)
+        PluginI(string name, Communicator communicator)
         {
             _name = name;
             _communicator = communicator;

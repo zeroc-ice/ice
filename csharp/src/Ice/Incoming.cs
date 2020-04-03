@@ -9,23 +9,22 @@ namespace IceInternal
 {
     internal static class Incoming
     {
-        internal static void ReportException(Ice.RemoteException exc,
+        internal static void ReportException(Ice.RemoteException ex,
                                              Ice.Instrumentation.IDispatchObserver? dispatchObserver,
                                              Ice.Current current)
         {
-            bool unhandledException = exc is Ice.UnhandledException;
+            bool unhandledException = ex is Ice.UnhandledException;
 
             if (unhandledException && current.Adapter.Communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
-                Warning((Ice.UnhandledException)exc, current);
+                Warning((Ice.UnhandledException)ex, current);
             }
 
             if (dispatchObserver != null)
             {
                 if (unhandledException)
                 {
-                    System.Exception realEx = exc.InnerException ?? exc;
-                    dispatchObserver.Failed(realEx.GetType().FullName);
+                    dispatchObserver.Failed((ex.InnerException ?? ex).GetType().FullName ?? "System.Exception");
                 }
                 else
                 {

@@ -838,7 +838,7 @@ namespace IceInternal
             }
         }
 
-        internal void IoCompleted(object sender, SocketAsyncEventArgs e)
+        internal void IoCompleted(object? sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
             {
