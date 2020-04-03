@@ -46,7 +46,7 @@ namespace Ice
 
          /// <summary>Indicates whether or not this communicator allows non-secure connections. When false, only
          /// secure connections are allowed; when true, both secure and non-secure connections are allowed. This
-         /// property applies to both incoming and outgoing connections are corresponds to the Ice.AllowNonSecure
+         /// property applies to both incoming and outgoing connections and corresponds to the Ice.AllowNonSecure
          /// configuration property. It can be overridden for incoming connections by the object adapter property
          /// with the same name.</summary>
          // TODO: update doc with default value for AllowNonSecure - it's currently true but should be false.

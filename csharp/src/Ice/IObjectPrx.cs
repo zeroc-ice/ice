@@ -194,7 +194,7 @@ namespace Ice
         /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IEndpoint[] Endpoints => (IEndpoint[])IceReference.Endpoints.Clone();
 
-        /// <summary>The locator cache timout of this proxy, in seconds.</summary>
+        /// <summary>The locator cache timeout of this proxy, in seconds.</summary>
         public int LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
         /// <summary>The invocation timeout of this proxy, in seconds.</summary>

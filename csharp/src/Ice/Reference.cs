@@ -1269,44 +1269,5 @@ namespace Ice
             private int _i = 0;
             private System.Exception? _exception = null;
         }
-
-        // TODO: refactor this class
-        private sealed class EndpointComparator : IComparer<Endpoint>
-        {
-            public EndpointComparator(bool preferNonSecure) => _preferNonSecure = preferNonSecure;
-
-            public int Compare(Endpoint le, Endpoint re)
-            {
-                bool ls = le.Secure();
-                bool rs = re.Secure();
-                if ((ls && rs) || (!ls && !rs))
-                {
-                    return 0;
-                }
-                else if (!ls && rs)
-                {
-                    if (_preferNonSecure)
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        return -1;
-                    }
-                }
-                else
-                {
-                    if (_preferNonSecure)
-                    {
-                        return -1;
-                    }
-                    else
-                    {
-                        return 1;
-                    }
-                }
-            }
-            private readonly bool _preferNonSecure;
-        }
     }
 }
