@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System.Net;
 
 namespace IceInternal
@@ -11,7 +13,7 @@ namespace IceInternal
         public ITransceiver Connect() =>
             new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
 
-        public short Type() => _instance.Type;
+        public EndpointType Type() => _instance.Type;
 
         //
         // Only for use by UdpEndpointI
@@ -38,7 +40,7 @@ namespace IceInternal
             _hashCode = hash.ToHashCode();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (!(obj is UdpConnector))
             {

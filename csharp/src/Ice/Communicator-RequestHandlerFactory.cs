@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections.Generic;
 using IceInternal;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -23,7 +23,7 @@ namespace Ice
             }
 
             bool connect = false;
-            ConnectRequestHandler handler;
+            ConnectRequestHandler? handler;
             if (rf.IsConnectionCached)
             {
                 lock (_handlers)
@@ -55,7 +55,7 @@ namespace Ice
             {
                 lock (_handlers)
                 {
-                    if (_handlers.TryGetValue(rf, out ConnectRequestHandler h) && h == handler)
+                    if (_handlers.TryGetValue(rf, out ConnectRequestHandler? h) && h == handler)
                     {
                         _handlers.Remove(rf);
                     }

@@ -74,7 +74,7 @@ namespace Ice
 
         public static bool operator !=(Reference? lhs, Reference? rhs) => !(lhs == rhs);
 
-        public override bool Equals(object obj) => Equals(obj as Reference);
+        public override bool Equals(object? obj) => Equals(obj as Reference);
 
         public bool Equals(Reference? other)
         {
@@ -801,7 +801,7 @@ namespace Ice
                 Debug.Assert(AdapterId.Length == 0);
                 foreach (Endpoint endpoint in Endpoints)
                 {
-                    ostr.WriteShort(endpoint.Type());
+                    ostr.WriteShort((short)endpoint.Type());
                     endpoint.StreamWrite(ostr);
                 }
             }

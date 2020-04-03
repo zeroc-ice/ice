@@ -19,7 +19,7 @@ namespace IceSSL
             return new Transceiver(_instance, _delegate.Connect(), _host, false);
         }
 
-        public short Type() => _delegate.Type();
+        public Ice.EndpointType Type() => _delegate.Type();
 
         //
         // Only for use by EndpointI.
@@ -31,7 +31,7 @@ namespace IceSSL
             _host = host;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (!(obj is ConnectorI))
             {

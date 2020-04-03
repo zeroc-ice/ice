@@ -5,6 +5,7 @@
 using IceInternal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -291,6 +292,7 @@ namespace Ice
             }
             catch (AggregateException ex)
             {
+                Debug.Assert(ex.InnerException != null);
                 throw ex.InnerException;
             }
         }

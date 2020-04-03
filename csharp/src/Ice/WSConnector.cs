@@ -2,13 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 namespace IceInternal
 {
     internal sealed class WSConnector : IConnector
     {
         public ITransceiver Connect() => new WSTransceiver(_instance, _delegate.Connect(), _host, _resource);
 
-        public short Type() => _delegate.Type();
+        public EndpointType Type() => _delegate.Type();
 
         internal WSConnector(TransportInstance instance, IConnector del, string host, string resource)
         {
@@ -18,7 +20,7 @@ namespace IceInternal
             _resource = resource;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (!(obj is WSConnector))
             {
@@ -44,7 +46,7 @@ namespace IceInternal
             return true;
         }
 
-        public override string ToString() => _delegate.ToString();
+        public override string ToString() => _delegate.ToString()!;
 
         public override int GetHashCode() => _delegate.GetHashCode();
 

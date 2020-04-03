@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
 using System.Collections.Generic;
 
@@ -10,10 +12,10 @@ namespace IceInternal
     public interface IEndpointConnectors
     {
         void Connectors(List<IConnector> connectors);
-        void Exception(System.Exception ex);
+        void Exception(Exception ex);
     }
 
-    public abstract class Endpoint : Ice.IEndpoint, IComparable<Endpoint>, IEquatable<Endpoint>
+    public abstract class Endpoint : IEndpoint, IComparable<Endpoint>, IEquatable<Endpoint>
     {
         public override string ToString()
         {
@@ -27,9 +29,9 @@ namespace IceInternal
             return Transport() + Options();
         }
 
-        public abstract Ice.EndpointInfo GetInfo();
+        public abstract EndpointInfo GetInfo();
 
-        public override bool Equals(object obj) => obj != null && obj is Endpoint other && Equals(other);
+        public override bool Equals(object? obj) => obj != null && obj is Endpoint other && Equals(other);
 
         public bool Equals(Endpoint other) => CompareTo(other) == 0;
 
@@ -48,7 +50,7 @@ namespace IceInternal
         //
         // Return the endpoint type.
         //
-        public abstract short Type();
+        public abstract EndpointType Type();
 
         //
         // Return the transport name.

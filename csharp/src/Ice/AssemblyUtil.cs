@@ -3,12 +3,12 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace IceInternal
+namespace Ice
 {
     public static class AssemblyUtil
     {
@@ -17,11 +17,15 @@ namespace IceInternal
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         public static readonly bool IsMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
 
+        // Register a delegate to load native libraries used by Ice assembly.
+        static AssemblyUtil() =>
+            NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(AssemblyUtil))!, DllImportResolver);
+
         public static Type? FindType(string csharpId)
         {
             lock (_mutex)
             {
-                if (_typeTable.TryGetValue(csharpId, out Type t))
+                if (_typeTable.TryGetValue(csharpId, out Type? t))
                 {
                     return t;
                 }
@@ -39,10 +43,7 @@ namespace IceInternal
             return null;
         }
 
-        public static object CreateInstance(Type t)
-        {
-            return Activator.CreateInstance(t);
-        }
+        public static object? CreateInstance(Type t) => Activator.CreateInstance(t);
 
         public static void PreloadAssemblies()
         {
@@ -50,6 +51,26 @@ namespace IceInternal
             {
                 LoadAssemblies(); // Lazy initialization
             }
+        }
+
+        internal static string[] GetPlatformNativeLibraryNames(string name)
+        {
+            if (name == "bzip2")
+            {
+                if (IsWindows)
+                {
+                    return new string[] { "bzip2.dll" };
+                }
+                else if (IsMacOS)
+                {
+                    return new string[] { "libbz2.dylib" };
+                }
+                else
+                {
+                    return new string[] { "libbz2.so.1.0", "libbz2.so.1", "libbz2.so" };
+                }
+            }
+            return Array.Empty<string>();
         }
 
         //
@@ -65,12 +86,12 @@ namespace IceInternal
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             var newAssemblies = new List<Assembly>();
-            foreach (Assembly a in assemblies)
+            foreach (Assembly assembly in assemblies)
             {
-                if (!_loadedAssemblies.Contains(a.FullName))
+                if (!_loadedAssemblies.ContainsKey(assembly.FullName!))
                 {
-                    newAssemblies.Add(a);
-                    _loadedAssemblies[a.FullName] = a;
+                    newAssemblies.Add(assembly);
+                    _loadedAssemblies[assembly.FullName!] = assembly;
                 }
             }
 
@@ -91,14 +112,14 @@ namespace IceInternal
                     {
                         try
                         {
-                            var ra = Assembly.Load(name);
+                            var loadedAssembly = Assembly.Load(name);
                             //
-                            // The value of name.FullName may not match that of ra.FullName, so
-                            // we record the assembly using both keys.
+                            // The value of name.FullName may not match that of loadedAssembly.FullName,
+                            // so we record the assembly using both keys.
                             //
-                            _loadedAssemblies[name.FullName] = ra;
-                            _loadedAssemblies[ra.FullName] = ra;
-                            LoadReferencedAssemblies(ra);
+                            _loadedAssemblies[name.FullName] = loadedAssembly;
+                            _loadedAssemblies[loadedAssembly.FullName!] = loadedAssembly;
+                            LoadReferencedAssemblies(loadedAssembly);
                         }
                         catch (Exception)
                         {
@@ -113,8 +134,28 @@ namespace IceInternal
             }
         }
 
-        private static readonly Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
-        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.
+        private static IntPtr DllImportResolver(string libraryName, Assembly assembly,
+            DllImportSearchPath? searchPath)
+        {
+            DllNotFoundException? failure = null;
+            foreach (string name in GetPlatformNativeLibraryNames(libraryName))
+            {
+                try
+                {
+                    return NativeLibrary.Load(name, assembly, searchPath);
+                }
+                catch (DllNotFoundException ex)
+                {
+                    failure = ex;
+                }
+            }
+            Debug.Assert(failure != null);
+            throw failure;
+        }
+
+        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
+        // <type name, Type> pairs.
+        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>();
         private static readonly object _mutex = new object();
     }
 }

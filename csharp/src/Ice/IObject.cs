@@ -17,7 +17,7 @@ namespace Ice
         /// current request.</param>
         /// <returns>A value task that provides the response frame for the request.
         /// See <see cref="OutgoingResponseFrame"/>.</returns>
-        /// <exception cref="System.Exception">Any exception thrown by Dispatch will be marshaled into the response
+        /// <exception cref="Exception">Any exception thrown by Dispatch will be marshaled into the response
         /// frame.</exception>
         public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {

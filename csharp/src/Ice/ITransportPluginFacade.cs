@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 namespace IceInternal
 {
     public interface ITransportPluginFacade
@@ -10,7 +12,7 @@ namespace IceInternal
         // Get the Communicator instance with which this facade is
         // associated.
         //
-        Ice.Communicator Communicator { get; }
+        Communicator Communicator { get; }
 
         //
         // Register an EndpointFactory.
@@ -20,7 +22,7 @@ namespace IceInternal
         //
         // Get an EndpointFactory.
         //
-        IEndpointFactory? GetEndpointFactory(short type);
+        IEndpointFactory? GetEndpointFactory(EndpointType type);
 
         //
         // Obtain the type for a name.
@@ -30,13 +32,13 @@ namespace IceInternal
 
     public sealed class TransportPluginFacade : ITransportPluginFacade
     {
-        public TransportPluginFacade(Ice.Communicator communicator) => Communicator = communicator;
+        public TransportPluginFacade(Communicator communicator) => Communicator = communicator;
 
         //
         // Get the Communicator instance with which this facade is
         // associated.
         //
-        public Ice.Communicator Communicator { get; private set; }
+        public Communicator Communicator { get; private set; }
 
         //
         // Register an EndpointFactory.
@@ -46,7 +48,7 @@ namespace IceInternal
         //
         // Get an EndpointFactory.
         //
-        public IEndpointFactory? GetEndpointFactory(short type) => Communicator.GetEndpointFactory(type);
+        public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.GetEndpointFactory(type);
 
         //
         // Obtain the type for a name.

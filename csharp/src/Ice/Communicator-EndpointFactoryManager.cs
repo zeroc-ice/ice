@@ -38,7 +38,7 @@ namespace Ice
 
             if (arr.Length == 0)
             {
-                throw new System.FormatException("value has no non-whitespace characters");
+                throw new FormatException("value has no non-whitespace characters");
             }
 
             var v = new List<string>(arr);
@@ -69,7 +69,7 @@ namespace Ice
                 Endpoint? e = factory.Create(v, oaEndpoint);
                 if (v.Count > 0)
                 {
-                    throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
+                    throw new FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
                 }
                 return e;
 
@@ -98,7 +98,7 @@ namespace Ice
                 Endpoint ue = new OpaqueEndpointI(v);
                 if (v.Count > 0)
                 {
-                    throw new System.FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
+                    throw new FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
                 }
                 factory = GetEndpointFactory(ue.Type());
                 if (factory != null)
@@ -109,7 +109,7 @@ namespace Ice
                     // the actual endpoint.
                     //
                     var ostr = new OutputStream(Ice1Definitions.Encoding, new List<ArraySegment<byte>>());
-                    ostr.WriteShort(ue.Type());
+                    ostr.WriteShort((short)ue.Type());
                     ue.StreamWrite(ostr);
                     // TODO avoid copy OutputStream buffers
                     var iss = new InputStream(this, ostr.ToArray());
@@ -126,7 +126,7 @@ namespace Ice
             return null;
         }
 
-        public IEndpointFactory? GetEndpointFactory(short type)
+        public IEndpointFactory? GetEndpointFactory(EndpointType type)
         {
             lock (this)
             {
@@ -145,7 +145,7 @@ namespace Ice
         {
             lock (this)
             {
-                short type = istr.ReadShort();
+                var type = (EndpointType)istr.ReadShort();
 
                 IEndpointFactory? factory = GetEndpointFactory(type);
                 Endpoint? e = null;

@@ -21,13 +21,13 @@ namespace Ice
         // Whether send size warning has been emitted
         public bool SndWarn;
 
-        // The send size for which the warning wwas emitted
+        // The send size for which the warning was emitted
         public int SndSize;
 
         // Whether receive size warning has been emitted
         public bool RcvWarn;
 
-        // The receive size for which the warning wwas emitted
+        // The receive size for which the warning was emitted
         public int RcvSize;
     }
 
@@ -47,9 +47,7 @@ namespace Ice
         /// <summary>
         /// Get the logger for this communicator.
         /// </summary>
-        /// <returns>This communicator's logger.
-        ///
-        /// </returns>
+        /// <returns>This communicator's logger.</returns>
         public ILogger Logger { get; internal set; }
 
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
@@ -62,6 +60,7 @@ namespace Ice
                 {
                     if (_currentContext.IsValueCreated)
                     {
+                        Debug.Assert(_currentContext.Value != null);
                         return _currentContext.Value;
                     }
                     else
@@ -181,7 +180,8 @@ namespace Ice
         private static bool _printProcessIdDone = false;
         private readonly int[] _retryIntervals;
         private IceInternal.ThreadPool? _serverThreadPool;
-        private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new Dictionary<short, BufSizeWarnInfo>();
+        private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
+            new Dictionary<EndpointType, BufSizeWarnInfo>();
         private int _state;
         private readonly IceInternal.Timer _timer;
         private readonly ConcurrentDictionary<string, Type?> _typeIdCache = new ConcurrentDictionary<string, Type?>();
@@ -339,14 +339,14 @@ namespace Ice
                     Debug.Assert(programName != null);
                     if (logfile != null)
                     {
-                        Logger = new FileLoggerI(programName, logfile);
+                        Logger = new FileLogger(programName, logfile);
                     }
-                    else if (Util.GetProcessLogger() is LoggerI)
+                    else if (Util.GetProcessLogger() is Logger)
                     {
                         //
                         // Ice.ConsoleListener is enabled by default.
                         //
-                        Logger = new TraceLoggerI(programName, (GetPropertyAsInt("Ice.ConsoleListener") ?? 1) > 0);
+                        Logger = new TraceLogger(programName, (GetPropertyAsInt("Ice.ConsoleListener") ?? 1) > 0);
                     }
                     // else already set to process logger
                 }
@@ -438,10 +438,10 @@ namespace Ice
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
                 _endpointFactories = new List<IEndpointFactory>();
-                AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, TCPEndpointType.Value, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, UDPEndpointType.Value, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, WSEndpointType.Value, "ws", false), TCPEndpointType.Value));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, WSSEndpointType.Value, "wss", true), SSLEndpointType.Value));
+                AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, EndpointType.TCP, "tcp", false)));
+                AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, EndpointType.UDP, "udp", false)));
+                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
+                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -458,7 +458,7 @@ namespace Ice
 
                 //
                 // Initialize the endpoint factories once all the plugins are loaded. This gives
-                // the opportunity for the endpoint factories to find underyling factories.
+                // the opportunity for the endpoint factories to find underlying factories.
                 //
                 foreach (IEndpointFactory f in _endpointFactories)
                 {
@@ -554,7 +554,7 @@ namespace Ice
                     _timer = new IceInternal.Timer(this, IceInternal.Util.StringToThreadPriority(
                                                    GetProperty("Ice.ThreadPriority")));
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error($"cannot create thread for timer:\n{ex}");
                     throw;
@@ -566,7 +566,7 @@ namespace Ice
                     UpdateEndpointHostResolverObserver();
                     _endpointHostResolverThread.Start(IceInternal.Util.StringToThreadPriority(GetProperty("Ice.ThreadPriority")));
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error($"cannot create thread for endpoint host resolver:\n{ex}");
                     throw;
@@ -632,7 +632,7 @@ namespace Ice
                     GetAdmin();
                 }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 Destroy();
                 throw;
@@ -730,7 +730,7 @@ namespace Ice
                 {
                     _adminAdapter.Activate();
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     // We cleanup _adminAdapter, however this error is not recoverable
                     // (can't call again getAdmin() after fixing the problem)
@@ -1340,7 +1340,7 @@ namespace Ice
                 {
                     Plugin.Destroy();
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Util.GetProcessLogger().Warning(
                         $"unexpected exception raised by plug-in `{Name}' destruction:\n{ex}");
@@ -1360,9 +1360,9 @@ namespace Ice
             }
 
             {
-                if (Logger != null && Logger is FileLoggerI)
+                if (Logger != null && Logger is FileLogger)
                 {
-                    ((FileLoggerI)Logger).Destroy();
+                    ((FileLogger)Logger).Destroy();
                 }
             }
             _currentContext.Dispose();
@@ -1386,7 +1386,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                if (!_adminFacets.TryGetValue(facet, out IObject result))
+                if (!_adminFacets.TryGetValue(facet, out IObject? result))
                 {
                     return null;
                 }
@@ -1474,7 +1474,7 @@ namespace Ice
             {
                 adminAdapter.Activate();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 // We cleanup _adminAdapter, however this error is not recoverable
                 // (can't call again getAdmin() after fixing the problem)
@@ -1543,7 +1543,7 @@ namespace Ice
         {
             lock (this)
             {
-                if (_adminFacets.TryGetValue(facet, out IObject result))
+                if (_adminFacets.TryGetValue(facet, out IObject? result))
                 {
                     _adminFacets.Remove(facet);
                 }
@@ -1808,7 +1808,7 @@ namespace Ice
                 invocationTimeout: -1);
         }
 
-        internal BufSizeWarnInfo GetBufSizeWarn(short type)
+        internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
         {
             lock (_setBufSizeWarn)
             {
@@ -1863,7 +1863,7 @@ namespace Ice
                         {
                             try
                             {
-                                classType = helper.GetProperty("targetClass").PropertyType;
+                                classType = helper.GetProperty("targetClass")!.PropertyType;
                                 break; // foreach
                             }
                             catch (Exception)
@@ -1873,7 +1873,7 @@ namespace Ice
                     }
                 }
 
-                // Ensure the class is instantiable.
+                // Ensure the class can be instantiate.
                 if (classType != null && !classType.IsAbstract && !classType.IsInterface)
                 {
                     return classType;
@@ -1894,7 +1894,7 @@ namespace Ice
                         Type? classType = AssemblyUtil.FindType($"{ns}.TypeId_{compactId}");
                         if (classType != null)
                         {
-                            var result = (string)classType.GetField("typeId").GetValue(null);
+                            string? result = (string?)classType.GetField("typeId")!.GetValue(null);
                             if (result != null)
                             {
                                 return ResolveClass(result);
@@ -1934,7 +1934,7 @@ namespace Ice
             }
         }
 
-        internal void SetRcvBufSizeWarn(short type, int size)
+        internal void SetRcvBufSizeWarn(EndpointType type, int size)
         {
             lock (_setBufSizeWarn)
             {
@@ -1953,7 +1953,7 @@ namespace Ice
 
             if (locator != null && serverId != null)
             {
-                var process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
+                IProcessPrx process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
                 try
                 {
                     //
@@ -1962,7 +1962,7 @@ namespace Ice
                     //
                     locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     if (TraceLevels.Location >= 1)
                     {
@@ -1979,7 +1979,7 @@ namespace Ice
             }
         }
 
-        internal void SetSndBufSizeWarn(short type, int size)
+        internal void SetSndBufSizeWarn(EndpointType type, int size)
         {
             lock (_setBufSizeWarn)
             {

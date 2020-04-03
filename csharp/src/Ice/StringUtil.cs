@@ -158,10 +158,10 @@ namespace IceUtilInternal
                                     sb.Append('\\');
                                     string octal = System.Convert.ToString(i, 8);
                                     //
-                                    // Add leading zeroes so that we avoid problems during
+                                    // Add leading zeros so that we avoid problems during
                                     // decoding. For example, consider the encoded string
                                     // \0013 (i.e., a character with value 1 followed by
-                                    // the character '3'). If the leading zeroes were omitted,
+                                    // the character '3'). If the leading zeros were omitted,
                                     // the result would be incorrectly interpreted by the
                                     // decoder as a single character with value 11.
                                     //

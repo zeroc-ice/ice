@@ -361,36 +361,55 @@ public class AllTests
             }
             IBackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
 
+            bool called = false;
             try
             {
                 prx.op();
-                test(false);
+                called = true;
             }
-            catch (DNSException)
+            catch (System.Exception)
             {
-                test(i == 0 || i == 2);
             }
-            catch(TransportException)
+            test(!called);
+
+            var sentSynchronously = false;
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
             {
-                test(i == 1 || i == 3);
-            }
+                sentSynchronously = value;
+            }));
+            test(!sentSynchronously);
 
             try
             {
-                Task t = prx.opAsync(progress: new Progress<bool>(value =>
+                t.Wait();
+                called = true;
+            }
+            catch (AggregateException ex)
+            {
+            }
+            test(!called);
+            test(t.IsCompleted);
+
+            OpAMICallback cbEx = new OpAMICallback();
+            t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
+                sentSynchronously = value;
+            }));
+            test(!sentSynchronously);
+
+            t.ContinueWith((Task p) =>
+            {
+                try
                 {
-                    test(false);
-                }));
-                test(false);
-            }
-            catch (DNSException)
-            {
-                test(i == 0 || i == 2);
-            }
-            catch (TransportException)
-            {
-                test(i == 1 || i == 3);
-            }
+                    p.Wait();
+                }
+                catch (AggregateException ex)
+                {
+                    cbEx.exception(ex.InnerException);
+                }
+            });
+            cbEx.checkException(true);
+            test(t.IsCompleted);
 
             if (i == 0 || i == 2)
             {
@@ -412,7 +431,7 @@ public class AllTests
                 {
                     background.IcePing();
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                     test(false);
                 }
@@ -425,7 +444,7 @@ public class AllTests
                 {
                     background.IcePing();
                 }
-                catch (Exception)
+                catch (System.Exception)
                 {
                 }
             }
@@ -452,7 +471,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -479,17 +498,40 @@ public class AllTests
             {
             }
 
+            bool sentSynchronously = false;
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
+                sentSynchronously = value;
+            }));
+            test(!sentSynchronously);
+            bool called = false;
             try
             {
-                Task t = prx.opAsync(progress: new Progress<bool>(value =>
-                {
-                    test(false);
-                }));
-                test(false);
+                t.Wait();
+                called = true;
             }
-            catch (TransportException)
+            catch (AggregateException ex)
             {
             }
+            test(!called);
+            test(t.IsCompleted);
+
+            OpAMICallback cbEx = new OpAMICallback();
+            t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
+                sentSynchronously = false;
+            }));
+            test(!sentSynchronously);
+            try
+            {
+                t.Wait();
+            }
+            catch (AggregateException ex)
+            {
+                cbEx.exception(ex.InnerException);
+            }
+            cbEx.checkException(true);
+            test(t.IsCompleted);
 
             if (i == 0 || i == 2)
             {
@@ -561,14 +603,14 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (Exception)
+            catch (System.Exception)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -578,7 +620,7 @@ public class AllTests
                 background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 background.op();
             }
-            catch (Exception)
+            catch (System.Exception)
             {
                 test(false);
             }
@@ -594,7 +636,10 @@ public class AllTests
     private sealed class CloseCallback : Callback
     {
 
-        public void closed(Connection con) => called();
+        public void closed(Connection con)
+        {
+            called();
+        }
     }
 
     //
@@ -614,7 +659,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -710,23 +755,26 @@ public class AllTests
         }
 
         {
-            ctl.readReady(false); // Hold to block in connection validation
-            var t1SentSynchronously = false;
-            var t2SentSynchronously = false;
-            var t1 = background.opAsync(progress: new Progress<bool>(value =>
-            {
-                t1SentSynchronously = value;
-            }));
-            var t2 = background.opAsync(progress: new Progress<bool>(value =>
-            {
-                t2SentSynchronously = value;
-            }));
-            test(!t1SentSynchronously && !t2SentSynchronously);
-            test(!t1.IsCompleted && !t2.IsCompleted);
-            ctl.readReady(true);
-            t1.Wait();
-            t2.Wait();
-            test(t1.IsCompleted && t2.IsCompleted);
+            // TODO: This test relied on the connection hold behavior which has been removed. The test is disabled
+            // for now and until the background tests are rewritten when we'll refactor the transport + thread pool.
+            //
+            // ctl.readReady(false); // Hold to block in connection validation
+            // var t1SentSynchronously = false;
+            // var t2SentSynchronously = false;
+            // var t1 = background.opAsync(progress: new Progress<bool>(value =>
+            // {
+            //     t1SentSynchronously = value;
+            // }));
+            // var t2 = background.opAsync(progress: new Progress<bool>(value =>
+            // {
+            //     t2SentSynchronously = value;
+            // }));
+            // test(!t1SentSynchronously && !t2SentSynchronously);
+            // test(!t1.IsCompleted && !t2.IsCompleted);
+            // ctl.readReady(true);
+            // t1.Wait();
+            // t2.Wait();
+            // test(t1.IsCompleted && t2.IsCompleted);
         }
 
         try
@@ -777,7 +825,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             Console.Error.WriteLine(ex);
             test(false);
@@ -801,16 +849,21 @@ public class AllTests
 
             background.IcePing();
             configuration.writeException(new TransportException(""));
-
+            var sentSynchronously = false;
+            var t = prx.opAsync(progress: new Progress<bool>(value =>
+            {
+                sentSynchronously = value;
+            }));
+            test(!sentSynchronously);
             try
             {
-                prx.opAsync();
+                t.Wait();
                 test(false);
             }
-            catch(TransportException)
+            catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
-
             }
+            test(t.IsCompleted);
             configuration.writeException(null);
         }
 
@@ -851,7 +904,7 @@ public class AllTests
             background.op();
             configuration.writeReady(true);
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -863,7 +916,7 @@ public class AllTests
             background.op();
             configuration.readReady(true);
         }
-        catch (Exception)
+        catch (System.Exception)
         {
             test(false);
         }
@@ -967,106 +1020,109 @@ public class AllTests
         IBackgroundPrx backgroundOneway = background.Clone(oneway: true);
         test(backgroundOneway.GetConnection() == background.GetConnection());
 
-        ctl.readReady(false); // Hold to block in request send.
+        // TODO: This test relied on the connection hold behavior which has been removed. The test is disabled
+        // for now and until the background tests are rewritten when we'll refactor the transport + thread pool.
+        //
+        // ctl.readReady(false); // Hold to block in request send.
 
-        byte[] seq = new byte[1000 * 1024];
-        new Random().NextBytes(seq);
-        var cbWP = new OpAMICallback();
+        // byte[] seq = new byte[1000 * 1024];
+        // (new System.Random()).NextBytes(seq);
+        // OpAMICallback cbWP = new OpAMICallback();
 
-        // Fill up the receive and send buffers
-        for (int i = 0; i < 10; ++i) // 10MB
-        {
-            backgroundOneway.opWithPayloadAsync(seq);
-        }
+        // // Fill up the receive and send buffers
+        // for (int i = 0; i < 10; ++i) // 10MB
+        // {
+        //     backgroundOneway.opWithPayloadAsync(seq);
+        // }
 
-        OpAMICallback cb = new OpAMICallback();
-        bool t1Sent = false;
-        var t1 = background.opAsync(progress: new Progress<bool>(value =>
-        {
-            cb.sent(value);
-            t1Sent = true;
-        }));
+        // OpAMICallback cb = new OpAMICallback();
+        // bool t1Sent = false;
+        // var t1 = background.opAsync(progress: new Progress<bool>(value =>
+        // {
+        //     cb.sent(value);
+        //     t1Sent = true;
+        // }));
 
-        t1.ContinueWith(p =>
-        {
-            try
-            {
-                p.Wait();
-                cb.response();
-            }
-            catch (System.Exception ex)
-            {
-                cb.exception(ex);
-            }
-        });
-        test(!t1Sent);
+        // t1.ContinueWith(p =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //         cb.response();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cb.exception(ex);
+        //     }
+        // });
+        // test(!t1Sent);
 
-        OpAMICallback cb2 = new OpAMICallback();
-        var t2Sent = false;
-        var t2 = background.opAsync(progress: new Progress<bool>(value =>
-        {
-            cb2.sent(value);
-            t2Sent = true;
-        }));
-        t2.ContinueWith((Task p) =>
-        {
-            try
-            {
-                p.Wait();
-                cb2.response();
-            }
-            catch (System.Exception ex)
-            {
-                cb2.noException(ex);
-            }
-        });
-        test(!t2Sent);
+        // OpAMICallback cb2 = new OpAMICallback();
+        // var t2Sent = false;
+        // var t2 = background.opAsync(progress: new Progress<bool>(value =>
+        // {
+        //     cb2.sent(value);
+        //     t2Sent = true;
+        // }));
+        // t2.ContinueWith((Task p) =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //         cb2.response();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cb2.noException(ex);
+        //     }
+        // });
+        // test(!t2Sent);
 
-        var t3SentSynchronously = false;
-        var t3 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
-        {
-            t3SentSynchronously = value;
-        }));
-        test(!t3SentSynchronously);
-        t3.ContinueWith((Task p) =>
-        {
-            try
-            {
-                p.Wait();
-            }
-            catch (Exception ex)
-            {
-                cbWP.noException(ex);
-            }
-        });
+        // var t3SentSynchronously = false;
+        // var t3 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        // {
+        //     t3SentSynchronously = value;
+        // }));
+        // test(!t3SentSynchronously);
+        // t3.ContinueWith((Task p) =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cbWP.noException(ex);
+        //     }
+        // });
 
-        var t4SentSynchronously = false;
-        var t4 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
-        {
-            t4SentSynchronously = value;
-        }));
-        test(!t4SentSynchronously);
-        t4.ContinueWith((Task p) =>
-        {
-            try
-            {
-                p.Wait();
-            }
-            catch (System.Exception ex)
-            {
-                cbWP.noException(ex);
-            }
-        });
+        // var t4SentSynchronously = false;
+        // var t4 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
+        // {
+        //     t4SentSynchronously = value;
+        // }));
+        // test(!t4SentSynchronously);
+        // t4.ContinueWith((Task p) =>
+        // {
+        //     try
+        //     {
+        //         p.Wait();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         cbWP.noException(ex);
+        //     }
+        // });
 
-        test(!cb.checkResponse(false));
-        test(!cb2.checkResponse(false));
-        ctl.readReady(true);
-        cb.checkResponseAndSent();
-        cb2.checkResponseAndSent();
-        test(t1Sent);
-        test(t1.IsCompleted);
-        test(t2Sent);
-        test(t2.IsCompleted);
+        // test(!cb.checkResponse(false));
+        // test(!cb2.checkResponse(false));
+        // ctl.readReady(true);
+        // cb.checkResponseAndSent();
+        // cb2.checkResponseAndSent();
+        // test(t1Sent);
+        // test(t1.IsCompleted);
+        // test(t2Sent);
+        // test(t2.IsCompleted);
 
         try
         {

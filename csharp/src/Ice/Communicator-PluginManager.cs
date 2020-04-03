@@ -143,7 +143,7 @@ namespace Ice
             foreach (string name in _loadOnInitialization)
             {
                 string key = $"Ice.Plugin.{name}.clr";
-                plugins.TryGetValue(key, out string r);
+                plugins.TryGetValue(key, out string? r);
                 if (r == null)
                 {
                     key = $"Ice.Plugin.{name}";
@@ -192,7 +192,7 @@ namespace Ice
                 }
 
                 string key = $"Ice.Plugin.{name}clr";
-                plugins.TryGetValue(key, out string value);
+                plugins.TryGetValue(key, out string? value);
                 if (value == null)
                 {
                     key = $"Ice.Plugin.{name}";
@@ -314,7 +314,7 @@ namespace Ice
             Debug.Assert(entryPoint != null);
             //
             // Always check the static plugin factory table first, it takes
-            // precedence over the the entryPoint specified in the plugin
+            // precedence over the entryPoint specified in the plugin
             // property value.
             //
             if (!_pluginFactories.TryGetValue(name, out IPluginFactory? pluginFactory))
@@ -358,7 +358,7 @@ namespace Ice
                     {
                         pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         try
                         {
@@ -372,7 +372,7 @@ namespace Ice
                         }
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     throw new LoadException(
                         $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);
@@ -381,22 +381,23 @@ namespace Ice
                 //
                 // Instantiate the class.
                 //
-                Type c;
+                Type? c;
                 try
                 {
                     c = pluginAssembly.GetType(className, true);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     throw new LoadException(
                         $"error loading plug-in `{entryPoint}': cannot find the plugin factory class `{className}'", ex);
                 }
+                Debug.Assert(c != null);
 
                 try
                 {
-                    pluginFactory = (IPluginFactory)IceInternal.AssemblyUtil.CreateInstance(c);
+                    pluginFactory = (IPluginFactory?)AssemblyUtil.CreateInstance(c);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     throw new LoadException($"error loading plug-in `{entryPoint}'", ex);
                 }

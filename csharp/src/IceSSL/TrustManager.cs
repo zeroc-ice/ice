@@ -66,7 +66,7 @@ namespace IceSSL
                 }
                 if (info.AdapterName!.Length > 0)
                 {
-                    if (_rejectServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>> p))
+                    if (_rejectServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>>? p))
                     {
                         reject.Add(p);
                     }
@@ -92,7 +92,7 @@ namespace IceSSL
                 }
                 if (info.AdapterName!.Length > 0)
                 {
-                    if (_acceptServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>> p))
+                    if (_acceptServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>>? p))
                     {
                         accept.Add(p);
                     }

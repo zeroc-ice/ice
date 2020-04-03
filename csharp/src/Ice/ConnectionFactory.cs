@@ -9,23 +9,23 @@ using System.Linq;
 
 namespace IceInternal
 {
-    public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
+    public class MultiDictionary<TKey, TValue> : Dictionary<TKey, ICollection<TValue>> where TKey : notnull
     {
         public void
-        Add(K key, V value)
+        Add(TKey key, TValue value)
         {
-            if (!TryGetValue(key, out ICollection<V> list))
+            if (!TryGetValue(key, out ICollection<TValue>? list))
             {
-                list = new List<V>();
+                list = new List<TValue>();
                 Add(key, list);
             }
             list.Add(value);
         }
 
         public void
-        Remove(K key, V value)
+        Remove(TKey key, TValue value)
         {
-            ICollection<V> list = this[key];
+            ICollection<TValue> list = this[key];
             list.Remove(value);
             if (list.Count == 0)
             {
@@ -295,7 +295,7 @@ namespace IceInternal
 
                 foreach (Endpoint endpoint in endpoints)
                 {
-                    if (!_connectionsByEndpoint.TryGetValue(endpoint, out ICollection<Connection> connectionList))
+                    if (!_connectionsByEndpoint.TryGetValue(endpoint, out ICollection<Connection>? connectionList))
                     {
                         continue;
                     }
@@ -335,7 +335,7 @@ namespace IceInternal
                     continue;
                 }
 
-                if (!_connections.TryGetValue(ci.Connector, out ICollection<Connection> connectionList))
+                if (!_connections.TryGetValue(ci.Connector, out ICollection<Connection>? connectionList))
                 {
                     continue;
                 }
@@ -535,7 +535,7 @@ namespace IceInternal
             {
                 foreach (ConnectorInfo c in connectors)
                 {
-                    if (_pending.TryGetValue(c.Connector, out HashSet<ConnectCallback> s))
+                    if (_pending.TryGetValue(c.Connector, out HashSet<ConnectCallback>? s))
                     {
                         foreach (ConnectCallback cc in s)
                         {
@@ -598,7 +598,7 @@ namespace IceInternal
             {
                 foreach (ConnectorInfo c in connectors)
                 {
-                    if (_pending.TryGetValue(c.Connector, out HashSet<ConnectCallback> s))
+                    if (_pending.TryGetValue(c.Connector, out HashSet<ConnectCallback>? s))
                     {
                         foreach (ConnectCallback cc in s)
                         {
@@ -665,7 +665,7 @@ namespace IceInternal
             bool found = false;
             foreach (ConnectorInfo ci in connectors)
             {
-                if (_pending.TryGetValue(ci.Connector, out HashSet<ConnectCallback> cbs))
+                if (_pending.TryGetValue(ci.Connector, out HashSet<ConnectCallback>? cbs))
                 {
                     found = true;
                     if (cb != null)
@@ -700,7 +700,7 @@ namespace IceInternal
         {
             foreach (ConnectorInfo ci in connectors)
             {
-                if (_pending.TryGetValue(ci.Connector, out HashSet<ConnectCallback> cbs))
+                if (_pending.TryGetValue(ci.Connector, out HashSet<ConnectCallback>? cbs))
                 {
                     cbs.Remove(cb);
                 }
@@ -737,10 +737,13 @@ namespace IceInternal
                 Endpoint = e;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
-                var r = (ConnectorInfo)obj;
-                return Connector.Equals(r.Connector);
+                if (obj is ConnectorInfo r)
+                {
+                    return Connector.Equals(r.Connector);
+                }
+                return false;
             }
 
             public override int GetHashCode() => Connector.GetHashCode();
@@ -946,7 +949,7 @@ namespace IceInternal
                         if (obsv != null)
                         {
                             _observer = obsv.GetConnectionEstablishmentObserver(_current.Endpoint,
-                                                                                _current.Connector.ToString());
+                                                                                _current.Connector.ToString()!);
                             if (_observer != null)
                             {
                                 _observer.Attach();
@@ -986,7 +989,7 @@ namespace IceInternal
             {
                 if (_observer != null)
                 {
-                    _observer.Failed(ex.GetType().FullName);
+                    _observer.Failed(ex.GetType().FullName ?? "System.Exception");
                     _observer.Detach();
                 }
                 _factory.HandleConnectionException(ex, _hasMore || _iter < _connectors.Count);
@@ -1073,7 +1076,7 @@ namespace IceInternal
             }
 
             // _connections is immutable in this state
-            foreach (var connection in _connections)
+            foreach (Connection connection in _connections)
             {
                 connection.WaitUntilFinished();
             }
@@ -1270,7 +1273,7 @@ namespace IceInternal
         {
             if (_transceiver != null)
             {
-                return _transceiver.ToString();
+                return _transceiver.ToString()!;
             }
             else
             {
@@ -1441,12 +1444,12 @@ namespace IceInternal
             Finished
         }
 
-        private IAcceptor? _acceptor;
+        private readonly IAcceptor? _acceptor;
         private System.Exception? _acceptorException;
-        private Ice.ObjectAdapter? _adapter;
-        private readonly Ice.Communicator _communicator;
+        private readonly ObjectAdapter? _adapter;
+        private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private Endpoint _endpoint;
+        private readonly Endpoint _endpoint;
         private readonly FactoryACMMonitor _monitor;
         private readonly Endpoint? _publishedEndpoint;
         private State _state;

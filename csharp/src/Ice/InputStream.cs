@@ -74,9 +74,9 @@ namespace Ice
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
 
-        // When set, we are reading an endpoint encapsulation. An endpoint encaps is a lightweight encaps that cannot
-        // contain classes, exceptions, tagged members/parameters, or another endpoint. It is often but not always set
-        // when _mainEncaps is set (so nested inside _mainEncaps).
+        // When set, we are reading an endpoint encapsulation. An endpoint encapsulation is a lightweight
+        // encapsulation that cannot contain classes, exceptions, tagged members/parameters, or another
+        // endpoint. It is often but not always set when _mainEncaps is set (so nested inside _mainEncaps).
         private Encaps? _endpointEncaps;
 
         // Temporary upper limit set by an encapsulation. See Remaining.
@@ -342,7 +342,7 @@ namespace Ice
         /// <returns>True if the value is present, false otherwise.</returns>
         public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
-            // Tagged members/parameters can only be in the main encaps
+            // Tagged members/parameters can only be in the main encapsulation
             Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
 
             // The current slice has no tagged member
@@ -515,6 +515,7 @@ namespace Ice
         /// <returns>The extracted short.</returns>
         public short ReadShort()
         {
+            Debug.Assert(_buffer.Array != null);
             short value = BitConverter.ToInt16(_buffer.Array, _buffer.Offset + _pos);
             _pos += 2;
             return value;
@@ -574,6 +575,7 @@ namespace Ice
         /// <returns>The extracted int.</returns>
         public int ReadInt()
         {
+            Debug.Assert(_buffer.Array != null);
             int value = BitConverter.ToInt32(_buffer.Array, _buffer.Offset + _pos);
             _pos += 4;
             return value;
@@ -633,6 +635,7 @@ namespace Ice
         /// <returns>The extracted long.</returns>
         public long ReadLong()
         {
+            Debug.Assert(_buffer.Array != null);
             long value = BitConverter.ToInt64(_buffer.Array, _buffer.Offset + _pos);
             _pos += 8;
             return value;
@@ -692,6 +695,7 @@ namespace Ice
         /// <returns>The extracted float.</returns>
         public float ReadFloat()
         {
+            Debug.Assert(_buffer.Array != null);
             float value = BitConverter.ToSingle(_buffer.Array, _buffer.Offset + _pos);
             _pos += 4;
             return value;
@@ -749,6 +753,7 @@ namespace Ice
         /// <returns>The extracted double.</returns>
         public double ReadDouble()
         {
+            Debug.Assert(_buffer.Array != null);
             double value = BitConverter.ToDouble(_buffer.Array, _buffer.Offset + _pos);
             _pos += 8;
             return value;
@@ -864,7 +869,7 @@ namespace Ice
             new Collection<T>(this, reader, minSize);
 
         public Dictionary<TKey, TValue> ReadDict<TKey, TValue>(InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader, int minWireSize = 1)
+            InputStreamReader<TValue> valueReader, int minWireSize = 1) where TKey : notnull
         {
             int sz = ReadAndCheckSeqSize(minWireSize);
             var dict = new Dictionary<TKey, TValue>(sz);
@@ -878,7 +883,7 @@ namespace Ice
         }
 
         public SortedDictionary<TKey, TValue> ReadSortedDict<TKey, TValue>(InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader)
+            InputStreamReader<TValue> valueReader) where TKey : notnull
         {
             int sz = ReadSize();
             var dict = new SortedDictionary<TKey, TValue>();
@@ -1018,7 +1023,7 @@ namespace Ice
                 {
                     try
                     {
-                        remoteEx = (RemoteException)IceInternal.AssemblyUtil.CreateInstance(type);
+                        remoteEx = (RemoteException?)AssemblyUtil.CreateInstance(type);
                     }
                     catch (Exception ex)
                     {
@@ -1211,7 +1216,7 @@ namespace Ice
 
                 // The typeIds of slices in indirection tables can be read several times: when we skip the
                 // indirection table and later on when we read it. We only want to add this typeId to the list
-                // and assign it an index when it's the first time we read it, so we save the largest pos we
+                // and assign it an index when it's the first time we read it, so we save the largest position we
                 // read to figure out when to add to the list.
                 if (_pos > _posAfterLatestInsertedTypeId)
                 {
@@ -1383,7 +1388,7 @@ namespace Ice
             {
                 if (_current.InstanceType == InstanceType.Class)
                 {
-                    string typeId = _current.SliceTypeId ?? _current.SliceCompactId!.ToString();
+                    string typeId = _current.SliceTypeId ?? _current.SliceCompactId!.ToString()!;
                     throw new InvalidDataException(@$"no class found for type ID `{typeId
                         }' and compact format prevents slicing (the sender should use the sliced format instead)");
                 }
@@ -1574,11 +1579,11 @@ namespace Ice
                     try
                     {
                         Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (AnyClass)IceInternal.AssemblyUtil.CreateInstance(cls);
+                        v = (AnyClass?)AssemblyUtil.CreateInstance(cls);
                     }
                     catch (Exception ex)
                     {
-                        string typeIdString = typeId ?? _current.SliceCompactId!.ToString();
+                        string typeIdString = typeId ?? _current.SliceCompactId!.ToString()!;
                         throw new InvalidDataException(@$"failed to create an instance of type `{cls.Name
                             } while reading a class with type ID {typeIdString}", ex);
                     }
@@ -1664,9 +1669,10 @@ namespace Ice
         /// <param name="dst">The numeric array to read.</param>
         private void ReadNumericArray(Array dst)
         {
-            int byteCount = System.Buffer.ByteLength(dst);
+            Debug.Assert(_buffer.Array != null);
+            int byteCount = Buffer.ByteLength(dst);
             Debug.Assert(_buffer.Count - _pos >= byteCount);
-            System.Buffer.BlockCopy(_buffer.Array, _buffer.Offset + _pos, dst, 0, byteCount);
+            Buffer.BlockCopy(_buffer.Array, _buffer.Offset + _pos, dst, 0, byteCount);
             _pos += byteCount;
         }
 
@@ -1695,7 +1701,7 @@ namespace Ice
             // Previous upper limit of the buffer, if set
             internal readonly int? OldLimit;
 
-            // Size of the encaps, as read from the stream
+            // Size of the encapsulation, as read from the stream
             internal readonly int Size;
 
             internal Encaps(int? oldLimit, int size)

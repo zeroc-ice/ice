@@ -82,12 +82,12 @@ namespace Ice
                 {
                     try
                     {
-                        var (prx, hasRoutingTable) = t.Result;
+                        (IObjectPrx? prx, bool? hasRoutingTable) = t.Result;
                         callback.setEndpoints(SetClientEndpoints(prx!, hasRoutingTable ?? true));
                     }
                     catch (System.AggregateException ae)
                     {
-                        callback.setException(ae.InnerException);
+                        callback.setException(ae.InnerException!);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);
@@ -150,7 +150,7 @@ namespace Ice
                     }
                     catch (System.AggregateException ae)
                     {
-                        callback.SetException(ae.InnerException);
+                        callback.SetException(ae.InnerException!);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);
@@ -279,7 +279,7 @@ namespace Ice
 
             lock (_routerInfoTable)
             {
-                if (!_routerInfoTable.TryGetValue(router, out RouterInfo info))
+                if (!_routerInfoTable.TryGetValue(router, out RouterInfo? info))
                 {
                     info = new RouterInfo(router);
                     _routerInfoTable.Add(router, info);

@@ -817,7 +817,7 @@ namespace IceInternal
                     //
                     if (sizeSet < sizeRequested)
                     {
-                        Ice.BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(Ice.UDPEndpointType.Value);
+                        Ice.BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(Ice.EndpointType.UDP);
                         if ((isSnd && (!winfo.SndWarn || winfo.SndSize != sizeRequested)) ||
                            (!isSnd && (!winfo.RcvWarn || winfo.RcvSize != sizeRequested)))
                         {
@@ -826,11 +826,11 @@ namespace IceInternal
 
                             if (isSnd)
                             {
-                                _instance.SetSndBufSizeWarn(Ice.UDPEndpointType.Value, sizeRequested);
+                                _instance.SetSndBufSizeWarn(Ice.EndpointType.UDP, sizeRequested);
                             }
                             else
                             {
-                                _instance.SetRcvBufSizeWarn(Ice.UDPEndpointType.Value, sizeRequested);
+                                _instance.SetRcvBufSizeWarn(Ice.EndpointType.UDP, sizeRequested);
                             }
                         }
                     }
@@ -838,7 +838,7 @@ namespace IceInternal
             }
         }
 
-        internal void IoCompleted(object sender, SocketAsyncEventArgs e)
+        internal void IoCompleted(object? sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
             {

@@ -21,7 +21,7 @@ namespace IceInternal
     {
         public ThreadPoolSynchronizationContext(ThreadPool threadPool) => _threadPool = threadPool;
 
-        public override void Post(SendOrPostCallback d, object state)
+        public override void Post(SendOrPostCallback d, object? state)
         {
             // Dispatch the continuation on the thread pool if this isn't called
             // already from a thread pool thread.
@@ -36,7 +36,7 @@ namespace IceInternal
             }
         }
 
-        public override void Send(SendOrPostCallback d, object state) =>
+        public override void Send(SendOrPostCallback d, object? state) =>
             throw new System.NotSupportedException("the thread pool doesn't support synchronous calls");
 
         private readonly ThreadPool _threadPool;

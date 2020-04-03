@@ -9,7 +9,7 @@ namespace Ice
     internal static class Collections
     {
         public static bool Equals<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? lhs,
-                                                IReadOnlyDictionary<TKey, TValue>? rhs)
+                                                IReadOnlyDictionary<TKey, TValue>? rhs) where TKey : notnull
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -32,7 +32,7 @@ namespace Ice
             return true;
         }
 
-        public static int GetHashCode<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> d)
+        public static int GetHashCode<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> d) where TKey : notnull
         {
             var hash = new System.HashCode();
             foreach (KeyValuePair<TKey, TValue> e in d)
