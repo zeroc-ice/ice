@@ -306,6 +306,7 @@ generated from the section label.
         <property name="ACM" class="acm"/>
         <property name="ACM.Client" class="acm"/>
         <property name="ACM.Server" class="acm"/>
+        <property name="AcceptNonSecureConnections" />
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
         <property name="Admin.Enabled" />
@@ -315,7 +316,6 @@ generated from the section label.
         <property name="Admin.Logger.KeepTraces" />
         <property name="Admin.Logger.Properties" />
         <property name="Admin.ServerId" />
-        <property name="AllowNonSecure" />
         <property name="BackgroundLocatorCacheUpdates"/>
         <property name="BatchAutoFlush" deprecated="true"/>
         <property name="BatchAutoFlushSize" />

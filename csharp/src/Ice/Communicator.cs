@@ -44,13 +44,15 @@ namespace Ice
             private readonly Communicator _communicator;
         }
 
-         /// <summary>Indicates whether or not this communicator allows non-secure connections. When false, only
-         /// secure connections are allowed; when true, both secure and non-secure connections are allowed. This
-         /// property applies to both incoming and outgoing connections and corresponds to the Ice.AllowNonSecure
-         /// configuration property. It can be overridden for incoming connections by the object adapter property
-         /// with the same name.</summary>
-         // TODO: update doc with default value for AllowNonSecure - it's currently true but should be false.
-        public bool AllowNonSecure { get; }
+         /// <summary>Indicates whether or not object adapters created by this communicator accept non-secure incoming
+         /// connections. When false, they accept only secure connections; when true, they accept both secure and
+         /// non-secure connections. This property corresponds to the Ice.AcceptNonSecureConnections configuration
+         /// property. It can be overridden for each object adapter by the object adapter property with the same name.
+         /// </summary>
+         // TODO: update doc with default value for AcceptNonSecureConnections - it's currently true but should be
+         // false.
+         // TODO: currently only this property is implemented and nothing else.
+        public bool AcceptNonSecureConnections { get; }
 
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
         /// per-thread CurrentContext combined with the proxy's context.</summary>
@@ -378,7 +380,8 @@ namespace Ice
                     }
                 }
 
-                AllowNonSecure = (GetPropertyAsInt("Ice.AllowNonSecure") ?? 1) > 0; // TODO: switch to 0 default
+                // TODO: switch to 0 default
+                AcceptNonSecureConnections = (GetPropertyAsInt("Ice.AcceptNonSecureConnections") ?? 1) > 0;
 
                 {
                     int num = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;

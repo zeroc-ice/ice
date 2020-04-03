@@ -746,7 +746,15 @@ namespace Ice.binding
 
                     com.deactivateObjectAdapter(adapters[0]);
 
-                    testSecure.IcePing(); // works since it's only a preference
+                    try
+                    {
+                        testSecure.IcePing();
+                        test(false);
+                    }
+                    catch (ConnectionRefusedException)
+                    {
+                        // expected
+                    }
                     deactivate(com, adapters);
                 }
                 output.WriteLine("ok");

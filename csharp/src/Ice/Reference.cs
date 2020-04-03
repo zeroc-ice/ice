@@ -1101,21 +1101,18 @@ namespace Ice
                     }
             }
 
-            if (!Communicator.AllowNonSecure)
+            if (PreferNonSecure)
             {
-                // Filter-out non-secure endpoints
-                endpoints = endpoints.Where(endpoint => endpoint.Secure()).ToList();
-            }
-            else if (PreferNonSecure)
-            {
+                // It's just a preference: we can fallback to secure endpoints.
                 endpoints = endpoints.OrderBy(endpoint => endpoint.Secure()).ToList();
             }
             else
             {
-                endpoints = endpoints.OrderByDescending(endpoint => endpoint.Secure()).ToList();
+                // Filter-out non-secure endpoints. This can eliminate all endpoints.
+                endpoints = endpoints.Where(endpoint => endpoint.Secure()).ToList();
             }
 
-            return endpoints.Select(e => e).ToArray();
+            return endpoints.ToArray();
         }
 
         // TODO: refactor this class
