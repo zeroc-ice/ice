@@ -347,13 +347,12 @@ namespace IceInternal
 
         public Connection? GetConnection() => _current.Connection;
 
-        public EndpointInfo GetEndpointInfo()
+        public EndpointInfo? GetEndpointInfo()
         {
             if (_current.Connection != null && _endpointInfo == null)
             {
                 _endpointInfo = _current.Connection.Endpoint.GetInfo();
             }
-            Debug.Assert(_endpointInfo != null);
             return _endpointInfo;
         }
 
