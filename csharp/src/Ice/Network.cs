@@ -594,7 +594,7 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             SetBlock(fd, fd.Blocking);
-            if (!AssemblyUtil.IsWindows)
+            if (!Ice.AssemblyUtil.IsWindows)
             {
                 //
                 // Prevent self connect (self connect happens on Linux when a client tries to connect to
@@ -688,7 +688,7 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             SetBlock(fd, fd.Blocking);
-            if (!AssemblyUtil.IsWindows)
+            if (!Ice.AssemblyUtil.IsWindows)
             {
                 //
                 // Prevent self connect (self connect happens on Linux when a client tries to connect to
@@ -898,7 +898,7 @@ namespace IceInternal
             // platforms, we use the system defaults.
             //
             int dfltBufSize = 0;
-            if (AssemblyUtil.IsWindows)
+            if (Ice.AssemblyUtil.IsWindows)
             {
                 dfltBufSize = 128 * 1024;
             }

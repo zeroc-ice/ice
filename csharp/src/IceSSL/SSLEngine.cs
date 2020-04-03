@@ -116,7 +116,7 @@ namespace IceSSL
 
                 try
                 {
-                    _verifier = (ICertificateVerifier?)IceInternal.AssemblyUtil.CreateInstance(cls);
+                    _verifier = (ICertificateVerifier?)AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -145,7 +145,7 @@ namespace IceSSL
 
                 try
                 {
-                    _passwordCallback = (IPasswordCallback?)IceInternal.AssemblyUtil.CreateInstance(cls);
+                    _passwordCallback = (IPasswordCallback?)AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -501,7 +501,7 @@ namespace IceSSL
             //
             path = path.Trim();
 
-            if (IceInternal.AssemblyUtil.IsWindows)
+            if (AssemblyUtil.IsWindows)
             {
                 //
                 // We need at least 3 non-whitespace characters to have an absolute path

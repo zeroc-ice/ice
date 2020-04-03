@@ -435,6 +435,7 @@ namespace IceLocatorDiscovery
                                     }
                                     catch (AggregateException ex)
                                     {
+                                        Debug.Assert(ex.InnerException != null);
                                         Exception(ex.InnerException);
                                     }
                                 }, l.Key.Scheduler); // Send multicast request.
@@ -557,6 +558,7 @@ namespace IceLocatorDiscovery
                                 }
                                 catch (AggregateException ex)
                                 {
+                                    Debug.Assert(ex.InnerException != null);
                                     Exception(ex.InnerException);
                                 }
                             }, l.Key.Scheduler); // Send multicast request.
@@ -564,7 +566,7 @@ namespace IceLocatorDiscovery
                         _timer.Schedule(this, _timeout);
                         return;
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                     }
                     _pendingRetryCount = 0;
@@ -635,7 +637,7 @@ namespace IceLocatorDiscovery
     internal class PluginI : Ice.IPlugin
     {
         public
-        PluginI(string name, Ice.Communicator communicator)
+        PluginI(string name, Communicator communicator)
         {
             _name = name;
             _communicator = communicator;

@@ -1023,7 +1023,7 @@ namespace Ice
                 {
                     try
                     {
-                        remoteEx = (RemoteException?)IceInternal.AssemblyUtil.CreateInstance(type);
+                        remoteEx = (RemoteException?)AssemblyUtil.CreateInstance(type);
                     }
                     catch (Exception ex)
                     {
@@ -1579,7 +1579,7 @@ namespace Ice
                     try
                     {
                         Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (AnyClass?)IceInternal.AssemblyUtil.CreateInstance(cls);
+                        v = (AnyClass?)AssemblyUtil.CreateInstance(cls);
                     }
                     catch (Exception ex)
                     {

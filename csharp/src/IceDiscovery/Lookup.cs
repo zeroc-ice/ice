@@ -136,6 +136,7 @@ namespace IceDiscovery
                 }
                 catch (AggregateException ex)
                 {
+                    Debug.Assert(ex.InnerException != null);
                     Lookup.AdapterRequestException(this, ex.InnerException);
                 }
             }, lookup.Scheduler);
@@ -189,6 +190,7 @@ namespace IceDiscovery
                 }
                 catch (AggregateException ex)
                 {
+                    Debug.Assert(ex.InnerException != null);
                     Lookup.ObjectRequestException(this, ex.InnerException);
                 }
             }, lookup.Scheduler);

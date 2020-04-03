@@ -524,7 +524,7 @@ namespace IceBox
                             //
                             // Fall back to the default constructor.
                             //
-                            info.Service = (IService?)IceInternal.AssemblyUtil.CreateInstance(c);
+                            info.Service = (IService?)AssemblyUtil.CreateInstance(c);
                         }
                     }
                     catch (Exception ex)
