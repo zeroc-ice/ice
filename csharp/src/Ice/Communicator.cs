@@ -21,13 +21,13 @@ namespace Ice
         // Whether send size warning has been emitted
         public bool SndWarn;
 
-        // The send size for which the warning wwas emitted
+        // The send size for which the warning was emitted
         public int SndSize;
 
         // Whether receive size warning has been emitted
         public bool RcvWarn;
 
-        // The receive size for which the warning wwas emitted
+        // The receive size for which the warning was emitted
         public int RcvSize;
     }
 
@@ -44,13 +44,13 @@ namespace Ice
             private readonly Communicator _communicator;
         }
 
-        /// <summary>
-        /// Get the logger for this communicator.
-        /// </summary>
-        /// <returns>This communicator's logger.
-        ///
-        /// </returns>
-        public ILogger Logger { get; internal set; }
+         /// <summary>Indicates whether or not this communicator allows non-secure connections. When false, only
+         /// secure connections are allowed; when true, both secure and non-secure connections are allowed. This
+         /// property applies to both incoming and outgoing connections are corresponds to the Ice.AllowNonSecure
+         /// configuration property. It can be overridden for incoming connections by the object adapter property
+         /// with the same name.</summary>
+         // TODO: update doc with default value for AllowNonSecure - it's currently true but should be false.
+        public bool AllowNonSecure { get; }
 
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
         /// per-thread CurrentContext combined with the proxy's context.</summary>
@@ -121,6 +121,9 @@ namespace Ice
         /// </summary>
         public FormatType DefaultFormat => DefaultsAndOverrides.DefaultFormat;
 
+        /// <summary>The logger for this communicator.</summary>
+        public ILogger Logger { get; internal set; }
+
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
         public Action? ThreadStart { get; private set; }
@@ -144,7 +147,7 @@ namespace Ice
         {
             "EndpointSelection",
             "ConnectionCached",
-            "PreferSecure",
+            "PreferNonSecure",
             "LocatorCacheTimeout",
             "InvocationTimeout",
             "Locator",
@@ -373,6 +376,8 @@ namespace Ice
                         MessageSizeMax = num * 1024; // Property is in kilobytes, MessageSizeMax in bytes
                     }
                 }
+
+                AllowNonSecure = (GetPropertyAsInt("Ice.AllowNonSecure") ?? 1) > 0; // TODO: switch to 0 default
 
                 {
                     int num = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
@@ -799,7 +804,6 @@ namespace Ice
 
             string facet = "";
             InvocationMode mode = InvocationMode.Twoway;
-            bool secure = false;
             Encoding encoding = DefaultsAndOverrides.DefaultEncoding;
             Protocol protocol = Protocol.Ice1;
             string adapter;
@@ -944,12 +948,12 @@ namespace Ice
 
                     case 's':
                         {
+                            // we ignore this secure option, just parse it
                             if (argument != null)
                             {
                                 throw new FormatException(
                                     $"unexpected argument `{argument}' provided for -s option in `{s}'");
                             }
-                            secure = true;
                             break;
                         }
 
@@ -984,7 +988,7 @@ namespace Ice
 
             if (beg == -1)
             {
-                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<Endpoint>(),
+                return CreateReference(ident, facet, mode, protocol, encoding, Array.Empty<Endpoint>(),
                     null, propertyPrefix);
             }
 
@@ -1073,7 +1077,7 @@ namespace Ice
                 }
 
                 Endpoint[] ep = endpoints.ToArray();
-                return CreateReference(ident, facet, mode, secure, protocol, encoding, ep, null, propertyPrefix);
+                return CreateReference(ident, facet, mode, protocol, encoding, ep, null, propertyPrefix);
             }
             else if (s[beg] == '@')
             {
@@ -1117,7 +1121,7 @@ namespace Ice
                 {
                     throw new FormatException($"empty adapter id in `{s}'");
                 }
-                return CreateReference(ident, facet, mode, secure, protocol, encoding, Array.Empty<Endpoint>(),
+                return CreateReference(ident, facet, mode, protocol, encoding, Array.Empty<Endpoint>(),
                     adapter, propertyPrefix);
             }
 
@@ -1155,7 +1159,7 @@ namespace Ice
                 throw new InvalidDataException($"invalid invocation mode: {mode}");
             }
 
-            bool secure = s.ReadBool();
+            s.ReadBool(); // secure option, ignored
 
             byte major = s.ReadByte();
             byte minor = s.ReadByte();
@@ -1187,7 +1191,7 @@ namespace Ice
                 adapterId = s.ReadString();
             }
 
-            return CreateReference(ident, facet, (InvocationMode)mode, secure, protocol, encoding, endpoints, adapterId,
+            return CreateReference(ident, facet, (InvocationMode)mode, protocol, encoding, endpoints, adapterId,
                                    null);
         }
 
@@ -1780,7 +1784,7 @@ namespace Ice
 
         internal Reference CreateReference(Identity ident, string facet, Reference tmpl, Endpoint[] endpoints)
         {
-            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.IsSecure, tmpl.Protocol, tmpl.Encoding,
+            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.Protocol, tmpl.Encoding,
                           endpoints, null, null);
         }
 
@@ -1789,7 +1793,7 @@ namespace Ice
             //
             // Create new reference
             //
-            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.IsSecure, tmpl.Protocol, tmpl.Encoding,
+            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.Protocol, tmpl.Encoding,
                           Array.Empty<Endpoint>(), adapterId, null);
         }
 
@@ -2155,7 +2159,6 @@ namespace Ice
             Identity ident,
             string facet,
             InvocationMode mode,
-            bool secure,
             Protocol protocol,
             Encoding encoding,
             Endpoint[] endpoints,
@@ -2192,7 +2195,7 @@ namespace Ice
             }
             bool collocOptimized = DefaultsAndOverrides.DefaultCollocationOptimization;
             bool cacheConnection = true;
-            bool preferSecure = DefaultsAndOverrides.DefaultPreferSecure;
+            bool preferNonSecure = DefaultsAndOverrides.DefaultPreferNonSecure;
             EndpointSelectionType endpointSelection = DefaultsAndOverrides.DefaultEndpointSelection;
             int locatorCacheTimeout = DefaultsAndOverrides.DefaultLocatorCacheTimeout;
             int invocationTimeout = DefaultsAndOverrides.DefaultInvocationTimeout;
@@ -2245,8 +2248,8 @@ namespace Ice
                 property = $"{propertyPrefix}.ConnectionCached";
                 cacheConnection = (GetPropertyAsInt(property) ?? (cacheConnection ? 1 : 0)) > 0;
 
-                property = $"{propertyPrefix}.PreferSecure";
-                preferSecure = (GetPropertyAsInt(property) ?? (preferSecure ? 1 : 0)) > 0;
+                property = $"{propertyPrefix}.PreferNonSecure";
+                preferNonSecure = (GetPropertyAsInt(property) ?? (preferNonSecure ? 1 : 0)) > 0;
 
                 property = propertyPrefix + ".EndpointSelection";
                 string? val = GetProperty(property);
@@ -2307,10 +2310,9 @@ namespace Ice
                                  invocationTimeout: invocationTimeout,
                                  locatorCacheTimeout: locatorCacheTimeout,
                                  locatorInfo: locatorInfo,
-                                 preferSecure: preferSecure,
+                                 preferNonSecure: preferNonSecure,
                                  protocol: protocol,
-                                 routerInfo: routerInfo,
-                                 secure: secure);
+                                 routerInfo: routerInfo);
         }
     }
 }

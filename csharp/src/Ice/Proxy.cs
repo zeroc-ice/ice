@@ -43,11 +43,10 @@ namespace Ice
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
         /// version of the invocationMode parameter.</param>
-        /// <param name="preferSecure">Determines whether the clone prefers secure connections over non-secure
+        /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="protocol">The Ice protocol of the clone (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
-        /// <param name="secure">The secure option of the clone (optional).</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T Clone<T>(this IObjectPrx prx,
                                  Identity identity,
@@ -71,10 +70,9 @@ namespace Ice
                                  ILocatorPrx? locator = null,
                                  int? locatorCacheTimeout = null,
                                  bool? oneway = null,
-                                 bool? preferSecure = null,
+                                 bool? preferNonSecure = null,
                                  Protocol? protocol = null,
-                                 IRouterPrx? router = null,
-                                 bool? secure = null) where T : class, IObjectPrx
+                                 IRouterPrx? router = null) where T : class, IObjectPrx
         {
             return factory(prx.IceReference.Clone(adapterId,
                                                   cacheConnection,
@@ -96,10 +94,9 @@ namespace Ice
                                                   locator,
                                                   locatorCacheTimeout,
                                                   oneway,
-                                                  preferSecure,
+                                                  preferNonSecure,
                                                   protocol,
-                                                  router,
-                                                  secure));
+                                                  router));
         }
 
         /// <summary>Creates a clone of this proxy, with a new facet and optionally other options. The clone is
@@ -130,11 +127,10 @@ namespace Ice
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
         /// version of the invocationMode parameter.</param>
-        /// <param name="preferSecure">Determines whether the clone prefers secure connections over non-secure
+        /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="protocol">The Ice protocol of the clone (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
-        /// <param name="secure">The secure option of the clone (optional).</param>
         /// <returns>A new proxy manufactured by the proxy factory (see factory parameter).</returns>
         public static T Clone<T>(this IObjectPrx prx,
                                  string facet,
@@ -157,10 +153,9 @@ namespace Ice
                                  ILocatorPrx? locator = null,
                                  int? locatorCacheTimeout = null,
                                  bool? oneway = null,
-                                 bool? preferSecure = null,
+                                 bool? preferNonSecure = null,
                                  Protocol? protocol = null,
-                                 IRouterPrx? router = null,
-                                 bool? secure = null) where T : class, IObjectPrx
+                                 IRouterPrx? router = null) where T : class, IObjectPrx
         {
             return factory(prx.IceReference.Clone(adapterId,
                                                   cacheConnection,
@@ -182,10 +177,9 @@ namespace Ice
                                                   locator,
                                                   locatorCacheTimeout,
                                                   oneway,
-                                                  preferSecure,
+                                                  preferNonSecure,
                                                   protocol,
-                                                  router,
-                                                  secure));
+                                                  router));
         }
 
         /// <summary>Creates a clone of this proxy. The clone is identical to this proxy except for options set
@@ -215,11 +209,10 @@ namespace Ice
         /// <param name="locatorCacheTimeout">The locator cache timeout of the clone (optional).</param>
         /// <param name="oneway">Determines whether the clone is oneway or twoway (optional). This is a simplified
         /// version of the invocationMode parameter.</param>
-        /// <param name="preferSecure">Determines whether the clone prefers secure connections over non-secure
+        /// <param name="preferNonSecure">Determines whether the clone prefers non-secure connections over secure
         /// connections (optional).</param>
         /// <param name="protocol">The Ice protocol of the clone (optional).</param>
         /// <param name="router">The router proxy of the clone (optional).</param>
-        /// <param name="secure">The secure option of the clone (optional).</param>
         /// <returns>A new proxy with the same type as this proxy.</returns>
         public static T Clone<T>(this T prx,
                                  string? adapterId = null,
@@ -240,10 +233,9 @@ namespace Ice
                                  ILocatorPrx? locator = null,
                                  int? locatorCacheTimeout = null,
                                  bool? oneway = null,
-                                 bool? preferSecure = null,
+                                 bool? preferNonSecure = null,
                                  Protocol? protocol = null,
-                                 IRouterPrx? router = null,
-                                 bool? secure = null) where T : IObjectPrx
+                                 IRouterPrx? router = null) where T : IObjectPrx
         {
             Reference clone = prx.IceReference.Clone(adapterId,
                                                      cacheConnection,
@@ -265,10 +257,9 @@ namespace Ice
                                                      locator,
                                                      locatorCacheTimeout,
                                                      oneway,
-                                                     preferSecure,
+                                                     preferNonSecure,
                                                      protocol,
-                                                     router,
-                                                     secure);
+                                                     router);
 
             // Reference.Clone never returns a new reference == to itself.
             return ReferenceEquals(clone, prx.IceReference) ? prx : (T)prx.Clone(clone);

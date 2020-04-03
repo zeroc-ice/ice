@@ -110,18 +110,6 @@ namespace IceInternal
                 OverrideCompressValue = false;
             }
 
-            val = communicator.GetProperty("Ice.Override.Secure");
-            if (val != null)
-            {
-                OverrideSecure = true;
-                OverrideSecureValue = communicator.GetPropertyAsInt("Ice.Override.Secure") > 0;
-            }
-            else
-            {
-                OverrideSecure = false;
-                OverrideSecureValue = false;
-            }
-
             DefaultCollocationOptimization = (communicator.GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
 
             val = communicator.GetProperty("Ice.Default.EndpointSelection") ?? "Random";
@@ -168,7 +156,8 @@ namespace IceInternal
                 logger.Warning(msg.ToString());
             }
 
-            DefaultPreferSecure = communicator.GetPropertyAsInt("Ice.Default.PreferSecure") > 0;
+            // TODO: switch to 0 default
+            DefaultPreferNonSecure = (communicator.GetPropertyAsInt("Ice.Default.PreferNonSecure") ?? 1) > 0;
 
             val = communicator.GetProperty("Ice.Default.Encoding");
             if (val == null)
@@ -193,7 +182,7 @@ namespace IceInternal
         public int DefaultTimeout;
         public int DefaultLocatorCacheTimeout;
         public int DefaultInvocationTimeout;
-        public bool DefaultPreferSecure;
+        public bool DefaultPreferNonSecure;
         public Encoding DefaultEncoding;
         public FormatType DefaultFormat;
 
@@ -205,8 +194,6 @@ namespace IceInternal
         public int OverrideCloseTimeoutValue;
         public bool OverrideCompress;
         public bool OverrideCompressValue;
-        public bool OverrideSecure;
-        public bool OverrideSecureValue;
     }
 
 }

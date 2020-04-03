@@ -230,22 +230,14 @@ namespace Ice
         /// <returns>The endpoint selection policy.</returns>
         public EndpointSelectionType EndpointSelection => IceReference.EndpointSelection;
 
-        /// <summary>
-        /// Returns whether this proxy communicates only via secure endpoints.
-        /// </summary>
-        /// <returns>True if this proxy communicates only vi secure endpoints; false, otherwise.</returns>
-        public bool IsSecure => IceReference.IsSecure;
-
         /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
         /// <returns>The encoding version.</returns>
         public Encoding Encoding => IceReference.Encoding;
 
-        /// <summary>
-        /// Returns whether this proxy prefers secure endpoints.
-        /// </summary>
-        /// <returns>True if the proxy always attempts to invoke via secure endpoints before it
-        /// attempts to use insecure endpoints; false, otherwise.</returns>
-        public bool IsPreferSecure => IceReference.IsPreferSecure;
+        /// <summary>Returns whether this proxy prefers non-secure connections.</summary>
+        /// <returns>True if the proxy attempts to establish a non-secure connection if such a connection is available;
+        /// false, otherwise.</returns>
+        public bool PreferNonSecure => IceReference.PreferNonSecure;
 
         /// <summary>
         /// Returns the router for this proxy.

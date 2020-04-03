@@ -705,9 +705,9 @@ namespace Ice.binding
                 }
             }
             output.WriteLine("ok");
-            if (communicator.GetProperty("Plugin.IceSSL") != null)
+            if (communicator.GetProperty("Ice.Plugin.IceSSL") != null)
             {
-                output.Write("testing unsecure vs. secure endpoints... ");
+                output.Write("testing secure and non-secure endpoints... ");
                 output.Flush();
                 {
                     var adapters = new List<Test.IRemoteObjectAdapterPrx>();
@@ -722,13 +722,11 @@ namespace Ice.binding
                         obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
-                    var testSecure = obj.Clone(secure: true);
-                    test(testSecure.IsSecure);
-                    testSecure = obj.Clone(secure: false);
-                    test(!testSecure.IsSecure);
-                    testSecure = obj.Clone(secure: true);
-                    test(testSecure.IsSecure);
+                    var testNonSecure = obj.Clone(preferNonSecure: true);
+                    var testSecure = obj.Clone(preferNonSecure: false); // TODO: update when PreferNonSecure default
+                                                                        // is updated
                     test(obj.GetConnection() != testSecure.GetConnection());
+                    test(obj.GetConnection() == testNonSecure.GetConnection());
 
                     com.deactivateObjectAdapter(adapters[1]);
 
@@ -738,7 +736,7 @@ namespace Ice.binding
                         obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
-                    com.createObjectAdapter("Adapter83", (obj.Endpoints[1]).ToString()); // Reactive tcp OA.
+                    com.createObjectAdapter("Adapter83", (obj.Endpoints[1]).ToString()); // Recreate a tcp OA.
 
                     for (i = 0; i < 5; i++)
                     {
@@ -747,15 +745,8 @@ namespace Ice.binding
                     }
 
                     com.deactivateObjectAdapter(adapters[0]);
-                    try
-                    {
-                        testSecure.IcePing();
-                        test(false);
-                    }
-                    catch (ConnectFailedException)
-                    {
-                    }
 
+                    testSecure.IcePing(); // works since it's only a preference
                     deactivate(com, adapters);
                 }
                 output.WriteLine("ok");
