@@ -14,7 +14,7 @@ namespace Ice
     {
         private sealed class HelperThread
         {
-            public string Name => _thread.Name;
+            public string Name => _thread.Name!;
 
             private readonly Communicator _communicator;
             private readonly Thread _thread;
@@ -145,7 +145,7 @@ namespace Ice
                         break;
                     }
 
-                    r = _enpointHostResolverQueue.First.Value;
+                    r = _enpointHostResolverQueue.First!.Value;
                     _enpointHostResolverQueue.RemoveFirst();
                     threadObserver = _endpointHostResolverObserver;
                 }
@@ -184,7 +184,7 @@ namespace Ice
                 {
                     if (r.Observer != null)
                     {
-                        r.Observer.Failed(ex.GetType().FullName);
+                        r.Observer.Failed(ex.GetType().FullName ?? "System.Exception");
                         r.Observer.Detach();
                     }
                     r.Callback.Exception(ex);
@@ -204,7 +204,7 @@ namespace Ice
                 var ex = new CommunicatorDestroyedException();
                 if (entry.Observer != null)
                 {
-                    entry.Observer.Failed(ex.GetType().FullName);
+                    entry.Observer.Failed(ex.GetType().FullName ?? "System.Exception");
                     entry.Observer.Detach();
                 }
                 entry.Callback.Exception(ex);

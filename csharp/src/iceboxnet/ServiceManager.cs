@@ -524,19 +524,19 @@ namespace IceBox
                             //
                             // Fall back to the default constructor.
                             //
-                            info.Service = (IService)IceInternal.AssemblyUtil.CreateInstance(c);
+                            info.Service = (IService?)IceInternal.AssemblyUtil.CreateInstance(c);
                         }
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         throw new LoadException($"IceBox.ServiceManager: unable to load service `{entryPoint}'", ex);
                     }
-
+                    Debug.Assert(info.Service != null);
                     info.Service.start(service, communicator, info.Args);
                     info.Status = ServiceStatus.Started;
                     _services.Add(info);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     if (info.Communicator != null)
                     {

@@ -35,7 +35,7 @@ namespace Ice
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(name, out PropertyValue pv))
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
                 {
                     pv.Used = true;
                     return pv.Val;
@@ -51,7 +51,7 @@ namespace Ice
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(name, out PropertyValue pv))
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
                 {
                     pv.Used = true;
                     return int.Parse(pv.Val, CultureInfo.InvariantCulture);
@@ -73,7 +73,7 @@ namespace Ice
         {
             lock (_properties)
             {
-                if (_properties.TryGetValue(name, out PropertyValue pv))
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
                 {
                     pv.Used = true;
                     return IceUtilInternal.StringUtil.SplitString(pv.Val, ", \t\r\n");
@@ -193,7 +193,7 @@ namespace Ice
             {
                 return _properties.Remove(name);
             }
-            else if (_properties.TryGetValue(name, out PropertyValue pv))
+            else if (_properties.TryGetValue(name, out PropertyValue? pv))
             {
                 if (pv.Val != value)
                 {
@@ -330,7 +330,7 @@ namespace Ice
             }
 
             if ((prefix == "--" || prefix == "--Ice.") &&
-                    parsedArgs.TryGetValue("Ice.Config", out string configFileList))
+                    parsedArgs.TryGetValue("Ice.Config", out string? configFileList))
             {
                 foreach (string file in configFileList.Split(","))
                 {
@@ -352,7 +352,7 @@ namespace Ice
         public static void LoadIceConfigFile(this Dictionary<string, string> into, string configFile)
         {
             using var input = new System.IO.StreamReader(configFile.Trim());
-            string line;
+            string? line;
             while ((line = input.ReadLine()) != null)
             {
                 (string Name, string Value) = ParseLine(line);

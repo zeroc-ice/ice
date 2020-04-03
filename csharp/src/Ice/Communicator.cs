@@ -62,6 +62,7 @@ namespace Ice
                 {
                     if (_currentContext.IsValueCreated)
                     {
+                        Debug.Assert(_currentContext.Value != null);
                         return _currentContext.Value;
                     }
                     else
@@ -1387,7 +1388,7 @@ namespace Ice
                     throw new CommunicatorDestroyedException();
                 }
 
-                if (!_adminFacets.TryGetValue(facet, out IObject result))
+                if (!_adminFacets.TryGetValue(facet, out IObject? result))
                 {
                     return null;
                 }
@@ -1544,7 +1545,7 @@ namespace Ice
         {
             lock (this)
             {
-                if (_adminFacets.TryGetValue(facet, out IObject result))
+                if (_adminFacets.TryGetValue(facet, out IObject? result))
                 {
                     _adminFacets.Remove(facet);
                 }
@@ -1864,7 +1865,7 @@ namespace Ice
                         {
                             try
                             {
-                                classType = helper.GetProperty("targetClass").PropertyType;
+                                classType = helper.GetProperty("targetClass")!.PropertyType;
                                 break; // foreach
                             }
                             catch (Exception)
@@ -1874,7 +1875,7 @@ namespace Ice
                     }
                 }
 
-                // Ensure the class is instantiable.
+                // Ensure the class can be instantiate.
                 if (classType != null && !classType.IsAbstract && !classType.IsInterface)
                 {
                     return classType;
@@ -1895,7 +1896,7 @@ namespace Ice
                         Type? classType = AssemblyUtil.FindType($"{ns}.TypeId_{compactId}");
                         if (classType != null)
                         {
-                            var result = (string)classType.GetField("typeId").GetValue(null);
+                            string? result = (string?)classType.GetField("typeId")!.GetValue(null);
                             if (result != null)
                             {
                                 return ResolveClass(result);

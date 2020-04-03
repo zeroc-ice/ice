@@ -304,7 +304,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                if (!_objectRequests.TryGetValue(id, out ObjectRequest request))
+                if (!_objectRequests.TryGetValue(id, out ObjectRequest? request))
                 {
                     request = new ObjectRequest(this, id, _retryCount);
                     _objectRequests.Add(id, request);
@@ -332,7 +332,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                if (!_adapterRequests.TryGetValue(adapterId, out AdapterRequest request))
+                if (!_adapterRequests.TryGetValue(adapterId, out AdapterRequest? request))
                 {
                     request = new AdapterRequest(this, adapterId, _retryCount);
                     _adapterRequests.Add(adapterId, request);
@@ -360,7 +360,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                if (_objectRequests.TryGetValue(id, out ObjectRequest request) && request.GetRequestId() == requestId)
+                if (_objectRequests.TryGetValue(id, out ObjectRequest? request) && request.GetRequestId() == requestId)
                 {
                     request.Response(proxy);
                     _timer.Cancel(request);
@@ -374,7 +374,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest request) && request.GetRequestId() == requestId)
+                if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest? request) && request.GetRequestId() == requestId)
                 {
                     if (request.Response(proxy, isReplicaGroup))
                     {
@@ -390,7 +390,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest r) || r != request)
+                if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest? r) || r != request)
                 {
                     return;
                 }
@@ -414,11 +414,11 @@ namespace IceDiscovery
             }
         }
 
-        internal void ObjectRequestException(ObjectRequest request, System.Exception ex)
+        internal void ObjectRequestException(ObjectRequest request, Exception ex)
         {
             lock (this)
             {
-                if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest r) || r != request)
+                if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest? r) || r != request)
                 {
                     return;
                 }
@@ -447,7 +447,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest r) || r != request)
+                if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest? r) || r != request)
                 {
                     return;
                 }
@@ -471,11 +471,11 @@ namespace IceDiscovery
             }
         }
 
-        internal void AdapterRequestException(AdapterRequest request, System.Exception ex)
+        internal void AdapterRequestException(AdapterRequest request, Exception ex)
         {
             lock (this)
             {
-                if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest r) || r != request)
+                if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest? r) || r != request)
                 {
                     return;
                 }

@@ -143,7 +143,7 @@ namespace Ice
             foreach (string name in _loadOnInitialization)
             {
                 string key = $"Ice.Plugin.{name}.clr";
-                plugins.TryGetValue(key, out string r);
+                plugins.TryGetValue(key, out string? r);
                 if (r == null)
                 {
                     key = $"Ice.Plugin.{name}";
@@ -192,7 +192,7 @@ namespace Ice
                 }
 
                 string key = $"Ice.Plugin.{name}clr";
-                plugins.TryGetValue(key, out string value);
+                plugins.TryGetValue(key, out string? value);
                 if (value == null)
                 {
                     key = $"Ice.Plugin.{name}";
@@ -381,22 +381,23 @@ namespace Ice
                 //
                 // Instantiate the class.
                 //
-                Type c;
+                Type? c;
                 try
                 {
                     c = pluginAssembly.GetType(className, true);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     throw new LoadException(
                         $"error loading plug-in `{entryPoint}': cannot find the plugin factory class `{className}'", ex);
                 }
+                Debug.Assert(c != null);
 
                 try
                 {
-                    pluginFactory = (IPluginFactory)IceInternal.AssemblyUtil.CreateInstance(c);
+                    pluginFactory = (IPluginFactory?)IceInternal.AssemblyUtil.CreateInstance(c);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     throw new LoadException($"error loading plug-in `{entryPoint}'", ex);
                 }

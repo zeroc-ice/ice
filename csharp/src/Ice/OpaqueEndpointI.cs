@@ -303,7 +303,7 @@ namespace IceInternal
                             throw new FormatException($"invalid type value `{argument}' in endpoint {endpoint}", ex);
                         }
 
-                        if (t < 0 || t > 65535)
+                        if (t < 0)
                         {
                             throw new FormatException($"type value `{argument}' out of range in endpoint {endpoint}");
                         }

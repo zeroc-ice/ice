@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -637,6 +638,7 @@ namespace IceInternal
                                        {
                                            if (!result.CompletedSynchronously)
                                            {
+                                               Debug.Assert(result.AsyncState != null);
                                                callback(result.AsyncState);
                                            }
                                        }, state);

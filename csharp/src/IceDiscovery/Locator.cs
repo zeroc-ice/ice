@@ -36,10 +36,10 @@ namespace IceDiscovery
         {
             lock (this)
             {
+                HashSet<string>? adapterIds;
                 if (proxy != null)
                 {
                     _adapters.Add(adapterId, proxy);
-                    HashSet<string> adapterIds;
                     if (!_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
                     {
                         adapterIds = new HashSet<string>();
@@ -50,7 +50,6 @@ namespace IceDiscovery
                 else
                 {
                     _adapters.Remove(adapterId);
-                    HashSet<string> adapterIds;
                     if (_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
                     {
                         adapterIds.Remove(adapterId);
@@ -125,12 +124,12 @@ namespace IceDiscovery
                     return result;
                 }
 
-                if (_replicaGroups.TryGetValue(adapterId, out HashSet<string> adapterIds))
+                if (_replicaGroups.TryGetValue(adapterId, out HashSet<string>? adapterIds))
                 {
                     var endpoints = new List<IEndpoint>();
                     foreach (string a in adapterIds)
                     {
-                        if (!_adapters.TryGetValue(a, out IObjectPrx proxy))
+                        if (!_adapters.TryGetValue(a, out IObjectPrx? proxy))
                         {
                             continue; // TODO: Inconsistency
                         }

@@ -123,6 +123,7 @@ namespace IceInternal
                 }
                 catch (AggregateException ex)
                 {
+                    Debug.Assert(ex.InnerException != null);
                     throw ex.InnerException;
                 }
                 catch (Exception ex)
@@ -133,7 +134,7 @@ namespace IceInternal
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Warning(ex);
             }
@@ -250,7 +251,7 @@ namespace IceInternal
 
                 if (ChildObserver != null)
                 {
-                    ChildObserver.Failed(ex.GetType().FullName);
+                    ChildObserver.Failed(ex.GetType().FullName ?? "System.Exception");
                     ChildObserver.Detach();
                     ChildObserver = null;
                 }
@@ -258,7 +259,7 @@ namespace IceInternal
 
                 if (Observer != null)
                 {
-                    Observer.Failed(ex.GetType().FullName);
+                    Observer.Failed(ex.GetType().FullName ?? "System.Exception");
                 }
                 bool invoke = _completionCallback.HandleException(ex, this);
                 if (!invoke && Observer != null)
@@ -374,7 +375,7 @@ namespace IceInternal
         {
             if (ChildObserver != null)
             {
-                ChildObserver.Failed(exc.GetType().FullName);
+                ChildObserver.Failed(exc.GetType().FullName ?? "System.Exception");
                 ChildObserver.Detach();
                 ChildObserver = null;
             }
@@ -516,7 +517,7 @@ namespace IceInternal
                     {
                         if (ChildObserver != null)
                         {
-                            ChildObserver.Failed(ex.GetType().FullName);
+                            ChildObserver.Failed(ex.GetType().FullName ?? "System.Exception");
                             ChildObserver.Detach();
                             ChildObserver = null;
                         }

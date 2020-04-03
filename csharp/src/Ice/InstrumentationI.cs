@@ -105,39 +105,39 @@ namespace IceInternal
         public static void
         AddEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
         {
-            r.Add("endpoint", cl.GetMethod("GetEndpoint"));
+            r.Add("endpoint", cl.GetMethod("GetEndpoint")!);
 
-            Type cli = typeof(Ice.EndpointInfo);
-            r.Add("endpointType", cl.GetMethod("GetEndpointInfo"), cli.GetMethod("Type"));
-            r.Add("endpointIsDatagram", cl.GetMethod("GetEndpointInfo"), cli.GetMethod("Datagram"));
-            r.Add("endpointIsSecure", cl.GetMethod("GetEndpointInfo"), cli.GetMethod("Secure"));
-            r.Add("endpointTimeout", cl.GetMethod("GetEndpointInfo"), cli.GetField("Timeout"));
-            r.Add("endpointCompress", cl.GetMethod("GetEndpointInfo"), cli.GetField("Compress"));
+            Type cli = typeof(EndpointInfo);
+            r.Add("endpointType", cl.GetMethod("GetEndpointInfo")!, cli.GetMethod("Type")!);
+            r.Add("endpointIsDatagram", cl.GetMethod("GetEndpointInfo")!, cli.GetMethod("Datagram")!);
+            r.Add("endpointIsSecure", cl.GetMethod("GetEndpointInfo")!, cli.GetMethod("Secure")!);
+            r.Add("endpointTimeout", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Timeout")!);
+            r.Add("endpointCompress", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Compress")!);
 
-            cli = typeof(Ice.IPEndpointInfo);
-            r.Add("endpointHost", cl.GetMethod("GetEndpointInfo"), cli.GetField("Host"));
-            r.Add("endpointPort", cl.GetMethod("GetEndpointInfo"), cli.GetField("Port"));
+            cli = typeof(IPEndpointInfo);
+            r.Add("endpointHost", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Host")!);
+            r.Add("endpointPort", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Port")!);
         }
 
         public static void
-        AddConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
+        AddConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : Metrics
         {
-            Type cli = typeof(Ice.ConnectionInfo);
-            r.Add("incoming", cl.GetMethod("GetConnectionInfo"), cli.GetField("Incoming"));
-            r.Add("adapterName", cl.GetMethod("GetConnectionInfo"), cli.GetField("AdapterName"));
-            r.Add("connectionId", cl.GetMethod("GetConnectionInfo"), cli.GetField("ConnectionId"));
+            Type cli = typeof(ConnectionInfo);
+            r.Add("incoming", cl.GetMethod("GetConnectionInfo")!, cli.GetField("Incoming")!);
+            r.Add("adapterName", cl.GetMethod("GetConnectionInfo")!, cli.GetField("AdapterName")!);
+            r.Add("connectionId", cl.GetMethod("GetConnectionInfo")!, cli.GetField("ConnectionId")!);
 
-            cli = typeof(Ice.IPConnectionInfo);
-            r.Add("localHost", cl.GetMethod("GetConnectionInfo"), cli.GetField("LocalAddress"));
-            r.Add("localPort", cl.GetMethod("GetConnectionInfo"), cli.GetField("LocalPort"));
-            r.Add("remoteHost", cl.GetMethod("GetConnectionInfo"), cli.GetField("RemoteAddress"));
-            r.Add("remotePort", cl.GetMethod("GetConnectionInfo"), cli.GetField("RemotePort"));
+            cli = typeof(IPConnectionInfo);
+            r.Add("localHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("LocalAddress")!);
+            r.Add("localPort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("LocalPort")!);
+            r.Add("remoteHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("RemoteAddress")!);
+            r.Add("remotePort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("RemotePort")!);
 
-            cli = typeof(Ice.UDPConnectionInfo);
-            r.Add("mcastHost", cl.GetMethod("GetConnectionInfo"), cli.GetField("McastAddress"));
-            r.Add("mcastPort", cl.GetMethod("GetConnectionInfo"), cli.GetField("McastPort"));
+            cli = typeof(UDPConnectionInfo);
+            r.Add("mcastHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("McastAddress")!);
+            r.Add("mcastPort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("McastPort")!);
 
-            AddEndpointAttributes<T>(r, cl);
+            AddEndpointAttributes(r, cl);
         }
     }
 
@@ -150,12 +150,12 @@ namespace IceInternal
                 try
                 {
                     Type cl = typeof(ConnectionHelper);
-                    Add("parent", cl.GetMethod("GetParent"));
-                    Add("id", cl.GetMethod("GetId"));
-                    Add("state", cl.GetMethod("GetState"));
+                    Add("parent", cl.GetMethod("GetParent")!);
+                    Add("id", cl.GetMethod("GetId")!);
+                    Add("state", cl.GetMethod("GetState")!);
                     AttrsUtil.AddConnectionAttributes(this, cl);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -268,19 +268,19 @@ namespace IceInternal
                 try
                 {
                     Type cl = typeof(DispatchHelper);
-                    Add("parent", cl.GetMethod("GetParent"));
-                    Add("id", cl.GetMethod("GetId"));
+                    Add("parent", cl.GetMethod("GetParent")!);
+                    Add("id", cl.GetMethod("GetId")!);
 
                     AttrsUtil.AddConnectionAttributes(this, cl);
 
-                    Type clc = typeof(Ice.Current);
-                    Add("operation", cl.GetMethod("GetCurrent"), clc.GetProperty("Operation"));
-                    Add("identity", cl.GetMethod("GetIdentity"));
-                    Add("facet", cl.GetMethod("GetCurrent"), clc.GetProperty("Facet"));
-                    Add("current", cl.GetMethod("GetCurrent"), clc.GetProperty("RequestId"));
-                    Add("mode", cl.GetMethod("GetMode"));
+                    Type clc = typeof(Current);
+                    Add("operation", cl.GetMethod("GetCurrent")!, clc.GetProperty("Operation")!);
+                    Add("identity", cl.GetMethod("GetIdentity")!);
+                    Add("facet", cl.GetMethod("GetCurrent")!, clc.GetProperty("Facet")!);
+                    Add("current", cl.GetMethod("GetCurrent")!, clc.GetProperty("RequestId")!);
+                    Add("mode", cl.GetMethod("GetMode")!);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -298,7 +298,7 @@ namespace IceInternal
         {
             if (attribute.IndexOf("context.", 0) == 0)
             {
-                if (_current.Context.TryGetValue(attribute.Substring(8), out string v))
+                if (_current.Context.TryGetValue(attribute.Substring(8), out string? v))
                 {
                     return v;
                 }
@@ -353,6 +353,7 @@ namespace IceInternal
             {
                 _endpointInfo = _current.Connection.Endpoint.GetInfo();
             }
+            Debug.Assert(_endpointInfo != null);
             return _endpointInfo;
         }
 
@@ -375,19 +376,19 @@ namespace IceInternal
                 try
                 {
                     Type cl = typeof(InvocationHelper);
-                    Add("parent", cl.GetMethod("GetParent"));
-                    Add("id", cl.GetMethod("GetId"));
+                    Add("parent", cl.GetMethod("GetParent")!);
+                    Add("id", cl.GetMethod("GetId")!);
 
-                    Add("operation", cl.GetMethod("GetOperation"));
-                    Add("identity", cl.GetMethod("GetIdentity"));
+                    Add("operation", cl.GetMethod("GetOperation")!);
+                    Add("identity", cl.GetMethod("GetIdentity")!);
 
-                    Type cli = typeof(Ice.IObjectPrx);
-                    Add("facet", cl.GetMethod("GetProxy"), cli.GetProperty("Facet"));
-                    Add("encoding", cl.GetMethod("GetEncoding"));
-                    Add("mode", cl.GetMethod("GetMode"));
-                    Add("proxy", cl.GetMethod("GetProxy"));
+                    Type cli = typeof(IObjectPrx);
+                    Add("facet", cl.GetMethod("GetProxy")!, cli.GetProperty("Facet")!);
+                    Add("encoding", cl.GetMethod("GetEncoding")!);
+                    Add("mode", cl.GetMethod("GetMode")!);
+                    Add("proxy", cl.GetMethod("GetProxy")!);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -407,7 +408,7 @@ namespace IceInternal
         {
             if (attribute.IndexOf("context.", 0) == 0)
             {
-                if (_context.TryGetValue(attribute.Substring(8), out string v))
+                if (_context.TryGetValue(attribute.Substring(8), out string? v))
                 {
                     return v;
                 }
@@ -509,8 +510,8 @@ namespace IceInternal
                 try
                 {
                     Type cl = typeof(ThreadHelper);
-                    Add("parent", cl.GetField("Parent"));
-                    Add("id", cl.GetField("Id"));
+                    Add("parent", cl.GetField("Parent")!);
+                    Add("id", cl.GetField("Id")!);
                 }
                 catch (System.Exception)
                 {
@@ -559,11 +560,11 @@ namespace IceInternal
                 try
                 {
                     Type cl = typeof(EndpointHelper);
-                    Add("parent", cl.GetMethod("GetParent"));
-                    Add("id", cl.GetMethod("GetId"));
+                    Add("parent", cl.GetMethod("GetParent")!);
+                    Add("id", cl.GetMethod("GetId")!);
                     AttrsUtil.AddEndpointAttributes(this, cl);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -596,10 +597,11 @@ namespace IceInternal
             {
                 _id = _endpoint.ToString();
             }
+            Debug.Assert(_id != null);
             return _id;
         }
 
-        public string GetEndpoint() => _endpoint.ToString();
+        public string GetEndpoint() => _endpoint.ToString()!;
 
         private readonly IEndpoint _endpoint;
         private string? _id;
@@ -615,12 +617,12 @@ namespace IceInternal
                 try
                 {
                     Type cl = typeof(RemoteInvocationHelper);
-                    Add("parent", cl.GetMethod("GetParent"));
-                    Add("id", cl.GetMethod("GetId"));
-                    Add("requestId", cl.GetMethod("GetRequestId"));
+                    Add("parent", cl.GetMethod("GetParent")!);
+                    Add("id", cl.GetMethod("GetId")!);
+                    Add("requestId", cl.GetMethod("GetRequestId")!);
                     AttrsUtil.AddConnectionAttributes(this, cl);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -628,7 +630,7 @@ namespace IceInternal
         }
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public RemoteInvocationHelper(Ice.ConnectionInfo con, Ice.IEndpoint endpt, int requestId, int size) :
+        public RemoteInvocationHelper(ConnectionInfo con, IEndpoint endpt, int requestId, int size) :
             base(_attributes)
         {
             _connectionInfo = con;
@@ -649,6 +651,7 @@ namespace IceInternal
                     _id += " [" + _connectionInfo.ConnectionId + "]";
                 }
             }
+            Debug.Assert(_id != null);
             return _id;
         }
 
@@ -696,11 +699,11 @@ namespace IceInternal
                 try
                 {
                     Type cl = typeof(CollocatedInvocationHelper);
-                    Add("parent", cl.GetMethod("GetParent"));
-                    Add("id", cl.GetMethod("GetId"));
-                    Add("requestId", cl.GetMethod("GetRequestId"));
+                    Add("parent", cl.GetMethod("GetParent")!);
+                    Add("id", cl.GetMethod("GetId")!);
+                    Add("requestId", cl.GetMethod("GetRequestId")!);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     Debug.Assert(false);
                 }
@@ -708,7 +711,7 @@ namespace IceInternal
         }
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public CollocatedInvocationHelper(Ice.ObjectAdapter adapter, int requestId, int size) :
+        public CollocatedInvocationHelper(ObjectAdapter adapter, int requestId, int size) :
             base(_attributes)
         {
             _id = adapter.Name;
@@ -838,7 +841,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Instrumentation.IRemoteObserver GetRemoteObserver(Ice.ConnectionInfo con, Ice.IEndpoint endpt,
+        public Ice.Instrumentation.IRemoteObserver GetRemoteObserver(ConnectionInfo con, IEndpoint endpt,
                                                                     int requestId, int size)
         {
             Ice.Instrumentation.IRemoteObserver? del = null;
@@ -944,8 +947,8 @@ namespace IceInternal
             try
             {
                 Type cl = typeof(InvocationMetrics);
-                _invocations.RegisterSubMap<RemoteMetrics>("Remote", cl.GetField("Remotes"));
-                _invocations.RegisterSubMap<CollocatedMetrics>("Collocated", cl.GetField("Collocated"));
+                _invocations.RegisterSubMap<RemoteMetrics>("Remote", cl.GetField("Remotes")!);
+                _invocations.RegisterSubMap<CollocatedMetrics>("Collocated", cl.GetField("Collocated")!);
             }
             catch (System.Exception)
             {

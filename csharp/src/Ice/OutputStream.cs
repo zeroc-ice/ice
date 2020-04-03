@@ -1046,7 +1046,7 @@ namespace Ice
         }
 
         public void WriteDict<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
-                                            OutputStreamWriter<TValue> valueWriter)
+                                            OutputStreamWriter<TValue> valueWriter) where TKey : notnull
         {
             WriteSize(dict.Count);
             foreach ((TKey key, TValue value) in dict)
@@ -1069,7 +1069,8 @@ namespace Ice
         }
 
         public void WriteDict<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dict, OutputStreamWriter<TKey> keyWriter,
-                                            OutputStreamStructWriter<TValue> valueWriter) where TValue : struct
+                                            OutputStreamStructWriter<TValue> valueWriter) where TKey : notnull
+                                                                                          where TValue : struct
         {
             WriteSize(dict.Count);
             foreach ((TKey key, TValue value) in dict)
@@ -1160,6 +1161,7 @@ namespace Ice
             int offset = 0;
             foreach (ArraySegment<byte> segment in _segmentList)
             {
+                Debug.Assert(segment.Array != null);
                 Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, Math.Min(segment.Count, Size - offset));
                 offset += segment.Count;
             }
@@ -1295,6 +1297,7 @@ namespace Ice
             int remaining = Math.Min(_currentSegment.Count - offset, length);
             if (remaining > 0)
             {
+                Debug.Assert(_currentSegment.Array != null);
                 Buffer.BlockCopy(array, 0, _currentSegment.Array, _currentSegment.Offset + offset, remaining);
                 _tail.Offset += remaining;
                 length -= remaining;
@@ -1303,6 +1306,7 @@ namespace Ice
             if (length > 0)
             {
                 _currentSegment = _segmentList[++_tail.Segment];
+                Debug.Assert(_currentSegment.Array != null);
                 Buffer.BlockCopy(array, remaining, _currentSegment.Array, _currentSegment.Offset, length);
                 _tail.Offset = length;
             }

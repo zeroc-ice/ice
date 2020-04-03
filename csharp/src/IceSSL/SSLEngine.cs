@@ -116,7 +116,7 @@ namespace IceSSL
 
                 try
                 {
-                    _verifier = (ICertificateVerifier)IceInternal.AssemblyUtil.CreateInstance(cls);
+                    _verifier = (ICertificateVerifier?)IceInternal.AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {
@@ -145,7 +145,7 @@ namespace IceSSL
 
                 try
                 {
-                    _passwordCallback = (IPasswordCallback)IceInternal.AssemblyUtil.CreateInstance(cls);
+                    _passwordCallback = (IPasswordCallback?)IceInternal.AssemblyUtil.CreateInstance(cls);
                 }
                 catch (Exception ex)
                 {

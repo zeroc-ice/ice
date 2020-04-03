@@ -198,14 +198,14 @@ namespace IceInternal
             {
                 //
                 // Read one more byte, we can't easily read bytes in advance
-                // since the transport implenentation might be be able to read
+                // since the transport implementation might be able to read
                 // the data from the memory instead of the socket.
                 //
-                if (offset == buffer.Array.Length)
+                if (offset == buffer.Array!.Length)
                 {
                     // We need to allocate a new buffer
                     var newBuffer = new ArraySegment<byte>(new byte[buffer.Array.Length * 2], 0, offset + 1);
-                    Buffer.BlockCopy(buffer.Array, 0, newBuffer.Array, 0, offset);
+                    Buffer.BlockCopy(buffer.Array, 0, newBuffer.Array!, 0, offset);
                     buffer = newBuffer;
                 }
                 else

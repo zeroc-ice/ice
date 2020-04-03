@@ -399,7 +399,7 @@ namespace IceInternal
                                     str.Append((char)buffer[i]);
                                 }
 
-                                if (!_headers.TryGetValue(_headerName, out string s) || s.Length == 0)
+                                if (!_headers.TryGetValue(_headerName, out string? s) || s.Length == 0)
                                 {
                                     _headers[_headerName] = str.ToString();
                                 }
@@ -686,7 +686,7 @@ namespace IceInternal
 
         internal string? GetHeader(string name, bool toLower)
         {
-            if (_headers.TryGetValue(name.ToLower(), out string s))
+            if (_headers.TryGetValue(name.ToLower(), out string? s))
             {
                 return toLower ? s.Trim().ToLower() : s.Trim();
             }

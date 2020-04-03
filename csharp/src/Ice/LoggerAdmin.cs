@@ -91,7 +91,7 @@ namespace IceInternal
                         }
                         catch (AggregateException ae)
                         {
-                            DeadRemoteLogger(remoteLogger, _logger, ae.InnerException, "init");
+                            DeadRemoteLogger(remoteLogger, _logger, ae.InnerException!, "init");
                         }
                     },
                     System.Threading.Tasks.TaskScheduler.Current);
@@ -212,7 +212,7 @@ namespace IceInternal
                             // Need to remove the oldest log from the queue
                             //
                             Debug.Assert(_oldestLog != null);
-                            LinkedListNode<LogMessage> next = _oldestLog.Next;
+                            LinkedListNode<LogMessage>? next = _oldestLog.Next;
                             _queue.Remove(_oldestLog);
                             _oldestLog = next;
 
@@ -241,7 +241,7 @@ namespace IceInternal
                             // Need to remove the oldest trace from the queue
                             //
                             Debug.Assert(_oldestTrace != null);
-                            LinkedListNode<LogMessage> next = _oldestTrace.Next;
+                            LinkedListNode<LogMessage>? next = _oldestTrace.Next;
                             _queue.Remove(_oldestTrace);
                             _oldestTrace = next;
 
@@ -327,7 +327,7 @@ namespace IceInternal
             if (messageTypes.Count > 0 || traceCategories.Count > 0 || messageMax > 0)
             {
                 int count = 0;
-                LinkedListNode<LogMessage> p = logMessages.Last;
+                LinkedListNode<LogMessage>? p = logMessages.Last;
                 while (p != null)
                 {
                     bool keepIt = false;
@@ -350,7 +350,7 @@ namespace IceInternal
                             p = p.Previous;
                             while (p != null)
                             {
-                                LinkedListNode<LogMessage> previous = p.Previous;
+                                LinkedListNode<LogMessage>? previous = p.Previous;
                                 logMessages.Remove(p);
                                 p = previous;
                             }
@@ -363,7 +363,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        LinkedListNode<LogMessage> previous = p.Previous;
+                        LinkedListNode<LogMessage>? previous = p.Previous;
                         logMessages.Remove(p);
                         p = previous;
                     }
@@ -376,7 +376,7 @@ namespace IceInternal
         // Change this proxy's communicator, while keeping its invocation timeout
         //
         private static IRemoteLoggerPrx ChangeCommunicator(IRemoteLoggerPrx prx, Communicator communicator) =>
-            IRemoteLoggerPrx.Parse(prx.ToString(), communicator).Clone(invocationTimeout: prx.InvocationTimeout);
+            IRemoteLoggerPrx.Parse(prx.ToString()!, communicator).Clone(invocationTimeout: prx.InvocationTimeout);
 
         private static Communicator CreateSendLogCommunicator(Communicator communicator, ILogger logger)
         {
