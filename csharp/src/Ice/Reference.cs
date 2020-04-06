@@ -43,11 +43,10 @@ namespace Ice
         internal bool IsConnectionCached => IsFixed || _requestHandlerMutex != null;
         internal bool IsFixed => _fixedConnection != null;
         internal bool IsIndirect => !IsFixed && Endpoints.Length == 0;
-        internal bool IsPreferSecure { get; }
-        internal bool IsSecure { get; }
         internal bool IsWellKnown => !IsFixed && Endpoints.Length == 0 && AdapterId.Length == 0;
         internal int LocatorCacheTimeout { get; }
         internal LocatorInfo? LocatorInfo { get; }
+        internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
         internal ThreadPool ThreadPool => IsFixed ? _fixedConnection!.ThreadPool : Communicator.ClientThreadPool();
@@ -131,15 +130,15 @@ namespace Ice
                 {
                     return false;
                 }
-                if (IsPreferSecure != other.IsPreferSecure)
-                {
-                    return false;
-                }
                 if (LocatorCacheTimeout != other.LocatorCacheTimeout)
                 {
                     return false;
                 }
                 if (LocatorInfo != other.LocatorInfo)
+                {
+                    return false;
+                }
+                if (PreferNonSecure != other.PreferNonSecure)
                 {
                     return false;
                 }
@@ -182,10 +181,6 @@ namespace Ice
             {
                 return false;
             }
-            if (IsSecure != other.IsSecure)
-            {
-                return false;
-            }
             if (Protocol != other.Protocol)
             {
                 return false;
@@ -216,7 +211,6 @@ namespace Ice
                 hash.Add(Facet);
                 hash.Add(Identity);
                 hash.Add(InvocationMode);
-                hash.Add(IsSecure);
                 hash.Add(Protocol);
 
                 if (IsFixed)
@@ -231,13 +225,13 @@ namespace Ice
                     hash.Add(Collections.GetHashCode(Endpoints));
                     hash.Add(IsCollocationOptimized);
                     hash.Add(IsConnectionCached);
-                    hash.Add(IsPreferSecure);
                     hash.Add(EndpointSelection);
                     hash.Add(LocatorCacheTimeout);
                     if (LocatorInfo != null)
                     {
                         hash.Add(LocatorInfo);
                     }
+                    hash.Add(PreferNonSecure);
                     if (RouterInfo != null)
                     {
                         hash.Add(RouterInfo);
@@ -329,11 +323,6 @@ namespace Ice
                     }
             }
 
-            if (IsSecure)
-            {
-                s.Append(" -s");
-            }
-
             s.Append(" -p ");
             if (Communicator.ToStringMode >= ToStringMode.Compat)
             {
@@ -402,10 +391,9 @@ namespace Ice
                            int invocationTimeout,
                            int locatorCacheTimeout,
                            LocatorInfo? locatorInfo,
-                           bool preferSecure,
+                           bool preferNonSecure,
                            Protocol protocol,
-                           RouterInfo? routerInfo,
-                           bool secure)
+                           RouterInfo? routerInfo)
         {
             AdapterId = adapterId;
             Communicator = communicator;
@@ -421,10 +409,9 @@ namespace Ice
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
             IsCollocationOptimized = collocationOptimized;
-            IsPreferSecure = preferSecure;
-            IsSecure = secure;
             LocatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
+            PreferNonSecure = preferNonSecure;
             Protocol = protocol;
             RouterInfo = routerInfo;
 
@@ -459,10 +446,9 @@ namespace Ice
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
             IsCollocationOptimized = false;
-            IsPreferSecure = false;
-            IsSecure = fixedConnection.Endpoint.GetInfo().Secure();
             LocatorCacheTimeout = 0;
             LocatorInfo = null;
+            PreferNonSecure = false;
             Protocol = Protocol.Ice1; // it's really the connection's protocol
             RouterInfo = null;
 
@@ -481,15 +467,6 @@ namespace Ice
                 throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
             }
 
-            // If secure override is set, check if the connection is secure.
-            if (Communicator.DefaultsAndOverrides.OverrideSecure)
-            {
-                if (Communicator.DefaultsAndOverrides.OverrideSecureValue && !IsSecure)
-                {
-                    throw new ArgumentException("cannot create secure fixed proxy over non-secure connection",
-                        nameof(fixedConnection));
-                }
-            }
             if (Communicator.DefaultsAndOverrides.OverrideCompress)
             {
                 compress = Communicator.DefaultsAndOverrides.OverrideCompressValue;
@@ -519,10 +496,9 @@ namespace Ice
                                  ILocatorPrx? locator = null,
                                  int? locatorCacheTimeout = null,
                                  bool? oneway = null,
-                                 bool? preferSecure = null,
+                                 bool? preferNonSecure = null,
                                  Protocol? protocol = null,
-                                 IRouterPrx? router = null,
-                                 bool? secure = null)
+                                 IRouterPrx? router = null)
         {
             // Check for incompatible arguments
             if (locator != null && clearLocator)
@@ -620,10 +596,10 @@ namespace Ice
                     throw new ArgumentException("cannot change the locator cache timeout of a fixed proxy",
                         nameof(locatorCacheTimeout));
                 }
-                if (preferSecure != null)
+                if (preferNonSecure != null)
                 {
-                    throw new ArgumentException("cannot change the prefer secure configuration of a fixed proxy",
-                        nameof(preferSecure));
+                    throw new ArgumentException("cannot change the prefer non-secure configuration of a fixed proxy",
+                        nameof(preferNonSecure));
                 }
                 if (protocol != null)
                 {
@@ -636,11 +612,6 @@ namespace Ice
                 else if (clearRouter)
                 {
                     throw new ArgumentException("cannot change the router of a fixed proxy", nameof(clearRouter));
-                }
-                if (secure != null)
-                {
-                    throw new ArgumentException("cannot change the secure configuration of a fixed proxy",
-                        nameof(secure));
                 }
 
                 var clone = new Reference(Communicator,
@@ -759,10 +730,9 @@ namespace Ice
                                       invocationTimeout ?? InvocationTimeout,
                                       locatorCacheTimeout ?? LocatorCacheTimeout,
                                       locatorInfo, // no fallback otherwise breaks clearLocator
-                                      preferSecure ?? IsPreferSecure,
+                                      preferNonSecure ?? PreferNonSecure,
                                       protocol ?? Protocol,
-                                      routerInfo, // no fallback otherwise breaks clearRouter
-                                      secure ?? IsSecure);
+                                      routerInfo); // no fallback otherwise breaks clearRouter
 
                 return clone == this ? this : clone;
             }
@@ -789,7 +759,7 @@ namespace Ice
             }
 
             ostr.WriteByte((byte)InvocationMode);
-            ostr.WriteBool(IsSecure);
+            ostr.WriteBool(false); // secure option, always false (not used)
             ostr.WriteByte((byte)Protocol);
             ostr.WriteByte(0);
             ostr.WriteByte(Encoding.Major);
@@ -823,11 +793,10 @@ namespace Ice
                 [prefix] = ToString(),
                 [prefix + ".CollocationOptimized"] = IsCollocationOptimized ? "1" : "0",
                 [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
-                [prefix + ".PreferSecure"] = IsPreferSecure ? "1" : "0",
-                [prefix + ".EndpointSelection"] =
-                       EndpointSelection == EndpointSelectionType.Random ? "Random" : "Ordered",
+                [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
+                [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture),
                 [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToString(CultureInfo.InvariantCulture),
-                [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture)
+                [prefix + ".PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
 
             if (RouterInfo != null)
@@ -1132,28 +1101,18 @@ namespace Ice
                     }
             }
 
-            //
-            // If a secure connection is requested or secure overrides
-            // is set, remove all non-secure endpoints. Otherwise make
-            // non-secure endpoints preferred over secure endpoints by
-            // partitioning the endpoint vector, so that non-secure
-            // endpoints come first.
-            //
-            DefaultsAndOverrides overrides = Communicator.DefaultsAndOverrides;
-            if (overrides.OverrideSecure ? overrides.OverrideSecureValue : IsSecure)
+            if (PreferNonSecure)
             {
-                endpoints = endpoints.Where(endpoint => endpoint.Secure()).ToList();
-            }
-            else if (IsPreferSecure)
-            {
-                endpoints = endpoints.OrderByDescending(endpoint => endpoint.Secure()).ToList();
+                // It's just a preference: we can fallback to secure endpoints.
+                endpoints = endpoints.OrderBy(endpoint => endpoint.Secure()).ToList();
             }
             else
             {
-                endpoints = endpoints.OrderBy(endpoint => endpoint.Secure()).ToList();
+                // Filter-out non-secure endpoints. This can eliminate all endpoints.
+                endpoints = endpoints.Where(endpoint => endpoint.Secure()).ToList();
             }
 
-            return endpoints.Select(e => e).ToArray();
+            return endpoints.ToArray();
         }
 
         // TODO: refactor this class
@@ -1306,45 +1265,6 @@ namespace Ice
             private readonly IGetConnectionCallback _callback;
             private int _i = 0;
             private System.Exception? _exception = null;
-        }
-
-        // TODO: refactor this class
-        private sealed class EndpointComparator : IComparer<Endpoint>
-        {
-            public EndpointComparator(bool preferSecure) => _preferSecure = preferSecure;
-
-            public int Compare(Endpoint le, Endpoint re)
-            {
-                bool ls = le.Secure();
-                bool rs = re.Secure();
-                if ((ls && rs) || (!ls && !rs))
-                {
-                    return 0;
-                }
-                else if (!ls && rs)
-                {
-                    if (_preferSecure)
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        return -1;
-                    }
-                }
-                else
-                {
-                    if (_preferSecure)
-                    {
-                        return -1;
-                    }
-                    else
-                    {
-                        return 1;
-                    }
-                }
-            }
-            private readonly bool _preferSecure;
         }
     }
 }

@@ -61,7 +61,8 @@ namespace IceInternal
         public override string ToString()
         {
             string val = System.Convert.ToBase64String(_rawBytes);
-            return "opaque -t " + _type + " -e " + _rawEncoding.ToString() + " -v " + val;
+            short typeNum = (short)_type;
+            return $"opaque -t {typeNum.ToString(CultureInfo.InvariantCulture)} -e {_rawEncoding} -v {val}";
         }
 
         private sealed class InfoI : Ice.OpaqueEndpointInfo

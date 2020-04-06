@@ -46,7 +46,7 @@ classes:
     <class name="proxy" prefix-only="false">
         <suffix name="EndpointSelection" />
         <suffix name="ConnectionCached" />
-        <suffix name="PreferSecure"  />
+        <suffix name="PreferNonSecure"  />
         <suffix name="LocatorCacheTimeout"  />
         <suffix name="Locator"  />
         <suffix name="Router"  />
@@ -67,7 +67,7 @@ This definition is equivalent to the following:
         <property name="Default.Locator" />
         <property name="Default.Locator.EndpointSelection" />
         <property name="Default.Locator.ConnectionCached" />
-        <property name="Default.Locator.PreferSecure" />
+        <property name="Default.Locator.PreferNonSecure" />
         <property name="Default.Locator.LocatorCacheTimeout" />
         <property name="Default.Locator.Locator" />
         <property name="Default.Locator.Router" />
@@ -196,7 +196,7 @@ const IceInternal::Property IceInternal::Properties::IcePropsData[] =
     IceInternal::Property("Ice.Default.Locator", false, 0),
     IceInternal::Property("Ice.Default.Locator.EndpointSelection", false, 0),
     IceInternal::Property("Ice.Default.Locator.ConnectionCached", false, 0),
-    IceInternal::Property("Ice.Default.Locator.PreferSecure", false, 0),
+    IceInternal::Property("Ice.Default.Locator.PreferNoneSecure", false, 0),
     IceInternal::Property("Ice.Default.Locator.LocatorCacheTimeout", false, 0),
     IceInternal::Property("Ice.Default.Locator.Locator", false, 0),
     IceInternal::Property("Ice.Default.Locator.Router", false, 0),
@@ -234,15 +234,16 @@ generated from the section label.
 -->
 <properties>
     <class name="proxy" prefix-only="false">
-        <suffix name="EndpointSelection" />
+        <suffix name="CollocationOptimized" />
         <suffix name="ConnectionCached" />
-        <suffix name="PreferSecure" />
-        <suffix name="LocatorCacheTimeout" />
+        <suffix name="Context.[any]" />
+        <suffix name="EndpointSelection" />
         <suffix name="InvocationTimeout" />
         <suffix name="Locator" />
+        <suffix name="LocatorCacheTimeout" />
+        <suffix name="PreferNonSecure" />
+        <suffix name="PreferSecure" />
         <suffix name="Router" />
-        <suffix name="CollocationOptimized" />
-        <suffix name="Context.[any]" />
     </class>
 
     <class name="acm" prefix-only="false">
@@ -305,6 +306,7 @@ generated from the section label.
         <property name="ACM" class="acm"/>
         <property name="ACM.Client" class="acm"/>
         <property name="ACM.Server" class="acm"/>
+        <property name="AcceptNonSecureConnections" />
         <property name="Admin" class="objectadapter" />
         <property name="Admin.DelayCreation" />
         <property name="Admin.Enabled" />
@@ -334,6 +336,8 @@ generated from the section label.
         <property name="Default.LocatorCacheTimeout" />
         <property name="Default.InvocationTimeout" />
         <property name="Default.Package" />
+        <property name="Default.PreferNonSecure" />
+         <!-- TODO remove PreferSecure -->
         <property name="Default.PreferSecure" />
         <property name="Default.Protocol" />
         <property name="Default.Router" class="proxy" />
@@ -360,6 +364,7 @@ generated from the section label.
         <property name="Override.Compress" />
         <property name="Override.ConnectTimeout" />
         <property name="Override.Timeout" />
+        <!-- TODO: remove Override.Secure -->
         <property name="Override.Secure" />
         <property name="Package.[any]" />
         <property name="Plugin.[any]" />
