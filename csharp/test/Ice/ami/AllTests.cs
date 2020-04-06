@@ -469,10 +469,7 @@ namespace Ice.ami
                     SentCallback cb = new SentCallback();
 
                     Task t = p.IceIsAAsync("",
-                        progress: new Progress(sentSynchronously =>
-                        {
-                            cb.sent(sentSynchronously);
-                        }));
+                        progress: new Progress(sentSynchronously => cb.sent(sentSynchronously)));
                     cb.check();
                     t.Wait();
 
@@ -785,7 +782,7 @@ namespace Ice.ami
                     //
                     try
                     {
-                        p.close(Test.CloseMode.Forcefully);
+                        p.close(CloseMode.Forcefully);
                         test(false);
                     }
                     catch (ConnectionLostException)

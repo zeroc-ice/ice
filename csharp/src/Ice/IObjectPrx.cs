@@ -63,13 +63,8 @@ namespace Ice
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>True if the target object implements the Slice interface identified by id</returns>.
-        public bool IceIsA(string id, IReadOnlyDictionary<string, string>? context = null)
-        {
-            var request = OutgoingRequestFrame.WithParamList(this, "ice_isA", idempotent: true, null, context,
-                                                              id, OutputStream.IceWriterFromString);
-            var response = IceInvoke(request, oneway: false);
-            return response.ReadReturnValue(InputStream.IceReaderIntoBool);
-        }
+        public bool IceIsA(string id, IReadOnlyDictionary<string, string>? context = null) =>
+            _iceIsA_Request.Invoke(this, id, context);
 
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
@@ -82,28 +77,15 @@ namespace Ice
         public Task<bool> IceIsAAsync(string id,
                                       IReadOnlyDictionary<string, string>? context = null,
                                       IProgress<bool>? progress = null,
-                                      CancellationToken cancel = default)
-        {
-            var request = OutgoingRequestFrame.WithParamList(this, "ice_isA", idempotent: true, null, context,
-                                                              id, OutputStream.IceWriterFromString);
-            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return IceReadResponseAsync(task, InputStream.IceReaderIntoBool);
-        }
+                                      CancellationToken cancel = default) =>
+            _iceIsA_Request.InvokeAsync(this, id, context, progress, cancel);
 
         /// <summary>
         /// Tests whether the target object of this proxy can be reached.
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
-        public void IcePing(IReadOnlyDictionary<string, string>? context = null)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ping", idempotent: true, context);
-            var response = IceInvoke(request, IsOneway);
-
-            if (!IsOneway)
-            {
-                response.ReadVoidReturnValue();
-            }
-        }
+        public void IcePing(IReadOnlyDictionary<string, string>? context = null) =>
+            _icePing_Request.Invoke(this, context);
 
         /// <summary>
         /// Tests whether the target object of this proxy can be reached.
@@ -114,12 +96,8 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task IcePingAsync(IReadOnlyDictionary<string, string>? context = null,
                                  IProgress<bool>? progress = null,
-                                 CancellationToken cancel = default)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ping", idempotent: true, context);
-            var task = IceInvokeAsync(request, oneway: IsOneway, progress, cancel);
-            return IsOneway ? task : IceReadVoidResponseAsync(task);
-        }
+                                 CancellationToken cancel = default) =>
+            _icePing_Request.InvokeAsync(this, context, progress, cancel);
 
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -127,12 +105,8 @@ namespace Ice
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
         /// order. The first element of the returned array is always ::Ice::IObject.</returns>
-        public string[] IceIds(IReadOnlyDictionary<string, string>? context = null)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ids", idempotent: true, context);
-            var response = IceInvoke(request, oneway: false);
-            return response.ReadReturnValue(InputStream.IceReaderIntoStringArray);
-        }
+        public string[] IceIds(IReadOnlyDictionary<string, string>? context = null) =>
+            _iceIds_Request.Invoke(this, context);
 
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -143,23 +117,15 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<string[]> IceIdsAsync(IReadOnlyDictionary<string, string>? context = null,
                                           IProgress<bool>? progress = null,
-                                          CancellationToken cancel = default)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_ids", idempotent: true, context);
-            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return IceReadResponseAsync(task, InputStream.IceReaderIntoStringArray);
-        }
+                                          CancellationToken cancel = default) =>
+            _iceIds_Request.InvokeAsync(this, context, progress, cancel);
 
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
         /// </summary>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
-        public string IceId(IReadOnlyDictionary<string, string>? context = null)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_id", idempotent: true, context);
-            var response = IceInvoke(request, oneway: false);
-            return response.ReadReturnValue(InputStream.IceReaderIntoString);
-        }
+        public string IceId(IReadOnlyDictionary<string, string>? context = null) =>
+            _iceId_Request.Invoke(this, context);
 
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -170,12 +136,8 @@ namespace Ice
         /// <returns>The task object representing the asynchronous operation.</returns>
         public Task<string> IceIdAsync(IReadOnlyDictionary<string, string>? context = null,
                                        IProgress<bool>? progress = null,
-                                       CancellationToken cancel = default)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(this, "ice_id", idempotent: true, context);
-            var task = IceInvokeAsync(request, oneway: false, progress, cancel);
-            return IceReadResponseAsync(task, InputStream.IceReaderIntoString);
-        }
+                                       CancellationToken cancel = default) =>
+            _iceId_Request.InvokeAsync(this, context, progress, cancel);
 
         /// <summary>
         /// Returns the identity embedded in this proxy.
@@ -411,7 +373,7 @@ namespace Ice
         }
 
         // Temporary helper class for IceInvokeAsync
-        private class InvokeTaskCompletionCallback : TaskCompletionCallback<IncomingResponseFrame>
+        internal class InvokeTaskCompletionCallback : TaskCompletionCallback<IncomingResponseFrame>
         {
             internal InvokeTaskCompletionCallback(IProgress<bool>? progress, CancellationToken cancellationToken)
                 : base(progress, cancellationToken)
@@ -446,6 +408,24 @@ namespace Ice
         protected static async Task<T> IceReadResponseAsync<T>(Task<IncomingResponseFrame> task,
                                                                InputStreamReader<T> reader)
             => (await task.ConfigureAwait(false)).ReadReturnValue(reader);
+
+        private static readonly OutgoingRequestWithNonStructParam<string, bool> _iceIsA_Request =
+            new OutgoingRequestWithNonStructParam<string, bool>("ice_isA",
+                                                                idempotent: true,
+                                                                format: null,
+                                                                writer: OutputStream.IceWriterFromString,
+                                                                reader: InputStream.IceReaderIntoBool);
+
+        private static readonly OutgoingRequestWithEmptyParamListAndVoidReturnValue _icePing_Request =
+            new OutgoingRequestWithEmptyParamListAndVoidReturnValue("ice_ping", idempotent: true);
+
+        private static readonly OutgoingRequestWithEmptyParamList<string[]> _iceIds_Request =
+            new OutgoingRequestWithEmptyParamList<string[]>("ice_ids",
+                                                            idempotent: true,
+                                                            reader: istr => istr.ReadStringArray());
+
+        private static readonly OutgoingRequestWithEmptyParamList<string> _iceId_Request =
+            new OutgoingRequestWithEmptyParamList<string>("ice_id", idempotent: true, InputStream.IceReaderIntoString);
     }
 
     // The base class for all proxies. It's a publicly visible Ice-internal class. Applications should not use it
@@ -492,6 +472,402 @@ namespace Ice
             string? str = info.GetString("proxy");
             Debug.Assert(str != null);
             IceReference = communicator.CreateReference(str, null);
+        }
+    }
+
+    // publicly visible Ice-internal type used to make request with input and output parameters,
+    // the input parameters are pass with the `in' modifier, this helper is used when input parameter
+    // is an structure type, or when there is several input parameters as we pass them wrapped in a
+    // tuple.
+    public class OutgoingRequest<TInParams, TOutParams> where TInParams : struct
+    {
+        private readonly string _operationName;
+        private readonly bool _idempotent;
+        private readonly FormatType? _format;
+        private readonly OutputStreamStructWriter<TInParams> _writer;
+        private readonly InputStreamReader<TOutParams> _reader;
+
+        public OutgoingRequest(
+            string operationName,
+            bool idempotent,
+            FormatType? format,
+            OutputStreamStructWriter<TInParams> writer,
+            InputStreamReader<TOutParams> reader)
+        {
+            _operationName = operationName;
+            _idempotent = idempotent;
+            _format = format;
+            _writer = writer;
+            _reader = reader;
+        }
+
+        public TOutParams Invoke(IObjectPrx prx, in TInParams inParams, IReadOnlyDictionary<string, string>? context)
+        {
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
+            new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
+                request.Operation, request.Context, synchronous: true);
+            try
+            {
+                IncomingResponseFrame response = completed.Task.Result;
+                return response.ReadReturnValue(_reader);
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public Task<TOutParams> InvokeAsync(IObjectPrx prx,
+                                            in TInParams inParams,
+                                            IReadOnlyDictionary<string, string>? context,
+                                            IProgress<bool>? progress,
+                                            CancellationToken cancel)
+        {
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(prx, completed, request, oneway: false).Invoke(request.Operation, request.Context,
+                synchronous: false);
+            return ReadReturnValueAsync(completed, _reader);
+
+            static async Task<TOutParams> ReadReturnValueAsync(IObjectPrx.InvokeTaskCompletionCallback completed,
+                InputStreamReader<TOutParams> reader)
+            {
+                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
+                return response.ReadReturnValue(reader);
+            }
+        }
+    }
+
+    // publicly visible Ice-internal type used to make request with input and output parameters,
+    // the input parameters are pass without the `in' modifier, this helper is used when there is a single
+    // input parameter and the parameter is of a non structure type.
+    public class OutgoingRequestWithNonStructParam<TInParams, TOutParams>
+    {
+        private readonly string _operationName;
+        private readonly bool _idempotent;
+        private readonly FormatType? _format;
+        private readonly OutputStreamWriter<TInParams> _writer;
+        private readonly InputStreamReader<TOutParams> _reader;
+
+        public OutgoingRequestWithNonStructParam(
+            string operationName,
+            bool idempotent,
+            FormatType? format,
+            OutputStreamWriter<TInParams> writer,
+            InputStreamReader<TOutParams> reader)
+        {
+            _operationName = operationName;
+            _idempotent = idempotent;
+            _format = format;
+            _writer = writer;
+            _reader = reader;
+        }
+
+        public TOutParams Invoke(IObjectPrx prx, TInParams inParams, IReadOnlyDictionary<string, string>? context)
+        {
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
+            new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
+                request.Operation, request.Context, synchronous: true);
+            try
+            {
+                IncomingResponseFrame response = completed.Task.Result;
+                return response.ReadReturnValue(_reader);
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public Task<TOutParams> InvokeAsync(IObjectPrx prx,
+                                            TInParams inParams,
+                                            IReadOnlyDictionary<string, string>? context,
+                                            IProgress<bool>? progress,
+                                            CancellationToken cancel)
+        {
+            Debug.Assert(_writer != null);
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
+                request.Operation, request.Context, synchronous: false);
+
+            return ReadReturnValueAsync(completed, _reader);
+
+            static async Task<TOutParams> ReadReturnValueAsync(IObjectPrx.InvokeTaskCompletionCallback completed,
+                InputStreamReader<TOutParams> reader)
+            {
+                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
+                return response.ReadReturnValue(reader);
+            }
+        }
+    }
+
+    // publicly visible Ice-internal type used to make request with input parameters and no output parameters,
+    // the input parameters are pass with the `in' modifier, this helper is used when input parameter
+    // is an structure type, or when there is several input parameters as we pass them wrapped in a
+    // tuple.
+    public class OutgoingRequestWithVoidReturnValue<TInParams> where TInParams : struct
+    {
+        private readonly string _operationName;
+        private readonly bool _idempotent;
+        private readonly FormatType? _format;
+        private readonly OutputStreamStructWriter<TInParams> _writer;
+
+        public OutgoingRequestWithVoidReturnValue(
+            string operationName,
+            bool idempotent,
+            FormatType? format,
+            OutputStreamStructWriter<TInParams> writer)
+        {
+            _operationName = operationName;
+            _idempotent = idempotent;
+            _format = format;
+            _writer = writer;
+        }
+
+        public void Invoke(IObjectPrx prx, in TInParams inParams, IReadOnlyDictionary<string, string>? context)
+        {
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
+            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: true);
+            try
+            {
+                IncomingResponseFrame response = completed.Task.Result;
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public Task InvokeAsync(IObjectPrx prx, in TInParams inParams,
+                                IReadOnlyDictionary<string, string>? context,
+                                IProgress<bool>? progress,
+                                CancellationToken cancel)
+        {
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: false);
+            return ReadVoidReturnValueAsync(prx, completed);
+
+            static async Task ReadVoidReturnValueAsync(IObjectPrx prx,
+                IObjectPrx.InvokeTaskCompletionCallback completed)
+            {
+                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
+        }
+    }
+
+    // publicly visible Ice-internal type used to make request with input parameters and no output parameters,
+    // the input parameters are pass without the `in' modifier, this helper is used when there is a single
+    // input parameter and the parameter is of a non structure type.
+    public class OutgoingRequestWithNonStructParamAndVoidReturn<TInParams>
+    {
+        private readonly string _operationName;
+        private readonly bool _idempotent;
+        private readonly FormatType? _format;
+        private readonly OutputStreamWriter<TInParams> _writer;
+
+        public OutgoingRequestWithNonStructParamAndVoidReturn(
+            string operationName,
+            bool idempotent,
+            FormatType? format,
+            OutputStreamWriter<TInParams> writer)
+        {
+            _operationName = operationName;
+            _idempotent = idempotent;
+            _format = format;
+            _writer = writer;
+        }
+
+        public void Invoke(IObjectPrx prx, TInParams inParams, IReadOnlyDictionary<string, string>? context)
+        {
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
+            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: true);
+            try
+            {
+                IncomingResponseFrame response = completed.Task.Result;
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public Task InvokeAsync(IObjectPrx prx, TInParams inParams,
+                                IReadOnlyDictionary<string, string>? context,
+                                IProgress<bool>? progress,
+                                CancellationToken cancel)
+        {
+            var request = OutgoingRequestFrame.WithParamList(
+                prx, _operationName, _idempotent, _format, context, inParams, _writer);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: false);
+            return ReadVoidReturnValueAsync(prx, completed);
+
+            static async Task ReadVoidReturnValueAsync(IObjectPrx prx,
+                IObjectPrx.InvokeTaskCompletionCallback completed)
+            {
+                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
+        }
+    }
+
+    // publicly visible Ice-internal type used to make request without input parameters and with
+    // output parameters.
+    public class OutgoingRequestWithEmptyParamList<TOutParams>
+    {
+        private readonly string _operationName;
+        private readonly bool _idempotent;
+        private readonly InputStreamReader<TOutParams> _reader;
+
+        public OutgoingRequestWithEmptyParamList(
+            string operationName,
+            bool idempotent,
+            InputStreamReader<TOutParams> reader)
+        {
+            _operationName = operationName;
+            _idempotent = idempotent;
+            _reader = reader;
+        }
+
+        public TOutParams Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context)
+        {
+            var request = OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context);
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
+            new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
+                request.Operation, request.Context, synchronous: true);
+            try
+            {
+                IncomingResponseFrame response = completed.Task.Result;
+                return response.ReadReturnValue(_reader);
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public Task<TOutParams> InvokeAsync(IObjectPrx prx,
+                                            IReadOnlyDictionary<string, string>? context,
+                                            IProgress<bool>? progress,
+                                            CancellationToken cancel)
+        {
+            var request = OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context);
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
+                request.Operation, request.Context, synchronous: false);
+
+            return ReadReturnValueAsync(completed, _reader);
+
+            static async Task<TOutParams> ReadReturnValueAsync(IObjectPrx.InvokeTaskCompletionCallback completed,
+                                                               InputStreamReader<TOutParams> reader)
+            {
+                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
+                return response.ReadReturnValue(reader);
+            }
+        }
+    }
+
+    // publicly visible Ice-internal type used to make request without input and output parameters.
+    public class OutgoingRequestWithEmptyParamListAndVoidReturnValue
+    {
+        private readonly string _operationName;
+        private readonly bool _idempotent;
+
+        public OutgoingRequestWithEmptyParamListAndVoidReturnValue(string operationName, bool idempotent)
+        {
+            _operationName = operationName;
+            _idempotent = idempotent;
+        }
+
+        public void Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context)
+        {
+            var request = OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
+            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: true);
+            try
+            {
+                IncomingResponseFrame response = completed.Task.Result;
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public Task InvokeAsync(IObjectPrx prx,
+                                IReadOnlyDictionary<string, string>? context,
+                                IProgress<bool>? progress,
+                                CancellationToken cancel)
+        {
+            var request = OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context);
+
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: false);
+
+            return ReadVoidReturnValueAsync(prx, completed);
+
+            static async Task ReadVoidReturnValueAsync(IObjectPrx prx,
+                                                       IObjectPrx.InvokeTaskCompletionCallback completed)
+            {
+                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
         }
     }
 }

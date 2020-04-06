@@ -367,49 +367,29 @@ public class AllTests
                 prx.op();
                 called = true;
             }
-            catch (System.Exception)
+            catch (DNSException)
             {
+                test(i == 0 || i == 2);
+            }
+            catch (TransportException)
+            {
+                test(i == 1 || i == 3);
             }
             test(!called);
-
-            var sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value =>
-            {
-                sentSynchronously = value;
-            }));
-            test(!sentSynchronously);
 
             try
             {
-                t.Wait();
-                called = true;
+                prx.opAsync(progress: new Progress<bool>(value => test(false)));
+                test(false);
             }
-            catch (AggregateException ex)
+            catch (DNSException)
             {
+                test(i == 0 || i == 2);
             }
-            test(!called);
-            test(t.IsCompleted);
-
-            OpAMICallback cbEx = new OpAMICallback();
-            t = prx.opAsync(progress: new Progress<bool>(value =>
+            catch (TransportException)
             {
-                sentSynchronously = value;
-            }));
-            test(!sentSynchronously);
-
-            t.ContinueWith((Task p) =>
-            {
-                try
-                {
-                    p.Wait();
-                }
-                catch (AggregateException ex)
-                {
-                    cbEx.exception(ex.InnerException);
-                }
-            });
-            cbEx.checkException(true);
-            test(t.IsCompleted);
+                test(i == 1 || i == 3);
+            }
 
             if (i == 0 || i == 2)
             {
@@ -449,7 +429,7 @@ public class AllTests
                 }
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Console.Out.WriteLine(ex);
             test(false);
@@ -471,7 +451,7 @@ public class AllTests
         {
             background.op();
         }
-        catch (System.Exception)
+        catch (Exception)
         {
             test(false);
         }
@@ -498,40 +478,14 @@ public class AllTests
             {
             }
 
-            bool sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value =>
-            {
-                sentSynchronously = value;
-            }));
-            test(!sentSynchronously);
-            bool called = false;
             try
             {
-                t.Wait();
-                called = true;
+                prx.opAsync(progress: new Progress<bool>(value => test(false)));
+                test(false);
             }
-            catch (AggregateException ex)
+            catch (TransportException)
             {
             }
-            test(!called);
-            test(t.IsCompleted);
-
-            OpAMICallback cbEx = new OpAMICallback();
-            t = prx.opAsync(progress: new Progress<bool>(value =>
-            {
-                sentSynchronously = false;
-            }));
-            test(!sentSynchronously);
-            try
-            {
-                t.Wait();
-            }
-            catch (AggregateException ex)
-            {
-                cbEx.exception(ex.InnerException);
-            }
-            cbEx.checkException(true);
-            test(t.IsCompleted);
 
             if (i == 0 || i == 2)
             {
@@ -580,14 +534,14 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
             }
             try
             {
                 background.IcePing();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -603,7 +557,7 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
             }
             try
@@ -620,7 +574,7 @@ public class AllTests
                 background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 background.op();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 test(false);
             }
@@ -847,24 +801,17 @@ public class AllTests
                 configuration.writeException(null);
             }
 
-            background.IcePing();
-            configuration.writeException(new TransportException(""));
-            var sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value =>
-            {
-                sentSynchronously = value;
-            }));
-            test(!sentSynchronously);
             try
             {
-                t.Wait();
+                background.IcePing();
+                configuration.writeException(new TransportException(""));
+                prx.opAsync(progress: new Progress<bool>(value => test(false)));
                 test(false);
             }
-            catch (AggregateException ex) when (ex.InnerException is TransportException)
+            catch (TransportException)
             {
+                configuration.writeException(null);
             }
-            test(t.IsCompleted);
-            configuration.writeException(null);
         }
 
         try
