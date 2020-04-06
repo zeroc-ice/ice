@@ -2749,7 +2749,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "?> IceReader = Read" << name << ";";
+    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
 
     _out << eb;
 }

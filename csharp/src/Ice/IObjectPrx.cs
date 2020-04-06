@@ -409,23 +409,69 @@ namespace Ice
                                                                InputStreamReader<T> reader)
             => (await task.ConfigureAwait(false)).ReadReturnValue(reader);
 
-        private static readonly OutgoingRequestWithNonStructParam<string, bool> _iceIsA_Request =
-            new OutgoingRequestWithNonStructParam<string, bool>("ice_isA",
+        private static OutgoingRequestWithNonStructParam<string, bool>? _iceIsA_RequestValue;
+        private static OutgoingRequestWithNonStructParam<string, bool> _iceIsA_Request
+        {
+            get
+            {
+                if (_iceIsA_RequestValue == null)
+                {
+                    _iceIsA_RequestValue = new OutgoingRequestWithNonStructParam<string, bool>("ice_isA",
                                                                 idempotent: true,
                                                                 format: null,
                                                                 writer: OutputStream.IceWriterFromString,
                                                                 reader: InputStream.IceReaderIntoBool);
+                }
+                return _iceIsA_RequestValue;
+            }
+        }
 
-        private static readonly OutgoingRequestWithEmptyParamListAndVoidReturnValue _icePing_Request =
-            new OutgoingRequestWithEmptyParamListAndVoidReturnValue("ice_ping", idempotent: true);
+        private static OutgoingRequestWithEmptyParamListAndVoidReturnValue? _icePing_RequestValue;
 
-        private static readonly OutgoingRequestWithEmptyParamList<string[]> _iceIds_Request =
-            new OutgoingRequestWithEmptyParamList<string[]>("ice_ids",
-                                                            idempotent: true,
-                                                            reader: istr => istr.ReadStringArray());
+        private static OutgoingRequestWithEmptyParamListAndVoidReturnValue _icePing_Request
+        {
+            get
+            {
+                if (_icePing_RequestValue == null)
+                {
+                    _icePing_RequestValue = new OutgoingRequestWithEmptyParamListAndVoidReturnValue(
+                        "ice_ping", idempotent: true);
+                }
+                return _icePing_RequestValue;
+            }
+        }
 
-        private static readonly OutgoingRequestWithEmptyParamList<string> _iceId_Request =
-            new OutgoingRequestWithEmptyParamList<string>("ice_id", idempotent: true, InputStream.IceReaderIntoString);
+        private static OutgoingRequestWithEmptyParamList<string[]>? _iceIds_RequestValue;
+
+        private static OutgoingRequestWithEmptyParamList<string[]> _iceIds_Request
+        {
+            get
+            {
+                if (_iceIds_RequestValue == null)
+                {
+                    _iceIds_RequestValue = new OutgoingRequestWithEmptyParamList<string[]>(
+                        "ice_ids",
+                        idempotent: true,
+                        reader: istr => istr.ReadStringArray());
+                }
+                return _iceIds_RequestValue;
+            }
+        }
+
+        private static OutgoingRequestWithEmptyParamList<string>? _iceId_RequestValue;
+
+        private static OutgoingRequestWithEmptyParamList<string> _iceId_Request
+        {
+            get
+            {
+                if (_iceId_RequestValue == null)
+                {
+                    _iceId_RequestValue = new OutgoingRequestWithEmptyParamList<string>(
+                        "ice_id", idempotent: true, InputStream.IceReaderIntoString);
+                }
+                return _iceId_RequestValue;
+            }
+        }
     }
 
     // The base class for all proxies. It's a publicly visible Ice-internal class. Applications should not use it
