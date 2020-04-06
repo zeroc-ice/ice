@@ -952,12 +952,12 @@ namespace Ice
 
                     case 's':
                         {
-                            // we ignore this secure option, just parse it
                             if (argument != null)
                             {
                                 throw new FormatException(
                                     $"unexpected argument `{argument}' provided for -s option in `{s}'");
                             }
+                            Logger.Warning($"while parsing `{s}': the `-s' proxy option no longer has any effect");
                             break;
                         }
 
