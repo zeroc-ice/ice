@@ -526,30 +526,87 @@ namespace Ice
         }
     }
 
-    // publicly visible Ice-internal type used to make request with input and output parameters,
+    // publicly visible Ice-internal class used as base class for request
+    // with non void return value
+    public class OutgoingRequestWithReturnValue<TOutParams>
+    {
+        private readonly InputStreamReader<TOutParams> _reader;
+
+        internal OutgoingRequestWithReturnValue(InputStreamReader<TOutParams> reader) => _reader = reader;
+
+        public TOutParams Invoke(IncomingResponseFrame response)
+        {
+            try
+            {
+                return response.ReadReturnValue(_reader);
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public async Task<TOutParams> InvokeAsync(Task<IncomingResponseFrame> task)
+        {
+            IncomingResponseFrame response = await task.ConfigureAwait(false);
+            return response.ReadReturnValue(_reader);
+        }
+    }
+
+    // publicly visible Ice-internal class used as base class for request
+    // with void return value
+    public class OutgoingRequestWithVoidReturnValue
+    {
+        public void Invoke(IObjectPrx prx, IncomingResponseFrame response)
+        {
+            try
+            {
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        public async Task InvokeAsync(IObjectPrx prx, Task<IncomingResponseFrame> task)
+        {
+            IncomingResponseFrame response = await task.ConfigureAwait(false);
+            if (!prx.IsOneway)
+            {
+                response.ReadVoidReturnValue();
+            }
+        }
+    }
+
+    // publicly visible Ice-internal class used to make request with input and output parameters,
     // the input parameters are pass with the `in' modifier, this helper is used when input parameter
     // is an structure type, or when there is several input parameters as we pass them wrapped in a
     // tuple.
-    public class OutgoingRequest<TInParams, TOutParams> where TInParams : struct
+    public sealed class OutgoingRequest<TInParams, TOutParams> :
+        OutgoingRequestWithReturnValue<TOutParams> where TInParams : struct
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
         private readonly FormatType? _format;
         private readonly OutputStreamStructWriter<TInParams> _writer;
-        private readonly InputStreamReader<TOutParams> _reader;
 
         public OutgoingRequest(
             string operationName,
             bool idempotent,
             FormatType? format,
             OutputStreamStructWriter<TInParams> writer,
-            InputStreamReader<TOutParams> reader)
+            InputStreamReader<TOutParams> reader) : base(reader)
         {
             _operationName = operationName;
             _idempotent = idempotent;
             _format = format;
             _writer = writer;
-            _reader = reader;
         }
 
         public TOutParams Invoke(IObjectPrx prx, in TInParams inParams, IReadOnlyDictionary<string, string>? context)
@@ -560,16 +617,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            try
-            {
-                IncomingResponseFrame response = completed.Task.Result;
-                return response.ReadReturnValue(_reader);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
+            return Invoke(completed.Task.Result);
         }
 
         public Task<TOutParams> InvokeAsync(IObjectPrx prx,
@@ -584,40 +632,32 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(request.Operation, request.Context,
                 synchronous: false);
-            return ReadReturnValueAsync(completed, _reader);
-
-            static async Task<TOutParams> ReadReturnValueAsync(IObjectPrx.InvokeTaskCompletionCallback completed,
-                InputStreamReader<TOutParams> reader)
-            {
-                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
-                return response.ReadReturnValue(reader);
-            }
+            return InvokeAsync(completed.Task);
         }
     }
 
     // publicly visible Ice-internal type used to make request with input and output parameters,
     // the input parameters are pass without the `in' modifier, this helper is used when there is a single
     // input parameter and the parameter is of a non structure type.
-    public class OutgoingRequestWithNonStructParam<TInParams, TOutParams>
+    public sealed class OutgoingRequestWithNonStructParam<TInParams, TOutParams>
+        : OutgoingRequestWithReturnValue<TOutParams>
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
         private readonly FormatType? _format;
         private readonly OutputStreamWriter<TInParams> _writer;
-        private readonly InputStreamReader<TOutParams> _reader;
 
         public OutgoingRequestWithNonStructParam(
             string operationName,
             bool idempotent,
             FormatType? format,
             OutputStreamWriter<TInParams> writer,
-            InputStreamReader<TOutParams> reader)
+            InputStreamReader<TOutParams> reader) : base(reader)
         {
             _operationName = operationName;
             _idempotent = idempotent;
             _format = format;
             _writer = writer;
-            _reader = reader;
         }
 
         public TOutParams Invoke(IObjectPrx prx, TInParams inParams, IReadOnlyDictionary<string, string>? context)
@@ -628,16 +668,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            try
-            {
-                IncomingResponseFrame response = completed.Task.Result;
-                return response.ReadReturnValue(_reader);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
+            return Invoke(completed.Task.Result);
         }
 
         public Task<TOutParams> InvokeAsync(IObjectPrx prx,
@@ -654,14 +685,7 @@ namespace Ice
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: false);
 
-            return ReadReturnValueAsync(completed, _reader);
-
-            static async Task<TOutParams> ReadReturnValueAsync(IObjectPrx.InvokeTaskCompletionCallback completed,
-                InputStreamReader<TOutParams> reader)
-            {
-                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
-                return response.ReadReturnValue(reader);
-            }
+            return InvokeAsync(completed.Task);
         }
     }
 
@@ -669,7 +693,8 @@ namespace Ice
     // the input parameters are pass with the `in' modifier, this helper is used when input parameter
     // is an structure type, or when there is several input parameters as we pass them wrapped in a
     // tuple.
-    public class OutgoingRequestWithVoidReturnValue<TInParams> where TInParams : struct
+    public sealed class OutgoingRequestWithVoidReturnValue<TInParams> :
+        OutgoingRequestWithVoidReturnValue where TInParams : struct
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
@@ -696,19 +721,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            try
-            {
-                IncomingResponseFrame response = completed.Task.Result;
-                if (!prx.IsOneway)
-                {
-                    response.ReadVoidReturnValue();
-                }
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
+            Invoke(prx, completed.Task.Result);
         }
 
         public Task InvokeAsync(IObjectPrx prx, in TInParams inParams,
@@ -722,31 +735,22 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
             new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
                 request.Operation, request.Context, synchronous: false);
-            return ReadVoidReturnValueAsync(prx, completed);
-
-            static async Task ReadVoidReturnValueAsync(IObjectPrx prx,
-                IObjectPrx.InvokeTaskCompletionCallback completed)
-            {
-                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
-                if (!prx.IsOneway)
-                {
-                    response.ReadVoidReturnValue();
-                }
-            }
+            return InvokeAsync(prx, completed.Task);
         }
     }
 
     // publicly visible Ice-internal type used to make request with input parameters and no output parameters,
     // the input parameters are pass without the `in' modifier, this helper is used when there is a single
     // input parameter and the parameter is of a non structure type.
-    public class OutgoingRequestWithNonStructParamAndVoidReturn<TInParams>
+    public sealed class OutgoingRequestWithNonStructParamAndVoidReturnValue<TInParams>
+        : OutgoingRequestWithVoidReturnValue
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
         private readonly FormatType? _format;
         private readonly OutputStreamWriter<TInParams> _writer;
 
-        public OutgoingRequestWithNonStructParamAndVoidReturn(
+        public OutgoingRequestWithNonStructParamAndVoidReturnValue(
             string operationName,
             bool idempotent,
             FormatType? format,
@@ -766,19 +770,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            try
-            {
-                IncomingResponseFrame response = completed.Task.Result;
-                if (!prx.IsOneway)
-                {
-                    response.ReadVoidReturnValue();
-                }
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
+            Invoke(prx, completed.Task.Result);
         }
 
         public Task InvokeAsync(IObjectPrx prx, TInParams inParams,
@@ -792,36 +784,25 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
             new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
                 request.Operation, request.Context, synchronous: false);
-            return ReadVoidReturnValueAsync(prx, completed);
-
-            static async Task ReadVoidReturnValueAsync(IObjectPrx prx,
-                IObjectPrx.InvokeTaskCompletionCallback completed)
-            {
-                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
-                if (!prx.IsOneway)
-                {
-                    response.ReadVoidReturnValue();
-                }
-            }
+            return InvokeAsync(prx, completed.Task);
         }
     }
 
     // publicly visible Ice-internal type used to make request without input parameters and with
     // output parameters.
-    public class OutgoingRequestWithEmptyParamList<TOutParams>
+    public sealed class OutgoingRequestWithEmptyParamList<TOutParams>
+        : OutgoingRequestWithReturnValue<TOutParams>
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
-        private readonly InputStreamReader<TOutParams> _reader;
 
         public OutgoingRequestWithEmptyParamList(
             string operationName,
             bool idempotent,
-            InputStreamReader<TOutParams> reader)
+            InputStreamReader<TOutParams> reader) : base(reader)
         {
             _operationName = operationName;
             _idempotent = idempotent;
-            _reader = reader;
         }
 
         public TOutParams Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context)
@@ -830,16 +811,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            try
-            {
-                IncomingResponseFrame response = completed.Task.Result;
-                return response.ReadReturnValue(_reader);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
+            return Invoke(completed.Task.Result);
         }
 
         public Task<TOutParams> InvokeAsync(IObjectPrx prx,
@@ -852,14 +824,7 @@ namespace Ice
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: false);
 
-            return ReadReturnValueAsync(completed, _reader);
-
-            static async Task<TOutParams> ReadReturnValueAsync(IObjectPrx.InvokeTaskCompletionCallback completed,
-                                                               InputStreamReader<TOutParams> reader)
-            {
-                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
-                return response.ReadReturnValue(reader);
-            }
+            return InvokeAsync(completed.Task);
         }
     }
 }

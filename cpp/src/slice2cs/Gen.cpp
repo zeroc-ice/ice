@@ -2518,16 +2518,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     else if(inParams.size() == 1 && (!StructPtr::dynamicCast(inParams.front().type) || inParams.front().tagged))
     {
         assert(outParams.size() == 0);
-        _out << nl << "private static Ice.OutgoingRequestWithNonStructParamAndVoidReturn<" << toTupleType(inParams)
+        _out << nl << "private static Ice.OutgoingRequestWithNonStructParamAndVoidReturnValue<" << toTupleType(inParams)
              << ">? " << requestObject << ";";
-        _out << nl << "private static Ice.OutgoingRequestWithNonStructParamAndVoidReturn<"
+        _out << nl << "private static Ice.OutgoingRequestWithNonStructParamAndVoidReturnValue<"
              << toTupleType(inParams) << "> " << requestProperty;
         _out << sb;
         _out << nl << "get";
         _out << sb;
         _out << nl << "if (" << requestObject << " == null)";
         _out << sb;
-        _out << nl << requestObject << " = new Ice.OutgoingRequestWithNonStructParamAndVoidReturn<"
+        _out << nl << requestObject << " = new Ice.OutgoingRequestWithNonStructParamAndVoidReturnValue<"
              << toTupleType(inParams) << ">(";
         _out.inc();
         _out << nl << "operationName: \"" << operation->name() << "\",";
