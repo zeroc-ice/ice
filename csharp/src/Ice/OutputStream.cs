@@ -18,7 +18,7 @@ namespace Ice
         public void IceWrite(OutputStream ostr);
     }
 
-    public delegate void OutputStreamWriter<T>(OutputStream os, T value);
+    public delegate void OutputStreamWriter<in T>(OutputStream os, T value);
     public delegate void OutputStreamStructWriter<T>(OutputStream ostr, in T value) where T : struct;
 
     /// <summary>

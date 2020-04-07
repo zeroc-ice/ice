@@ -2358,8 +2358,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string cancel = getEscapedParamName(operation, "cancel");
     string progress = getEscapedParamName(operation, "progress");
 
-    string requestProperty = "_iceI_" + opName + "Request";
-    string requestObject = requestProperty + "Value";
+    string requestProperty = "IceI_" + opName + "Request";
+    string requestObject = "_iceI_" + opName + "Request";
 
     {
         //
@@ -2375,20 +2375,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
              << getInvocationParams(operation, ns)
              << epar << " =>";
         _out.inc();
-        if(inParams.size() == 0 && outParams.size() == 0)
+        _out << nl << requestProperty << ".Invoke(this, ";
+        if(inParams.size() > 0)
         {
-            _out << nl << "IceInvoke(\"" << operation->name() << "\", idempotent:"
-                 << (isIdempotent(operation) ? "true" : "false") << ", " << context << ");";
+            _out << toTuple(inParams) << ", ";
         }
-        else
-        {
-            _out << nl << requestProperty << ".Invoke(this, ";
-            if(inParams.size() > 0)
-            {
-                _out << toTuple(inParams) << ", ";
-            }
-            _out << context << ");";
-        }
+        _out << context << ");";
         _out.dec();
     }
 
@@ -2406,21 +2398,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << resultTask(operation, ns, false) << " "
              << asyncName << spar << getInvocationParamsAMI(operation, ns, true) << epar << " => ";
         _out.inc();
-        if(inParams.size() == 0 && outParams.size() == 0)
+        _out << nl << requestProperty << ".InvokeAsync(this, ";
+        if(inParams.size() > 0)
         {
-            _out << nl << "IceInvokeAsync(\"" << operation->name() << "\", idempotent:"
-                 << (isIdempotent(operation) ? "true" : "false") << ", "
-                 << context << ", " << progress << ", " << cancel << ");";
+            _out << toTuple(inParams) << ", ";
         }
-        else
-        {
-            _out << nl << requestProperty << ".InvokeAsync(this, ";
-            if(inParams.size() > 0)
-            {
-                _out << toTuple(inParams) << ", ";
-            }
-            _out << context << ", " << progress << ", " << cancel << ");";
-        }
+        _out << context << ", " << progress << ", " << cancel << ");";
         _out.dec();
     }
 
@@ -2434,13 +2417,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
              << requestObject << ";";
 
         _out << nl << "private static Ice.OutgoingRequestWithEmptyParamList<" << toTupleType(outParams)
-             << "> " << requestProperty;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "if (" << requestObject << " == null)";
-        _out << sb;
-        _out << nl << requestObject << "  = new Ice.OutgoingRequestWithEmptyParamList<" << toTupleType(outParams)
+             << "> " << requestProperty << " =>";
+        _out.inc();
+        _out << nl << requestObject << " ??= new Ice.OutgoingRequestWithEmptyParamList<" << toTupleType(outParams)
              << ">(";
         _out.inc();
         _out << nl << "operationName: \"" << operation->name() << "\",";
@@ -2449,25 +2428,18 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         writeOutgoingRequestReader(operation);
         _out << ");";
         _out.dec();
-        _out << eb;
-        _out << nl << "return " << requestObject << ";";
-        _out << eb;
-        _out << eb;
+        _out.dec();
     }
     else if(outParams.size() > 0 && inParams.size() == 1 &&
             (!StructPtr::dynamicCast(inParams.front().type) || inParams.front().tagged))
     {
-        _out << nl << "private static Ice.OutgoingRequestWithNonStructParam<"
+        _out << nl << "private static Ice.OutgoingRequestWithParam<"
              << toTupleType(inParams) << ", " << toTupleType(outParams) << ">? " << requestObject << ";";
 
-        _out << nl << "private static Ice.OutgoingRequestWithNonStructParam<"
-             << toTupleType(inParams) << ", " << toTupleType(outParams) << "> " << requestProperty;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "if (" << requestObject << " == null)";
-        _out << sb;
-        _out << nl << requestObject << " = new Ice.OutgoingRequestWithNonStructParam<" << toTupleType(inParams)
+        _out << nl << "private static Ice.OutgoingRequestWithParam<"
+             << toTupleType(inParams) << ", " << toTupleType(outParams) << "> " << requestProperty << " =>";
+        _out.inc();
+        _out << nl << requestObject << " ??= new Ice.OutgoingRequestWithParam<" << toTupleType(inParams)
              << ", " << toTupleType(outParams) << ">(";
         _out.inc();
         _out << nl << "operationName: \"" << operation->name() << "\",";
@@ -2480,24 +2452,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         writeOutgoingRequestReader(operation);
         _out << ");";
         _out.dec();
-        _out << eb;
-        _out << nl << "return " << requestObject << ";";
-        _out << eb;
-        _out << eb;
+        _out.dec();
     }
     else if(outParams.size() > 0 && inParams.size() > 0)
     {
-        _out << nl << "private static Ice.OutgoingRequest<" << toTupleType(inParams) << ", " << toTupleType(outParams)
-             << ">? " << requestObject << ";";
+        _out << nl << "private static Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams) << ", "
+             << toTupleType(outParams) << ">? " << requestObject << ";";
 
-        _out << nl << "private static Ice.OutgoingRequest<" << toTupleType(inParams) << ", " << toTupleType(outParams)
-             << "> " << requestProperty;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "if (" << requestObject << " == null)";
-        _out << sb;
-        _out << nl << requestObject << " = new Ice.OutgoingRequest<" << toTupleType(inParams) << ", "
+        _out << nl << "private static Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams) << ", "
+             << toTupleType(outParams) << "> " << requestProperty << " =>";
+        _out.inc();
+        _out << nl << requestObject << " ??= new Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams) << ", "
              << toTupleType(outParams) << ">(";
         _out.inc();
         _out << nl << "operationName: \"" << operation->name() << "\",";
@@ -2510,24 +2475,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         writeOutgoingRequestReader(operation);
         _out << ");";
         _out.dec();
-        _out << eb;
-        _out << nl << "return " << requestObject << ";";
-        _out << eb;
-        _out << eb;
+        _out.dec();
     }
     else if(inParams.size() == 1 && (!StructPtr::dynamicCast(inParams.front().type) || inParams.front().tagged))
     {
         assert(outParams.size() == 0);
-        _out << nl << "private static Ice.OutgoingRequestWithNonStructParamAndVoidReturnValue<" << toTupleType(inParams)
+        _out << nl << "private static Ice.OutgoingVoidRequestWithParam<" << toTupleType(inParams)
              << ">? " << requestObject << ";";
-        _out << nl << "private static Ice.OutgoingRequestWithNonStructParamAndVoidReturnValue<"
-             << toTupleType(inParams) << "> " << requestProperty;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "if (" << requestObject << " == null)";
-        _out << sb;
-        _out << nl << requestObject << " = new Ice.OutgoingRequestWithNonStructParamAndVoidReturnValue<"
+        _out << nl << "private static Ice.OutgoingVoidRequestWithParam<" << toTupleType(inParams) << "> "
+             << requestProperty << " =>";
+        _out.inc();
+        _out << nl << requestObject << " ??= new Ice.OutgoingVoidRequestWithParam<"
              << toTupleType(inParams) << ">(";
         _out.inc();
         _out << nl << "operationName: \"" << operation->name() << "\",";
@@ -2537,24 +2495,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         writeOutgoingRequestWriter(operation);
         _out << ");";
         _out.dec();
-        _out << eb;
-        _out << nl << "return " << requestObject << ";";
-        _out << eb;
-        _out << eb;
+        _out.dec();
     }
     else if(outParams.size() == 0 && inParams.size() > 0)
     {
-        _out << nl << "private static Ice.OutgoingRequestWithVoidReturnValue<" << toTupleType(inParams) << ">? "
+        _out << nl << "private static Ice.OutgoingVoidRequestWithStructParam<" << toTupleType(inParams) << ">? "
              << requestObject << ";";
 
-        _out << nl << "private static Ice.OutgoingRequestWithVoidReturnValue<" << toTupleType(inParams)
-             << "> " << requestProperty;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "if (" << requestObject << " == null)";
-        _out << sb;
-        _out << nl << requestObject << " = new Ice.OutgoingRequestWithVoidReturnValue<"
+        _out << nl << "private static Ice.OutgoingVoidRequestWithStructParam<" << toTupleType(inParams)
+             << "> " << requestProperty << " =>";
+        _out.inc();
+        _out << nl << requestObject << " ??= new Ice.OutgoingVoidRequestWithStructParam<"
              << toTupleType(inParams) << ">(";
         _out.inc();
         _out << nl << "operationName: \"" << operation->name() << "\",";
@@ -2564,10 +2515,21 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         writeOutgoingRequestWriter(operation);
         _out << ");";
         _out.dec();
-        _out << eb;
-        _out << nl << "return " << requestObject << ";";
-        _out << eb;
-        _out << eb;
+        _out.dec();
+    }
+    else
+    {
+        assert(outParams.size() == 0 && inParams.size() == 0);
+        _out << nl << "private static Ice.OutgoingVoidRequestWithEmptyParamList? " << requestObject << ";";
+
+        _out << nl << "private static Ice.OutgoingVoidRequestWithEmptyParamList " << requestProperty << " =>";
+        _out.inc();
+        _out << nl << requestObject << " = new Ice.OutgoingVoidRequestWithEmptyParamList(";
+        _out.inc();
+        _out << nl << "operationName: \"" << operation->name() << "\",";
+        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ");";
+        _out.dec();
+        _out.dec();
     }
 }
 
@@ -2712,13 +2674,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
     string dictS = typeToString(p, ns);
+    string readOnlyDictS = typeToString(p, ns, false, true);
     string generic = p->findMetaDataWithPrefix("cs:generic:");
 
     _out << sp;
     emitGeneratedCodeAttribute();
     _out << nl << "public static class " << name << "Helper";
     _out << sb;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< dictS << " dictionary) => ";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
          << outputStreamWriter(key, ns) << ", "
@@ -2726,7 +2689,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << dictS << "> IceWriter = Write;";
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
 
     _out << sp;
     _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) => ";
