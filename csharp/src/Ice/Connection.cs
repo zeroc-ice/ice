@@ -1791,7 +1791,7 @@ namespace Ice
                 {
                     InitiateShutdown();
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     SetState(StateClosed, ex);
                 }
