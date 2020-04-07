@@ -16,9 +16,9 @@ namespace Ice
     {
         private readonly InputStreamReader<TReturnValue> _reader;
 
-        protected OutgoingRequest(InputStreamReader<TReturnValue> reader) => _reader = reader;
+        private protected OutgoingRequest(InputStreamReader<TReturnValue> reader) => _reader = reader;
 
-        protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request)
+        private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request)
         {
             try
             {
@@ -35,9 +35,9 @@ namespace Ice
             }
         }
 
-        protected Task<TReturnValue> InvokeAsync(IObjectPrx prx,
-                                                 OutgoingRequestFrame request,
-                                                 IProgress<bool>? progress,
+        private protected Task<TReturnValue> InvokeAsync(IObjectPrx prx,
+                                                         OutgoingRequestFrame request,
+                                                         IProgress<bool>? progress,
                                                  CancellationToken cancel)
         {
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
