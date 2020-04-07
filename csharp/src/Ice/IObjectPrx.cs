@@ -85,7 +85,7 @@ namespace Ice
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         public void IcePing(IReadOnlyDictionary<string, string>? context = null) =>
-            _icePing_Request.Invoke(this, context);
+            IceInvoke("ice_ping", idempotent: true, context);
 
         /// <summary>
         /// Tests whether the target object of this proxy can be reached.
@@ -97,7 +97,7 @@ namespace Ice
         public Task IcePingAsync(IReadOnlyDictionary<string, string>? context = null,
                                  IProgress<bool>? progress = null,
                                  CancellationToken cancel = default) =>
-            _icePing_Request.InvokeAsync(this, context, progress, cancel);
+            IceInvokeAsync("ice_ping", idempotent: true, context, progress, cancel);
 
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -264,35 +264,6 @@ namespace Ice
         public bool IsFixed => IceReference.IsFixed;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected internal IncomingResponseFrame IceInvoke(OutgoingRequestFrame request, bool oneway)
-        {
-            try
-            {
-                var completed = new InvokeTaskCompletionCallback(null, default);
-                new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
-                                                                                   synchronous: true);
-                return completed.Task.Result;
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected internal Task<IncomingResponseFrame> IceInvokeAsync(OutgoingRequestFrame request,
-                                                                      bool oneway,
-                                                                      IProgress<bool>? progress,
-                                                                      CancellationToken cancel)
-        {
-            var completed = new InvokeTaskCompletionCallback(progress, cancel);
-            new OutgoingAsync(this, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
-                                                                               synchronous: false);
-            return completed.Task;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream ostr) => IceReference.Write(ostr);
 
         public TaskScheduler Scheduler => IceReference.ThreadPool;
@@ -323,7 +294,7 @@ namespace Ice
             {
                 prx = new ObjectPrx(communicator.CreateReference(s));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 prx = null;
                 return false;
@@ -332,7 +303,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public int IceHandleException(System.Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
+        public int IceHandleException(Exception ex, IRequestHandler? handler, bool idempotent, bool sent,
                                       ref int cnt)
         {
             if (!IceReference.IsFixed)
@@ -369,6 +340,55 @@ namespace Ice
             else
             {
                 throw ex; // Retry could break at-most-once semantics, don't retry.
+            }
+        }
+
+        // publicly visible Ice-internal type used to make request without input and output parameters.
+        protected void IceInvoke(string operationName,
+                                 bool idempotent,
+                                 IReadOnlyDictionary<string, string>? context)
+        {
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, operationName, idempotent, context);
+
+            var completed = new InvokeTaskCompletionCallback(null, default);
+            new OutgoingAsync(this, completed, request, IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: true);
+            try
+            {
+                IncomingResponseFrame response = completed.Task.Result;
+                if (!IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
+
+        protected Task IceInvokeAsync(string operationName,
+                                      bool idempotent,
+                                      IReadOnlyDictionary<string, string>? context,
+                                      IProgress<bool>? progress,
+                                      CancellationToken cancel)
+        {
+            var request = OutgoingRequestFrame.WithEmptyParamList(this, operationName, idempotent, context);
+
+            var completed = new InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(this, completed, request, IsOneway).Invoke(
+                request.Operation, request.Context, synchronous: false);
+
+            return ReadVoidReturnValueAsync(this, completed);
+
+            static async Task ReadVoidReturnValueAsync(IObjectPrx prx, InvokeTaskCompletionCallback completed)
+            {
+                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
+                if (!prx.IsOneway)
+                {
+                    response.ReadVoidReturnValue();
+                }
             }
         }
 
@@ -423,21 +443,6 @@ namespace Ice
                                                                 reader: InputStream.IceReaderIntoBool);
                 }
                 return _iceIsA_RequestValue;
-            }
-        }
-
-        private static OutgoingRequestWithEmptyParamListAndVoidReturnValue? _icePing_RequestValue;
-
-        private static OutgoingRequestWithEmptyParamListAndVoidReturnValue _icePing_Request
-        {
-            get
-            {
-                if (_icePing_RequestValue == null)
-                {
-                    _icePing_RequestValue = new OutgoingRequestWithEmptyParamListAndVoidReturnValue(
-                        "ice_ping", idempotent: true);
-                }
-                return _icePing_RequestValue;
             }
         }
 
@@ -854,65 +859,6 @@ namespace Ice
             {
                 IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
                 return response.ReadReturnValue(reader);
-            }
-        }
-    }
-
-    // publicly visible Ice-internal type used to make request without input and output parameters.
-    public class OutgoingRequestWithEmptyParamListAndVoidReturnValue
-    {
-        private readonly string _operationName;
-        private readonly bool _idempotent;
-
-        public OutgoingRequestWithEmptyParamListAndVoidReturnValue(string operationName, bool idempotent)
-        {
-            _operationName = operationName;
-            _idempotent = idempotent;
-        }
-
-        public void Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context);
-
-            var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
-            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
-                request.Operation, request.Context, synchronous: true);
-            try
-            {
-                IncomingResponseFrame response = completed.Task.Result;
-                if (!prx.IsOneway)
-                {
-                    response.ReadVoidReturnValue();
-                }
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
-        }
-
-        public Task InvokeAsync(IObjectPrx prx,
-                                IReadOnlyDictionary<string, string>? context,
-                                IProgress<bool>? progress,
-                                CancellationToken cancel)
-        {
-            var request = OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context);
-
-            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
-            new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
-                request.Operation, request.Context, synchronous: false);
-
-            return ReadVoidReturnValueAsync(prx, completed);
-
-            static async Task ReadVoidReturnValueAsync(IObjectPrx prx,
-                                                       IObjectPrx.InvokeTaskCompletionCallback completed)
-            {
-                IncomingResponseFrame response = await completed.Task.ConfigureAwait(false);
-                if (!prx.IsOneway)
-                {
-                    response.ReadVoidReturnValue();
-                }
             }
         }
     }

@@ -2375,12 +2375,20 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
              << getInvocationParams(operation, ns)
              << epar << " =>";
         _out.inc();
-        _out << nl << requestProperty << ".Invoke(this, ";
-        if(inParams.size() > 0)
+        if(inParams.size() == 0 && outParams.size() == 0)
         {
-            _out << toTuple(inParams) << ", ";
+            _out << nl << "IceInvoke(\"" << operation->name() << "\", idempotent:"
+                 << (isIdempotent(operation) ? "true" : "false") << ", " << context << ");";
         }
-        _out << context << ");";
+        else
+        {
+            _out << nl << requestProperty << ".Invoke(this, ";
+            if(inParams.size() > 0)
+            {
+                _out << toTuple(inParams) << ", ";
+            }
+            _out << context << ");";
+        }
         _out.dec();
     }
 
@@ -2398,12 +2406,21 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << nl << resultTask(operation, ns, false) << " "
              << asyncName << spar << getInvocationParamsAMI(operation, ns, true) << epar << " => ";
         _out.inc();
-        _out << nl << requestProperty << ".InvokeAsync(this, ";
-        if(inParams.size() > 0)
+        if(inParams.size() == 0 && outParams.size() == 0)
         {
-            _out << toTuple(inParams) << ", ";
+            _out << nl << "IceInvokeAsync(\"" << operation->name() << "\", idempotent:"
+                 << (isIdempotent(operation) ? "true" : "false") << ", "
+                 << context << ", " << progress << ", " << cancel << ");";
         }
-        _out << context << ", " << progress << ", " << cancel << ");";
+        else
+        {
+            _out << nl << requestProperty << ".InvokeAsync(this, ";
+            if(inParams.size() > 0)
+            {
+                _out << toTuple(inParams) << ", ";
+            }
+            _out << context << ", " << progress << ", " << cancel << ");";
+        }
         _out.dec();
     }
 
@@ -2411,25 +2428,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
     // Write the static outgoing request instance
     _out << sp;
-    if(outParams.size() == 0 && inParams.size() == 0)
-    {
-        _out << nl << "private static Ice.OutgoingRequestWithEmptyParamListAndVoidReturnValue? "
-             << requestObject << ";";
-
-        _out << nl << "private static Ice.OutgoingRequestWithEmptyParamListAndVoidReturnValue " << requestProperty;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "if (" << requestObject << " == null)";
-        _out << sb;
-        _out << nl << requestObject << " = new Ice.OutgoingRequestWithEmptyParamListAndVoidReturnValue("
-             << "\"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false") << ");";
-        _out << eb;
-        _out << nl << "return " << requestObject << ";";
-        _out << eb;
-        _out << eb;
-    }
-    else if(outParams.size() > 0 && inParams.size() == 0)
+    if(outParams.size() > 0 && inParams.size() == 0)
     {
         _out << nl << "private static Ice.OutgoingRequestWithEmptyParamList<" << toTupleType(outParams) << ">? "
              << requestObject << ";";
@@ -2543,9 +2542,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out << eb;
         _out << eb;
     }
-    else
+    else if(outParams.size() == 0 && inParams.size() > 0)
     {
-        assert(outParams.size() == 0 && inParams.size() > 0);
         _out << nl << "private static Ice.OutgoingRequestWithVoidReturnValue<" << toTupleType(inParams) << ">? "
              << requestObject << ";";
 
