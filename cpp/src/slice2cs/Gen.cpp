@@ -2329,6 +2329,44 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << eb;
 }
 
+namespace
+{
+
+string
+requestType(const list<ParamInfo> inParams, const list<ParamInfo>& outParams)
+{
+    ostringstream os;
+    if(inParams.size() == 0)
+    {
+        os << "Ice.OutgoingRequestWithEmptyParamList";
+        if(outParams.size() > 0)
+        {
+            os << "<" << toTupleType(outParams) << ">";
+        }
+    }
+    else if(inParams.size() == 1 && (!StructPtr::dynamicCast(inParams.front().type) || inParams.front().tagged))
+    {
+        os << "Ice.OutgoingRequestWithParam<" << toTupleType(inParams);
+        if(outParams.size() > 0)
+        {
+            os << ", " << toTupleType(outParams);
+        }
+        os << ">";
+    }
+    else
+    {
+        os << "Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams);
+        if(outParams.size() > 0)
+        {
+            os << ", " << toTupleType(outParams);
+        }
+        os << ">";
+    }
+    return os.str();
+}
+
+}
+
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 {
@@ -2408,129 +2446,34 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     }
 
     outParams = getAllOutParams(operation, "iceP_", true);
-
+    string requestT = requestType(inParams, outParams);
     // Write the static outgoing request instance
     _out << sp;
-    if(outParams.size() > 0 && inParams.size() == 0)
-    {
-        _out << nl << "private static Ice.OutgoingRequestWithEmptyParamList<" << toTupleType(outParams) << ">? "
-             << requestObject << ";";
 
-        _out << nl << "private static Ice.OutgoingRequestWithEmptyParamList<" << toTupleType(outParams)
-             << "> " << requestProperty << " =>";
-        _out.inc();
-        _out << nl << requestObject << " ?\?= new Ice.OutgoingRequestWithEmptyParamList<" << toTupleType(outParams)
-             << ">(";
-        _out.inc();
-        _out << nl << "operationName: \"" << operation->name() << "\",";
-        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
-        _out << nl << "reader: ";
-        writeOutgoingRequestReader(operation);
-        _out << ");";
-        _out.dec();
-        _out.dec();
-    }
-    else if(outParams.size() > 0 && inParams.size() == 1 &&
-            (!StructPtr::dynamicCast(inParams.front().type) || inParams.front().tagged))
+    _out << nl << "private static " << requestT << "? " << requestObject << ";";
+    _out << nl << "private static " << requestT << " " << requestProperty << " =>";
+    _out.inc();
+    _out << nl << requestObject << " ?\?= new " << requestT << "(";
+    _out.inc();
+    _out << nl << "operationName: \"" << operation->name() << "\",";
+    _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false");
+    if(inParams.size() > 0)
     {
-        _out << nl << "private static Ice.OutgoingRequestWithParam<"
-             << toTupleType(inParams) << ", " << toTupleType(outParams) << ">? " << requestObject << ";";
-
-        _out << nl << "private static Ice.OutgoingRequestWithParam<"
-             << toTupleType(inParams) << ", " << toTupleType(outParams) << "> " << requestProperty << " =>";
-        _out.inc();
-        _out << nl << requestObject << " ?\?= new Ice.OutgoingRequestWithParam<" << toTupleType(inParams)
-             << ", " << toTupleType(outParams) << ">(";
-        _out.inc();
-        _out << nl << "operationName: \"" << operation->name() << "\",";
-        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
+        _out << ",";
         _out << nl << "format: " << opFormatTypeToString(operation, ns) << ",";
         _out << nl << "writer: ";
         writeOutgoingRequestWriter(operation);
+    }
+
+    if(outParams.size() > 0)
+    {
         _out << ",";
         _out << nl << "reader: ";
         writeOutgoingRequestReader(operation);
-        _out << ");";
-        _out.dec();
-        _out.dec();
     }
-    else if(outParams.size() > 0 && inParams.size() > 0)
-    {
-        _out << nl << "private static Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams) << ", "
-             << toTupleType(outParams) << ">? " << requestObject << ";";
-
-        _out << nl << "private static Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams) << ", "
-             << toTupleType(outParams) << "> " << requestProperty << " =>";
-        _out.inc();
-        _out << nl << requestObject << " ?\?= new Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams) << ", "
-             << toTupleType(outParams) << ">(";
-        _out.inc();
-        _out << nl << "operationName: \"" << operation->name() << "\",";
-        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
-        _out << nl << "format: " << opFormatTypeToString(operation, ns) << ",";
-        _out << nl << "writer: ";
-        writeOutgoingRequestWriter(operation);
-        _out << ",";
-        _out << nl << "reader: ";
-        writeOutgoingRequestReader(operation);
-        _out << ");";
-        _out.dec();
-        _out.dec();
-    }
-    else if(inParams.size() == 1 && (!StructPtr::dynamicCast(inParams.front().type) || inParams.front().tagged))
-    {
-        assert(outParams.size() == 0);
-        _out << nl << "private static Ice.OutgoingVoidRequestWithParam<" << toTupleType(inParams)
-             << ">? " << requestObject << ";";
-        _out << nl << "private static Ice.OutgoingVoidRequestWithParam<" << toTupleType(inParams) << "> "
-             << requestProperty << " =>";
-        _out.inc();
-        _out << nl << requestObject << " ?\?= new Ice.OutgoingVoidRequestWithParam<"
-             << toTupleType(inParams) << ">(";
-        _out.inc();
-        _out << nl << "operationName: \"" << operation->name() << "\",";
-        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
-        _out << nl << "format: " << opFormatTypeToString(operation, ns) << ",";
-        _out << nl << "writer: ";
-        writeOutgoingRequestWriter(operation);
-        _out << ");";
-        _out.dec();
-        _out.dec();
-    }
-    else if(outParams.size() == 0 && inParams.size() > 0)
-    {
-        _out << nl << "private static Ice.OutgoingVoidRequestWithStructParam<" << toTupleType(inParams) << ">? "
-             << requestObject << ";";
-
-        _out << nl << "private static Ice.OutgoingVoidRequestWithStructParam<" << toTupleType(inParams)
-             << "> " << requestProperty << " =>";
-        _out.inc();
-        _out << nl << requestObject << " ?\?= new Ice.OutgoingVoidRequestWithStructParam<"
-             << toTupleType(inParams) << ">(";
-        _out.inc();
-        _out << nl << "operationName: \"" << operation->name() << "\",";
-        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ",";
-        _out << nl << "format: " << opFormatTypeToString(operation, ns) << ",";
-        _out << nl << "writer: ";
-        writeOutgoingRequestWriter(operation);
-        _out << ");";
-        _out.dec();
-        _out.dec();
-    }
-    else
-    {
-        assert(outParams.size() == 0 && inParams.size() == 0);
-        _out << nl << "private static Ice.OutgoingVoidRequestWithEmptyParamList? " << requestObject << ";";
-
-        _out << nl << "private static Ice.OutgoingVoidRequestWithEmptyParamList " << requestProperty << " =>";
-        _out.inc();
-        _out << nl << requestObject << " ?\?= new Ice.OutgoingVoidRequestWithEmptyParamList(";
-        _out.inc();
-        _out << nl << "operationName: \"" << operation->name() << "\",";
-        _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ");";
-        _out.dec();
-        _out.dec();
-    }
+    _out << ");";
+    _out.dec();
+    _out.dec();
 }
 
 void
