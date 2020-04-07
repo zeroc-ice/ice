@@ -64,7 +64,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Connection? GetConnection() => null;
+        public Connection? GetConnection() => null;
 
         public int InvokeAsyncRequest(ProxyOutgoingAsyncBase outAsync, bool synchronous)
         {
@@ -177,7 +177,7 @@ namespace IceInternal
                     if (servant == null)
                     {
                         amd = false;
-                        throw new Ice.ObjectNotExistException(current.Identity, current.Facet, current.Operation);
+                        throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
