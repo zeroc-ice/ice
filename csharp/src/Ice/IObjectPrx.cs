@@ -534,10 +534,11 @@ namespace Ice
 
         internal OutgoingRequestWithReturnValue(InputStreamReader<TOutParams> reader) => _reader = reader;
 
-        public TOutParams Invoke(IncomingResponseFrame response)
+        public TOutParams Invoke(Task<IncomingResponseFrame> task)
         {
             try
             {
+                IncomingResponseFrame response = task.Result;
                 return response.ReadReturnValue(_reader);
             }
             catch (AggregateException ex)
@@ -558,10 +559,11 @@ namespace Ice
     // with void return value
     public class OutgoingRequestWithVoidReturnValue
     {
-        public void Invoke(IObjectPrx prx, IncomingResponseFrame response)
+        public void Invoke(IObjectPrx prx, Task<IncomingResponseFrame> task)
         {
             try
             {
+                IncomingResponseFrame response = task.Result;
                 if (!prx.IsOneway)
                 {
                     response.ReadVoidReturnValue();
@@ -617,7 +619,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            return Invoke(completed.Task.Result);
+            return Invoke(completed.Task);
         }
 
         public Task<TOutParams> InvokeAsync(IObjectPrx prx,
@@ -668,7 +670,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            return Invoke(completed.Task.Result);
+            return Invoke(completed.Task);
         }
 
         public Task<TOutParams> InvokeAsync(IObjectPrx prx,
@@ -721,7 +723,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            Invoke(prx, completed.Task.Result);
+            Invoke(prx, completed.Task);
         }
 
         public Task InvokeAsync(IObjectPrx prx, in TInParams inParams,
@@ -770,7 +772,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, prx.IsOneway).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            Invoke(prx, completed.Task.Result);
+            Invoke(prx, completed.Task);
         }
 
         public Task InvokeAsync(IObjectPrx prx, TInParams inParams,
@@ -811,7 +813,7 @@ namespace Ice
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
                 request.Operation, request.Context, synchronous: true);
-            return Invoke(completed.Task.Result);
+            return Invoke(completed.Task);
         }
 
         public Task<TOutParams> InvokeAsync(IObjectPrx prx,
