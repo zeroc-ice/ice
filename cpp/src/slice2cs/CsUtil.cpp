@@ -1105,6 +1105,27 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     return out.str();
 }
 
+namespace
+{
+bool isVariableLength(TypePtr type)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+
+    if(builtin && builtin->kind() != Builtin::KindValue && builtin->kind() != Builtin::KindObjectProxy)
+    {
+        return false;
+    }
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st && !st->isVariableLength())
+    {
+        return false;
+    }
+
+    return true;
+}
+
+}
 void
 Slice::CsGenerator::writeTaggedSequenceMarshalCode(Output& out,
                                                    const SequencePtr& seq,
@@ -1123,84 +1144,52 @@ Slice::CsGenerator::writeTaggedSequenceMarshalCode(Output& out,
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    auto kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
-
-    if(builtin || proxy)
-    {
-        if(builtin->usesClasses() || kind == Builtin::KindObjectProxy)
-        {
-            out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                << getTagFormat(seq, scope) << "))";
-            out << sb;
-            out << nl << "var pos = " << stream << ".StartSize();";
-            writeMarshalCode(out, seq, scope, param, stream);
-            out << nl << stream << ".EndSize(pos);";
-            out << eb;
-        }
-        else
-        {
-            string func = typeS;
-            func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
-            const bool isSerializable = seq->findMetaData("cs:serializable:", meta);
-
-            if(isSerializable)
-            {
-                out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag
-                    << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".VSize))";
-                out << sb;
-                out << nl << stream << ".WriteSerializable(" << param << ");";
-                out << eb;
-            }
-            else if(isArray)
-            {
-                out << nl << stream << ".Write" << func << "Seq(" << tag << ", " << param << ");";
-            }
-            else
-            {
-                out << nl << "if (" << param << " != null)";
-                out << sb;
-                out << nl << stream << ".Write" << func << "Seq(" << tag << ", " << param << " == null ? 0 : "
-                    << param << ".Count, " << param << ");";
-                out << eb;
-            }
-        }
-        return;
-    }
-
     StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
+
+    if(isVariableLength(type))
     {
         out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
             << getTagFormat(seq, scope) << "))";
         out << sb;
-        if(st->isVariableLength())
-        {
-            out << nl << "var pos = " << stream << ".StartSize();";
-        }
-        else if(st->minWireSize() > 1)
+        out << nl << "var pos = " << stream << ".StartSize();";
+        writeMarshalCode(out, seq, scope, param, stream);
+        out << nl << stream << ".EndSize(pos);";
+        out << eb;
+    }
+    else if(st)
+    {
+        out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
+            << getTagFormat(seq, scope) << "))";
+        out << sb;
+        if(st->minWireSize() > 1)
         {
             out << nl << stream << ".WriteSize(" << param << " == null ? 1 : " << length << " * "
                 << st->minWireSize() << " + (" << length << " > 254 ? 5 : 1));";
         }
         writeMarshalCode(out, seq, scope, param, stream);
-        if(st->isVariableLength())
-        {
-            out << nl << stream << ".EndSize(pos);";
-        }
         out << eb;
-        return;
     }
-
-    //
-    // At this point, all remaining element types have variable size.
-    //
-    out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-        << getTagFormat(seq, scope) << "))";
-    out << sb;
-    out << nl << "var pos = " << stream << ".StartSize();";
-    writeMarshalCode(out, seq, scope, param, stream);
-    out << nl << stream << ".EndSize(pos);";
-    out << eb;
+    else if(seq->hasMetaDataWithPrefix("cs:serializable:"))
+    {
+        out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag
+            << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".VSize))";
+        out << sb;
+        out << nl << stream << ".WriteSerializable(" << param << ");";
+        out << eb;
+    }
+    else if(isArray)
+    {
+        out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", "
+            << param << ");";
+    }
+    else
+    {
+        out << nl << "if (" << param << " != null)";
+        out << sb;
+        out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param
+            << " == null ? 0 : " << param << ".Count, " << param << ");";
+        out << eb;
+    }
 }
 
 void
