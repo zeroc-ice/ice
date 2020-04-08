@@ -952,7 +952,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         }
         else
         {
-            out << nl << stream << ".WriteSize(" << param << " == null ? 1 : " << param << ".Count * "
+            out << nl << stream << ".WriteSize(" << param << ".Count * "
                 << (keyType->minWireSize() + valueType->minWireSize()) << " + (" << param
                 << ".Count > 254 ? 5 : 1));";
         }
@@ -1112,7 +1112,10 @@ bool isVariableLength(TypePtr type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
 
-    if(builtin && builtin->kind() != Builtin::KindValue && builtin->kind() != Builtin::KindObjectProxy)
+    if(builtin &&
+       builtin->kind() != Builtin::KindValue &&
+       builtin->kind() != Builtin::KindObjectProxy &&
+       builtin->kind() != Builtin::KindString)
     {
         return false;
     }
@@ -1135,15 +1138,9 @@ Slice::CsGenerator::writeTaggedSequenceMarshalCode(Output& out,
                                                    const string& stream)
 {
     const TypePtr type = seq->type();
-    const string typeS = typeToString(type, scope);
-    const string seqS = typeToString(seq, scope);
-
-    string meta;
-    const bool isArray = !seq->findMetaData("cs:generic:", meta);
+    const bool isArray = !seq->hasMetaDataWithPrefix("cs:generic:");
     const string length = isArray ? param + ".Length" : param + ".Count";
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
 
     if(isVariableLength(type))
@@ -1163,8 +1160,8 @@ Slice::CsGenerator::writeTaggedSequenceMarshalCode(Output& out,
         out << sb;
         if(st->minWireSize() > 1)
         {
-            out << nl << stream << ".WriteSize(" << param << " == null ? 1 : " << length << " * "
-                << st->minWireSize() << " + (" << length << " > 254 ? 5 : 1));";
+            out << nl << stream << ".WriteSize(" << length << " * " << st->minWireSize() << " + (" << length
+                << " > 254 ? 5 : 1));";
         }
         writeMarshalCode(out, seq, scope, param, stream);
         out << eb;
@@ -1187,7 +1184,7 @@ Slice::CsGenerator::writeTaggedSequenceMarshalCode(Output& out,
         out << nl << "if (" << param << " != null)";
         out << sb;
         out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param
-            << " == null ? 0 : " << param << ".Count, " << param << ");";
+            << param << ".Count, " << param << ");";
         out << eb;
     }
 }
@@ -1201,86 +1198,23 @@ Slice::CsGenerator::writeTaggedSequenceUnmarshalCode(Output& out,
                                                      const string& stream)
 {
     const TypePtr type = seq->type();
-    const string typeS = typeToString(type, scope);
-    const string seqS = typeToString(seq, scope);
-
-    string meta;
-    const bool isArray = !seq->findMetaData("cs:generic:", meta);
-    const string length = isArray ? param + ".Length" : param + ".Count";
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    auto kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
-
-    if(builtin || proxy)
-    {
-        if(builtin->usesClasses() || kind == Builtin::KindObjectProxy)
-        {
-            out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-            out << sb;
-            out << nl << stream << ".Skip(4);";
-
-            out << nl;
-            writeUnmarshalCode(out, seq, scope, param, stream);
-
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << param << " = null;";
-            out << eb;
-        }
-        else
-        {
-            out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-            out << sb;
-            if(builtin->isVariableLength())
-            {
-                out << nl << stream << ".Skip(4);";
-            }
-            else if(kind != Builtin::KindByte && kind != Builtin::KindBool)
-            {
-                out << nl << stream << ".SkipSize();";
-            }
-            out << nl;
-            writeUnmarshalCode(out, seq, scope, param, stream);
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << param << " = null;";
-            out << eb;
-        }
-        return;
-    }
-
     StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-        out << sb;
-        if(st->isVariableLength())
-        {
-            out << nl << stream << ".Skip(4);";
-        }
-        else if(st->minWireSize() > 1)
-        {
-            out << nl << stream << ".SkipSize();";
-        }
-        out << nl;
-        writeUnmarshalCode(out, seq, scope, param, stream);
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << param << " = null;";
-        out << eb;
-        return;
-    }
 
-    //
-    // At this point, all remaining element types have variable size.
-    //
     out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
     out << sb;
-    out << nl << stream << ".Skip(4);";
+    if(isVariableLength(type))
+    {
+        out << nl << stream << ".Skip(4);";
+    }
+    else if(st && st->minWireSize() > 1)
+    {
+        out << nl << stream << ".SkipSize();";
+    }
+    else if(builtin && builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)
+    {
+        out << nl << stream << ".SkipSize();";
+    }
     out << nl;
     writeUnmarshalCode(out, seq, scope, param, stream);
     out << eb;
