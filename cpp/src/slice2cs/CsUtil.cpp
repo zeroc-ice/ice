@@ -86,8 +86,7 @@ Slice::isNullable(const TypePtr& type)
     {
         return true;
     }
-    return ClassDeclPtr::dynamicCast(type) ||
-        ProxyPtr::dynamicCast(type);
+    return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
 }
 
 namespace
@@ -757,7 +756,7 @@ Slice::toTupleType(const list<ParamInfo>& params, const string& prefix)
     if(params.size() == 1)
     {
         auto param = params.front();
-        return param.typeStr + " " + prefix + param.name;
+        return param.typeStr + (param.nullable && !param.tagged ? "?" : "");
     }
     else
     {
@@ -770,7 +769,7 @@ Slice::toTupleType(const list<ParamInfo>& params, const string& prefix)
             {
                 os << "?";
             }
-            os << " " << prefix + it->name;
+            os << " " << (it->param ? fixId(prefix + it->param->name()) : fixId(prefix + it->name));
             if(++it != params.end())
             {
                 os << ", ";

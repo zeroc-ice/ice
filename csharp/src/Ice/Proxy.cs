@@ -330,7 +330,20 @@ namespace Ice
         /// <returns>The response frame.</returns>
         public static IncomingResponseFrame Invoke(this IObjectPrx proxy, OutgoingRequestFrame request,
                                                    bool oneway = false)
-            => proxy.IceInvoke(request, oneway);
+        {
+            try
+            {
+                var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
+                new OutgoingAsync(proxy, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
+                                                                                   synchronous: true);
+                return completed.Task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
+        }
 
         /// <summary>Sends a request asynchronously.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -347,7 +360,12 @@ namespace Ice
                                                               bool oneway = false,
                                                               IProgress<bool>? progress = null,
                                                               CancellationToken cancel = default)
-            => proxy.IceInvokeAsync(request, oneway, progress, cancel);
+        {
+            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
+            new OutgoingAsync(proxy, completed, request, oneway: oneway).Invoke(request.Operation, request.Context,
+                                                                               synchronous: false);
+            return completed.Task;
+        }
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a

@@ -44,10 +44,7 @@ namespace Ice.retry
         }
 
         static public Test.IRetryPrx
-        allTests(global::Test.TestHelper helper,
-                    Ice.Communicator communicator,
-                    Ice.Communicator communicator2,
-                    string rf)
+        allTests(global::Test.TestHelper helper, Communicator communicator, Communicator communicator2, string rf)
         {
             Instrumentation.testInvocationReset();
 
@@ -113,10 +110,9 @@ namespace Ice.retry
                 retry2.opAsync(true).Wait();
                 test(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
-                test(ex.InnerException is ConnectionLostException ||
-                        ex.InnerException is UnhandledException);
+                test(ex.InnerException is ConnectionLostException || ex.InnerException is UnhandledException);
             }
 
             Instrumentation.testInvocationCount(1);
@@ -149,7 +145,7 @@ namespace Ice.retry
                 {
                     retry1.Clone(fixedConnection: retry1.GetCachedConnection()).opIdempotent(4);
                 }
-                catch (Ice.UnhandledException)
+                catch (UnhandledException)
                 {
                 }
                 Instrumentation.testInvocationCount(1);
@@ -169,7 +165,7 @@ namespace Ice.retry
                 retry1.opNotIdempotent();
                 test(false);
             }
-            catch (Ice.UnhandledException)
+            catch (UnhandledException)
             {
             }
             Instrumentation.testInvocationCount(1);
@@ -180,7 +176,7 @@ namespace Ice.retry
                 retry1.opNotIdempotentAsync().Wait();
                 test(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 test(ex.InnerException is UnhandledException);
             }
@@ -206,7 +202,7 @@ namespace Ice.retry
                 retry1.opSystemExceptionAsync().Wait();
                 test(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 test(ex.InnerException is Test.SystemFailure);
             }

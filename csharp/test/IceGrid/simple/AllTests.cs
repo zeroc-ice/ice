@@ -103,7 +103,7 @@ public class AllTests : Test.AllTests
             {
                 IceGrid.ILocatorPrx.UncheckedCast(com.GetDefaultLocator()).GetLocalRegistry();
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
 
@@ -178,10 +178,10 @@ public class AllTests : Test.AllTests
             try
             {
                 IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                test(false);
             }
             catch (NoEndpointException)
             {
-                test(false);
             }
             com.Destroy();
         }

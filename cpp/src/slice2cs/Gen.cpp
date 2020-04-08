@@ -42,7 +42,7 @@ opFormatTypeToString(const OperationPtr& op, string ns)
     {
         case DefaultFormat:
         {
-            return "format: null";
+            return "null";
         }
         case CompactFormat:
         {
@@ -2329,6 +2329,44 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << eb;
 }
 
+namespace
+{
+
+string
+requestType(const list<ParamInfo> inParams, const list<ParamInfo>& outParams)
+{
+    ostringstream os;
+    if(inParams.size() == 0)
+    {
+        os << "Ice.OutgoingRequestWithEmptyParamList";
+        if(outParams.size() > 0)
+        {
+            os << "<" << toTupleType(outParams) << ">";
+        }
+    }
+    else if(inParams.size() == 1 && (!StructPtr::dynamicCast(inParams.front().type) || inParams.front().tagged))
+    {
+        os << "Ice.OutgoingRequestWithParam<" << toTupleType(inParams);
+        if(outParams.size() > 0)
+        {
+            os << ", " << toTupleType(outParams);
+        }
+        os << ">";
+    }
+    else
+    {
+        os << "Ice.OutgoingRequestWithStructParam<" << toTupleType(inParams);
+        if(outParams.size() > 0)
+        {
+            os << ", " << toTupleType(outParams);
+        }
+        os << ">";
+    }
+    return os.str();
+}
+
+}
+
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 {
@@ -2350,8 +2388,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string name = fixId(opName);
     string asyncName = opName + "Async";
     string internalName = "_iceI_" + opName + "Async";
-    bool defaultWriter = inParams.size() == 1 && !inParams.front().tagged;
-    string writer = defaultWriter ? outputStreamWriter(inParams.front().type, ns) : "_iceI_" + opName + "Writer";
 
     TypePtr ret = operation->returnType();
     string retS = typeToString(operation->returnType(), ns, operation->returnIsTagged());
@@ -2359,6 +2395,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string context = getEscapedParamName(operation, "context");
     string cancel = getEscapedParamName(operation, "cancel");
     string progress = getEscapedParamName(operation, "progress");
+
+    string requestProperty = "IceI_" + opName + "Request";
+    string requestObject = "_iceI_" + opName + "Request";
 
     {
         //
@@ -2372,34 +2411,20 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         }
         _out << nl << resultType(operation, ns, false)  << " " << name << spar
              << getInvocationParams(operation, ns)
-             << epar;
-        _out << sb;
-
-        _out << nl << "try";
-        _out << sb;
-
-        if(outParams.size() == 0)
+             << epar << " =>";
+        _out.inc();
+        _out << nl << requestProperty << ".Invoke(this, ";
+        if(inParams.size() > 0)
         {
-            _out << nl << internalName << spar << getInvocationArgsAMI(operation) << epar << ".Wait();";
+            _out << toTuple(inParams) << ", ";
         }
-        else
-        {
-            _out << nl << "return " << internalName << spar << getInvocationArgsAMI(operation) << epar << ".Result;";
-        }
-
-        _out << eb;
-        _out << nl << "catch(global::System.AggregateException ex_)";
-        _out << sb;
-        _out << nl << "global::System.Diagnostics.Debug.Assert(ex_.InnerException != null);";
-        _out << nl << "throw ex_.InnerException;";
-        _out << eb;
-
-        _out << eb;
+        _out << context << ");";
+        _out.dec();
     }
 
     {
         //
-        // Write the async version of the operation (using Async Task API)
+        // Write the async version of the operation
         //
         _out << sp;
         writeOperationDocComment(operation, deprecateReason, false, true);
@@ -2407,99 +2432,119 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
         }
+
         _out << nl << resultTask(operation, ns, false) << " "
-             << asyncName << spar << getInvocationParamsAMI(operation, ns, true) << epar;
-        _out << sb;
-        _out << nl << "return " << internalName << spar
-             << getInvocationArgsAMI(operation, context, progress, cancel, "false") << epar << ";";
-        _out << eb;
+             << asyncName << spar << getInvocationParamsAMI(operation, ns, true) << epar << " => ";
+        _out.inc();
+        _out << nl << requestProperty << ".InvokeAsync(this, ";
+        if(inParams.size() > 0)
+        {
+            _out << toTuple(inParams) << ", ";
+        }
+        _out << context << ", " << progress << ", " << cancel << ");";
+        _out.dec();
     }
 
-    outParams = getAllOutParams(operation, "iceP_");
+    outParams = getAllOutParams(operation, "iceP_", true);
+    string requestT = requestType(inParams, outParams);
+    // Write the static outgoing request instance
+    _out << sp;
+
+    _out << nl << "private static " << requestT << "? " << requestObject << ";";
+    _out << nl << "private static " << requestT << " " << requestProperty << " =>";
+    _out.inc();
+    _out << nl << requestObject << " ?\?= new " << requestT << "(";
+    _out.inc();
+    _out << nl << "operationName: \"" << operation->name() << "\",";
+    _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false");
+    if(inParams.size() > 0)
     {
-        //
-        // Write the Async method implementation.
-        //
-        _out << sp;
-        _out << nl << "private " << resultTask(operation, ns, false) << " " << internalName << spar
-             << getInvocationParamsAMI(operation, ns, false, "iceP_")
-             << "bool synchronous"
-             << epar;
+        _out << ",";
+        _out << nl << "format: " << opFormatTypeToString(operation, ns) << ",";
+        _out << nl << "writer: ";
+        writeOutgoingRequestWriter(operation);
+    }
+
+    if(outParams.size() > 0)
+    {
+        _out << ",";
+        _out << nl << "reader: ";
+        writeOutgoingRequestReader(operation);
+    }
+    _out << ");";
+    _out.dec();
+    _out.dec();
+}
+
+void
+Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operation)
+{
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
+    string ns = getNamespace(cl);
+
+    list<ParamInfo> params = getAllInParams(operation);
+    list<ParamInfo> requiredParams;
+    list<ParamInfo> taggedParams;
+    getInParams(operation, requiredParams, taggedParams, "iceP_");
+
+    bool defaultWriter = params.size() == 1 && !params.front().tagged;
+    if(defaultWriter)
+    {
+        _out << outputStreamWriter(params.front().type, ns);
+    }
+    else if(params.size() > 1)
+    {
+        _out << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, in " << toTupleType(params, "iceP_")
+             << " value) =>";
         _out << sb;
+        writeMarshalParams(operation, requiredParams, taggedParams, "ostr", "value.");
+        _out << eb;
+    }
+    else
+    {
+        ParamInfo p = params.front();
+        _out << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
+             << p.typeStr << " " << (p.param ? fixId("iceP_" + p.param->name()) : fixId("iceP_" + p.name))
+             << ") =>";
+        _out << sb;
+        writeMarshalParams(operation, requiredParams, taggedParams, "ostr");
+        _out << eb;
+    }
+}
 
-        string resultT = resultType(operation, ns, false);
+void
+Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operation)
+{
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
+    string ns = getNamespace(cl);
 
-        _out << nl << "var request = " << getUnqualified("Ice.OutgoingRequestFrame", ns);
-        if(inParams.size() == 0)
+    list<ParamInfo> params = getAllOutParams(operation);
+    list<ParamInfo> requiredParams;
+    list<ParamInfo> taggedParams;
+    getOutParams(operation, requiredParams, taggedParams, "iceP_");
+
+    bool defaultReader = params.size() == 1 && !params.front().tagged;
+
+    if(defaultReader)
+    {
+        _out << inputStreamReader(params.front().type, ns);
+    }
+    else if(params.size() > 0)
+    {
+        _out << "istr =>";
+        _out << sb;
+        writeUnmarshalParams(operation, requiredParams, taggedParams);
+
+        if(params.size() == 1)
         {
-            _out << ".WithEmptyParamList("
-                 << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
-                 << ", context);";
+            ParamInfo p = params.front();
+            _out << nl << "return " << (p.param ? fixId("iceP_" +  p.param->name()) : fixId("iceP_" + p.name)) << ";";
         }
         else
         {
-            _out << ".WithParamList("
-                 << "this, \"" << operation->name() << "\", " << (isIdempotent(operation) ? "true" : "false")
-                 << ", " << opFormatTypeToString(operation, ns) << ", context, ";
-            _out << toTuple(inParams, "iceP_") << ", " << writer << ");";
+            params = getAllOutParams(operation, "iceP_", true);
+            _out << nl << "return " << spar << getNames(params) << epar << ";";
         }
-
-        _out << nl << "var completed = new global::IceInternal.OperationTaskCompletionCallback<"
-             << (outParams.empty() ? "object" : resultT) << ">(progress, cancel);";
-        _out << nl << "var outAsync = new global::IceInternal.OutgoingAsyncT<" << (outParams.empty() ? "object" : resultT)
-             << ">(this, completed, request);";
-
-        _out << nl << "outAsync.Invoke(";
-        _out.inc();
-        _out << nl << '"' << operation->name() << '"' << ", "
-             << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false") << ", "
-             << nl << "oneway: " << (operation->returnsData() ? "false" : "IsOneway") << ", "
-             << nl << "context, "
-             << nl << "synchronous";
-
-        if(outParams.size() > 0)
-        {
-            _out << ", ";
-            _out << nl << "read: (" << getUnqualified("Ice.InputStream", ns) << " istr) =>";
-            _out << sb;
-
-            writeUnmarshalParams(operation, requiredOutParams, taggedOutParams);
-
-            if(outParams.size() == 1)
-            {
-                _out << nl << "return " << outParams.front().name << ";";
-            }
-            else
-            {
-                outParams = getAllOutParams(operation, "iceP_", true);
-                _out << nl << "return " << spar << getNames(outParams) << epar << ";";
-            }
-            _out << eb;
-        }
-        _out << ");";
-        _out.dec();
-        _out << nl << "return completed.Task;";
-        _out << eb;
-    }
-
-    // Write the output stream writer used to fill the request frame
-    if(inParams.size() > 1)
-    {
-        _out << sp;
-        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
-             << toTupleType(inParams) << " value)";
-        _out << sb;
-        writeMarshalParams(operation, requiredInParams, taggedInParams, "ostr", "value.");
-        _out << eb;
-    }
-    else if(inParams.size() == 1 && !defaultWriter)
-    {
-        auto param = inParams.front();
-        _out << sp;
-        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
-             << param.typeStr << " " << param.name << ")";
-        _out << sb;
-        writeMarshalParams(operation, requiredInParams, taggedInParams, "ostr");
         _out << eb;
     }
 }
@@ -2608,7 +2653,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "?> IceReader = Read" << name << ";";
+    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
 
     _out << eb;
 }
@@ -2773,16 +2818,14 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << nl << toTuple(outParams, "iceP_") << ", ";
         if(outParams.size() > 1)
         {
-            _out << nl << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
-                 << toTupleType(outParams, "iceP_") << " value) => ";
+            _out << nl << "(Ice.OutputStream ostr, " << toTupleType(outParams, "iceP_") << " value) => ";
             _out << sb;
             writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "value.");
             _out << eb;
         }
         else
         {
-            _out << nl << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, " << toTupleType(outParams, "iceP_")
-                 << ") =>";
+            _out << nl << "(ostr, " << getNames(outParams, "iceP_") << ") =>";
             _out << sb;
             writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
             _out << eb;
@@ -2841,10 +2884,10 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     list<ParamInfo> taggedInParams;
     getInParams(operation, requiredInParams, taggedInParams, "iceP_");
 
-    list<ParamInfo> outParams = getAllOutParams(operation, "iceP_", true);
+    list<ParamInfo> outParams = getAllOutParams(operation, "", true);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
-    getOutParams(operation, requiredOutParams, taggedOutParams, "iceP_");
+    getOutParams(operation, requiredOutParams, taggedOutParams);
 
     bool defaultWriter = outParams.size() == 1 && !outParams.front().tagged;
     string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns) : "_iceD_" + opName + "Writer";
@@ -2977,7 +3020,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     if(inParams.size() > 1)
     {
         _out << sp;
-        _out << nl << "private static readonly global::Ice.InputStreamReader<" << toTupleType(inParams) << "> "
+        _out << nl << "private static readonly global::Ice.InputStreamReader<" << toTupleType(inParams, "iceP_") << "> "
              << reader << " = istr =>";
         _out << sb;
         writeUnmarshalParams(operation, requiredInParams, taggedInParams);

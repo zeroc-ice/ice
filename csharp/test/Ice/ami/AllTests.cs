@@ -373,12 +373,8 @@ namespace Ice.ami
                     indirect.opAsync().Wait();
                     test(false);
                 }
-                catch (AggregateException ae)
+                catch (NoEndpointException)
                 {
-                    ae.Handle((ex) =>
-                    {
-                        return ex is NoEndpointException;
-                    });
                 }
 
                 //
@@ -414,7 +410,7 @@ namespace Ice.ami
                     i.IceIsAAsync("::Test::TestIntf").Wait();
                     test(false);
                 }
-                catch (Ice.NoEndpointException)
+                catch (NoEndpointException)
                 {
                 }
 
@@ -423,7 +419,7 @@ namespace Ice.ami
                     i.opAsync().Wait();
                     test(false);
                 }
-                catch (AggregateException)
+                catch (NoEndpointException)
                 {
                 }
 
@@ -432,7 +428,7 @@ namespace Ice.ami
                     i.opWithResultAsync().Wait();
                     test(false);
                 }
-                catch (AggregateException)
+                catch (NoEndpointException)
                 {
                 }
 
@@ -441,7 +437,7 @@ namespace Ice.ami
                     i.opWithUEAsync().Wait();
                     test(false);
                 }
-                catch (AggregateException)
+                catch (NoEndpointException)
                 {
                 }
 
@@ -473,10 +469,7 @@ namespace Ice.ami
                     SentCallback cb = new SentCallback();
 
                     Task t = p.IceIsAAsync("",
-                        progress: new Progress(sentSynchronously =>
-                        {
-                            cb.sent(sentSynchronously);
-                        }));
+                        progress: new Progress(sentSynchronously => cb.sent(sentSynchronously)));
                     cb.check();
                     t.Wait();
 
@@ -789,7 +782,7 @@ namespace Ice.ami
                     //
                     try
                     {
-                        p.close(Test.CloseMode.Forcefully);
+                        p.close(CloseMode.Forcefully);
                         test(false);
                     }
                     catch (ConnectionLostException)

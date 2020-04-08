@@ -47,9 +47,6 @@
         <Compile Update="generated\RouterF.cs">
           <SliceCompileSource>..\..\..\slice\Ice\RouterF.ice</SliceCompileSource>
         </Compile>
-        <Compile Update="generated\RequestFailedException.cs">
-          <SliceCompileSource>..\..\..\slice\Ice\RequestFailedException.ice</SliceCompileSource>
-        </Compile>
     </ItemGroup>
     <ItemGroup />
 </Project>
