@@ -363,9 +363,9 @@ namespace Ice.optional
             outer.value = recursive1;
             initial.pingPong(outer);
 
-            G g = new Test.G();
-            g.gg1Opt = new Test.G1("gg1Opt");
-            g.gg2 = new Test.G2(10);
+            G g = new G();
+            g.gg1Opt = new G1("gg1Opt");
+            g.gg2 = new G2(10);
             g.gg2Opt = new G2(20);
             g.gg1 = new G1("gg1");
             g = initial.opG(g);

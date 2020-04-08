@@ -131,8 +131,10 @@ protected:
     std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
     std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);
 
-    void writeTaggedSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                                 const std::string&, int, bool, const std::string& = "");
+    void writeTaggedSequenceMarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
+                                        const std::string&, int, const std::string&);
+    void writeTaggedSequenceUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
+                                          const std::string&, int, const std::string&);
 private:
 
     class MetaDataVisitor : public ParserVisitor
