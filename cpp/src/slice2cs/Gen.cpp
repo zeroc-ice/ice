@@ -1910,7 +1910,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(auto m : dataMembers)
     {
-        _out << nl << fixId(dataMemberName(m)) << " = ";
+        _out << nl;
         writeUnmarshalDataMember(m, fixId(dataMemberName(m)) , ns, "iceP_istr");
     }
 
