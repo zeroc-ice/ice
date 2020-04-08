@@ -372,6 +372,10 @@ getInvocationParams(const OperationPtr& op, const string& ns)
         }
         ostringstream param;
         param << getParamAttributes(p);
+        if(StructPtr::dynamicCast(p->type()))
+        {
+            param << "in ";
+        }
         param << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()))
               << " "
               << fixId(p->name());
@@ -394,8 +398,12 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
         }
 
         ostringstream param;
-        param << getParamAttributes(p)
-              << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()))
+        param << getParamAttributes(p);
+        if(StructPtr::dynamicCast(p->type()))
+        {
+            param << "in ";
+        }
+        param << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()))
               << " "
               << fixId(prefix + p->name());
         params.push_back(param.str());
