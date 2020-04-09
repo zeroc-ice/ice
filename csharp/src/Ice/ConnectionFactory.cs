@@ -410,7 +410,7 @@ namespace IceInternal
                 {
                     _connections.Remove(c.Connector, c);
                     _connectionsByEndpoint.Remove(c.Endpoint, c);
-                    _connectionsByEndpoint.Remove((c.Endpoint).NewCompressionFlag(true), c);
+                    _connectionsByEndpoint.Remove(c.Endpoint.NewCompressionFlag(true), c);
                 }
 
                 //
@@ -514,7 +514,7 @@ namespace IceInternal
                 }
                 _connections.Add(ci.Connector, connection);
                 _connectionsByEndpoint.Add(connection.Endpoint, connection);
-                _connectionsByEndpoint.Add((connection.Endpoint).NewCompressionFlag(true), connection);
+                _connectionsByEndpoint.Add(connection.Endpoint.NewCompressionFlag(true), connection);
                 return connection;
             }
         }

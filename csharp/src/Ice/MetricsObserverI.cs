@@ -54,13 +54,13 @@ namespace IceMX
                         }
                         catch (ArgumentException)
                         {
-                            if (obj is Ice.Endpoint)
+                            if (obj is Ice.Endpoint endpoint)
                             {
-                                obj = ((Ice.Endpoint)obj).Underlying;
+                                obj = endpoint.Underlying;
                             }
-                            else if (obj is Ice.ConnectionInfo)
+                            else if (obj is Ice.ConnectionInfo connectionInfo)
                             {
-                                obj = ((Ice.ConnectionInfo)obj).Underlying;
+                                obj = connectionInfo.Underlying;
                             }
                             else
                             {
