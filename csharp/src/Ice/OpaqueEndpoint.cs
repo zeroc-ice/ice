@@ -76,7 +76,7 @@ namespace Ice
         public override string OptionsToString()
         {
             var sb = new StringBuilder(" -t ");
-            sb.Append(Type.ToString(CultureInfo.InvariantCulture));
+            sb.Append(((short)Type).ToString(CultureInfo.InvariantCulture));
 
             sb.Append(" -e ");
             sb.Append(Encoding.ToString());
