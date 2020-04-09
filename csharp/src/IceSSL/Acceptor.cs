@@ -8,9 +8,9 @@ namespace IceSSL
     {
         public void Close() => _delegate.Close();
 
-        public IceInternal.Endpoint Listen()
+        public Ice.Endpoint Listen()
         {
-            _endpoint = _endpoint.endpoint(_delegate.Listen());
+            _endpoint = _endpoint.GetEndpoint(_delegate.Listen());
             return _endpoint;
         }
 

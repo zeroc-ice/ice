@@ -18,7 +18,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpointI
         //
-        internal UdpConnector(TransportInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
+        internal UdpConnector(TransportInstance instance, EndPoint addr, IPAddress? sourceAddr, string mcastInterface,
                               int mcastTtl, string connectionId)
         {
             _instance = instance;
@@ -82,7 +82,7 @@ namespace IceInternal
 
         private readonly TransportInstance _instance;
         private readonly EndPoint _addr;
-        private readonly EndPoint? _sourceAddr;
+        private readonly IPAddress? _sourceAddr;
         private readonly string _mcastInterface;
         private readonly int _mcastTtl;
         private readonly string _connectionId;

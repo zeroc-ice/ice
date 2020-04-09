@@ -6,93 +6,122 @@ using System.Collections.Generic;
 
 namespace IceSSL
 {
-    internal sealed class Endpoint : IceInternal.Endpoint
+    /// <summary> Endpoint represents a TLS layer over another endpoint.</summary>
+    public sealed class Endpoint : Ice.Endpoint
     {
-        internal Endpoint(Instance instance, IceInternal.Endpoint del)
+        public override string ConnectionId => _delegate.ConnectionId;
+        public override bool HasCompressionFlag => _delegate.HasCompressionFlag;
+        public override bool IsDatagram => _delegate.IsDatagram;
+        public override bool IsSecure => _delegate.IsSecure;
+        public override int Timeout => _delegate.Timeout;
+        public override Ice.EndpointType Type => _delegate.Type;
+        public override Ice.Endpoint Underlying => _delegate;
+
+        private readonly Ice.Endpoint _delegate;
+        private readonly Instance _instance;
+
+        public override bool Equals(Ice.Endpoint? other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if (other is Endpoint sslEndpoint)
+            {
+                return _delegate.Equals(sslEndpoint._delegate);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode() => _delegate.GetHashCode();
+
+        public override string OptionsToString() => _delegate.OptionsToString();
+
+        public override bool Equivalent(Ice.Endpoint endpoint)
+        {
+            if (endpoint is Endpoint sslEndpoint)
+            {
+                return _delegate.Equivalent(sslEndpoint._delegate);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override void IceWriteImpl(Ice.OutputStream ostr) => _delegate.IceWriteImpl(ostr);
+
+        public override Ice.Endpoint NewCompressionFlag(bool compressionFlag) =>
+            compressionFlag == _delegate.HasCompressionFlag ? this :
+                new Endpoint(_instance, _delegate.NewCompressionFlag(compressionFlag));
+
+        public override Ice.Endpoint NewConnectionId(string connectionId) =>
+            connectionId == _delegate.ConnectionId ? this :
+                new Endpoint(_instance, _delegate.NewConnectionId(connectionId));
+
+        public override Ice.Endpoint NewTimeout(int timeout) =>
+        timeout == _delegate.Timeout ? this : new Endpoint(_instance, _delegate.NewTimeout(timeout));
+
+        public override void ConnectorsAsync(Ice.EndpointSelectionType endpointSelection,
+                                             Ice.IEndpointConnectors callback)
+        {
+            string host = "";
+            for (Ice.Endpoint? p = _delegate; p != null; p = p.Underlying)
+            {
+                if (p is Ice.IPEndpoint ipEndpoint)
+                {
+                    host = ipEndpoint.Host;
+                    break;
+                }
+            }
+            _delegate.ConnectorsAsync(endpointSelection, new EndpointI_connectorsI(_instance, host, callback));
+        }
+
+        public override List<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+        {
+            var endpoints = new List<Ice.Endpoint>();
+            foreach (Ice.Endpoint e in _delegate.ExpandHost(out publish))
+            {
+                endpoints.Add(e == _delegate ? this : new Endpoint(_instance, e));
+            }
+            if (publish != null)
+            {
+                publish = publish == _delegate ? this : new Endpoint(_instance, publish);
+            }
+            return endpoints;
+        }
+
+        public override List<Ice.Endpoint> ExpandIfWildcard()
+        {
+            var l = new List<Ice.Endpoint>();
+            foreach (Ice.Endpoint e in _delegate.ExpandIfWildcard())
+            {
+                l.Add(e == _delegate ? this : new Endpoint(_instance, e));
+            }
+            return l;
+        }
+
+        public override IceInternal.IAcceptor GetAcceptor(string adapterName) =>
+            new Acceptor(this, _instance, _delegate.GetAcceptor(adapterName)!, adapterName);
+
+        public override IceInternal.ITransceiver? GetTransceiver() => null;
+
+        internal Endpoint GetEndpoint(Ice.Endpoint del) => del == _delegate ? this : new Endpoint(_instance, del);
+
+        internal Endpoint(Instance instance, Ice.Endpoint del)
         {
             _instance = instance;
             _delegate = del;
         }
 
-        public override void StreamWriteImpl(Ice.OutputStream os) => _delegate.StreamWriteImpl(os);
-
-        private sealed class InfoI : EndpointInfo
+        private sealed class EndpointI_connectorsI : Ice.IEndpointConnectors
         {
-            public InfoI(Endpoint e) => _endpoint = e;
-            public override Ice.EndpointType Type() => _endpoint.Type();
-            public override bool Datagram() => _endpoint.Datagram();
-            public override bool Secure() => _endpoint.Secure();
-
-            private readonly Endpoint _endpoint;
-        }
-
-        public override Ice.EndpointInfo GetInfo()
-        {
-            var info = new InfoI(this);
-            info.Underlying = _delegate.GetInfo();
-            info.Compress = info.Underlying.Compress;
-            info.Timeout = info.Underlying.Timeout;
-            return info;
-        }
-
-        public override Ice.EndpointType Type() => _delegate.Type();
-
-        public override string Transport() => _delegate.Transport();
-
-        public override int Timeout() => _delegate.Timeout();
-
-        public override IceInternal.Endpoint Timeout(int timeout)
-        {
-            if (timeout == _delegate.Timeout())
-            {
-                return this;
-            }
-            else
-            {
-                return new Endpoint(_instance, _delegate.Timeout(timeout));
-            }
-        }
-
-        public override string ConnectionId() => _delegate.ConnectionId();
-
-        public override IceInternal.Endpoint ConnectionId(string connectionId)
-        {
-            if (connectionId.Equals(_delegate.ConnectionId()))
-            {
-                return this;
-            }
-            else
-            {
-                return new Endpoint(_instance, _delegate.ConnectionId(connectionId));
-            }
-        }
-
-        public override bool Compress() => _delegate.Compress();
-
-        public override IceInternal.Endpoint Compress(bool compress)
-        {
-            if (compress == _delegate.Compress())
-            {
-                return this;
-            }
-            else
-            {
-                return new Endpoint(_instance, _delegate.Compress(compress));
-            }
-        }
-
-        public override bool Datagram() => _delegate.Datagram();
-        public override bool Secure() => _delegate.Secure();
-        public override IceInternal.ITransceiver? Transceiver() => null;
-
-        private sealed class EndpointI_connectorsI : IceInternal.IEndpointConnectors
-        {
-            public EndpointI_connectorsI(Instance instance, string host, IceInternal.IEndpointConnectors cb)
-            {
-                _instance = instance;
-                _host = host;
-                _callback = cb;
-            }
+            private readonly Instance _instance;
+            private readonly string _host;
+            private readonly Ice.IEndpointConnectors _callback;
 
             public void Connectors(List<IceInternal.IConnector> connectors)
             {
@@ -103,122 +132,33 @@ namespace IceSSL
                 }
                 _callback.Connectors(l);
             }
-
             public void Exception(System.Exception ex) => _callback.Exception(ex);
 
-            private readonly Instance _instance;
-            private readonly string _host;
-            private readonly IceInternal.IEndpointConnectors _callback;
-        }
-
-        public override void ConnectorsAsync(Ice.EndpointSelectionType selType,
-                                             IceInternal.IEndpointConnectors callback)
-        {
-            string host = "";
-            for (Ice.EndpointInfo? p = _delegate.GetInfo(); p != null; p = p.Underlying)
+            internal EndpointI_connectorsI(Instance instance, string host, Ice.IEndpointConnectors cb)
             {
-                if (p is Ice.IPEndpointInfo)
-                {
-                    host = ((Ice.IPEndpointInfo)p).Host;
-                    break;
-                }
-            }
-            _delegate.ConnectorsAsync(selType, new EndpointI_connectorsI(_instance, host, callback));
-        }
-
-        public override IceInternal.IAcceptor Acceptor(string adapterName) =>
-            new Acceptor(this, _instance, _delegate.Acceptor(adapterName), adapterName);
-
-        public Endpoint endpoint(IceInternal.Endpoint del)
-        {
-            if (del == _delegate)
-            {
-                return this;
-            }
-            else
-            {
-                return new Endpoint(_instance, del);
+                _instance = instance;
+                _host = host;
+                _callback = cb;
             }
         }
-
-        public override List<IceInternal.Endpoint> ExpandIfWildcard()
-        {
-            var l = new List<IceInternal.Endpoint>();
-            foreach (IceInternal.Endpoint e in _delegate.ExpandIfWildcard())
-            {
-                l.Add(e == _delegate ? this : new Endpoint(_instance, e));
-            }
-            return l;
-        }
-
-        public override List<IceInternal.Endpoint> ExpandHost(out IceInternal.Endpoint? publish)
-        {
-            var l = new List<IceInternal.Endpoint>();
-            foreach (IceInternal.Endpoint e in _delegate.ExpandHost(out publish))
-            {
-                l.Add(e == _delegate ? this : new Endpoint(_instance, e));
-            }
-            if (publish != null)
-            {
-                publish = publish == _delegate ? this : new Endpoint(_instance, publish);
-            }
-            return l;
-        }
-
-        public override bool Equivalent(IceInternal.Endpoint endpoint)
-        {
-            if (!(endpoint is Endpoint))
-            {
-                return false;
-            }
-            var endpointI = (Endpoint)endpoint;
-            return _delegate.Equivalent(endpointI._delegate);
-        }
-
-        public override string Options() => _delegate.Options();
-
-        //
-        // Compare endpoints for sorting purposes
-        //
-        public override int CompareTo(IceInternal.Endpoint obj)
-        {
-            if (!(obj is Endpoint))
-            {
-                return Type() < obj.Type() ? -1 : 1;
-            }
-
-            var p = (Endpoint)obj;
-            if (this == p)
-            {
-                return 0;
-            }
-
-            return _delegate.CompareTo(p._delegate);
-        }
-
-        public override int GetHashCode() => _delegate.GetHashCode();
-
-        protected override bool CheckOption(string option, string? argument, string endpoint) => false;
-
-        private readonly Instance _instance;
-        private readonly IceInternal.Endpoint _delegate;
     }
 
     internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
     {
-        public EndpointFactoryI(Instance instance, Ice.EndpointType type) : base(instance, type) => _instance = instance;
+        private readonly Instance _instance;
 
-        public override IceInternal.IEndpointFactory
-        CloneWithUnderlying(IceInternal.TransportInstance inst, Ice.EndpointType underlying) =>
+        public EndpointFactoryI(Instance instance, Ice.EndpointType type)
+            : base(instance, type) =>
+            _instance = instance;
+
+        public override IceInternal.IEndpointFactory CloneWithUnderlying(IceInternal.TransportInstance inst,
+            Ice.EndpointType underlying) =>
             new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Transport), underlying);
 
-        protected override IceInternal.Endpoint
-        CreateWithUnderlying(IceInternal.Endpoint? underlying, List<string> args, bool oaEndpoint) =>
+        protected override Ice.Endpoint CreateWithUnderlying(Ice.Endpoint underlying, string endpointString,
+            Dictionary<string, string?> options, bool oaEndpoint) => new Endpoint(_instance, underlying);
+
+        protected override Ice.Endpoint ReadWithUnderlying(Ice.Endpoint underlying, Ice.InputStream istr) =>
             new Endpoint(_instance, underlying);
-
-        protected override IceInternal.Endpoint
-        ReadWithUnderlying(IceInternal.Endpoint? underlying, Ice.InputStream s) => new Endpoint(_instance, underlying);
-
-        private readonly Instance _instance;
     }
 }

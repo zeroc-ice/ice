@@ -30,7 +30,7 @@ namespace IceInternal
         public bool PreferIPv6 => Communicator.PreferIPv6;
         public int IPVersion => Communicator.IPVersion;
         public string DefaultHost => Communicator.DefaultsAndOverrides.DefaultHost ?? "";
-        public EndPoint? DefaultSourceAddress => Communicator.DefaultsAndOverrides.DefaultSourceAddress;
+        public IPAddress? DefaultSourceAddress => Communicator.DefaultsAndOverrides.DefaultSourceAddress;
         public Ice.Encoding DefaultEncoding => Communicator.DefaultsAndOverrides.DefaultEncoding;
         public int DefaultTimeout => Communicator.DefaultsAndOverrides.DefaultTimeout;
         public int MessageSizeMax => Communicator.MessageSizeMax;

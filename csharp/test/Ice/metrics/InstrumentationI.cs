@@ -149,7 +149,7 @@ public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObser
     }
 
     public Ice.Instrumentation.IRemoteObserver
-    GetRemoteObserver(Ice.ConnectionInfo c, Ice.IEndpoint e, int a, int b)
+    GetRemoteObserver(Ice.ConnectionInfo c, Ice.Endpoint e, int a, int b)
     {
         lock (this)
         {
@@ -289,7 +289,7 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
     }
 
     public Ice.Instrumentation.IObserver
-    GetConnectionEstablishmentObserver(Ice.IEndpoint e, String s)
+    GetConnectionEstablishmentObserver(Ice.Endpoint e, String s)
     {
         lock (this)
         {
@@ -303,7 +303,7 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
     }
 
     public Ice.Instrumentation.IObserver
-    GetEndpointLookupObserver(Ice.IEndpoint e)
+    GetEndpointLookupObserver(Ice.Endpoint e)
     {
         lock (this)
         {
@@ -318,7 +318,7 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
 
     public Ice.Instrumentation.IConnectionObserver
     GetConnectionObserver(Ice.ConnectionInfo c,
-                          Ice.IEndpoint e,
+                          Ice.Endpoint e,
                           Ice.Instrumentation.ConnectionState s,
                           Ice.Instrumentation.IConnectionObserver old)
     {

@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,7 +42,7 @@ namespace IceInternal
                 _fd = null;
                 throw;
             }
-            _endpoint = _endpoint.Endpoint(this);
+            _endpoint = _endpoint.GetEndpoint(this);
             return _endpoint;
         }
 

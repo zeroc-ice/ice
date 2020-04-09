@@ -121,7 +121,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the remote invocation.</returns>
-            IRemoteObserver GetRemoteObserver(global::Ice.ConnectionInfo con, global::Ice.IEndpoint endpt, int requestId, int size);
+            IRemoteObserver GetRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size);
 
             /// <summary>
             /// Get a collocated observer for this invocation.
@@ -136,7 +136,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the collocated invocation.</returns>
-            ICollocatedObserver GetCollocatedObserver(global::Ice.ObjectAdapter adapter, int requestId, int size);
+            ICollocatedObserver GetCollocatedObserver(Ice.ObjectAdapter adapter, int requestId, int size);
         }
 
         public partial interface IObserverUpdater
@@ -179,7 +179,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the connection establishment.</returns>
-            IObserver? GetConnectionEstablishmentObserver(IEndpoint endpt, string connector);
+            IObserver? GetConnectionEstablishmentObserver(Endpoint endpt, string connector);
 
             /// <summary>
             /// This method should return an observer for the given endpoint
@@ -195,7 +195,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the endpoint lookup.</returns>
-            IObserver? GetEndpointLookupObserver(IEndpoint endpt);
+            IObserver? GetEndpointLookupObserver(Endpoint endpt);
 
             /// <summary>
             /// This method should return a connection observer for the given
@@ -219,7 +219,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The connection observer to instrument the connection.</returns>
-            IConnectionObserver? GetConnectionObserver(ConnectionInfo c, IEndpoint e, ConnectionState s, IConnectionObserver? o);
+            IConnectionObserver? GetConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, IConnectionObserver? o);
 
             /// <summary>
             /// This method should return a thread observer for the given

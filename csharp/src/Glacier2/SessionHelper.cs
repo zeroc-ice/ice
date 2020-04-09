@@ -411,9 +411,10 @@ namespace Glacier2
 
                 if (_communicator.GetDefaultRouter() == null)
                 {
-                    var finder = IRouterFinderPrx.Parse(_finderStr, _communicator);
+                    IRouterFinderPrx? finder = null;
                     try
                     {
+                        finder = IRouterFinderPrx.Parse(_finderStr, _communicator);
                         _communicator.SetDefaultRouter(finder.GetRouter());
                     }
                     catch (CommunicatorDestroyedException ex)
@@ -421,13 +422,21 @@ namespace Glacier2
                         _callback.connectFailed(this, ex);
                         return;
                     }
-                    catch (System.Exception)
+                    catch (System.Exception ex)
                     {
-                        //
-                        // In case of error getting router identity from RouterFinder use default identity.
-                        //
-                        _communicator.SetDefaultRouter(
-                                finder.Clone(new Identity("router", "Glacier2"), Ice.IRouterPrx.Factory));
+                        if (finder == null)
+                        {
+                            _callback.connectFailed(this, ex);
+                            return;
+                        }
+                        else
+                        {
+                            //
+                            // In case of error getting router identity from RouterFinder use default identity.
+                            //
+                            _communicator.SetDefaultRouter(
+                                    finder.Clone(new Identity("router", "Glacier2"), Ice.IRouterPrx.Factory));
+                        }
                     }
                 }
 

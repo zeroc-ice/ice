@@ -184,6 +184,10 @@ public class Client : Test.TestHelper
             {
                 Console.Out.WriteLine("ok");
             }
+            catch (System.FormatException)
+            {
+                Console.Out.WriteLine("ok");
+            }
             catch (System.Exception)
             {
                 test(false);

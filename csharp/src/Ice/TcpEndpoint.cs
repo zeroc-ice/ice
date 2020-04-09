@@ -2,101 +2,113 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using IceInternal;
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Text;
 
-namespace IceInternal
+namespace Ice
 {
-    internal sealed class TcpEndpoint : IPEndpoint
+    /// <summary>The Endpoint class for the TCP transport.</summary>
+    public sealed class TcpEndpoint : IPEndpoint
     {
-        public TcpEndpoint(TransportInstance instance, string ho, int po, EndPoint? sourceAddr, int ti, string conId,
-                            bool co) :
-            base(instance, ho, po, sourceAddr, conId)
+        public override bool IsDatagram => false;
+        public override bool HasCompressionFlag { get; }
+        public override int Timeout { get; }
+
+        private int _hashCode = 0;
+
+        public override bool Equals(Endpoint? other)
         {
-            _timeout = ti;
-            _compress = co;
-        }
-
-        public TcpEndpoint(TransportInstance instance) :
-            base(instance)
-        {
-            _timeout = instance.DefaultTimeout;
-            _compress = false;
-        }
-
-        public TcpEndpoint(TransportInstance instance, Ice.InputStream s) :
-            base(instance, s)
-        {
-            _timeout = s.ReadInt();
-            _compress = s.ReadBool();
-        }
-
-        private sealed class Info : Ice.TCPEndpointInfo
-        {
-            public Info(IPEndpoint e) => _endpoint = e;
-
-            public override EndpointType Type() => _endpoint.Type();
-
-            public override bool Datagram() => _endpoint.Datagram();
-
-            public override bool Secure() => _endpoint.Secure();
-
-            private readonly IPEndpoint _endpoint;
-        }
-
-        public override void StreamWriteImpl(Ice.OutputStream s)
-        {
-            base.StreamWriteImpl(s);
-            s.WriteInt(_timeout);
-            s.WriteBool(_compress);
-        }
-
-        public override Ice.EndpointInfo GetInfo()
-        {
-            var info = new Info(this);
-            FillEndpointInfo(info);
-            return info;
-        }
-
-        public override int Timeout() => _timeout;
-
-        public override Endpoint Timeout(int timeout)
-        {
-            if (timeout == _timeout)
+            if (ReferenceEquals(this, other))
             {
-                return this;
+                return true;
+            }
+            if (other is TcpEndpoint tcpEndpoint)
+            {
+                if (Timeout != tcpEndpoint.Timeout)
+                {
+                    return false;
+                }
+                if (HasCompressionFlag != tcpEndpoint.HasCompressionFlag)
+                {
+                    return false;
+                }
+                return base.Equals(tcpEndpoint);
             }
             else
             {
-                return new TcpEndpoint(Instance, Host!, Port, SourceAddr, timeout, ConnectionId_, _compress);
+                return false;
             }
         }
 
-        public override bool Compress() => _compress;
-
-        public override Endpoint Compress(bool compress)
+        public override int GetHashCode()
         {
-            if (compress == _compress)
+            // This code is thread safe because reading/writing _hashCode (an int) is atomic.
+            if (_hashCode != 0)
             {
-                return this;
+                // Return cached value
+                return _hashCode;
             }
             else
             {
-                return new TcpEndpoint(Instance, Host!, Port, SourceAddr, _timeout, ConnectionId_, compress);
+                var hash = new HashCode();
+                hash.Add(base.GetHashCode());
+                hash.Add(HasCompressionFlag);
+                hash.Add(Timeout);
+                int hashCode = hash.ToHashCode();
+                if (hashCode == 0) // 0 is not a valid value as it means "not initialized".
+                {
+                    hashCode = 1;
+                }
+                _hashCode = hashCode;
+                return _hashCode;
             }
         }
 
-        public override bool Datagram() => false;
+        public override string OptionsToString()
+        {
+            var sb = new StringBuilder(base.OptionsToString());
 
-        public override ITransceiver? Transceiver() => null;
+            if (Timeout == -1)
+            {
+                sb.Append(" -t infinite");
+            }
+            else
+            {
+                sb.Append(" -t ");
+                sb.Append(Timeout.ToString(CultureInfo.InvariantCulture));
+            }
 
-        public override IAcceptor Acceptor(string adapterName) => new TcpAcceptor(this, Instance, Host!, Port);
+            if (HasCompressionFlag)
+            {
+                sb.Append(" -z");
+            }
+            return sb.ToString();
+        }
 
-        public TcpEndpoint Endpoint(TcpAcceptor acceptor)
+        public override void IceWriteImpl(OutputStream s)
+        {
+            base.IceWriteImpl(s);
+            s.WriteInt(Timeout);
+            s.WriteBool(HasCompressionFlag);
+        }
+
+        public override Endpoint NewTimeout(int timeout) =>
+            timeout == Timeout ? this :
+                new TcpEndpoint(Instance, Host, Port, SourceAddress, timeout, ConnectionId, HasCompressionFlag);
+
+        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
+            compressionFlag == HasCompressionFlag ? this :
+                new TcpEndpoint(Instance, Host, Port, SourceAddress, Timeout, ConnectionId, compressionFlag);
+
+        public override IAcceptor GetAcceptor(string adapterName) => new TcpAcceptor(this, Instance, Host, Port);
+        public override ITransceiver? GetTransceiver() => null;
+
+        internal TcpEndpoint GetEndpoint(TcpAcceptor acceptor)
         {
             int port = acceptor.EffectivePort();
             if (port == Port)
@@ -105,181 +117,103 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpoint(Instance, Host!, port, SourceAddr, _timeout, ConnectionId_, _compress);
+                return new TcpEndpoint(Instance, Host, port, SourceAddress, Timeout, ConnectionId, HasCompressionFlag);
             }
         }
 
-        public override string Options()
+        internal TcpEndpoint(TransportInstance instance, string host, int port, IPAddress? sourceAddress,
+                             int timeout, string connectionId, bool compressionFlag) :
+            base(instance, host, port, sourceAddress, connectionId)
         {
-            //
-            // WARNING: Certain features, such as proxy validation in Glacier2,
-            // depend on the format of proxy strings. Changes to toString() and
-            // methods called to generate parts of the reference string could break
-            // these features. Please review for all features that depend on the
-            // format of proxyToString() before changing this and related code.
-            //
-            string s = base.Options();
+            Timeout = timeout;
+            HasCompressionFlag = compressionFlag;
+        }
 
-            if (_timeout == -1)
+        internal TcpEndpoint(TransportInstance instance, InputStream s) :
+            base(instance, s)
+        {
+            Timeout = s.ReadInt();
+            HasCompressionFlag = s.ReadBool();
+        }
+
+        internal TcpEndpoint(TransportInstance instance, string endpointString, Dictionary<string, string?> options,
+                             bool oaEndpoint)
+            : base(instance, endpointString, options, oaEndpoint)
+        {
+            string? argument;
+
+            if (options.TryGetValue("-t", out argument))
             {
-                s += " -t infinite";
+                if (argument == null)
+                {
+                    throw new FormatException($"no argument provided for -t option in endpoint `{endpointString}'");
+                }
+                if (argument == "infinite")
+                {
+                    Timeout = -1;
+                }
+                else
+                {
+                    try
+                    {
+                        Timeout = int.Parse(argument, CultureInfo.InvariantCulture);
+                    }
+                    catch (FormatException ex)
+                    {
+                        throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'",
+                             ex);
+                    }
+                    if (Timeout < 1)
+                    {
+                        throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'");
+                    }
+                }
+                options.Remove("-t");
             }
             else
             {
-                s += " -t " + _timeout;
+                Timeout = Instance.DefaultTimeout;
             }
 
-            if (_compress)
+            if (options.TryGetValue("-z", out argument))
             {
-                s += " -z";
-            }
-
-            return s;
-        }
-
-        public override int CompareTo(Endpoint obj)
-        {
-            if (!(obj is TcpEndpoint))
-            {
-                return Type() < obj.Type() ? -1 : 1;
-            }
-
-            var p = (TcpEndpoint)obj;
-            if (this == p)
-            {
-                return 0;
-            }
-
-            if (_timeout < p._timeout)
-            {
-                return -1;
-            }
-            else if (p._timeout < _timeout)
-            {
-                return 1;
-            }
-
-            if (!_compress && p._compress)
-            {
-                return -1;
-            }
-            else if (!p._compress && _compress)
-            {
-                return 1;
-            }
-
-            return base.CompareTo(p);
-        }
-
-        public override void HashInit(ref HashCode hash)
-        {
-            base.HashInit(ref hash);
-            hash.Add(_timeout);
-            hash.Add(_compress);
-        }
-
-        public override void FillEndpointInfo(Ice.IPEndpointInfo info)
-        {
-            base.FillEndpointInfo(info);
-            info.Timeout = _timeout;
-            info.Compress = _compress;
-        }
-
-        protected override bool CheckOption(string option, string? argument, string endpoint)
-        {
-            if (base.CheckOption(option, argument, endpoint))
-            {
-                return true;
-            }
-
-            switch (option[1])
-            {
-                case 't':
-                    {
-                        if (argument == null)
-                        {
-                            throw new FormatException($"no argument provided for -t option in endpoint {endpoint}");
-                        }
-
-                        if (argument == "infinite")
-                        {
-                            _timeout = -1;
-                        }
-                        else
-                        {
-                            try
-                            {
-                                _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
-                            }
-                            catch (FormatException ex)
-                            {
-                                throw new FormatException($"invalid timeout value `{argument}' in endpoint {endpoint}", ex);
-                            }
-
-                            if (_timeout < 1)
-                            {
-                                throw new FormatException($"invalid timeout value `{argument}' in endpoint {endpoint}");
-                            }
-                        }
-
-                        return true;
-                    }
-
-                case 'z':
-                    {
-                        if (argument != null)
-                        {
-                            throw new FormatException($"unexpected argument `{argument}' provided for -z option in {endpoint}");
-                        }
-
-                        _compress = true;
-
-                        return true;
-                    }
-
-                default:
-                    {
-                        return false;
-                    }
+                if (argument != null)
+                {
+                    throw new FormatException(
+                        $"unexpected argument `{argument}' provided for -z option in `{endpointString}'");
+                }
+                HasCompressionFlag = true;
+                options.Remove("-z");
             }
         }
 
-        protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(Instance, addr, proxy, SourceAddr, _timeout, ConnectionId_);
+        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+            new TcpConnector(Instance, addr, proxy, SourceAddress, Timeout, ConnectionId);
 
-        protected override IPEndpoint CreateEndpoint(string? host, int port, string connectionId) =>
-            new TcpEndpoint(Instance, host!, port, SourceAddr, _timeout, connectionId, _compress);
-
-        private int _timeout;
-        private bool _compress;
+        private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId) =>
+            new TcpEndpoint(Instance, host, port, SourceAddress, Timeout, connectionId, HasCompressionFlag);
     }
 
     internal sealed class TcpEndpointFactory : IEndpointFactory
     {
-        internal TcpEndpointFactory(TransportInstance instance) => _instance = instance;
+        private readonly TransportInstance _instance;
 
         public void Initialize()
         {
         }
-
-        public EndpointType Type() => _instance!.Type;
-
-        public string Transport() => _instance!.Transport;
-
-        public Endpoint Create(List<string> args, bool oaEndpoint)
+        public void Destroy()
         {
-            IPEndpoint endpt = new TcpEndpoint(_instance!);
-            endpt.InitWithOptions(args, oaEndpoint);
-            return endpt;
         }
 
-        public Endpoint Read(Ice.InputStream s) => new TcpEndpoint(_instance!, s);
+        public EndpointType Type() => _instance.Type;
+        public string Transport() => _instance.Transport;
 
-        public void Destroy() => _instance = null;
+        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
+            new TcpEndpoint(_instance, endpointString, options, oaEndpoint);
 
+        public Endpoint Read(InputStream s) => new TcpEndpoint(_instance, s);
         public IEndpointFactory Clone(TransportInstance instance) => new TcpEndpointFactory(instance);
 
-        private TransportInstance? _instance;
+        internal TcpEndpointFactory(TransportInstance instance) => _instance = instance;
     }
-
 }

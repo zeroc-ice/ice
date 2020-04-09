@@ -738,7 +738,7 @@ namespace Ice
         /// Get the endpoint from which the connection was created.
         /// </summary>
         /// <returns>The endpoint from which the connection was created.</returns>
-        public IEndpoint Endpoint => _endpoint; // No mutex protection necessary, _endpoint is immutable.
+        public Endpoint Endpoint => _endpoint; // No mutex protection necessary, _endpoint is immutable.
 
         /// <summary>Creates a special "fixed" proxy that always uses this connection. This proxy can be used for
         /// callbacks from a server to a client if the server cannot directly establish a connection to the client,
@@ -909,7 +909,7 @@ namespace Ice
                                         $"frame with {size} bytes exceeds Ice.MessageSizeMax value");
                                 }
 
-                                if (_endpoint.Datagram() && size > _readBufferOffset)
+                                if (_endpoint.IsDatagram && size > _readBufferOffset)
                                 {
                                     if (_warnUdp)
                                     {
@@ -937,7 +937,7 @@ namespace Ice
 
                             if (_readBufferOffset < _readBuffer.Count)
                             {
-                                Debug.Assert(!_endpoint.Datagram());
+                                Debug.Assert(!_endpoint.IsDatagram);
                                 continue;
                             }
                             break;
@@ -1033,7 +1033,7 @@ namespace Ice
                     }
                     catch (Exception ex)
                     {
-                        if (_endpoint.Datagram())
+                        if (_endpoint.IsDatagram)
                         {
                             if (_warn)
                             {
@@ -1219,7 +1219,7 @@ namespace Ice
                     var s = new StringBuilder("failed to ");
                     s.Append(_connector != null ? "establish" : "accept");
                     s.Append(" ");
-                    s.Append(_endpoint.Transport());
+                    s.Append(_endpoint.Name);
                     s.Append(" connection\n");
                     s.Append(ToString());
                     s.Append("\n");
@@ -1230,7 +1230,7 @@ namespace Ice
             else if (_communicator.TraceLevels.Network >= 1)
             {
                 var s = new StringBuilder("closed ");
-                s.Append(_endpoint.Transport());
+                s.Append(_endpoint.Name);
                 s.Append(" connection\n");
                 s.Append(ToString());
 
@@ -1483,7 +1483,7 @@ namespace Ice
         /// Get the timeout for the connection.
         /// </summary>
         /// <returns>The connection's timeout.</returns>
-        public int Timeout => _endpoint.Timeout(); // No mutex protection necessary, _endpoint is immutable.
+        public int Timeout => _endpoint.Timeout; // No mutex protection necessary, _endpoint is immutable.
 
         /// <summary>
         /// Returns the connection information.
@@ -1650,7 +1650,7 @@ namespace Ice
             // We don't want to send close connection messages if the endpoint
             // only supports oneway transmission from client to server.
             //
-            if (_endpoint.Datagram() && state == StateClosing)
+            if (_endpoint.IsDatagram && state == StateClosing)
             {
                 state = StateClosed;
             }
@@ -1808,7 +1808,7 @@ namespace Ice
             }
             _shutdownInitiated = true;
 
-            if (!_endpoint.Datagram())
+            if (!_endpoint.IsDatagram)
             {
                 //
                 // Before we shut down, we send a close connection message.
@@ -1835,7 +1835,7 @@ namespace Ice
         {
             Debug.Assert(_state == StateActive);
 
-            if (!_endpoint.Datagram())
+            if (!_endpoint.IsDatagram)
             {
                 try
                 {
@@ -1871,7 +1871,7 @@ namespace Ice
 
         private bool Validate(int operation)
         {
-            if (!_endpoint.Datagram()) // Datagram connections are always implicitly validated.
+            if (!_endpoint.IsDatagram) // Datagram connections are always implicitly validated.
             {
                 if (_adapter != null) // The server side has the active role for connection validation.
                 {
@@ -1940,7 +1940,7 @@ namespace Ice
             _writeBufferOffset = 0;
 
             // For datagram connections the buffer is allocated by the datagram transport
-            if (!_endpoint.Datagram())
+            if (!_endpoint.IsDatagram)
             {
                 _readBuffer = new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
             }
@@ -1950,12 +1950,12 @@ namespace Ice
             if (_communicator.TraceLevels.Network >= 1)
             {
                 var s = new StringBuilder();
-                if (_endpoint.Datagram())
+                if (_endpoint.IsDatagram)
                 {
                     s.Append("starting to ");
                     s.Append(_connector != null ? "send" : "receive");
                     s.Append(" ");
-                    s.Append(_endpoint.Transport());
+                    s.Append(_endpoint.Name);
                     s.Append(" messages\n");
                     s.Append(_transceiver.ToDetailedString());
                 }
@@ -1963,7 +1963,7 @@ namespace Ice
                 {
                     s.Append(_connector != null ? "established" : "accepted");
                     s.Append(" ");
-                    s.Append(_endpoint.Transport());
+                    s.Append(_endpoint.Name);
                     s.Append(" connection\n");
                     s.Append(ToString());
                 }
@@ -2168,7 +2168,7 @@ namespace Ice
             info.Data = _readBuffer;
 
             // For datagram connections the buffer is allocated by the datagram transport
-            _readBuffer = _endpoint.Datagram() ?
+            _readBuffer = _endpoint.IsDatagram ?
                 ArraySegment<byte>.Empty : new ArraySegment<byte>(new byte[256], 0, Ice1Definitions.HeaderSize);
             _readBufferOffset = 0;
             _readHeader = true;
@@ -2197,7 +2197,7 @@ namespace Ice
                     case Ice1Definitions.MessageType.CloseConnectionMessage:
                         {
                             TraceUtil.TraceRecv(new InputStream(_communicator, info.Data), _logger, _traceLevels);
-                            if (_endpoint.Datagram())
+                            if (_endpoint.IsDatagram)
                             {
                                 if (_warn)
                                 {
@@ -2321,7 +2321,7 @@ namespace Ice
             }
             catch (Exception ex)
             {
-                if (_endpoint.Datagram())
+                if (_endpoint.IsDatagram)
                 {
                     if (_warn)
                     {
@@ -2431,7 +2431,7 @@ namespace Ice
                 }
                 else
                 {
-                    timeout = _endpoint.Timeout();
+                    timeout = _endpoint.Timeout;
                 }
             }
             else if (_state < StateClosingPending)
@@ -2440,7 +2440,7 @@ namespace Ice
                 {
                     status &= ~SocketOperation.Read;
                 }
-                timeout = _endpoint.Timeout();
+                timeout = _endpoint.Timeout;
             }
             else
             {
@@ -2451,7 +2451,7 @@ namespace Ice
                 }
                 else
                 {
-                    timeout = _endpoint.Timeout();
+                    timeout = _endpoint.Timeout;
                 }
             }
 
@@ -2512,7 +2512,7 @@ namespace Ice
             }
             for (ConnectionInfo? info = _info; info != null; info = info.Underlying)
             {
-                info.ConnectionId = _endpoint.ConnectionId();
+                info.ConnectionId = _endpoint.ConnectionId;
                 info.AdapterName = _adapter != null ? _adapter.Name : "";
                 info.Incoming = _connector == null;
             }
@@ -2554,13 +2554,13 @@ namespace Ice
             {
                 var s = new StringBuilder("sent ");
                 s.Append(bytesTransferred);
-                if (!_endpoint.Datagram())
+                if (!_endpoint.IsDatagram)
                 {
                     s.Append(" of ");
                     s.Append(remaining);
                 }
                 s.Append(" bytes via ");
-                s.Append(_endpoint.Transport());
+                s.Append(_endpoint.Name);
                 s.Append("\n");
                 s.Append(ToString());
                 _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
@@ -2580,7 +2580,7 @@ namespace Ice
             if (_communicator.TraceLevels.Network >= 3 && bytesTransferred > 0)
             {
                 var s = new StringBuilder("received ");
-                if (_endpoint.Datagram())
+                if (_endpoint.IsDatagram)
                 {
                     s.Append(remaining);
                 }
@@ -2591,7 +2591,7 @@ namespace Ice
                     s.Append(remaining);
                 }
                 s.Append(" bytes via ");
-                s.Append(_endpoint.Transport());
+                s.Append(_endpoint.Name);
                 s.Append("\n");
                 s.Append(ToString());
                 _logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());

@@ -1812,8 +1812,7 @@ namespace Ice
                 facet: "",
                 fixedConnection: connection,
                 identity: identity,
-                invocationMode: ((Endpoint)connection.Endpoint).Datagram() ?
-                    InvocationMode.Datagram : InvocationMode.Twoway,
+                invocationMode: connection.Endpoint.IsDatagram ? InvocationMode.Datagram : InvocationMode.Twoway,
                 invocationTimeout: -1);
         }
 

@@ -28,16 +28,16 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
         return "test-" + _factory.Transport();
     }
 
-    public IceInternal.Endpoint Create(List<string> args, bool server)
+    public Ice.Endpoint Create(string endpointString, Dictionary<string, string?> options, bool server)
     {
-        return new Endpoint(_factory.Create(args, server));
+        return new Endpoint(_factory.Create(endpointString, options, server));
     }
 
-    public IceInternal.Endpoint Read(Ice.InputStream s)
+    public Ice.Endpoint Read(Ice.InputStream s)
     {
         Ice.EndpointType type = (Ice.EndpointType)s.ReadShort();
         Debug.Assert(type == _factory.Type());
-        IceInternal.Endpoint endpoint = new Endpoint(_factory.Read(s));
+        Ice.Endpoint endpoint = new Endpoint(_factory.Read(s));
         return endpoint;
     }
 

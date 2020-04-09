@@ -159,8 +159,8 @@ namespace IceLocatorDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             //
-            var single = new IEndpoint[1];
-            foreach (IEndpoint endpt in lookup.Endpoints)
+            var single = new Endpoint[1];
+            foreach (Endpoint endpt in lookup.Endpoints)
             {
                 single[0] = endpt;
                 _lookups[lookup.Clone(endpoints: single)] = null;
@@ -173,16 +173,15 @@ namespace IceLocatorDiscovery
             //
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
-            var single = new IEndpoint[1];
+            var single = new Endpoint[1];
             foreach (ILookupPrx key in new List<ILookupPrx>(_lookups.Keys))
             {
-                var info = (UDPEndpointInfo)key.Endpoints[0].GetInfo();
-                if (info.McastInterface.Length > 0)
+                var endpoint = (UdpEndpoint)key.Endpoints[0];
+                if (endpoint.McastInterface.Length > 0)
                 {
-                    foreach (IEndpoint q in lookupReply.Endpoints)
+                    foreach (Endpoint q in lookupReply.Endpoints)
                     {
-                        EndpointInfo r = q.GetInfo();
-                        if (r is IPEndpointInfo && ((IPEndpointInfo)r).Host.Equals(info.McastInterface))
+                        if (q is IPEndpoint && ((IPEndpoint)q).Host.Equals(endpoint.McastInterface))
                         {
                             single[0] = q;
                             _lookups[key] = lookupReply.Clone(endpoints: single);
@@ -333,14 +332,14 @@ namespace IceLocatorDiscovery
                     // We found another locator replica, append its endpoints to the
                     // current locator proxy endpoints.
                     //
-                    var newEndpoints = new List<IEndpoint>(l.Endpoints);
-                    foreach (IEndpoint p in locator.Endpoints)
+                    var newEndpoints = new List<Endpoint>(l.Endpoints);
+                    foreach (Endpoint p in locator.Endpoints)
                     {
                         //
                         // Only add endpoints if not already in the locator proxy endpoints
                         //
                         bool found = false;
-                        foreach (IEndpoint q in newEndpoints)
+                        foreach (Endpoint q in newEndpoints)
                         {
                             if (p.Equals(q))
                             {

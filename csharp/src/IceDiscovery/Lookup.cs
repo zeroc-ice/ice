@@ -109,7 +109,7 @@ namespace IceDiscovery
             }
             else
             {
-                var endpoints = new List<IEndpoint>();
+                var endpoints = new List<Endpoint>();
                 IObjectPrx? result = null;
                 foreach (IObjectPrx prx in _proxies)
                 {
@@ -213,8 +213,8 @@ namespace IceDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             //
-            var single = new Ice.IEndpoint[1];
-            foreach (IEndpoint endpt in lookup.Endpoints)
+            var single = new Ice.Endpoint[1];
+            foreach (Endpoint endpt in lookup.Endpoints)
             {
                 single[0] = endpt;
                 _lookups[lookup.Clone(endpoints: single)] = null;
@@ -227,16 +227,15 @@ namespace IceDiscovery
             //
             // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
             //
-            var single = new Ice.IEndpoint[1];
+            var single = new Ice.Endpoint[1];
             foreach (ILookupPrx key in new List<ILookupPrx>(_lookups.Keys))
             {
-                var info = (Ice.UDPEndpointInfo)key.Endpoints[0].GetInfo();
-                if (info.McastInterface.Length > 0)
+                var endpoint = (Ice.UdpEndpoint)key.Endpoints[0];
+                if (endpoint.McastInterface.Length > 0)
                 {
-                    foreach (IEndpoint q in lookupReply.Endpoints)
+                    foreach (Endpoint q in lookupReply.Endpoints)
                     {
-                        EndpointInfo r = q.GetInfo();
-                        if (r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).Host.Equals(info.McastInterface))
+                        if (q is Ice.IPEndpoint && ((Ice.IPEndpoint)q).Host.Equals(endpoint.McastInterface))
                         {
                             single[0] = q;
                             _lookups[key] = lookupReply.Clone(endpoints: single);

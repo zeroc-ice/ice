@@ -14,7 +14,7 @@
     <Compile Include="../../Configuration.cs" />
     <Compile Include="../../Connector.cs" />
     <Compile Include="../../EndpointFactory.cs" />
-    <Compile Include="../../EndpointI.cs" />
+    <Compile Include="../../Endpoint.cs" />
     <Compile Include="../../PluginI.cs" />
     <Compile Include="../../Transceiver.cs" />
     <Compile Include="generated/Test.cs">

@@ -174,7 +174,7 @@ namespace IceInternal
         }
 
         public string? DefaultHost;
-        public EndPoint? DefaultSourceAddress;
+        public IPAddress? DefaultSourceAddress;
         public string DefaultTransport;
         public bool DefaultCollocationOptimization;
         public EndpointSelectionType DefaultEndpointSelection;

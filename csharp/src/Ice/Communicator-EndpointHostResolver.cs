@@ -91,7 +91,7 @@ namespace Ice
             {
                 try
                 {
-                    List<EndPoint> addrs = Network.GetAddresses(host, port, IPVersion, selType, PreferIPv6, false);
+                    List<IPEndPoint> addrs = Network.GetAddresses(host, port, IPVersion, selType, PreferIPv6, false);
                     if (addrs.Count > 0)
                     {
                         callback.Connectors(endpoint.Connectors(addrs, null));
@@ -170,7 +170,7 @@ namespace Ice
                         }
                     }
 
-                    List<EndPoint> addrs = Network.GetAddresses(r.Host, r.Port, ipVersion, r.SelType,
+                    List<IPEndPoint> addrs = Network.GetAddresses(r.Host, r.Port, ipVersion, r.SelType,
                         PreferIPv6, true);
                     if (r.Observer != null)
                     {

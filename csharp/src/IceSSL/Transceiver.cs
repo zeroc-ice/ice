@@ -94,7 +94,7 @@ namespace IceSSL
             _delegate.Close();
         }
 
-        public IceInternal.Endpoint Bind()
+        public Ice.Endpoint Bind()
         {
             Debug.Assert(false);
             return null;

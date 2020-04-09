@@ -32,7 +32,7 @@ internal class Transceiver : IceInternal.ITransceiver
 
     public void Close() => _transceiver.Close();
 
-    public IceInternal.Endpoint Bind() => _transceiver.Bind();
+    public Ice.Endpoint Bind() => _transceiver.Bind();
 
     public int Write(IList<ArraySegment<byte>> buf, ref int offset)
     {

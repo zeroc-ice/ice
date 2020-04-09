@@ -9,9 +9,9 @@ internal class Acceptor : IceInternal.IAcceptor
         _acceptor.Close();
     }
 
-    public IceInternal.Endpoint Listen()
+    public Ice.Endpoint Listen()
     {
-        _endpoint = _endpoint.endpoint(_acceptor.Listen());
+        _endpoint = _endpoint.GetEndpoint(_acceptor.Listen());
         return _endpoint;
     }
 
@@ -43,11 +43,6 @@ internal class Acceptor : IceInternal.IAcceptor
     public string ToDetailedString()
     {
         return _acceptor.ToDetailedString();
-    }
-
-    public IceInternal.IAcceptor getDelegate()
-    {
-        return _acceptor;
     }
 
     internal Acceptor(Endpoint endpoint, IceInternal.IAcceptor acceptor)
