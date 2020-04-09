@@ -502,7 +502,7 @@ namespace Ice
                     string processFacetName = "Process";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(processFacetName))
                     {
-                        _adminFacets.Add(processFacetName, new IceInternal.Process(this));
+                        _adminFacets.Add(processFacetName, new Process(this));
                     }
 
                     //

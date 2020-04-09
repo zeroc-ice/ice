@@ -2,31 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
+namespace Ice
 {
-    public sealed class Process : Ice.IProcess
+    // Default implementation of the Process Admin facet.
+    internal sealed class Process : IProcess
     {
-        public Process(Ice.Communicator communicator) => _communicator = communicator;
+        private readonly Communicator _communicator;
 
-        public void Shutdown(Ice.Current current) => _communicator.Shutdown();
+        public void Shutdown(Current current) => _communicator.Shutdown();
 
-        public void WriteMessage(string message, int fd, Ice.Current current)
+        public void WriteMessage(string message, int fd, Current current)
         {
             switch (fd)
             {
                 case 1:
-                    {
-                        System.Console.Out.WriteLine(message);
-                        break;
-                    }
+                    System.Console.Out.WriteLine(message);
+                    break;
                 case 2:
-                    {
-                        System.Console.Error.WriteLine(message);
-                        break;
-                    }
+                    System.Console.Error.WriteLine(message);
+                    break;
             }
         }
 
-        private readonly Ice.Communicator _communicator;
+        internal Process(Communicator communicator) => _communicator = communicator;
     }
 }
