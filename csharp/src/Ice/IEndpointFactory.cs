@@ -45,7 +45,7 @@ namespace IceInternal
         {
             if (_underlying != null)
             {
-                var underlyingEndpoint = _underlying.Create(endpointString, options, oaEndpoint);
+                Endpoint? underlyingEndpoint = _underlying.Create(endpointString, options, oaEndpoint);
                 if (underlyingEndpoint != null)
                 {
                     return CreateWithUnderlying(underlyingEndpoint, endpointString, options, oaEndpoint);
@@ -57,7 +57,7 @@ namespace IceInternal
         {
             if (_underlying != null)
             {
-                var underlyingEndpoint = _underlying.Read(istr);
+                Endpoint? underlyingEndpoint = _underlying.Read(istr);
                 if (underlyingEndpoint != null)
                 {
                     return ReadWithUnderlying(underlyingEndpoint, istr);

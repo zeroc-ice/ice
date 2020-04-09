@@ -105,7 +105,7 @@ namespace IceInternal
         public static void
         AddEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
         {
-            r.Add("endpoint", cl.GetMethod("GetEndpointString")!);
+            r.Add("endpoint", cl.GetMethod("GetEndpoint")!);
 
             Type cli = typeof(Endpoint);
 
@@ -230,7 +230,6 @@ namespace IceInternal
         public ConnectionInfo GetConnectionInfo() => _connectionInfo;
 
         public Endpoint GetEndpoint() => _endpoint;
-        public string GetEndpointString() => _endpoint.ToString();
 
         private IPConnectionInfo? GetIPConnectionInfo()
         {
@@ -336,8 +335,6 @@ namespace IceInternal
             return null;
         }
 
-        public string GetEndpointString() => GetEndpoint() == null ? "" : GetEndpoint()!.ToString();
-
         public Connection? GetConnection() => _current.Connection;
 
         public Current GetCurrent() => _current;
@@ -434,18 +431,19 @@ namespace IceInternal
             {
                 if (_proxy != null)
                 {
-                    var os = new StringBuilder();
+                    var sb = new StringBuilder();
                     try
                     {
-                        os.Append(_proxy.Clone(endpoints: _emptyEndpoints)).Append(" [").Append(_operation).Append(']');
+                        sb.Append(_proxy.Clone(endpoints: Array.Empty<Endpoint>()));
+                        sb.Append(" [").Append(_operation).Append(']');
                     }
                     catch (Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.Append(_proxy.Identity.ToString(_proxy.Communicator.ToStringMode));
-                        os.Append(" [").Append(_operation).Append(']');
+                        sb.Append(_proxy.Identity.ToString(_proxy.Communicator.ToStringMode));
+                        sb.Append(" [").Append(_operation).Append(']');
                     }
-                    _id = os.ToString();
+                    _id = sb.ToString();
                 }
                 else
                 {
@@ -479,8 +477,6 @@ namespace IceInternal
         private readonly string _operation;
         private readonly IReadOnlyDictionary<string, string> _context;
         private string? _id;
-
-        private static readonly Endpoint[] _emptyEndpoints = Array.Empty<Endpoint>();
     }
 
     internal class ThreadHelper : MetricsHelper<ThreadMetrics>
@@ -546,11 +542,9 @@ namespace IceInternal
                     Add("id", cl.GetMethod("GetId")!);
                     AttrsUtil.AddEndpointAttributes(this, cl);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-#if DEBUG
-                    throw;
-#endif
+                    Debug.Assert(false, ex.ToString());
                 }
             }
         }
@@ -577,7 +571,6 @@ namespace IceInternal
         }
 
         public Endpoint GetEndpoint() => _endpoint;
-        public string GetEndpointString() => _endpoint.ToString();
 
         private readonly Endpoint _endpoint;
         private string? _id;
@@ -647,7 +640,7 @@ namespace IceInternal
         public ConnectionInfo GetConnectionInfo() => _connectionInfo;
 
         public Endpoint GetEndpoint() => _endpoint;
-        public string GetEndpointString() => _endpoint.ToString();
+
         private readonly ConnectionInfo _connectionInfo;
         private readonly Endpoint _endpoint;
         private readonly int _size;

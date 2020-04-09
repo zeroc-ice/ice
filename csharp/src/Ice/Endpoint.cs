@@ -98,7 +98,7 @@ namespace Ice
         public abstract bool Equivalent(Endpoint endpoint);
 
         // Marshal the endpoint.
-        public virtual void IceWrite(Ice.OutputStream s)
+        public virtual void IceWrite(OutputStream s)
         {
             s.StartEndpointEncapsulation();
             IceWriteImpl(s);
@@ -117,9 +117,6 @@ namespace Ice
         // endpoint. Otherwise the same endpoint is returned.
         public abstract Endpoint NewCompressionFlag(bool compressionFlag);
 
-         // Returns an acceptor for this endpoint, or null if no acceptor is available.
-        public abstract IAcceptor? Acceptor(string adapterName);
-
         // Returns a connector for this endpoint, or empty list if no connector is available.
         public abstract void ConnectorsAsync(EndpointSelectionType endpointSelection, IEndpointConnectors callback);
 
@@ -133,6 +130,11 @@ namespace Ice
         // port, null otherwise).
         public abstract List<Endpoint> ExpandHost(out Endpoint? publishedEndpoint);
 
-         public abstract ITransceiver? GetTransceiver();
+        // Returns an acceptor for this endpoint, or null if no acceptor is available.
+        public abstract IAcceptor? GetAcceptor(string adapterName);
+
+        // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an
+        // acceptor.
+        public abstract ITransceiver? GetTransceiver();
     }
 }

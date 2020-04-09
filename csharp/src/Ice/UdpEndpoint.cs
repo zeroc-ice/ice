@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Text;
 
 namespace Ice
 {
@@ -87,38 +88,39 @@ namespace Ice
 
         public override string OptionsToString()
         {
-            string s = base.OptionsToString();
+            var sb = new StringBuilder(base.OptionsToString());
 
             if (McastInterface.Length > 0)
             {
                 bool addQuote = McastInterface.IndexOf(':') != -1;
-                s += " --interface ";
+                sb.Append(" --interface ");
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
-                s += McastInterface;
+                sb.Append(McastInterface);
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
             }
 
             if (McastTtl != -1)
             {
-                s += $" --ttl {McastTtl.ToString(CultureInfo.InvariantCulture)}";
+                sb.Append(" --ttl ");
+                sb.Append(McastTtl.ToString(CultureInfo.InvariantCulture));
             }
 
             if (_connect)
             {
-                s += " -c";
+                sb.Append(" -c");
             }
 
             if (HasCompressionFlag)
             {
-                s += " -z";
+                sb.Append(" -z");
             }
-            return s;
+            return sb.ToString();
         }
 
         public override void IceWriteImpl(Ice.OutputStream ostr)
@@ -129,15 +131,29 @@ namespace Ice
 
         public override Endpoint NewTimeout(int timeout) => this;
 
-        public override Endpoint NewCompressionFlag(bool compressionFlag)
-            => compressionFlag == HasCompressionFlag ? this :
+        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
+            compressionFlag == HasCompressionFlag ? this :
                 new UdpEndpoint(Instance, Host, Port, SourceAddress, McastInterface, McastTtl, _connect, ConnectionId,
                     compressionFlag);
 
-        public override IAcceptor? Acceptor(string adapterName) => null;
+        public override IAcceptor? GetAcceptor(string adapterName) => null;
 
         public override ITransceiver GetTransceiver() =>
             new UdpTransceiver(this, Instance, Host, Port, McastInterface, _connect);
+
+        internal UdpEndpoint GetEndpoint(UdpTransceiver transceiver)
+        {
+            int port = transceiver.EffectivePort();
+            if (port == Port)
+            {
+                return this;
+            }
+            else
+            {
+                return new UdpEndpoint(Instance, Host, port, SourceAddress, McastInterface, McastTtl, _connect,
+                                       ConnectionId, HasCompressionFlag);
+            }
+        }
 
         internal UdpEndpoint(TransportInstance instance, string host, int port, IPAddress? sourceAddress,
             string mcastInterface, int mttl, bool connect, string connectionId, bool compressionFlag) :
@@ -160,14 +176,14 @@ namespace Ice
                              bool oaEndpoint)
             : base(instance, endpointString, options, oaEndpoint)
         {
-            string? argument = null;
+            string? argument;
 
             if (options.TryGetValue("-c", out argument))
             {
                 if (argument != null)
                 {
                     throw new FormatException(
-                        $"unexpected argument `{argument} ' provided for -c option in `{endpointString}'");
+                        $"unexpected argument `{argument}' provided for -c option in `{endpointString}'");
                 }
                 _connect = true;
                 options.Remove("-c");
@@ -225,19 +241,7 @@ namespace Ice
                 options.Remove("--interface");
             }
         }
-        internal UdpEndpoint GetEndpoint(UdpTransceiver transceiver)
-        {
-            int port = transceiver.EffectivePort();
-            if (port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return new UdpEndpoint(Instance, Host, port, SourceAddress, McastInterface, McastTtl, _connect,
-                                       ConnectionId, HasCompressionFlag);
-            }
-        }
+
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new UdpConnector(Instance, addr, SourceAddress, McastInterface, McastTtl, ConnectionId);
 
@@ -248,7 +252,7 @@ namespace Ice
 
     internal sealed class UdpEndpointFactory : IEndpointFactory
     {
-        private TransportInstance _instance;
+        private readonly TransportInstance _instance;
 
         public void Initialize()
         {
@@ -262,8 +266,8 @@ namespace Ice
 
         public string Transport() => _instance.Transport;
 
-        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint)
-            => new UdpEndpoint(_instance, endpointString, options, oaEndpoint);
+        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
+            new UdpEndpoint(_instance, endpointString, options, oaEndpoint);
 
         public Endpoint Read(Ice.InputStream s) => new UdpEndpoint(_instance, s);
         public IEndpointFactory Clone(TransportInstance instance) => new UdpEndpointFactory(instance);

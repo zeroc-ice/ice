@@ -99,9 +99,9 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override IceInternal.IAcceptor Acceptor(string adapterName)
+    public override IceInternal.IAcceptor GetAcceptor(string adapterName)
     {
-        var acceptor = _endpoint.Acceptor(adapterName);
+        var acceptor = _endpoint.GetAcceptor(adapterName);
         Debug.Assert(acceptor != null);
         return new Acceptor(this, acceptor);
     }

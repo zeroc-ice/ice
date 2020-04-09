@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Text;
 
 namespace Ice
 {
@@ -65,6 +66,7 @@ namespace Ice
 
         public override int GetHashCode()
         {
+            // The hash code is cached in the derived class, not this abstract base class.
             var hash = new HashCode();
             hash.Add(Type);
             hash.Add(Host);
@@ -79,42 +81,43 @@ namespace Ice
 
         public override string OptionsToString()
         {
-            string s = "";
+            var sb = new StringBuilder();
 
-            if (Host != null && Host.Length > 0)
+            if (Host.Length > 0)
             {
-                s += " -h ";
+                sb.Append(" -h ");
                 bool addQuote = Host.IndexOf(':') != -1;
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
-                s += Host;
+                sb.Append(Host);
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
             }
 
-            s += $" -p {Port.ToString(CultureInfo.InvariantCulture)}";
+            sb.Append(" -p ");
+            sb.Append(Port.ToString(CultureInfo.InvariantCulture));
 
             if (SourceAddress != null)
             {
                 string sourceAddr = SourceAddress.ToString();
                 bool addQuote = sourceAddr.IndexOf(':') != -1;
-                s += " --sourceAddress ";
+                sb.Append(" --sourceAddress ");
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
-                s += sourceAddr;
+                sb.Append(sourceAddr);
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
             }
 
-            return s;
+            return sb.ToString();
         }
 
         public override bool Equivalent(Endpoint endpoint)
@@ -147,19 +150,19 @@ namespace Ice
             }
         }
 
-        public override void IceWriteImpl(Ice.OutputStream s)
+        public override void IceWriteImpl(OutputStream s)
         {
             s.WriteString(Host);
             s.WriteInt(Port);
         }
 
-        public override Endpoint NewConnectionId(string connectionId)
-            => connectionId == ConnectionId ? this : CreateEndpoint(Host, Port, connectionId);
+        public override Endpoint NewConnectionId(string connectionId) =>
+            connectionId == ConnectionId ? this : CreateEndpoint(Host, Port, connectionId);
 
-        public virtual List<IConnector> Connectors(List<IPEndPoint> addresses, INetworkProxy? proxy)
+        public virtual List<IConnector> Connectors(List<IPEndPoint> endpoints, INetworkProxy? proxy)
         {
             var connectors = new List<IConnector>();
-            foreach (EndPoint p in addresses)
+            foreach (EndPoint p in endpoints)
             {
                 connectors.Add(CreateConnector(p, proxy));
             }
@@ -187,7 +190,7 @@ namespace Ice
             List<IPEndPoint> addresses = Network.GetAddresses(Host,
                                                               Port,
                                                               Instance.IPVersion,
-                                                              Ice.EndpointSelectionType.Ordered,
+                                                              EndpointSelectionType.Ordered,
                                                               Instance.PreferIPv6,
                                                               true);
 
@@ -235,7 +238,7 @@ namespace Ice
             ConnectionId = connectionId;
         }
 
-        private protected IPEndpoint(TransportInstance instance, Ice.InputStream s)
+        private protected IPEndpoint(TransportInstance instance, InputStream s)
         {
             Instance = instance;
             Host = s.ReadString();
@@ -246,7 +249,7 @@ namespace Ice
                                      Dictionary<string, string?> options, bool oaEndpoint)
         {
             Instance = instance;
-            string? argument = null;
+            string? argument;
 
             if (options.TryGetValue("-h", out argument))
             {
@@ -255,14 +258,8 @@ namespace Ice
 
                 if (Host == "*")
                 {
-                    if (oaEndpoint)
-                    {
-                        Host = "";
-                    }
-                    else
-                    {
+                    Host = oaEndpoint ? "" :
                         throw new FormatException($"`-h *' not valid for proxy endpoint `{endpointString}'");
-                    }
                 }
                 options.Remove("-h");
             }

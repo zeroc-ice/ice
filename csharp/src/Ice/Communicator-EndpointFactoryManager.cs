@@ -6,6 +6,7 @@ using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 
 namespace Ice
 {
@@ -49,7 +50,7 @@ namespace Ice
 
             var options = new Dictionary<string, string?>();
 
-            // Parse arr into options (and skip transport at arr[0])
+            // Parse args into options (and skip transport at args[0])
             for (int n = 1; n < args.Length; ++n)
             {
                 // Any option with < 2 characters or that does not start with - is illegal
@@ -95,8 +96,8 @@ namespace Ice
                 Endpoint? e = factory.Create(endpointString, options, oaEndpoint);
                 if (options.Count > 0)
                 {
-                    string badOptions = ToString(options);
-                    throw new FormatException($"unrecognized option(s) `{badOptions}' in endpoint `{endpointString}'");
+                    throw new FormatException(
+                        $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
                 return e;
             }
@@ -110,8 +111,8 @@ namespace Ice
                 Endpoint ue = new OpaqueEndpoint(endpointString, options);
                 if (options.Count > 0)
                 {
-                    string badOptions = ToString(options);
-                    throw new FormatException($"unrecognized option(s) `{badOptions}' in endpoint `{endpointString}'");
+                    throw new FormatException(
+                        $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
                 factory = GetEndpointFactory(ue.Type);
                 if (factory != null)
@@ -187,23 +188,21 @@ namespace Ice
 
         private static string ToString(Dictionary<string, string?> options)
         {
-            string result = "";
+            StringBuilder sb = new StringBuilder();
             foreach ((string option, string? argument) in options)
             {
-                if (result.Length > 0)
+                if (sb.Length > 0)
                 {
-                    result += " ";
+                    sb.Append(" ");
                 }
+                sb.Append(option);
                 if (argument != null)
                 {
-                    result += $"{option} {argument}";
-                }
-                else
-                {
-                    result += $"{option}";
+                    sb.Append(" ");
+                    sb.Append(argument);
                 }
             }
-            return result;
+            return sb.ToString();
         }
     }
 }

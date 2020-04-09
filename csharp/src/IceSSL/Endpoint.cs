@@ -54,16 +54,16 @@ namespace IceSSL
 
         public override void IceWriteImpl(Ice.OutputStream ostr) => _delegate.IceWriteImpl(ostr);
 
-        public override Ice.Endpoint NewCompressionFlag(bool compressionFlag)
-            => compressionFlag == _delegate.HasCompressionFlag ? this :
+        public override Ice.Endpoint NewCompressionFlag(bool compressionFlag) =>
+            compressionFlag == _delegate.HasCompressionFlag ? this :
                 new Endpoint(_instance, _delegate.NewCompressionFlag(compressionFlag));
 
-        public override Ice.Endpoint NewConnectionId(string connectionId)
-            => connectionId == _delegate.ConnectionId ? this :
+        public override Ice.Endpoint NewConnectionId(string connectionId) =>
+            connectionId == _delegate.ConnectionId ? this :
                 new Endpoint(_instance, _delegate.NewConnectionId(connectionId));
 
-        public override Ice.Endpoint NewTimeout(int timeout)
-            => timeout == _delegate.Timeout ? this : new Endpoint(_instance, _delegate.NewTimeout(timeout));
+        public override Ice.Endpoint NewTimeout(int timeout) =>
+        timeout == _delegate.Timeout ? this : new Endpoint(_instance, _delegate.NewTimeout(timeout));
 
         public override void ConnectorsAsync(Ice.EndpointSelectionType endpointSelection,
                                              Ice.IEndpointConnectors callback)
@@ -79,9 +79,6 @@ namespace IceSSL
             }
             _delegate.ConnectorsAsync(endpointSelection, new EndpointI_connectorsI(_instance, host, callback));
         }
-
-        public override IceInternal.IAcceptor Acceptor(string adapterName) =>
-            new Acceptor(this, _instance, _delegate.Acceptor(adapterName)!, adapterName);
 
         public override List<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
         {
@@ -107,15 +104,18 @@ namespace IceSSL
             return l;
         }
 
+        public override IceInternal.IAcceptor GetAcceptor(string adapterName) =>
+            new Acceptor(this, _instance, _delegate.GetAcceptor(adapterName)!, adapterName);
+
         public override IceInternal.ITransceiver? GetTransceiver() => null;
+
+        internal Endpoint GetEndpoint(Ice.Endpoint del) => del == _delegate ? this : new Endpoint(_instance, del);
 
         internal Endpoint(Instance instance, Ice.Endpoint del)
         {
             _instance = instance;
             _delegate = del;
         }
-
-        internal Endpoint GetEndpoint(Ice.Endpoint del) => del == _delegate ? this : new Endpoint(_instance, del);
 
         private sealed class EndpointI_connectorsI : Ice.IEndpointConnectors
         {
@@ -148,17 +148,17 @@ namespace IceSSL
         private readonly Instance _instance;
 
         public EndpointFactoryI(Instance instance, Ice.EndpointType type)
-            : base(instance, type)
-            => _instance = instance;
+            : base(instance, type) =>
+            _instance = instance;
 
         public override IceInternal.IEndpointFactory CloneWithUnderlying(IceInternal.TransportInstance inst,
-            Ice.EndpointType underlying)
-                => new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Transport), underlying);
+            Ice.EndpointType underlying) =>
+            new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Transport), underlying);
 
         protected override Ice.Endpoint CreateWithUnderlying(Ice.Endpoint underlying, string endpointString,
             Dictionary<string, string?> options, bool oaEndpoint) => new Endpoint(_instance, underlying);
 
-        protected override Ice.Endpoint ReadWithUnderlying(Ice.Endpoint underlying, Ice.InputStream istr)
-            => new Endpoint(_instance, underlying);
+        protected override Ice.Endpoint ReadWithUnderlying(Ice.Endpoint underlying, Ice.InputStream istr) =>
+            new Endpoint(_instance, underlying);
     }
 }

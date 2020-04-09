@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Text;
 
 namespace Ice
 {
@@ -17,7 +18,6 @@ namespace Ice
         public override bool IsDatagram => false;
         public override bool HasCompressionFlag { get; }
         public override int Timeout { get; }
-        public override ITransceiver? GetTransceiver() => null;
 
         private int _hashCode = 0;
 
@@ -71,42 +71,44 @@ namespace Ice
 
         public override string OptionsToString()
         {
-            string s = base.OptionsToString();
+            var sb = new StringBuilder(base.OptionsToString());
 
             if (Timeout == -1)
             {
-                s += " -t infinite";
+                sb.Append(" -t infinite");
             }
             else
             {
-                s += $" -t {Timeout.ToString(CultureInfo.InvariantCulture)}";
+                sb.Append(" -t ");
+                sb.Append(Timeout.ToString(CultureInfo.InvariantCulture));
             }
 
             if (HasCompressionFlag)
             {
-                s += " -z";
+                sb.Append(" -z");
             }
-            return s;
+            return sb.ToString();
         }
 
-        public override void IceWriteImpl(Ice.OutputStream s)
+        public override void IceWriteImpl(OutputStream s)
         {
             base.IceWriteImpl(s);
             s.WriteInt(Timeout);
             s.WriteBool(HasCompressionFlag);
         }
 
-        public override Endpoint NewTimeout(int timeout)
-            => timeout == Timeout ? this :
+        public override Endpoint NewTimeout(int timeout) =>
+            timeout == Timeout ? this :
                 new TcpEndpoint(Instance, Host, Port, SourceAddress, timeout, ConnectionId, HasCompressionFlag);
 
-        public override Endpoint NewCompressionFlag(bool compressionFlag)
-            => compressionFlag == HasCompressionFlag ? this :
+        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
+            compressionFlag == HasCompressionFlag ? this :
                 new TcpEndpoint(Instance, Host, Port, SourceAddress, Timeout, ConnectionId, compressionFlag);
 
-        public override IAcceptor Acceptor(string adapterName) => new TcpAcceptor(this, Instance, Host, Port);
+        public override IAcceptor GetAcceptor(string adapterName) => new TcpAcceptor(this, Instance, Host, Port);
+        public override ITransceiver? GetTransceiver() => null;
 
-        internal TcpEndpoint Endpoint(TcpAcceptor acceptor)
+        internal TcpEndpoint GetEndpoint(TcpAcceptor acceptor)
         {
             int port = acceptor.EffectivePort();
             if (port == Port)
@@ -127,7 +129,7 @@ namespace Ice
             HasCompressionFlag = compressionFlag;
         }
 
-        internal TcpEndpoint(TransportInstance instance, Ice.InputStream s) :
+        internal TcpEndpoint(TransportInstance instance, InputStream s) :
             base(instance, s)
         {
             Timeout = s.ReadInt();
@@ -138,7 +140,7 @@ namespace Ice
                              bool oaEndpoint)
             : base(instance, endpointString, options, oaEndpoint)
         {
-            string? argument = null;
+            string? argument;
 
             if (options.TryGetValue("-t", out argument))
             {
@@ -194,7 +196,7 @@ namespace Ice
 
     internal sealed class TcpEndpointFactory : IEndpointFactory
     {
-        private TransportInstance _instance;
+        private readonly TransportInstance _instance;
 
         public void Initialize()
         {
@@ -206,10 +208,10 @@ namespace Ice
         public EndpointType Type() => _instance.Type;
         public string Transport() => _instance.Transport;
 
-        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint)
-            => new TcpEndpoint(_instance, endpointString, options, oaEndpoint);
+        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
+            new TcpEndpoint(_instance, endpointString, options, oaEndpoint);
 
-        public Endpoint Read(Ice.InputStream s) => new TcpEndpoint(_instance, s);
+        public Endpoint Read(InputStream s) => new TcpEndpoint(_instance, s);
         public IEndpointFactory Clone(TransportInstance instance) => new TcpEndpointFactory(instance);
 
         internal TcpEndpointFactory(TransportInstance instance) => _instance = instance;

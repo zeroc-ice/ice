@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace Ice
 {
@@ -26,15 +27,107 @@ namespace Ice
 
         private int _hashCode = 0; // 0 is a special value that means not initialized.
 
-         //
-        // Return a server side transceiver for this endpoint, or null if a
-        // transceiver can only be created by an acceptor.
-        //
+        public override bool Equals(Endpoint? other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if (other is OpaqueEndpoint opaqueEndpoint)
+            {
+                if (Type != opaqueEndpoint.Type)
+                {
+                    return false;
+                }
+                if (Encoding != opaqueEndpoint.Encoding)
+                {
+                    return false;
+                }
+                if (!Bytes.Span.SequenceEqual(opaqueEndpoint.Bytes.Span))
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            if (_hashCode != 0)
+            {
+                return _hashCode;
+            }
+            else
+            {
+               int hashCode = HashCode.Combine(Type, Encoding, Bytes);
+               if (hashCode == 0)
+               {
+                   hashCode = 1;
+               }
+               _hashCode = hashCode;
+               return _hashCode;
+            }
+        }
+
+        public override string OptionsToString()
+        {
+            var sb = new StringBuilder(" -t ");
+            sb.Append(Type.ToString(CultureInfo.InvariantCulture));
+
+            sb.Append(" -e ");
+            sb.Append(Encoding.ToString());
+            if (Bytes.Length > 0)
+            {
+                sb.Append(" -v ");
+                sb.Append(System.Convert.ToBase64String(Bytes.Span));
+            }
+            return sb.ToString();
+        }
+
+        public override bool Equivalent(Endpoint endpoint) => false;
+
+        public override void IceWrite(Ice.OutputStream s)
+        {
+            s.StartEndpointEncapsulation(Encoding);
+            s.WriteSpan(Bytes.Span);
+            s.EndEndpointEncapsulation();
+        }
+
+        public override void IceWriteImpl(Ice.OutputStream s) => Debug.Assert(false);
+
+        public override string ToString()
+        {
+            string val = System.Convert.ToBase64String(Bytes.Span);
+            short typeNum = (short)Type;
+            return $"opaque -t {typeNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
+        }
+
+        public override Endpoint NewTimeout(int t) => this;
+
+        public override Endpoint NewConnectionId(string id) => this;
+        public override Endpoint NewCompressionFlag(bool compress) => this;
+
+        public override void ConnectorsAsync(Ice.EndpointSelectionType endSel, IEndpointConnectors callback) =>
+            callback.Connectors(new List<IConnector>());
+
+        public override List<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
+        {
+            publishedEndpoint = null;
+            return new List<Endpoint>() { this };
+        }
+
+        public override List<Endpoint> ExpandIfWildcard() => new List<Endpoint> { this };
+
+        public override IAcceptor? GetAcceptor(string adapterName) => null;
         public override ITransceiver? GetTransceiver() => null;
 
         internal OpaqueEndpoint(string endpointString, Dictionary<string, string?> options)
         {
-            string? argument = null;
+            string? argument;
 
             if (options.TryGetValue("-t", out argument))
             {
@@ -112,144 +205,11 @@ namespace Ice
             // the caller deals with remaining options, if any
         }
 
-        internal OpaqueEndpoint(EndpointType type, Ice.Encoding encoding, byte[] rawBytes)
+        internal OpaqueEndpoint(EndpointType type, Ice.Encoding encoding, byte[] bytes)
         {
             Type = type;
             Encoding = encoding;
-            Bytes = rawBytes;
-        }
-
-        //
-        // Marshal the endpoint
-        //
-        public override void IceWrite(Ice.OutputStream s)
-        {
-            s.StartEndpointEncapsulation(Encoding);
-            s.WriteSpan(Bytes.Span);
-            s.EndEndpointEncapsulation();
-        }
-
-        public override void IceWriteImpl(Ice.OutputStream s) => Debug.Assert(false);
-
-        //
-        // Convert the endpoint to its string form
-        //
-        public override string ToString()
-        {
-            string val = System.Convert.ToBase64String(Bytes.Span);
-            short typeNum = (short)Type;
-            return $"opaque -t {typeNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
-        }
-
-        //
-        // Return a new endpoint with a different timeout value, provided
-        // that timeouts are supported by the endpoint. Otherwise the same
-        // endpoint is returned.
-        //
-        public override Endpoint NewTimeout(int t) => this;
-
-        //
-        // Return a new endpoint with a different connection id.
-        //
-        public override Endpoint NewConnectionId(string id) => this;
-
-        //
-        // Return a new endpoint with a different compression value,
-        // provided that compression is supported by the
-        // endpoint. Otherwise the same endpoint is returned.
-        //
-        public override Endpoint NewCompressionFlag(bool compress) => this;
-
-        //
-        // Return connectors for this endpoint, or empty list if no connector
-        // is available.
-        //
-        public override void ConnectorsAsync(Ice.EndpointSelectionType endSel, IEndpointConnectors callback) =>
-            callback.Connectors(new List<IConnector>());
-
-        //
-        // Return an acceptor for this endpoint, or null if no acceptors
-        // is available.
-        //
-        public override IAcceptor? Acceptor(string adapterName) => null;
-
-        //
-        // Expand endpoint out in to separate endpoints for each local
-        // host if listening on INADDR_ANY on server side or if no host
-        // was specified on client side.
-        //
-        public override List<Endpoint> ExpandIfWildcard() => new List<Endpoint> { this };
-
-        public override List<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
-        {
-            publishedEndpoint = null;
-            return new List<Endpoint>() { this };
-        }
-
-        //
-        // Check whether the endpoint is equivalent to another one.
-        //
-        public override bool Equivalent(Endpoint endpoint) => false;
-
-        public override int GetHashCode()
-        {
-            if (_hashCode != 0)
-            {
-                return _hashCode;
-            }
-            else
-            {
-               int hashCode = HashCode.Combine(Type, Encoding, Bytes);
-               if (hashCode == 0)
-               {
-                   hashCode = 1;
-               }
-               _hashCode = hashCode;
-               return _hashCode;
-            }
-        }
-
-        public override string OptionsToString()
-        {
-            string s = "";
-            if ((short)Type > -1)
-            {
-                s += " -t " + Type;
-            }
-            s += " -e " + Encoding.ToString();
-            if (Bytes.Length > 0)
-            {
-                s += " -v " + System.Convert.ToBase64String(Bytes.Span);
-            }
-            return s;
-        }
-
-        public override bool Equals(Endpoint? other)
-        {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            if (other is OpaqueEndpoint opaqueEndpoint)
-            {
-                if (Type != opaqueEndpoint.Type)
-                {
-                    return false;
-                }
-                if (Encoding != opaqueEndpoint.Encoding)
-                {
-                    return false;
-                }
-                if (!Bytes.Span.SequenceEqual(opaqueEndpoint.Bytes.Span))
-                {
-                    return false;
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            Bytes = bytes;
         }
     }
 }

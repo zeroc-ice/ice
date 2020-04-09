@@ -42,7 +42,7 @@ namespace IceInternal
                 _fd = null;
                 throw;
             }
-            _endpoint = _endpoint.Endpoint(this);
+            _endpoint = _endpoint.GetEndpoint(this);
             return _endpoint;
         }
 

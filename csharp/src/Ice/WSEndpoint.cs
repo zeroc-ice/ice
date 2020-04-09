@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 
 namespace Ice
 {
@@ -56,23 +57,22 @@ namespace Ice
 
         public override string OptionsToString()
         {
-            string s = _delegate.OptionsToString();
-
+            var sb = new StringBuilder(_delegate.OptionsToString());
             if (Resource.Length > 0)
             {
-                s += " -r ";
+                sb.Append(" -r ");
                 bool addQuote = Resource.IndexOf(':') != -1;
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
-                s += Resource;
+                sb.Append(Resource);
                 if (addQuote)
                 {
-                    s += "\"";
+                    sb.Append("\"");
                 }
             }
-            return s;
+            return sb.ToString();
         }
 
         public override bool Equivalent(Endpoint endpoint)
@@ -93,23 +93,16 @@ namespace Ice
             s.WriteString(Resource);
         }
 
-        public override Endpoint NewTimeout(int timeout)
-            => timeout == _delegate.Timeout ? this : new WSEndpoint(_instance, _delegate.NewTimeout(timeout), Resource);
+        public override Endpoint NewTimeout(int timeout) =>
+            timeout == _delegate.Timeout ? this : new WSEndpoint(_instance, _delegate.NewTimeout(timeout), Resource);
 
-        public override Endpoint NewConnectionId(string connectionId)
-            => connectionId == _delegate.ConnectionId ? this :
+        public override Endpoint NewConnectionId(string connectionId) =>
+            connectionId == _delegate.ConnectionId ? this :
                 new WSEndpoint(_instance, _delegate.NewConnectionId(connectionId), Resource);
 
-        public override Endpoint NewCompressionFlag(bool compressionFlag)
-            => compressionFlag == _delegate.HasCompressionFlag ? this :
+        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
+            compressionFlag == _delegate.HasCompressionFlag ? this :
                 new WSEndpoint(_instance, _delegate.NewCompressionFlag(compressionFlag), Resource);
-
-        public override IAcceptor Acceptor(string adapterName)
-        {
-            IAcceptor? acceptor = _delegate.Acceptor(adapterName);
-            Debug.Assert(acceptor != null);
-            return new WSAcceptor(this, _instance, acceptor);
-        }
 
         public override void ConnectorsAsync(Ice.EndpointSelectionType endpointSelection, IEndpointConnectors callback)
         {
@@ -124,9 +117,6 @@ namespace Ice
             }
             _delegate.ConnectorsAsync(endpointSelection, new EndpointConnectors(_instance, host, Resource, callback));
         }
-
-        public WSEndpoint GetEndpoint(Endpoint del)
-            => del == _delegate ? this : new WSEndpoint(_instance, del, Resource);
 
         public override List<Endpoint> ExpandIfWildcard()
         {
@@ -152,7 +142,17 @@ namespace Ice
             return endpoints;
         }
 
+        public override IAcceptor GetAcceptor(string adapterName)
+        {
+            IAcceptor? acceptor = _delegate.GetAcceptor(adapterName);
+            Debug.Assert(acceptor != null);
+            return new WSAcceptor(this, _instance, acceptor);
+        }
+
         public override ITransceiver? GetTransceiver() => null;
+
+        internal WSEndpoint GetEndpoint(Endpoint del) =>
+            del == _delegate ? this : new WSEndpoint(_instance, del, Resource);
 
         internal WSEndpoint(TransportInstance instance, Endpoint del, string res)
         {
@@ -167,7 +167,7 @@ namespace Ice
             _instance = instance;
             _delegate = del;
 
-            string? argument = null;
+            string? argument;
             if (options.TryGetValue("-r", out argument))
             {
                 Resource = argument ?? throw new FormatException(
@@ -220,15 +220,15 @@ namespace Ice
 
     internal class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
-        public override IEndpointFactory CloneWithUnderlying(TransportInstance instance, EndpointType underlying)
-            => new WSEndpointFactory(instance, underlying);
+        public override IEndpointFactory CloneWithUnderlying(TransportInstance instance, EndpointType underlying) =>
+            new WSEndpointFactory(instance, underlying);
 
         protected override Endpoint CreateWithUnderlying(Endpoint underlying, string endpointString,
-            Dictionary<string, string?> options, bool oaEndpoint)
-                => new WSEndpoint(Instance, underlying, endpointString, options);
+            Dictionary<string, string?> options, bool oaEndpoint) =>
+            new WSEndpoint(Instance, underlying, endpointString, options);
 
-        protected override Endpoint ReadWithUnderlying(Endpoint underlying, Ice.InputStream s)
-            => new WSEndpoint(Instance, underlying, s);
+        protected override Endpoint ReadWithUnderlying(Endpoint underlying, Ice.InputStream s) =>
+            new WSEndpoint(Instance, underlying, s);
 
         internal WSEndpointFactory(TransportInstance instance, EndpointType type)
             : base(instance, type)

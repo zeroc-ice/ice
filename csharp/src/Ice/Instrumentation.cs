@@ -121,7 +121,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the remote invocation.</returns>
-            IRemoteObserver GetRemoteObserver(global::Ice.ConnectionInfo con, global::Ice.Endpoint endpt, int requestId, int size);
+            IRemoteObserver GetRemoteObserver(Ice.ConnectionInfo con, Ice.Endpoint endpt, int requestId, int size);
 
             /// <summary>
             /// Get a collocated observer for this invocation.
@@ -136,7 +136,7 @@ namespace Ice
             ///
             /// </param>
             /// <returns>The observer to instrument the collocated invocation.</returns>
-            ICollocatedObserver GetCollocatedObserver(global::Ice.ObjectAdapter adapter, int requestId, int size);
+            ICollocatedObserver GetCollocatedObserver(Ice.ObjectAdapter adapter, int requestId, int size);
         }
 
         public partial interface IObserverUpdater

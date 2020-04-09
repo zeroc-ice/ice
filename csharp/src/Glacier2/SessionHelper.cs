@@ -414,7 +414,7 @@ namespace Glacier2
                     IRouterFinderPrx? finder = null;
                     try
                     {
-                        finder =  IRouterFinderPrx.Parse(_finderStr, _communicator);
+                        finder = IRouterFinderPrx.Parse(_finderStr, _communicator);
                         _communicator.SetDefaultRouter(finder.GetRouter());
                     }
                     catch (CommunicatorDestroyedException ex)

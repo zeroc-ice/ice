@@ -1321,7 +1321,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    _acceptor = _endpoint.Acceptor(_adapter!.Name);
+                    _acceptor = _endpoint.GetAcceptor(_adapter!.Name);
 
                     if (_communicator.TraceLevels.Network >= 2)
                     {
