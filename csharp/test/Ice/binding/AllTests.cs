@@ -30,7 +30,7 @@ namespace Ice.binding
 
         private static Test.ITestIntfPrx createTestIntfPrx(List<Test.IRemoteObjectAdapterPrx> adapters)
         {
-            var endpoints = new List<IEndpoint>();
+            var endpoints = new List<Endpoint>();
             Test.ITestIntfPrx obj = null;
             IEnumerator<Test.IRemoteObjectAdapterPrx> p = adapters.GetEnumerator();
             while (p.MoveNext())
@@ -436,7 +436,7 @@ namespace Ice.binding
                 {
                 }
 
-                IEndpoint[] endpoints = obj.Endpoints;
+                Endpoint[] endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -600,7 +600,7 @@ namespace Ice.binding
                 {
                 }
 
-                IEndpoint[] endpoints = obj.Endpoints;
+                Endpoint[] endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -660,7 +660,7 @@ namespace Ice.binding
                 {
                 }
 
-                IEndpoint[] endpoints = obj.Endpoints;
+                Endpoint[] endpoints = obj.Endpoints;
 
                 adapters.Clear();
 

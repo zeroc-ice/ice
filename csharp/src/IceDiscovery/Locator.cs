@@ -126,7 +126,7 @@ namespace IceDiscovery
 
                 if (_replicaGroups.TryGetValue(adapterId, out HashSet<string>? adapterIds))
                 {
-                    var endpoints = new List<IEndpoint>();
+                    var endpoints = new List<Endpoint>();
                     foreach (string a in adapterIds)
                     {
                         if (!_adapters.TryGetValue(a, out IObjectPrx? proxy))

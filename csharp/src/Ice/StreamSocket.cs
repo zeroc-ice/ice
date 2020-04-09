@@ -13,7 +13,7 @@ namespace IceInternal
 {
     public sealed class StreamSocket
     {
-        public StreamSocket(TransportInstance instance, INetworkProxy? proxy, EndPoint addr, EndPoint? sourceAddr)
+        public StreamSocket(TransportInstance instance, INetworkProxy? proxy, EndPoint addr, IPAddress? sourceAddr)
         {
             _instance = instance;
             _proxy = proxy;
@@ -565,7 +565,7 @@ namespace IceInternal
         private readonly TransportInstance _instance;
         private readonly INetworkProxy? _proxy;
         private readonly EndPoint? _addr;
-        private readonly EndPoint? _sourceAddr;
+        private readonly IPAddress? _sourceAddr;
 
         private Socket? _fd;
         private readonly int _maxSendPacketSize;

@@ -381,10 +381,10 @@ namespace Ice
                            bool? compress,
                            string connectionId,
                            int? connectionTimeout,
-                           IReadOnlyDictionary<string, string> context,
+                           IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
                            Encoding encoding,
                            EndpointSelectionType endpointSelection,
-                           Endpoint[] endpoints,
+                           Endpoint[] endpoints, // already a copy provided by Ice
                            string facet,
                            Identity identity,
                            InvocationMode invocationMode,
@@ -424,7 +424,7 @@ namespace Ice
         // Constructor for fixed references
         internal Reference(Communicator communicator,
                            bool? compress,
-                           IReadOnlyDictionary<string, string> context,
+                           IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
                            Encoding encoding,
                            string facet,
                            Connection fixedConnection,
@@ -456,7 +456,7 @@ namespace Ice
 
             if (InvocationMode == InvocationMode.Datagram)
             {
-                if (!(_fixedConnection.Endpoint as Endpoint)!.Datagram())
+                if (!(_fixedConnection.Endpoint as Endpoint)!.IsDatagram)
                 {
                     throw new ArgumentException("a fixed datagram proxy requires a datagram connection",
                         nameof(fixedConnection));
@@ -484,10 +484,10 @@ namespace Ice
                                  bool? compress = null,
                                  string? connectionId = null,
                                  int? connectionTimeout = null,
-                                 IReadOnlyDictionary<string, string>? context = null,
+                                 IReadOnlyDictionary<string, string>? context = null, // can be provided by app
                                  Encoding? encoding = null,
                                  EndpointSelectionType? endpointSelection = null,
-                                 Endpoint[]? endpoints = null,
+                                 Endpoint[]? endpoints = null, // can be provided by app
                                  string? facet = null,
                                  Connection? fixedConnection = null,
                                  Identity? identity = null,
@@ -660,6 +660,7 @@ namespace Ice
                 else if (endpoints != null)
                 {
                     adapterId = ""; // make sure the clone's adapterID is empty
+                    endpoints = (Endpoint[])endpoints.Clone(); // make a copy
                 }
 
                 var locatorInfo = LocatorInfo;
@@ -701,12 +702,12 @@ namespace Ice
                         {
                             if (compress != null)
                             {
-                                endpoint = endpoint.Compress(compress.Value);
+                                endpoint = endpoint.NewCompressionFlag(compress.Value);
                             }
-                            endpoint = endpoint.ConnectionId(connectionId);
+                            endpoint = endpoint.NewConnectionId(connectionId);
                             if (connectionTimeout != null)
                             {
-                                endpoint = endpoint.Timeout(connectionTimeout.Value);
+                                endpoint = endpoint.NewTimeout(connectionTimeout.Value);
                             }
                             return endpoint;
                         }).ToArray();
@@ -771,8 +772,8 @@ namespace Ice
                 Debug.Assert(AdapterId.Length == 0);
                 foreach (Endpoint endpoint in Endpoints)
                 {
-                    ostr.WriteShort((short)endpoint.Type());
-                    endpoint.StreamWrite(ostr);
+                    ostr.WriteShort((short)endpoint.Type);
+                    endpoint.IceWrite(ostr);
                 }
             }
             else
@@ -994,14 +995,14 @@ namespace Ice
             Debug.Assert(!IsFixed);
             return endpts.Select(endpoint =>
                 {
-                    endpoint = endpoint.ConnectionId(ConnectionId);
+                    endpoint = endpoint.NewConnectionId(ConnectionId);
                     if (Compress != null)
                     {
-                        endpoint = endpoint.Compress(Compress.Value);
+                        endpoint = endpoint.NewCompressionFlag(Compress.Value);
                     }
                     if (ConnectionTimeout != null)
                     {
-                        endpoint = endpoint.Timeout(ConnectionTimeout.Value);
+                        endpoint = endpoint.NewTimeout(ConnectionTimeout.Value);
                     }
                     return endpoint;
                 }).ToArray();
@@ -1017,7 +1018,7 @@ namespace Ice
             //
             for (int i = 0; i < allEndpoints.Length; i++)
             {
-                if (!(allEndpoints[i] is OpaqueEndpointI))
+                if (!(allEndpoints[i] is OpaqueEndpoint))
                 {
                     endpoints.Add(allEndpoints[i]);
                 }
@@ -1038,7 +1039,7 @@ namespace Ice
                         var tmp = new List<Endpoint>();
                         foreach (Endpoint endpoint in endpoints)
                         {
-                            if (!endpoint.Datagram())
+                            if (!endpoint.IsDatagram)
                             {
                                 tmp.Add(endpoint);
                             }
@@ -1056,7 +1057,7 @@ namespace Ice
                         var tmp = new List<Endpoint>();
                         foreach (Endpoint endpoint in endpoints)
                         {
-                            if (endpoint.Datagram())
+                            if (endpoint.IsDatagram)
                             {
                                 tmp.Add(endpoint);
                             }
@@ -1104,12 +1105,12 @@ namespace Ice
             if (PreferNonSecure)
             {
                 // It's just a preference: we can fallback to secure endpoints.
-                endpoints = endpoints.OrderBy(endpoint => endpoint.Secure()).ToList();
+                endpoints = endpoints.OrderBy(endpoint => endpoint.IsSecure).ToList();
             }
             else
             {
                 // Filter-out non-secure endpoints. This can eliminate all endpoints.
-                endpoints = endpoints.Where(endpoint => endpoint.Secure()).ToList();
+                endpoints = endpoints.Where(endpoint => endpoint.IsSecure).ToList();
             }
 
             return endpoints.ToArray();

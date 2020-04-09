@@ -169,7 +169,7 @@ namespace IceInternal
         // TODO: add more details in message
         public void Cancel() => Cancel(new OperationCanceledException("invocation on remote Ice object canceled"));
 
-        public void AttachRemoteObserver(ConnectionInfo info, IEndpoint endpt, int requestId, int size)
+        public void AttachRemoteObserver(ConnectionInfo info, Endpoint endpt, int requestId, int size)
         {
             Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
             if (observer != null)

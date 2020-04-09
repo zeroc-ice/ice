@@ -705,7 +705,7 @@ namespace IceInternal
 
         public static int GetIPVersion(IPAddress addr) => addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
 
-        public static EndPoint GetAddressForServer(string host, int port, int ipVersion, bool preferIPv6)
+        public static IPEndPoint GetAddressForServer(string host, int port, int ipVersion, bool preferIPv6)
         {
             if (host.Length == 0)
             {
@@ -721,10 +721,10 @@ namespace IceInternal
             return GetAddresses(host, port, ipVersion, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
         }
 
-        public static List<EndPoint> GetAddresses(string host, int port, int ipVersion,
+        public static List<IPEndPoint> GetAddresses(string host, int port, int ipVersion,
                                                   Ice.EndpointSelectionType selType, bool preferIPv6, bool blocking)
         {
-            var addresses = new List<EndPoint>();
+            var addresses = new List<IPEndPoint>();
             if (host.Length == 0)
             {
                 foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
@@ -1273,20 +1273,18 @@ namespace IceInternal
             throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
-        public static EndPoint?
-        GetNumericAddress(string sourceAddress)
+        public static IPAddress? GetNumericAddress(string sourceAddress)
         {
-            EndPoint? addr = null;
             if (!string.IsNullOrEmpty(sourceAddress))
             {
-                List<EndPoint> addrs = GetAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered,
+                List<IPEndPoint> addrs = GetAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered,
                                                     false, false);
                 if (addrs.Count != 0)
                 {
-                    return addrs[0];
+                    return addrs[0].Address;
                 }
             }
-            return addr;
+            return null;
         }
 
         private static bool

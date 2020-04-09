@@ -504,9 +504,9 @@ public class AllTests : Test.AllTests
         string isSecure = "";
         if (!collocated)
         {
-            Ice.EndpointInfo endpointInfo = metrics.GetConnection().Endpoint.GetInfo();
-            type = endpointInfo.Type().ToString();
-            isSecure = endpointInfo.Secure() ? "True" : "False";
+            Ice.Endpoint connectionEndpoint = metrics.GetConnection().Endpoint;
+            type = connectionEndpoint.Type.ToString();
+            isSecure = connectionEndpoint.IsSecure ? "True" : "False";
         }
 
         Dictionary<string, IceMX.Metrics> map;

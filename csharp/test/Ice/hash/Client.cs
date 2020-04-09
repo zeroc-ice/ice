@@ -19,7 +19,7 @@ public class Client : Test.TestHelper
         Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
         Console.Error.Flush();
         var seenProxy = new Dictionary<int, IObjectPrx>();
-        var seenEndpoint = new Dictionary<int, IEndpoint>();
+        var seenEndpoint = new Dictionary<int, Endpoint>();
         int proxyCollisions = 0;
         int endpointCollisions = 0;
         int i = 0;
@@ -44,7 +44,7 @@ public class Client : Test.TestHelper
                 sw.Write(rand.Next(100));
 
                 var obj = IObjectPrx.Parse(sw.ToString(), communicator);
-                var endpoints = new List<IEndpoint>(obj.Endpoints);
+                var endpoints = new List<Endpoint>(obj.Endpoints);
 
                 if (seenProxy.ContainsKey(obj.GetHashCode()))
                 {
@@ -59,7 +59,7 @@ public class Client : Test.TestHelper
                     seenProxy[obj.GetHashCode()] = obj;
                 }
 
-                foreach (IEndpoint endpoint in endpoints)
+                foreach (Endpoint endpoint in endpoints)
                 {
                     if (seenEndpoint.ContainsKey(endpoint.GetHashCode()))
                     {

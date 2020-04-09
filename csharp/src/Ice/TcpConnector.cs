@@ -18,7 +18,7 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(TransportInstance instance, EndPoint addr, INetworkProxy? proxy, EndPoint? sourceAddr,
+        internal TcpConnector(TransportInstance instance, EndPoint addr, INetworkProxy? proxy, IPAddress? sourceAddr,
                               int timeout, string connectionId)
         {
             _instance = instance;
@@ -77,7 +77,7 @@ namespace IceInternal
         private readonly TransportInstance _instance;
         private readonly EndPoint _addr;
         private readonly INetworkProxy? _proxy;
-        private readonly EndPoint? _sourceAddr;
+        private readonly IPAddress? _sourceAddr;
         private readonly int _timeout;
         private readonly string _connectionId;
         private readonly int _hashCode;

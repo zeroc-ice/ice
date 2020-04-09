@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 namespace IceInternal
 {
     internal class WSAcceptor : IAcceptor
@@ -10,7 +12,7 @@ namespace IceInternal
 
         public Endpoint Listen()
         {
-            _endpoint = _endpoint.endpoint(_delegate.Listen());
+            _endpoint = _endpoint.GetEndpoint(_delegate.Listen());
             return _endpoint;
         }
 

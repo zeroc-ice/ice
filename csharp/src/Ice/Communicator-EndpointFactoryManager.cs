@@ -28,26 +28,52 @@ namespace Ice
             }
         }
 
-        public Endpoint? CreateEndpoint(string str, bool oaEndpoint)
+        public Endpoint? CreateEndpoint(string endpointString, bool oaEndpoint)
         {
-            string[]? arr = IceUtilInternal.StringUtil.SplitString(str, " \t\r\n");
-            if (arr == null)
+            string[]? args = IceUtilInternal.StringUtil.SplitString(endpointString, " \t\r\n");
+            if (args == null)
             {
-                throw new FormatException("mismatched quote");
+                throw new FormatException($"mismatched quote in endpoint `{endpointString}'");
             }
 
-            if (arr.Length == 0)
+            if (args.Length == 0)
             {
-                throw new FormatException("value has no non-whitespace characters");
+                throw new FormatException("no non-whitespace character in endpoint string");
             }
 
-            var v = new List<string>(arr);
-            string transport = v[0];
-            v.RemoveAt(0);
-
-            if (transport.Equals("default"))
+            string transport = args[0];
+            if (transport == "default")
             {
                 transport = DefaultsAndOverrides.DefaultTransport;
+            }
+
+            var options = new Dictionary<string, string?>();
+
+            // Parse arr into options (and skip transport at arr[0])
+            for (int n = 1; n < args.Length; ++n)
+            {
+                // Any option with < 2 characters or that does not start with - is illegal
+                string option = args[n];
+                if (option.Length < 2 || option[0] != '-')
+                {
+                    throw new FormatException($"invalid option `{option}' in endpoint `{endpointString}'");
+                }
+
+                // Extract the argument given to the current option, if any
+                string? argument = null;
+                if (n + 1 < args.Length && args[n + 1][0] != '-')
+                {
+                    argument = args[++n];
+                }
+
+                try
+                {
+                    options.Add(option, argument);
+                }
+                catch (ArgumentException)
+                {
+                    throw new FormatException($"duplicate option `{option}' in endpoint `{endpointString}'");
+                }
             }
 
             IEndpointFactory? factory = null;
@@ -57,7 +83,7 @@ namespace Ice
                 for (int i = 0; i < _endpointFactories.Count; i++)
                 {
                     IEndpointFactory f = _endpointFactories[i];
-                    if (f.Transport().Equals(transport))
+                    if (f.Transport() == transport)
                     {
                         factory = f;
                     }
@@ -66,41 +92,28 @@ namespace Ice
 
             if (factory != null)
             {
-                Endpoint? e = factory.Create(v, oaEndpoint);
-                if (v.Count > 0)
+                Endpoint? e = factory.Create(endpointString, options, oaEndpoint);
+                if (options.Count > 0)
                 {
-                    throw new FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
+                    string badOptions = ToString(options);
+                    throw new FormatException($"unrecognized option(s) `{badOptions}' in endpoint `{endpointString}'");
                 }
                 return e;
-
-                // Code below left in place for debugging.
-
-                /*
-                EndpointI e = f.create(s.Substring(m.Index + m.Length), oaEndpoint);
-                BasicStream bs = new BasicStream(_instance, true);
-                e.streamWrite(bs);
-                Buffer buf = bs.getBuffer();
-                buf.b.position(0);
-                short type = bs.readShort();
-                EndpointI ue = new IceInternal.OpaqueEndpointI(type, bs);
-                System.Console.Error.WriteLine("Normal: " + e);
-                System.Console.Error.WriteLine("Opaque: " + ue);
-                return e;
-                */
             }
 
             //
             // If the stringified endpoint is opaque, create an unknown endpoint,
             // then see whether the type matches one of the known endpoints.
             //
-            if (transport.Equals("opaque"))
+            if (transport == "opaque")
             {
-                Endpoint ue = new OpaqueEndpointI(v);
-                if (v.Count > 0)
+                Endpoint ue = new OpaqueEndpoint(endpointString, options);
+                if (options.Count > 0)
                 {
-                    throw new FormatException($"unrecognized argument `{v[0]}' in endpoint `{str}'");
+                    string badOptions = ToString(options);
+                    throw new FormatException($"unrecognized option(s) `{badOptions}' in endpoint `{endpointString}'");
                 }
-                factory = GetEndpointFactory(ue.Type());
+                factory = GetEndpointFactory(ue.Type);
                 if (factory != null)
                 {
                     //
@@ -109,8 +122,8 @@ namespace Ice
                     // the actual endpoint.
                     //
                     var ostr = new OutputStream(Ice1Definitions.Encoding, new List<ArraySegment<byte>>());
-                    ostr.WriteShort((short)ue.Type());
-                    ue.StreamWrite(ostr);
+                    ostr.WriteShort((short)ue.Type);
+                    ue.IceWrite(ostr);
                     // TODO avoid copy OutputStream buffers
                     var iss = new InputStream(this, ostr.ToArray());
                     iss.Pos = 0;
@@ -164,13 +177,33 @@ namespace Ice
                 {
                     byte[] data = new byte[size];
                     istr.ReadSpan(data);
-                    e = new OpaqueEndpointI(type, encoding, data);
+                    e = new OpaqueEndpoint(type, encoding, data);
                 }
                 istr.EndEndpointEncapsulation();
 
                 return e;
             }
         }
-    }
 
+        private static string ToString(Dictionary<string, string?> options)
+        {
+            string result = "";
+            foreach ((string option, string? argument) in options)
+            {
+                if (result.Length > 0)
+                {
+                    result += " ";
+                }
+                if (argument != null)
+                {
+                    result += $"{option} {argument}";
+                }
+                else
+                {
+                    result += $"{option}";
+                }
+            }
+            return result;
+        }
+    }
 }

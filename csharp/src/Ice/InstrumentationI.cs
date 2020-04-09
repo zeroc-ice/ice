@@ -105,18 +105,19 @@ namespace IceInternal
         public static void
         AddEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
         {
-            r.Add("endpoint", cl.GetMethod("GetEndpoint")!);
+            r.Add("endpoint", cl.GetMethod("GetEndpointString")!);
 
-            Type cli = typeof(EndpointInfo);
-            r.Add("endpointType", cl.GetMethod("GetEndpointInfo")!, cli.GetMethod("Type")!);
-            r.Add("endpointIsDatagram", cl.GetMethod("GetEndpointInfo")!, cli.GetMethod("Datagram")!);
-            r.Add("endpointIsSecure", cl.GetMethod("GetEndpointInfo")!, cli.GetMethod("Secure")!);
-            r.Add("endpointTimeout", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Timeout")!);
-            r.Add("endpointCompress", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Compress")!);
+            Type cli = typeof(Endpoint);
 
-            cli = typeof(IPEndpointInfo);
-            r.Add("endpointHost", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Host")!);
-            r.Add("endpointPort", cl.GetMethod("GetEndpointInfo")!, cli.GetField("Port")!);
+            r.Add("endpointType", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Type")!);
+            r.Add("endpointIsDatagram", cl.GetMethod("GetEndpoint")!, cli.GetProperty("IsDatagram")!);
+            r.Add("endpointIsSecure", cl.GetMethod("GetEndpoint")!, cli.GetProperty("IsSecure")!);
+            r.Add("endpointTimeout", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Timeout")!);
+            r.Add("endpointCompress", cl.GetMethod("GetEndpoint")!, cli.GetProperty("HasCompressionFlag")!);
+
+            cli = typeof(IPEndpoint);
+            r.Add("endpointHost", cl.GetMethod("GetEndpoint")!, cli.GetField("Host")!);
+            r.Add("endpointPort", cl.GetMethod("GetEndpoint")!, cli.GetField("Port")!);
         }
 
         public static void
@@ -163,7 +164,7 @@ namespace IceInternal
         }
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public ConnectionHelper(ConnectionInfo con, IEndpoint endpt, Ice.Instrumentation.ConnectionState state)
+        public ConnectionHelper(ConnectionInfo con, Endpoint endpt, Ice.Instrumentation.ConnectionState state)
             : base(_attributes)
         {
             _connectionInfo = con;
@@ -228,19 +229,10 @@ namespace IceInternal
 
         public ConnectionInfo GetConnectionInfo() => _connectionInfo;
 
-        public IEndpoint GetEndpoint() => _endpoint;
+        public Endpoint GetEndpoint() => _endpoint;
+        public string GetEndpointString() => _endpoint.ToString();
 
-        public EndpointInfo GetEndpointInfo()
-        {
-            if (_endpointInfo == null)
-            {
-                _endpointInfo = _endpoint.GetInfo();
-            }
-            return _endpointInfo;
-        }
-
-        private IPConnectionInfo?
-        GetIPConnectionInfo()
+        private IPConnectionInfo? GetIPConnectionInfo()
         {
             for (ConnectionInfo? p = _connectionInfo; p != null; p = p.Underlying)
             {
@@ -253,10 +245,9 @@ namespace IceInternal
         }
 
         private readonly ConnectionInfo _connectionInfo;
-        private readonly IEndpoint _endpoint;
+        private readonly Endpoint _endpoint;
         private readonly Ice.Instrumentation.ConnectionState _state;
         private string? _id;
-        private EndpointInfo? _endpointInfo;
     }
 
     internal class DispatchHelper : MetricsHelper<DispatchMetrics>
@@ -336,7 +327,7 @@ namespace IceInternal
             return null;
         }
 
-        public IEndpoint? GetEndpoint()
+        public Endpoint? GetEndpoint()
         {
             if (_current.Connection != null)
             {
@@ -345,16 +336,9 @@ namespace IceInternal
             return null;
         }
 
-        public Connection? GetConnection() => _current.Connection;
+        public string GetEndpointString() => GetEndpoint() == null ? "" : GetEndpoint()!.ToString();
 
-        public EndpointInfo? GetEndpointInfo()
-        {
-            if (_current.Connection != null && _endpointInfo == null)
-            {
-                _endpointInfo = _current.Connection.Endpoint.GetInfo();
-            }
-            return _endpointInfo;
-        }
+        public Connection? GetConnection() => _current.Connection;
 
         public Current GetCurrent() => _current;
 
@@ -363,7 +347,6 @@ namespace IceInternal
         private readonly Current _current;
         private readonly int _size;
         private string? _id;
-        private EndpointInfo? _endpointInfo;
     }
 
     internal class InvocationHelper : MetricsHelper<InvocationMetrics>
@@ -497,7 +480,7 @@ namespace IceInternal
         private readonly IReadOnlyDictionary<string, string> _context;
         private string? _id;
 
-        private static readonly IEndpoint[] _emptyEndpoints = Array.Empty<IEndpoint>();
+        private static readonly Endpoint[] _emptyEndpoints = Array.Empty<Endpoint>();
     }
 
     internal class ThreadHelper : MetricsHelper<ThreadMetrics>
@@ -565,28 +548,21 @@ namespace IceInternal
                 }
                 catch (Exception)
                 {
-                    Debug.Assert(false);
+#if DEBUG
+                    throw;
+#endif
                 }
             }
         }
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public EndpointHelper(IEndpoint endpt, string id) : base(_attributes)
+        public EndpointHelper(Endpoint endpt, string id) : base(_attributes)
         {
             _endpoint = endpt;
             _id = id;
         }
 
-        public EndpointHelper(IEndpoint endpt) : base(_attributes) => _endpoint = endpt;
-
-        public EndpointInfo GetEndpointInfo()
-        {
-            if (_endpointInfo == null)
-            {
-                _endpointInfo = _endpoint.GetInfo();
-            }
-            return _endpointInfo;
-        }
+        public EndpointHelper(Endpoint endpt) : base(_attributes) => _endpoint = endpt;
 
         public string GetParent() => "Communicator";
 
@@ -600,11 +576,11 @@ namespace IceInternal
             return _id;
         }
 
-        public string GetEndpoint() => _endpoint.ToString()!;
+        public Endpoint GetEndpoint() => _endpoint;
+        public string GetEndpointString() => _endpoint.ToString();
 
-        private readonly IEndpoint _endpoint;
+        private readonly Endpoint _endpoint;
         private string? _id;
-        private EndpointInfo? _endpointInfo;
     }
 
     public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
@@ -629,7 +605,7 @@ namespace IceInternal
         }
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public RemoteInvocationHelper(ConnectionInfo con, IEndpoint endpt, int requestId, int size) :
+        public RemoteInvocationHelper(ConnectionInfo con, Endpoint endpt, int requestId, int size) :
             base(_attributes)
         {
             _connectionInfo = con;
@@ -670,23 +646,13 @@ namespace IceInternal
 
         public ConnectionInfo GetConnectionInfo() => _connectionInfo;
 
-        public IEndpoint GetEndpoint() => _endpoint;
-
-        public EndpointInfo GetEndpointInfo()
-        {
-            if (_endpointInfo == null)
-            {
-                _endpointInfo = _endpoint.GetInfo();
-            }
-            return _endpointInfo;
-        }
-
+        public Endpoint GetEndpoint() => _endpoint;
+        public string GetEndpointString() => _endpoint.ToString();
         private readonly ConnectionInfo _connectionInfo;
-        private readonly IEndpoint _endpoint;
+        private readonly Endpoint _endpoint;
         private readonly int _size;
         private readonly int _requestId;
         private string? _id;
-        private EndpointInfo? _endpointInfo;
     }
 
     public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
@@ -840,7 +806,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Instrumentation.IRemoteObserver GetRemoteObserver(ConnectionInfo con, IEndpoint endpt,
+        public Ice.Instrumentation.IRemoteObserver GetRemoteObserver(ConnectionInfo con, Endpoint endpt,
                                                                     int requestId, int size)
         {
             Ice.Instrumentation.IRemoteObserver? del = null;
@@ -955,7 +921,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Instrumentation.IObserver? GetConnectionEstablishmentObserver(IEndpoint endpt, string connector)
+        public Ice.Instrumentation.IObserver? GetConnectionEstablishmentObserver(Endpoint endpt, string connector)
         {
             if (_connects.IsEnabled())
             {
@@ -976,7 +942,7 @@ namespace IceInternal
             return null;
         }
 
-        public Ice.Instrumentation.IObserver? GetEndpointLookupObserver(IEndpoint endpt)
+        public Ice.Instrumentation.IObserver? GetEndpointLookupObserver(Endpoint endpt)
         {
             if (_endpointLookups.IsEnabled())
             {
@@ -998,7 +964,7 @@ namespace IceInternal
         }
 
         public Ice.Instrumentation.IConnectionObserver? GetConnectionObserver(ConnectionInfo c,
-                                                                             IEndpoint e,
+                                                                             Endpoint e,
                                                                              Ice.Instrumentation.ConnectionState s,
                                                                              Ice.Instrumentation.IConnectionObserver? obsv)
         {

@@ -50,7 +50,7 @@ namespace Ice.retry
             }
 
             public Ice.Instrumentation.IRemoteObserver
-            GetRemoteObserver(ConnectionInfo ci, IEndpoint ei, int i, int j)
+            GetRemoteObserver(ConnectionInfo ci, Endpoint ei, int i, int j)
             {
                 return null;
             }
@@ -68,20 +68,20 @@ namespace Ice.retry
         class CommunicatorObserverI : Ice.Instrumentation.ICommunicatorObserver
         {
             public Ice.Instrumentation.IObserver?
-            GetConnectionEstablishmentObserver(Ice.IEndpoint e, string s)
+            GetConnectionEstablishmentObserver(Ice.Endpoint e, string s)
             {
                 return null;
             }
 
             public Ice.Instrumentation.IObserver?
-            GetEndpointLookupObserver(Ice.IEndpoint e)
+            GetEndpointLookupObserver(Ice.Endpoint e)
             {
                 return null;
             }
 
             public Ice.Instrumentation.IConnectionObserver?
             GetConnectionObserver(Ice.ConnectionInfo ci,
-                                    Ice.IEndpoint ei,
+                                    Ice.Endpoint ei,
                                     Ice.Instrumentation.ConnectionState s,
                                     Ice.Instrumentation.IConnectionObserver o)
             {

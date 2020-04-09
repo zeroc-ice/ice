@@ -713,11 +713,11 @@ namespace Ice
 
         /// <summary>Retrieves a copy of the endpoints configured with this object adapter.</summary>
         /// <returns>The endpoints.</returns>
-        public IEndpoint[] GetEndpoints()
+        public Endpoint[] GetEndpoints()
         {
             lock (_mutex)
             {
-                var endpoints = new List<IEndpoint>();
+                var endpoints = new List<Endpoint>();
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     endpoints.Add(factory.Endpoint());
@@ -763,18 +763,18 @@ namespace Ice
         /// <summary>Retrieves a copy of the endpoints that would be listed in a proxy created by this object adapter.
         /// </summary>
         /// <returns>The published endpoints.</returns>
-        public IEndpoint[] GetPublishedEndpoints()
+        public Endpoint[] GetPublishedEndpoints()
         {
             lock (_mutex)
             {
-                return (IEndpoint[])_publishedEndpoints.Clone();
+                return (Endpoint[])_publishedEndpoints.Clone();
             }
         }
 
         /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
         /// </summary>
         /// <param name="newEndpoints">The new published endpoints.</param>
-        public void SetPublishedEndpoints(IEndpoint[] newEndpoints)
+        public void SetPublishedEndpoints(Endpoint[] newEndpoints)
         {
             LocatorInfo? locatorInfo = null;
             Endpoint[] oldPublishedEndpoints;
@@ -789,7 +789,14 @@ namespace Ice
                 }
 
                 oldPublishedEndpoints = _publishedEndpoints;
-                _publishedEndpoints = Array.ConvertAll(newEndpoints, endpt => (Endpoint)endpt);
+                if (newEndpoints.Length == 0)
+                {
+                    _publishedEndpoints = Array.Empty<Endpoint>();
+                }
+                else
+                {
+                    _publishedEndpoints = (Endpoint[])newEndpoints.Clone(); // can't reference the user-provided array
+                }
                 locatorInfo = _locatorInfo;
             }
 
@@ -1297,7 +1304,7 @@ namespace Ice
                 s.Append("endpoints = ");
                 if (proxy != null)
                 {
-                    IEndpoint[] endpoints = proxy.Endpoints;
+                    Endpoint[] endpoints = proxy.Endpoints;
                     for (int i = 0; i < endpoints.Length; i++)
                     {
                         s.Append(endpoints[i].ToString());

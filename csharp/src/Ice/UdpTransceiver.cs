@@ -112,7 +112,7 @@ namespace IceInternal
             }
             _bound = true;
             Debug.Assert(_endpoint != null);
-            _endpoint = _endpoint.Endpoint(this);
+            _endpoint = _endpoint.GetEndpoint(this);
             return _endpoint;
         }
 
@@ -657,12 +657,15 @@ namespace IceInternal
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(TransportInstance instance, EndPoint addr, EndPoint? sourceAddr, string mcastInterface,
+        internal UdpTransceiver(TransportInstance instance, EndPoint addr, IPAddress? sourceAddr, string mcastInterface,
                                 int mcastTtl)
         {
             _instance = instance;
             _addr = addr;
-            _sourceAddr = sourceAddr;
+            if (sourceAddr != null)
+            {
+                _sourceAddr = new IPEndPoint(sourceAddr, 0);
+            }
 
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.RemoteEndPoint = _addr;
@@ -866,7 +869,7 @@ namespace IceInternal
         private int _sndSize;
         private Socket? _fd;
         private EndPoint _addr;
-        private readonly EndPoint? _sourceAddr;
+        private readonly IPEndPoint? _sourceAddr;
         private IPEndPoint? _mcastAddr = null;
         private EndPoint? _peerAddr = null;
         private readonly string? _mcastInterface = null;
