@@ -22,7 +22,7 @@ namespace Ice
     {
         public event EventHandler<IReadOnlyDictionary<string, string>>? Updated;
 
-        private const string TraceCategory = "Admin.Properties";
+        private const string TraceCategory = "Ice.Admin.Properties";
         private readonly Communicator _communicator;
         private readonly ILogger _logger;
 
@@ -33,7 +33,7 @@ namespace Ice
 
         public void SetProperties(Dictionary<string, string> props, Current current)
         {
-            int? traceLevel = _communicator.GetPropertyAsInt("Trace.Admin.Properties");
+            int? traceLevel = _communicator.GetPropertyAsInt("Ice.Trace.Admin.Properties");
 
             // Update the communicator's properties and remove the properties that did not change from props.
             _communicator.SetProperties(props);
