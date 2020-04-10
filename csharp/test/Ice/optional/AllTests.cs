@@ -363,9 +363,9 @@ namespace Ice.optional
             outer.value = recursive1;
             initial.pingPong(outer);
 
-            G g = new Test.G();
-            g.gg1Opt = new Test.G1("gg1Opt");
-            g.gg2 = new Test.G2(10);
+            G g = new G();
+            g.gg1Opt = new G1("gg1Opt");
+            g.gg2 = new G2(10);
             g.gg2Opt = new G2(20);
             g.gg1 = new G1("gg1");
             g = initial.opG(g);
@@ -1121,6 +1121,10 @@ namespace Ice.optional
                     });
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 100).Select(x => (byte)56).ToList();
+                (List<byte> l2, List<byte> l3) = initial.opByteList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {
@@ -1164,6 +1168,10 @@ namespace Ice.optional
 
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 100).Select(_ => true).ToList();
+                (List<bool>? l2, List<bool>? l3) = initial.opBoolList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {
@@ -1210,6 +1218,10 @@ namespace Ice.optional
                     });
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 100).Select(_ => (short)56).ToList();
+                (List<short>? l2, List<short> ? l3) = initial.opShortList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {
@@ -1256,6 +1268,10 @@ namespace Ice.optional
 
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 100).Select(_ => 56).ToList();
+                (List<int>? l2, List<int>? l3) = initial.opIntList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {
@@ -1301,6 +1317,10 @@ namespace Ice.optional
                     });
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 100).Select(_ => 56L).ToList();
+                (List<long>? l2, List<long>? l3) = initial.opLongList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {
@@ -1346,6 +1366,10 @@ namespace Ice.optional
                     });
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 100).Select(_ => 1.0f).ToList();
+                (List<float>? l2, List<float>? l3) = initial.opFloatList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {
@@ -1392,6 +1416,10 @@ namespace Ice.optional
 
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 100).Select(_ => 1.0).ToList();
+                (List<double>? l2, List<double>? l3) = initial.opDoubleList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {
@@ -1438,6 +1466,10 @@ namespace Ice.optional
 
                 test(global::Test.Collections.Equals(p1, p2));
                 test(global::Test.Collections.Equals(p1, p3));
+
+                var l1 = Enumerable.Range(0, 10).Select(_ => "test1").ToList();
+                (List<string>? l2, List<string>? l3) = initial.opStringList(l1);
+                test(global::Test.Collections.Equals(l2, l1) && global::Test.Collections.Equals(l3, l1));
             }
 
             {

@@ -861,9 +861,8 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
 
-    out << nl << param << " = ";
+    out << param << " = ";
     if(isClassType(type))
     {
         out << stream << ".ReadClass<" << typeToString(type, scope) << ">();";
@@ -908,7 +907,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << "if(" << param << " is " << typeToString(st, scope);
+        out << nl << "if (" << param << " is " << typeToString(st, scope);
         out << " && " << stream << ".WriteOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
         out << sb;
         if(st->isVariableLength())
@@ -928,14 +927,58 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     }
     else if(en)
     {
-        out << nl << "if(" << param << " is " << typeToString(en, scope) << ")";
+        out << nl << "if (" << param << " is " << typeToString(en, scope) << ")";
         out << sb;
         out << nl << stream << ".WriteEnum(" << tag << ", (int)" << param << ".Value);";
         out << eb;
     }
     else if(seq)
     {
-        writeTaggedSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, true, stream);
+        const TypePtr elementType = seq->type();
+        const bool isArray = !seq->hasMetaDataWithPrefix("cs:generic:");
+        const string length = isArray ? param + ".Length" : param + ".Count";
+        builtin = BuiltinPtr::dynamicCast(elementType);
+        st = StructPtr::dynamicCast(elementType);
+
+        if(elementType->isVariableLength())
+        {
+            out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
+                << getTagFormat(seq, scope) << "))";
+            out << sb;
+            out << nl << "var pos = " << stream << ".StartSize();";
+            writeMarshalCode(out, seq, scope, param, stream);
+            out << nl << stream << ".EndSize(pos);";
+            out << eb;
+        }
+        else if(st)
+        {
+            // Fixed size struct
+            out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
+                << getTagFormat(seq, scope) << "))";
+            out << sb;
+            if(st->minWireSize() > 1)
+            {
+                out << nl << stream << ".WriteSize(" << length << " * " << st->minWireSize() << " + (" << length
+                    << " > 254 ? 5 : 1));";
+            }
+            writeMarshalCode(out, seq, scope, param, stream);
+            out << eb;
+        }
+        else if(seq->hasMetaDataWithPrefix("cs:serializable:"))
+        {
+            assert(builtin->kind() == Builtin::KindByte);
+            out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag
+                << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".VSize))";
+            out << sb;
+            out << nl << stream << ".WriteSerializable(" << param << ");";
+            out << eb;
+        }
+        else
+        {
+            assert(builtin);
+            out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param
+                << ");";
+        }
     }
     else
     {
@@ -943,7 +986,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         assert(d);
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
-        out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
+        out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
             << getTagFormat(d, scope) << "))";
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
@@ -952,7 +995,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         }
         else
         {
-            out << nl << stream << ".WriteSize(" << param << " == null ? 1 : " << param << ".Count * "
+            out << nl << stream << ".WriteSize(" << param << ".Count * "
                 << (keyType->minWireSize() + valueType->minWireSize()) << " + (" << param
                 << ".Count > 254 ? 5 : 1));";
         }
@@ -995,7 +1038,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
+        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
         out << sb;
         out << nl << stream << (st->isVariableLength() ? ".Skip(4);" : ".SkipSize();");
         out << nl << param << " = new " << typeToString(type, scope) << "(" << stream << ");";
@@ -1003,15 +1046,36 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     }
     else if(en)
     {
-        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
+        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
             << ".Size))";
         out << sb;
+        out << nl;
         writeUnmarshalCode(out, type, scope, param, stream);
         out << eb;
     }
     else if(seq)
     {
-        writeTaggedSequenceMarshalUnmarshalCode(out, seq, scope, param, tag, false, stream);
+        const TypePtr elementType = seq->type();
+        builtin = BuiltinPtr::dynamicCast(elementType);
+        st = StructPtr::dynamicCast(elementType);
+
+        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
+        out << sb;
+        if(elementType->isVariableLength())
+        {
+            out << nl << stream << ".Skip(4);";
+        }
+        else if(st && st->minWireSize() > 1)
+        {
+            out << nl << stream << ".SkipSize();";
+        }
+        else if(builtin && builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)
+        {
+            out << nl << stream << ".SkipSize();";
+        }
+        out << nl;
+        writeUnmarshalCode(out, seq, scope, param, stream);
+        out << eb;
     }
     else
     {
@@ -1020,7 +1084,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
 
-        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(d, scope) << "))";
+        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(d, scope) << "))";
         out << sb;
         if(keyType->isVariableLength() || valueType->isVariableLength())
         {
@@ -1030,6 +1094,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         {
             out << nl << stream << ".SkipSize();";
         }
+        out << nl;
         writeUnmarshalCode(out, type, scope, param, stream);
         out << eb;
     }
@@ -1101,225 +1166,6 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         out << "new " << typeToString(seq, scope) << "(" << reader << ")";
     }
     return out.str();
-}
-
-void
-Slice::CsGenerator::writeTaggedSequenceMarshalUnmarshalCode(Output& out,
-                                                            const SequencePtr& seq,
-                                                            const string& scope,
-                                                            const string& param,
-                                                            int tag,
-                                                            bool marshal,
-                                                            const string& customStream)
-{
-    string stream = customStream;
-    if(stream.empty())
-    {
-        stream = marshal ? "ostr" : "istr";
-    }
-
-    const TypePtr type = seq->type();
-    const string typeS = typeToString(type, scope);
-    const string seqS = typeToString(seq, scope);
-
-    string meta;
-    const bool isArray = !seq->findMetaData("cs:generic:", meta);
-    const string length = isArray ? param + ".Length" : param + ".Count";
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    auto kind = builtin ? builtin->kind() : Builtin::KindObjectProxy;
-
-    if(builtin || proxy)
-    {
-        if(builtin->usesClasses() || kind == Builtin::KindObjectProxy)
-        {
-            if(marshal)
-            {
-                out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                    << getTagFormat(seq, scope) << "))";
-                out << sb;
-                out << nl << "var pos = " << stream << ".StartSize();";
-                writeMarshalCode(out, seq, scope, param, stream);
-                out << nl << stream << ".EndSize(pos);";
-                out << eb;
-            }
-            else
-            {
-                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-                out << sb;
-                out << nl << stream << ".Skip(4);";
-                string tmp = "tmpVal";
-                out << nl << seqS << ' ' << tmp << ';';
-                writeUnmarshalCode(out, seq, scope, tmp, stream);
-                if(isArray)
-                {
-                    out << nl << param << " = " << tmp << ";";
-                }
-                else
-                {
-                    out << nl << param << " = new " << seqS << "(" << tmp << ");";
-                }
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << param << " = null;";
-                out << eb;
-            }
-        }
-        else
-        {
-            string func = typeS;
-            func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
-            const bool isSerializable = seq->findMetaData("cs:serializable:", meta);
-
-            if(marshal)
-            {
-                if(isSerializable)
-                {
-                    out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag
-                        << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".VSize))";
-                    out << sb;
-                    out << nl << stream << ".WriteSerializable(" << param << ");";
-                    out << eb;
-                }
-                else if(isArray)
-                {
-                    out << nl << stream << ".Write" << func << "Seq(" << tag << ", " << param << ");";
-                }
-                else
-                {
-                    out << nl << "if(" << param << " != null)";
-                    out << sb;
-                    out << nl << stream << ".Write" << func << "Seq(" << tag << ", " << param << " == null ? 0 : "
-                        << param << ".Count, " << param << ");";
-                    out << eb;
-                }
-            }
-            else
-            {
-                out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-                out << sb;
-                if(builtin->isVariableLength())
-                {
-                    out << nl << stream << ".Skip(4);";
-                }
-                else if(kind != Builtin::KindByte && kind != Builtin::KindBool)
-                {
-                    out << nl << stream << ".SkipSize();";
-                }
-                string tmp = "tmpVal";
-                out << nl << seqS << ' ' << tmp << ';';
-                writeUnmarshalCode(out, seq, scope, tmp, stream);
-                if(isArray)
-                {
-                    out << nl << param << " = " << tmp << ";";
-                }
-                else
-                {
-                    out << nl << param << " = new " << seqS << "(" << tmp << ");";
-                }
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << param << " = null;";
-                out << eb;
-            }
-        }
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        if(marshal)
-        {
-            out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                << getTagFormat(seq, scope) << "))";
-            out << sb;
-            if(st->isVariableLength())
-            {
-                out << nl << "var pos = " << stream << ".StartSize();";
-            }
-            else if(st->minWireSize() > 1)
-            {
-                out << nl << stream << ".WriteSize(" << param << " == null ? 1 : " << length << " * "
-                    << st->minWireSize() << " + (" << length << " > 254 ? 5 : 1));";
-            }
-            writeMarshalCode(out, seq, scope, param, stream);
-            if(st->isVariableLength())
-            {
-                out << nl << stream << ".EndSize(pos);";
-            }
-            out << eb;
-        }
-        else
-        {
-            out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-            out << sb;
-            if(st->isVariableLength())
-            {
-                out << nl << stream << ".Skip(4);";
-            }
-            else if(st->minWireSize() > 1)
-            {
-                out << nl << stream << ".SkipSize();";
-            }
-            string tmp = "tmpVal";
-            out << nl << seqS << ' ' << tmp << ';';
-            writeUnmarshalCode(out, seq, scope, tmp, stream);
-            if(isArray)
-            {
-                out << nl << param << " = " << tmp << ";";
-            }
-            else
-            {
-                out << nl << param << " = new " << seqS << "(" << tmp << ");";
-            }
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << param << " = null;";
-            out << eb;
-        }
-        return;
-    }
-
-    //
-    // At this point, all remaining element types have variable size.
-    //
-    if(marshal)
-    {
-        out << nl << "if(" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-            << getTagFormat(seq, scope) << "))";
-        out << sb;
-        out << nl << "var pos = " << stream << ".StartSize();";
-        writeMarshalCode(out, seq, scope, param, stream);
-        out << nl << stream << ".EndSize(pos);";
-        out << eb;
-    }
-    else
-    {
-        out << nl << "if(" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-        out << sb;
-        out << nl << stream << ".Skip(4);";
-        string tmp = "tmpVal";
-        out << nl << seqS << ' ' << tmp << ';';
-        writeUnmarshalCode(out, seq, scope, tmp, stream);
-        if(isArray)
-        {
-            out << nl << param << " = " << tmp << ";";
-        }
-        else
-        {
-            out << nl << param << " = new " << seqS << "(" << tmp << ");";
-        }
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << param << " = null;";
-        out << eb;
-    }
 }
 
 void

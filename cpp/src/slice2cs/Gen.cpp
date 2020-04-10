@@ -173,12 +173,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
         {
             _out << "?";
         }
-        _out << " " << param.name;
-        if(isClassType(param.type) || StructPtr::dynamicCast(param.type))
-        {
-            _out << " = default";
-        }
-        _out << ";";
+        _out << " ";
         writeUnmarshalCode(_out, param.type, ns, param.name, stream);
     }
 
@@ -1915,6 +1910,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(auto m : dataMembers)
     {
+        _out << nl;
         writeUnmarshalDataMember(m, fixId(dataMemberName(m)) , ns, "iceP_istr");
     }
 
