@@ -21,10 +21,9 @@ public class TestService : IService
         // Set the callback on the admin facet.
         //
         Ice.IObject? propFacet = serviceManagerCommunicator.FindAdminFacet("IceBox.Service.TestService.Properties");
-        if (propFacet != null)
+        if (propFacet is Ice.IPropertiesAdmin admin)
         {
-            var admin = (Ice.INativePropertiesAdmin)propFacet;
-            admin.AddUpdateCallback(facet.updated);
+            admin.Updated += (_, updates) => facet.Updated(updates);
         }
     }
 

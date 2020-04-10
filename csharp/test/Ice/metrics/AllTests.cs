@@ -156,8 +156,7 @@ public class AllTests : Test.AllTests
             }
         }
 
-        public void
-        updated(Dictionary<string, string> dict)
+        public void Updated()
         {
             lock (this)
             {
@@ -418,7 +417,7 @@ public class AllTests : Test.AllTests
         test(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
-        ((INativePropertiesAdmin)communicator.FindAdminFacet("Properties")).AddUpdateCallback(update.updated);
+        ((IPropertiesAdmin)communicator.FindAdminFacet("Properties")).Updated += (_, u) => update.Updated();
 
         output.WriteLine("ok");
 

@@ -2191,7 +2191,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeTypeDocComment(p, getDeprecateReason(p, 0, "interface"));
     emitGeneratedCodeAttribute();
     emitTypeIdAttribute(p->scoped());
-    _out << nl << "public interface " << interfaceName(p) << "Prx : ";
+    _out << nl << "public partial interface " << interfaceName(p) << "Prx : ";
 
     vector<string> baseInterfaces =
         mapfn<ClassDefPtr>(p->bases(), [&ns](const auto& c)
@@ -2710,7 +2710,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
     emitTypeIdAttribute(p->scoped());
-    _out << nl << "public interface " << fixId(name) << " : ";
+    _out << nl << "public partial interface " << fixId(name) << " : ";
     if (bases.empty())
     {
         _out << getUnqualified("Ice.IObject", ns);

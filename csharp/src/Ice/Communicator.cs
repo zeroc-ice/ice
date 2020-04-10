@@ -537,13 +537,11 @@ namespace Ice
                         Observer = communicatorObserver;
                         _adminFacets.Add(metricsFacetName, communicatorObserver.GetFacet());
 
-                        //
                         // Make sure the admin plugin receives property updates.
-                        //
                         if (propsAdmin != null)
                         {
-                            propsAdmin.AddUpdateCallback((Dictionary<string, string> updates) =>
-                                communicatorObserver.GetFacet().Updated(updates));
+                            propsAdmin.Updated += (_, updates) =>
+                                communicatorObserver.GetFacet().Updated(updates);
                         }
                     }
                 }
