@@ -861,7 +861,6 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
 
     out << param << " = ";
     if(isClassType(type))
