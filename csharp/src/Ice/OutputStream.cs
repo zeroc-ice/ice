@@ -398,9 +398,9 @@ namespace Ice
         /// </summary>
         /// <param name="tag">The optional tag.</param>
         /// <param name="v">An enumerator for the byte sequence.</param>
-        public void WriteByteSeq(int tag, IReadOnlyCollection<byte> v)
+        public void WriteByteSeq(int tag, IReadOnlyCollection<byte>? v)
         {
-            if (WriteOptional(tag, OptionalFormat.VSize))
+            if (v != null && WriteOptional(tag, OptionalFormat.VSize))
             {
                 WriteByteSeq(v);
             }
@@ -614,7 +614,7 @@ namespace Ice
             {
                 int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 4) + (count > 254 ? 5 : 1));
-                WriteIntSeq(count, v);
+                WriteIntSeq(v);
             }
         }
 
@@ -679,7 +679,7 @@ namespace Ice
             {
                 int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 8) + (count > 254 ? 5 : 1));
-                WriteLongSeq(count, v);
+                WriteLongSeq(v);
             }
         }
 
@@ -744,7 +744,7 @@ namespace Ice
             {
                 int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 4) + (count > 254 ? 5 : 1));
-                WriteFloatSeq(count, v);
+                WriteFloatSeq(v);
             }
         }
 
@@ -809,7 +809,7 @@ namespace Ice
             {
                 int count = v.Count;
                 WriteSize(count == 0 ? 1 : (count * 8) + (count > 254 ? 5 : 1));
-                WriteDoubleSeq(count, v);
+                WriteDoubleSeq(v);
             }
         }
 

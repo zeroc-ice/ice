@@ -68,20 +68,28 @@ namespace Ice.optional
         public (IObjectPrx?, IObjectPrx?) opOneOptionalProxy(IObjectPrx? p1, Current current) => (p1, p1);
 
         public (byte[]?, byte[]?) opByteSeq(byte[]? p1, Current current) => (p1, p1);
+        public (List<byte>?, List<byte>?) opByteList(List<byte>? p1, Current current) => (p1, p1);
 
         public (bool[]?, bool[]?) opBoolSeq(bool[]? p1, Current current) => (p1, p1);
+        public (List<bool>?, List<bool>?) opBoolList(List<bool>? p1, Current current) => (p1, p1);
 
         public (short[]?, short[]?) opShortSeq(short[]? p1, Current current) => (p1, p1);
+        public (List<short>?, List<short>?) opShortList(List<short>? p1, Current current) => (p1, p1);
 
         public (int[]?, int[]?) opIntSeq(int[]? p1, Current current) => (p1, p1);
+        public (List<int>?, List<int>?) opIntList(List<int>? p1, Current current) => (p1, p1);
 
         public (long[]?, long[]?) opLongSeq(long[]? p1, Current current) => (p1, p1);
+        public (List<long>?, List<long>?) opLongList(List<long>? p1, Current current) => (p1, p1);
 
         public (float[]?, float[]?) opFloatSeq(float[]? p1, Current current) => (p1, p1);
+        public (List<float>?, List<float>?) opFloatList(List<float>? p1, Current current) => (p1, p1);
 
         public (double[]?, double[]?) opDoubleSeq(double[]? p1, Current current) => (p1, p1);
+        public (List<double>?, List<double>?) opDoubleList(List<double>? p1, Current current) => (p1, p1);
 
         public (string[]?, string[]?) opStringSeq(string[]? p1, Current current) => (p1, p1);
+        public (List<string>?, List<string>?) opStringList(List<string>? p1, Current current) => (p1, p1);
 
         public (Test.SmallStruct[]?, Test.SmallStruct[]?) opSmallStructSeq(Test.SmallStruct[]? p1, Current current) =>
             (p1, p1);

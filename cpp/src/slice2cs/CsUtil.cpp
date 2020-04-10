@@ -976,16 +976,8 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         else
         {
             assert(builtin);
-            if(isArray)
-            {
-                out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", "
-                    << param << ");";
-            }
-            else
-            {
-                out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param
-                    << param << ".Count, " << param << ");";
-            }
+            out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param
+                << ");";
         }
     }
     else

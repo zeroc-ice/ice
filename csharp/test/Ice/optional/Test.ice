@@ -34,7 +34,6 @@ struct VarStruct
     string m;
 }
 
-["clr:class"]
 struct ClassVarStruct
 {
     int a;
@@ -48,6 +47,16 @@ sequence<long> LongSeq;
 sequence<float> FloatSeq;
 sequence<double> DoubleSeq;
 sequence<string> StringSeq;
+
+["clr:generic:List"] sequence<byte> ByteList;
+["clr:generic:List"] sequence<bool> BoolList;
+["clr:generic:List"] sequence<short> ShortList;
+["clr:generic:List"] sequence<int> IntList;
+["clr:generic:List"] sequence<long> LongList;
+["clr:generic:List"] sequence<float> FloatList;
+["clr:generic:List"] sequence<double> DoubleList;
+["clr:generic:List"] sequence<string> StringList;
+
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
 ["clr:generic:List"] sequence<SmallStruct> SmallStructList;
@@ -236,20 +245,28 @@ interface Initial
     tag(1) OneOptional* opOneOptionalProxy(tag(2) OneOptional* p1, out tag(3) OneOptional* p3);
 
     tag(1) ByteSeq opByteSeq(tag(2) ByteSeq p1, out tag(3) ByteSeq p3);
+    tag(1) ByteList opByteList(tag(2) ByteList p1, out tag(3) ByteList p3);
 
     tag(1) BoolSeq opBoolSeq(tag(2) BoolSeq p1, out tag(3) BoolSeq p3);
+    tag(1) BoolList opBoolList(tag(2) BoolList p1, out tag(3) BoolList p3);
 
     tag(1) ShortSeq opShortSeq(tag(2) ShortSeq p1, out tag(3) ShortSeq p3);
+    tag(1) ShortList opShortList(tag(2) ShortList p1, out tag(3) ShortList p3);
 
     tag(1) IntSeq opIntSeq(tag(2) IntSeq p1, out tag(3) IntSeq p3);
+    tag(1) IntList opIntList(tag(2) IntList p1, out tag(3) IntList p3);
 
     tag(1) LongSeq opLongSeq(tag(2) LongSeq p1, out tag(3) LongSeq p3);
+    tag(1) LongList opLongList(tag(2) LongList p1, out tag(3) LongList p3);
 
     tag(1) FloatSeq opFloatSeq(tag(2) FloatSeq p1, out tag(3) FloatSeq p3);
+    tag(1) FloatList opFloatList(tag(2) FloatList p1, out tag(3) FloatList p3);
 
     tag(1) DoubleSeq opDoubleSeq(tag(2) DoubleSeq p1, out tag(3) DoubleSeq p3);
+    tag(1) DoubleList opDoubleList(tag(2) DoubleList p1, out tag(3) DoubleList p3);
 
     tag(1) StringSeq opStringSeq(tag(2) StringSeq p1, out tag(3) StringSeq p3);
+    tag(1) StringList opStringList(tag(2) StringList p1, out tag(3) StringList p3);
 
     tag(1) SmallStructSeq opSmallStructSeq(tag(2) SmallStructSeq p1, out tag(3) SmallStructSeq p3);
 

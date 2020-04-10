@@ -82,27 +82,42 @@ namespace Ice.optional.AMD
         public ValueTask<(IObjectPrx?, IObjectPrx?)> opOneOptionalProxyAsync(IObjectPrx? p1, Current current) =>
             FromResult((p1, p1));
 
-        public ValueTask<(byte[]?, byte[]?)>
-        opByteSeqAsync(byte[]? p1, Current current) => FromResult((p1, p1));
+        public ValueTask<(byte[]?, byte[]?)> opByteSeqAsync(byte[]? p1, Current current) => FromResult((p1, p1));
+        public ValueTask<(List<byte>?, List<byte>?)> opByteListAsync(List<byte>? p1, Current current) =>
+            FromResult((p1, p1));
 
         public ValueTask<(bool[]?, bool[]?)> opBoolSeqAsync(bool[]? p1, Current current) => FromResult((p1, p1));
+        public ValueTask<(List<bool>?, List<bool>?)> opBoolListAsync(List<bool>? p1, Current current) =>
+            FromResult((p1, p1));
 
         public ValueTask<(short[]?, short[]?)> opShortSeqAsync(short[]? p1, Current current) =>
+            FromResult((p1, p1));
+        public ValueTask<(List<short>?, List<short>?)> opShortListAsync(List<short>? p1, Current current) =>
             FromResult((p1, p1));
 
         public ValueTask<(int[]?, int[]?)> opIntSeqAsync(int[]? p1, Current current) =>
             FromResult((p1, p1));
+        public ValueTask<(List<int>?, List<int>?)> opIntListAsync(List<int>? p1, Current current) =>
+            FromResult((p1, p1));
 
         public ValueTask<(long[]?, long[]?)> opLongSeqAsync(long[]? p1, Current current) =>
+            FromResult((p1, p1));
+        public ValueTask<(List<long>?, List<long>?)> opLongListAsync(List<long>? p1, Current current) =>
             FromResult((p1, p1));
 
         public ValueTask<(float[]?, float[]?)> opFloatSeqAsync(float[]? p1, Current current) =>
             FromResult((p1, p1));
+        public ValueTask<(List<float>?, List<float>?)> opFloatListAsync(List<float>? p1, Current current) =>
+            FromResult((p1, p1));
 
         public ValueTask<(double[]?, double[]?)> opDoubleSeqAsync(double[]? p1, Current current) =>
             FromResult((p1, p1));
+        public ValueTask<(List<double>?, List<double>?)> opDoubleListAsync(List<double>? p1, Current current) =>
+            FromResult((p1, p1));
 
         public ValueTask<(string[]?, string[]?)> opStringSeqAsync(string[]? p1, Current current) =>
+            FromResult((p1, p1));
+        public ValueTask<(List<string>?, List<string>?)> opStringListAsync(List<string>? p1, Current current) =>
             FromResult((p1, p1));
 
         public ValueTask<(Test.SmallStruct[]?, Test.SmallStruct[]?)>
