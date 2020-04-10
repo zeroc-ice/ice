@@ -7,9 +7,9 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    /// <summary>Implementations of the Properties admin facet implement both IPropertiesAdmin (which corresponds
-    /// to the Slice interface PropertiesAdmin) and the local INativePropertiesAdmin interface.</summary>
-    public interface INativePropertiesAdmin
+    /// <summary>This partial interface extends the IPropertieAdmin interface generated from the Slice interface
+    /// PropertiesAdmin. All Properties admin facet implement this interface.</summary>
+    public partial interface IPropertiesAdmin
     {
         /// <summary>The Updated event is triggered when the communicator's properties are updated through a remote call
         /// to the setProperties operation implemented by this Properties admin facet. The event's args include only the
@@ -18,7 +18,7 @@ namespace Ice
     }
 
     // Default implementation of the Properties Admin facet.
-    internal sealed class PropertiesAdmin : IPropertiesAdmin, INativePropertiesAdmin
+    internal sealed class PropertiesAdmin : IPropertiesAdmin
     {
         public event EventHandler<IReadOnlyDictionary<string, string>>? Updated;
 
@@ -26,24 +26,24 @@ namespace Ice
         private readonly Communicator _communicator;
         private readonly ILogger _logger;
 
-        public string GetProperty(string name, Current current) => _communicator.GetProperty(name) ?? "";
+        public string GetProperty(string key, Current current) => _communicator.GetProperty(key) ?? "";
 
-        public Dictionary<string, string> GetPropertiesForPrefix(string name, Current current) =>
-            _communicator.GetProperties(forPrefix: name);
+        public Dictionary<string, string> GetPropertiesForPrefix(string prefix, Current current) =>
+            _communicator.GetProperties(forPrefix: prefix);
 
-        public void SetProperties(Dictionary<string, string> props, Current current)
+        public void SetProperties(Dictionary<string, string> newProperties, Current current)
         {
             int? traceLevel = _communicator.GetPropertyAsInt("Ice.Trace.Admin.Properties");
 
             // Update the communicator's properties and remove the properties that did not change from props.
-            _communicator.SetProperties(props);
+            _communicator.SetProperties(newProperties);
 
-            if (traceLevel > 0 && props.Count > 0)
+            if (traceLevel > 0 && newProperties.Count > 0)
             {
                 var message = new System.Text.StringBuilder("Summary of property changes");
 
                 message.Append("\nNew or updated properties:");
-                foreach (KeyValuePair<string, string> e in props)
+                foreach (KeyValuePair<string, string> e in newProperties)
                 {
                     if (e.Value.Length > 0)
                     {
@@ -58,7 +58,7 @@ namespace Ice
                 }
 
                 message.Append("\nRemoved properties:");
-                foreach (KeyValuePair<string, string> e in props)
+                foreach (KeyValuePair<string, string> e in newProperties)
                 {
                     if (e.Value.Length == 0)
                     {
@@ -70,7 +70,7 @@ namespace Ice
                 _logger.Trace(TraceCategory, message.ToString());
             }
 
-            Updated?.Invoke(_communicator, props);
+            Updated?.Invoke(_communicator, newProperties);
         }
 
         internal PropertiesAdmin(Communicator communicator)

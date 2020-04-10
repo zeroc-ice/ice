@@ -77,14 +77,11 @@ namespace Ice.admin
             {
             }
 
-            //
             // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
-            // Set the callback on the admin facet.
-            //
             var servant = new RemoteCommunicator(communicator);
             var propFacet = communicator.FindAdminFacet("Properties");
 
-            if (propFacet is INativePropertiesAdmin admin)
+            if (propFacet is IPropertiesAdmin admin)
             {
                 admin.Updated += (_, updates) => servant.Updated(updates);
             }
