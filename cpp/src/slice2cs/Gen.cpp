@@ -686,9 +686,9 @@ namespace
 {
 
 //
-// Convert the identifier part of a Java doc Link tag to a CSharp identiefier. If the identifier
+// Convert the identifier part of a Java doc Link tag to a CSharp identifier. If the identifier
 // is an interface the link should point to the corresponding generated proxy, we apply the
-// case conversions required to match the CSharp generatd code.
+// case conversions required to match the C# generated code.
 //
 string
 csharpIdentifier(ContainedPtr contained, const string& identifier)
@@ -795,8 +795,8 @@ splitLines(const string& s)
 }
 
 //
-// Transform a Java doc style tag to a C# doc style tag, returns a map idenxed by the C#
-// tag name atrribute and the value contains all the lines in the comment.
+// Transform a Java doc style tag to a C# doc style tag, returns a map indexed by the C#
+// tag name attribute and the value contains all the lines in the comment.
 //
 // @param foo is the Foo argument -> {"foo": ["foo is the Foo argument"]}
 //
@@ -950,16 +950,30 @@ void writeDocCommentLines(IceUtilInternal::Output& out,
 }
 
 void
-writeSeeAlsoDocComment(IceUtilInternal::Output& out, const string& identifier)
-{
-    out << nl << "/// <seealso cref=\"" << identifier << "\"/>";
-}
-
-void
 Slice::CsVisitor::writeTypeDocComment(const ContainedPtr& p,
                                       const string& deprecateReason)
 {
     CommentInfo comment = processComment(p, deprecateReason);
+    writeDocCommentLines(_out, comment.summaryLines, "summary");
+}
+
+void
+Slice::CsVisitor::writeProxyDocComment(const ClassDefPtr& p, const std::string& deprecatedReason)
+{
+    CommentInfo comment = processComment(p, deprecatedReason);
+    comment.summaryLines.insert(comment.summaryLines.cbegin(),
+        "Proxy interface used to call remote Ice objects that implement Slice interface " + p->name() + ".");
+    comment.summaryLines.push_back("<seealso cref=\"" + fixId(interfaceName(p)) + "\"/>.");
+    writeDocCommentLines(_out, comment.summaryLines, "summary");
+}
+
+void
+Slice::CsVisitor::writeServantDocComment(const ClassDefPtr& p, const std::string& deprecatedReason)
+{
+    CommentInfo comment = processComment(p, deprecatedReason);
+    comment.summaryLines.insert(comment.summaryLines.cbegin(),
+        "Interface used to implement servants for Slice interface " + p->name() + ".");
+    comment.summaryLines.push_back("<seealso cref=\"" + interfaceName(p) + "Prx\"/>.");
     writeDocCommentLines(_out, comment.summaryLines, "summary");
 }
 
@@ -2184,7 +2198,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeTypeDocComment(p, getDeprecateReason(p, 0, "interface"));
+    writeProxyDocComment(p, getDeprecateReason(p, 0, "interface"));
     emitGeneratedCodeAttribute();
     emitTypeIdAttribute(p->scoped());
     _out << nl << "public partial interface " << interfaceName(p) << "Prx : ";
@@ -2701,8 +2715,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
-    writeTypeDocComment(p, getDeprecateReason(p, 0, "interface"));
-    writeSeeAlsoDocComment(_out, interfaceName(p) + "Prx");
+    writeServantDocComment(p, getDeprecateReason(p, 0, "interface"));
     emitComVisibleAttribute();
     emitGeneratedCodeAttribute();
     emitTypeIdAttribute(p->scoped());

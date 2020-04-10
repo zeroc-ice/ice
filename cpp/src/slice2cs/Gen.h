@@ -54,6 +54,9 @@ protected:
     bool requiresDataMemberInitializers(const DataMemberList&);
     void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int = 0);
 
+    void writeProxyDocComment(const ClassDefPtr&, const std::string&);
+    void writeServantDocComment(const ClassDefPtr&, const std::string&);
+
     void writeTypeDocComment(const ContainedPtr&, const std::string&);
     void writeOperationDocComment(const OperationPtr&, const std::string&, bool, bool);
 
