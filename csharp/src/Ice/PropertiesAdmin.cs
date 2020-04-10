@@ -7,8 +7,7 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    /// <summary>This partial interface extends the IPropertieAdmin interface generated from the Slice interface
-    /// PropertiesAdmin. All Properties admin facet implement this interface.</summary>
+    // This partial interface extends the IPropertieAdmin interface generated from the Slice interface PropertiesAdmin.
     public partial interface IPropertiesAdmin
     {
         /// <summary>The Updated event is triggered when the communicator's properties are updated through a remote call
