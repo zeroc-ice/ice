@@ -1137,19 +1137,38 @@ namespace Ice
                 $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
             Span<byte> data = stackalloc byte[4];
             MemoryMarshal.Write(data, ref v);
+            RewriteSpan(data, pos);
+        }
 
-            int offset = pos.Offset;
+        internal void RewriteSize(int size, Position pos)
+        {
+            if (size < 255)
+            {
+                ArraySegment<byte> segment = _segmentList[pos.Segment];
+                segment[pos.Offset] = (byte) size;
+            }
+            else
+            {
+                Span<byte> data = stackalloc byte[5];
+                data[0] = 255;
+                WriteInt(size, data.Slice(1, 4));
+                RewriteSpan(data, pos);
+            }
+        }
+
+        internal void RewriteSpan(Span<byte> data, Position pos)
+        {
             ArraySegment<byte> segment = _segmentList[pos.Segment];
-            int remaining = Math.Min(4, segment.Count - offset);
+            int remaining = Math.Min(data.Length, segment.Count - pos.Offset);
             if (remaining > 0)
             {
-                data.Slice(0, remaining).CopyTo(segment.AsSpan(offset, remaining));
+                data.Slice(0, remaining).CopyTo(segment.AsSpan(pos.Offset, remaining));
             }
 
-            if (remaining < 4)
+            if (remaining < data.Length)
             {
                 segment = _segmentList[pos.Segment + 1];
-                data[remaining..4].CopyTo(segment.AsSpan(0, 4 - remaining));
+                data[remaining..].CopyTo(segment.AsSpan(0, data.Length - remaining));
             }
         }
 

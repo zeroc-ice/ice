@@ -552,6 +552,8 @@ namespace Ice.seqMapping
                 i.d8 = 8.0;
                 i.d9 = 9.0;
                 i.d10 = 10.0;
+                i.d11 = 11.0;
+                i.s1 = Serialize.Large.LargeString;
 
                 var r = p.opSerialLargeCSharpAsync(i).Result;
 
@@ -565,6 +567,8 @@ namespace Ice.seqMapping
                 test(r.o.d8 == 8.0);
                 test(r.o.d9 == 9.0);
                 test(r.o.d10 == 10.0);
+                test(r.o.d11 == 11.0);
+                test(r.o.s1 == Serialize.Large.LargeString);
 
                 test(r.ReturnValue.d1 == 1.0);
                 test(r.ReturnValue.d2 == 2.0);
@@ -576,6 +580,8 @@ namespace Ice.seqMapping
                 test(r.ReturnValue.d8 == 8.0);
                 test(r.ReturnValue.d9 == 9.0);
                 test(r.ReturnValue.d10 == 10.0);
+                test(r.ReturnValue.d11 == 11.0);
+                test(r.ReturnValue.s1 == Serialize.Large.LargeString);
             }
 
             {

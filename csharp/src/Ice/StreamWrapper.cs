@@ -5,10 +5,10 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace IceInternal
+namespace Ice
 {
-    //
     // Classes to provide a System.IO.Stream interface on top of an Ice stream.
+    //
     // We use this to serialize arbitrary .NET serializable classes into
     // a Slice byte sequence.
     //
@@ -18,24 +18,22 @@ namespace IceInternal
     // For output streams, we use a different strategy:
     // Slice sequences are encoded on the wire as a count of elements, followed
     // by the sequence contents. For arbitrary .NET classes, we do not know how
-    // big the sequence that is eventually written will be. To avoid excessive
-    // data copying, this class maintains a private _bytes array of 254 bytes and,
-    // initially, writes data into that array. If more than 254 bytes end up being
-    // written, we write a dummy sequence size of 255 (which occupies five bytes
-    // on the wire) into the stream and, once this class is disposed, patch
-    // that size to match the actual size. Otherwise, if the _bytes buffer contains
+    // big the sequence will be. To avoid excessive data copying, this class maintains
+    // a private _bytes array of 254 bytes and, initially, writes data into that array.
+    // If more than 254 bytes end up being written, we write a dummy sequence size of 255
+    // (which occupies five bytes on the wire) into the stream and, once this class is disposed,
+    // patch that size to match the actual size. Otherwise, if the _bytes buffer contains
     // fewer than 255 bytes when this class is disposed, we write the sequence size
     // as a single byte, followed by the contents of the _bytes buffer.
-    //
-
-    public class OutputStreamWrapper : Stream
+    internal class OutputStreamWrapper : Stream
     {
-        public OutputStreamWrapper(Ice.OutputStream s)
+        internal OutputStreamWrapper(OutputStream s)
         {
             _s = s;
             _bytes = new byte[254];
             _pos = 0;
             _length = 0;
+            _spos = s.Tail;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -57,33 +55,27 @@ namespace IceInternal
             {
                 if (_bytes != null)
                 {
-                    //
                     // If we can fit the data into the first 254 bytes, write it to _bytes.
-                    //
                     if (count <= _bytes.Length - _pos)
                     {
-                        System.Buffer.BlockCopy(array, offset, _bytes, _pos, count);
+                        Buffer.BlockCopy(array, offset, _bytes, _pos, count);
                         _pos += count;
                         return;
                     }
 
-                    _s.WriteSize(255); // Dummy size, until we know how big the stream
-                                       // really is and can patch the size.
+                    // Dummy size, until we know how big the stream really is and can patch the size.
+                    _s.WriteSize(255);
                     if (_pos > 0)
                     {
-                        //
                         // Write the current contents of _bytes.
-                        //
                         _s.WriteSpan(_bytes.AsSpan(0, _pos));
                     }
 
                     _bytes = null;
                 }
 
-                //
                 // Write data passed by caller.
-                //
-                _s.WriteSpan(array.AsSpan());
+                _s.WriteSpan(array.AsSpan(offset, count));
                 _pos += count;
             }
             catch (Exception ex)
@@ -98,31 +90,25 @@ namespace IceInternal
             {
                 if (_bytes != null)
                 {
-                    //
                     // If we can fit the data into the first 254 bytes, write it to _bytes.
-                    //
                     if (_pos < _bytes.Length)
                     {
                         _bytes[_pos++] = value;
                         return;
                     }
 
-                    _spos = _s.StartSize(); // Dummy size, until we know how big the stream
-                                            // really is and can patch the size.
+                    // Dummy size, until we know how big the stream really is and can patch the size.
+                    _s.WriteSize(255);
                     if (_pos > 0)
                     {
-                        //
                         // Write the current contents of _bytes.
-                        //
                         _s.WriteSpan(_bytes.AsSpan(0, _pos));
                     }
 
                     _bytes = null;
                 }
 
-                //
                 // Write data passed by caller.
-                //
                 _s.WriteByte(value);
                 _pos += 1;
             }
@@ -150,7 +136,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    _s.RewriteInt(_pos, _spos); // Patch previously-written dummy value.
+                    _s.RewriteSize(_pos, _spos); // Patch previously-written dummy value.
                 }
             }
             catch (Exception ex)
@@ -180,16 +166,16 @@ namespace IceInternal
             _length = value;
         }
 
-        private readonly Ice.OutputStream _s;
-        private Ice.OutputStream.Position _spos;
+        private readonly OutputStream _s;
+        private OutputStream.Position _spos;
         private byte[]? _bytes;
         private int _pos;
         private long _length;
     }
 
-    public class InputStreamWrapper : Stream
+    internal class InputStreamWrapper : Stream
     {
-        public InputStreamWrapper(int size, Ice.InputStream s)
+        internal InputStreamWrapper(int size, InputStream s)
         {
             _s = s;
             _pos = 0;
@@ -204,7 +190,7 @@ namespace IceInternal
                 Span<byte> span = buffer.AsSpan(offset, count);
                 _s.ReadSpan(span);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new IOException("could not read from stream", ex);
             }
@@ -217,7 +203,7 @@ namespace IceInternal
             {
                 return _s.ReadByte();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new IOException("could not read from stream", ex);
             }
@@ -278,7 +264,7 @@ namespace IceInternal
 
         public override void SetLength(long value) => Debug.Assert(false);
 
-        private readonly Ice.InputStream _s;
+        private readonly InputStream _s;
         private int _pos;
         private readonly long _length;
     }

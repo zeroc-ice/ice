@@ -455,7 +455,7 @@ namespace Ice
                 return null;
             }
             var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, Communicator));
-            return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
+            return f.Deserialize(new InputStreamWrapper(sz, this));
         }
 
         /// <summary>
