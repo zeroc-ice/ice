@@ -907,13 +907,13 @@ namespace IceInternal
 
         public Ice.ILogger GetLogger() => _logger;
 
-        public void Updated(Dictionary<string, string> props)
+        public void Updated(IReadOnlyDictionary<string, string> props)
         {
             foreach (KeyValuePair<string, string> e in props)
             {
                 if (e.Key.IndexOf("IceMX.") == 0)
                 {
-                    // Udpate the metrics views using the new configuration.
+                    // Update the metrics views using the new configuration.
                     try
                     {
                         UpdateViews();

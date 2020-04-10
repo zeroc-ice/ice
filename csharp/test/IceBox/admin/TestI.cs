@@ -8,15 +8,9 @@ using Test;
 
 public class TestFacet : ITestFacet
 {
-    public Dictionary<string, string> getChanges(Ice.Current current) => _changes;
+    private volatile IReadOnlyDictionary<string, string> _changes;
 
-    public void updated(Dictionary<string, string> changes)
-    {
-        lock (this)
-        {
-            _changes = changes;
-        }
-    }
+    public Dictionary<string, string> getChanges(Ice.Current current) => new Dictionary<string, string>(_changes!);
 
-    private Dictionary<string, string> _changes;
+    internal void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
 }

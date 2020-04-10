@@ -17,17 +17,14 @@ namespace Ice.admin
 
     public class RemoteCommunicator : IRemoteCommunicator
     {
+        private volatile IReadOnlyDictionary<string, string> _changes;
+        private Communicator _communicator;
+
         public RemoteCommunicator(Communicator communicator) => _communicator = communicator;
 
         public IObjectPrx getAdmin(Current current) => _communicator.GetAdmin();
 
-        public Dictionary<string, string> getChanges(Ice.Current current)
-        {
-            lock (this)
-            {
-                return _changes;
-            }
-        }
+        public Dictionary<string, string> getChanges(Ice.Current current) => new Dictionary<string, string>(_changes!);
 
         public void print(string message, Current current) => _communicator.Logger.Print(message);
 
@@ -45,16 +42,7 @@ namespace Ice.admin
 
         public void destroy(Current current) => _communicator.Destroy();
 
-        public void updated(Dictionary<string, string> changes)
-        {
-            lock (this)
-            {
-                _changes = changes;
-            }
-        }
-
-        private Communicator _communicator;
-        private Dictionary<string, string> _changes;
+        public void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
     }
 
     public class RemoteCommunicatorFactoryI : IRemoteCommunicatorFactory
@@ -96,11 +84,9 @@ namespace Ice.admin
             var servant = new RemoteCommunicator(communicator);
             var propFacet = communicator.FindAdminFacet("Properties");
 
-            if (propFacet != null)
+            if (propFacet is INativePropertiesAdmin admin)
             {
-                var admin = (INativePropertiesAdmin)propFacet;
-                Debug.Assert(admin != null);
-                admin.AddUpdateCallback(servant.updated);
+                admin.Updated += (_, updates) => servant.Updated(updates);
             }
 
             return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
