@@ -888,31 +888,6 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
 }
 
-namespace
-{
-bool isVariableLength(TypePtr type)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-
-    if(builtin &&
-       builtin->kind() != Builtin::KindValue &&
-       builtin->kind() != Builtin::KindObjectProxy &&
-       builtin->kind() != Builtin::KindString)
-    {
-        return false;
-    }
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st && !st->isVariableLength())
-    {
-        return false;
-    }
-
-    return true;
-}
-
-}
-
 void
 Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
                                            const TypePtr& type,
@@ -966,7 +941,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         builtin = BuiltinPtr::dynamicCast(elementType);
         st = StructPtr::dynamicCast(elementType);
 
-        if(isVariableLength(elementType))
+        if(elementType->isVariableLength())
         {
             out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
                 << getTagFormat(seq, scope) << "))";
@@ -1095,7 +1070,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
 
         out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
         out << sb;
-        if(isVariableLength(elementType))
+        if(elementType->isVariableLength())
         {
             out << nl << stream << ".Skip(4);";
         }
