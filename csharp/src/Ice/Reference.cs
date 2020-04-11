@@ -366,7 +366,7 @@ namespace Ice
                 foreach (var e in Endpoints)
                 {
                     s.Append(":");
-                    s.Append(e.ToString());
+                    s.Append(e);
                 }
             }
             return s.ToString();
