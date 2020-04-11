@@ -1013,93 +1013,82 @@ namespace Ice
         private IReadOnlyList<Endpoint> FilterEndpoints(IReadOnlyList<Endpoint> allEndpoints)
         {
             Debug.Assert(!IsFixed);
-            var endpoints = new List<Endpoint>();
 
-            // Filter out unknown endpoints.
-            foreach (var e in allEndpoints)
+            IEnumerable<Endpoint> filteredEndpoints = allEndpoints.Where(endpoint =>
             {
-                if (!(e is OpaqueEndpoint))
+                // Filter out opaque endpoints
+                if (endpoint is OpaqueEndpoint)
                 {
-                    endpoints.Add(e);
+                    return false;
                 }
-            }
 
-            // Filter out endpoints according to the mode of the reference.
-            switch (InvocationMode)
-            {
-                case InvocationMode.Twoway:
-                case InvocationMode.Oneway:
-                case InvocationMode.BatchOneway:
-                    {
-                        // Filter out datagram endpoints.
-                        var tmp = new List<Endpoint>();
-                        foreach (Endpoint endpoint in endpoints)
+                // Filter out based on InvocationMode and IsDatagram
+                switch (InvocationMode)
+                {
+                    case InvocationMode.Twoway:
+                    case InvocationMode.Oneway:
+                    case InvocationMode.BatchOneway:
+                        if (endpoint.IsDatagram)
                         {
-                            if (!endpoint.IsDatagram)
-                            {
-                                tmp.Add(endpoint);
-                            }
+                            return false;
                         }
-                        endpoints = tmp;
                         break;
-                    }
 
-                case InvocationMode.Datagram:
-                case InvocationMode.BatchDatagram:
-                    {
-                        // Filter out non-datagram endpoints.
-                        var tmp = new List<Endpoint>();
-                        foreach (Endpoint endpoint in endpoints)
+                    case InvocationMode.Datagram:
+                    case InvocationMode.BatchDatagram:
+                        if (!endpoint.IsDatagram)
                         {
-                            if (endpoint.IsDatagram)
-                            {
-                                tmp.Add(endpoint);
-                            }
+                            return false;
                         }
-                        endpoints = tmp;
                         break;
-                    }
-            }
 
-            // Sort the endpoints according to the endpoint selection type.
-            switch (EndpointSelection)
+                    default:
+                        Debug.Assert(false);
+                        return false;
+                }
+
+                // If PreferNonSecure is false, filter out all non-secure endpoints
+                return PreferNonSecure || endpoint.IsSecure;
+            });
+
+            if (EndpointSelection == EndpointSelectionType.Random)
             {
-                case EndpointSelectionType.Random:
-                    lock (_rand)
+                // Shuffle the filtered endpoints using _rand
+                var array = filteredEndpoints.ToArray();
+                lock (_rand)
+                {
+                    for (int i = 0; i < array.Length - 1; ++i)
                     {
-                        for (int i = 0; i < endpoints.Count - 1; ++i)
+                        int r = _rand.Next(array.Length - i) + i;
+                        Debug.Assert(r >= i && r < array.Length);
+                        if (r != i)
                         {
-                            int r = _rand.Next(endpoints.Count - i) + i;
-                            Debug.Assert(r >= i && r < endpoints.Count);
-                            if (r != i)
-                            {
-                                Endpoint tmp = endpoints[i];
-                                endpoints[i] = endpoints[r];
-                                endpoints[r] = tmp;
-                            }
+                            Endpoint tmp = array[i];
+                            array[i] = array[r];
+                            array[r] = tmp;
                         }
                     }
-                    break;
-                case EndpointSelectionType.Ordered:
-                    // Nothing to do.
-                    break;
-                default:
-                    Debug.Assert(false);
-                    break;
+                }
+
+                if (!PreferNonSecure)
+                {
+                    // We're done
+                    return array;
+                }
+                else
+                {
+                    filteredEndpoints = array;
+                }
             }
 
             if (PreferNonSecure)
             {
                 // It's just a preference: we can fallback to secure endpoints.
-                endpoints = endpoints.OrderBy(endpoint => endpoint.IsSecure).ToList();
+                filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
             }
-            else
-            {
-                // Filter-out non-secure endpoints. This can eliminate all endpoints.
-                endpoints = endpoints.Where(endpoint => endpoint.IsSecure).ToList();
-            }
+            // else, already filtered out
 
-            return endpoints;
+            return filteredEndpoints.ToArray();
         }
 
         // TODO: refactor this class
