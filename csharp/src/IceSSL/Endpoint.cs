@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IceSSL
 {
@@ -82,27 +83,16 @@ namespace IceSSL
 
         public override IReadOnlyList<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
         {
-            var endpoints = new List<Ice.Endpoint>();
-            foreach (Ice.Endpoint e in _delegate.ExpandHost(out publish))
-            {
-                endpoints.Add(e == _delegate ? this : new Endpoint(_instance, e));
-            }
+            var endpoints = _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint)).ToArray();
             if (publish != null)
             {
-                publish = publish == _delegate ? this : new Endpoint(_instance, publish);
+                publish = GetEndpoint(publish);
             }
             return endpoints;
         }
 
-        public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard()
-        {
-            var l = new List<Ice.Endpoint>();
-            foreach (Ice.Endpoint e in _delegate.ExpandIfWildcard())
-            {
-                l.Add(e == _delegate ? this : new Endpoint(_instance, e));
-            }
-            return l;
-        }
+        public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard() =>
+            _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint)).ToArray();
 
         public override IceInternal.IAcceptor GetAcceptor(string adapterName) =>
             new Acceptor(this, _instance, _delegate.GetAcceptor(adapterName)!, adapterName);

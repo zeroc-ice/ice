@@ -120,7 +120,7 @@ namespace IceDiscovery
                     endpoints.AddRange(prx.Endpoints);
                 }
                 Debug.Assert(result != null);
-                SendResponse(result.Clone(endpoints: endpoints.ToArray()));
+                SendResponse(result.Clone(endpoints: endpoints));
             }
         }
 
@@ -239,6 +239,7 @@ namespace IceDiscovery
                         {
                             single[0] = q;
                             _lookups[key] = lookupReply.Clone(endpoints: single);
+                            // TODO: missing break?
                         }
                     }
                 }

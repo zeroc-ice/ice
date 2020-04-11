@@ -718,12 +718,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                var endpoints = new List<Endpoint>();
-                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    endpoints.Add(factory.Endpoint());
-                }
-                return endpoints;
+                return _incomingConnectionFactories.Select(factory => factory.Endpoint()).ToArray();
             }
         }
 
@@ -968,33 +963,15 @@ namespace Ice
             }
             else
             {
-                IReadOnlyList<Endpoint> endpoints = r.Endpoints;
-
                 lock (_mutex)
                 {
                     CheckForDeactivation();
 
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
-                    foreach (var endpoint in endpoints)
-                    {
-                        foreach (Endpoint publishedEndpoint in _publishedEndpoints)
-                        {
-                            if (endpoint.Equivalent(publishedEndpoint))
-                            {
-                                return true;
-                            }
-                        }
-
-                        foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                        {
-                            if (factory.IsLocal(endpoint))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
+                    return r.Endpoints.Any(endpoint =>
+                        _publishedEndpoints.Any(publishedEndpoint => endpoint.Equivalent(publishedEndpoint)) ||
+                        _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
             }
         }
@@ -1172,18 +1149,11 @@ namespace Ice
 
         private IReadOnlyList<Endpoint> ComputePublishedEndpoints()
         {
-            List<Endpoint> endpoints;
+            List<Endpoint>? endpoints = null;
             if (_routerInfo != null)
             {
                 // Get the router's server proxy endpoints and use them as the published endpoints.
-                endpoints = new List<Endpoint>();
-                foreach (Endpoint endpt in _routerInfo.GetServerEndpoints())
-                {
-                    if (!endpoints.Contains(endpt))
-                    {
-                        endpoints.Add(endpt);
-                    }
-                }
+                endpoints = _routerInfo.GetServerEndpoints().Distinct().ToList();
             }
             else
             {
@@ -1197,30 +1167,19 @@ namespace Ice
                 if (publishedEndpoints != null)
                 {
                     endpoints = ParseEndpoints(publishedEndpoints, false);
+                    Debug.Assert(endpoints.Count > 0);
                 }
-                else
+                if (endpoints == null || endpoints.Count == 0)
                 {
-                    endpoints = new List<Endpoint>();
-                }
+                    // If the PublishedEndpoints property isn't set, we compute the published endpoints from the OA
+                    // endpoints, expanding any endpoint that may be listening on INADDR_ANY to include actual addresses
+                    // in the published endpoints.
+                    // We also filter out duplicate endpoints, this might occur if an endpoint with a DNS name
+                    // expands to multiple addresses. In this case, multiple incoming connection factories can point to
+                    // the same published endpoint.
 
-                if (endpoints.Count == 0)
-                {
-                    // If the PublishedEndpoints property isn't set, we compute the published endpoints
-                    // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
-                    // to include actual addresses in the published endpoints.
-                    foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                    {
-                        foreach (Endpoint endpt in factory.Endpoint().ExpandIfWildcard())
-                        {
-                            // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
-                            // expands to multiple addresses. In this case, multiple incoming connection
-                            // factories can point to the same published endpoint.
-                            if (!endpoints.Contains(endpt))
-                            {
-                                endpoints.Add(endpt);
-                            }
-                        }
-                    }
+                    endpoints = _incomingConnectionFactories.SelectMany(factory =>
+                        factory.Endpoint().ExpandIfWildcard()).Distinct().ToList();
                 }
             }
 

@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 internal class Endpoint : Ice.Endpoint
 {
@@ -121,27 +122,16 @@ internal class Endpoint : Ice.Endpoint
 
     public override IReadOnlyList<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
     {
-        var endpoints = new List<Ice.Endpoint>();
-        foreach (var e in _endpoint.ExpandHost(out publish))
-        {
-            endpoints.Add(e == _endpoint ? this : new Endpoint(e));
-        }
+        var endpoints = _endpoint.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint)).ToArray();
         if (publish != null)
         {
-            publish = publish == _endpoint ? this : new Endpoint(publish);
+            publish = GetEndpoint(publish);
         }
         return endpoints;
     }
 
-    public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard()
-    {
-        var endpoints = new List<Ice.Endpoint>();
-        foreach (var e in _endpoint.ExpandIfWildcard())
-        {
-            endpoints.Add(e == _endpoint ? this : new Endpoint(e));
-        }
-        return endpoints;
-    }
+    public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard() =>
+        _endpoint.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint)).ToArray();
 
     public override IceInternal.ITransceiver? GetTransceiver()
     {

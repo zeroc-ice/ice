@@ -7,6 +7,7 @@ using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Text;
 
@@ -174,13 +175,11 @@ namespace Ice
 
         public override IReadOnlyList<Endpoint> ExpandHost(out Endpoint? publish)
         {
+            publish = null;
             // If this endpoint has an empty host (wildcard address), don't expand, just return this endpoint.
-            var endpoints = new List<Endpoint>();
             if (Host.Length == 0)
             {
-                publish = null;
-                endpoints.Add(this);
-                return endpoints;
+                return new Endpoint[] { this };
             }
 
             // If using a fixed port, this endpoint can be used as the published endpoint to access the returned
@@ -196,36 +195,27 @@ namespace Ice
 
             if (addresses.Count == 1)
             {
-                endpoints.Add(this);
+                return new Endpoint[] { this };
             }
             else
             {
-                foreach (EndPoint address in addresses)
-                {
-                    endpoints.Add(CreateEndpoint(Network.EndpointAddressToString(address),
-                                                 Network.EndpointPort(address),
-                                                 ConnectionId));
-                }
+                return addresses.Select(address => CreateEndpoint(Network.EndpointAddressToString(address),
+                                                                  Network.EndpointPort(address),
+                                                                  ConnectionId)).ToArray();
             }
-            return endpoints;
         }
 
         public override IReadOnlyList<Endpoint> ExpandIfWildcard()
         {
-            var endpoints = new List<Endpoint>();
             List<string> hosts = Network.GetHostsForEndpointExpand(Host, Instance.IPVersion, false);
             if (hosts.Count == 0)
             {
-                endpoints.Add(this);
+                return new Endpoint[] { this };
             }
             else
             {
-                foreach (string host in hosts)
-                {
-                    endpoints.Add(CreateEndpoint(host, Port, ConnectionId));
-                }
+                return hosts.Select(host => CreateEndpoint(host, Port, ConnectionId)).ToArray();
             }
-            return endpoints;
         }
 
         private protected IPEndpoint(TransportInstance instance, string host, int port, IPAddress? sourceAddress,
