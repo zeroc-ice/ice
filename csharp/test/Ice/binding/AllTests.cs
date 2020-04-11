@@ -436,7 +436,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -600,7 +600,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -660,7 +660,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 

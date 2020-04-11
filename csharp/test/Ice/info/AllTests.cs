@@ -44,7 +44,7 @@ namespace Ice.info
                                 "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
                                 "opaque -e 1.8 -t 100 -v ABCD", communicator);
 
-                Endpoint[] endps = p1.Endpoints;
+                var endps = p1.Endpoints;
 
                 Endpoint endpoint = endps[0];
                 TcpEndpoint tcpEndpoint = getTCPEndpoint(endpoint);
@@ -91,9 +91,9 @@ namespace Ice.info
                     "\" -t 15000:udp -h \"" + host + "\"");
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
-                Endpoint[] endpoints = adapter.GetEndpoints();
-                test(endpoints.Length == 2);
-                Endpoint[] publishedEndpoints = adapter.GetPublishedEndpoints();
+                var endpoints = adapter.GetEndpoints();
+                test(endpoints.Count == 2);
+                var publishedEndpoints = adapter.GetPublishedEndpoints();
                 test(global::Test.Collections.Equals(endpoints, publishedEndpoints));
 
                 TcpEndpoint tcpEndpoint = getTCPEndpoint(endpoints[0]);
@@ -111,8 +111,8 @@ namespace Ice.info
                 test(udpEndpoint.IsDatagram);
                 test(udpEndpoint.Port > 0);
 
-                endpoints = new Endpoint[] { endpoints[0] };
-                test(endpoints.Length == 1);
+                endpoints = new List<Endpoint> { endpoints[0] };
+                test(endpoints.Count == 1);
                 adapter.SetPublishedEndpoints(endpoints);
                 publishedEndpoints = adapter.GetPublishedEndpoints();
                 test(global::Test.Collections.Equals(endpoints, publishedEndpoints));
@@ -125,9 +125,9 @@ namespace Ice.info
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 endpoints = adapter.GetEndpoints();
-                test(endpoints.Length >= 1);
+                test(endpoints.Count >= 1);
                 publishedEndpoints = adapter.GetPublishedEndpoints();
-                test(publishedEndpoints.Length == 1);
+                test(publishedEndpoints.Count == 1);
 
                 foreach (var endpoint in endpoints)
                 {
