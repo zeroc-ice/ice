@@ -118,7 +118,7 @@ namespace Ice
             _delegate.ConnectorsAsync(endpointSelection, new EndpointConnectors(_instance, host, Resource, callback));
         }
 
-        public override List<Endpoint> ExpandIfWildcard()
+        public override IReadOnlyList<Endpoint> ExpandIfWildcard()
         {
             var l = new List<Endpoint>();
             foreach (Endpoint e in _delegate.ExpandIfWildcard())
@@ -128,7 +128,7 @@ namespace Ice
             return l;
         }
 
-        public override List<Endpoint> ExpandHost(out Endpoint? publish)
+        public override IReadOnlyList<Endpoint> ExpandHost(out Endpoint? publish)
         {
             var endpoints = new List<Endpoint>();
             foreach (Endpoint e in _delegate.ExpandHost(out publish))

@@ -712,9 +712,9 @@ namespace Ice
         public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
             => CreateIndirectProxy(identity, "", factory);
 
-        /// <summary>Retrieves a copy of the endpoints configured with this object adapter.</summary>
+        /// <summary>Retrieves the endpoints configured with this object adapter.</summary>
         /// <returns>The endpoints.</returns>
-        public List<Endpoint> GetEndpoints()
+        public IReadOnlyList<Endpoint> GetEndpoints()
         {
             lock (_mutex)
             {

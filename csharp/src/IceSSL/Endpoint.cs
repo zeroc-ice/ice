@@ -80,7 +80,7 @@ namespace IceSSL
             _delegate.ConnectorsAsync(endpointSelection, new EndpointI_connectorsI(_instance, host, callback));
         }
 
-        public override List<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+        public override IReadOnlyList<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
         {
             var endpoints = new List<Ice.Endpoint>();
             foreach (Ice.Endpoint e in _delegate.ExpandHost(out publish))
@@ -94,7 +94,7 @@ namespace IceSSL
             return endpoints;
         }
 
-        public override List<Ice.Endpoint> ExpandIfWildcard()
+        public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard()
         {
             var l = new List<Ice.Endpoint>();
             foreach (Ice.Endpoint e in _delegate.ExpandIfWildcard())

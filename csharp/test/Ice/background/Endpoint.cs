@@ -119,7 +119,7 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override List<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+    public override IReadOnlyList<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
     {
         var endpoints = new List<Ice.Endpoint>();
         foreach (var e in _endpoint.ExpandHost(out publish))
@@ -133,7 +133,7 @@ internal class Endpoint : Ice.Endpoint
         return endpoints;
     }
 
-    public override List<Ice.Endpoint> ExpandIfWildcard()
+    public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard()
     {
         var endpoints = new List<Ice.Endpoint>();
         foreach (var e in _endpoint.ExpandIfWildcard())
