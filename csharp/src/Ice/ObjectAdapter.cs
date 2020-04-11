@@ -908,20 +908,20 @@ namespace Ice
                 }
                 else
                 {
+                    IReadOnlyList<Endpoint>? endpoints = null;
+
                     // Parse the endpoints, but don't store them in the adapter. The connection factory might change
                     // it, for example, to fill in the real port number.
-                    IReadOnlyList<Endpoint> endpoints = ParseEndpoints(
-                        Communicator.GetProperty($"{Name}.Endpoints") ?? "", true);
-                    foreach (Endpoint endp in endpoints)
+                    if (Communicator.GetProperty($"{Name}.Endpoints") is string value)
                     {
-                        Endpoint? publishedEndpoint;
-                        foreach (Endpoint expanded in endp.ExpandHost(out publishedEndpoint))
-                        {
-                            var factory = new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm);
-                            _incomingConnectionFactories.Add(factory);
-                        }
+                        endpoints = ParseEndpoints(value, true);
+
+                        _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
+                            endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
+                                new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
                     }
-                    if (endpoints.Count == 0)
+
+                    if (endpoints == null || endpoints.Count == 0)
                     {
                         TraceLevels tl = Communicator.TraceLevels;
                         if (tl.Network >= 2)
@@ -1065,7 +1065,7 @@ namespace Ice
             }
         }
 
-        private List<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
+        private IReadOnlyList<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
         {
             int beg;
             int end = 0;
@@ -1149,25 +1149,19 @@ namespace Ice
 
         private IReadOnlyList<Endpoint> ComputePublishedEndpoints()
         {
-            List<Endpoint>? endpoints = null;
+            IReadOnlyList<Endpoint>? endpoints = null;
             if (_routerInfo != null)
             {
                 // Get the router's server proxy endpoints and use them as the published endpoints.
-                endpoints = _routerInfo.GetServerEndpoints().Distinct().ToList();
+                endpoints = _routerInfo.GetServerEndpoints().Distinct().ToArray();
             }
             else
             {
                 // Parse published endpoints. If set, these are used in proxies instead of the connection factory
                 // endpoints.
-                string? publishedEndpoints = null;
-                if (Name.Length > 0)
+                if (Name.Length > 0 && Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
                 {
-                    publishedEndpoints = Communicator.GetProperty($"{Name}.PublishedEndpoints");
-                }
-                if (publishedEndpoints != null)
-                {
-                    endpoints = ParseEndpoints(publishedEndpoints, false);
-                    Debug.Assert(endpoints.Count > 0);
+                    endpoints = ParseEndpoints(value, false);
                 }
                 if (endpoints == null || endpoints.Count == 0)
                 {
@@ -1179,7 +1173,7 @@ namespace Ice
                     // the same published endpoint.
 
                     endpoints = _incomingConnectionFactories.SelectMany(factory =>
-                        factory.Endpoint().ExpandIfWildcard()).Distinct().ToList();
+                        factory.Endpoint().ExpandIfWildcard()).Distinct().ToArray();
                 }
             }
 
