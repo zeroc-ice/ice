@@ -188,7 +188,6 @@ namespace IceInternal
                 // connections, so that callbacks from the router can be
                 // received over such connections.
                 //
-                DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
                 for (int i = 0; i < endpoints.Length; i++)
                 {
                     Endpoint endpoint = endpoints[i];
@@ -196,9 +195,9 @@ namespace IceInternal
                     //
                     // Modify endpoints with overrides.
                     //
-                    if (defaultsAndOverrides.OverrideTimeout)
+                    if (_communicator.OverrideTimeout != null)
                     {
-                        endpoint = endpoint.NewTimeout(defaultsAndOverrides.OverrideTimeoutValue);
+                        endpoint = endpoint.NewTimeout(_communicator.OverrideTimeout.Value);
                     }
 
                     //
@@ -261,16 +260,15 @@ namespace IceInternal
 
         private List<Endpoint> ApplyOverrides(Endpoint[] endpts)
         {
-            DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             var endpoints = new List<Endpoint>();
             for (int i = 0; i < endpts.Length; i++)
             {
                 //
                 // Modify endpoints with overrides.
                 //
-                if (defaultsAndOverrides.OverrideTimeout)
+                if (_communicator.OverrideTimeout != null)
                 {
-                    endpoints.Add(endpts[i].NewTimeout(defaultsAndOverrides.OverrideTimeoutValue));
+                    endpoints.Add(endpts[i].NewTimeout(_communicator.OverrideTimeout.Value));
                 }
                 else
                 {
@@ -290,7 +288,6 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
                 Debug.Assert(endpoints.Count > 0);
 
                 foreach (Endpoint endpoint in endpoints)
@@ -304,14 +301,7 @@ namespace IceInternal
                     {
                         if (connection.Active) // Don't return destroyed or unvalidated connections
                         {
-                            if (defaultsAndOverrides.OverrideCompress)
-                            {
-                                compress = defaultsAndOverrides.OverrideCompressValue;
-                            }
-                            else
-                            {
-                                compress = endpoint.HasCompressionFlag;
-                            }
+                            compress = _communicator.OverrideCompress ?? endpoint.HasCompressionFlag;
                             return connection;
                         }
                     }
@@ -327,7 +317,6 @@ namespace IceInternal
         //
         private Connection? FindConnection(List<ConnectorInfo> connectors, out bool compress)
         {
-            DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             foreach (ConnectorInfo ci in connectors)
             {
                 if (_pending.ContainsKey(ci.Connector))
@@ -344,14 +333,7 @@ namespace IceInternal
                 {
                     if (connection.Active) // Don't return destroyed or un-validated connections
                     {
-                        if (defaultsAndOverrides.OverrideCompress)
-                        {
-                            compress = defaultsAndOverrides.OverrideCompressValue;
-                        }
-                        else
-                        {
-                            compress = ci.Endpoint.HasCompressionFlag;
-                        }
+                        compress = _communicator.OverrideCompress ?? ci.Endpoint.HasCompressionFlag;
                         return connection;
                     }
                 }
@@ -564,16 +546,7 @@ namespace IceInternal
                 System.Threading.Monitor.PulseAll(this);
             }
 
-            bool compress;
-            DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
-            if (defaultsAndOverrides.OverrideCompress)
-            {
-                compress = defaultsAndOverrides.OverrideCompressValue;
-            }
-            else
-            {
-                compress = ci.Endpoint.HasCompressionFlag;
-            }
+            bool compress = _communicator.OverrideCompress ?? ci.Endpoint.HasCompressionFlag;
 
             foreach (ConnectCallback cc in callbacks)
             {
@@ -1292,15 +1265,14 @@ namespace IceInternal
             _state = State.Uninitialized;
             _monitor = new FactoryACMMonitor(_communicator, acmConfig);
 
-            DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
-            if (defaultsAndOverrides.OverrideTimeout)
+            if (_communicator.OverrideTimeout != null)
             {
-                _endpoint = _endpoint.NewTimeout(defaultsAndOverrides.OverrideTimeoutValue);
+                _endpoint = _endpoint.NewTimeout(_communicator.OverrideTimeout.Value);
             }
 
-            if (defaultsAndOverrides.OverrideCompress)
+            if (_communicator.OverrideCompress != null)
             {
-                _endpoint = _endpoint.NewCompressionFlag(defaultsAndOverrides.OverrideCompressValue);
+                _endpoint = _endpoint.NewCompressionFlag(_communicator.OverrideCompress.Value);
             }
 
             try
