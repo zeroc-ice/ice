@@ -486,7 +486,7 @@ namespace Ice
                                  IReadOnlyDictionary<string, string>? context = null, // can be provided by app
                                  Encoding? encoding = null,
                                  EndpointSelectionType? endpointSelection = null,
-                                 IReadOnlyCollection<Endpoint>? endpoints = null, // from app
+                                 IEnumerable<Endpoint>? endpoints = null, // from app
                                  string? facet = null,
                                  Connection? fixedConnection = null,
                                  Identity? identity = null,
@@ -653,7 +653,7 @@ namespace Ice
                     throw new ArgumentException($"cannot set both {nameof(adapterId)} and {nameof(endpoints)}");
                 }
 
-                Endpoint[]? newEndpoints = null;
+                IReadOnlyList<Endpoint>? newEndpoints = null;
 
                 if (adapterId != null)
                 {
@@ -693,14 +693,14 @@ namespace Ice
                 // Update/create the newEndpoints if needed
                 if (compress != null || connectionId != null || connectionTimeout != null || newEndpoints != null)
                 {
-                    endpoints = newEndpoints ?? Endpoints;
-                    if (endpoints.Count > 0)
+                    newEndpoints ??= Endpoints;
+                    if (newEndpoints.Count > 0)
                     {
                         compress ??= Compress;
                         connectionId ??= ConnectionId;
                         connectionTimeout ??= ConnectionTimeout;
 
-                        newEndpoints = endpoints.Select(endpoint =>
+                        newEndpoints = newEndpoints.Select(endpoint =>
                         {
                             if (compress != null)
                             {
@@ -992,7 +992,7 @@ namespace Ice
             }
         }
 
-        private IReadOnlyList<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)
+        private IEnumerable<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)
         {
             Debug.Assert(!IsFixed);
             return endpoints.Select(endpoint =>
@@ -1007,7 +1007,7 @@ namespace Ice
                         endpoint = endpoint.NewTimeout(ConnectionTimeout.Value);
                     }
                     return endpoint;
-                }).ToArray();
+                });
         }
 
         private IReadOnlyList<Endpoint> FilterEndpoints(IReadOnlyList<Endpoint> allEndpoints)
@@ -1105,7 +1105,7 @@ namespace Ice
             {
                 if (endpts.Count > 0)
                 {
-                    _ir.CreateConnection(_ir.ApplyOverrides(endpts), _cb);
+                    _ir.CreateConnection(_ir.ApplyOverrides(endpts).ToArray(), _cb);
                 }
                 else
                 {
@@ -1137,7 +1137,7 @@ namespace Ice
                     return;
                 }
 
-                _ir.CreateConnection(_ir.ApplyOverrides(endpoints), new ConnectionCallback(_ir, _cb, cached));
+                _ir.CreateConnection(_ir.ApplyOverrides(endpoints).ToArray(), new ConnectionCallback(_ir, _cb, cached));
             }
 
             public void SetException(System.Exception ex) => _cb.SetException(ex);

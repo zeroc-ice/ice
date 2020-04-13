@@ -146,7 +146,7 @@ namespace IceInternal
             //
             // Apply the overrides.
             //
-            IReadOnlyList<Endpoint> endpoints = ApplyOverrides(endpts);
+            IReadOnlyList<Endpoint> endpoints = ApplyOverrides(endpts).ToArray();
 
             //
             // Try to find a connection to one of the given endpoints.
@@ -259,13 +259,13 @@ namespace IceInternal
             _pendingConnectCount = 0;
         }
 
-        private IReadOnlyList<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)
+        private IEnumerable<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)
         {
             // TODO: why do we apply only the timeout override?
             DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
             return endpoints.Select(endpoint =>
                 defaultsAndOverrides.OverrideTimeout ? endpoint.NewTimeout(defaultsAndOverrides.OverrideTimeoutValue) :
-                    endpoint).ToArray();
+                    endpoint);
         }
 
         private Connection? FindConnection(IReadOnlyList<Endpoint> endpoints, out bool compress)

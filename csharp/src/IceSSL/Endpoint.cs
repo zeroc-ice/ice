@@ -81,9 +81,9 @@ namespace IceSSL
             _delegate.ConnectorsAsync(endpointSelection, new EndpointI_connectorsI(_instance, host, callback));
         }
 
-        public override IReadOnlyList<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+        public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
         {
-            var endpoints = _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint)).ToArray();
+            var endpoints = _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
             if (publish != null)
             {
                 publish = GetEndpoint(publish);
@@ -91,8 +91,8 @@ namespace IceSSL
             return endpoints;
         }
 
-        public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard() =>
-            _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint)).ToArray();
+        public override IEnumerable<Ice.Endpoint> ExpandIfWildcard() =>
+            _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
         public override IceInternal.IAcceptor GetAcceptor(string adapterName) =>
             new Acceptor(this, _instance, _delegate.GetAcceptor(adapterName)!, adapterName);

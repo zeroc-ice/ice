@@ -120,9 +120,9 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override IReadOnlyList<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+    public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
     {
-        var endpoints = _endpoint.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint)).ToArray();
+        var endpoints = _endpoint.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
         if (publish != null)
         {
             publish = GetEndpoint(publish);
@@ -130,8 +130,8 @@ internal class Endpoint : Ice.Endpoint
         return endpoints;
     }
 
-    public override IReadOnlyList<Ice.Endpoint> ExpandIfWildcard() =>
-        _endpoint.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint)).ToArray();
+    public override IEnumerable<Ice.Endpoint> ExpandIfWildcard() =>
+        _endpoint.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
     public override IceInternal.ITransceiver? GetTransceiver()
     {

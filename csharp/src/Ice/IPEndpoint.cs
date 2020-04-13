@@ -173,7 +173,7 @@ namespace Ice
         public override void ConnectorsAsync(EndpointSelectionType endpointSelection, IEndpointConnectors callback) =>
             Instance.Resolve(Host, Port, endpointSelection, this, callback);
 
-        public override IReadOnlyList<Endpoint> ExpandHost(out Endpoint? publish)
+        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
         {
             publish = null;
             // If this endpoint has an empty host (wildcard address), don't expand, just return this endpoint.
@@ -201,11 +201,11 @@ namespace Ice
             {
                 return addresses.Select(address => CreateEndpoint(Network.EndpointAddressToString(address),
                                                                   Network.EndpointPort(address),
-                                                                  ConnectionId)).ToArray();
+                                                                  ConnectionId));
             }
         }
 
-        public override IReadOnlyList<Endpoint> ExpandIfWildcard()
+        public override IEnumerable<Endpoint> ExpandIfWildcard()
         {
             List<string> hosts = Network.GetHostsForEndpointExpand(Host, Instance.IPVersion, false);
             if (hosts.Count == 0)
@@ -214,7 +214,7 @@ namespace Ice
             }
             else
             {
-                return hosts.Select(host => CreateEndpoint(host, Port, ConnectionId)).ToArray();
+                return hosts.Select(host => CreateEndpoint(host, Port, ConnectionId));
             }
         }
 

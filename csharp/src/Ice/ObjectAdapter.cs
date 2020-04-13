@@ -770,7 +770,7 @@ namespace Ice
         /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
         /// </summary>
         /// <param name="newEndpoints">The new published endpoints.</param>
-        public void SetPublishedEndpoints(IReadOnlyCollection<Endpoint> newEndpoints)
+        public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints)
         {
             LocatorInfo? locatorInfo = null;
             IReadOnlyList<Endpoint> oldPublishedEndpoints;
@@ -781,17 +781,15 @@ namespace Ice
                 if (_routerInfo != null)
                 {
                     throw new InvalidOperationException(
-                                    "cannot set published endpoints on an object adapter associated with a router");
+                        "cannot set published endpoints on an object adapter associated with a router");
                 }
 
                 oldPublishedEndpoints = _publishedEndpoints;
-                if (newEndpoints.Count == 0)
+                _publishedEndpoints = newEndpoints.ToArray();
+                if (_publishedEndpoints.Count == 0)
                 {
+                    // TODO: is it correct to set published endpoints to empty?
                     _publishedEndpoints = Array.Empty<Endpoint>();
-                }
-                else
-                {
-                    _publishedEndpoints = newEndpoints.ToArray();
                 }
                 locatorInfo = _locatorInfo;
             }

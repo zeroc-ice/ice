@@ -331,7 +331,7 @@ namespace IceLocatorDiscovery
                 {
                     // We found another locator replica, append its endpoints to the current locator proxy endpoints,
                     // while eliminating duplicates.
-                    var newEndpoints = l.Endpoints.Concat(locator.Endpoints).Distinct().ToArray();
+                    var newEndpoints = l.Endpoints.Concat(locator.Endpoints).Distinct();
                     l = l.Clone(endpoints: newEndpoints);
                 }
                 else
