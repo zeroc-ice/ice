@@ -410,18 +410,20 @@ namespace Ice
         /// Writes a serializable object to the stream.
         /// </summary>
         /// <param name="o">The serializable object to write.</param>
-        public void WriteSerializable(object o)
+        public void WriteSerializable(object? o)
         {
             if (o == null)
             {
                 WriteSize(0);
                 return;
             }
-
-            var w = new IceInternal.OutputStreamWrapper(this);
-            IFormatter f = new BinaryFormatter();
-            f.Serialize(w, o);
-            w.Close();
+            else
+            {
+                var w = new OutputStreamWrapper(this);
+                IFormatter f = new BinaryFormatter();
+                f.Serialize(w, o);
+                w.Close();
+            }
         }
 
         /// <summary>

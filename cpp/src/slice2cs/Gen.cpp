@@ -2598,7 +2598,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     string name = p->name();
     string scope = getNamespace(p);
-    string seqS = typeToString(p, scope);
+    string seqS = typeToString(p, scope, p->hasMetaDataWithPrefix("cs:serializable:"));
     TypePtr type = p->type();
 
     _out << sp;
