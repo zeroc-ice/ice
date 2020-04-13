@@ -43,20 +43,17 @@ namespace Ice
 
         public override int ReadByte() => throw new NotSupportedException();
 
-        public override int Read(Span<byte> buffer) => throw new NotSupportedException();
-
-        public override void Write(byte[] array, int offset, int count)
+        public override void Write(ReadOnlySpan<byte> buffer)
         {
-            Debug.Assert(array != null && offset >= 0 && count >= 0 && offset + count <= array.Length);
             try
             {
                 if (_data != null)
                 {
                     // If we can fit the data into the first 254 bytes, write it to _bytes.
-                    if (count <= _data.Length - _pos)
+                    if (buffer.Length <= _data.Length - _pos)
                     {
-                        Buffer.BlockCopy(array, offset, _data, _pos, count);
-                        _pos += count;
+                        buffer.CopyTo(_data.AsSpan(_pos, buffer.Length));
+                        _pos += buffer.Length;
                         return;
                     }
 
@@ -72,8 +69,8 @@ namespace Ice
                 }
 
                 // Write data passed by caller.
-                _stream.WriteSpan(array.AsSpan(offset, count));
-                _pos += count;
+                _stream.WriteSpan(buffer);
+                _pos += buffer.Length;
             }
             catch (Exception ex)
             {
@@ -115,7 +112,7 @@ namespace Ice
             }
         }
 
-        public override void Write(ReadOnlySpan<byte> buffer) => throw new NotSupportedException();
+        public override void Write(byte[] array, int offset, int count) => throw new NotSupportedException();
 
         public override bool CanRead => false;
 
