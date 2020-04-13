@@ -1113,7 +1113,7 @@ namespace Ice
         /// <summary>Write a byte at a given position of the stream.</summary>
         /// <param name="v">The byte value to write.</param>
         /// <param name="pos">The position to write to.</param>
-        internal void RewriteByte(byte v, Position pos)
+        private void RewriteByte(byte v, Position pos)
         {
             ArraySegment<byte> segment = _segmentList[pos.Segment];
             if (pos.Offset < segment.Count)
@@ -1127,10 +1127,10 @@ namespace Ice
             }
         }
 
-        // <summary>Write an integer number (4 bytes) at a given position of the stream.</summary>
+        /// <summary>Write an integer number (4 bytes) at a given position of the stream.</summary>
         /// <param name="v">The integer value to write.</param>
         /// <param name="pos">The position to write to.</param>
-        internal void RewriteInt(int v, Position pos)
+        private void RewriteInt(int v, Position pos)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
@@ -1156,7 +1156,7 @@ namespace Ice
             }
         }
 
-        internal void RewriteSpan(Span<byte> data, Position pos)
+        private void RewriteSpan(Span<byte> data, Position pos)
         {
             ArraySegment<byte> segment = _segmentList[pos.Segment];
             int remaining = Math.Min(data.Length, segment.Count - pos.Offset);
