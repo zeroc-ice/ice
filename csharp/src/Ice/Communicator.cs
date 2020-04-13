@@ -121,22 +121,22 @@ namespace Ice
             }
         }
 
+        public bool DefaultCollocationOptimization { get; }
+        public Encoding DefaultEncoding { get; }
+        public EndpointSelectionType DefaultEndpointSelection { get; }
+        public FormatType DefaultFormat { get; }
         public string? DefaultHost { get; }
+        public bool DefaultPreferNonSecure { get; }
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
-        public bool DefaultCollocationOptimization { get; }
-        public EndpointSelectionType DefaultEndpointSelection { get; }
         public int DefaultTimeout { get; }
         public int DefaultLocatorCacheTimeout { get; }
         public int DefaultInvocationTimeout { get; }
-        public bool DefaultPreferNonSecure { get; }
-        public Encoding DefaultEncoding { get; }
-        public FormatType DefaultFormat { get; }
 
+        public bool? OverrideCompress { get; }
         public int? OverrideTimeout { get; }
         public int? OverrideConnectTimeout { get; }
         public int? OverrideCloseTimeout { get; }
-        public bool? OverrideCompress { get; }
 
         /// <summary>The logger for this communicator.</summary>
         public ILogger Logger { get; internal set; }
@@ -373,21 +373,17 @@ namespace Ice
 
                 TraceLevels = new TraceLevels(this);
 
-                DefaultHost = GetProperty("Ice.Default.Host");
-
-                if (GetProperty("Ice.Default.SourceAddress") is string address)
-                {
-                    DefaultSourceAddress = Network.GetNumericAddress(address);
-                    if (DefaultSourceAddress == null)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid IP address set for Ice.Default.SourceAddress: `{address}'");
-                    }
-                }
-
-                DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
-
                 DefaultCollocationOptimization = (GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
+
+                if (GetProperty("Ice.Default.Encoding") is string encoding)
+                {
+                    DefaultEncoding = Encoding.Parse(encoding);
+                    DefaultEncoding.CheckSupported();
+                }
+                else
+                {
+                    DefaultEncoding = Encoding.Latest;
+                }
 
                 string val = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 if (val.Equals("Random"))
@@ -402,6 +398,26 @@ namespace Ice
                 {
                     throw new InvalidConfigurationException($"illegal value `{val}'; expected `Random' or `Ordered'");
                 }
+
+                DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? Ice.FormatType.Sliced
+                                                                                   : Ice.FormatType.Compact;
+
+                DefaultHost = GetProperty("Ice.Default.Host");
+
+                // TODO: switch to 0 default
+                DefaultPreferNonSecure = (GetPropertyAsInt("Ice.Default.PreferNonSecure") ?? 1) > 0;
+
+                if (GetProperty("Ice.Default.SourceAddress") is string address)
+                {
+                    DefaultSourceAddress = Network.GetNumericAddress(address);
+                    if (DefaultSourceAddress == null)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid IP address set for Ice.Default.SourceAddress: `{address}'");
+                    }
+                }
+
+                DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
 
                 DefaultTimeout = GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
                 if (DefaultTimeout < 1 && DefaultTimeout != -1)
@@ -426,21 +442,19 @@ namespace Ice
                     DefaultInvocationTimeout = -1;
                 }
 
-                // TODO: switch to 0 default
-                DefaultPreferNonSecure = (GetPropertyAsInt("Ice.Default.PreferNonSecure") ?? 1) > 0;
-
-                if (GetProperty("Ice.Default.Encoding") is string encoding)
+                if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
                 {
-                    DefaultEncoding = Encoding.Parse(encoding);
-                    DefaultEncoding.CheckSupported();
+                    OverrideCompress = compress > 0;
+                    if (!BZip2.IsLoaded && OverrideCompress.Value)
+                    {
+                        Logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
+                        OverrideCompress = false;
+                    }
                 }
-                else
+                else if (!BZip2.IsLoaded)
                 {
-                    DefaultEncoding = Encoding.Latest;
+                    OverrideCompress = false;
                 }
-
-                DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? Ice.FormatType.Sliced
-                                                                                   : Ice.FormatType.Compact;
 
                 {
                     if (GetPropertyAsInt("Ice.Override.Timeout") is int timeout)
@@ -478,20 +492,6 @@ namespace Ice
                             OverrideCloseTimeout = -1;
                         }
                     }
-                }
-
-                if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
-                {
-                    OverrideCompress = compress > 0;
-                    if (!BZip2.IsLoaded && OverrideCompress.Value)
-                    {
-                        Logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
-                        OverrideCompress = false;
-                    }
-                }
-                else if (!BZip2.IsLoaded)
-                {
-                    OverrideCompress = false;
                 }
 
                 ClientACM = new ACMConfig(this, Logger, "Ice.ACM.Client",
