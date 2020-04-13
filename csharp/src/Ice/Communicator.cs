@@ -373,8 +373,6 @@ namespace Ice
 
                 TraceLevels = new TraceLevels(this);
 
-                DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
-
                 DefaultHost = GetProperty("Ice.Default.Host");
 
                 if (GetProperty("Ice.Default.SourceAddress") is string address)
@@ -387,57 +385,7 @@ namespace Ice
                     }
                 }
 
-                {
-                    if (GetPropertyAsInt("Ice.Override.Timeout") is int timeout)
-                    {
-                        OverrideTimeout = timeout;
-                        if (timeout < 1 && timeout != -1)
-                        {
-                            Logger.Warning($"invalid value for Ice.Override.Timeout `{timeout}': defauling to -1");
-                            OverrideTimeout = -1;
-                        }
-                    }
-                }
-
-                {
-                    if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
-                    {
-                        OverrideConnectTimeout = timeout;
-                        if (timeout < 1 && timeout != -1)
-                        {
-                            Logger.Warning(
-                                $"invalid value for Ice.Override.ConnectTimeout `{timeout}': defaulting to -1");
-                            OverrideConnectTimeout = -1;
-                        }
-                    }
-                }
-
-                {
-                    if (GetPropertyAsInt("Ice.Override.CloseTimeout") is int timeout)
-                    {
-                        OverrideCloseTimeout = timeout;
-                        if (timeout < 1 && timeout != -1)
-                        {
-                            Logger.Warning(
-                                $"invalid value for Ice.Override.CloseTimeout `{timeout}': defaulting to -1");
-                            OverrideCloseTimeout = -1;
-                        }
-                    }
-                }
-
-                if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
-                {
-                    OverrideCompress = compress > 0;
-                    if (!BZip2.IsLoaded && OverrideCompress.Value)
-                    {
-                        Logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
-                        OverrideCompress = false;
-                    }
-                }
-                else if (!BZip2.IsLoaded)
-                {
-                    OverrideCompress = false;
-                }
+                DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
 
                 DefaultCollocationOptimization = (GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
 
@@ -493,6 +441,58 @@ namespace Ice
 
                 DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? Ice.FormatType.Sliced
                                                                                    : Ice.FormatType.Compact;
+
+                {
+                    if (GetPropertyAsInt("Ice.Override.Timeout") is int timeout)
+                    {
+                        OverrideTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            Logger.Warning($"invalid value for Ice.Override.Timeout `{timeout}': defauling to -1");
+                            OverrideTimeout = -1;
+                        }
+                    }
+                }
+
+                {
+                    if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
+                    {
+                        OverrideConnectTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            Logger.Warning(
+                                $"invalid value for Ice.Override.ConnectTimeout `{timeout}': defaulting to -1");
+                            OverrideConnectTimeout = -1;
+                        }
+                    }
+                }
+
+                {
+                    if (GetPropertyAsInt("Ice.Override.CloseTimeout") is int timeout)
+                    {
+                        OverrideCloseTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            Logger.Warning(
+                                $"invalid value for Ice.Override.CloseTimeout `{timeout}': defaulting to -1");
+                            OverrideCloseTimeout = -1;
+                        }
+                    }
+                }
+
+                if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
+                {
+                    OverrideCompress = compress > 0;
+                    if (!BZip2.IsLoaded && OverrideCompress.Value)
+                    {
+                        Logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
+                        OverrideCompress = false;
+                    }
+                }
+                else if (!BZip2.IsLoaded)
+                {
+                    OverrideCompress = false;
+                }
 
                 ClientACM = new ACMConfig(this, Logger, "Ice.ACM.Client",
                                            new ACMConfig(this, Logger, "Ice.ACM", new ACMConfig(false)));
