@@ -17,108 +17,32 @@ namespace Ice
     //
     // Slice sequences are encoded on the wire as a count of elements, followed by the sequence contents. For arbitrary
     // .NET classes, we do not know how big the sequence will be. To avoid excessive data copying, this class maintains
-    // a private _bytes array of 254 bytes and, initially, writes data into that array. If more than 254 bytes end up
+    // a private _data array of 254 bytes and, initially, writes data into that array. If more than 254 bytes end up
     // being written, we write a dummy sequence size of 255 (which occupies five bytes on the wire) into the stream and,
-    // once this class is disposed, patch that size to match the actual size. Otherwise, if the _bytes buffer contains
+    // once this class is disposed, patch that size to match the actual size. Otherwise, if the _data buffer contains
     // fewer than 255 bytes when this class is disposed, we write the sequence size as a single byte, followed by the
-    // contents of the _bytes buffer.
+    // contents of the _data buffer.
     internal class OutputStreamWrapper : Stream
     {
-        private readonly OutputStream _stream;
-        private OutputStream.Position _startPos;
-        private byte[]? _data;
-        private int _pos;
-        private long _length;
-
-        internal OutputStreamWrapper(OutputStream stream)
-        {
-            _stream = stream;
-            _data = new byte[254];
-            _pos = 0;
-            _length = 0;
-            _startPos = stream.Tail;
-        }
-
-        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-
-        public override int ReadByte() => throw new NotSupportedException();
-
-        public override void Write(ReadOnlySpan<byte> buffer)
-        {
-            try
-            {
-                if (_data != null)
-                {
-                    // If we can fit the data into the first 254 bytes, write it to _bytes.
-                    if (buffer.Length <= _data.Length - _pos)
-                    {
-                        buffer.CopyTo(_data.AsSpan(_pos, buffer.Length));
-                        _pos += buffer.Length;
-                        return;
-                    }
-
-                    // Dummy size, until we know how big the stream really is and can patch the size.
-                    _stream.WriteSize(255);
-                    if (_pos > 0)
-                    {
-                        // Write the current contents of _bytes.
-                        _stream.WriteSpan(_data.AsSpan(0, _pos));
-                    }
-
-                    _data = null;
-                }
-
-                // Write data passed by caller.
-                _stream.WriteSpan(buffer);
-                _pos += buffer.Length;
-            }
-            catch (Exception ex)
-            {
-                throw new IOException("could not write to stream", ex);
-            }
-        }
-
-        public override void WriteByte(byte value)
-        {
-            try
-            {
-                if (_data != null)
-                {
-                    // If we can fit the data into the first 254 bytes, write it to _bytes.
-                    if (_pos < _data.Length)
-                    {
-                        _data[_pos++] = value;
-                        return;
-                    }
-
-                    // Dummy size, until we know how big the stream really is and can patch the size.
-                    _stream.WriteSize(255);
-                    if (_pos > 0)
-                    {
-                        // Write the current contents of _bytes.
-                        _stream.WriteSpan(_data.AsSpan(0, _pos));
-                    }
-
-                    _data = null;
-                }
-
-                // Write data passed by caller.
-                _stream.WriteByte(value);
-                _pos += 1;
-            }
-            catch (Exception ex)
-            {
-                throw new IOException("could not write to stream", ex);
-            }
-        }
-
-        public override void Write(byte[] array, int offset, int count) => throw new NotSupportedException();
-
         public override bool CanRead => false;
 
         public override bool CanWrite => true;
 
         public override bool CanSeek => false;
+
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+
+            set => throw new NotSupportedException();
+        }
+
+        private readonly OutputStream _stream;
+        private OutputStream.Position _startPos;
+        private byte[]? _data;
+        private int _pos;
 
         public override void Flush()
         {
@@ -141,50 +65,119 @@ namespace Ice
             }
         }
 
-        public override long Length => _length;
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
-        public override long Position
-        {
-            get => _pos;
-
-            set => _ = Seek(value, SeekOrigin.Begin);
-        }
+        public override int ReadByte() => throw new NotSupportedException();
 
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
 
-        public override void SetLength(long value)
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        public override void Write(byte[] array, int offset, int count) => Write(array.AsSpan(offset, count));
+
+        public override void Write(ReadOnlySpan<byte> buffer)
         {
-            Debug.Assert(value >= 0);
-            _length = value;
+            try
+            {
+                if (_data != null)
+                {
+                    // If we can fit the data into the first 254 bytes, write it to _data.
+                    if (buffer.Length <= _data.Length - _pos)
+                    {
+                        buffer.CopyTo(_data.AsSpan(_pos, buffer.Length));
+                        _pos += buffer.Length;
+                        return;
+                    }
+
+                    // Dummy size, until we know how big the stream really is and can patch the size.
+                    _stream.WriteSize(255);
+                    if (_pos > 0)
+                    {
+                        // Write the current contents of _data.
+                        _stream.WriteSpan(_data.AsSpan(0, _pos));
+                    }
+
+                    _data = null;
+                }
+
+                // Write data passed by caller.
+                _stream.WriteSpan(buffer);
+                _pos += buffer.Length;
+            }
+            catch (Exception ex)
+            {
+                throw new IOException("could not write to stream", ex);
+            }
+        }
+
+        public override void WriteByte(byte value)
+        {
+            try
+            {
+                if (_data != null)
+                {
+                    // If we can fit the data into the first 254 bytes, write it to _data.
+                    if (_pos < _data.Length)
+                    {
+                        _data[_pos++] = value;
+                        return;
+                    }
+
+                    // Dummy size, until we know how big the stream really is and can patch the size.
+                    _stream.WriteSize(255);
+                    if (_pos > 0)
+                    {
+                        // Write the current contents of _data.
+                        _stream.WriteSpan(_data.AsSpan(0, _pos));
+                    }
+
+                    _data = null;
+                }
+
+                // Write data passed by caller.
+                _stream.WriteByte(value);
+                _pos += 1;
+            }
+            catch (Exception ex)
+            {
+                throw new IOException("could not write to stream", ex);
+            }
+        }
+
+        internal OutputStreamWrapper(OutputStream stream)
+        {
+            _stream = stream;
+            _data = new byte[254];
+            _pos = 0;
+            _startPos = stream.Tail;
         }
     }
 
     internal class InputStreamWrapper : Stream
     {
-        private readonly InputStream _stream;
-        private int _pos;
-        private readonly long _length;
-
-        internal InputStreamWrapper(int size, InputStream s)
+        public override long Position
         {
-            _stream = s;
-            _pos = 0;
-            _length = size;
+            get => throw new NotSupportedException();
+
+            set => throw new NotSupportedException();
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
+        public override long Length => throw new NotSupportedException();
+
+        private readonly InputStream _stream;
+
+        public override int Read(byte[] buffer, int offset, int count) => Read(buffer.AsSpan(offset, count));
+
+        public override int Read(Span<byte> buffer)
         {
-            Debug.Assert(buffer != null && offset >= 0 && count >= 0 && offset + count <= buffer.Length);
             try
             {
-                Span<byte> span = buffer.AsSpan(offset, count);
-                _stream.ReadSpan(span);
+                return _stream.ReadSpan(buffer);
             }
             catch (Exception ex)
             {
                 throw new IOException("could not read from stream", ex);
             }
-            return count;
         }
 
         public override int ReadByte()
@@ -199,8 +192,6 @@ namespace Ice
             }
         }
 
-        public override int Read(Span<byte> buffer) => throw new NotSupportedException();
-
         public override void Write(byte[] array, int offset, int count) => throw new NotSupportedException();
 
         public override void WriteByte(byte value) => throw new NotSupportedException();
@@ -209,51 +200,16 @@ namespace Ice
 
         public override bool CanWrite => false;
 
-        public override bool CanSeek => true;
+        public override bool CanSeek => false;
 
         public override void Flush()
         {
         }
 
-        public override long Length => _length;
-
-        public override long Position
-        {
-            get => _pos;
-
-            set => _ = Seek(value, SeekOrigin.Begin);
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            // Deliberately no size check here--positioning beyond the limit of the stream is legal.
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    {
-                        _pos = (int)offset;
-                        break;
-                    }
-                case SeekOrigin.Current:
-                    {
-                        _pos += (int)offset;
-                        break;
-                    }
-                case SeekOrigin.End:
-                    {
-                        _pos = (int)_length + (int)offset;
-                        break;
-                    }
-                default:
-                    {
-                        Debug.Assert(false);
-                        break;
-                    }
-            }
-            _stream.Pos = _pos;
-            return _pos;
-        }
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
 
         public override void SetLength(long value) => throw new NotSupportedException();
+
+        internal InputStreamWrapper(InputStream s) => _stream = s;
     }
 }

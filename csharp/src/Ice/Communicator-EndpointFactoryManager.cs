@@ -177,7 +177,12 @@ namespace Ice
                 if (e == null)
                 {
                     byte[] data = new byte[size];
-                    istr.ReadSpan(data);
+                    size = istr.ReadSpan(data);
+                    if (size < data.Length)
+                    {
+                        throw new InvalidDataException(@$"not enough bytes available reading opaque endpoint, requested {
+                            data.Length} bytes, but there was only {size} bytes remaining");
+                    }
                     e = new OpaqueEndpoint(type, encoding, data);
                 }
                 istr.EndEndpointEncapsulation();
