@@ -10,6 +10,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -120,12 +121,12 @@ namespace Ice
             }
         }
 
-        public string? DefaultHost { get; } //TODO only used by TransportInstance
-        public IPAddress? DefaultSourceAddress { get; } //TODO only used by TransportInstance, also it's not even used in there anyways.
+        public string? DefaultHost { get; }
+        public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
         public bool DefaultCollocationOptimization { get; }
         public EndpointSelectionType DefaultEndpointSelection { get; }
-        public int DefaultTimeout { get; } //TODO again, only used by TransportInstance
+        public int DefaultTimeout { get; }
         public int DefaultLocatorCacheTimeout { get; }
         public int DefaultInvocationTimeout { get; }
         public bool DefaultPreferNonSecure { get; }
@@ -386,42 +387,50 @@ namespace Ice
                     }
                 }
 
-                if (GetPropertyAsInt("Ice.Override.Timeout") is int timeout)
                 {
-                    OverrideTimeout = timeout;
-                    if(timeout < 1 && timeout != -1)
+                    if (GetPropertyAsInt("Ice.Override.Timeout") is int timeout)
                     {
-                        logger.Warning($"invalid value for Ice.Override.Timeout `{timeout}': defauling to -1");
-                        OverrideTimeout = -1;
+                        OverrideTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            Logger.Warning($"invalid value for Ice.Override.Timeout `{timeout}': defauling to -1");
+                            OverrideTimeout = -1;
+                        }
                     }
                 }
 
-                if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
                 {
-                    OverrideConnectTimeout = timeout;
-                    if (timeout < 1 && timeout != -1)
+                    if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
                     {
-                        logger.Warning($"invalid value for Ice.Override.ConnectTimeout `{timeout}': defaulting to -1");
-                        OverrideConnectTimeoutValue = -1;
+                        OverrideConnectTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            Logger.Warning(
+                                $"invalid value for Ice.Override.ConnectTimeout `{timeout}': defaulting to -1");
+                            OverrideConnectTimeout = -1;
+                        }
                     }
                 }
 
-                if (GetPropertyAsInt("Ice.Override.CloseTimeout") is int timeout)
                 {
-                    OverrideCloseTimeout = timeout;
-                    if (timeout < 1 && timeout != -1)
+                    if (GetPropertyAsInt("Ice.Override.CloseTimeout") is int timeout)
                     {
-                        logger.Warning($"invalid value for Ice.Override.CloseTimeout `{timeout}': defaulting to -1");
-                        OverrideCloseTimeout = -1;
+                        OverrideCloseTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            Logger.Warning(
+                                $"invalid value for Ice.Override.CloseTimeout `{timeout}': defaulting to -1");
+                            OverrideCloseTimeout = -1;
+                        }
                     }
                 }
 
                 if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
                 {
                     OverrideCompress = compress > 0;
-                    if (!BZip2.IsLoaded && OverrideCompress)
+                    if (!BZip2.IsLoaded && OverrideCompress.Value)
                     {
-                        logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
+                        Logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
                         OverrideCompress = false;
                     }
                 }
@@ -430,9 +439,9 @@ namespace Ice
                     OverrideCompress = false;
                 }
 
-                DefaultCollocationOptimization = GetPropertyAsInt("Ice.Default.CollocationOptimized") > 0;
+                DefaultCollocationOptimization = (GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
 
-                val = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
+                string val = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 if (val.Equals("Random"))
                 {
                     DefaultEndpointSelection = Ice.EndpointSelectionType.Random;
@@ -449,14 +458,14 @@ namespace Ice
                 DefaultTimeout = GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
                 if (DefaultTimeout < 1 && DefaultTimeout != -1)
                 {
-                    logger.Warning($"invalid value for Ice.Default.Timeout `{DefaultTimeout}': defaulting to 60000");
+                    Logger.Warning($"invalid value for Ice.Default.Timeout `{DefaultTimeout}': defaulting to 60000");
                     DefaultTimeout = 60000;
                 }
 
                 DefaultLocatorCacheTimeout = GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
                 if (DefaultLocatorCacheTimeout < -1)
                 {
-                    logger.Warning(
+                    Logger.Warning(
                     $"invalid value for Ice.Default.LocatorCacheTimeout `{DefaultLocatorCacheTimeout}': defaulting to -1");
                     DefaultLocatorCacheTimeout = -1;
                 }
@@ -464,13 +473,13 @@ namespace Ice
                 DefaultInvocationTimeout = GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
                 if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1)
                 {
-                    logger.Warning(
+                    Logger.Warning(
                         $"invalid value for Ice.Default.InvocationTimeout `{DefaultInvocationTimeout}': defaulting to -1");
                     DefaultInvocationTimeout = -1;
                 }
 
-                // TODO: switch to 0 default TODO Ask Bernard about this comment
-                DefaultPreferNonSecure = GetPropertyAsInt("Ice.Default.PreferNonSecure") > 0;
+                // TODO: switch to 0 default
+                DefaultPreferNonSecure = (GetPropertyAsInt("Ice.Default.PreferNonSecure") ?? 1) > 0;
 
                 if (GetProperty("Ice.Default.Encoding") is string encoding)
                 {

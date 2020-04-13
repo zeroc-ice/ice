@@ -54,7 +54,7 @@ namespace Ice
                 if (_properties.TryGetValue(name, out PropertyValue? pv))
                 {
                     pv.Used = true;
-                    return int.Parse(pv.Val, CultureInfo.InvariantCulture); //TODO THIS THROWS AND WE DONT CATCH IT?!
+                    return int.Parse(pv.Val, CultureInfo.InvariantCulture);
                 }
                 return null;
             }
