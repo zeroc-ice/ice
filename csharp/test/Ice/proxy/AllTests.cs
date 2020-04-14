@@ -781,8 +781,8 @@ namespace Ice.proxy
             compObj2 = IObjectPrx.Parse("foo@MyAdapter1", communicator);
             test(!compObj1.Equals(compObj2));
 
-            Endpoint[] endpts1 = IObjectPrx.Parse("foo:tcp -h 127.0.0.1 -p 10000", communicator).Endpoints;
-            Endpoint[] endpts2 = IObjectPrx.Parse("foo:tcp -h 127.0.0.1 -p 10001", communicator).Endpoints;
+            var endpts1 = IObjectPrx.Parse("foo:tcp -h 127.0.0.1 -p 10000", communicator).Endpoints;
+            var endpts2 = IObjectPrx.Parse("foo:tcp -h 127.0.0.1 -p 10001", communicator).Endpoints;
             test(!endpts1[0].Equals(endpts2[0]));
             test(endpts1[0].Equals(IObjectPrx.Parse("foo:tcp -h 127.0.0.1 -p 10000", communicator).Endpoints[0]));
 

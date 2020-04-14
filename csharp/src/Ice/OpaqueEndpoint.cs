@@ -114,13 +114,13 @@ namespace Ice
         public override void ConnectorsAsync(Ice.EndpointSelectionType endSel, IEndpointConnectors callback) =>
             callback.Connectors(new List<IConnector>());
 
-        public override List<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
+        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
         {
             publishedEndpoint = null;
-            return new List<Endpoint>() { this };
+            return new Endpoint[] { this };
         }
 
-        public override List<Endpoint> ExpandIfWildcard() => new List<Endpoint> { this };
+        public override IEnumerable<Endpoint> ExpandIfWildcard() => new Endpoint[] { this };
 
         public override IAcceptor? GetAcceptor(string adapterName) => null;
         public override ITransceiver? GetTransceiver() => null;

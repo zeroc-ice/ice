@@ -74,25 +74,25 @@ namespace Ice
                 {
                     communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
                     var adapter = communicator.CreateObjectAdapter("PAdapter");
-                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints().Count == 1);
                     var endpt = adapter.GetPublishedEndpoints()[0];
                     Debug.Assert(endpt != null);
                     test(endpt.ToString()!.Equals("tcp -h localhost -p 12345 -t 30000"));
                     var prx = IObjectPrx.Parse("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000", communicator);
                     adapter.SetPublishedEndpoints(prx.Endpoints);
-                    test(adapter.GetPublishedEndpoints().Length == 2);
+                    test(adapter.GetPublishedEndpoints().Count == 2);
                     test(global::Test.Collections.Equals(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints,
                         prx.Endpoints));
                     test(global::Test.Collections.Equals(adapter.GetPublishedEndpoints(), prx.Endpoints));
                     adapter.RefreshPublishedEndpoints();
-                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints().Count == 1);
                     test(adapter.GetPublishedEndpoints()[0].Equals(endpt));
                     communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
                     adapter.RefreshPublishedEndpoints();
-                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints().Count == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345 -t 20000"));
                     adapter.Destroy();
-                    test(adapter.GetPublishedEndpoints().Length == 0);
+                    test(adapter.GetPublishedEndpoints().Count == 0);
                 }
                 output.WriteLine("ok");
 
@@ -121,11 +121,11 @@ namespace Ice
                     var routerId = new Identity("router", "");
                     var router = baseprx.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
                     var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints().Count == 1);
                     var endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
                     test(endpointsStr!.Equals("tcp -h localhost -p 23456 -t 30000"));
                     adapter.RefreshPublishedEndpoints();
-                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    test(adapter.GetPublishedEndpoints().Count == 1);
                     test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23457 -t 30000"));
                     try
                     {

@@ -1207,9 +1207,7 @@ namespace Ice
                     }
                     Logger.Warning(msg.ToString());
                 }
-
-                Endpoint[] ep = endpoints.ToArray();
-                return CreateReference(ident, facet, mode, protocol, encoding, ep, null, propertyPrefix);
+                return CreateReference(ident, facet, mode, protocol, encoding, endpoints, null, propertyPrefix);
             }
             else if (s[beg] == '@')
             {
@@ -1914,7 +1912,8 @@ namespace Ice
             }
         }
 
-        internal Reference CreateReference(Identity ident, string facet, Reference tmpl, Endpoint[] endpoints)
+        internal Reference CreateReference(Identity ident, string facet, Reference tmpl,
+            IReadOnlyList<Endpoint> endpoints)
         {
             return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.Protocol, tmpl.Encoding,
                           endpoints, null, null);
@@ -2292,7 +2291,7 @@ namespace Ice
             InvocationMode mode,
             Protocol protocol,
             Encoding encoding,
-            Endpoint[] endpoints,
+            IReadOnlyList<Endpoint> endpoints,
             string? adapterId,
             string? propertyPrefix)
         {

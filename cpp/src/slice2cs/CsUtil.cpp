@@ -86,6 +86,11 @@ Slice::isNullable(const TypePtr& type)
     {
         return true;
     }
+    ContainedPtr contained = ContainedPtr::dynamicCast(type);
+    if(contained && contained->hasMetaDataWithPrefix("cs:serializable:"))
+    {
+        return true;
+    }
     return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
 }
 
@@ -1135,7 +1140,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     ostringstream out;
     if(!serializable.empty())
     {
-        out << "(" << serializable << ") " << stream << ".ReadSerializable()";
+        out << "(" << serializable << "?) " << stream << ".ReadSerializable()";
     }
     else if(generic.empty())
     {

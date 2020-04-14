@@ -423,11 +423,12 @@ namespace Ice
             return value;
         }
 
-        public void ReadSpan(Span<byte> span)
+        public int ReadSpan(Span<byte> span)
         {
-            int length = span.Length;
+            int length = Math.Min(span.Length, _buffer.Count - _pos);
             _buffer.AsSpan(_pos, length).CopyTo(span);
             _pos += length;
+            return length;
         }
 
         /// <summary>Extracts an optional byte sequence from the stream.</summary>
@@ -455,7 +456,7 @@ namespace Ice
                 return null;
             }
             var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, Communicator));
-            return f.Deserialize(new IceInternal.InputStreamWrapper(sz, this));
+            return f.Deserialize(new InputStreamWrapper(this));
         }
 
         /// <summary>

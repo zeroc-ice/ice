@@ -12,7 +12,7 @@ namespace Ice
     {
         public interface GetClientEndpointsCallback
         {
-            void setEndpoints(Endpoint[] endpoints);
+            void setEndpoints(IReadOnlyList<Endpoint> endpoints);
             void setException(System.Exception ex);
         }
 
@@ -49,7 +49,7 @@ namespace Ice
         // No mutex lock necessary, _router is immutable.
         public IRouterPrx Router { get; }
 
-        public Endpoint[] GetClientEndpoints()
+        public IReadOnlyList<Endpoint> GetClientEndpoints()
         {
             lock (this)
             {
@@ -65,7 +65,7 @@ namespace Ice
 
         public void GetClientEndpoints(GetClientEndpointsCallback callback)
         {
-            Endpoint[]? clientEndpoints = null;
+            IReadOnlyList<Endpoint>? clientEndpoints = null;
             lock (this)
             {
                 clientEndpoints = _clientEndpoints;
@@ -93,7 +93,7 @@ namespace Ice
                 System.Threading.Tasks.TaskScheduler.Current);
         }
 
-        public Endpoint[] GetServerEndpoints()
+        public IReadOnlyList<Endpoint> GetServerEndpoints()
         {
             IObjectPrx? serverProxy = Router.GetServerProxy();
             if (serverProxy == null)
@@ -183,7 +183,7 @@ namespace Ice
             }
         }
 
-        private Endpoint[] SetClientEndpoints(IObjectPrx clientProxy, bool hasRoutingTable)
+        private IReadOnlyList<Endpoint> SetClientEndpoints(IObjectPrx clientProxy, bool hasRoutingTable)
         {
             lock (this)
             {
@@ -259,7 +259,7 @@ namespace Ice
             }
         }
 
-        private Endpoint[]? _clientEndpoints;
+        private IReadOnlyList<Endpoint>? _clientEndpoints;
         private ObjectAdapter? _adapter;
         private readonly HashSet<Identity> _identities = new HashSet<Identity>();
         private readonly List<Identity> _evictedIdentities = new List<Identity>();
