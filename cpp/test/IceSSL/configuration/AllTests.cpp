@@ -3541,8 +3541,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-            "THUMBPRINT:'F8 0E FB 30 3D B1 D8 11 E3 61 3B 17 AC 1B F5 6E 0B 98 55 90'",
-            "SUBJECTKEYID:'8A 8A BD 67 CA 23 2B 5C 07 84 B6 BB B2 40 5B C0 29 46 FC 00'",
+            "THUMBPRINT:'69 F6 5A C0 E5 47 C3 8C BC B8 DB C8 EC 35 7E CE BD 1C F5 71'",
+            "SUBJECTKEYID:'C3 88 3A ED FB 06 97 BF D4 45 A6 83 C4 98 A7 D7 00 7B F2 D1'",
             0
         };
 
@@ -3551,8 +3551,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-            "THUMBPRINT:'4C 7B CC 45 FD CC FA 95 74 D5 F1 8F 5B CE D5 B9 64 30 31 9B'",
-            "SUBJECTKEYID:'6B 85 D1 63 35 D4 EC 67 3F FE BB 7B 93 B1 72 F3 ED 14 5C ED'",
+            "THUMBPRINT:'89 1F 75 AB D1 F1 6E A0 41 45 C5 BA 05 D6 55 48 CE 95 9F D2'",
+            "SUBJECTKEYID:'04 81 A3 82 E2 67 E1 48 4A 4C FA 51 A2 C1 CA EE 7F 56 E2 92'"
             0
         };
 
@@ -3699,7 +3699,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
 //            "SUBJECT:Client",
             "LABEL:'Client'",
-            "SUBJECTKEYID:'8A 8A BD 67 CA 23 2B 5C 07 84 B6 BB B2 40 5B C0 29 46 FC 00'",
+            "SUBJECTKEYID:'C3 88 3A ED FB 06 97 BF D4 45 A6 83 C4 98 A7 D7 00 7B F2 D1'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
             0
@@ -3712,7 +3712,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECT:Server",
 #endif
             "LABEL:'Server'",
-            "SUBJECTKEYID:'6B 85 D1 63 35 D4 EC 67 3F FE BB 7B 93 B1 72 F3 ED 14 5C ED'",
+            "SUBJECTKEYID:'04 81 A3 82 E2 67 E1 48 4A 4C FA 51 A2 C1 CA EE 7F 56 E2 92'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
             0
