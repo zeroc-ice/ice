@@ -466,13 +466,9 @@ namespace Ice
                 throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
             }
 
-            if (Communicator.DefaultsAndOverrides.OverrideCompress)
-            {
-                compress = Communicator.DefaultsAndOverrides.OverrideCompressValue;
-            }
-
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection, compress ?? false);
+            _requestHandler = new ConnectionRequestHandler(_fixedConnection,
+                                                           Communicator.OverrideCompress ?? compress ?? false);
         }
 
         internal Reference Clone(string? adapterId = null,

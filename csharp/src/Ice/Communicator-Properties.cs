@@ -53,8 +53,16 @@ namespace Ice
             {
                 if (_properties.TryGetValue(name, out PropertyValue? pv))
                 {
-                    pv.Used = true;
-                    return int.Parse(pv.Val, CultureInfo.InvariantCulture);
+                    try
+                    {
+                        pv.Used = true;
+                        return int.Parse(pv.Val, CultureInfo.InvariantCulture);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException($"illegal value `{pv.Val}'; {name} must be an integer",
+                                                                ex);
+                    }
                 }
                 return null;
             }

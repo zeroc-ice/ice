@@ -45,7 +45,7 @@ namespace Ice
             string transport = args[0];
             if (transport == "default")
             {
-                transport = DefaultsAndOverrides.DefaultTransport;
+                transport = DefaultTransport;
             }
 
             var options = new Dictionary<string, string?>();

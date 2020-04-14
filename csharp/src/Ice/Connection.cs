@@ -2424,15 +2424,7 @@ namespace Ice
             int timeout;
             if (_state < StateActive)
             {
-                DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
-                if (defaultsAndOverrides.OverrideConnectTimeout)
-                {
-                    timeout = defaultsAndOverrides.OverrideConnectTimeoutValue;
-                }
-                else
-                {
-                    timeout = _endpoint.Timeout;
-                }
+                timeout = _communicator.OverrideConnectTimeout ?? _endpoint.Timeout;
             }
             else if (_state < StateClosingPending)
             {
@@ -2444,15 +2436,7 @@ namespace Ice
             }
             else
             {
-                DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
-                if (defaultsAndOverrides.OverrideCloseTimeout)
-                {
-                    timeout = defaultsAndOverrides.OverrideCloseTimeoutValue;
-                }
-                else
-                {
-                    timeout = _endpoint.Timeout;
-                }
+                timeout = _communicator.OverrideCloseTimeout ?? _endpoint.Timeout;
             }
 
             if (timeout < 0)
