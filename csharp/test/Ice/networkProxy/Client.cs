@@ -11,11 +11,11 @@ using System.Reflection;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using var communicator = Initialize(ref args);
         AllTests.allTests(this);
     }
 
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }

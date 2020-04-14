@@ -3,28 +3,16 @@
 //
 
 using System;
-using System.Diagnostics;
+using Test;
 using System.Threading;
 
 namespace Ice.operations
 {
     public class OnewaysAMI
     {
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
         private class CallbackBase
         {
-            internal CallbackBase()
-            {
-                _called = false;
-            }
+            internal CallbackBase() => _called = false;
 
             public virtual void check()
             {
@@ -42,7 +30,7 @@ namespace Ice.operations
             {
                 lock (this)
                 {
-                    Debug.Assert(!_called);
+                    TestHelper.Assert(!_called);
                     _called = true;
                     Monitor.Pulse(this);
                 }
@@ -58,29 +46,21 @@ namespace Ice.operations
             }
 
             public void
-            sent(bool sentSynchronously)
-            {
-                called();
-            }
+            sent(bool sentSynchronously) => called();
 
-            public void noException(Exception ex)
-            {
-                test(false);
-            }
+            public void noException(Exception ex) => TestHelper.Assert(false);
         }
 
-        internal static void onewaysAMI(global::Test.TestHelper helper, Test.IMyClassPrx proxy)
+        internal static void onewaysAMI(TestHelper helper, Test.IMyClassPrx proxy)
         {
-            Communicator communicator = helper.communicator();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
             Test.IMyClassPrx p = proxy.Clone(oneway: true);
 
             {
-                Callback cb = new Callback();
+                var cb = new Callback();
                 p.IcePingAsync(progress: new Progress<bool>(
-                    sentSynchronously =>
-                    {
-                        cb.sent(sentSynchronously);
-                    }));
+                    sentSynchronously => cb.sent(sentSynchronously)));
                 cb.check();
             }
 
@@ -89,36 +69,27 @@ namespace Ice.operations
             string[] ids = p.IceIdsAsync().Result;
 
             {
-                Callback cb = new Callback();
+                var cb = new Callback();
                 p.opVoidAsync(progress: new Progress<bool>(
-                    sentSynchronously =>
-                    {
-                        cb.sent(sentSynchronously);
-                    }));
+                    sentSynchronously => cb.sent(sentSynchronously)));
                 cb.check();
             }
 
             {
-                Callback cb = new Callback();
+                var cb = new Callback();
                 p.opIdempotentAsync(progress: new Progress<bool>(
-                    sentSynchronously =>
-                    {
-                        cb.sent(sentSynchronously);
-                    }));
+                    sentSynchronously => cb.sent(sentSynchronously)));
                 cb.check();
             }
 
             {
-                Callback cb = new Callback();
+                var cb = new Callback();
                 p.opOnewayAsync(progress: new Progress<bool>(
-                    sentSynchronously =>
-                    {
-                        cb.sent(sentSynchronously);
-                    }));
+                    sentSynchronously => cb.sent(sentSynchronously)));
                 cb.check();
             }
 
-            var _ = p.opByteAsync(0xff, 0x0f).Result;
+            (byte ReturnValue, byte p3) = p.opByteAsync(0xff, 0x0f).Result;
         }
     }
 }

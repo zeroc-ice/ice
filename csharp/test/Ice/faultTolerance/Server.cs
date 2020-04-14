@@ -4,6 +4,7 @@
 
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using Test;
 
 [assembly: AssemblyTitle("IceTest")]
@@ -12,9 +13,9 @@ using Test;
 
 public class Server : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Dictionary<string, string> properties = CreateTestProperties(ref args);
         properties["Ice.ServerIdleTime"] = "120";
         int port = 0;
         for (int i = 0; i < args.Length; i++)
@@ -44,13 +45,13 @@ public class Server : TestHelper
             throw new ArgumentException("Server: no port specified");
         }
 
-        using var communicator = initialize(properties);
-        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+        using Ice.Communicator communicator = Initialize(properties);
+        communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(port));
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add("test", new TestIntf());
         adapter.Activate();
         communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

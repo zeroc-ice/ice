@@ -8,17 +8,17 @@ namespace Ice.dictMapping
 {
     public class Client : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using var communicator = initialize(ref args);
-            var output = getWriter();
-            var myClass = AllTests.allTests(this, false);
+            using Communicator communicator = Initialize(ref args);
+            System.IO.TextWriter output = GetWriter();
+            Test.IMyClassPrx myClass = AllTests.allTests(this, false);
             output.Write("shutting down server... ");
             output.Flush();
             myClass.shutdown();
             output.WriteLine("ok");
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

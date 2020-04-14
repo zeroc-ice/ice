@@ -8,15 +8,15 @@ namespace Ice.namespacemd
 {
     public class Client : TestHelper
     {
-        override public void run(string[] args)
+        override public void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
-            using var communicator = initialize(properties);
+            using var communicator = Initialize(properties);
             var initial = AllTests.allTests(this);
             initial.shutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

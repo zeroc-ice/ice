@@ -33,7 +33,7 @@ public sealed class Metrics : IMetrics
     {
     }
 
-    public void fail(Ice.Current current) => current.Connection.Close(Ice.ConnectionClose.Forcefully);
+    public void fail(Ice.Current current) => current.Connection!.Close(Ice.ConnectionClose.Forcefully);
 
     public void opWithUserException(Ice.Current current) => throw new UserEx();
 
@@ -47,7 +47,7 @@ public sealed class Metrics : IMetrics
     {
     }
 
-    public Ice.IObjectPrx getAdmin(Ice.Current current) => current.Adapter.Communicator.GetAdmin();
+    public Ice.IObjectPrx? getAdmin(Ice.Current current) => current.Adapter.Communicator.GetAdmin();
 
     public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 }

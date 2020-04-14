@@ -10,11 +10,11 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            public override void run(string[] args)
+            public override void Run(string[] args)
             {
                 try
                 {
-                    using var communicator = initialize(ref args);
+                    using Communicator communicator = Initialize(ref args);
                     AllTests.allTests(this);
                 }
                 catch(System.Exception ex)
@@ -23,7 +23,7 @@ namespace Ice
                 }
             }
 
-            public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+            public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
         }
     }
 }

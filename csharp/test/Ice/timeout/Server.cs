@@ -8,9 +8,9 @@ namespace Ice.timeout
 {
     public class Server : global::Test.TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             //
             // This test kills connections, so we don't want warnings.
             //
@@ -27,19 +27,19 @@ namespace Ice.timeout
             // send() blocking after sending a given amount of data.
             //
             properties["Ice.TCP.RcvSize"] = "50000";
-            using var communicator = initialize(properties);
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            using var communicator = Initialize(properties);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
 
             var controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(communicator));
             controllerAdapter.Activate();
 
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Server>(args);
     }
 }

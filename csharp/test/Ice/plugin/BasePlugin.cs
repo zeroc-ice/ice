@@ -10,20 +10,11 @@ public abstract class BasePlugin : Ice.IPlugin
 
     public bool isDestroyed() => _destroyed;
 
-    protected static void test(bool b)
-    {
-        if (!b)
-        {
-            System.Diagnostics.Debug.Assert(false);
-            throw new System.Exception();
-        }
-    }
-
     public abstract void Initialize();
     public abstract void Destroy();
 
     protected Ice.Communicator _communicator;
     protected bool _initialized = false;
     protected bool _destroyed = false;
-    protected BasePlugin _other = null;
+    protected BasePlugin? _other = null;
 }

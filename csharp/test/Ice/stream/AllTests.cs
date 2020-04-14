@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Ice.stream.Test;
+using Test;
 
 namespace Ice.stream
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
         //
         // There does not appear to be any way to compare collections
@@ -42,9 +43,10 @@ namespace Ice.stream
             while (i1.MoveNext())
             {
                 i2.MoveNext();
+                TestHelper.Assert(i1.Current != null);
                 if (i1.Current is ICollection)
                 {
-                    Debug.Assert(i2.Current is ICollection);
+                    TestHelper.Assert(i2.Current is ICollection);
                     if (!Compare((ICollection)i1.Current, (ICollection)i2.Current))
                     {
                         return false;
@@ -58,14 +60,11 @@ namespace Ice.stream
             return true;
         }
 
-        static public int allTests(global::Test.TestHelper helper)
+        static public int allTests(TestHelper helper)
         {
-            var communicator = helper.communicator();
-            InputStream istr;
-            OutgoingRequestFrame outgoingRequest;
-            OutputStream ostr;
+            Communicator? communicator = helper.Communicator();
 
-            var output = helper.getWriter();
+            System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing primitive types... ");
             output.Flush();
 

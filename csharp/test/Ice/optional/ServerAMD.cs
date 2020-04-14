@@ -9,18 +9,18 @@ namespace Ice.optional.AMD
 {
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using var communicator = initialize(createTestProperties(ref args),
+            using var communicator = Initialize(CreateTestProperties(ref args),
                 typeIdNamespaces: new string[] { "Ice.optional.AMD.TypeId" });
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("initial", new Initial());
             adapter.Activate();
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

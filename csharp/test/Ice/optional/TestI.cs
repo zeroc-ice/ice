@@ -10,7 +10,7 @@ namespace Ice.optional
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public AnyClass pingPong(AnyClass obj, Current current) => obj;
+        public AnyClass? pingPong(AnyClass? obj, Current current) => obj;
 
         public void opOptionalException(int? a, string? b, Test.OneOptional? o, Current current) =>
             throw new Test.OptionalException(false, a, b, o);
@@ -114,10 +114,10 @@ namespace Ice.optional
         public (Dictionary<string, int>?, Dictionary<string, int>?)
         opStringIntDict(Dictionary<string, int>? p1, Current current) => (p1, p1);
 
-        public (Dictionary<int, Test.OneOptional>?, Dictionary<int, Test.OneOptional>?)
-        opIntOneOptionalDict(Dictionary<int, Test.OneOptional>? p1, Current current) => (p1, p1);
+        public (Dictionary<int, Test.OneOptional?>?, Dictionary<int, Test.OneOptional?>?)
+        opIntOneOptionalDict(Dictionary<int, Test.OneOptional?>? p1, Current current) => (p1, p1);
 
-        public void opClassAndUnknownOptional(Test.A p, Current current)
+        public void opClassAndUnknownOptional(Test.A? p, Current current)
         {
         }
 
@@ -127,7 +127,7 @@ namespace Ice.optional
 
         public Test.OneOptional? returnOptionalClass(bool req, Current current) => new Test.OneOptional(53);
 
-        public Test.G opG(Test.G g, Current current) => g;
+        public Test.G? opG(Test.G? g, Current current) => g;
 
         public void opVoid(Current current)
         {

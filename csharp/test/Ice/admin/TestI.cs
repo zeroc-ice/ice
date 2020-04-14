@@ -17,18 +17,19 @@ namespace Ice.admin
 
     public class RemoteCommunicator : IRemoteCommunicator
     {
-        private volatile IReadOnlyDictionary<string, string> _changes;
-        private Communicator _communicator;
+        private volatile IReadOnlyDictionary<string, string>? _changes;
+        private readonly Communicator _communicator;
 
         public RemoteCommunicator(Communicator communicator) => _communicator = communicator;
 
-        public IObjectPrx getAdmin(Current current) => _communicator.GetAdmin();
+        public IObjectPrx? getAdmin(Current current) => _communicator.GetAdmin();
 
-        public Dictionary<string, string> getChanges(Ice.Current current) => new Dictionary<string, string>(_changes!);
+        public Dictionary<string, string> getChanges(Current current) => new Dictionary<string, string>(_changes!);
 
         public void print(string message, Current current) => _communicator.Logger.Print(message);
 
-        public void trace(string category, string message, Current current) => _communicator.Logger.Trace(category, message);
+        public void trace(string category, string message, Current current) =>
+            _communicator.Logger.Trace(category, message);
 
         public void warning(string message, Current current) => _communicator.Logger.Warning(message);
 
@@ -53,9 +54,8 @@ namespace Ice.admin
             // Prepare the property set using the given properties.
             //
             ILogger? logger = null;
-            string? value;
-            int nullLogger;
-            if (props.TryGetValue("NullLogger", out value) && int.TryParse(value, out nullLogger) && nullLogger > 0)
+            if (props.TryGetValue("NullLogger", out string? value) &&
+                int.TryParse(value, out int nullLogger) && nullLogger > 0)
             {
                 logger = new NullLogger();
             }

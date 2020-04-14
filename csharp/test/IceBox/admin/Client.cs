@@ -11,11 +11,11 @@ using Ice;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        var properties = CreateTestProperties(ref args);
         properties["Ice.Default.Host"] = "127.0.0.1";
-        using var communicator = initialize(properties);
+        using var communicator = Initialize(properties);
         AllTests.allTests(this);
         //
         // Shutdown the IceBox server.
@@ -23,5 +23,5 @@ public class Client : Test.TestHelper
         IProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).Shutdown();
     }
 
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }

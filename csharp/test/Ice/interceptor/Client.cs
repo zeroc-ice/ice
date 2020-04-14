@@ -10,51 +10,51 @@ using Ice.interceptor.Test;
 
 namespace Ice.interceptor
 {
-    public class RetryException : System.Exception
+    public class RetryException : Exception
     {
     }
 
     public class Client : TestHelper
     {
-        private void runTest(Test.IMyObjectPrx prx, Interceptor interceptor)
+        private void runTest(IMyObjectPrx prx, Interceptor interceptor)
         {
-            var output = getWriter();
+            System.IO.TextWriter output = GetWriter();
             output.Write("testing simple interceptor... ");
             output.Flush();
-            test(interceptor.getLastOperation() == null);
-            test(!interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation() == null);
+            Assert(!interceptor.AsyncCompletion);
             prx.IcePing();
-            test(interceptor.getLastOperation()!.Equals("ice_ping"));
-            test(!interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation()!.Equals("ice_ping"));
+            Assert(!interceptor.AsyncCompletion);
             string typeId = prx.IceId();
-            test(interceptor.getLastOperation()!.Equals("ice_id"));
-            test(!interceptor.AsyncCompletion);
-            test(prx.IceIsA(typeId));
-            test(interceptor.getLastOperation()!.Equals("ice_isA"));
-            test(!interceptor.AsyncCompletion);
-            test(prx.add(33, 12) == 45);
-            test(interceptor.getLastOperation()!.Equals("add"));
-            test(!interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation()!.Equals("ice_id"));
+            Assert(!interceptor.AsyncCompletion);
+            Assert(prx.IceIsA(typeId));
+            Assert(interceptor.getLastOperation()!.Equals("ice_isA"));
+            Assert(!interceptor.AsyncCompletion);
+            Assert(prx.add(33, 12) == 45);
+            Assert(interceptor.getLastOperation()!.Equals("add"));
+            Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
             output.Write("testing retry... ");
             output.Flush();
-            test(prx.addWithRetry(33, 12) == 45);
-            test(interceptor.getLastOperation()!.Equals("addWithRetry"));
-            test(!interceptor.AsyncCompletion);
+            Assert(prx.addWithRetry(33, 12) == 45);
+            Assert(interceptor.getLastOperation()!.Equals("addWithRetry"));
+            Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
             output.Write("testing remote exception... ");
             output.Flush();
             try
             {
                 prx.badAdd(33, 12);
-                test(false);
+                Assert(false);
             }
             catch (InvalidInputException)
             {
                 // expected
             }
-            test(interceptor.getLastOperation()!.Equals("badAdd"));
-            test(!interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation()!.Equals("badAdd"));
+            Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
             output.Write("testing ONE... ");
             output.Flush();
@@ -62,48 +62,50 @@ namespace Ice.interceptor
             try
             {
                 prx.notExistAdd(33, 12);
-                test(false);
+                Assert(false);
             }
             catch (ObjectNotExistException)
             {
                 // expected
             }
-            test(interceptor.getLastOperation()!.Equals("notExistAdd"));
-            test(!interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation()!.Equals("notExistAdd"));
+            Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
             output.Write("testing exceptions raised by the interceptor... ");
             output.Flush();
-            testInterceptorExceptions(prx);
+            TestInterceptorExceptions(prx);
             output.WriteLine("ok");
         }
 
-        private void runAmdTest(IMyObjectPrx prx, Interceptor interceptor)
+        private void runAmdAssert(IMyObjectPrx prx, Interceptor interceptor)
         {
-            var output = getWriter();
+            System.IO.TextWriter output = GetWriter();
             output.Write("testing simple interceptor... ");
             output.Flush();
-            test(interceptor.getLastOperation() == null);
-            test(!interceptor.AsyncCompletion);
-            test(prx.amdAdd(33, 12) == 45);
-            test(interceptor.getLastOperation()!.Equals("amdAdd"));
-            test(interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation() == null);
+            Assert(!interceptor.AsyncCompletion);
+            Assert(prx.amdAdd(33, 12) == 45);
+            Assert(interceptor.getLastOperation()!.Equals("amdAdd"));
+            Assert(interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
             output.Write("testing retry... ");
             output.Flush();
-            test(prx.amdAddWithRetry(33, 12) == 45);
-            test(interceptor.getLastOperation()!.Equals("amdAddWithRetry"));
-            test(interceptor.AsyncCompletion);
+            Assert(prx.amdAddWithRetry(33, 12) == 45);
+            Assert(interceptor.getLastOperation()!.Equals("amdAddWithRetry"));
+            Assert(interceptor.AsyncCompletion);
 
             {
-                var ctx = new Dictionary<string, string>();
-                ctx.Add("retry", "yes");
+                var ctx = new Dictionary<string, string>
+                {
+                    { "retry", "yes" }
+                };
                 for (int i = 0; i < 10; ++i)
                 {
-                    test(prx.amdAdd(33, 12, ctx) == 45);
-                    test(interceptor.getLastOperation()!.Equals("amdAdd"));
-                    test(interceptor.AsyncCompletion);
+                    Assert(prx.amdAdd(33, 12, ctx) == 45);
+                    Assert(interceptor.getLastOperation()!.Equals("amdAdd"));
+                    Assert(interceptor.AsyncCompletion);
                 }
             }
 
@@ -113,14 +115,14 @@ namespace Ice.interceptor
             try
             {
                 prx.amdBadAdd(33, 12);
-                test(false);
+                Assert(false);
             }
             catch (InvalidInputException)
             {
                 // expected
             }
-            test(interceptor.getLastOperation()!.Equals("amdBadAdd"));
-            test(interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation()!.Equals("amdBadAdd"));
+            Assert(interceptor.AsyncCompletion);
             Console.WriteLine("ok");
 
             output.Write("testing ONE... ");
@@ -129,25 +131,25 @@ namespace Ice.interceptor
             try
             {
                 prx.amdNotExistAdd(33, 12);
-                test(false);
+                Assert(false);
             }
             catch (ObjectNotExistException)
             {
                 // expected
             }
-            test(interceptor.getLastOperation()!.Equals("amdNotExistAdd"));
-            test(interceptor.AsyncCompletion);
+            Assert(interceptor.getLastOperation()!.Equals("amdNotExistAdd"));
+            Assert(interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
             output.Write("testing exceptions raised by the interceptor... ");
             output.Flush();
-            testInterceptorExceptions(prx);
+            TestInterceptorExceptions(prx);
             output.WriteLine("ok");
         }
 
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var communicator = initialize(ref args);
+            Communicator communicator = Initialize(ref args);
             //
             // Create OA and servants
             //
@@ -158,15 +160,15 @@ namespace Ice.interceptor
             var myObject = new MyObject();
             var interceptor = new Interceptor(myObject);
 
-            var prx = oa.AddWithUUID(interceptor, IMyObjectPrx.Factory);
+            IMyObjectPrx prx = oa.AddWithUUID(interceptor, IMyObjectPrx.Factory);
 
-            var output = getWriter();
+            System.IO.TextWriter output = GetWriter();
 
             output.WriteLine("Collocation optimization on");
             runTest(prx, interceptor);
             output.WriteLine("Now with AMD");
             interceptor.clear();
-            runAmdTest(prx, interceptor);
+            runAmdAssert(prx, interceptor);
 
             oa.Activate(); // Only necessary for non-collocation optimized tests
 
@@ -177,31 +179,35 @@ namespace Ice.interceptor
 
             output.WriteLine("Now with AMD");
             interceptor.clear();
-            runAmdTest(prx, interceptor);
+            runAmdAssert(prx, interceptor);
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
 
-        private void testInterceptorExceptions(Test.IMyObjectPrx prx)
+        private void TestInterceptorExceptions(Test.IMyObjectPrx prx)
         {
-            var exceptions = new List<(string operation, string kind)>();
-            exceptions.Add(("raiseBeforeDispatch", "invalidInput"));
-            exceptions.Add(("raiseBeforeDispatch", "notExist"));
-            exceptions.Add(("raiseAfterDispatch", "invalidInput"));
-            exceptions.Add(("raiseAfterDispatch", "notExist"));
-            foreach (var e in exceptions)
+            var exceptions = new List<(string operation, string kind)>
             {
-                var ctx = new Dictionary<string, string>();
-                ctx.Add(e.operation, e.kind);
+                ("raiseBeforeDispatch", "invalidInput"),
+                ("raiseBeforeDispatch", "notExist"),
+                ("raiseAfterDispatch", "invalidInput"),
+                ("raiseAfterDispatch", "notExist")
+            };
+            foreach ((string operation, string kind) in exceptions)
+            {
+                var ctx = new Dictionary<string, string>
+                {
+                    { operation, kind }
+                };
                 try
                 {
                     prx.IcePing(ctx);
-                    test(false);
+                    Assert(false);
                 }
-                catch (Test.InvalidInputException) when (e.kind.Equals("invalidInput"))
+                catch (InvalidInputException) when (kind.Equals("invalidInput"))
                 {
                 }
-                catch (ObjectNotExistException) when (e.kind.Equals("notExist"))
+                catch (ObjectNotExistException) when (kind.Equals("notExist"))
                 {
                 }
             }

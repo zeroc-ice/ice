@@ -3,7 +3,7 @@
 //
 
 using Test;
-using Ice.acm.Test;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -11,28 +11,23 @@ namespace Ice
     {
         public class Server : TestHelper
         {
-            public override void run(string[] args)
+            public override void Run(string[] args)
             {
-                var properties = createTestProperties(ref args);
+                Dictionary<string, string> properties = CreateTestProperties(ref args);
                 properties["Ice.Warn.Connections"] = "0";
                 properties["Ice.ACM.Timeout"] = "1";
-                using (var communicator = initialize(properties))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                    communicator.SetProperty("TestAdapter.ACM.Timeout", "0");
-                    var adapter = communicator.CreateObjectAdapter("TestAdapter");
-                    adapter.Add("communicator", new RemoteCommunicator());
-                    adapter.Activate();
-                    serverReady();
-                    communicator.SetProperty("Ice.PrintAdapterReady", "0");
-                    communicator.WaitForShutdown();
-                }
+                using Communicator communicator = Initialize(properties);
+                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+                communicator.SetProperty("TestAdapter.ACM.Timeout", "0");
+                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+                adapter.Add("communicator", new RemoteCommunicator());
+                adapter.Activate();
+                ServerReady();
+                communicator.SetProperty("Ice.PrintAdapterReady", "0");
+                communicator.WaitForShutdown();
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
+            public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
         }
     }
 }

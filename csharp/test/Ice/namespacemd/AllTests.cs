@@ -6,45 +6,46 @@ using Test;
 
 namespace Ice.namespacemd
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
         public static Test.IInitialPrx allTests(TestHelper helper)
         {
-            var communicator = helper.communicator();
-            var output = helper.getWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
-            var @base = IObjectPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
+            var @base = IObjectPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
             output.WriteLine("ok");
 
             output.Write("testing checked cast... ");
             output.Flush();
             var initial = Test.IInitialPrx.CheckedCast(@base);
-            test(initial != null);
-            test(initial.Equals(@base));
+            TestHelper.Assert(initial != null);
+            TestHelper.Assert(initial.Equals(@base));
             output.WriteLine("ok");
 
             {
                 output.Write("testing types without package... ");
                 output.Flush();
-                NoNamespace.C1 c1 = initial.getNoNamespaceC2AsC1();
-                test(c1 != null);
-                test(c1 is NoNamespace.C2);
-                NoNamespace.C2 c2 = initial.getNoNamespaceC2AsC2();
-                test(c2 != null);
+                NoNamespace.C1? c1 = initial.getNoNamespaceC2AsC1();
+                TestHelper.Assert(c1 != null);
+                TestHelper.Assert(c1 is NoNamespace.C2);
+                NoNamespace.C2? c2 = initial.getNoNamespaceC2AsC2();
+                TestHelper.Assert(c2 != null);
                 try
                 {
                     initial.throwNoNamespaceE2AsE1();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (NoNamespace.E1 ex)
                 {
-                    test(ex is NoNamespace.E2);
+                    TestHelper.Assert(ex is NoNamespace.E2);
                 }
                 try
                 {
                     initial.throwNoNamespaceE2AsE2();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (NoNamespace.E2)
                 {
@@ -53,7 +54,7 @@ namespace Ice.namespacemd
                 try
                 {
                     initial.throwNoNamespaceNotify();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (NoNamespace.@notify)
                 {
@@ -67,24 +68,24 @@ namespace Ice.namespacemd
                 output.Flush();
 
                 {
-                    WithNamespace.C1 c1 = initial.getWithNamespaceC2AsC1();
-                    test(c1 != null);
-                    test(c1 is WithNamespace.C2);
-                    WithNamespace.C2 c2 = initial.getWithNamespaceC2AsC2();
-                    test(c2 != null);
+                    WithNamespace.C1? c1 = initial.getWithNamespaceC2AsC1();
+                    TestHelper.Assert(c1 != null);
+                    TestHelper.Assert(c1 is WithNamespace.C2);
+                    WithNamespace.C2? c2 = initial.getWithNamespaceC2AsC2();
+                    TestHelper.Assert(c2 != null);
                     try
                     {
                         initial.throwWithNamespaceE2AsE1();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (WithNamespace.E1 ex)
                     {
-                        test(ex is WithNamespace.E2);
+                        TestHelper.Assert(ex is WithNamespace.E2);
                     }
                     try
                     {
                         initial.throwWithNamespaceE2AsE2();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (WithNamespace.E2)
                     {

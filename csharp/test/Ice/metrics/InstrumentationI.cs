@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Test;
 
 public class Observer : Ice.Instrumentation.IObserver
 {
@@ -179,8 +179,8 @@ public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObser
     public int userExceptionCount;
     public int retriedCount;
 
-    public RemoteObserver remoteObserver = null;
-    public CollocatedObserver collocatedObserver = null;
+    public RemoteObserver? remoteObserver = null;
+    public CollocatedObserver? collocatedObserver = null;
 };
 
 public class DispatchObserver : Observer, Ice.Instrumentation.IDispatchObserver
@@ -280,7 +280,7 @@ public class ThreadObserver : Observer, Ice.Instrumentation.IThreadObserver
 public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
 {
     public void
-    SetObserverUpdater(Ice.Instrumentation.IObserverUpdater u)
+    SetObserverUpdater(Ice.Instrumentation.IObserverUpdater? u)
     {
         lock (this)
         {
@@ -289,7 +289,7 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
     }
 
     public Ice.Instrumentation.IObserver
-    GetConnectionEstablishmentObserver(Ice.Endpoint e, String s)
+    GetConnectionEstablishmentObserver(Ice.Endpoint e, string s)
     {
         lock (this)
         {
@@ -316,15 +316,15 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IConnectionObserver
+    public Ice.Instrumentation.IConnectionObserver?
     GetConnectionObserver(Ice.ConnectionInfo c,
                           Ice.Endpoint e,
                           Ice.Instrumentation.ConnectionState s,
-                          Ice.Instrumentation.IConnectionObserver old)
+                          Ice.Instrumentation.IConnectionObserver? old)
     {
         lock (this)
         {
-            Debug.Assert(old == null || old is ConnectionObserver);
+            TestHelper.Assert(old == null || old is ConnectionObserver);
             if (connectionObserver == null)
             {
                 connectionObserver = new ConnectionObserver();
@@ -334,12 +334,12 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IThreadObserver
-    GetThreadObserver(string p, string id, Ice.Instrumentation.ThreadState s, Ice.Instrumentation.IThreadObserver old)
+    public Ice.Instrumentation.IThreadObserver?
+    GetThreadObserver(string p, string id, Ice.Instrumentation.ThreadState s, Ice.Instrumentation.IThreadObserver? old)
     {
         lock (this)
         {
-            Debug.Assert(old == null || old is ThreadObserver);
+            TestHelper.Assert(old == null || old is ThreadObserver);
             if (threadObserver == null)
             {
                 threadObserver = new ThreadObserver();
@@ -411,12 +411,12 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
     }
     */
 
-    protected Ice.Instrumentation.IObserverUpdater updater;
+    protected Ice.Instrumentation.IObserverUpdater? updater;
 
-    public Observer connectionEstablishmentObserver;
-    public Observer endpointLookupObserver;
-    public ConnectionObserver connectionObserver;
-    public ThreadObserver threadObserver;
-    public InvocationObserver invocationObserver;
-    public DispatchObserver dispatchObserver;
+    public Observer? connectionEstablishmentObserver;
+    public Observer? endpointLookupObserver;
+    public ConnectionObserver? connectionObserver;
+    public ThreadObserver? threadObserver;
+    public InvocationObserver? invocationObserver;
+    public DispatchObserver? dispatchObserver;
 };

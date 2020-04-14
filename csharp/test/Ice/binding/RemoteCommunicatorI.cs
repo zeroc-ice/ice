@@ -20,7 +20,7 @@ namespace Ice.binding
                     string endpoints = endpts;
                     if (endpoints.IndexOf("-p") < 0)
                     {
-                        endpoints = global::Test.TestHelper.getTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
+                        endpoints = global::Test.TestHelper.GetTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
                     }
 
                     communicator.SetProperty(name + ".ThreadPool.Size", "1");
@@ -38,11 +38,11 @@ namespace Ice.binding
             }
         }
 
-        public void
-        deactivateObjectAdapter(IRemoteObjectAdapterPrx adapter, Current current) => adapter.deactivate(); // Collocated call.
+        // Collocated call.
+        public void deactivateObjectAdapter(IRemoteObjectAdapterPrx? adapter, Current current) =>
+            adapter!.deactivate();
 
-        public void
-        shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         private int _nextPort = 10;
     }

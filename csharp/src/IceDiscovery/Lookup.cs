@@ -246,6 +246,10 @@ namespace IceDiscovery
                     // Fallback: just use the given lookup reply proxy if no matching endpoint found.
                     _lookups[key] = lookupReply;
                 }
+
+                _lookups[key] = lookupReply.Endpoints.Where(
+                    e => e is IPEndpoint iPEndpoint && iPEndpoint.Host.Equals(endpoint.McastInterface)).Select(
+                    e => lookupReply.Clone(endpoints: new Endpoint[] { e })).FirstOrDefault() ?? lookupReply;
             }
         }
 

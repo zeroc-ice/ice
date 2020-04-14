@@ -4,7 +4,7 @@
 
 internal class Configuration
 {
-    public void connectorsException(System.Exception? ex)
+    public void ConnectorsException(System.Exception? ex)
     {
         lock (this)
         {
@@ -12,7 +12,7 @@ internal class Configuration
         }
     }
 
-    public void checkConnectorsException()
+    public void CheckConnectorsException()
     {
         lock (this)
         {
@@ -23,7 +23,7 @@ internal class Configuration
         }
     }
 
-    public void connectException(System.Exception? ex)
+    public void ConnectException(System.Exception? ex)
     {
         lock (this)
         {
@@ -31,7 +31,7 @@ internal class Configuration
         }
     }
 
-    public void checkConnectException()
+    public void CheckConnectException()
     {
         lock (this)
         {
@@ -42,7 +42,7 @@ internal class Configuration
         }
     }
 
-    public void initializeException(System.Exception? ex)
+    public void InitializeException(System.Exception? ex)
     {
         lock (this)
         {
@@ -50,7 +50,7 @@ internal class Configuration
         }
     }
 
-    public void checkInitializeException()
+    public void CheckInitializeException()
     {
         lock (this)
         {
@@ -61,7 +61,7 @@ internal class Configuration
         }
     }
 
-    public void readReady(bool ready)
+    public void ReadReady(bool ready)
     {
         lock (this)
         {
@@ -69,7 +69,7 @@ internal class Configuration
         }
     }
 
-    public void readException(System.Exception? ex)
+    public void ReadException(System.Exception? ex)
     {
         lock (this)
         {
@@ -77,7 +77,7 @@ internal class Configuration
         }
     }
 
-    public bool readReady()
+    public bool ReadReady()
     {
         lock (this)
         {
@@ -90,7 +90,7 @@ internal class Configuration
         }
     }
 
-    public void checkReadException()
+    public void CheckReadException()
     {
         lock (this)
         {
@@ -101,7 +101,7 @@ internal class Configuration
         }
     }
 
-    public void writeReady(bool ready)
+    public void WriteReady(bool ready)
     {
         lock (this)
         {
@@ -109,7 +109,7 @@ internal class Configuration
         }
     }
 
-    public void writeException(System.Exception? ex)
+    public void WriteException(System.Exception? ex)
     {
         lock (this)
         {
@@ -117,7 +117,7 @@ internal class Configuration
         }
     }
 
-    public bool writeReady()
+    public bool WriteReady()
     {
         lock (this)
         {
@@ -130,7 +130,7 @@ internal class Configuration
         }
     }
 
-    public void checkWriteException()
+    public void CheckWriteException()
     {
         lock (this)
         {
@@ -141,20 +141,11 @@ internal class Configuration
         }
     }
 
-    public void buffered(bool b)
-    {
-        _buffered = b;
-    }
+    public void Buffered(bool b) => _buffered = b;
 
-    public bool buffered()
-    {
-        return _buffered;
-    }
+    public bool Buffered() => _buffered;
 
-    static public Configuration getInstance()
-    {
-        return _instance;
-    }
+    static public Configuration GetInstance() => _instance;
 
     private System.Exception? _connectorsException;
     private System.Exception? _connectException;
@@ -165,5 +156,5 @@ internal class Configuration
     private System.Exception? _writeException;
     private bool _buffered;
 
-    private static Configuration _instance = new Configuration();
+    private static readonly Configuration _instance = new Configuration();
 }

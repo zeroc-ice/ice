@@ -5,10 +5,11 @@
 using System;
 using System.Text;
 using Ice.udp.Test;
+using Test;
 
 namespace Ice.udp
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
         public class PingReplyI : IPingReply
         {
@@ -53,9 +54,10 @@ namespace Ice.udp
             private int _replies = 0;
         }
 
-        public static void allTests(global::Test.TestHelper helper)
+        public static void allTests(TestHelper helper)
         {
-            Communicator communicator = helper.communicator();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
             communicator.SetProperty("ReplyAdapter.Endpoints", "udp");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ReplyAdapter");
             PingReplyI replyI = new PingReplyI();
@@ -65,13 +67,13 @@ namespace Ice.udp
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();
-            var obj = ITestIntfPrx.Parse("test:" + helper.getTestEndpoint(0, "udp"),
+            var obj = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(0, "udp"),
                                         communicator).Clone(invocationMode: InvocationMode.Datagram);
 
             try
             {
                 int val = obj.getValue();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (System.InvalidOperationException)
             {
@@ -98,7 +100,7 @@ namespace Ice.udp
                 reply = adapter.AddWithUUID(
                     replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
             }
-            test(ret == true);
+            TestHelper.Assert(ret == true);
 
             if ((communicator.GetPropertyAsInt("Ice.Override.Compress") ?? 0) == 0)
             {
@@ -123,7 +125,7 @@ namespace Ice.udp
                     // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
                     // will be throw when try to send a packet bigger than that.
                     //
-                    test(seq.Length > 16384);
+                    TestHelper.Assert(seq.Length > 16384);
                 }
                 obj.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
                 communicator.SetProperty("Ice.UDP.SndSize", "64000");
@@ -138,15 +140,15 @@ namespace Ice.udp
                     // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
                     // should not be delivered.
                     //
-                    test(!b);
+                    TestHelper.Assert(!b);
                 }
                 catch (DatagramLimitException)
                 {
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Console.Out.WriteLine(ex);
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
 
@@ -175,7 +177,7 @@ namespace Ice.udp
                 }
             }
             endpoint.Append(" -p ");
-            endpoint.Append(helper.getTestPort(10));
+            endpoint.Append(helper.GetTestPort(10));
             var objMcast = ITestIntfPrx.Parse($"test -d:{endpoint}", communicator);
 
             nRetry = 5;
@@ -221,38 +223,8 @@ namespace Ice.udp
                 reply = adapter.AddWithUUID(
                     replyI, IPingReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
             }
-            test(ret);
+            TestHelper.Assert(ret);
             Console.Out.WriteLine("ok");
-
-            //
-            // Sending the replies back on the multicast UDP connection doesn't work for most
-            // platform(it works for macOS Leopard but not Snow Leopard, doesn't work on SLES,
-            // Windows...). For Windows, see UdpTransceiver constructor for the details. So
-            // we don't run this test.
-            //
-            //         Console.Out.Write("testing udp bi-dir connection... ");
-            //         nRetry = 5;
-            //         while(nRetry-- > 0)
-            //         {
-            //             replyI.reset();
-            //             objMcast.pingBiDir(reply.Identity);
-            //             ret = replyI.waitReply(5, 2000);
-            //             if(ret)
-            //             {
-            //                 break; // Success
-            //             }
-            //             replyI = new PingReplyI();
-            //             reply =(PingReplyPrx)PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-            //         }
-
-            //         if(!ret)
-            //         {
-            //             Console.Out.WriteLine("failed(is a firewall enabled?)");
-            //         }
-            //         else
-            //         {
-            //             Console.Out.WriteLine("ok");
-            //         }
         }
     }
 }

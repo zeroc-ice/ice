@@ -6,16 +6,17 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : Test.TestHelper
+public class Client : TestHelper
 {
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
         string pluginPath =
             string.Format("msbuild/plugin/{0}/Plugin.dll",
@@ -23,7 +24,7 @@ public class Client : Test.TestHelper
         {
             Console.Write("testing a simple plug-in... ");
             Console.Out.Flush();
-            using var communicator = initialize(new Dictionary<string, string>
+            using var communicator = Initialize(new Dictionary<string, string>
             {
                 {
                     "Ice.Plugin.Test",
@@ -38,13 +39,13 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             try
             {
-                initialize(new Dictionary<string, string>()
+                Initialize(new Dictionary<string, string>()
                 {
                     {
                         "Ice.Plugin.Test", $"{pluginPath}:PluginInitializeFailFactory"
                     }
                 });
-                test(false);
+                Assert(false);
             }
             catch (Exception)
             {
@@ -57,7 +58,7 @@ public class Client : Test.TestHelper
             Console.Write("testing plug-in load order... ");
             Console.Out.Flush();
 
-            using var communicator = initialize(new Dictionary<string, string>()
+            using var communicator = Initialize(new Dictionary<string, string>()
             {
                 { "Ice.Plugin.PluginOne", $"{pluginPath}:PluginOneFactory" },
                 { "Ice.Plugin.PluginTwo", $"{pluginPath}:PluginTwoFactory" },
@@ -73,7 +74,7 @@ public class Client : Test.TestHelper
 
             MyPlugin p4;
             {
-                using var communicator = initialize(new Dictionary<string, string>()
+                using var communicator = Initialize(new Dictionary<string, string>()
                 {
                     { "Ice.Plugin.PluginOne", $"{pluginPath}:PluginOneFactory" },
                     { "Ice.Plugin.PluginTwo", $"{pluginPath}:PluginTwoFactory" },
@@ -81,19 +82,19 @@ public class Client : Test.TestHelper
                     { "Ice.InitPlugins", "0"}
                 });
 
-                test(communicator.GetPlugin("PluginOne") != null);
-                test(communicator.GetPlugin("PluginTwo") != null);
-                test(communicator.GetPlugin("PluginThree") != null);
+                Assert(communicator.GetPlugin("PluginOne") != null);
+                Assert(communicator.GetPlugin("PluginTwo") != null);
+                Assert(communicator.GetPlugin("PluginThree") != null);
 
                 p4 = new MyPlugin();
                 communicator.AddPlugin("PluginFour", p4);
-                test(communicator.GetPlugin("PluginFour") != null);
+                Assert(communicator.GetPlugin("PluginFour") != null);
 
                 communicator.InitializePlugins();
 
-                test(p4.isInitialized());
+                Assert(p4.isInitialized());
             }
-            test(p4.isDestroyed());
+            Assert(p4.isDestroyed());
             Console.WriteLine("ok");
         }
 
@@ -102,7 +103,7 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             try
             {
-                initialize(new Dictionary<string, string>()
+                Initialize(new Dictionary<string, string>()
                 {
                     { "Ice.Plugin.PluginOneFail", $"{pluginPath}:PluginOneFailFactory" },
                     { "Ice.Plugin.PluginTwoFail", $"{pluginPath}:PluginTwoFailFactory" },

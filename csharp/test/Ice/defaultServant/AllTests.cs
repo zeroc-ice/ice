@@ -3,15 +3,21 @@
 //
 using Ice.DefaultServant.Test;
 
+using System.Diagnostics;
+using System.IO;
+
+using Test;
+
 namespace Ice.DefaultServant
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
         public static void
-        Run(global::Test.TestHelper helper)
+        Run(TestHelper helper)
         {
-            var output = helper.getWriter();
-            Communicator communicator = helper.communicator();
+            TextWriter output = helper.GetWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
             ObjectAdapter oa = communicator.CreateObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
             oa.Activate();
 
@@ -24,7 +30,7 @@ namespace Ice.DefaultServant
             try
             {
                 oa.AddDefaultForCategory("foo", new MyObject());
-                test(false); // duplicate registration not allowed
+                TestHelper.Assert(false); // duplicate registration not allowed
             }
             catch (System.ArgumentException)
             {
@@ -32,13 +38,13 @@ namespace Ice.DefaultServant
             }
 
             IObject? r = oa.Find("foo");
-            test(r == null);
+            TestHelper.Assert(r == null);
             r = oa.Find("foo/someId");
-            test(r == servant);
+            TestHelper.Assert(r == servant);
             r = oa.Find("bar/someId");
-            test(r == null);
+            TestHelper.Assert(r == null);
 
-            Identity identity = new Identity("", "foo");
+            var identity = new Identity("", "foo");
             string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
             IMyObjectPrx? prx = null;
@@ -47,7 +53,7 @@ namespace Ice.DefaultServant
                 identity = new Identity(names[idx], identity.Category);
                 prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
-                test(prx.GetName() == names[idx]);
+                TestHelper.Assert(prx.GetName() == names[idx]);
             }
 
             identity = new Identity("ObjectNotExist", identity.Category);
@@ -55,7 +61,7 @@ namespace Ice.DefaultServant
             try
             {
                 prx.IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (ObjectNotExistException)
             {
@@ -65,7 +71,7 @@ namespace Ice.DefaultServant
             try
             {
                 prx.GetName();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (ObjectNotExistException)
             {
@@ -81,7 +87,7 @@ namespace Ice.DefaultServant
                 try
                 {
                     prx.IcePing();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -91,7 +97,7 @@ namespace Ice.DefaultServant
                 try
                 {
                     prx.GetName();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -100,9 +106,9 @@ namespace Ice.DefaultServant
             }
 
             IObject? removed = oa.RemoveDefaultForCategory("foo");
-            test(removed == servant);
+            TestHelper.Assert(removed == servant);
             removed = oa.RemoveDefaultForCategory("foo");
-            test(removed == null);
+            TestHelper.Assert(removed == null);
             identity =  new Identity(identity.Name, "foo");
             prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
@@ -125,7 +131,7 @@ namespace Ice.DefaultServant
             try
             {
                 oa.AddDefault(servant);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (System.ArgumentException)
             {
@@ -135,23 +141,23 @@ namespace Ice.DefaultServant
             oa.AddDefaultForCategory("", servant); // associated with empty category
 
             r = oa.Find("bar");
-            test(r == servant);
+            TestHelper.Assert(r == servant);
 
             r = oa.Find("x/y");
-            test(r == defaultServant);
+            TestHelper.Assert(r == defaultServant);
 
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], "");
                 prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
-                test(prx.GetName() == names[idx]);
+                TestHelper.Assert(prx.GetName() == names[idx]);
             }
 
             removed = oa.RemoveDefault();
-            test(removed == defaultServant);
+            TestHelper.Assert(removed == defaultServant);
             removed = oa.RemoveDefault();
-            test(removed == null);
+            TestHelper.Assert(removed == null);
 
             output.WriteLine("ok");
         }

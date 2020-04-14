@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Diagnostics;
 
 public class PluginThreeFailFactory : Ice.IPluginFactory
 {
@@ -16,7 +17,7 @@ public class PluginThreeFailFactory : Ice.IPluginFactory
 
         public override void Initialize() => throw new PluginInitializeFailException();
 
-        public override void Destroy() => test(false);
+        public override void Destroy() => Trace.Assert(false);
 
         ~PluginThreeFail()
         {

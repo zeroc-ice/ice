@@ -11,11 +11,11 @@ using Test;
 
 public class Server : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using (var communicator = initialize(ref args))
+        using (var communicator = Initialize(ref args))
         {
-            communicator.SetProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("CallbackAdapter.Endpoints", GetTestEndpoint(0));
             Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
 
             //
@@ -42,5 +42,5 @@ public class Server : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

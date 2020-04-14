@@ -34,7 +34,6 @@ struct VarStruct
     string m;
 }
 
-["clr:class"]
 struct ClassVarStruct
 {
     int a;

@@ -18,14 +18,15 @@ public class PluginTwoFactory : Ice.IPluginFactory
             BasePlugin? other = (BasePlugin?)_communicator.GetPlugin("PluginOne");
             Debug.Assert(other != null);
             _other = other;
-            test(_other.isInitialized());
+            Trace.Assert(_other.isInitialized());
             _initialized = true;
         }
 
         public override void Destroy()
         {
             _destroyed = true;
-            test(!_other.isDestroyed());
+            Debug.Assert(_other != null);
+            Debug.Assert(!_other.isDestroyed());
         }
     }
 }

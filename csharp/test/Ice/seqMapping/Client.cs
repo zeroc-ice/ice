@@ -9,9 +9,9 @@ namespace Ice.seqMapping
 {
     public class Client : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using var communicator = initialize(createTestProperties(ref args),
+            using var communicator = Initialize(CreateTestProperties(ref args),
                 typeIdNamespaces: new string[] { "Ice.seqMapping.TypeId" });
             var myClass = AllTests.allTests(this, false);
             Console.Out.Write("shutting down server... ");
@@ -20,6 +20,6 @@ namespace Ice.seqMapping
             Console.Out.WriteLine("ok");
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

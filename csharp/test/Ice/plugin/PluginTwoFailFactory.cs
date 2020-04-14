@@ -21,21 +21,21 @@ public class PluginTwoFailFactory : Ice.IPluginFactory
             BasePluginFail? one = (BasePluginFail?)_communicator.GetPlugin("PluginOneFail");
             Debug.Assert(one != null);
             _one = one;
-            test(_one.isInitialized());
+            Trace.Assert(_one.isInitialized());
             BasePluginFail? three = (BasePluginFail?)_communicator.GetPlugin("PluginThreeFail");
             Debug.Assert(three != null);
             _three = three;
-            test(!_three.isInitialized());
+            Trace.Assert(!_three.isInitialized());
             _initialized = true;
         }
 
         public override void Destroy()
         {
-            test(!_one.isDestroyed());
+            Trace.Assert(_one != null && !_one.isDestroyed());
             //
             // Not destroyed because initialize fails.
             //
-            test(!_three.isDestroyed());
+            Trace.Assert(_three != null && !_three.isDestroyed());
             _destroyed = true;
         }
 

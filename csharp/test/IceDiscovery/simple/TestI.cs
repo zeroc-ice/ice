@@ -30,14 +30,14 @@ public sealed class Controller : IController
     public void
     addObject(string oaName, string id, Ice.Current current)
     {
-        Debug.Assert(_adapters.ContainsKey(oaName));
+        TestHelper.Assert(_adapters.ContainsKey(oaName));
         _adapters[oaName].Add(id, new TestIntf());
     }
 
     public void
     removeObject(string oaName, string id, Ice.Current current)
     {
-        Debug.Assert(_adapters.ContainsKey(oaName));
+        TestHelper.Assert(_adapters.ContainsKey(oaName));
         _adapters[oaName].Remove(id);
     }
 
