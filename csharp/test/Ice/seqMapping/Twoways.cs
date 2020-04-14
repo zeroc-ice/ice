@@ -611,6 +611,8 @@ namespace Ice.seqMapping
                 i.d8 = 8.0;
                 i.d9 = 9.0;
                 i.d10 = 10.0;
+                i.d11 = 11.0;
+                i.s1 = Serialize.Large.LargeString;
                 Serialize.Large o;
                 Serialize.Large r;
 
@@ -628,6 +630,8 @@ namespace Ice.seqMapping
                     test(o.d8 == 8.0);
                     test(o.d9 == 9.0);
                     test(o.d10 == 10.0);
+                    test(o.d11 == 11.0);
+                    test(o.s1 == Serialize.Large.LargeString);
                     test(r.d1 == 1.0);
                     test(r.d2 == 2.0);
                     test(r.d3 == 3.0);
@@ -638,6 +642,8 @@ namespace Ice.seqMapping
                     test(r.d8 == 8.0);
                     test(r.d9 == 9.0);
                     test(r.d10 == 10.0);
+                    test(r.d11 == 11.0);
+                    test(r.s1 == Serialize.Large.LargeString);
                 }
                 catch (Ice.OperationNotExistException)
                 {
