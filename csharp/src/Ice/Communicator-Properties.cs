@@ -58,7 +58,7 @@ namespace Ice
                         pv.Used = true;
                         return int.Parse(pv.Val, CultureInfo.InvariantCulture);
                     }
-                    catch (Exception ex) when(ex is FormatException || ex is OverflowException)
+                    catch (Exception ex)
                     {
                         throw new InvalidConfigurationException($"illegal value `{pv.Val}'; {name} must be an integer",
                                                                 ex);

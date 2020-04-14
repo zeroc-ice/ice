@@ -377,8 +377,16 @@ namespace Ice
 
                 if (GetProperty("Ice.Default.Encoding") is string encoding)
                 {
-                    DefaultEncoding = Encoding.Parse(encoding);
-                    DefaultEncoding.CheckSupported();
+                    try
+                    {
+                        DefaultEncoding = Encoding.Parse(encoding);
+                        DefaultEncoding.CheckSupported();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for for Ice.Default.Encoding: `{encoding}'", ex);
+                    }
                 }
                 else
                 {
