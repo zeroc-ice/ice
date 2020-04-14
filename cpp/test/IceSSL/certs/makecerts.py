@@ -124,7 +124,7 @@ certs = [
 #
 for (ca, alias, args) in certs:
     if not ca.get(alias):
-        ca.create(alias, extendedKeyUsages="clientAuth" if alias.startswith("c_") else "serverAuth", **args)
+        ca.create(alias, extendedKeyUsage="clientAuth" if alias.startswith("c_") else "serverAuth", **args)
 
 savecerts = [
     (ca1, "s_rsa_ca1",     None,              {}),
@@ -181,7 +181,7 @@ if not os.path.exists("cacert_custom.pem"):
                 "openssl x509 -req -in cacert_custom.csr -signkey cakey1.pem -out cacert_custom.pem -extfile cacert_custom.ext"]
     for command in commands:
         if os.system(command) != 0:
-            print "error running command `{0}'".format(command)
+            print("error running command `{0}'".format(command))
             sys.exit(1)
 
     if os.path.exists("cacert_custom.csr"):
