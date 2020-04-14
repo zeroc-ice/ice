@@ -931,7 +931,7 @@ namespace Ice
                 // Parse published endpoints.
                 _publishedEndpoints = ComputePublishedEndpoints();
                 Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
-                    ?? Communicator.GetDefaultLocator();
+                    ?? Communicator.DefaultLocator;
             }
             catch (System.Exception)
             {

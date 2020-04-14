@@ -15,7 +15,7 @@ namespace Ice.location
         {
             Communicator communicator = helper.communicator();
             var manager = IServerManagerPrx.Parse($"ServerManager :{helper.getTestEndpoint(0)}", communicator);
-            var locator = ITestLocatorPrx.UncheckedCast(communicator.GetDefaultLocator());
+            var locator = ITestLocatorPrx.UncheckedCast(communicator.DefaultLocator);
             Console.WriteLine("registry checkedcast");
             var registry = ITestLocatorRegistryPrx.CheckedCast(locator.GetRegistry());
             test(registry != null);
@@ -32,18 +32,18 @@ namespace Ice.location
             output.WriteLine("ok");
 
             output.Write("testing ice_locator and ice_getLocator... ");
-            test(default(ProxyIdentityComparer).Equals(@base.Locator, communicator.GetDefaultLocator()));
+            test(default(ProxyIdentityComparer).Equals(@base.Locator, communicator.DefaultLocator));
             var anotherLocator = ILocatorPrx.Parse("anotherLocator", communicator);
             @base = @base.Clone(locator: anotherLocator);
             test(default(ProxyIdentityComparer).Equals(@base.Locator, anotherLocator));
-            communicator.SetDefaultLocator(null);
+            communicator.DefaultLocator = null;
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
             test(@base.Locator == null);
             @base = @base.Clone(locator: anotherLocator);
             test(default(ProxyIdentityComparer).Equals(@base.Locator, anotherLocator));
-            communicator.SetDefaultLocator(locator);
+            communicator.DefaultLocator = locator;
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
-            test(default(ProxyIdentityComparer).Equals(@base.Locator, communicator.GetDefaultLocator()));
+            test(default(ProxyIdentityComparer).Equals(@base.Locator, communicator.DefaultLocator));
 
             //
             // We also test ice_router/ice_getRouter(perhaps we should add a
@@ -54,10 +54,10 @@ namespace Ice.location
             @base = @base.Clone(router: anotherRouter);
             test(default(ProxyIdentityComparer).Equals(@base.Router, anotherRouter));
             var router = IRouterPrx.Parse("dummyrouter", communicator);
-            communicator.SetDefaultRouter(router);
+            communicator.DefaultRouter = router;
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
-            test(default(ProxyIdentityComparer).Equals(@base.Router, communicator.GetDefaultRouter()));
-            communicator.SetDefaultRouter(null);
+            test(default(ProxyIdentityComparer).Equals(@base.Router, communicator.DefaultRouter));
+            communicator.DefaultRouter = null;
             @base = IObjectPrx.Parse("test @ TestAdapter", communicator);
             test(@base.Router == null);
             output.WriteLine("ok");

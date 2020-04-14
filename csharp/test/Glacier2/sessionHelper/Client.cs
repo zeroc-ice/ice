@@ -397,7 +397,7 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("uninstalling router with communicator... ");
             Console.Out.Flush();
-            communicator.SetDefaultRouter(null);
+            communicator.DefaultRouter = null;
             Console.Out.WriteLine("ok");
 
             IObjectPrx processBase;
