@@ -385,19 +385,14 @@ namespace Ice
                     DefaultEncoding = Encoding.Latest;
                 }
 
-                string val = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
-                if (val.Equals("Random"))
+                var endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
+                DefaultEndpointSelection = endpointSelection switch
                 {
-                    DefaultEndpointSelection = EndpointSelectionType.Random;
-                }
-                else if (val.Equals("Ordered"))
-                {
-                    DefaultEndpointSelection = EndpointSelectionType.Ordered;
-                }
-                else
-                {
-                    throw new InvalidConfigurationException($"illegal value `{val}'; expected `Random' or `Ordered'");
-                }
+                    "Random" => EndpointSelectionType.Random,
+                    "Ordered" => EndpointSelectionType.Ordered,
+                    _ => throw new InvalidConfigurationException(
+                             $"illegal value `{endpointSelection}'; expected `Random' or `Ordered'")
+                };
 
                 DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? FormatType.Sliced :
                                                                                      FormatType.Compact;
@@ -422,24 +417,22 @@ namespace Ice
                 DefaultTimeout = GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
                 if (DefaultTimeout < 1 && DefaultTimeout != -1)
                 {
-                    Logger.Warning($"invalid value for Ice.Default.Timeout `{DefaultTimeout}': defaulting to 60000");
-                    DefaultTimeout = 60000;
+                    throw new InvalidConfigurationException(
+                        $"invalid value for Ice.Default.Timeout: `{DefaultTimeout}'");
                 }
 
                 DefaultInvocationTimeout = GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
                 if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1)
                 {
-                    Logger.Warning(
-                        $"invalid value for Ice.Default.InvocationTimeout `{DefaultInvocationTimeout}': defaulting to -1");
-                    DefaultInvocationTimeout = -1;
+                    throw new InvalidConfigurationException(
+                        $"invalid value for Ice.Default.InvocationTimeout: `{DefaultInvocationTimeout}'");
                 }
 
                 DefaultLocatorCacheTimeout = GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
                 if (DefaultLocatorCacheTimeout < -1)
                 {
-                    Logger.Warning(
-                    $"invalid value for Ice.Default.LocatorCacheTimeout `{DefaultLocatorCacheTimeout}': defaulting to -1");
-                    DefaultLocatorCacheTimeout = -1;
+                    throw new InvalidConfigurationException(
+                        $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
                 }
 
                 if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
@@ -447,8 +440,7 @@ namespace Ice
                     OverrideCompress = compress > 0;
                     if (!BZip2.IsLoaded && OverrideCompress.Value)
                     {
-                        Logger.Warning("compression not supported bzip2 library not found, Ice.Override.Compress ignored");
-                        OverrideCompress = false;
+                        throw new InvalidConfigurationException($"compression not supported, bzip2 library not found");
                     }
                 }
                 else if (!BZip2.IsLoaded)
@@ -462,8 +454,8 @@ namespace Ice
                         OverrideTimeout = timeout;
                         if (timeout < 1 && timeout != -1)
                         {
-                            Logger.Warning($"invalid value for Ice.Override.Timeout `{timeout}': defaulting to -1");
-                            OverrideTimeout = -1;
+                            throw new InvalidConfigurationException(
+                                $"invalid value for Ice.Override.Timeout: `{timeout}'");
                         }
                     }
                 }
@@ -474,9 +466,8 @@ namespace Ice
                         OverrideCloseTimeout = timeout;
                         if (timeout < 1 && timeout != -1)
                         {
-                            Logger.Warning(
-                                $"invalid value for Ice.Override.CloseTimeout `{timeout}': defaulting to -1");
-                            OverrideCloseTimeout = -1;
+                            throw new InvalidConfigurationException(
+                                $"invalid value for Ice.Override.CloseTimeout: `{timeout}'");
                         }
                     }
                 }
@@ -487,9 +478,8 @@ namespace Ice
                         OverrideConnectTimeout = timeout;
                         if (timeout < 1 && timeout != -1)
                         {
-                            Logger.Warning(
-                                $"invalid value for Ice.Override.ConnectTimeout `{timeout}': defaulting to -1");
-                            OverrideConnectTimeout = -1;
+                            throw new InvalidConfigurationException(
+                                $"invalid value for Ice.Override.ConnectTimeout: `{timeout}'");
                         }
                     }
                 }
