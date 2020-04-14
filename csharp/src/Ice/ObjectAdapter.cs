@@ -788,7 +788,6 @@ namespace Ice
                 _publishedEndpoints = newEndpoints.ToArray();
                 if (_publishedEndpoints.Count == 0)
                 {
-                    // TODO: is it correct to set published endpoints to empty?
                     _publishedEndpoints = Array.Empty<Endpoint>();
                 }
                 locatorInfo = _locatorInfo;

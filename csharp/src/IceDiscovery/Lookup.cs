@@ -235,11 +235,11 @@ namespace IceDiscovery
                 {
                     foreach (Endpoint q in lookupReply.Endpoints)
                     {
-                        if (q is Ice.IPEndpoint && ((Ice.IPEndpoint)q).Host.Equals(endpoint.McastInterface))
+                        if (q is Ice.IPEndpoint ipEndpoint && ipEndpoint.Host.Equals(endpoint.McastInterface))
                         {
                             single[0] = q;
                             _lookups[key] = lookupReply.Clone(endpoints: single);
-                            // TODO: missing break?
+                            break;
                         }
                     }
                 }
