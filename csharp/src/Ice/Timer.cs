@@ -140,7 +140,7 @@ namespace IceInternal
             {
                 Debug.Assert(obsv != null);
                 _observer = obsv.GetThreadObserver("Communicator",
-                                                   _thread.Name,
+                                                   _thread.Name!,
                                                    Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                    _observer);
                 if (_observer != null)

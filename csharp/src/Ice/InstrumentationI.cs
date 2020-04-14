@@ -51,7 +51,7 @@ namespace IceInternal
         public void
         SetDelegate(O? del) => Delegate = del;
 
-        public Observer GetObserver<S, ObserverImpl, Observer>(string mapName, MetricsHelper<S> helper, Observer del)
+        public Observer? GetObserver<S, ObserverImpl, Observer>(string mapName, MetricsHelper<S> helper, Observer? del)
             where S : Metrics, new()
             where ObserverImpl : ObserverWithDelegate<S, Observer>, Observer, new()
             where Observer : class, Ice.Instrumentation.IObserver
@@ -457,7 +457,7 @@ namespace IceInternal
 
         public IObjectPrx? GetProxy() => _proxy;
 
-        public string GetEncoding() => _proxy.Encoding.ToString();
+        public string GetEncoding() => _proxy?.Encoding.ToString() ?? "";
 
         public string GetIdentity()
         {
@@ -799,7 +799,7 @@ namespace IceInternal
             }
         }
 
-        public Ice.Instrumentation.IRemoteObserver GetRemoteObserver(ConnectionInfo con, Endpoint endpt,
+        public Ice.Instrumentation.IRemoteObserver? GetRemoteObserver(ConnectionInfo con, Endpoint endpt,
                                                                     int requestId, int size)
         {
             Ice.Instrumentation.IRemoteObserver? del = null;
@@ -813,7 +813,7 @@ namespace IceInternal
                                                     del);
         }
 
-        public Ice.Instrumentation.ICollocatedObserver GetCollocatedObserver(Ice.ObjectAdapter adapter,
+        public Ice.Instrumentation.ICollocatedObserver? GetCollocatedObserver(Ice.ObjectAdapter adapter,
                                                                             int requestId,
                                                                             int size)
         {
