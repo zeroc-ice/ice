@@ -121,7 +121,7 @@ namespace Ice
             }
         }
 
-        public bool DefaultCollocationOptimization { get; }
+        public bool DefaultCollocationOptimized { get; }
         public Encoding DefaultEncoding { get; }
         public EndpointSelectionType DefaultEndpointSelection { get; }
         public FormatType DefaultFormat { get; }
@@ -130,13 +130,13 @@ namespace Ice
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
         public int DefaultTimeout { get; }
-        public int DefaultLocatorCacheTimeout { get; }
         public int DefaultInvocationTimeout { get; }
+        public int DefaultLocatorCacheTimeout { get; }
 
         public bool? OverrideCompress { get; }
         public int? OverrideTimeout { get; }
-        public int? OverrideConnectTimeout { get; }
         public int? OverrideCloseTimeout { get; }
+        public int? OverrideConnectTimeout { get; }
 
         /// <summary>The logger for this communicator.</summary>
         public ILogger Logger { get; internal set; }
@@ -373,7 +373,7 @@ namespace Ice
 
                 TraceLevels = new TraceLevels(this);
 
-                DefaultCollocationOptimization = (GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
+                DefaultCollocationOptimized = (GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
 
                 if (GetProperty("Ice.Default.Encoding") is string encoding)
                 {
@@ -388,7 +388,7 @@ namespace Ice
                 string val = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 if (val.Equals("Random"))
                 {
-                    DefaultEndpointSelection = Ice.EndpointSelectionType.Random;
+                    DefaultEndpointSelection = EndpointSelectionType.Random;
                 }
                 else if (val.Equals("Ordered"))
                 {
@@ -399,8 +399,8 @@ namespace Ice
                     throw new InvalidConfigurationException($"illegal value `{val}'; expected `Random' or `Ordered'");
                 }
 
-                DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? Ice.FormatType.Sliced
-                                                                                   : Ice.FormatType.Compact;
+                DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? FormatType.Sliced :
+                                                                                     FormatType.Compact;
 
                 DefaultHost = GetProperty("Ice.Default.Host");
 
@@ -426,20 +426,20 @@ namespace Ice
                     DefaultTimeout = 60000;
                 }
 
-                DefaultLocatorCacheTimeout = GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
-                if (DefaultLocatorCacheTimeout < -1)
-                {
-                    Logger.Warning(
-                    $"invalid value for Ice.Default.LocatorCacheTimeout `{DefaultLocatorCacheTimeout}': defaulting to -1");
-                    DefaultLocatorCacheTimeout = -1;
-                }
-
                 DefaultInvocationTimeout = GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
                 if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1)
                 {
                     Logger.Warning(
                         $"invalid value for Ice.Default.InvocationTimeout `{DefaultInvocationTimeout}': defaulting to -1");
                     DefaultInvocationTimeout = -1;
+                }
+
+                DefaultLocatorCacheTimeout = GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
+                if (DefaultLocatorCacheTimeout < -1)
+                {
+                    Logger.Warning(
+                    $"invalid value for Ice.Default.LocatorCacheTimeout `{DefaultLocatorCacheTimeout}': defaulting to -1");
+                    DefaultLocatorCacheTimeout = -1;
                 }
 
                 if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
@@ -462,21 +462,8 @@ namespace Ice
                         OverrideTimeout = timeout;
                         if (timeout < 1 && timeout != -1)
                         {
-                            Logger.Warning($"invalid value for Ice.Override.Timeout `{timeout}': defauling to -1");
+                            Logger.Warning($"invalid value for Ice.Override.Timeout `{timeout}': defaulting to -1");
                             OverrideTimeout = -1;
-                        }
-                    }
-                }
-
-                {
-                    if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
-                    {
-                        OverrideConnectTimeout = timeout;
-                        if (timeout < 1 && timeout != -1)
-                        {
-                            Logger.Warning(
-                                $"invalid value for Ice.Override.ConnectTimeout `{timeout}': defaulting to -1");
-                            OverrideConnectTimeout = -1;
                         }
                     }
                 }
@@ -490,6 +477,19 @@ namespace Ice
                             Logger.Warning(
                                 $"invalid value for Ice.Override.CloseTimeout `{timeout}': defaulting to -1");
                             OverrideCloseTimeout = -1;
+                        }
+                    }
+                }
+
+                {
+                    if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
+                    {
+                        OverrideConnectTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            Logger.Warning(
+                                $"invalid value for Ice.Override.ConnectTimeout `{timeout}': defaulting to -1");
+                            OverrideConnectTimeout = -1;
                         }
                     }
                 }
@@ -2326,7 +2326,7 @@ namespace Ice
             {
                 routerInfo = GetRouterInfo(_defaultRouter);
             }
-            bool collocOptimized = DefaultCollocationOptimization;
+            bool collocOptimized = DefaultCollocationOptimized;
             bool cacheConnection = true;
             bool preferNonSecure = DefaultPreferNonSecure;
             EndpointSelectionType endpointSelection = DefaultEndpointSelection;
