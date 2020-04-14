@@ -138,15 +138,15 @@ namespace IceInternal
             _monitor.Destroy();
         }
 
-        public void Create(Endpoint[] endpts, bool hasMore, Ice.EndpointSelectionType selType,
+        public void Create(IReadOnlyList<Endpoint> endpts, bool hasMore, Ice.EndpointSelectionType selType,
                            ICreateConnectionCallback callback)
         {
-            Debug.Assert(endpts.Length > 0);
+            Debug.Assert(endpts.Count > 0);
 
             //
             // Apply the overrides.
             //
-            List<Endpoint> endpoints = ApplyOverrides(endpts);
+            IReadOnlyList<Endpoint> endpoints = ApplyOverrides(endpts).ToArray();
 
             //
             // Try to find a connection to one of the given endpoints.
@@ -173,7 +173,7 @@ namespace IceInternal
         {
             Debug.Assert(routerInfo != null);
             Ice.ObjectAdapter? adapter = routerInfo.Adapter;
-            Endpoint[] endpoints = routerInfo.GetClientEndpoints(); // Must be called outside the synchronization
+            IReadOnlyList<Endpoint> endpoints = routerInfo.GetClientEndpoints(); // Must be called outside the synchronization
 
             lock (this)
             {
@@ -189,7 +189,7 @@ namespace IceInternal
                 // received over such connections.
                 //
                 DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
-                for (int i = 0; i < endpoints.Length; i++)
+                for (int i = 0; i < endpoints.Count; ++i)
                 {
                     Endpoint endpoint = endpoints[i];
 
@@ -216,7 +216,7 @@ namespace IceInternal
                     {
                         foreach (Connection connection in connections)
                         {
-                            if (connection.Endpoint.Equals(endpoint))
+                            if (connection.Endpoint == endpoint)
                             {
                                 connection.SetAdapter(adapter);
                             }
@@ -259,29 +259,16 @@ namespace IceInternal
             _pendingConnectCount = 0;
         }
 
-        private List<Endpoint> ApplyOverrides(Endpoint[] endpts)
+        private IEnumerable<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)
         {
+            // TODO: why do we apply only the timeout override?
             DefaultsAndOverrides defaultsAndOverrides = _communicator.DefaultsAndOverrides;
-            var endpoints = new List<Endpoint>();
-            for (int i = 0; i < endpts.Length; i++)
-            {
-                //
-                // Modify endpoints with overrides.
-                //
-                if (defaultsAndOverrides.OverrideTimeout)
-                {
-                    endpoints.Add(endpts[i].NewTimeout(defaultsAndOverrides.OverrideTimeoutValue));
-                }
-                else
-                {
-                    endpoints.Add(endpts[i]);
-                }
-            }
-
-            return endpoints;
+            return endpoints.Select(endpoint =>
+                defaultsAndOverrides.OverrideTimeout ? endpoint.NewTimeout(defaultsAndOverrides.OverrideTimeoutValue) :
+                    endpoint);
         }
 
-        private Connection? FindConnection(List<Endpoint> endpoints, out bool compress)
+        private Connection? FindConnection(IReadOnlyList<Endpoint> endpoints, out bool compress)
         {
             lock (this)
             {
@@ -754,15 +741,20 @@ namespace IceInternal
 
         private class ConnectCallback : Connection.IStartCallback, IEndpointConnectors
         {
-            internal ConnectCallback(OutgoingConnectionFactory f, List<Endpoint> endpoints, bool more,
+            internal ConnectCallback(OutgoingConnectionFactory f, IReadOnlyList<Endpoint> endpoints, bool more,
                                      ICreateConnectionCallback cb, Ice.EndpointSelectionType selType)
             {
+                Debug.Assert(endpoints.Count > 0);
+
                 _factory = f;
                 _endpoints = endpoints;
+                _endpointEnumerator = _endpoints.GetEnumerator();
+                _hasMoreEndpoints = _endpointEnumerator.MoveNext();
+                Debug.Assert(_hasMoreEndpoints); // even if there is only one endpoint, we have not read it yet with
+                                                // _endpointsEnumerator.Current
                 _hasMore = more;
                 _callback = cb;
                 _selType = selType;
-                _endpointsIter = 0;
             }
 
             //
@@ -797,7 +789,7 @@ namespace IceInternal
                     _connectors.Add(new ConnectorInfo(connector, _currentEndpoint));
                 }
 
-                if (_endpointsIter < _endpoints.Count)
+                if (_hasMoreEndpoints)
                 {
                     NextEndpoint();
                 }
@@ -816,8 +808,8 @@ namespace IceInternal
 
             public void Exception(System.Exception ex)
             {
-                _factory.HandleException(ex, _hasMore || _endpointsIter < _endpoints.Count);
-                if (_endpointsIter < _endpoints.Count)
+                _factory.HandleException(ex, _hasMore || _hasMoreEndpoints);
+                if (_hasMoreEndpoints)
                 {
                     NextEndpoint();
                 }
@@ -896,8 +888,9 @@ namespace IceInternal
             {
                 try
                 {
-                    Debug.Assert(_endpointsIter < _endpoints.Count);
-                    _currentEndpoint = _endpoints[_endpointsIter++];
+                    Debug.Assert(_hasMoreEndpoints);
+                    _currentEndpoint = _endpointEnumerator.Current;
+                    _hasMoreEndpoints = _endpointEnumerator.MoveNext();
                     _currentEndpoint.ConnectorsAsync(_selType, this);
                 }
                 catch (System.Exception ex)
@@ -1011,9 +1004,10 @@ namespace IceInternal
             private readonly OutgoingConnectionFactory _factory;
             private readonly bool _hasMore;
             private readonly ICreateConnectionCallback _callback;
-            private readonly List<Endpoint> _endpoints;
+            private readonly IReadOnlyList<Endpoint> _endpoints;
             private readonly Ice.EndpointSelectionType _selType;
-            private int _endpointsIter;
+            private IEnumerator<Endpoint> _endpointEnumerator;
+            private bool _hasMoreEndpoints;
             private Endpoint? _currentEndpoint;
             private readonly List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
             private int _iter;

@@ -145,7 +145,7 @@ namespace IceDiscovery
                     if (result != null)
                     {
                         isReplicaGroup = true;
-                        return result.Clone(endpoints: endpoints.ToArray());
+                        return result.Clone(endpoints: endpoints);
                     }
                 }
 

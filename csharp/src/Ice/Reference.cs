@@ -34,7 +34,7 @@ namespace Ice
         internal IReadOnlyDictionary<string, string> Context { get; }
         internal Encoding Encoding { get; }
         internal EndpointSelectionType EndpointSelection { get; }
-        internal Endpoint[] Endpoints { get; }
+        internal IReadOnlyList<Endpoint> Endpoints { get; }
         internal string Facet { get; }
         internal Identity Identity { get; }
         internal InvocationMode InvocationMode { get; }
@@ -42,8 +42,8 @@ namespace Ice
         internal bool IsCollocationOptimized { get; }
         internal bool IsConnectionCached => IsFixed || _requestHandlerMutex != null;
         internal bool IsFixed => _fixedConnection != null;
-        internal bool IsIndirect => !IsFixed && Endpoints.Length == 0;
-        internal bool IsWellKnown => !IsFixed && Endpoints.Length == 0 && AdapterId.Length == 0;
+        internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
+        internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && AdapterId.Length == 0;
         internal int LocatorCacheTimeout { get; }
         internal LocatorInfo? LocatorInfo { get; }
         internal bool PreferNonSecure { get; }
@@ -118,7 +118,7 @@ namespace Ice
                 {
                     return false;
                 }
-                if (!Collections.Equals(Endpoints, other.Endpoints))
+                if (!Endpoints.SequenceEqual(other.Endpoints))
                 {
                     return false;
                 }
@@ -222,7 +222,10 @@ namespace Ice
                     hash.Add(AdapterId);
                     hash.Add(ConnectionId);
                     hash.Add(ConnectionTimeout);
-                    hash.Add(Collections.GetHashCode(Endpoints));
+                    foreach (var e in Endpoints)
+                    {
+                        hash.Add(e);
+                    }
                     hash.Add(IsCollocationOptimized);
                     hash.Add(IsConnectionCached);
                     hash.Add(EndpointSelection);
@@ -340,19 +343,7 @@ namespace Ice
             s.Append(" -e ");
             s.Append(Encoding.ToString());
 
-            if (Endpoints.Length > 0)
-            {
-                for (int i = 0; i < Endpoints.Length; i++)
-                {
-                    string endp = Endpoints[i].ToString();
-                    if (endp != null && endp.Length > 0)
-                    {
-                        s.Append(':');
-                        s.Append(endp);
-                    }
-                }
-            }
-            else if (AdapterId.Length > 0)
+            if (AdapterId.Length > 0)
             {
                 s.Append(" @ ");
 
@@ -370,6 +361,14 @@ namespace Ice
                     s.Append(a);
                 }
             }
+            else
+            {
+                foreach (var e in Endpoints)
+                {
+                    s.Append(":");
+                    s.Append(e);
+                }
+            }
             return s.ToString();
         }
 
@@ -384,7 +383,7 @@ namespace Ice
                            IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
                            Encoding encoding,
                            EndpointSelectionType endpointSelection,
-                           Endpoint[] endpoints, // already a copy provided by Ice
+                           IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
                            string facet,
                            Identity identity,
                            InvocationMode invocationMode,
@@ -487,7 +486,7 @@ namespace Ice
                                  IReadOnlyDictionary<string, string>? context = null, // can be provided by app
                                  Encoding? encoding = null,
                                  EndpointSelectionType? endpointSelection = null,
-                                 Endpoint[]? endpoints = null, // can be provided by app
+                                 IEnumerable<Endpoint>? endpoints = null, // from app
                                  string? facet = null,
                                  Connection? fixedConnection = null,
                                  Identity? identity = null,
@@ -653,14 +652,17 @@ namespace Ice
                 {
                     throw new ArgumentException($"cannot set both {nameof(adapterId)} and {nameof(endpoints)}");
                 }
+
+                IReadOnlyList<Endpoint>? newEndpoints = null;
+
                 if (adapterId != null)
                 {
-                    endpoints = Array.Empty<Endpoint>(); // make sure the clone's endpoints are empty
+                    newEndpoints = Array.Empty<Endpoint>(); // make sure the clone's endpoints are empty
                 }
                 else if (endpoints != null)
                 {
                     adapterId = ""; // make sure the clone's adapterID is empty
-                    endpoints = (Endpoint[])endpoints.Clone(); // make a copy
+                    newEndpoints = endpoints.ToArray(); // make a copy
                 }
 
                 var locatorInfo = LocatorInfo;
@@ -688,17 +690,17 @@ namespace Ice
                     routerInfo = null;
                 }
 
-                // Update the endpoints if needed
-                if (compress != null || connectionId != null || connectionTimeout != null || endpoints != null)
+                // Update/create the newEndpoints if needed
+                if (compress != null || connectionId != null || connectionTimeout != null || newEndpoints != null)
                 {
-                    endpoints ??= Endpoints;
-                    if (endpoints.Length > 0)
+                    newEndpoints ??= Endpoints;
+                    if (newEndpoints.Count > 0)
                     {
                         compress ??= Compress;
                         connectionId ??= ConnectionId;
                         connectionTimeout ??= ConnectionTimeout;
 
-                        endpoints = endpoints.Select(endpoint =>
+                        newEndpoints = newEndpoints.Select(endpoint =>
                         {
                             if (compress != null)
                             {
@@ -724,7 +726,7 @@ namespace Ice
                                       context ?? Context,
                                       encoding ?? Encoding,
                                       endpointSelection ?? EndpointSelection,
-                                      endpoints ?? Endpoints,
+                                      newEndpoints ?? Endpoints,
                                       facet ?? Facet,
                                       identity ?? Identity,
                                       invocationMode ?? InvocationMode,
@@ -766,8 +768,8 @@ namespace Ice
             ostr.WriteByte(Encoding.Major);
             ostr.WriteByte(Encoding.Minor);
 
-            ostr.WriteSize(Endpoints.Length);
-            if (Endpoints.Length > 0)
+            ostr.WriteSize(Endpoints.Count);
+            if (Endpoints.Count > 0)
             {
                 Debug.Assert(AdapterId.Length == 0);
                 foreach (Endpoint endpoint in Endpoints)
@@ -892,11 +894,11 @@ namespace Ice
             }
         }
 
-        internal void CreateConnection(Endpoint[] allEndpoints, IGetConnectionCallback callback)
+        internal void CreateConnection(IReadOnlyList<Endpoint> allEndpoints, IGetConnectionCallback callback)
         {
             Debug.Assert(!IsFixed);
-            Endpoint[] endpoints = FilterEndpoints(allEndpoints);
-            if (endpoints.Length == 0)
+            IReadOnlyList<Endpoint> endpoints = FilterEndpoints(allEndpoints);
+            if (endpoints.Count == 0)
             {
                 callback.SetException(new NoEndpointException(ToString()));
                 return;
@@ -906,7 +908,7 @@ namespace Ice
             // Finally, create the connection.
             //
             OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
-            if (IsConnectionCached || endpoints.Length == 1)
+            if (IsConnectionCached || endpoints.Count == 1)
             {
                 //
                 // Get an existing connection or create one if there's no
@@ -974,7 +976,7 @@ namespace Ice
         private void GetConnectionNoRouterInfo(IGetConnectionCallback callback)
         {
             Debug.Assert(!IsFixed);
-            if (Endpoints.Length > 0)
+            if (Endpoints.Count > 0)
             {
                 CreateConnection(Endpoints, callback);
                 return;
@@ -990,10 +992,10 @@ namespace Ice
             }
         }
 
-        private Endpoint[] ApplyOverrides(Endpoint[] endpts)
+        private IEnumerable<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)
         {
             Debug.Assert(!IsFixed);
-            return endpts.Select(endpoint =>
+            return endpoints.Select(endpoint =>
                 {
                     endpoint = endpoint.NewConnectionId(ConnectionId);
                     if (Compress != null)
@@ -1005,115 +1007,88 @@ namespace Ice
                         endpoint = endpoint.NewTimeout(ConnectionTimeout.Value);
                     }
                     return endpoint;
-                }).ToArray();
+                });
         }
 
-        private Endpoint[] FilterEndpoints(Endpoint[] allEndpoints)
+        private IReadOnlyList<Endpoint> FilterEndpoints(IReadOnlyList<Endpoint> allEndpoints)
         {
             Debug.Assert(!IsFixed);
-            var endpoints = new List<Endpoint>();
 
-            //
-            // Filter out unknown endpoints.
-            //
-            for (int i = 0; i < allEndpoints.Length; i++)
+            IEnumerable<Endpoint> filteredEndpoints = allEndpoints.Where(endpoint =>
             {
-                if (!(allEndpoints[i] is OpaqueEndpoint))
+                // Filter out opaque endpoints
+                if (endpoint is OpaqueEndpoint)
                 {
-                    endpoints.Add(allEndpoints[i]);
+                    return false;
                 }
-            }
 
-            //
-            // Filter out endpoints according to the mode of the reference.
-            //
-            switch (InvocationMode)
-            {
-                case InvocationMode.Twoway:
-                case InvocationMode.Oneway:
-                case InvocationMode.BatchOneway:
-                    {
-                    //
-                    // Filter out datagram endpoints.
-                    //
-                        var tmp = new List<Endpoint>();
-                        foreach (Endpoint endpoint in endpoints)
+                // Filter out based on InvocationMode and IsDatagram
+                switch (InvocationMode)
+                {
+                    case InvocationMode.Twoway:
+                    case InvocationMode.Oneway:
+                    case InvocationMode.BatchOneway:
+                        if (endpoint.IsDatagram)
                         {
-                            if (!endpoint.IsDatagram)
-                            {
-                                tmp.Add(endpoint);
-                            }
-                        }
-                        endpoints = tmp;
-                        break;
-                    }
-
-                case InvocationMode.Datagram:
-                case InvocationMode.BatchDatagram:
-                    {
-                        //
-                        // Filter out non-datagram endpoints.
-                        //
-                        var tmp = new List<Endpoint>();
-                        foreach (Endpoint endpoint in endpoints)
-                        {
-                            if (endpoint.IsDatagram)
-                            {
-                                tmp.Add(endpoint);
-                            }
-                        }
-                        endpoints = tmp;
-                        break;
-                    }
-            }
-
-            //
-            // Sort the endpoints according to the endpoint selection type.
-            //
-            switch (EndpointSelection)
-            {
-                case EndpointSelectionType.Random:
-                    {
-                        lock (_rand)
-                        {
-                            for (int i = 0; i < endpoints.Count - 1; ++i)
-                            {
-                                int r = _rand.Next(endpoints.Count - i) + i;
-                                Debug.Assert(r >= i && r < endpoints.Count);
-                                if (r != i)
-                                {
-                                    Endpoint tmp = endpoints[i];
-                                    endpoints[i] = endpoints[r];
-                                    endpoints[r] = tmp;
-                                }
-                            }
+                            return false;
                         }
                         break;
-                    }
-                case EndpointSelectionType.Ordered:
-                    {
-                        // Nothing to do.
+
+                    case InvocationMode.Datagram:
+                    case InvocationMode.BatchDatagram:
+                        if (!endpoint.IsDatagram)
+                        {
+                            return false;
+                        }
                         break;
-                    }
-                default:
-                    {
+
+                    default:
                         Debug.Assert(false);
-                        break;
+                        return false;
+                }
+
+                // If PreferNonSecure is false, filter out all non-secure endpoints
+                return PreferNonSecure || endpoint.IsSecure;
+            });
+
+            if (EndpointSelection == EndpointSelectionType.Random)
+            {
+                // Shuffle the filtered endpoints using _rand
+                var array = filteredEndpoints.ToArray();
+                lock (_rand)
+                {
+                    for (int i = 0; i < array.Length - 1; ++i)
+                    {
+                        int r = _rand.Next(array.Length - i) + i;
+                        Debug.Assert(r >= i && r < array.Length);
+                        if (r != i)
+                        {
+                            Endpoint tmp = array[i];
+                            array[i] = array[r];
+                            array[r] = tmp;
+                        }
                     }
+                }
+
+                if (!PreferNonSecure)
+                {
+                    // We're done
+                    return array;
+                }
+                else
+                {
+                    filteredEndpoints = array;
+                }
             }
 
             if (PreferNonSecure)
             {
                 // It's just a preference: we can fallback to secure endpoints.
-                endpoints = endpoints.OrderBy(endpoint => endpoint.IsSecure).ToList();
+                filteredEndpoints = filteredEndpoints.OrderBy(endpoint => endpoint.IsSecure);
             }
-            else
-            {
-                // Filter-out non-secure endpoints. This can eliminate all endpoints.
-                endpoints = endpoints.Where(endpoint => endpoint.IsSecure).ToList();
-            }
+            // else, already filtered out
 
-            return endpoints.ToArray();
+            return filteredEndpoints.ToArray();
         }
 
         // TODO: refactor this class
@@ -1126,11 +1101,11 @@ namespace Ice
                 _cb = cb;
             }
 
-            public void setEndpoints(Endpoint[] endpts)
+            public void setEndpoints(IReadOnlyList<Endpoint> endpts)
             {
-                if (endpts.Length > 0)
+                if (endpts.Count > 0)
                 {
-                    _ir.CreateConnection(_ir.ApplyOverrides(endpts), _cb);
+                    _ir.CreateConnection(_ir.ApplyOverrides(endpts).ToArray(), _cb);
                 }
                 else
                 {
@@ -1154,15 +1129,15 @@ namespace Ice
                 _cb = cb;
             }
 
-            public void SetEndpoints(Endpoint[] endpoints, bool cached)
+            public void SetEndpoints(IReadOnlyList<Endpoint> endpoints, bool cached)
             {
-                if (endpoints.Length == 0)
+                if (endpoints.Count == 0)
                 {
                     _cb.SetException(new NoEndpointException(_ir.ToString()));
                     return;
                 }
 
-                _ir.CreateConnection(_ir.ApplyOverrides(endpoints), new ConnectionCallback(_ir, _cb, cached));
+                _ir.CreateConnection(_ir.ApplyOverrides(endpoints).ToArray(), new ConnectionCallback(_ir, _cb, cached));
             }
 
             public void SetException(System.Exception ex) => _cb.SetException(ex);
@@ -1221,11 +1196,25 @@ namespace Ice
         // TODO: refactor this class
         private sealed class CreateConnectionCallback : OutgoingConnectionFactory.ICreateConnectionCallback
         {
-            internal CreateConnectionCallback(Reference rr, Endpoint[]? endpoints, IGetConnectionCallback cb)
+            internal CreateConnectionCallback(Reference rr, IReadOnlyList<Endpoint>? endpoints,
+                 IGetConnectionCallback cb)
             {
                 Debug.Assert(!rr.IsFixed);
                 _rr = rr;
                 _endpoints = endpoints;
+                if (_endpoints != null)
+                {
+                    Debug.Assert(_endpoints.Count > 1); // at least 2 endpoints, and we always skip the first one
+                    _endpointEnumerator = _endpoints.GetEnumerator();
+                    _hasMoreEndpoints = _endpointEnumerator.MoveNext();
+                    Debug.Assert(_hasMoreEndpoints);
+                    _hasMoreEndpoints = _endpointEnumerator.MoveNext();
+                    Debug.Assert(_hasMoreEndpoints);
+                }
+                else
+                {
+                    _hasMoreEndpoints = false;
+                }
                 _callback = cb;
             }
 
@@ -1250,21 +1239,25 @@ namespace Ice
                     _exception = ex;
                 }
 
-                if (_endpoints == null || ++_i == _endpoints.Length)
+                if (!_hasMoreEndpoints)
                 {
                     _callback.SetException(_exception);
                     return;
                 }
+                Debug.Assert(_endpointEnumerator != null);
 
-                bool more = _i != _endpoints.Length - 1;
-                var endpoint = new Endpoint[] { _endpoints[_i] };
-                _rr.Communicator.OutgoingConnectionFactory().Create(endpoint, more, _rr.EndpointSelection, this);
+                var endpoint = new Endpoint[] { _endpointEnumerator.Current };
+                _hasMoreEndpoints = _endpointEnumerator.MoveNext();
+
+                _rr.Communicator.OutgoingConnectionFactory().Create(endpoint, _hasMoreEndpoints,
+                    _rr.EndpointSelection, this);
             }
 
             private readonly Reference _rr;
-            private readonly Endpoint[]? _endpoints;
+            private readonly IReadOnlyList<Endpoint>? _endpoints;
+            private IEnumerator<Endpoint>? _endpointEnumerator;
+            private bool _hasMoreEndpoints;
             private readonly IGetConnectionCallback _callback;
-            private int _i = 0;
             private System.Exception? _exception = null;
         }
     }

@@ -36,13 +36,10 @@ namespace Ice.binding
             while (p.MoveNext())
             {
                 obj = p.Current.getTestIntf();
-                foreach (var e in obj.Endpoints)
-                {
-                    endpoints.Add(e);
-                }
+                endpoints.AddRange(obj.Endpoints);
             }
             Debug.Assert(obj != null);
-            return obj.Clone(endpoints: endpoints.ToArray());
+            return obj.Clone(endpoints: endpoints);
         }
 
         private static void deactivate(Test.IRemoteCommunicatorPrx communicator, List<Test.IRemoteObjectAdapterPrx> adapters)
@@ -436,7 +433,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -600,7 +597,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -660,7 +657,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 

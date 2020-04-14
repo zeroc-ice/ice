@@ -647,7 +647,7 @@ namespace IceInternal
             if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
-                s.Append(string.Join(", ", intfs.ToArray()));
+                s.Append(string.Join(", ", intfs));
             }
             return s.ToString();
         }

@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IceSSL
 {
@@ -80,29 +81,18 @@ namespace IceSSL
             _delegate.ConnectorsAsync(endpointSelection, new EndpointI_connectorsI(_instance, host, callback));
         }
 
-        public override List<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+        public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
         {
-            var endpoints = new List<Ice.Endpoint>();
-            foreach (Ice.Endpoint e in _delegate.ExpandHost(out publish))
-            {
-                endpoints.Add(e == _delegate ? this : new Endpoint(_instance, e));
-            }
+            var endpoints = _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
             if (publish != null)
             {
-                publish = publish == _delegate ? this : new Endpoint(_instance, publish);
+                publish = GetEndpoint(publish);
             }
             return endpoints;
         }
 
-        public override List<Ice.Endpoint> ExpandIfWildcard()
-        {
-            var l = new List<Ice.Endpoint>();
-            foreach (Ice.Endpoint e in _delegate.ExpandIfWildcard())
-            {
-                l.Add(e == _delegate ? this : new Endpoint(_instance, e));
-            }
-            return l;
-        }
+        public override IEnumerable<Ice.Endpoint> ExpandIfWildcard() =>
+            _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
         public override IceInternal.IAcceptor GetAcceptor(string adapterName) =>
             new Acceptor(this, _instance, _delegate.GetAcceptor(adapterName)!, adapterName);
