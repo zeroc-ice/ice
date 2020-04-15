@@ -95,10 +95,32 @@ namespace Ice
         }
 
         public bool DefaultCollocationOptimized { get; }
+
+        /// <summary>The default context for proxies created using this communicator.
+        /// Changing the value of DefaultContext does not change the context of previously created proxies.</summary>
+        public IReadOnlyDictionary<string, string> DefaultContext
+        {
+            get => _defaultContext;
+            set => _defaultContext = value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value);
+        }
+
         public Encoding DefaultEncoding { get; }
         public EndpointSelectionType DefaultEndpointSelection { get; }
         public FormatType DefaultFormat { get; }
         public string? DefaultHost { get; }
+
+        /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
+        /// All newly created proxies and object adapters will use this default locator.
+        /// Note that setting this property has no effect on existing proxies or object adapters.
+        ///
+        /// You can also set a locator for an individual proxy by calling the operation ice_locator on the proxy,
+        /// or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.</summary>
+        public ILocatorPrx? DefaultLocator
+        {
+            get => _defaultLocator;
+            set => _defaultLocator = value;
+        }
+
         public bool DefaultPreferNonSecure { get; }
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
@@ -106,41 +128,11 @@ namespace Ice
         public int DefaultInvocationTimeout { get; }
         public int DefaultLocatorCacheTimeout { get; }
 
-        /// <summary>
-        /// The default context for proxies created using this communicator. Changing the value of
-        /// DefaultContext does not change the context of previously created proxies.
-        /// </summary>
-        public IReadOnlyDictionary<string, string> DefaultContext
-        {
-            get => _defaultContext;
-            set => _defaultContext = value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value);
-        }
-
-        /// <summary>
-        /// The default locator for this communicator.
-        /// All newly created proxies and object adapters will use this default
-        /// locator. To disable the default locator, null can be used.
-        /// Note that setting this property has no effect on existing proxies or
-        /// object adapters.
-        ///
-        /// You can also set a locator for an individual proxy by calling the
-        /// operation ice_locator on the proxy, or for an object adapter
-        /// by calling ObjectAdapter.setLocator on the object adapter.
-        /// </summary>
-        public ILocatorPrx? DefaultLocator
-        {
-            get => _defaultLocator;
-            set => _defaultLocator = value;
-        }
-
-        /// <summary>
-        /// The default router for this communicator.
+        /// <summary>The default router for this communicator. To disable the default router, null can be used.
         /// All newly created proxies will use this default router.
-        /// To disable the default router, null can be used. Note that setting
-        /// this property has no effect on existing proxies.
+        /// Note that setting this property has no effect on existing proxies.
         ///
-        /// You can also set a router for an individual proxy
-        /// by calling the operation ice_router on the proxy.
+        /// You can also set a router for an individual proxy by calling the operation ice_router on the proxy.
         /// </summary>
         public IRouterPrx? DefaultRouter
         {
