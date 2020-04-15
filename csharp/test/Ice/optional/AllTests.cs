@@ -1475,10 +1475,11 @@ namespace Ice.optional
                     format: null, context: null, p1,
                     (OutputStream ostr, SmallStruct[]? p1) =>
                     {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
-                        ostr.Write(p1);
+                        if (p1 != null && ostr.WriteOptional(2, OptionalFormat.VSize))
+                        {
+                            ostr.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
+                            ostr.Write(p1);
+                        }
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1998,8 +1999,7 @@ namespace Ice.optional
 
                     p1 = new string[1] { "hello" };
                     (p3, p2) = initial.opMSeq2(p1);
-                    TestHelper.Assert(Collections.Equals(p2, p1) &&
-                            Collections.Equals(p3, p1));
+                    TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 }
                 {
                     Dictionary<string, int>? p1, p2, p3;
@@ -2009,8 +2009,7 @@ namespace Ice.optional
                     p1 = new Dictionary<string, int>();
                     p1["test"] = 54;
                     (p3, p2) = initial.opMDict2(p1);
-                    TestHelper.Assert(Collections.Equals(p2, p1) &&
-                            Collections.Equals(p3, p1));
+                    TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
                 }
                 {
                     G? p1, p2, p3;

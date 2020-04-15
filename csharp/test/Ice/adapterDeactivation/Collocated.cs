@@ -15,9 +15,7 @@ namespace Ice
                 using Communicator communicator = Initialize(ref args);
                 communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
-                //
                 // 2 threads are necessary to dispatch the collocated transient() call with AMI
-                //
                 communicator.SetProperty("TestAdapter.ThreadPool.Size", "2");
 
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");

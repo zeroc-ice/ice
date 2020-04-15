@@ -408,23 +408,19 @@ namespace Ice.ami
                     cb.Check();
                     t.Wait();
 
-                    t = p.IcePingAsync(
-                        progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IcePingAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IceIdAsync(
-                        progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IceIdAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
                     cb.Check();
                     t.Wait();
 
-                    t = p.IceIdsAsync(
-                        progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.IceIdsAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
                     cb.Check();
                     t.Wait();
 
-                    t = p.opAsync(
-                        progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
+                    t = p.opAsync(progress: new Progress(sentSynchronously => cb.Sent(sentSynchronously)));
                     cb.Check();
                     t.Wait();
                 }
