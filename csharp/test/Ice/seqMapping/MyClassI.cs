@@ -90,20 +90,20 @@ namespace Ice.seqMapping
 
         public (Stack<string>, Stack<string>) opSStringS(Stack<string> i, Current current) => (i, i);
 
-        public (AnyClass[], AnyClass[]) opAObjectS(AnyClass[] i, Current current) => (i, i);
+        public (AnyClass?[], AnyClass?[]) opAObjectS(AnyClass?[] i, Current current) => (i, i);
 
-        public (List<AnyClass>, List<AnyClass>) opLObjectS(List<AnyClass> i, Current current) => (i, i);
+        public (List<AnyClass?>, List<AnyClass?>) opLObjectS(List<AnyClass?> i, Current current) => (i, i);
 
-        public (IObjectPrx[], IObjectPrx[]) opAObjectPrxS(IObjectPrx[] i, Current current) => (i, i);
+        public (IObjectPrx?[], IObjectPrx?[]) opAObjectPrxS(IObjectPrx?[] i, Current current) => (i, i);
 
-        public (List<IObjectPrx>, List<IObjectPrx>) opLObjectPrxS(List<IObjectPrx> i, Current current) => (i, i);
+        public (List<IObjectPrx?>, List<IObjectPrx?>) opLObjectPrxS(List<IObjectPrx?> i, Current current) => (i, i);
 
-        public (LinkedList<IObjectPrx>, LinkedList<IObjectPrx>)
-        opKObjectPrxS(LinkedList<IObjectPrx> i, Current current) => (i, i);
+        public (LinkedList<IObjectPrx?>, LinkedList<IObjectPrx?>)
+        opKObjectPrxS(LinkedList<IObjectPrx?> i, Current current) => (i, i);
 
-        public (Queue<IObjectPrx>, Queue<IObjectPrx>) opQObjectPrxS(Queue<IObjectPrx> i, Current current) => (i, i);
+        public (Queue<IObjectPrx?>, Queue<IObjectPrx?>) opQObjectPrxS(Queue<IObjectPrx?> i, Current current) => (i, i);
 
-        public (Stack<IObjectPrx>, Stack<IObjectPrx>) opSObjectPrxS(Stack<IObjectPrx> i, Current current) => (i, i);
+        public (Stack<IObjectPrx?>, Stack<IObjectPrx?>) opSObjectPrxS(Stack<IObjectPrx?> i, Current current) => (i, i);
 
         public (Test.S[], Test.S[]) opAStructS(Test.S[] i, Current current) => (i, i);
 
@@ -125,13 +125,13 @@ namespace Ice.seqMapping
 
         public (Stack<Test.SD>, Stack<Test.SD>) opSStructSD(Stack<Test.SD> i, Current current) => (i, i);
 
-        public (Test.CV[], Test.CV[]) opACVS(Test.CV[] i, Current current) => (i, i);
+        public (Test.CV?[], Test.CV?[]) opACVS(Test.CV?[] i, Current current) => (i, i);
 
-        public (List<Test.CV>, List<Test.CV>) opLCVS(List<Test.CV> i, Current current) => (i, i);
+        public (List<Test.CV?>, List<Test.CV?>) opLCVS(List<Test.CV?> i, Current current) => (i, i);
 
-        public (Test.CR[], Test.CR[]) opACRS(Test.CR[] i, Current current) => (i, i);
+        public (Test.CR?[], Test.CR?[]) opACRS(Test.CR?[] i, Current current) => (i, i);
 
-        public (List<Test.CR>, List<Test.CR>) opLCRS(List<Test.CR> i, Current current) => (i, i);
+        public (List<Test.CR?>, List<Test.CR?>) opLCRS(List<Test.CR?> i, Current current) => (i, i);
 
         public (Test.En[], Test.En[]) opAEnS(Test.En[] i, Current current) => (i, i);
 
@@ -143,30 +143,30 @@ namespace Ice.seqMapping
 
         public (Stack<Test.En>, Stack<Test.En>) opSEnS(Stack<Test.En> i, Current current) => (i, i);
 
-        public (Test.IIPrx[], Test.IIPrx[]) opAIPrxS(Test.IIPrx[] i, Current current) => (i, i);
+        public (Test.IIPrx?[], Test.IIPrx?[]) opAIPrxS(Test.IIPrx?[] i, Current current) => (i, i);
 
-        public (List<Test.IIPrx>, List<Test.IIPrx>) opLIPrxS(List<Test.IIPrx> i, Current current) => (i, i);
+        public (List<Test.IIPrx?>, List<Test.IIPrx?>) opLIPrxS(List<Test.IIPrx?> i, Current current) => (i, i);
 
-        public (LinkedList<Test.IIPrx>, LinkedList<Test.IIPrx>)
-        opKIPrxS(LinkedList<Test.IIPrx> i, Current current) => (i, i);
+        public (LinkedList<Test.IIPrx?>, LinkedList<Test.IIPrx?>)
+        opKIPrxS(LinkedList<Test.IIPrx?> i, Current current) => (i, i);
 
-        public (Queue<Test.IIPrx>, Queue<Test.IIPrx>) opQIPrxS(Queue<Test.IIPrx> i, Current current) => (i, i);
+        public (Queue<Test.IIPrx?>, Queue<Test.IIPrx?>) opQIPrxS(Queue<Test.IIPrx?> i, Current current) => (i, i);
 
-        public (Stack<Test.IIPrx>, Stack<Test.IIPrx>) opSIPrxS(Stack<Test.IIPrx> i, Current current) => (i, i);
+        public (Stack<Test.IIPrx?>, Stack<Test.IIPrx?>) opSIPrxS(Stack<Test.IIPrx?> i, Current current) => (i, i);
 
         public (Custom<int>, Custom<int>) opCustomIntS(Custom<int> i, Current current) => (i, i);
 
-        public (Custom<Test.CV>, Custom<Test.CV>) opCustomCVS(Custom<Test.CV> i, Current current) => (i, i);
+        public (Custom<Test.CV?>, Custom<Test.CV?>) opCustomCVS(Custom<Test.CV?> i, Current current) => (i, i);
 
         public (Custom<Custom<int>>, Custom<Custom<int>>) opCustomIntSS(Custom<Custom<int>> i, Current current) => (i, i);
 
-        public (Custom<Custom<Test.CV>>, Custom<Custom<Test.CV>>)
-        opCustomCVSS(Custom<Custom<Test.CV>> i, Current current) => (i, i);
+        public (Custom<Custom<Test.CV?>>, Custom<Custom<Test.CV?>>)
+        opCustomCVSS(Custom<Custom<Test.CV?>> i, Current current) => (i, i);
 
-        public (Serialize.Small, Serialize.Small) opSerialSmallCSharp(Serialize.Small i, Current current) => (i, i);
+        public (Serialize.Small?, Serialize.Small?) opSerialSmallCSharp(Serialize.Small? i, Current current) => (i, i);
 
-        public (Serialize.Large, Serialize.Large) opSerialLargeCSharp(Serialize.Large i, Current current) => (i, i);
+        public (Serialize.Large?, Serialize.Large?) opSerialLargeCSharp(Serialize.Large? i, Current current) => (i, i);
 
-        public (Serialize.Struct, Serialize.Struct) opSerialStructCSharp(Serialize.Struct i, Current current) => (i, i);
+        public (Serialize.Struct?, Serialize.Struct?) opSerialStructCSharp(Serialize.Struct? i, Current current) => (i, i);
     }
 }

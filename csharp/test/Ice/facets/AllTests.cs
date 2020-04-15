@@ -2,37 +2,38 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections.Generic;
 using Ice.facets.Test;
+using Test;
 
 namespace Ice.facets
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
-        public static IGPrx allTests(global::Test.TestHelper helper)
+        public static IGPrx allTests(TestHelper helper)
         {
 
-            Communicator communicator = helper.communicator();
-            var output = helper.getWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing Ice.Admin.Facets property... ");
-            test(communicator.GetPropertyAsList("Ice.Admin.Facets") == null);
+            TestHelper.Assert(communicator.GetPropertyAsList("Ice.Admin.Facets") == null);
             communicator.SetProperty("Ice.Admin.Facets", "foobar");
             string[]? facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
-            test(facetFilter != null && facetFilter.Length == 1 && facetFilter[0].Equals("foobar"));
+            TestHelper.Assert(facetFilter != null && facetFilter.Length == 1 && facetFilter[0].Equals("foobar"));
             communicator.SetProperty("Ice.Admin.Facets", "foo\\'bar");
             facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
-            test(facetFilter != null && facetFilter.Length == 1 && facetFilter[0].Equals("foo'bar"));
+            TestHelper.Assert(facetFilter != null && facetFilter.Length == 1 && facetFilter[0].Equals("foo'bar"));
             communicator.SetProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
             facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
-            test(facetFilter != null && facetFilter.Length == 3 && facetFilter[0].Equals("foo bar") &&
+            TestHelper.Assert(facetFilter != null && facetFilter.Length == 3 && facetFilter[0].Equals("foo bar") &&
                     facetFilter[1].Equals("toto") && facetFilter[2].Equals("titi"));
             communicator.SetProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
             facetFilter = communicator.GetPropertyAsList("Ice.Admin.Facets");
-            test(facetFilter != null && facetFilter.Length == 2 && facetFilter[0].Equals("foo bar' toto") &&
+            TestHelper.Assert(facetFilter != null && facetFilter.Length == 2 && facetFilter[0].Equals("foo bar' toto") &&
                     facetFilter[1].Equals("titi"));
             // communicator.SetProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
             // facetFilter = communicator.Properties.getPropertyAsList("Ice.Admin.Facets");
-            // test(facetFilter.Length == 0);
+            // TestHelper.Assert(facetFilter.Length == 0);
             communicator.SetProperty("Ice.Admin.Facets", "");
             output.WriteLine("ok");
 
@@ -47,7 +48,7 @@ namespace Ice.facets
             try
             {
                 adapter.Add("d", "facetABCD", obj);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (System.ArgumentException)
             {
@@ -58,71 +59,80 @@ namespace Ice.facets
 
             adapter.Deactivate();
 
-            var prx = IObjectPrx.Parse($"d:{helper.getTestEndpoint(0)}", communicator);
+            var prx = IObjectPrx.Parse($"d:{helper.GetTestEndpoint(0)}", communicator);
+            IDPrx? d;
+            IDPrx? df2;
+            IDPrx? df3;
 
             output.Write("testing unchecked cast... ");
             output.Flush();
-            var d = IDPrx.UncheckedCast(prx);
-            test(d.Facet.Length == 0);
-            var df = prx.Clone("facetABCD", IDPrx.Factory);
-            test(df.Facet == "facetABCD");
-            var df2 = IDPrx.UncheckedCast(df);
-            test(df2.Facet == "facetABCD");
-            var df3 = df.Clone(facet: "", IDPrx.Factory);
-            test(df3.Facet.Length == 0);
+            d = IDPrx.UncheckedCast(prx);
+            TestHelper.Assert(d != null);
+            TestHelper.Assert(d.Facet.Length == 0);
+            IDPrx df = prx.Clone("facetABCD", IDPrx.Factory);
+            TestHelper.Assert(df.Facet == "facetABCD");
+            df2 = IDPrx.UncheckedCast(df);
+            TestHelper.Assert(df2 != null);
+            TestHelper.Assert(df2.Facet == "facetABCD");
+            df3 = df.Clone(facet: "", IDPrx.Factory);
+            TestHelper.Assert(df3 != null);
+            TestHelper.Assert(df3.Facet.Length == 0);
             output.WriteLine("ok");
 
             output.Write("testing checked cast... ");
             output.Flush();
             d = IDPrx.CheckedCast(prx);
-            test(d.Facet.Length == 0);
-            df = IDPrx.CheckedCast(prx.Clone(facet: "facetABCD", IObjectPrx.Factory));
-            test(df.Facet == "facetABCD");
+            TestHelper.Assert(d != null);
+            TestHelper.Assert(d.Facet.Length == 0);
+            df = prx.Clone(facet: "facetABCD", IDPrx.Factory);
+            TestHelper.Assert(df.Facet == "facetABCD");
             df2 = IDPrx.CheckedCast(df);
-            test(df2.Facet == "facetABCD");
-            df3 = IDPrx.CheckedCast(df.Clone(facet: "", IObjectPrx.Factory));
-            test(df3.Facet.Length == 0);
+            TestHelper.Assert(df2 != null);
+            TestHelper.Assert(df2.Facet == "facetABCD");
+            df3 = df.Clone(facet: "", IDPrx.Factory);
+            TestHelper.Assert(df3.Facet.Length == 0);
             output.WriteLine("ok");
 
             output.Write("testing non-facets A, B, C, and D... ");
             output.Flush();
             d = IDPrx.CheckedCast(prx);
-            test(d != null);
-            test(d.Equals(prx));
-            test(d.callA().Equals("A"));
-            test(d.callB().Equals("B"));
-            test(d.callC().Equals("C"));
-            test(d.callD().Equals("D"));
+            TestHelper.Assert(d != null);
+            TestHelper.Assert(d.Equals(prx));
+            TestHelper.Assert(d.callA().Equals("A"));
+            TestHelper.Assert(d.callB().Equals("B"));
+            TestHelper.Assert(d.callC().Equals("C"));
+            TestHelper.Assert(d.callD().Equals("D"));
             output.WriteLine("ok");
 
             output.Write("testing facets A, B, C, and D... ");
             output.Flush();
-            df = IDPrx.CheckedCast(d.Clone(facet: "facetABCD", IObjectPrx.Factory));
-            test(df != null);
-            test(df.callA().Equals("A"));
-            test(df.callB().Equals("B"));
-            test(df.callC().Equals("C"));
-            test(df.callD().Equals("D"));
+            df = d.Clone(facet: "facetABCD", IDPrx.Factory);
+            TestHelper.Assert(df != null);
+            TestHelper.Assert(df.callA().Equals("A"));
+            TestHelper.Assert(df.callB().Equals("B"));
+            TestHelper.Assert(df.callC().Equals("C"));
+            TestHelper.Assert(df.callD().Equals("D"));
             output.WriteLine("ok");
 
             output.Write("testing facets E and F... ");
             output.Flush();
-            var ff = IFPrx.CheckedCast(d.Clone(facet: "facetEF", IObjectPrx.Factory));
-            test(ff.callE().Equals("E"));
-            test(ff.callF().Equals("F"));
+            IFPrx ff = d.Clone(facet: "facetEF", IFPrx.Factory);
+            TestHelper.Assert(ff.callE().Equals("E"));
+            TestHelper.Assert(ff.callF().Equals("F"));
             output.WriteLine("ok");
 
             output.Write("testing facet G... ");
             output.Flush();
-            var gf = IGPrx.CheckedCast(ff.Clone(facet: "facetGH", IObjectPrx.Factory));
-            test(gf.callG().Equals("G"));
+            IGPrx gf = ff.Clone(facet: "facetGH", IGPrx.Factory);
+            TestHelper.Assert(gf.callG().Equals("G"));
             output.WriteLine("ok");
 
             output.Write("testing whether casting preserves the facet... ");
             output.Flush();
             var hf = IHPrx.CheckedCast(gf);
-            test(hf.callG().Equals("G"));
-            test(hf.callH().Equals("H"));
+            TestHelper.Assert(hf != null);
+            TestHelper.Assert(hf.callG().Equals("G"));
+            TestHelper.Assert(hf.callH().Equals("H"));
             output.WriteLine("ok");
             return gf;
         }

@@ -8,16 +8,6 @@ namespace Ice.interceptor
 {
     class MyObject : Test.IMyObject
     {
-        protected static void
-        test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
         public int
         add(int x, int y, Current current) => x + y;
 

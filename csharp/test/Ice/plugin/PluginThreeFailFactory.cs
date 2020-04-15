@@ -16,7 +16,7 @@ public class PluginThreeFailFactory : Ice.IPluginFactory
 
         public override void Initialize() => throw new PluginInitializeFailException();
 
-        public override void Destroy() => test(false);
+        public override void Destroy() => TestHelper.Assert(false);
 
         ~PluginThreeFail()
         {

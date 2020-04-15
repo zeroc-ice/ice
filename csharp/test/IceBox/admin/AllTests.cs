@@ -8,14 +8,15 @@ using System.Collections.Generic;
 using Test;
 using Ice;
 
-public class AllTests : Test.AllTests
+public class AllTests
 {
     public static void allTests(TestHelper helper)
     {
-        Communicator communicator = helper.communicator();
+        Communicator? communicator = helper.Communicator();
+        TestHelper.Assert(communicator != null);
         var admin = IObjectPrx.Parse("DemoIceBox/admin:default -p 9996 -t 10000", communicator);
 
-        ITestFacetPrx facet;
+        ITestFacetPrx? facet;
 
         Console.Out.Write("testing custom facet... ");
         Console.Out.Flush();
@@ -24,6 +25,7 @@ public class AllTests : Test.AllTests
             // Test: Verify that the custom facet is present.
             //
             facet = ITestFacetPrx.CheckedCast(admin.Clone(facet: "TestFacet", IObjectPrx.Factory));
+            TestHelper.Assert(facet != null);
             facet.IcePing();
         }
         Console.Out.WriteLine("ok");
@@ -37,20 +39,21 @@ public class AllTests : Test.AllTests
             //
             // Test: PropertiesAdmin::getProperty()
             //
-            test(pa.GetProperty("Prop1") == "1");
-            test(pa.GetProperty("Bogus") == "");
+            TestHelper.Assert(pa != null);
+            TestHelper.Assert(pa.GetProperty("Prop1") == "1");
+            TestHelper.Assert(pa.GetProperty("Bogus") == "");
 
             //
             // Test: PropertiesAdmin::getProperties()
             //
             Dictionary<string, string> pd = pa.GetPropertiesForPrefix("");
-            test(pd.Count == 6);
-            test(pd["Prop1"] == "1");
-            test(pd["Prop2"] == "2");
-            test(pd["Prop3"] == "3");
-            test(pd["Ice.Config"] == "config.service");
-            test(pd["Ice.ProgramName"] == "IceBox-TestService");
-            test(pd["Ice.Admin.Enabled"] == "1");
+            TestHelper.Assert(pd.Count == 6);
+            TestHelper.Assert(pd["Prop1"] == "1");
+            TestHelper.Assert(pd["Prop2"] == "2");
+            TestHelper.Assert(pd["Prop3"] == "3");
+            TestHelper.Assert(pd["Ice.Config"] == "config.service");
+            TestHelper.Assert(pd["Ice.ProgramName"] == "IceBox-TestService");
+            TestHelper.Assert(pd["Ice.Admin.Enabled"] == "1");
 
             Dictionary<string, string> changes;
 
@@ -64,21 +67,21 @@ public class AllTests : Test.AllTests
             setProps.Add("Prop4", "4"); // Added
             setProps.Add("Prop5", "5"); // Added
             pa.SetProperties(setProps);
-            test(pa.GetProperty("Prop1") == "10");
-            test(pa.GetProperty("Prop2") == "20");
-            test(pa.GetProperty("Prop3") == "");
-            test(pa.GetProperty("Prop4") == "4");
-            test(pa.GetProperty("Prop5") == "5");
+            TestHelper.Assert(pa.GetProperty("Prop1") == "10");
+            TestHelper.Assert(pa.GetProperty("Prop2") == "20");
+            TestHelper.Assert(pa.GetProperty("Prop3") == "");
+            TestHelper.Assert(pa.GetProperty("Prop4") == "4");
+            TestHelper.Assert(pa.GetProperty("Prop5") == "5");
             changes = facet.getChanges();
-            test(changes.Count == 5);
-            test(changes["Prop1"] == "10");
-            test(changes["Prop2"] == "20");
-            test(changes["Prop3"] == "");
-            test(changes["Prop4"] == "4");
-            test(changes["Prop5"] == "5");
+            TestHelper.Assert(changes.Count == 5);
+            TestHelper.Assert(changes["Prop1"] == "10");
+            TestHelper.Assert(changes["Prop2"] == "20");
+            TestHelper.Assert(changes["Prop3"] == "");
+            TestHelper.Assert(changes["Prop4"] == "4");
+            TestHelper.Assert(changes["Prop5"] == "5");
             pa.SetProperties(setProps);
             changes = facet.getChanges();
-            test(changes.Count == 0);
+            TestHelper.Assert(changes.Count == 0);
         }
         Console.Out.WriteLine("ok");
 
@@ -90,10 +93,9 @@ public class AllTests : Test.AllTests
             var pa = IPropertiesAdminPrx.CheckedCast(
                 admin.Clone(facet: "IceBox.Service.TestService.Properties", IObjectPrx.Factory));
 
-            string[] views;
-            string[] disabledViews;
-            views = ma.GetMetricsViewNames().ReturnValue;
-            test(views.Length == 0);
+            TestHelper.Assert(ma != null && pa != null);
+            string[] views = ma.GetMetricsViewNames().ReturnValue;
+            TestHelper.Assert(views.Length == 0);
 
             Dictionary<string, string> setProps = new Dictionary<string, string>();
             setProps.Add("IceMX.Metrics.Debug.GroupBy", "id");
@@ -103,12 +105,11 @@ public class AllTests : Test.AllTests
             pa.SetProperties(new Dictionary<string, string>());
 
             views = ma.GetMetricsViewNames().ReturnValue;
-            test(views.Length == 3);
+            TestHelper.Assert(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            views = IceMX.IMetricsAdminPrx.
-                CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory)).GetMetricsViewNames().ReturnValue;
-            test(views.Length == 0);
+            views = admin.Clone(facet: "Metrics", IceMX.IMetricsAdminPrx.Factory).GetMetricsViewNames().ReturnValue;
+            TestHelper.Assert(views.Length == 0);
         }
         Console.Out.WriteLine("ok");
     }

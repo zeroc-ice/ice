@@ -8,12 +8,12 @@ namespace Ice.udp
 {
     public class Client : global::Test.TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.SndSize"] = "16384";
-            using var communicator = initialize(properties);
+            using var communicator = Initialize(properties);
             AllTests.allTests(this);
 
             int num;
@@ -28,10 +28,10 @@ namespace Ice.udp
 
             for (int i = 0; i < num; ++i)
             {
-                Test.ITestIntfPrx.Parse("control:" + getTestEndpoint(i, "tcp"), communicator).shutdown();
+                Test.ITestIntfPrx.Parse("control:" + GetTestEndpoint(i, "tcp"), communicator).shutdown();
             }
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Client>(args);
     }
 }

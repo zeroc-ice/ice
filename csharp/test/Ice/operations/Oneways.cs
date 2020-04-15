@@ -2,19 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
+
 namespace Ice.operations
 {
     class Oneways
     {
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                throw new System.SystemException();
-            }
-        }
-
-        internal static void oneways(global::Test.TestHelper helper, Test.IMyClassPrx p)
+        internal static void oneways(TestHelper helper, Test.IMyClassPrx p)
         {
             p = p.Clone(oneway: true);
             p.IcePing();

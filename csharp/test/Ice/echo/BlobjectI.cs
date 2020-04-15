@@ -3,14 +3,14 @@
 //
 
 using System.Threading.Tasks;
-using System.Diagnostics;
+using Test;
 using Ice;
 
 public class BlobjectI : IObject
 {
     public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
     {
-        Debug.Assert(current.Connection != null);
+        TestHelper.Assert(current.Connection != null);
         IObjectPrx proxy = current.Connection.CreateProxy(current.Identity, IObjectPrx.Factory).Clone(current.Facet,
             IObjectPrx.Factory, oneway: current.IsOneway);
         return proxy.ForwardAsync(current.IsOneway, request);

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
@@ -12,31 +13,37 @@ using Ice;
 
 namespace Test
 {
-    public interface ControllerHelper
+    public interface IControllerHelper
     {
-        void serverReady();
-        void communicatorInitialized(Ice.Communicator communicator);
+        void ServerReady();
+        void CommunicatorInitialized(Communicator communicator);
     }
 
-    public interface PlatformAdapter
+    public interface IPlatformAdapter
     {
-        bool isEmulator();
+        bool IsEmulator();
 
-        string processControllerRegistryHost();
+        string ProcessControllerRegistryHost();
 
-        string processControllerIdentity();
+        string ProcessControllerIdentity();
     }
 
     public abstract class TestHelper
     {
-        public abstract void run(string[] args);
-
-        public string getTestEndpoint(int num = 0, string transport = "")
+        public static void Assert([DoesNotReturnIf(false)] bool b)
         {
-            return getTestEndpoint(_communicator.GetProperties(), num, transport);
+            if (!b)
+            {
+                Debug.Assert(false);
+                throw new Exception();
+            }
         }
+        public abstract void Run(string[] args);
 
-        static public string getTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
+        public string GetTestEndpoint(int num = 0, string transport = "") =>
+            GetTestEndpoint(_communicator!.GetProperties(), num, transport);
+
+        static public string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
             string? value;
             if (transport == "")
@@ -51,11 +58,10 @@ namespace Test
                 value = transport;
             }
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(value);
             sb.Append(" -p ");
-            int basePort;
-            if (!properties.TryGetValue("Test.BasePort", out value) || !int.TryParse(value, out basePort))
+            if (!properties.TryGetValue("Test.BasePort", out value) || !int.TryParse(value, out int basePort))
             {
                 basePort = 12010;
             }
@@ -63,53 +69,41 @@ namespace Test
             return sb.ToString();
         }
 
-        public string getTestHost()
-        {
-            return getTestHost(_communicator.GetProperties());
-        }
+        public string GetTestHost() => GetTestHost(_communicator!.GetProperties());
 
-        static public string getTestHost(Dictionary<string, string> properties)
+        static public string GetTestHost(Dictionary<string, string> properties)
         {
-            string? host;
-            if (!properties.TryGetValue("Ice.Default.Host", out host))
+            if (!properties.TryGetValue("Ice.Default.Host", out string? host))
             {
                 host = "127.0.0.1";
             }
             return host;
         }
 
-        public string getTestTransport()
-        {
-            return getTestTransport(_communicator.GetProperties());
-        }
+        public string GetTestTransport() => GetTestTransport(_communicator!.GetProperties());
 
-        static public String getTestTransport(Dictionary<string, string> properties)
+        static public string GetTestTransport(Dictionary<string, string> properties)
         {
-            string? transport;
-            if (!properties.TryGetValue("Ice.Default.Transport", out transport))
+            if (!properties.TryGetValue("Ice.Default.Transport", out string? transport))
             {
                 transport = "tcp";
             }
             return transport;
         }
 
-        public int getTestPort(int num)
-        {
-            return getTestPort(_communicator.GetProperties(), num);
-        }
+        public int GetTestPort(int num) => GetTestPort(_communicator!.GetProperties(), num);
 
-        static public int getTestPort(Dictionary<string, string> properties, int num)
+        static public int GetTestPort(Dictionary<string, string> properties, int num)
         {
-            string? value;
             int basePort = 12010;
-            if (properties.TryGetValue("Test.BasePort", out value))
+            if (properties.TryGetValue("Test.BasePort", out string? value))
             {
                 basePort = int.Parse(value);
             }
             return basePort + num;
         }
 
-        public TextWriter getWriter()
+        public TextWriter GetWriter()
         {
             if (_writer == null)
             {
@@ -121,30 +115,26 @@ namespace Test
             }
         }
 
-        public void setWriter(TextWriter writer)
-        {
-            _writer = writer;
-        }
+        public void SetWriter(TextWriter writer) => _writer = writer;
 
-        public Dictionary<string, string> createTestProperties(
+        public Dictionary<string, string> CreateTestProperties(
             ref string[] args,
             Dictionary<string, string>? defaults = null)
         {
-            var properties = defaults == null ? new Dictionary<string, string>() : new Dictionary<string, string>(defaults);
+            Dictionary<string, string> properties =
+                defaults == null ? new Dictionary<string, string>() : new Dictionary<string, string>(defaults);
             properties.ParseIceArgs(ref args);
             properties.ParseArgs(ref args, "Test");
             return properties;
         }
 
-        public Communicator initialize(ref string[] args,
+        public Communicator Initialize(ref string[] args,
             Dictionary<string, string>? defaults = null,
             Ice.Instrumentation.ICommunicatorObserver? observer = null,
-            string[]? typeIdNamespaces = null)
-        {
-            return initialize(createTestProperties(ref args, defaults), observer, typeIdNamespaces);
-        }
+            string[]? typeIdNamespaces = null) =>
+            Initialize(CreateTestProperties(ref args, defaults), observer, typeIdNamespaces);
 
-        public Communicator initialize(
+        public Communicator Initialize(
             Dictionary<string, string> properties,
             Ice.Instrumentation.ICommunicatorObserver? observer = null,
             string[]? typeIdNamespaces = null)
@@ -156,67 +146,38 @@ namespace Test
             }
             if (_controllerHelper != null)
             {
-                _controllerHelper.communicatorInitialized(communicator);
+                _controllerHelper.CommunicatorInitialized(communicator);
             }
             return communicator;
         }
 
-        public Ice.Communicator communicator()
-        {
-            return _communicator;
-        }
+        public Communicator? Communicator() => _communicator;
+        public void SetControllerHelper(IControllerHelper controllerHelper) => _controllerHelper = controllerHelper;
 
-        public static void test(bool b)
-        {
-            if (!b)
-            {
-                Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
-        public void setControllerHelper(ControllerHelper controllerHelper)
-        {
-            _controllerHelper = controllerHelper;
-        }
-
-        public void serverReady()
+        public void ServerReady()
         {
             if (_controllerHelper != null)
             {
-                _controllerHelper.serverReady();
+                _controllerHelper.ServerReady();
             }
         }
 
-        private Ice.Communicator _communicator;
-        private ControllerHelper _controllerHelper;
-        private TextWriter _writer;
-    }
-
-    public abstract class AllTests
-    {
-        protected static void test(bool b)
-        {
-            if (!b)
-            {
-                Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
+        private Communicator? _communicator;
+        private IControllerHelper? _controllerHelper;
+        private TextWriter? _writer;
     }
 
     public static class TestDriver
     {
-        public static int runTest<T>(string[] args)
-            where T : TestHelper, new()
+        public static int RunTest<T>(string[] args) where T : TestHelper, new()
         {
             int status = 0;
             try
             {
-                T h = new T();
-                h.run(args);
+                var h = new T();
+                h.Run(args);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 status = 1;

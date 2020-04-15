@@ -8,9 +8,9 @@ using Ice.inheritance.Test.MB;
 
 namespace Ice.inheritance
 {
-    public sealed class InitialI : Test.IInitial
+    public sealed class InitialI : IInitial
     {
-        public InitialI(Ice.ObjectAdapter adapter)
+        public InitialI(ObjectAdapter adapter)
         {
             _ia = adapter.AddWithUUID(new IA(),IIAPrx.Factory);
             _ib1 = adapter.AddWithUUID(new IB1(), IIB1Prx.Factory);
@@ -27,9 +27,9 @@ namespace Ice.inheritance
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        private IIAPrx _ia;
-        private IIB1Prx _ib1;
-        private IIB2Prx _ib2;
-        private IICPrx _ic;
+        private readonly IIAPrx _ia;
+        private readonly IIB1Prx _ib1;
+        private readonly IIB2Prx _ib2;
+        private readonly IICPrx _ic;
     }
 }

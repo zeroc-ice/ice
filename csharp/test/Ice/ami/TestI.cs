@@ -2,24 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace Ice.ami
 {
     public class TestIntf : Test.ITestIntf
     {
-        protected static void test(bool b)
-        {
-            if (!b)
-            {
-                Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
         public void
         op(Current current)
         {
@@ -30,15 +20,12 @@ namespace Ice.ami
         public void opWithUE(Current current) => throw new Test.TestIntfException();
 
         public void
-        opWithPayload(byte[] seq, Ice.Current current)
+        opWithPayload(byte[] seq, Current current)
         {
         }
 
         public void
-        close(Test.CloseMode mode, Current current)
-        {
-            current.Connection.Close((ConnectionClose)((int)mode));
-        }
+        close(Test.CloseMode mode, Current current) => current.Connection!.Close((ConnectionClose)(int)mode);
 
         public void sleep(int ms, Current current) => Thread.Sleep(ms);
 
@@ -63,23 +50,23 @@ namespace Ice.ami
 
         public async ValueTask opAsyncDispatchAsync(Current current) => await Task.Delay(10);
 
-        public async ValueTask<int> opWithResultAsyncDispatchAsync(Ice.Current current)
+        public async ValueTask<int> opWithResultAsyncDispatchAsync(Current current)
         {
             await Task.Delay(10);
-            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-            var r = await self(current).opWithResultAsync();
-            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
+            int r = await Self(current).opWithResultAsync();
+            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
             return r;
         }
 
-        public async ValueTask opWithUEAsyncDispatchAsync(Ice.Current current)
+        public async ValueTask opWithUEAsyncDispatchAsync(Current current)
         {
-            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
             await Task.Delay(10);
-            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
             try
             {
-                await self(current).opWithUEAsync();
+                await Self(current).opWithUEAsync();
             }
             catch (RemoteException ex)
             {
@@ -88,32 +75,33 @@ namespace Ice.ami
             }
         }
 
-        public void pingBiDir(Test.IPingReplyPrx reply, Ice.Current current)
+        public void pingBiDir(Test.IPingReplyPrx? reply, Current current)
         {
+            TestHelper.Assert(reply != null);
             reply = reply.Clone(fixedConnection: current.Connection);
             Thread dispatchThread = Thread.CurrentThread;
             reply.replyAsync().ContinueWith(
                 (t) =>
                 {
                     Thread callbackThread = Thread.CurrentThread;
-                    test(dispatchThread != callbackThread);
-                    test(callbackThread.Name.Contains("Ice.ThreadPool.Server"));
+                    TestHelper.Assert(dispatchThread != callbackThread);
+                    TestHelper.Assert(callbackThread.Name!.Contains("Ice.ThreadPool.Server"));
                 },
                 reply.Scheduler).Wait();
         }
 
-        Test.ITestIntfPrx self(Current current) =>
+        Test.ITestIntfPrx Self(Current current) =>
             current.Adapter.CreateProxy(current.Identity, Test.ITestIntfPrx.Factory);
 
-        public ValueTask startDispatchAsync(Ice.Current current)
+        public ValueTask startDispatchAsync(Current current)
         {
             lock (this)
             {
                 if (_shutdown)
                 {
-                    // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+                    // Ignore, this can occur with the forceful connection close test, shutdown can be dispatch
                     // before start dispatch.
-                    var v = new TaskCompletionSource<object>();
+                    var v = new TaskCompletionSource<object?>();
                     v.SetResult(null);
                     return new ValueTask(v.Task);
                 }
@@ -121,12 +109,12 @@ namespace Ice.ami
                 {
                     _pending.SetResult(null);
                 }
-                _pending = new TaskCompletionSource<object>();
+                _pending = new TaskCompletionSource<object?>();
                 return new ValueTask(_pending.Task);
             }
         }
 
-        public void finishDispatch(Ice.Current current)
+        public void finishDispatch(Current current)
         {
             lock (this)
             {
@@ -143,7 +131,7 @@ namespace Ice.ami
         }
 
         private bool _shutdown;
-        private TaskCompletionSource<object> _pending = null;
+        private TaskCompletionSource<object?>? _pending = null;
     }
 
     public class TestIntf2 : Test.Outer.Inner.ITestIntf

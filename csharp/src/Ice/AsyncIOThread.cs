@@ -16,7 +16,7 @@ namespace IceInternal
 
             _thread = new HelperThread(this);
             UpdateObserver();
-            _thread.Start(Util.StringToThreadPriority(communicator.GetProperty("Ice.ThreadPriority")));
+            _thread.Start();
         }
 
         public void
@@ -146,7 +146,7 @@ namespace IceInternal
 
             public string GetName() => _name;
 
-            public void Start(ThreadPriority priority)
+            public void Start()
             {
                 _thread = new Thread(new ThreadStart(Run))
                 {

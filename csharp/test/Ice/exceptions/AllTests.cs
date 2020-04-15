@@ -2,17 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using Ice.exceptions.Test;
+using System;
+using Test;
 
 namespace Ice.exceptions
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
-        public static IThrowerPrx allTests(global::Test.TestHelper helper)
+        public static IThrowerPrx allTests(TestHelper helper)
         {
-            Communicator communicator = helper.communicator();
-            var output = helper.getWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            System.IO.TextWriter output = helper.GetWriter();
             {
                 output.Write("testing object adapter registration exceptions... ");
                 ObjectAdapter first;
@@ -20,7 +22,7 @@ namespace Ice.exceptions
                 {
                     first = communicator.CreateObjectAdapter("TestAdapter0");
                 }
-                catch (Ice.InvalidConfigurationException)
+                catch (InvalidConfigurationException)
                 {
                     // Expected
                 }
@@ -30,7 +32,7 @@ namespace Ice.exceptions
                 try
                 {
                     communicator.CreateObjectAdapter("TestAdapter0");
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ArgumentException)
                 {
@@ -41,7 +43,7 @@ namespace Ice.exceptions
                 {
                     ObjectAdapter second =
                         communicator.CreateObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
-                    test(false);
+                    TestHelper.Assert(false);
 
                     //
                     // Quell mono error that variable second isn't used.
@@ -65,7 +67,7 @@ namespace Ice.exceptions
                 try
                 {
                     adapter.Add("x", obj);
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ArgumentException)
                 {
@@ -74,7 +76,7 @@ namespace Ice.exceptions
                 try
                 {
                     adapter.Add("", obj);
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (FormatException)
                 {
@@ -86,96 +88,83 @@ namespace Ice.exceptions
                 output.WriteLine("ok");
             }
 
-            output.Write("testing stringToProxy... ");
-            output.Flush();
-            string @ref = "thrower:" + helper.getTestEndpoint(0);
-            var @base = IObjectPrx.Parse(@ref, communicator);
-            test(@base != null);
-            output.WriteLine("ok");
-
-            output.Write("testing checked cast... ");
-            output.Flush();
-            var thrower = IThrowerPrx.CheckedCast(@base);
-
-            test(thrower != null);
-            test(thrower.Equals(@base));
-            output.WriteLine("ok");
-
+            var thrower = IThrowerPrx.Parse($"thrower:{helper.GetTestEndpoint(0)}", communicator);
+            TestHelper.Assert(thrower != null);
             output.Write("catching exact types... ");
             output.Flush();
 
             try
             {
                 thrower.throwAasA(1);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (A ex)
             {
-                test(ex.aMem == 1);
+                TestHelper.Assert(ex.aMem == 1);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwAorDasAorD(1);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (A ex)
             {
-                test(ex.aMem == 1);
+                TestHelper.Assert(ex.aMem == 1);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwAorDasAorD(-1);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (D ex)
             {
-                test(ex.dMem == -1);
+                TestHelper.Assert(ex.dMem == -1);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwBasB(1, 2);
-                test(false);
+                TestHelper.Assert(false);
             }
-            catch (Test.B ex)
+            catch (B ex)
             {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
+                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.bMem == 2);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwCasC(1, 2, 3);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (C ex)
             {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
+                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.bMem == 2);
+                TestHelper.Assert(ex.cMem == 3);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             output.WriteLine("ok");
@@ -186,30 +175,30 @@ namespace Ice.exceptions
             try
             {
                 thrower.throwBasB(1, 2);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (A ex)
             {
-                test(ex.aMem == 1);
+                TestHelper.Assert(ex.aMem == 1);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwCasC(1, 2, 3);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (B ex)
             {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
+                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.bMem == 2);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             output.WriteLine("ok");
@@ -220,48 +209,48 @@ namespace Ice.exceptions
             try
             {
                 thrower.throwBasA(1, 2);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (B ex)
             {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
+                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.bMem == 2);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwCasA(1, 2, 3);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (C ex)
             {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
+                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.bMem == 2);
+                TestHelper.Assert(ex.cMem == 3);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwCasB(1, 2, 3);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (C ex)
             {
-                test(ex.aMem == 1);
-                test(ex.bMem == 2);
-                test(ex.cMem == 3);
+                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.bMem == 2);
+                TestHelper.Assert(ex.cMem == 3);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             output.WriteLine("ok");
@@ -272,40 +261,40 @@ namespace Ice.exceptions
             try
             {
                 thrower.throwUndeclaredA(1);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (A)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwUndeclaredB(1, 2);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (B)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwUndeclaredC(1, 2, 3);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (C)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             output.WriteLine("ok");
@@ -317,20 +306,20 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwMemoryLimitException(Array.Empty<byte>());
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (InvalidDataException)
                 {
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
 
                 try
                 {
                     thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ConnectionLostException)
                 {
@@ -339,14 +328,14 @@ namespace Ice.exceptions
                 {
                     // Expected with JS bidir server
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
 
                 try
                 {
-                    var thrower2 = IThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(1), communicator);
+                    var thrower2 = IThrowerPrx.Parse("thrower:" + helper.GetTestEndpoint(1), communicator);
                     try
                     {
                         thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
@@ -354,11 +343,11 @@ namespace Ice.exceptions
                     catch (InvalidDataException)
                     {
                     }
-                    var thrower3 = IThrowerPrx.Parse("thrower:" + helper.getTestEndpoint(2), communicator);
+                    var thrower3 = IThrowerPrx.Parse("thrower:" + helper.GetTestEndpoint(2), communicator);
                     try
                     {
                         thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (ConnectionLostException)
                     {
@@ -376,21 +365,21 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                Identity identity = Identity.Parse("does not exist");
+                var identity = Identity.Parse("does not exist");
                 try
                 {
-                    var thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
+                    IThrowerPrx thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                     thrower2.IcePing();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException ex)
                 {
-                    test(ex.Id.Equals(identity));
-                    test(ex.Message.Contains("servant")); // verify we don't get system message
+                    TestHelper.Assert(ex.Id.Equals(identity));
+                    TestHelper.Assert(ex.Message.Contains("servant")); // verify we don't get system message
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
 
@@ -401,21 +390,21 @@ namespace Ice.exceptions
 
             try
             {
-                var thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
+                IThrowerPrx thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
                     thrower2.IcePing();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException ex)
                 {
-                    test(ex.Facet.Equals("no such facet"));
-                    test(ex.Message.Contains("with facet")); // verify we don't get system message
+                    TestHelper.Assert(ex.Facet.Equals("no such facet"));
+                    TestHelper.Assert(ex.Message.Contains("with facet")); // verify we don't get system message
                 }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             output.WriteLine("ok");
@@ -425,18 +414,18 @@ namespace Ice.exceptions
 
             try
             {
-                var thrower2 = Test.IWrongOperationPrx.UncheckedCast(thrower);
+                var thrower2 = IWrongOperationPrx.UncheckedCast(thrower);
                 thrower2.noSuchOperation();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (OperationNotExistException ex)
             {
-                test(ex.Operation.Equals("noSuchOperation"));
-                test(ex.Message.Contains("could not find operation")); // verify we don't get system message
+                TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
+                TestHelper.Assert(ex.Message.Contains("could not find operation")); // verify we don't get system message
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             output.WriteLine("ok");
@@ -447,47 +436,45 @@ namespace Ice.exceptions
             try
             {
                 thrower.throwLocalException();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (UnhandledException ex)
             {
-                 test(ex.Message.Contains("unhandled exception")); // verify we get custom message
+                 TestHelper.Assert(ex.Message.Contains("unhandled exception")); // verify we get custom message
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
             try
             {
                 thrower.throwLocalExceptionIdempotent();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (UnhandledException)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             output.WriteLine("ok");
 
             output.Write("catching unhandled non-Ice exception... ");
             output.Flush();
-
             try
             {
                 thrower.throwNonIceException();
-                test(false);
+                TestHelper.Assert(false);
             }
-            catch (UnhandledException ex)
+            catch (UnhandledException)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
-
             output.WriteLine("ok");
 
             output.Write("catching unhandled remote exception... ");
@@ -495,14 +482,14 @@ namespace Ice.exceptions
             try
             {
                 thrower.throwAConvertedToUnhandled();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (UnhandledException)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
             output.WriteLine("ok");
 
@@ -513,39 +500,36 @@ namespace Ice.exceptions
             {
                 thrower.throwAfterResponse();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 thrower.throwAfterException();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (A)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
-
             output.WriteLine("ok");
 
             output.Write("catching exact types with AMI... ");
             output.Flush();
-
             {
                 try
                 {
                     thrower.throwAasAAsync(1).Wait();
                 }
-                catch (AggregateException exc)
+                catch (AggregateException ex)
                 {
-                    test(exc.InnerException is A);
-                    var ex = exc.InnerException as Test.A;
-                    test(ex.aMem == 1);
+                    TestHelper.Assert(ex.InnerException != null);
+                    TestHelper.Assert(((A)ex.InnerException).aMem == 1);
                 }
             }
 
@@ -553,25 +537,26 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwAorDasAorDAsync(1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (A ex)
                     {
-                        test(ex.aMem == 1);
+                        TestHelper.Assert(ex.aMem == 1);
                     }
                     catch (D ex)
                     {
-                        test(ex.dMem == -1);
+                        TestHelper.Assert(ex.dMem == -1);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -580,25 +565,26 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwAorDasAorDAsync(-1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (A ex)
                     {
-                        test(ex.aMem == 1);
+                        TestHelper.Assert(ex.aMem == 1);
                     }
                     catch (D ex)
                     {
-                        test(ex.dMem == -1);
+                        TestHelper.Assert(ex.dMem == -1);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -607,22 +593,23 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwBasBAsync(1, 2).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (B ex)
                     {
-                        test(ex.aMem == 1);
-                        test(ex.bMem == 2);
+                        TestHelper.Assert(ex.aMem == 1);
+                        TestHelper.Assert(ex.bMem == 2);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -631,23 +618,24 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwCasCAsync(1, 2, 3).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (C ex)
                     {
-                        test(ex.aMem == 1);
-                        test(ex.bMem == 2);
-                        test(ex.cMem == 3);
+                        TestHelper.Assert(ex.aMem == 1);
+                        TestHelper.Assert(ex.bMem == 2);
+                        TestHelper.Assert(ex.cMem == 3);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -661,22 +649,23 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwBasAAsync(1, 2).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (B ex)
                     {
-                        test(ex.aMem == 1);
-                        test(ex.bMem == 2);
+                        TestHelper.Assert(ex.aMem == 1);
+                        TestHelper.Assert(ex.bMem == 2);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -690,17 +679,18 @@ namespace Ice.exceptions
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (C ex)
                     {
-                        test(ex.aMem == 1);
-                        test(ex.bMem == 2);
-                        test(ex.cMem == 3);
+                        TestHelper.Assert(ex.aMem == 1);
+                        TestHelper.Assert(ex.bMem == 2);
+                        TestHelper.Assert(ex.cMem == 3);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -709,23 +699,24 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwCasBAsync(1, 2, 3).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (C ex)
                     {
-                        test(ex.aMem == 1);
-                        test(ex.bMem == 2);
-                        test(ex.cMem == 3);
+                        TestHelper.Assert(ex.aMem == 1);
+                        TestHelper.Assert(ex.bMem == 2);
+                        TestHelper.Assert(ex.cMem == 3);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -739,20 +730,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwUndeclaredAAsync(1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (A)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -761,20 +753,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwUndeclaredBAsync(1, 2).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (B)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -783,20 +776,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (C)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -807,26 +801,27 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                Identity identity = Identity.Parse("does not exist");
-                var thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
+                var identity = Identity.Parse("does not exist");
+                IThrowerPrx thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.Id.Equals(identity));
+                        TestHelper.Assert(ex.Id.Equals(identity));
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -837,25 +832,26 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                var thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
+                IThrowerPrx thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.Facet.Equals("no such facet"));
+                        TestHelper.Assert(ex.Facet.Equals("no such facet"));
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -870,21 +866,22 @@ namespace Ice.exceptions
                 {
                     var thrower4 = IWrongOperationPrx.UncheckedCast(thrower);
                     thrower4.noSuchOperationAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (OperationNotExistException ex)
                     {
-                        test(ex.Operation.Equals("noSuchOperation"));
+                        TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -898,20 +895,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwLocalExceptionAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (UnhandledException)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -920,20 +918,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwLocalExceptionIdempotentAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (UnhandledException)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -946,20 +945,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwNonIceExceptionAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (UnhandledException)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -972,20 +972,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwUndeclaredAAsync(1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (A)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -994,20 +995,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwUndeclaredBAsync(1, 2).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (B)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1016,20 +1018,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (C)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1040,26 +1043,27 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                Identity identity = Identity.Parse("does not exist");
-                var thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
+                var identity = Identity.Parse("does not exist");
+                IThrowerPrx thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
+                    TestHelper.Assert(exc.InnerException != null);
                     try
                     {
                         throw exc.InnerException;
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.Id.Equals(identity));
+                        TestHelper.Assert(ex.Id.Equals(identity));
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1070,25 +1074,26 @@ namespace Ice.exceptions
             output.Flush();
 
             {
-                var thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
+                IThrowerPrx thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
                     thrower2.throwAasAAsync(1).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (ObjectNotExistException ex)
                     {
-                        test(ex.Facet.Equals("no such facet"));
+                        TestHelper.Assert(ex.Facet.Equals("no such facet"));
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1103,21 +1108,22 @@ namespace Ice.exceptions
                 try
                 {
                     thrower4.noSuchOperationAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (OperationNotExistException ex)
                     {
-                        test(ex.Operation.Equals("noSuchOperation"));
+                        TestHelper.Assert(ex.Operation.Equals("noSuchOperation"));
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1131,20 +1137,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwLocalExceptionAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (UnhandledException)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1153,20 +1160,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwLocalExceptionIdempotentAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (UnhandledException)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1179,20 +1187,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwNonIceExceptionAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (UnhandledException)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }
@@ -1204,20 +1213,21 @@ namespace Ice.exceptions
                 try
                 {
                     thrower.throwAConvertedToUnhandledAsync().Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
                 {
                     try
                     {
+                        TestHelper.Assert(exc.InnerException != null);
                         throw exc.InnerException;
                     }
                     catch (UnhandledException)
                     {
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                 }
             }

@@ -3,7 +3,7 @@
 //
 
 using System;
-using System.Diagnostics;
+using Test;
 using System.Threading.Tasks;
 
 namespace Ice
@@ -19,26 +19,20 @@ namespace Ice
                 }
 
                 public ValueTask
-                shutdownAsync(Ice.Current current)
+                shutdownAsync(Current current)
                 {
                     current.Adapter.Communicator.Shutdown();
                     return new ValueTask(Task.CompletedTask);
                 }
 
                 public ValueTask<bool>
-                supportsAssertExceptionAsync(Ice.Current current)
-                {
-                    return new ValueTask<bool>(false);
-                }
+                supportsAssertExceptionAsync(Current current) => new ValueTask<bool>(false);
 
                 public ValueTask
-                throwAasAAsync(int a, Ice.Current current)
-                {
-                    throw new Test.A(a);
-                }
+                throwAasAAsync(int a, Current current) => throw new Test.A(a);
 
                 public ValueTask
-                throwAorDasAorDAsync(int a, Ice.Current current)
+                throwAorDasAorDAsync(int a, Current current)
                 {
                     if (a > 0)
                     {
@@ -51,7 +45,7 @@ namespace Ice
                 }
 
                 public ValueTask
-                throwBasAAsync(int a, int b, Ice.Current current)
+                throwBasAAsync(int a, int b, Current current)
                 {
                     //throw new B(a, b);
                     var s = new TaskCompletionSource<object>();
@@ -60,80 +54,49 @@ namespace Ice
                 }
 
                 public ValueTask
-                throwBasBAsync(int a, int b, Ice.Current current)
-                {
-                    throw new Test.B(a, b);
-                }
+                throwBasBAsync(int a, int b, Current current) => throw new Test.B(a, b);
 
                 public ValueTask
-                throwCasAAsync(int a, int b, int c, Ice.Current current)
-                {
-                    throw new Test.C(a, b, c);
-                }
+                throwCasAAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
 
                 public ValueTask
-                throwCasBAsync(int a, int b, int c, Ice.Current current)
-                {
-                    throw new Test.C(a, b, c);
-                }
+                throwCasBAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
 
                 public ValueTask
-                throwCasCAsync(int a, int b, int c, Ice.Current current)
-                {
-                    throw new Test.C(a, b, c);
-                }
+                throwCasCAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
 
                 public ValueTask
-                throwUndeclaredAAsync(int a, Ice.Current current)
-                {
-                    throw new Test.A(a);
-                }
+                throwUndeclaredAAsync(int a, Current current) => throw new Test.A(a);
 
                 public ValueTask
-                throwUndeclaredBAsync(int a, int b, Ice.Current current)
-                {
-                    throw new Test.B(a, b);
-                }
+                throwUndeclaredBAsync(int a, int b, Current current) => throw new Test.B(a, b);
 
                 public ValueTask
-                throwUndeclaredCAsync(int a, int b, int c, Ice.Current current)
-                {
-                    throw new Test.C(a, b, c);
-                }
+                throwUndeclaredCAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
 
                 public ValueTask
-                throwLocalExceptionAsync(Ice.Current current)
-                {
-                    throw new Ice.ConnectionTimeoutException();
-                }
+                throwLocalExceptionAsync(Current current) => throw new ConnectionTimeoutException();
 
                 public ValueTask
-                throwNonIceExceptionAsync(Ice.Current current)
-                {
-                    throw new System.Exception();
-                }
+                throwNonIceExceptionAsync(Current current) => throw new Exception();
 
                 public ValueTask
-                throwAssertExceptionAsync(Ice.Current current)
+                throwAssertExceptionAsync(Current current)
                 {
-                    Debug.Assert(false);
+                    TestHelper.Assert(false);
                     return new ValueTask(Task.CompletedTask);
                 }
 
                 public ValueTask<byte[]>
-                throwMemoryLimitExceptionAsync(byte[] seq, Ice.Current current)
-                {
-                    return new ValueTask<byte[]>(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
-                }
+                throwMemoryLimitExceptionAsync(byte[] seq, Current current) =>
+                    new ValueTask<byte[]>(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
 
                 public ValueTask
-                throwLocalExceptionIdempotentAsync(Ice.Current current)
-                {
-                    throw new Ice.ConnectionTimeoutException();
-                }
+                throwLocalExceptionIdempotentAsync(Current current) =>
+                    throw new ConnectionTimeoutException();
 
                 public ValueTask
-                throwAfterResponseAsync(Ice.Current current)
+                throwAfterResponseAsync(Current current)
                 {
                     // Only supported with callback based AMD API
                     return new ValueTask(Task.CompletedTask);
@@ -141,14 +104,14 @@ namespace Ice
                 }
 
                 public ValueTask
-                throwAfterExceptionAsync(Ice.Current current)
+                throwAfterExceptionAsync(Current current)
                 {
                     // Only supported with callback based AMD API
                     throw new Test.A();
                     //throw new Exception();
                 }
 
-                public ValueTask throwAConvertedToUnhandledAsync(Ice.Current current)
+                public ValueTask throwAConvertedToUnhandledAsync(Current current)
                 {
                     var a = new Test.A();
                     a.ConvertToUnhandled = true;

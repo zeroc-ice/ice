@@ -3,16 +3,15 @@
 //
 
 using Test;
-using Ice.facets.Test;
 
 namespace Ice.facets
 {
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using var communicator = initialize(ref args);
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            using Communicator communicator = Initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
             adapter.Add("d", d);
@@ -22,10 +21,10 @@ namespace Ice.facets
             var h = new H(communicator);
             adapter.Add("d", "facetGH", h);
             adapter.Activate();
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

@@ -11,11 +11,11 @@ namespace Ice.proxy
     public sealed class MyDerivedClass : Test.IMyDerivedClass
     {
 
-        public IObjectPrx echo(IObjectPrx obj, Current c) => obj;
+        public IObjectPrx? echo(IObjectPrx? obj, Current c) => obj;
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public Dictionary<string, string> getContext(Current current) => _ctx;
+        public Dictionary<string, string> getContext(Current current) => _ctx!;
 
         public bool IceIsA(string typeId, Current current)
         {
@@ -23,6 +23,6 @@ namespace Ice.proxy
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
-        private Dictionary<string, string> _ctx;
+        private Dictionary<string, string>? _ctx;
     }
 }

@@ -9,12 +9,12 @@ namespace Ice.operations
 {
     public class Client : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             properties["Ice.ThreadPool.Client.Size"] = "2";
             properties["Ice.ThreadPool.Client.SizeWarn"] = "0";
-            using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.TypeId" });
+            using var communicator = Initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.TypeId" });
             var myClass = AllTests.allTests(this);
 
             Console.Out.Write("testing server shutdown... ");
@@ -23,14 +23,14 @@ namespace Ice.operations
             try
             {
                 myClass.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
-                test(false);
+                Assert(false);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                  Console.Out.WriteLine("ok");
             }
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

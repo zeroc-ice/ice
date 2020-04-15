@@ -3,6 +3,7 @@
 //
 
 using Test;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -10,20 +11,15 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            override public void run(string[] args)
+            override public void Run(string[] args)
             {
-                var properties = createTestProperties(ref args);
+                Dictionary<string, string> properties = CreateTestProperties(ref args);
                 properties["Ice.Warn.Connections"] = "0";
-                using (var communicator = initialize(properties))
-                {
-                    AllTests.allTests(this);
-                }
+                using Communicator communicator = Initialize(properties);
+                AllTests.allTests(this);
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Client>(args);
-            }
+            public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
         }
     }
 }

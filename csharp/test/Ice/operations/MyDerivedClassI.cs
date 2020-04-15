@@ -6,41 +6,30 @@ using Ice;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Test;
 
 namespace Ice.operations
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass, IObject
     {
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
-        //
         // Override the Object "pseudo" operations to verify the operation mode.
-        //
-
         public bool IceIsA(string id, Current current)
         {
-            test(current.IsIdempotent);
+            TestHelper.Assert(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
-        public void IcePing(Current current) => test(current.IsIdempotent);
+        public void IcePing(Current current) => TestHelper.Assert(current.IsIdempotent);
 
         public string[] IceIds(Current current)
         {
-            test(current.IsIdempotent);
+            TestHelper.Assert(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string IceId(Current current)
         {
-            test(current.IsIdempotent);
+            TestHelper.Assert(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetIceTypeId()!;
         }
 
@@ -49,7 +38,7 @@ namespace Ice.operations
         // TODO check if compress is supported.
         public bool supportsCompress(Current current) => false;
 
-        public void opVoid(Current current) => test(!current.IsIdempotent);
+        public void opVoid(Current current) => TestHelper.Assert(!current.IsIdempotent);
 
         public (bool, bool) opBool(bool p1, bool p2, Current current) => (p2, p1);
 
@@ -182,10 +171,11 @@ namespace Ice.operations
             return (r, p1);
         }
 
-        public (Test.IMyClassPrx, Test.IMyClassPrx, Test.IMyClassPrx)
-        opMyClass(Test.IMyClassPrx p1, Current current) => (current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory),
-             p1,
-             current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
+        public (Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)
+        opMyClass(Test.IMyClassPrx? p1, Current current) =>
+            (current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory),
+            p1,
+            current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
 
         public (Test.MyEnum, Test.MyEnum) opMyEnum(Test.MyEnum p1, Current current) => (Test.MyEnum.enum3, p1);
 
@@ -570,10 +560,10 @@ namespace Ice.operations
         public void opDoubleMarshaling(double p1, double[] p2, Current current)
         {
             double d = 1278312346.0 / 13.0;
-            test(p1 == d);
+            TestHelper.Assert(p1 == d);
             for (int i = 0; i < p2.Length; ++i)
             {
-                test(p2[i] == d);
+                TestHelper.Assert(p2[i] == d);
             }
         }
 
@@ -648,7 +638,7 @@ namespace Ice.operations
             return (p2, p3);
         }
 
-        public void opIdempotent(Current current) => test(current.IsIdempotent);
+        public void opIdempotent(Current current) => TestHelper.Assert(current.IsIdempotent);
 
         // "return" exception when called two-way, otherwise succeeds.
         public void opOneway(Current current) => throw new Test.SomeException();
@@ -680,7 +670,7 @@ namespace Ice.operations
         public Dictionary<byte, bool>
         opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Current current) => opByteBoolD2;
 
-        public Test.MyClass1 opMyClass1(Test.MyClass1 c, Current current) => c;
+        public Test.MyClass1? opMyClass1(Test.MyClass1? c, Current current) => c;
 
         public Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Current current) => s;
 

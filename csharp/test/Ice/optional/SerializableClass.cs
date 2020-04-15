@@ -11,8 +11,8 @@ namespace Ice.optional.Test
     {
         public SerializableClass(int v) => _v = v;
 
-        public override bool Equals(object obj) =>
-            obj is SerializableClass && _v == (obj as SerializableClass)._v;
+        public override bool Equals(object? obj) =>
+            obj is SerializableClass value && _v == value._v;
 
         public override int GetHashCode() => base.GetHashCode();
 

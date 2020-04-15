@@ -6,15 +6,16 @@ using Test;
 using System.Collections.Generic;
 using Ice;
 
-public class AllTests : Test.AllTests
+public class AllTests
 {
     public static void
     allTests(TestHelper helper, int num)
     {
-        var output = helper.getWriter();
-        Communicator communicator = helper.communicator();
-        List<IControllerPrx> proxies = new List<IControllerPrx>();
-        List<IControllerPrx> indirectProxies = new List<IControllerPrx>();
+        var output = helper.GetWriter();
+        Communicator? communicator = helper.Communicator();
+        TestHelper.Assert(communicator != null);
+        var proxies = new List<IControllerPrx>();
+        var indirectProxies = new List<IControllerPrx>();
         for (int i = 0; i < num; ++i)
         {
             string id = "controller" + i;
@@ -48,7 +49,7 @@ public class AllTests : Test.AllTests
             try
             {
                 IObjectPrx.Parse("object @ oa1", communicator).IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (NoEndpointException)
             {
@@ -59,7 +60,7 @@ public class AllTests : Test.AllTests
             try
             {
                 IObjectPrx.Parse("object @ oa1", communicator).IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (ObjectNotExistException)
             {
@@ -70,7 +71,7 @@ public class AllTests : Test.AllTests
             try
             {
                 IObjectPrx.Parse("object @ oa1", communicator).IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (NoEndpointException)
             {
@@ -182,12 +183,12 @@ public class AllTests : Test.AllTests
 
             proxies[0].deactivateObjectAdapter("oa");
             proxies[1].deactivateObjectAdapter("oa");
-            test(ITestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa3"));
+            TestHelper.Assert(ITestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa3"));
             proxies[2].deactivateObjectAdapter("oa");
 
             proxies[0].activateObjectAdapter("oa", "oa1", "rg");
             proxies[0].addObject("oa", "object");
-            test(ITestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa1"));
+            TestHelper.Assert(ITestIntfPrx.Parse("object @ rg", communicator).getAdapterId().Equals("oa1"));
             proxies[0].deactivateObjectAdapter("oa");
         }
         output.WriteLine("ok");
@@ -209,11 +210,11 @@ public class AllTests : Test.AllTests
                 var properties = communicator.GetProperties();
                 properties["IceDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                 Communicator comm = new Communicator(properties);
-                test(comm.GetDefaultLocator() != null);
+                TestHelper.Assert(comm.GetDefaultLocator() != null);
                 try
                 {
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (System.Exception)
                 {
@@ -231,11 +232,11 @@ public class AllTests : Test.AllTests
                 properties["IceDiscovery.Lookup"] =
                     $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
                 var comm = new Communicator(properties);
-                test(comm.GetDefaultLocator() != null);
+                TestHelper.Assert(comm.GetDefaultLocator() != null);
                 try
                 {
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (NoEndpointException)
                 {

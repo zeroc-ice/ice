@@ -45,7 +45,7 @@ namespace Ice.objects
 
         public Test.K getK(Current current) => new Test.K(new Test.L("l"));
 
-        public (AnyClass?, AnyClass?) opClass(AnyClass v1, Current current) => (v1, v1);
+        public (AnyClass?, AnyClass?) opClass(AnyClass? v1, Current current) => (v1, v1);
 
         public (AnyClass?[], AnyClass?[]) opClassSeq(AnyClass?[] v1, Current current) => (v1, v1);
 

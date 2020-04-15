@@ -2,27 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
+using Test;
 
 namespace Ice.operations.AMD
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass
     {
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
 
-        internal class Thread_opVoid : TaskCompletionSource<object>
+        internal class Thread_opVoid : TaskCompletionSource<object?>
         {
             public void Start()
             {
@@ -39,11 +31,11 @@ namespace Ice.operations.AMD
             {
                 lock (this)
                 {
-                    _thread.Join();
+                    _thread!.Join();
                 }
             }
 
-            private Thread _thread;
+            private Thread? _thread;
         }
 
         //
@@ -51,22 +43,22 @@ namespace Ice.operations.AMD
         //
         public bool IceIsA(string id, Current current)
         {
-            test(current.IsIdempotent);
+            TestHelper.Assert(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
-        public void IcePing(Current current) => test(current.IsIdempotent);
+        public void IcePing(Current current) => TestHelper.Assert(current.IsIdempotent);
 
         public string[] IceIds(Current current)
         {
-            test(current.IsIdempotent);
+            TestHelper.Assert(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string IceId(Current current)
         {
-            test(current.IsIdempotent);
-            return typeof(Test.IMyDerivedClass).GetIceTypeId();
+            TestHelper.Assert(current.IsIdempotent);
+            return typeof(Test.IMyDerivedClass).GetIceTypeId()!;
         }
 
         public ValueTask shutdownAsync(Current current)
@@ -85,7 +77,7 @@ namespace Ice.operations.AMD
 
         public ValueTask opVoidAsync(Current current)
         {
-            test(!current.IsIdempotent);
+            TestHelper.Assert(!current.IsIdempotent);
 
             while (_opVoidThread != null)
             {
@@ -248,11 +240,11 @@ namespace Ice.operations.AMD
         }
 
         public ValueTask<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>
-        opMyClassAsync(Test.IMyClassPrx p1, Current current)
+        opMyClassAsync(Test.IMyClassPrx? p1, Current current)
         {
             var p2 = p1;
             var p3 = current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory);
-            return FromResult((
+            return FromResult<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>((
                 current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory), p2, p3));
         }
 
@@ -653,10 +645,10 @@ namespace Ice.operations.AMD
         opDoubleMarshalingAsync(double p1, double[] p2, Current current)
         {
             var d = 1278312346.0 / 13.0;
-            test(p1 == d);
+            TestHelper.Assert(p1 == d);
             for (int i = 0; i < p2.Length; ++i)
             {
-                test(p2[i] == d);
+                TestHelper.Assert(p2[i] == d);
             }
             return new ValueTask(Task.CompletedTask);
         }
@@ -732,7 +724,7 @@ namespace Ice.operations.AMD
         public ValueTask
         opIdempotentAsync(Current current)
         {
-            test(current.IsIdempotent);
+            TestHelper.Assert(current.IsIdempotent);
             return new ValueTask(Task.CompletedTask);
         }
 
@@ -778,8 +770,8 @@ namespace Ice.operations.AMD
         public ValueTask<Dictionary<byte, bool>>
         opByteBoolD2Async(Dictionary<byte, bool> value, Current current) => FromResult(value);
 
-        public ValueTask<Test.MyClass1>
-        opMyClass1Async(Test.MyClass1 value, Current current) => FromResult(value);
+        public ValueTask<Test.MyClass1?>
+        opMyClass1Async(Test.MyClass1? value, Current current) => FromResult(value);
 
         public ValueTask<Test.MyStruct1>
         opMyStruct1Async(Test.MyStruct1 value, Current current) => FromResult(value);

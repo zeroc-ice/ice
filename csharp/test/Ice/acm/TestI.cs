@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
 using Ice.acm.Test;
 
 namespace Ice.acm
@@ -62,8 +63,8 @@ namespace Ice.acm
             }
         }
 
-        private ObjectAdapter _adapter;
-        private ITestIntfPrx _testIntf;
+        private readonly ObjectAdapter _adapter;
+        private readonly ITestIntfPrx _testIntf;
     }
 
     public class TestIntf : ITestIntf
@@ -86,7 +87,7 @@ namespace Ice.acm
 
         class HeartbeatCallbackI
         {
-            public void heartbeat(Connection c)
+            public void Heartbeat()
             {
                 lock (this)
                 {
@@ -95,7 +96,7 @@ namespace Ice.acm
                 }
             }
 
-            public void waitForCount(int count)
+            public void WaitForCount(int count)
             {
                 lock (this)
                 {
@@ -112,15 +113,15 @@ namespace Ice.acm
         public void startHeartbeatCount(Current current)
         {
             _callback = new HeartbeatCallbackI();
-            current.Connection.SetHeartbeatCallback(_callback.heartbeat);
+            current.Connection!.SetHeartbeatCallback(_ => _callback.Heartbeat());
         }
 
         public void waitForHeartbeatCount(int count, Current current)
         {
-            System.Diagnostics.Debug.Assert(_callback != null);
-            _callback.waitForCount(count);
+            TestHelper.Assert(_callback != null);
+            _callback.WaitForCount(count);
         }
 
-        private HeartbeatCallbackI _callback;
+        private HeartbeatCallbackI? _callback;
     }
 }

@@ -59,25 +59,14 @@ namespace IceSSL
             _useMachineContext = certStoreLocation == "LocalMachine";
 
             //
-            // Protocols selects which protocols to enable, by default we only enable TLS1.0
-            // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
+            // Protocols selects which protocols to enable
             //
             string[]? protocols = ic.GetPropertyAsList("IceSSL.Protocols");
             if (protocols != null)
             {
                 _protocols = ParseProtocols(protocols);
             }
-            else
-            {
-                _protocols = 0;
-                foreach (int v in Enum.GetValues(typeof(SslProtocols)))
-                {
-                    if (v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
-                    {
-                        _protocols |= (SslProtocols)v;
-                    }
-                }
-            }
+
             //
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.

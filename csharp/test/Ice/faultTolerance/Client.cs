@@ -13,12 +13,12 @@ using System.Collections.Generic;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Dictionary<string, string> properties = CreateTestProperties(ref args);
         properties["Ice.Warn.Connections"] = "0";
-        using var communicator = initialize(properties);
-        List<int> ports = args.Select(v => int.Parse(v)).ToList();
+        using Ice.Communicator communicator = Initialize(properties);
+        var ports = args.Select(v => int.Parse(v)).ToList();
         if (ports.Count == 0)
         {
             throw new ArgumentException("Client: no ports specified");
@@ -26,5 +26,5 @@ public class Client : Test.TestHelper
         AllTests.allTests(this, ports);
     }
 
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }

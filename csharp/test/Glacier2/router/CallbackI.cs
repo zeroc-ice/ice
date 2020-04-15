@@ -3,19 +3,18 @@
 //
 
 using Test;
-using System.Diagnostics;
 
 public sealed class Callback : ICallback
 {
     public void
-    initiateCallback(ICallbackReceiverPrx proxy, Ice.Current current) => proxy.callback(current.Context);
+    initiateCallback(ICallbackReceiverPrx? proxy, Ice.Current current) => proxy!.callback(current.Context);
 
     public void
-    initiateCallbackEx(ICallbackReceiverPrx proxy, Ice.Current current)
+    initiateCallbackEx(ICallbackReceiverPrx? proxy, Ice.Current current)
     {
         try
         {
-            proxy.callbackEx(current.Context);
+            proxy!.callbackEx(current.Context);
         }
         catch (Ice.RemoteException ex)
         {
@@ -24,8 +23,7 @@ public sealed class Callback : ICallback
         }
     }
 
-    public void
-    shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
+    public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
 }
 
 public sealed class CallbackReceiver : ICallbackReceiver
@@ -37,7 +35,7 @@ public sealed class CallbackReceiver : ICallbackReceiver
     {
         lock (this)
         {
-            Debug.Assert(!_callback);
+            TestHelper.Assert(!_callback);
             _callback = true;
             System.Threading.Monitor.Pulse(this);
         }
@@ -47,7 +45,7 @@ public sealed class CallbackReceiver : ICallbackReceiver
     callbackEx(Ice.Current current)
     {
         callback(current);
-        CallbackException ex = new CallbackException();
+        var ex = new CallbackException();
         ex.someValue = 3.14;
         ex.someString = "3.14";
         throw ex;
@@ -61,7 +59,7 @@ public sealed class CallbackReceiver : ICallbackReceiver
             while (!_callback)
             {
                 System.Threading.Monitor.Wait(this, 30000);
-                TestHelper.test(_callback);
+                TestHelper.Assert(_callback);
             }
 
             _callback = false;

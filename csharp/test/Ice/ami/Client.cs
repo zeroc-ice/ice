@@ -8,9 +8,9 @@ namespace Ice.ami
 {
     public class Client : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.AMICallback"] = "0";
             properties["Ice.Warn.Connections"] = "0";
 
@@ -25,10 +25,10 @@ namespace Ice.ami
             // send() blocking after sending a given amount of data.
             //
             properties["Ice.TCP.SndSize"] = "50000";
-            using var communicator = initialize(properties);
+            using Communicator communicator = Initialize(properties);
             AllTests.allTests(this, false);
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

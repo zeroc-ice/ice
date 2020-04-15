@@ -3,30 +3,17 @@
 //
 
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using Test;
 
 namespace Ice.interceptor
 {
-    internal sealed class Interceptor : Ice.IObject
+    internal sealed class Interceptor : IObject
     {
-        internal Interceptor(IObject servant)
-        {
-            _servant = servant;
-        }
+        internal Interceptor(IObject servant) => _servant = servant;
 
-        private static void
-        test(bool b)
+        public async ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
-        public async ValueTask<Ice.OutgoingResponseFrame> DispatchAsync(Ice.IncomingRequestFrame request, Current current)
-        {
-            if (current.Context.TryGetValue("raiseBeforeDispatch", out var context))
+            if (current.Context.TryGetValue("raiseBeforeDispatch", out string? context))
             {
                 if (context.Equals("invalidInput"))
                 {
@@ -34,7 +21,7 @@ namespace Ice.interceptor
                 }
                 else if (context.Equals("notExist"))
                 {
-                    throw new Ice.ObjectNotExistException();
+                    throw new ObjectNotExistException();
                 }
             }
 
@@ -47,7 +34,7 @@ namespace Ice.interceptor
                     try
                     {
                         await _servant.DispatchAsync(request, current).ConfigureAwait(false);
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (RetryException)
                     {
@@ -60,13 +47,13 @@ namespace Ice.interceptor
             {
                 // Retry the dispatch to ensure that abandoning the result of the dispatch
                 // works fine and is thread-safe
-                var vt1 = _servant.DispatchAsync(request, current);
-                var vt2 = _servant.DispatchAsync(request, current);
+                ValueTask<OutgoingResponseFrame> vt1 = _servant.DispatchAsync(request, current);
+                ValueTask<OutgoingResponseFrame> vt2 = _servant.DispatchAsync(request, current);
                 await vt1.ConfigureAwait(false);
                 await vt2.ConfigureAwait(false);
             }
 
-            var vt = _servant.DispatchAsync(request, current);
+            ValueTask<OutgoingResponseFrame> vt = _servant.DispatchAsync(request, current);
 
             AsyncCompletion = !vt.IsCompleted;
 
@@ -78,7 +65,7 @@ namespace Ice.interceptor
                 }
                 else if (context.Equals("notExist"))
                 {
-                    throw new Ice.ObjectNotExistException();
+                    throw new ObjectNotExistException();
                 }
             }
 

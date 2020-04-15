@@ -3,7 +3,7 @@
 //
 
 using System;
-using System.Diagnostics;
+using Test;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -12,15 +12,6 @@ namespace Ice.operations
 {
     public class TwowaysAMI
     {
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
         private class CallbackBase
         {
             internal CallbackBase()
@@ -44,7 +35,7 @@ namespace Ice.operations
             {
                 lock (this)
                 {
-                    Debug.Assert(!_called);
+                    TestHelper.Assert(!_called);
                     _called = true;
                     Monitor.Pulse(this);
                 }
@@ -94,93 +85,78 @@ namespace Ice.operations
             {
             }
 
-            public Callback(Communicator c)
-            {
-                _communicator = c;
-            }
+            public Callback(Communicator c) => _communicator = c;
 
-            public Callback(int l)
-            {
-                _l = l;
-            }
+            public Callback(int l) => _l = l;
 
-            public Callback(Dictionary<string, string> d)
-            {
-                _d = d;
-            }
+            public Callback(Dictionary<string, string> d) => _d = d;
 
-            public void opVoid()
-            {
-                called();
-            }
+            public void opVoid() => called();
 
-            public void opContext()
-            {
-                called();
-            }
+            public void opContext() => called();
 
             public void opByte(byte r, byte b)
             {
-                test(b == 0xf0);
-                test(r == 0xff);
+                TestHelper.Assert(b == 0xf0);
+                TestHelper.Assert(r == 0xff);
                 called();
             }
 
             public void opBool(bool r, bool b)
             {
-                test(b);
-                test(!r);
+                TestHelper.Assert(b);
+                TestHelper.Assert(!r);
                 called();
             }
 
             public void opShortIntLong(long r, short s, int i, long l)
             {
-                test(s == 10);
-                test(i == 11);
-                test(l == 12);
-                test(r == 12);
+                TestHelper.Assert(s == 10);
+                TestHelper.Assert(i == 11);
+                TestHelper.Assert(l == 12);
+                TestHelper.Assert(r == 12);
                 called();
             }
 
             public void opFloatDouble(double r, float f, double d)
             {
-                test(f == 3.14f);
-                test(d == 1.1e10);
-                test(r == 1.1e10);
+                TestHelper.Assert(f == 3.14f);
+                TestHelper.Assert(d == 1.1e10);
+                TestHelper.Assert(r == 1.1e10);
                 called();
             }
 
             public void opString(string r, string s)
             {
-                test(s.Equals("world hello"));
-                test(r.Equals("hello world"));
+                TestHelper.Assert(s.Equals("world hello"));
+                TestHelper.Assert(r.Equals("hello world"));
                 called();
             }
 
             public void opMyEnum(Test.MyEnum r, Test.MyEnum e)
             {
-                test(e == Test.MyEnum.enum2);
-                test(r == Test.MyEnum.enum3);
+                TestHelper.Assert(e == Test.MyEnum.enum2);
+                TestHelper.Assert(r == Test.MyEnum.enum3);
                 called();
             }
 
-            public void opMyClass(Test.IMyClassPrx r, Test.IMyClassPrx c1, Test.IMyClassPrx c2)
+            public void opMyClass(Test.IMyClassPrx? r, Test.IMyClassPrx? c1, Test.IMyClassPrx? c2)
             {
-                test(c1.Identity.Equals(Identity.Parse("test")));
-                test(c2.Identity.Equals(Identity.Parse("noSuchIdentity")));
-                test(r.Identity.Equals(Identity.Parse("test")));
+                TestHelper.Assert(c1!.Identity.Equals(Identity.Parse("test")));
+                TestHelper.Assert(c2!.Identity.Equals(Identity.Parse("noSuchIdentity")));
+                TestHelper.Assert(r!.Identity.Equals(Identity.Parse("test")));
 
                 //
                 // We can't do the callbacks below in connection serialization mode.
                 //
-                if (_communicator.GetPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                if (_communicator!.GetPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
                 {
                     r.opVoid();
                     c1.opVoid();
                     try
                     {
                         c2.opVoid();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (ObjectNotExistException)
                     {
@@ -191,270 +167,270 @@ namespace Ice.operations
 
             public void opStruct(Test.Structure rso, Test.Structure so)
             {
-                test(rso.p == null);
-                test(rso.e == Test.MyEnum.enum2);
-                test(rso.s.s.Equals("def"));
-                test(so.e == Test.MyEnum.enum3);
-                test(so.s.s.Equals("a new string"));
+                TestHelper.Assert(rso.p == null);
+                TestHelper.Assert(rso.e == Test.MyEnum.enum2);
+                TestHelper.Assert(rso.s.s.Equals("def"));
+                TestHelper.Assert(so.e == Test.MyEnum.enum3);
+                TestHelper.Assert(so.s.s.Equals("a new string"));
 
                 //
                 // We can't do the callbacks below in connection serialization mode.
                 //
-                if (_communicator.GetPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                if (_communicator!.GetPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
                 {
-                    so.p.opVoid();
+                    so.p!.opVoid();
                 }
                 called();
             }
 
             public void opByteS(byte[] rso, byte[] bso)
             {
-                test(bso.Length == 4);
-                test(bso[0] == 0x22);
-                test(bso[1] == 0x12);
-                test(bso[2] == 0x11);
-                test(bso[3] == 0x01);
-                test(rso.Length == 8);
-                test(rso[0] == 0x01);
-                test(rso[1] == 0x11);
-                test(rso[2] == 0x12);
-                test(rso[3] == 0x22);
-                test(rso[4] == 0xf1);
-                test(rso[5] == 0xf2);
-                test(rso[6] == 0xf3);
-                test(rso[7] == 0xf4);
+                TestHelper.Assert(bso.Length == 4);
+                TestHelper.Assert(bso[0] == 0x22);
+                TestHelper.Assert(bso[1] == 0x12);
+                TestHelper.Assert(bso[2] == 0x11);
+                TestHelper.Assert(bso[3] == 0x01);
+                TestHelper.Assert(rso.Length == 8);
+                TestHelper.Assert(rso[0] == 0x01);
+                TestHelper.Assert(rso[1] == 0x11);
+                TestHelper.Assert(rso[2] == 0x12);
+                TestHelper.Assert(rso[3] == 0x22);
+                TestHelper.Assert(rso[4] == 0xf1);
+                TestHelper.Assert(rso[5] == 0xf2);
+                TestHelper.Assert(rso[6] == 0xf3);
+                TestHelper.Assert(rso[7] == 0xf4);
                 called();
             }
 
             public void opBoolS(bool[] rso, bool[] bso)
             {
-                test(bso.Length == 4);
-                test(bso[0]);
-                test(bso[1]);
-                test(!bso[2]);
-                test(!bso[3]);
-                test(rso.Length == 3);
-                test(!rso[0]);
-                test(rso[1]);
-                test(rso[2]);
+                TestHelper.Assert(bso.Length == 4);
+                TestHelper.Assert(bso[0]);
+                TestHelper.Assert(bso[1]);
+                TestHelper.Assert(!bso[2]);
+                TestHelper.Assert(!bso[3]);
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(!rso[0]);
+                TestHelper.Assert(rso[1]);
+                TestHelper.Assert(rso[2]);
                 called();
             }
 
             public void opShortIntLongS(long[] rso, short[] sso, int[] iso, long[] lso)
             {
-                test(sso.Length == 3);
-                test(sso[0] == 1);
-                test(sso[1] == 2);
-                test(sso[2] == 3);
-                test(iso.Length == 4);
-                test(iso[0] == 8);
-                test(iso[1] == 7);
-                test(iso[2] == 6);
-                test(iso[3] == 5);
-                test(lso.Length == 6);
-                test(lso[0] == 10);
-                test(lso[1] == 30);
-                test(lso[2] == 20);
-                test(lso[3] == 10);
-                test(lso[4] == 30);
-                test(lso[5] == 20);
-                test(rso.Length == 3);
-                test(rso[0] == 10);
-                test(rso[1] == 30);
-                test(rso[2] == 20);
+                TestHelper.Assert(sso.Length == 3);
+                TestHelper.Assert(sso[0] == 1);
+                TestHelper.Assert(sso[1] == 2);
+                TestHelper.Assert(sso[2] == 3);
+                TestHelper.Assert(iso.Length == 4);
+                TestHelper.Assert(iso[0] == 8);
+                TestHelper.Assert(iso[1] == 7);
+                TestHelper.Assert(iso[2] == 6);
+                TestHelper.Assert(iso[3] == 5);
+                TestHelper.Assert(lso.Length == 6);
+                TestHelper.Assert(lso[0] == 10);
+                TestHelper.Assert(lso[1] == 30);
+                TestHelper.Assert(lso[2] == 20);
+                TestHelper.Assert(lso[3] == 10);
+                TestHelper.Assert(lso[4] == 30);
+                TestHelper.Assert(lso[5] == 20);
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(rso[0] == 10);
+                TestHelper.Assert(rso[1] == 30);
+                TestHelper.Assert(rso[2] == 20);
                 called();
             }
 
             public void opFloatDoubleS(double[] rso, float[] fso, double[] dso)
             {
-                test(fso.Length == 2);
-                test(fso[0] == 3.14f);
-                test(fso[1] == 1.11f);
-                test(dso.Length == 3);
-                test(dso[0] == 1.3e10);
-                test(dso[1] == 1.2e10);
-                test(dso[2] == 1.1e10);
-                test(rso.Length == 5);
-                test(rso[0] == 1.1e10);
-                test(rso[1] == 1.2e10);
-                test(rso[2] == 1.3e10);
-                test((float)rso[3] == 3.14f);
-                test((float)rso[4] == 1.11f);
+                TestHelper.Assert(fso.Length == 2);
+                TestHelper.Assert(fso[0] == 3.14f);
+                TestHelper.Assert(fso[1] == 1.11f);
+                TestHelper.Assert(dso.Length == 3);
+                TestHelper.Assert(dso[0] == 1.3e10);
+                TestHelper.Assert(dso[1] == 1.2e10);
+                TestHelper.Assert(dso[2] == 1.1e10);
+                TestHelper.Assert(rso.Length == 5);
+                TestHelper.Assert(rso[0] == 1.1e10);
+                TestHelper.Assert(rso[1] == 1.2e10);
+                TestHelper.Assert(rso[2] == 1.3e10);
+                TestHelper.Assert((float)rso[3] == 3.14f);
+                TestHelper.Assert((float)rso[4] == 1.11f);
                 called();
             }
 
             public void opStringS(string[] rso, string[] sso)
             {
-                test(sso.Length == 4);
-                test(sso[0].Equals("abc"));
-                test(sso[1].Equals("de"));
-                test(sso[2].Equals("fghi"));
-                test(sso[3].Equals("xyz"));
-                test(rso.Length == 3);
-                test(rso[0].Equals("fghi"));
-                test(rso[1].Equals("de"));
-                test(rso[2].Equals("abc"));
+                TestHelper.Assert(sso.Length == 4);
+                TestHelper.Assert(sso[0].Equals("abc"));
+                TestHelper.Assert(sso[1].Equals("de"));
+                TestHelper.Assert(sso[2].Equals("fghi"));
+                TestHelper.Assert(sso[3].Equals("xyz"));
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(rso[0].Equals("fghi"));
+                TestHelper.Assert(rso[1].Equals("de"));
+                TestHelper.Assert(rso[2].Equals("abc"));
                 called();
             }
 
             public void opByteSS(byte[][] rso, byte[][] bso)
             {
-                test(bso.Length == 2);
-                test(bso[0].Length == 1);
-                test(bso[0][0] == 0xff);
-                test(bso[1].Length == 3);
-                test(bso[1][0] == 0x01);
-                test(bso[1][1] == 0x11);
-                test(bso[1][2] == 0x12);
-                test(rso.Length == 4);
-                test(rso[0].Length == 3);
-                test(rso[0][0] == 0x01);
-                test(rso[0][1] == 0x11);
-                test(rso[0][2] == 0x12);
-                test(rso[1].Length == 1);
-                test(rso[1][0] == 0xff);
-                test(rso[2].Length == 1);
-                test(rso[2][0] == 0x0e);
-                test(rso[3].Length == 2);
-                test(rso[3][0] == 0xf2);
-                test(rso[3][1] == 0xf1);
+                TestHelper.Assert(bso.Length == 2);
+                TestHelper.Assert(bso[0].Length == 1);
+                TestHelper.Assert(bso[0][0] == 0xff);
+                TestHelper.Assert(bso[1].Length == 3);
+                TestHelper.Assert(bso[1][0] == 0x01);
+                TestHelper.Assert(bso[1][1] == 0x11);
+                TestHelper.Assert(bso[1][2] == 0x12);
+                TestHelper.Assert(rso.Length == 4);
+                TestHelper.Assert(rso[0].Length == 3);
+                TestHelper.Assert(rso[0][0] == 0x01);
+                TestHelper.Assert(rso[0][1] == 0x11);
+                TestHelper.Assert(rso[0][2] == 0x12);
+                TestHelper.Assert(rso[1].Length == 1);
+                TestHelper.Assert(rso[1][0] == 0xff);
+                TestHelper.Assert(rso[2].Length == 1);
+                TestHelper.Assert(rso[2][0] == 0x0e);
+                TestHelper.Assert(rso[3].Length == 2);
+                TestHelper.Assert(rso[3][0] == 0xf2);
+                TestHelper.Assert(rso[3][1] == 0xf1);
                 called();
             }
 
             public void opBoolSS(bool[][] rso, bool[][] bso)
             {
-                test(bso.Length == 4);
-                test(bso[0].Length == 1);
-                test(bso[0][0]);
-                test(bso[1].Length == 1);
-                test(!bso[1][0]);
-                test(bso[2].Length == 2);
-                test(bso[2][0]);
-                test(bso[2][1]);
-                test(bso[3].Length == 3);
-                test(!bso[3][0]);
-                test(!bso[3][1]);
-                test(bso[3][2]);
-                test(rso.Length == 3);
-                test(rso[0].Length == 2);
-                test(rso[0][0]);
-                test(rso[0][1]);
-                test(rso[1].Length == 1);
-                test(!rso[1][0]);
-                test(rso[2].Length == 1);
-                test(rso[2][0]);
+                TestHelper.Assert(bso.Length == 4);
+                TestHelper.Assert(bso[0].Length == 1);
+                TestHelper.Assert(bso[0][0]);
+                TestHelper.Assert(bso[1].Length == 1);
+                TestHelper.Assert(!bso[1][0]);
+                TestHelper.Assert(bso[2].Length == 2);
+                TestHelper.Assert(bso[2][0]);
+                TestHelper.Assert(bso[2][1]);
+                TestHelper.Assert(bso[3].Length == 3);
+                TestHelper.Assert(!bso[3][0]);
+                TestHelper.Assert(!bso[3][1]);
+                TestHelper.Assert(bso[3][2]);
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(rso[0].Length == 2);
+                TestHelper.Assert(rso[0][0]);
+                TestHelper.Assert(rso[0][1]);
+                TestHelper.Assert(rso[1].Length == 1);
+                TestHelper.Assert(!rso[1][0]);
+                TestHelper.Assert(rso[2].Length == 1);
+                TestHelper.Assert(rso[2][0]);
                 called();
             }
 
             public void opShortIntLongSS(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
             {
-                test(rso.Length == 1);
-                test(rso[0].Length == 2);
-                test(rso[0][0] == 496);
-                test(rso[0][1] == 1729);
-                test(sso.Length == 3);
-                test(sso[0].Length == 3);
-                test(sso[0][0] == 1);
-                test(sso[0][1] == 2);
-                test(sso[0][2] == 5);
-                test(sso[1].Length == 1);
-                test(sso[1][0] == 13);
-                test(sso[2].Length == 0);
-                test(iso.Length == 2);
-                test(iso[0].Length == 1);
-                test(iso[0][0] == 42);
-                test(iso[1].Length == 2);
-                test(iso[1][0] == 24);
-                test(iso[1][1] == 98);
-                test(lso.Length == 2);
-                test(lso[0].Length == 2);
-                test(lso[0][0] == 496);
-                test(lso[0][1] == 1729);
-                test(lso[1].Length == 2);
-                test(lso[1][0] == 496);
-                test(lso[1][1] == 1729);
+                TestHelper.Assert(rso.Length == 1);
+                TestHelper.Assert(rso[0].Length == 2);
+                TestHelper.Assert(rso[0][0] == 496);
+                TestHelper.Assert(rso[0][1] == 1729);
+                TestHelper.Assert(sso.Length == 3);
+                TestHelper.Assert(sso[0].Length == 3);
+                TestHelper.Assert(sso[0][0] == 1);
+                TestHelper.Assert(sso[0][1] == 2);
+                TestHelper.Assert(sso[0][2] == 5);
+                TestHelper.Assert(sso[1].Length == 1);
+                TestHelper.Assert(sso[1][0] == 13);
+                TestHelper.Assert(sso[2].Length == 0);
+                TestHelper.Assert(iso.Length == 2);
+                TestHelper.Assert(iso[0].Length == 1);
+                TestHelper.Assert(iso[0][0] == 42);
+                TestHelper.Assert(iso[1].Length == 2);
+                TestHelper.Assert(iso[1][0] == 24);
+                TestHelper.Assert(iso[1][1] == 98);
+                TestHelper.Assert(lso.Length == 2);
+                TestHelper.Assert(lso[0].Length == 2);
+                TestHelper.Assert(lso[0][0] == 496);
+                TestHelper.Assert(lso[0][1] == 1729);
+                TestHelper.Assert(lso[1].Length == 2);
+                TestHelper.Assert(lso[1][0] == 496);
+                TestHelper.Assert(lso[1][1] == 1729);
                 called();
             }
 
             public void opFloatDoubleSS(double[][] rso, float[][] fso, double[][] dso)
             {
-                test(fso.Length == 3);
-                test(fso[0].Length == 1);
-                test(fso[0][0] == 3.14f);
-                test(fso[1].Length == 1);
-                test(fso[1][0] == 1.11f);
-                test(fso[2].Length == 0);
-                test(dso.Length == 1);
-                test(dso[0].Length == 3);
-                test(dso[0][0] == 1.1e10);
-                test(dso[0][1] == 1.2e10);
-                test(dso[0][2] == 1.3e10);
-                test(rso.Length == 2);
-                test(rso[0].Length == 3);
-                test(rso[0][0] == 1.1e10);
-                test(rso[0][1] == 1.2e10);
-                test(rso[0][2] == 1.3e10);
-                test(rso[1].Length == 3);
-                test(rso[1][0] == 1.1e10);
-                test(rso[1][1] == 1.2e10);
-                test(rso[1][2] == 1.3e10);
+                TestHelper.Assert(fso.Length == 3);
+                TestHelper.Assert(fso[0].Length == 1);
+                TestHelper.Assert(fso[0][0] == 3.14f);
+                TestHelper.Assert(fso[1].Length == 1);
+                TestHelper.Assert(fso[1][0] == 1.11f);
+                TestHelper.Assert(fso[2].Length == 0);
+                TestHelper.Assert(dso.Length == 1);
+                TestHelper.Assert(dso[0].Length == 3);
+                TestHelper.Assert(dso[0][0] == 1.1e10);
+                TestHelper.Assert(dso[0][1] == 1.2e10);
+                TestHelper.Assert(dso[0][2] == 1.3e10);
+                TestHelper.Assert(rso.Length == 2);
+                TestHelper.Assert(rso[0].Length == 3);
+                TestHelper.Assert(rso[0][0] == 1.1e10);
+                TestHelper.Assert(rso[0][1] == 1.2e10);
+                TestHelper.Assert(rso[0][2] == 1.3e10);
+                TestHelper.Assert(rso[1].Length == 3);
+                TestHelper.Assert(rso[1][0] == 1.1e10);
+                TestHelper.Assert(rso[1][1] == 1.2e10);
+                TestHelper.Assert(rso[1][2] == 1.3e10);
                 called();
             }
 
             public void opStringSS(string[][] rso, string[][] sso)
             {
-                test(sso.Length == 5);
-                test(sso[0].Length == 1);
-                test(sso[0][0].Equals("abc"));
-                test(sso[1].Length == 2);
-                test(sso[1][0].Equals("de"));
-                test(sso[1][1].Equals("fghi"));
-                test(sso[2].Length == 0);
-                test(sso[3].Length == 0);
-                test(sso[4].Length == 1);
-                test(sso[4][0].Equals("xyz"));
-                test(rso.Length == 3);
-                test(rso[0].Length == 1);
-                test(rso[0][0].Equals("xyz"));
-                test(rso[1].Length == 0);
-                test(rso[2].Length == 0);
+                TestHelper.Assert(sso.Length == 5);
+                TestHelper.Assert(sso[0].Length == 1);
+                TestHelper.Assert(sso[0][0].Equals("abc"));
+                TestHelper.Assert(sso[1].Length == 2);
+                TestHelper.Assert(sso[1][0].Equals("de"));
+                TestHelper.Assert(sso[1][1].Equals("fghi"));
+                TestHelper.Assert(sso[2].Length == 0);
+                TestHelper.Assert(sso[3].Length == 0);
+                TestHelper.Assert(sso[4].Length == 1);
+                TestHelper.Assert(sso[4][0].Equals("xyz"));
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(rso[0].Length == 1);
+                TestHelper.Assert(rso[0][0].Equals("xyz"));
+                TestHelper.Assert(rso[1].Length == 0);
+                TestHelper.Assert(rso[2].Length == 0);
                 called();
             }
 
             public void opStringSSS(string[][][] rsso, string[][][] ssso)
             {
-                test(ssso.Length == 5);
-                test(ssso[0].Length == 2);
-                test(ssso[0][0].Length == 2);
-                test(ssso[0][1].Length == 1);
-                test(ssso[1].Length == 1);
-                test(ssso[1][0].Length == 1);
-                test(ssso[2].Length == 2);
-                test(ssso[2][0].Length == 2);
-                test(ssso[2][1].Length == 1);
-                test(ssso[3].Length == 1);
-                test(ssso[3][0].Length == 1);
-                test(ssso[4].Length == 0);
-                test(ssso[0][0][0].Equals("abc"));
-                test(ssso[0][0][1].Equals("de"));
-                test(ssso[0][1][0].Equals("xyz"));
-                test(ssso[1][0][0].Equals("hello"));
-                test(ssso[2][0][0].Equals(""));
-                test(ssso[2][0][1].Equals(""));
-                test(ssso[2][1][0].Equals("abcd"));
-                test(ssso[3][0][0].Equals(""));
+                TestHelper.Assert(ssso.Length == 5);
+                TestHelper.Assert(ssso[0].Length == 2);
+                TestHelper.Assert(ssso[0][0].Length == 2);
+                TestHelper.Assert(ssso[0][1].Length == 1);
+                TestHelper.Assert(ssso[1].Length == 1);
+                TestHelper.Assert(ssso[1][0].Length == 1);
+                TestHelper.Assert(ssso[2].Length == 2);
+                TestHelper.Assert(ssso[2][0].Length == 2);
+                TestHelper.Assert(ssso[2][1].Length == 1);
+                TestHelper.Assert(ssso[3].Length == 1);
+                TestHelper.Assert(ssso[3][0].Length == 1);
+                TestHelper.Assert(ssso[4].Length == 0);
+                TestHelper.Assert(ssso[0][0][0].Equals("abc"));
+                TestHelper.Assert(ssso[0][0][1].Equals("de"));
+                TestHelper.Assert(ssso[0][1][0].Equals("xyz"));
+                TestHelper.Assert(ssso[1][0][0].Equals("hello"));
+                TestHelper.Assert(ssso[2][0][0].Equals(""));
+                TestHelper.Assert(ssso[2][0][1].Equals(""));
+                TestHelper.Assert(ssso[2][1][0].Equals("abcd"));
+                TestHelper.Assert(ssso[3][0][0].Equals(""));
 
-                test(rsso.Length == 3);
-                test(rsso[0].Length == 0);
-                test(rsso[1].Length == 1);
-                test(rsso[1][0].Length == 1);
-                test(rsso[2].Length == 2);
-                test(rsso[2][0].Length == 2);
-                test(rsso[2][1].Length == 1);
-                test(rsso[1][0][0].Equals(""));
-                test(rsso[2][0][0].Equals(""));
-                test(rsso[2][0][1].Equals(""));
-                test(rsso[2][1][0].Equals("abcd"));
+                TestHelper.Assert(rsso.Length == 3);
+                TestHelper.Assert(rsso[0].Length == 0);
+                TestHelper.Assert(rsso[1].Length == 1);
+                TestHelper.Assert(rsso[1][0].Length == 1);
+                TestHelper.Assert(rsso[2].Length == 2);
+                TestHelper.Assert(rsso[2][0].Length == 2);
+                TestHelper.Assert(rsso[2][1].Length == 1);
+                TestHelper.Assert(rsso[1][0][0].Equals(""));
+                TestHelper.Assert(rsso[2][0][0].Equals(""));
+                TestHelper.Assert(rsso[2][0][1].Equals(""));
+                TestHelper.Assert(rsso[2][1][0].Equals("abcd"));
                 called();
             }
 
@@ -463,12 +439,12 @@ namespace Ice.operations
                 Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
                 di1[10] = true;
                 di1[100] = false;
-                test(global::Test.Collections.Equals(_do, di1));
-                test(ro.Count == 4);
-                test(ro[10] == true);
-                test(ro[11] == false);
-                test(ro[100] == false);
-                test(ro[101] == true);
+                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(ro.Count == 4);
+                TestHelper.Assert(ro[10] == true);
+                TestHelper.Assert(ro[11] == false);
+                TestHelper.Assert(ro[100] == false);
+                TestHelper.Assert(ro[101] == true);
                 called();
             }
 
@@ -477,12 +453,12 @@ namespace Ice.operations
                 Dictionary<short, int> di1 = new Dictionary<short, int>();
                 di1[110] = -1;
                 di1[1100] = 123123;
-                test(global::Test.Collections.Equals(_do, di1));
-                test(ro.Count == 4);
-                test(ro[110] == -1);
-                test(ro[111] == -100);
-                test(ro[1100] == 123123);
-                test(ro[1101] == 0);
+                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(ro.Count == 4);
+                TestHelper.Assert(ro[110] == -1);
+                TestHelper.Assert(ro[111] == -100);
+                TestHelper.Assert(ro[1100] == 123123);
+                TestHelper.Assert(ro[1101] == 0);
                 called();
             }
 
@@ -491,12 +467,12 @@ namespace Ice.operations
                 Dictionary<long, float> di1 = new Dictionary<long, float>();
                 di1[999999110L] = -1.1f;
                 di1[999999111L] = 123123.2f;
-                test(global::Test.Collections.Equals(_do, di1));
-                test(ro.Count == 4);
-                test(ro[999999110L] == -1.1f);
-                test(ro[999999120L] == -100.4f);
-                test(ro[999999111L] == 123123.2f);
-                test(ro[999999130L] == 0.5f);
+                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(ro.Count == 4);
+                TestHelper.Assert(ro[999999110L] == -1.1f);
+                TestHelper.Assert(ro[999999120L] == -100.4f);
+                TestHelper.Assert(ro[999999111L] == 123123.2f);
+                TestHelper.Assert(ro[999999130L] == 0.5f);
                 called();
             }
 
@@ -505,12 +481,12 @@ namespace Ice.operations
                 Dictionary<string, string> di1 = new Dictionary<string, string>();
                 di1["foo"] = "abc -1.1";
                 di1["bar"] = "abc 123123.2";
-                test(global::Test.Collections.Equals(_do, di1));
-                test(ro.Count == 4);
-                test(ro["foo"].Equals("abc -1.1"));
-                test(ro["FOO"].Equals("abc -100.4"));
-                test(ro["bar"].Equals("abc 123123.2"));
-                test(ro["BAR"].Equals("abc 0.5"));
+                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(ro.Count == 4);
+                TestHelper.Assert(ro["foo"].Equals("abc -1.1"));
+                TestHelper.Assert(ro["FOO"].Equals("abc -100.4"));
+                TestHelper.Assert(ro["bar"].Equals("abc 123123.2"));
+                TestHelper.Assert(ro["BAR"].Equals("abc 0.5"));
                 called();
             }
 
@@ -519,12 +495,12 @@ namespace Ice.operations
                 var di1 = new Dictionary<string, Test.MyEnum>();
                 di1["abc"] = Test.MyEnum.enum1;
                 di1[""] = Test.MyEnum.enum2;
-                test(global::Test.Collections.Equals(_do, di1));
-                test(ro.Count == 4);
-                test(ro["abc"] == Test.MyEnum.enum1);
-                test(ro["qwerty"] == Test.MyEnum.enum3);
-                test(ro[""] == Test.MyEnum.enum2);
-                test(ro["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(ro.Count == 4);
+                TestHelper.Assert(ro["abc"] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro["qwerty"] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro[""] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro["Hello!!"] == Test.MyEnum.enum2);
                 called();
             }
 
@@ -532,11 +508,11 @@ namespace Ice.operations
             {
                 var di1 = new Dictionary<Test.MyEnum, string>();
                 di1[Test.MyEnum.enum1] = "abc";
-                test(global::Test.Collections.Equals(_do, di1));
-                test(ro.Count == 3);
-                test(ro[Test.MyEnum.enum1].Equals("abc"));
-                test(ro[Test.MyEnum.enum2].Equals("Hello!!"));
-                test(ro[Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[Test.MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(ro[Test.MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(ro[Test.MyEnum.enum3].Equals("qwerty"));
                 called();
             }
 
@@ -548,161 +524,161 @@ namespace Ice.operations
                 var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
                 di1[s11] = Test.MyEnum.enum1;
                 di1[s12] = Test.MyEnum.enum2;
-                test(global::Test.Collections.Equals(_do, di1));
+                TestHelper.Assert(Collections.Equals(_do, di1));
                 var s22 = new Test.MyStruct(2, 2);
                 var s23 = new Test.MyStruct(2, 3);
-                test(ro.Count == 4);
-                test(ro[s11] == Test.MyEnum.enum1);
-                test(ro[s12] == Test.MyEnum.enum2);
-                test(ro[s22] == Test.MyEnum.enum3);
-                test(ro[s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro.Count == 4);
+                TestHelper.Assert(ro[s11] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[s12] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[s22] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro[s23] == Test.MyEnum.enum2);
                 called();
             }
 
             public void opByteBoolDS(Dictionary<byte, bool>[] ro,
                                         Dictionary<byte, bool>[] _do)
             {
-                test(ro.Length == 2);
-                test(ro[0].Count == 3);
-                test(ro[0][10]);
-                test(!ro[0][11]);
-                test(ro[0][101]);
-                test(ro[1].Count == 2);
-                test(ro[1][10]);
-                test(!ro[1][100]);
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0][10]);
+                TestHelper.Assert(!ro[0][11]);
+                TestHelper.Assert(ro[0][101]);
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1][10]);
+                TestHelper.Assert(!ro[1][100]);
 
-                test(_do.Length == 3);
-                test(_do[0].Count == 2);
-                test(!_do[0][100]);
-                test(!_do[0][101]);
-                test(_do[1].Count == 2);
-                test(_do[1][10]);
-                test(!_do[1][100]);
-                test(_do[2].Count == 3);
-                test(_do[2][10]);
-                test(!_do[2][11]);
-                test(_do[2][101]);
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 2);
+                TestHelper.Assert(!_do[0][100]);
+                TestHelper.Assert(!_do[0][101]);
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1][10]);
+                TestHelper.Assert(!_do[1][100]);
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2][10]);
+                TestHelper.Assert(!_do[2][11]);
+                TestHelper.Assert(_do[2][101]);
                 called();
             }
 
             public void opShortIntDS(Dictionary<short, int>[] ro,
                                         Dictionary<short, int>[] _do)
             {
-                test(ro.Length == 2);
-                test(ro[0].Count == 3);
-                test(ro[0][110] == -1);
-                test(ro[0][111] == -100);
-                test(ro[0][1101] == 0);
-                test(ro[1].Count == 2);
-                test(ro[1][110] == -1);
-                test(ro[1][1100] == 123123);
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0][110] == -1);
+                TestHelper.Assert(ro[0][111] == -100);
+                TestHelper.Assert(ro[0][1101] == 0);
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1][110] == -1);
+                TestHelper.Assert(ro[1][1100] == 123123);
 
-                test(_do.Length == 3);
-                test(_do[0].Count == 1);
-                test(_do[0][100] == -1001);
-                test(_do[1].Count == 2);
-                test(_do[1][110] == -1);
-                test(_do[1][1100] == 123123);
-                test(_do[2].Count == 3);
-                test(_do[2][110] == -1);
-                test(_do[2][111] == -100);
-                test(_do[2][1101] == 0);
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0][100] == -1001);
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1][110] == -1);
+                TestHelper.Assert(_do[1][1100] == 123123);
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2][110] == -1);
+                TestHelper.Assert(_do[2][111] == -100);
+                TestHelper.Assert(_do[2][1101] == 0);
                 called();
             }
 
             public void opLongFloatDS(Dictionary<long, float>[] ro,
                                         Dictionary<long, float>[] _do)
             {
-                test(ro.Length == 2);
-                test(ro[0].Count == 3);
-                test(ro[0][999999110L] == -1.1f);
-                test(ro[0][999999120L] == -100.4f);
-                test(ro[0][999999130L] == 0.5f);
-                test(ro[1].Count == 2);
-                test(ro[1][999999110L] == -1.1f);
-                test(ro[1][999999111L] == 123123.2f);
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0][999999110L] == -1.1f);
+                TestHelper.Assert(ro[0][999999120L] == -100.4f);
+                TestHelper.Assert(ro[0][999999130L] == 0.5f);
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1][999999110L] == -1.1f);
+                TestHelper.Assert(ro[1][999999111L] == 123123.2f);
 
-                test(_do.Length == 3);
-                test(_do[0].Count == 1);
-                test(_do[0][999999140L] == 3.14f);
-                test(_do[1].Count == 2);
-                test(_do[1][999999110L] == -1.1f);
-                test(_do[1][999999111L] == 123123.2f);
-                test(_do[2].Count == 3);
-                test(_do[2][999999110L] == -1.1f);
-                test(_do[2][999999120L] == -100.4f);
-                test(_do[2][999999130L] == 0.5f);
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0][999999140L] == 3.14f);
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1][999999110L] == -1.1f);
+                TestHelper.Assert(_do[1][999999111L] == 123123.2f);
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2][999999110L] == -1.1f);
+                TestHelper.Assert(_do[2][999999120L] == -100.4f);
+                TestHelper.Assert(_do[2][999999130L] == 0.5f);
                 called();
             }
 
             public void opStringStringDS(Dictionary<string, string>[] ro,
                                             Dictionary<string, string>[] _do)
             {
-                test(ro.Length == 2);
-                test(ro[0].Count == 3);
-                test(ro[0]["foo"].Equals("abc -1.1"));
-                test(ro[0]["FOO"].Equals("abc -100.4"));
-                test(ro[0]["BAR"].Equals("abc 0.5"));
-                test(ro[1].Count == 2);
-                test(ro[1]["foo"] == "abc -1.1");
-                test(ro[1]["bar"] == "abc 123123.2");
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0]["foo"].Equals("abc -1.1"));
+                TestHelper.Assert(ro[0]["FOO"].Equals("abc -100.4"));
+                TestHelper.Assert(ro[0]["BAR"].Equals("abc 0.5"));
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1]["foo"] == "abc -1.1");
+                TestHelper.Assert(ro[1]["bar"] == "abc 123123.2");
 
-                test(_do.Length == 3);
-                test(_do[0].Count == 1);
-                test(_do[0]["f00"].Equals("ABC -3.14"));
-                test(_do[1].Count == 2);
-                test(_do[1]["foo"].Equals("abc -1.1"));
-                test(_do[1]["bar"].Equals("abc 123123.2"));
-                test(_do[2].Count == 3);
-                test(_do[2]["foo"].Equals("abc -1.1"));
-                test(_do[2]["FOO"].Equals("abc -100.4"));
-                test(_do[2]["BAR"].Equals("abc 0.5"));
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0]["f00"].Equals("ABC -3.14"));
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1]["foo"].Equals("abc -1.1"));
+                TestHelper.Assert(_do[1]["bar"].Equals("abc 123123.2"));
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2]["foo"].Equals("abc -1.1"));
+                TestHelper.Assert(_do[2]["FOO"].Equals("abc -100.4"));
+                TestHelper.Assert(_do[2]["BAR"].Equals("abc 0.5"));
                 called();
             }
 
             public void opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] ro,
                                             Dictionary<string, Test.MyEnum>[] _do)
             {
-                test(ro.Length == 2);
-                test(ro[0].Count == 3);
-                test(ro[0]["abc"] == Test.MyEnum.enum1);
-                test(ro[0]["qwerty"] == Test.MyEnum.enum3);
-                test(ro[0]["Hello!!"] == Test.MyEnum.enum2);
-                test(ro[1].Count == 2);
-                test(ro[1]["abc"] == Test.MyEnum.enum1);
-                test(ro[1][""] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0]["abc"] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[0]["qwerty"] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro[0]["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1]["abc"] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[1][""] == Test.MyEnum.enum2);
 
-                test(_do.Length == 3);
-                test(_do[0].Count == 1);
-                test(_do[0]["Goodbye"] == Test.MyEnum.enum1);
-                test(_do[1].Count == 2);
-                test(_do[1]["abc"] == Test.MyEnum.enum1);
-                test(_do[1][""] == Test.MyEnum.enum2);
-                test(_do[2].Count == 3);
-                test(_do[2]["abc"] == Test.MyEnum.enum1);
-                test(_do[2]["qwerty"] == Test.MyEnum.enum3);
-                test(_do[2]["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0]["Goodbye"] == Test.MyEnum.enum1);
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1]["abc"] == Test.MyEnum.enum1);
+                TestHelper.Assert(_do[1][""] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2]["abc"] == Test.MyEnum.enum1);
+                TestHelper.Assert(_do[2]["qwerty"] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[2]["Hello!!"] == Test.MyEnum.enum2);
                 called();
             }
 
             public void opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] ro,
                                             Dictionary<Test.MyEnum, string>[] _do)
             {
-                test(ro.Length == 2);
-                test(ro[0].Count == 2);
-                test(ro[0][Test.MyEnum.enum2].Equals("Hello!!"));
-                test(ro[0][Test.MyEnum.enum3].Equals("qwerty"));
-                test(ro[1].Count == 1);
-                test(ro[1][Test.MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 2);
+                TestHelper.Assert(ro[0][Test.MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(ro[0][Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(ro[1].Count == 1);
+                TestHelper.Assert(ro[1][Test.MyEnum.enum1].Equals("abc"));
 
-                test(_do.Length == 3);
-                test(_do[0].Count == 1);
-                test(_do[0][Test.MyEnum.enum1].Equals("Goodbye"));
-                test(_do[1].Count == 1);
-                test(_do[1][Test.MyEnum.enum1].Equals("abc"));
-                test(_do[2].Count == 2);
-                test(_do[2][Test.MyEnum.enum2].Equals("Hello!!"));
-                test(_do[2][Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0][Test.MyEnum.enum1].Equals("Goodbye"));
+                TestHelper.Assert(_do[1].Count == 1);
+                TestHelper.Assert(_do[1][Test.MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(_do[2].Count == 2);
+                TestHelper.Assert(_do[2][Test.MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(_do[2][Test.MyEnum.enum3].Equals("qwerty"));
                 called();
             }
 
@@ -714,282 +690,271 @@ namespace Ice.operations
                 var s22 = new Test.MyStruct(2, 2);
                 var s23 = new Test.MyStruct(2, 3);
 
-                test(ro.Length == 2);
-                test(ro[0].Count == 3);
-                test(ro[0][s11] == Test.MyEnum.enum1);
-                test(ro[0][s22] == Test.MyEnum.enum3);
-                test(ro[0][s23] == Test.MyEnum.enum2);
-                test(ro[1].Count == 2);
-                test(ro[1][s11] == Test.MyEnum.enum1);
-                test(ro[1][s12] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0][s11] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[0][s22] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro[0][s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1][s11] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[1][s12] == Test.MyEnum.enum2);
 
-                test(_do.Length == 3);
-                test(_do[0].Count == 1);
-                test(_do[0][s23] == Test.MyEnum.enum3);
-                test(_do[1].Count == 2);
-                test(_do[1][s11] == Test.MyEnum.enum1);
-                test(_do[1][s12] == Test.MyEnum.enum2);
-                test(_do[2].Count == 3);
-                test(_do[2][s11] == Test.MyEnum.enum1);
-                test(_do[2][s22] == Test.MyEnum.enum3);
-                test(_do[2][s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0][s23] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1][s11] == Test.MyEnum.enum1);
+                TestHelper.Assert(_do[1][s12] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2][s11] == Test.MyEnum.enum1);
+                TestHelper.Assert(_do[2][s22] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[2][s23] == Test.MyEnum.enum2);
                 called();
             }
 
             public void opByteByteSD(Dictionary<byte, byte[]> ro,
                                         Dictionary<byte, byte[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do[0xf1].Length == 2);
-                test(_do[0xf1][0] == 0xf2);
-                test(_do[0xf1][1] == 0xf3);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[0xf1].Length == 2);
+                TestHelper.Assert(_do[0xf1][0] == 0xf2);
+                TestHelper.Assert(_do[0xf1][1] == 0xf3);
 
-                test(ro.Count == 3);
-                test(ro[0x01].Length == 2);
-                test(ro[0x01][0] == 0x01);
-                test(ro[0x01][1] == 0x11);
-                test(ro[0x22].Length == 1);
-                test(ro[0x22][0] == 0x12);
-                test(ro[0xf1].Length == 2);
-                test(ro[0xf1][0] == 0xf2);
-                test(ro[0xf1][1] == 0xf3);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[0x01].Length == 2);
+                TestHelper.Assert(ro[0x01][0] == 0x01);
+                TestHelper.Assert(ro[0x01][1] == 0x11);
+                TestHelper.Assert(ro[0x22].Length == 1);
+                TestHelper.Assert(ro[0x22][0] == 0x12);
+                TestHelper.Assert(ro[0xf1].Length == 2);
+                TestHelper.Assert(ro[0xf1][0] == 0xf2);
+                TestHelper.Assert(ro[0xf1][1] == 0xf3);
                 called();
             }
 
             public void opBoolBoolSD(Dictionary<bool, bool[]> ro,
                                         Dictionary<bool, bool[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do[false].Length == 2);
-                test(_do[false][0]);
-                test(!_do[false][1]);
-                test(ro.Count == 2);
-                test(ro[false].Length == 2);
-                test(ro[false][0]);
-                test(!ro[false][1]);
-                test(ro[true].Length == 3);
-                test(!ro[true][0]);
-                test(ro[true][1]);
-                test(ro[true][2]);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[false].Length == 2);
+                TestHelper.Assert(_do[false][0]);
+                TestHelper.Assert(!_do[false][1]);
+                TestHelper.Assert(ro.Count == 2);
+                TestHelper.Assert(ro[false].Length == 2);
+                TestHelper.Assert(ro[false][0]);
+                TestHelper.Assert(!ro[false][1]);
+                TestHelper.Assert(ro[true].Length == 3);
+                TestHelper.Assert(!ro[true][0]);
+                TestHelper.Assert(ro[true][1]);
+                TestHelper.Assert(ro[true][2]);
                 called();
             }
 
             public void opShortShortSD(Dictionary<short, short[]> ro,
                                         Dictionary<short, short[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do[4].Length == 2);
-                test(_do[4][0] == 6);
-                test(_do[4][1] == 7);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[4].Length == 2);
+                TestHelper.Assert(_do[4][0] == 6);
+                TestHelper.Assert(_do[4][1] == 7);
 
-                test(ro.Count == 3);
-                test(ro[1].Length == 3);
-                test(ro[1][0] == 1);
-                test(ro[1][1] == 2);
-                test(ro[1][2] == 3);
-                test(ro[2].Length == 2);
-                test(ro[2][0] == 4);
-                test(ro[2][1] == 5);
-                test(ro[4].Length == 2);
-                test(ro[4][0] == 6);
-                test(ro[4][1] == 7);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[1].Length == 3);
+                TestHelper.Assert(ro[1][0] == 1);
+                TestHelper.Assert(ro[1][1] == 2);
+                TestHelper.Assert(ro[1][2] == 3);
+                TestHelper.Assert(ro[2].Length == 2);
+                TestHelper.Assert(ro[2][0] == 4);
+                TestHelper.Assert(ro[2][1] == 5);
+                TestHelper.Assert(ro[4].Length == 2);
+                TestHelper.Assert(ro[4][0] == 6);
+                TestHelper.Assert(ro[4][1] == 7);
                 called();
             }
 
             public void opIntIntSD(Dictionary<int, int[]> ro,
                                     Dictionary<int, int[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do[400].Length == 2);
-                test(_do[400][0] == 600);
-                test(_do[400][1] == 700);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[400].Length == 2);
+                TestHelper.Assert(_do[400][0] == 600);
+                TestHelper.Assert(_do[400][1] == 700);
 
-                test(ro.Count == 3);
-                test(ro[100].Length == 3);
-                test(ro[100][0] == 100);
-                test(ro[100][1] == 200);
-                test(ro[100][2] == 300);
-                test(ro[200].Length == 2);
-                test(ro[200][0] == 400);
-                test(ro[200][1] == 500);
-                test(ro[400].Length == 2);
-                test(ro[400][0] == 600);
-                test(ro[400][1] == 700);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[100].Length == 3);
+                TestHelper.Assert(ro[100][0] == 100);
+                TestHelper.Assert(ro[100][1] == 200);
+                TestHelper.Assert(ro[100][2] == 300);
+                TestHelper.Assert(ro[200].Length == 2);
+                TestHelper.Assert(ro[200][0] == 400);
+                TestHelper.Assert(ro[200][1] == 500);
+                TestHelper.Assert(ro[400].Length == 2);
+                TestHelper.Assert(ro[400][0] == 600);
+                TestHelper.Assert(ro[400][1] == 700);
                 called();
             }
 
             public void opLongLongSD(Dictionary<long, long[]> ro,
                                         Dictionary<long, long[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do[999999992L].Length == 2);
-                test(_do[999999992L][0] == 999999110L);
-                test(_do[999999992L][1] == 999999120L);
-                test(ro.Count == 3);
-                test(ro[999999990L].Length == 3);
-                test(ro[999999990L][0] == 999999110L);
-                test(ro[999999990L][1] == 999999111L);
-                test(ro[999999990L][2] == 999999110L);
-                test(ro[999999991L].Length == 2);
-                test(ro[999999991L][0] == 999999120L);
-                test(ro[999999991L][1] == 999999130L);
-                test(ro[999999992L].Length == 2);
-                test(ro[999999992L][0] == 999999110L);
-                test(ro[999999992L][1] == 999999120L);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[999999992L].Length == 2);
+                TestHelper.Assert(_do[999999992L][0] == 999999110L);
+                TestHelper.Assert(_do[999999992L][1] == 999999120L);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[999999990L].Length == 3);
+                TestHelper.Assert(ro[999999990L][0] == 999999110L);
+                TestHelper.Assert(ro[999999990L][1] == 999999111L);
+                TestHelper.Assert(ro[999999990L][2] == 999999110L);
+                TestHelper.Assert(ro[999999991L].Length == 2);
+                TestHelper.Assert(ro[999999991L][0] == 999999120L);
+                TestHelper.Assert(ro[999999991L][1] == 999999130L);
+                TestHelper.Assert(ro[999999992L].Length == 2);
+                TestHelper.Assert(ro[999999992L][0] == 999999110L);
+                TestHelper.Assert(ro[999999992L][1] == 999999120L);
                 called();
             }
 
             public void opStringFloatSD(Dictionary<string, float[]> ro,
                                         Dictionary<string, float[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do["aBc"].Length == 2);
-                test(_do["aBc"][0] == -3.14f);
-                test(_do["aBc"][1] == 3.14f);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do["aBc"].Length == 2);
+                TestHelper.Assert(_do["aBc"][0] == -3.14f);
+                TestHelper.Assert(_do["aBc"][1] == 3.14f);
 
-                test(ro.Count == 3);
-                test(ro["abc"].Length == 3);
-                test(ro["abc"][0] == -1.1f);
-                test(ro["abc"][1] == 123123.2f);
-                test(ro["abc"][2] == 100.0f);
-                test(ro["ABC"].Length == 2);
-                test(ro["ABC"][0] == 42.24f);
-                test(ro["ABC"][1] == -1.61f);
-                test(ro["aBc"].Length == 2);
-                test(ro["aBc"][0] == -3.14f);
-                test(ro["aBc"][1] == 3.14f);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro["abc"].Length == 3);
+                TestHelper.Assert(ro["abc"][0] == -1.1f);
+                TestHelper.Assert(ro["abc"][1] == 123123.2f);
+                TestHelper.Assert(ro["abc"][2] == 100.0f);
+                TestHelper.Assert(ro["ABC"].Length == 2);
+                TestHelper.Assert(ro["ABC"][0] == 42.24f);
+                TestHelper.Assert(ro["ABC"][1] == -1.61f);
+                TestHelper.Assert(ro["aBc"].Length == 2);
+                TestHelper.Assert(ro["aBc"][0] == -3.14f);
+                TestHelper.Assert(ro["aBc"][1] == 3.14f);
                 called();
             }
 
             public void opStringDoubleSD(Dictionary<string, double[]> ro,
                                             Dictionary<string, double[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do[""].Length == 2);
-                test(_do[""][0] == 1.6E10);
-                test(_do[""][1] == 1.7E10);
-                test(ro.Count == 3);
-                test(ro["Hello!!"].Length == 3);
-                test(ro["Hello!!"][0] == 1.1E10);
-                test(ro["Hello!!"][1] == 1.2E10);
-                test(ro["Hello!!"][2] == 1.3E10);
-                test(ro["Goodbye"].Length == 2);
-                test(ro["Goodbye"][0] == 1.4E10);
-                test(ro["Goodbye"][1] == 1.5E10);
-                test(ro[""].Length == 2);
-                test(ro[""][0] == 1.6E10);
-                test(ro[""][1] == 1.7E10);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[""].Length == 2);
+                TestHelper.Assert(_do[""][0] == 1.6E10);
+                TestHelper.Assert(_do[""][1] == 1.7E10);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro["Hello!!"].Length == 3);
+                TestHelper.Assert(ro["Hello!!"][0] == 1.1E10);
+                TestHelper.Assert(ro["Hello!!"][1] == 1.2E10);
+                TestHelper.Assert(ro["Hello!!"][2] == 1.3E10);
+                TestHelper.Assert(ro["Goodbye"].Length == 2);
+                TestHelper.Assert(ro["Goodbye"][0] == 1.4E10);
+                TestHelper.Assert(ro["Goodbye"][1] == 1.5E10);
+                TestHelper.Assert(ro[""].Length == 2);
+                TestHelper.Assert(ro[""][0] == 1.6E10);
+                TestHelper.Assert(ro[""][1] == 1.7E10);
                 called();
             }
 
             public void opStringStringSD(Dictionary<string, string[]> ro,
                                             Dictionary<string, string[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do["ghi"].Length == 2);
-                test(_do["ghi"][0].Equals("and"));
-                test(_do["ghi"][1].Equals("xor"));
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do["ghi"].Length == 2);
+                TestHelper.Assert(_do["ghi"][0].Equals("and"));
+                TestHelper.Assert(_do["ghi"][1].Equals("xor"));
 
-                test(ro.Count == 3);
-                test(ro["abc"].Length == 3);
-                test(ro["abc"][0].Equals("abc"));
-                test(ro["abc"][1].Equals("de"));
-                test(ro["abc"][2].Equals("fghi"));
-                test(ro["def"].Length == 2);
-                test(ro["def"][0].Equals("xyz"));
-                test(ro["def"][1].Equals("or"));
-                test(ro["ghi"].Length == 2);
-                test(ro["ghi"][0].Equals("and"));
-                test(ro["ghi"][1].Equals("xor"));
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro["abc"].Length == 3);
+                TestHelper.Assert(ro["abc"][0].Equals("abc"));
+                TestHelper.Assert(ro["abc"][1].Equals("de"));
+                TestHelper.Assert(ro["abc"][2].Equals("fghi"));
+                TestHelper.Assert(ro["def"].Length == 2);
+                TestHelper.Assert(ro["def"][0].Equals("xyz"));
+                TestHelper.Assert(ro["def"][1].Equals("or"));
+                TestHelper.Assert(ro["ghi"].Length == 2);
+                TestHelper.Assert(ro["ghi"][0].Equals("and"));
+                TestHelper.Assert(ro["ghi"][1].Equals("xor"));
                 called();
             }
 
             public void opMyEnumMyEnumSD(Dictionary<Test.MyEnum, Test.MyEnum[]> ro,
                                             Dictionary<Test.MyEnum, Test.MyEnum[]> _do)
             {
-                test(_do.Count == 1);
-                test(_do[Test.MyEnum.enum1].Length == 2);
-                test(_do[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
-                test(_do[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
-                test(ro.Count == 3);
-                test(ro[Test.MyEnum.enum3].Length == 3);
-                test(ro[Test.MyEnum.enum3][0] == Test.MyEnum.enum1);
-                test(ro[Test.MyEnum.enum3][1] == Test.MyEnum.enum1);
-                test(ro[Test.MyEnum.enum3][2] == Test.MyEnum.enum2);
-                test(ro[Test.MyEnum.enum2].Length == 2);
-                test(ro[Test.MyEnum.enum2][0] == Test.MyEnum.enum1);
-                test(ro[Test.MyEnum.enum2][1] == Test.MyEnum.enum2);
-                test(ro[Test.MyEnum.enum1].Length == 2);
-                test(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
-                test(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[Test.MyEnum.enum1].Length == 2);
+                TestHelper.Assert(_do[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[Test.MyEnum.enum3].Length == 3);
+                TestHelper.Assert(ro[Test.MyEnum.enum3][0] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[Test.MyEnum.enum3][1] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[Test.MyEnum.enum3][2] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[Test.MyEnum.enum2].Length == 2);
+                TestHelper.Assert(ro[Test.MyEnum.enum2][0] == Test.MyEnum.enum1);
+                TestHelper.Assert(ro[Test.MyEnum.enum2][1] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[Test.MyEnum.enum1].Length == 2);
+                TestHelper.Assert(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
                 called();
             }
 
             public void opIntS(int[] r)
             {
-                test(r.Length == _l);
+                TestHelper.Assert(r.Length == _l);
                 for (int j = 0; j < r.Length; ++j)
                 {
-                    test(r[j] == -j);
+                    TestHelper.Assert(r[j] == -j);
                 }
                 called();
             }
 
             public void opContextNotEqual(Dictionary<string, string> r)
             {
-                test(!global::Test.Collections.Equals(r, _d));
+                TestHelper.Assert(!Collections.Equals(r, _d));
                 called();
             }
 
             public void opContextEqual(Dictionary<string, string> r)
             {
-                test(global::Test.Collections.Equals(r, _d));
+                TestHelper.Assert(Collections.Equals(r, _d));
                 called();
             }
 
-            public void opIdempotent()
-            {
-                called();
-            }
+            public void opIdempotent() => called();
 
-            public void opNonmutating()
-            {
-                called();
-            }
+            public void OpNonmutating() => called();
 
-            public void opDerived()
-            {
-                called();
-            }
+            public void opDerived() => called();
 
-            public void exCB(Exception ex)
-            {
-                test(false);
-            }
+            public void exCB(Exception ex) => TestHelper.Assert(false);
 
-            private Communicator _communicator;
-            private int _l;
-            private Dictionary<string, string> _d;
+            private Communicator? _communicator;
+            private readonly int _l;
+            private readonly Dictionary<string, string>? _d;
         }
 
-        internal static void twowaysAMI(global::Test.TestHelper helper, Test.IMyClassPrx p)
+        internal static void twowaysAMI(TestHelper helper, Test.IMyClassPrx p)
         {
-            Communicator communicator = helper.communicator();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
 
             {
                 p.IcePingAsync().Wait();
             }
 
             {
-                test(p.IceIsAAsync("::Test::MyClass").Result);
+                TestHelper.Assert(p.IceIsAAsync("::Test::MyClass").Result);
             }
 
             {
-                test(p.IceIdsAsync().Result.Length == 3);
+                TestHelper.Assert(p.IceIdsAsync().Result.Length == 3);
             }
 
             {
-                test(p.IceIdAsync().Result.Equals("::Test::MyDerivedClass"));
+                TestHelper.Assert(p.IceIdAsync().Result.Equals("::Test::MyDerivedClass"));
             }
 
             {
@@ -998,8 +963,8 @@ namespace Ice.operations
 
             {
                 var ret = p.opByteAsync(0xff, 0x0f).Result;
-                test(ret.p3 == 0xf0);
-                test(ret.ReturnValue == 0xff);
+                TestHelper.Assert(ret.p3 == 0xf0);
+                TestHelper.Assert(ret.ReturnValue == 0xff);
             }
 
             {
@@ -1615,18 +1580,18 @@ namespace Ice.operations
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
                 {
-                    test(p.Context.Count == 0);
+                    TestHelper.Assert(p.Context.Count == 0);
                     var cb = new Callback(ctx);
                     cb.opContextNotEqual(p.opContextAsync().Result);
                 }
                 {
-                    test(p.Context.Count == 0);
+                    TestHelper.Assert(p.Context.Count == 0);
                     var cb = new Callback(ctx);
                     cb.opContextEqual(p.opContextAsync(ctx).Result);
                 }
                 {
                     var p2 = p.Clone(context: ctx);
-                    test(global::Test.Collections.Equals(p2.Context, ctx));
+                    TestHelper.Assert(Collections.Equals(p2.Context, ctx));
                     var cb = new Callback(ctx);
                     cb.opContextEqual(p2.opContextAsync().Result);
                 }
@@ -1646,8 +1611,8 @@ namespace Ice.operations
                 communicator.CurrentContext["two"] = "TWO";
                 communicator.CurrentContext["three"] = "THREE";
 
-                var p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
-                test(global::Test.Collections.Equals(p3.opContextAsync().Result, communicator.CurrentContext));
+                var p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                TestHelper.Assert(Collections.Equals(p3.opContextAsync().Result, communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
@@ -1665,21 +1630,21 @@ namespace Ice.operations
                         // Ignore.
                     }
                 }
-                test(combined["one"].Equals("UN"));
+                TestHelper.Assert(combined["one"].Equals("UN"));
 
-                test(communicator.DefaultContext.Count == 0);
+                TestHelper.Assert(communicator.DefaultContext.Count == 0);
                 communicator.DefaultContext = prxContext;
-                test(communicator.DefaultContext != prxContext); // it's a copy
-                test(global::Test.Collections.Equals(communicator.DefaultContext, prxContext));
+                TestHelper.Assert(communicator.DefaultContext != prxContext); // it's a copy
+                TestHelper.Assert(Collections.Equals(communicator.DefaultContext, prxContext));
 
-                p3 = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+                p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
 
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
                 communicator.CurrentContext.Clear();
-                test(global::Test.Collections.Equals(p3.opContextAsync().Result, prxContext));
+                TestHelper.Assert(Collections.Equals(p3.opContextAsync().Result, prxContext));
 
                 communicator.CurrentContext = ctx;
-                test(global::Test.Collections.Equals(p3.opContextAsync().Result, combined));
+                TestHelper.Assert(Collections.Equals(p3.opContextAsync().Result, combined));
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
@@ -1691,30 +1656,30 @@ namespace Ice.operations
             try
             {
                 p.opOnewayAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (System.AggregateException ex)
             {
-                test(ex.InnerException is Test.SomeException);
+                TestHelper.Assert(ex.InnerException is Test.SomeException);
             }
 
             {
                 var derived = Test.IMyDerivedClassPrx.CheckedCast(p);
-                test(derived != null);
+                TestHelper.Assert(derived != null);
                 derived.opDerivedAsync().Wait();
             }
 
             {
-                test(p.opByte1Async(0xFF).Result == 0xFF);
-                test(p.opInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
-                test(p.opLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
-                test(p.opFloat1Async(1.0f).Result == 1.0f);
-                test(p.opDouble1Async(1.0d).Result == 1.0d);
-                test(p.opString1Async("opString1").Result.Equals("opString1"));
-                test(p.opStringS1Async(Array.Empty<string>()).Result.Length == 0);
-                test(p.opByteBoolD1Async(new Dictionary<byte, bool>()).Result.Count == 0);
-                test(p.opStringS2Async(Array.Empty<string>()).Result.Length == 0);
-                test(p.opByteBoolD2Async(new Dictionary<byte, bool>()).Result.Count == 0);
+                TestHelper.Assert(p.opByte1Async(0xFF).Result == 0xFF);
+                TestHelper.Assert(p.opInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
+                TestHelper.Assert(p.opLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
+                TestHelper.Assert(p.opFloat1Async(1.0f).Result == 1.0f);
+                TestHelper.Assert(p.opDouble1Async(1.0d).Result == 1.0d);
+                TestHelper.Assert(p.opString1Async("opString1").Result.Equals("opString1"));
+                TestHelper.Assert(p.opStringS1Async(Array.Empty<string>()).Result.Length == 0);
+                TestHelper.Assert(p.opByteBoolD1Async(new Dictionary<byte, bool>()).Result.Count == 0);
+                TestHelper.Assert(p.opStringS2Async(Array.Empty<string>()).Result.Length == 0);
+                TestHelper.Assert(p.opByteBoolD2Async(new Dictionary<byte, bool>()).Result.Count == 0);
             }
 
             Func<Task> task = async () =>
@@ -1724,7 +1689,7 @@ namespace Ice.operations
 
                     p1.e = Test.MyEnum.enum3;
                     var r = await p.opMStruct2Async(p1);
-                    test(r.p2.Equals(p1) && r.ReturnValue.Equals(p1));
+                    TestHelper.Assert(r.p2.Equals(p1) && r.ReturnValue.Equals(p1));
                 }
 
                 {
@@ -1733,7 +1698,7 @@ namespace Ice.operations
                     var p1 = new string[1];
                     p1[0] = "test";
                     var r = await p.opMSeq2Async(p1);
-                    test(global::Test.Collections.Equals(r.p2, p1) && global::Test.Collections.Equals(r.ReturnValue, p1));
+                    TestHelper.Assert(Collections.Equals(r.p2, p1) && Collections.Equals(r.ReturnValue, p1));
                 }
 
                 {
@@ -1742,7 +1707,7 @@ namespace Ice.operations
                     var p1 = new Dictionary<string, string>();
                     p1["test"] = "test";
                     var r = await p.opMDict2Async(p1);
-                    test(global::Test.Collections.Equals(r.p2, p1) && global::Test.Collections.Equals(r.ReturnValue, p1));
+                    TestHelper.Assert(Collections.Equals(r.p2, p1) && Collections.Equals(r.ReturnValue, p1));
                 }
             };
         }

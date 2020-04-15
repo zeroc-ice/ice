@@ -3,26 +3,26 @@
 //
 
 using Test;
-using Ice.exceptions.Test;
+using System.Collections.Generic;
 
 namespace Ice.exceptions
 {
     public class Collocated : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var typeIdNamespaces = new string[] { "Ice.exceptions.TypeId" };
-            var properties = createTestProperties(ref args);
+            string[] typeIdNamespaces = new string[] { "Ice.exceptions.TypeId" };
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.MessageSizeMax"] = "10"; // 10KB max
-            using var communicator = initialize(properties, typeIdNamespaces: typeIdNamespaces);
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            using Communicator communicator = Initialize(properties, typeIdNamespaces: typeIdNamespaces);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("thrower", new Thrower());
             AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Collocated>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

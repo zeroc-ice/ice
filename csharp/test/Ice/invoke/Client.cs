@@ -8,13 +8,13 @@ namespace Ice.invoke
 {
     public class Client : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using var communicator = initialize(ref args);
-            var myClass = AllTests.allTests(this);
+            using Communicator communicator = Initialize(ref args);
+            Test.IMyClassPrx myClass = AllTests.allTests(this);
             myClass.shutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

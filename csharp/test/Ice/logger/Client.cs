@@ -12,7 +12,7 @@ using System.IO;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
         Console.Out.Write("testing Ice.LogFile... ");
         Console.Out.Flush();
@@ -22,16 +22,16 @@ public class Client : Test.TestHelper
         }
 
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             properties["Ice.LogFile"] = "log.txt";
-            using var communicator = initialize(properties);
+            using var communicator = Initialize(properties);
             communicator.Logger.Trace("info", "my logger");
         }
-        test(File.Exists("log.txt"));
-        test(File.ReadAllText("log.txt").Contains("my logger"));
+        Assert(File.Exists("log.txt"));
+        Assert(File.ReadAllText("log.txt").Contains("my logger"));
         File.Delete("log.txt");
         Console.Out.WriteLine("ok");
     }
 
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }

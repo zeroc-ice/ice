@@ -5,7 +5,7 @@
 using Ice;
 
 using System.Collections.Generic;
-using System.Diagnostics;
+using Test;
 
 internal class EndpointFactory : IceInternal.IEndpointFactory
 {
@@ -28,16 +28,14 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
         return "test-" + _factory.Transport();
     }
 
-    public Ice.Endpoint Create(string endpointString, Dictionary<string, string?> options, bool server)
-    {
-        return new Endpoint(_factory.Create(endpointString, options, server));
-    }
+    public Ice.Endpoint Create(string endpointString, Dictionary<string, string?> options, bool server) =>
+        new Endpoint(_factory.Create(endpointString, options, server)!);
 
-    public Ice.Endpoint Read(Ice.InputStream s)
+    public Ice.Endpoint Read(InputStream s)
     {
-        Ice.EndpointType type = (Ice.EndpointType)s.ReadShort();
-        Debug.Assert(type == _factory.Type());
-        Ice.Endpoint endpoint = new Endpoint(_factory.Read(s));
+        var type = (EndpointType)s.ReadShort();
+        TestHelper.Assert(type == _factory.Type());
+        Ice.Endpoint endpoint = new Endpoint(_factory.Read(s)!);
         return endpoint;
     }
 

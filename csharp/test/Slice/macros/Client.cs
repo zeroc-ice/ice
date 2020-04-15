@@ -7,23 +7,23 @@ using Test;
 
 public class Client : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
         Console.Out.Write("testing Slice predefined macros... ");
         Console.Out.Flush();
         Default d = new Default();
-        test(d.x == 10);
-        test(d.y == 10);
+        Assert(d.x == 10);
+        Assert(d.y == 10);
 
         NoDefault nd = new NoDefault();
-        test(nd.x != 10);
-        test(nd.y != 10);
+        Assert(nd.x != 10);
+        Assert(nd.y != 10);
 
         CsOnly c = new CsOnly();
-        test(c.lang.Equals("cs"));
-        test(c.version == Ice.Util.IntVersion());
+        Assert(c.lang.Equals("cs"));
+        Assert(c.version == Ice.Util.IntVersion());
         Console.Out.WriteLine("ok");
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
 }

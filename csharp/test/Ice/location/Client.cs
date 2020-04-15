@@ -8,14 +8,14 @@ namespace Ice.location
 {
     public class Client : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
-            properties["Ice.Default.Locator"] = $"locator:{getTestEndpoint(properties, 0)}";
-            using var communicator = initialize(properties);
+            System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Default.Locator"] = $"locator:{GetTestEndpoint(properties, 0)}";
+            using Communicator communicator = Initialize(properties);
             AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

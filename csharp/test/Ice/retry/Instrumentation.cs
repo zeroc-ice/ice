@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using Test;
 
 namespace Ice.retry
 {
@@ -49,17 +50,11 @@ namespace Ice.retry
             {
             }
 
-            public Ice.Instrumentation.IRemoteObserver
-            GetRemoteObserver(ConnectionInfo ci, Endpoint ei, int i, int j)
-            {
-                return null;
-            }
+            public Ice.Instrumentation.IRemoteObserver?
+            GetRemoteObserver(ConnectionInfo ci, Endpoint ei, int i, int j) => null;
 
-            public Ice.Instrumentation.ICollocatedObserver
-            GetCollocatedObserver(Ice.ObjectAdapter adapter, int i, int j)
-            {
-                return null;
-            }
+            public Ice.Instrumentation.ICollocatedObserver?
+            GetCollocatedObserver(ObjectAdapter adapter, int i, int j) => null;
 
         };
 
@@ -67,61 +62,32 @@ namespace Ice.retry
 
         class CommunicatorObserverI : Ice.Instrumentation.ICommunicatorObserver
         {
-            public Ice.Instrumentation.IObserver?
-            GetConnectionEstablishmentObserver(Ice.Endpoint e, string s)
-            {
-                return null;
-            }
+            public Ice.Instrumentation.IObserver? GetConnectionEstablishmentObserver(Endpoint e, string s) => null;
 
-            public Ice.Instrumentation.IObserver?
-            GetEndpointLookupObserver(Ice.Endpoint e)
-            {
-                return null;
-            }
+            public Ice.Instrumentation.IObserver? GetEndpointLookupObserver(Endpoint e) => null;
 
-            public Ice.Instrumentation.IConnectionObserver?
-            GetConnectionObserver(Ice.ConnectionInfo ci,
-                                    Ice.Endpoint ei,
-                                    Ice.Instrumentation.ConnectionState s,
-                                    Ice.Instrumentation.IConnectionObserver o)
-            {
-                return null;
-            }
+            public Ice.Instrumentation.IConnectionObserver? GetConnectionObserver(
+                ConnectionInfo ci,
+                Endpoint ei,
+                Ice.Instrumentation.ConnectionState s,
+                Ice.Instrumentation.IConnectionObserver? o) => null;
 
-            public Ice.Instrumentation.IThreadObserver?
-            GetThreadObserver(string p,
-                                string n,
-                                Ice.Instrumentation.ThreadState s,
-                                Ice.Instrumentation.IThreadObserver o)
-            {
-                return null;
-            }
+            public Ice.Instrumentation.IThreadObserver? GetThreadObserver(
+                string p, string n, Ice.Instrumentation.ThreadState s, Ice.Instrumentation.IThreadObserver? o) => null;
 
-            public Ice.Instrumentation.IInvocationObserver?
-            GetInvocationObserver(Ice.IObjectPrx p, string o, IReadOnlyDictionary<string, string> c)
-            {
-                return invocationObserver;
-            }
+            public Ice.Instrumentation.IInvocationObserver? GetInvocationObserver(
+                IObjectPrx? p, string o, IReadOnlyDictionary<string, string> c) => invocationObserver;
 
-            public Ice.Instrumentation.IDispatchObserver
-            GetDispatchObserver(Ice.Current c, int i)
-            {
-                return null;
-            }
+            public Ice.Instrumentation.IDispatchObserver? GetDispatchObserver(Current c, int i) => null;
 
-            public void
-            SetObserverUpdater(Ice.Instrumentation.IObserverUpdater u)
+            public void SetObserverUpdater(Ice.Instrumentation.IObserverUpdater? u)
             {
             }
         };
 
         static private Ice.Instrumentation.ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
-        static public Ice.Instrumentation.ICommunicatorObserver
-        GetObserver()
-        {
-            return communicatorObserver;
-        }
+        static public Ice.Instrumentation.ICommunicatorObserver GetObserver() => communicatorObserver;
 
         static private void
         testEqual(ref int value, int expected)
@@ -147,17 +113,14 @@ namespace Ice.retry
             if (value != expected)
             {
                 System.Console.Error.WriteLine("value = " + value + ", expected = " + expected);
-                System.Diagnostics.Debug.Assert(false);
+                TestHelper.Assert(false);
                 throw new System.Exception();
             }
             value = 0;
         }
 
         static public void
-        testRetryCount(int expected)
-        {
-            testEqual(ref nRetry, expected);
-        }
+        testRetryCount(int expected) => testEqual(ref nRetry, expected);
 
         static public void
         testFailureCount(int expected)

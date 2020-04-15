@@ -2,23 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections;
 using Ice.location.Test;
+using System.Collections.Generic;
+using Test;
 
 namespace Ice.location
 {
     public class ServerManager : IServerManager
     {
-        internal ServerManager(ServerLocatorRegistry registry, global::Test.TestHelper helper)
+        internal ServerManager(ServerLocatorRegistry registry, TestHelper helper)
         {
             _registry = registry;
-            _communicators = new ArrayList();
             _helper = helper;
         }
 
         public void startServer(Current current)
         {
-            foreach (Communicator c in _communicators)
+            foreach (Communicator? c in _communicators)
             {
                 c.WaitForShutdown();
                 c.Destroy();
@@ -33,12 +33,12 @@ namespace Ice.location
             // its endpoints with the locator and create references containing
             // the adapter id instead of the endpoints.
             //
-            var properties = _helper.communicator().GetProperties();
+            Dictionary<string, string> properties = _helper.Communicator()!.GetProperties();
             properties["TestAdapter.AdapterId"] = "TestAdapter";
             properties["TestAdapter.ReplicaGroupId"] = "ReplicatedAdapter";
             properties["TestAdapter2.AdapterId"] = "TestAdapter2";
 
-            Communicator serverCommunicator = _helper.initialize(properties);
+            Communicator serverCommunicator = _helper.Initialize(properties);
             _communicators.Add(serverCommunicator);
 
             //
@@ -53,20 +53,20 @@ namespace Ice.location
                 try
                 {
                     serverCommunicator.SetProperty("TestAdapter.Endpoints",
-                                                                _helper.getTestEndpoint(_nextPort++));
+                                                                _helper.GetTestEndpoint(_nextPort++));
                     serverCommunicator.SetProperty("TestAdapter2.Endpoints",
-                                                                _helper.getTestEndpoint(_nextPort++));
+                                                                _helper.GetTestEndpoint(_nextPort++));
 
                     adapter = serverCommunicator.CreateObjectAdapter("TestAdapter");
                     adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");
 
-                    var locator = ILocatorPrx.Parse($"locator:{_helper.getTestEndpoint(0)}", serverCommunicator);
+                    var locator = ILocatorPrx.Parse($"locator:{_helper.GetTestEndpoint(0)}", serverCommunicator);
                     adapter.Locator = locator;
                     adapter2.Locator = locator;
 
                     var testI = new TestIntf(adapter, adapter2, _registry);
-                    _registry.addObject(adapter.Add("test", testI, Ice.IObjectPrx.Factory));
-                    _registry.addObject(adapter.Add("test2", testI, Ice.IObjectPrx.Factory));
+                    _registry.AddObject(adapter.Add("test", testI, Ice.IObjectPrx.Factory));
+                    _registry.AddObject(adapter.Add("test2", testI, Ice.IObjectPrx.Factory));
                     adapter.Add("test3", testI);
 
                     adapter.Activate();
@@ -104,9 +104,9 @@ namespace Ice.location
             current.Adapter.Communicator.Shutdown();
         }
 
-        private ServerLocatorRegistry _registry;
-        private ArrayList _communicators;
-        private global::Test.TestHelper _helper;
+        private readonly ServerLocatorRegistry _registry;
+        private readonly List<Communicator> _communicators = new List<Communicator>();
+        private readonly TestHelper _helper;
         private int _nextPort = 1;
     }
 }

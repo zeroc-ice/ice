@@ -3,32 +3,34 @@
 //
 
 using Ice;
+using Test;
 
-public class AllTests : Test.AllTests
+public class AllTests
 {
-    private static IPConnectionInfo getIPConnectionInfo(ConnectionInfo info)
+    private static IPConnectionInfo? getIPConnectionInfo(ConnectionInfo info)
     {
-        for (; info != null; info = info.Underlying)
+        ConnectionInfo? underlying = info;
+        for (; underlying != null; underlying = underlying.Underlying)
         {
             if (info is IPConnectionInfo)
             {
-                return info as IPConnectionInfo;
+                return (IPConnectionInfo)underlying;
             }
         }
         return null;
     }
 
-    public static void allTests(Test.TestHelper helper)
+    public static void allTests(TestHelper helper)
     {
-        Communicator communicator = helper.communicator();
-        string sref = "test:" + helper.getTestEndpoint(0);
-        var obj = IObjectPrx.Parse(sref, communicator);
+        Communicator? communicator = helper.Communicator();
+        TestHelper.Assert(communicator != null);
+        string sref = "test:" + helper.GetTestEndpoint(0);
+        var testPrx = ITestIntfPrx.Parse(sref, communicator);
 
         int proxyPort = communicator.GetPropertyAsInt("Ice.HTTPProxyPort") ??
                         communicator.GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 0;
 
-        Test.ITestIntfPrx? testPrx = Test.ITestIntfPrx.CheckedCast(obj);
-        var output = helper.getWriter();
+        var output = helper.GetWriter();
         output.Write("testing connection... ");
         output.Flush();
         {
@@ -39,8 +41,8 @@ public class AllTests : Test.AllTests
         output.Write("testing connection information... ");
         output.Flush();
         {
-            Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.GetConnection().GetConnectionInfo());
-            test(info.RemotePort == proxyPort); // make sure we are connected to the proxy port.
+            IPConnectionInfo? info = getIPConnectionInfo(testPrx.GetConnection().GetConnectionInfo());
+            TestHelper.Assert(info!.RemotePort == proxyPort); // make sure we are connected to the proxy port.
         }
         output.WriteLine("ok");
 
@@ -57,7 +59,7 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (System.Exception)
             {

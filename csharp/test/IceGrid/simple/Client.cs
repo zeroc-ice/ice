@@ -12,9 +12,9 @@ using System.Linq;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using var communicator = Initialize(ref args);
         if (args.Any(v => v.Equals("--with-deploy")))
         {
             AllTests.allTestsWithDeploy(this);
@@ -25,5 +25,5 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }
