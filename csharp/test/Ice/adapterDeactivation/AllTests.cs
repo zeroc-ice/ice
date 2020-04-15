@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Test;
 
 namespace Ice
@@ -16,13 +15,13 @@ namespace Ice
                 output.Write("testing stringToProxy... ");
                 output.Flush();
                 var baseprx = IObjectPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-                Debug.Assert(baseprx != null);
+                TestHelper.Assert(baseprx != null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
                 var obj = Test.ITestIntfPrx.CheckedCast(baseprx);
-                Debug.Assert(obj != null);
+                TestHelper.Assert(obj != null);
                 TestHelper.Assert(obj.Equals(baseprx));
                 output.WriteLine("ok");
 
@@ -74,7 +73,7 @@ namespace Ice
                     var adapter = communicator.CreateObjectAdapter("PAdapter");
                     TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                     var endpt = adapter.GetPublishedEndpoints()[0];
-                    Debug.Assert(endpt != null);
+                    TestHelper.Assert(endpt != null);
                     TestHelper.Assert(endpt.ToString()!.Equals("tcp -h localhost -p 12345 -t 30000"));
                     var prx = IObjectPrx.Parse("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000", communicator);
                     adapter.SetPublishedEndpoints(prx.Endpoints);

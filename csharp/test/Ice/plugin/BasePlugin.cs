@@ -2,6 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+
+public static class TestHelper
+{
+    public static void Assert([DoesNotReturnIf(false)] bool b)
+    {
+        if (!b)
+        {
+            Debug.Assert(false);
+            throw new Exception();
+        }
+    }
+}
 public abstract class BasePlugin : Ice.IPlugin
 {
     public BasePlugin(Ice.Communicator communicator) => _communicator = communicator;

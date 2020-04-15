@@ -1,7 +1,6 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using System.Diagnostics;
 
 public class PluginTwoFactory : Ice.IPluginFactory
 {
@@ -15,18 +14,18 @@ public class PluginTwoFactory : Ice.IPluginFactory
 
         public override void Initialize()
         {
-            BasePlugin? other = (BasePlugin?)_communicator.GetPlugin("PluginOne");
-            Debug.Assert(other != null);
+            var other = (BasePlugin?)_communicator.GetPlugin("PluginOne");
+            TestHelper.Assert(other != null);
             _other = other;
-            Trace.Assert(_other.isInitialized());
+            TestHelper.Assert(_other.isInitialized());
             _initialized = true;
         }
 
         public override void Destroy()
         {
             _destroyed = true;
-            Debug.Assert(_other != null);
-            Debug.Assert(!_other.isDestroyed());
+            TestHelper.Assert(_other != null);
+            TestHelper.Assert(!_other.isDestroyed());
         }
     }
 }
