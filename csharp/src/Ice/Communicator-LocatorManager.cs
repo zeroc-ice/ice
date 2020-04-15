@@ -313,7 +313,7 @@ namespace Ice
                 //
                 // The locator registry can't be located. We use ordered
                 // endpoint selection in case the locator returned a proxy
-                // with some endpoints which are prefered to be tried first.
+                // with some endpoints which are preferred to be tried first.
                 //
                 _locatorRegistry = locatorRegistry.Clone(clearLocator: true,
                     endpointSelection: EndpointSelectionType.Ordered);
@@ -635,34 +635,22 @@ namespace Ice
             private readonly Identity _id;
             private readonly Encoding _encoding;
         }
-        //
+
         // Returns locator info for a given locator. Automatically creates
         // the locator info if it doesn't exist yet.
-        //
         internal LocatorInfo GetLocatorInfo(ILocatorPrx loc)
         {
-            if (loc == null)
-            {
-                throw new ArgumentNullException(nameof(loc));
-            }
-
-            //
             // The locator can't be located.
-            //
             ILocatorPrx locator = loc.Clone(clearLocator: true);
 
-            //
             // TODO: reap unused locator info objects?
-            //
             lock (_locatorInfoMap)
             {
                 if (!_locatorInfoMap.TryGetValue(locator, out LocatorInfo? info))
                 {
-                    //
                     // Rely on locator identity for the adapter table. We want to
                     // have only one table per locator (not one per locator
                     // proxy).
-                    //
                     var key = new LocatorKey(locator);
                     if (!_locatorTableMap.TryGetValue(key, out LocatorTable? table))
                     {
