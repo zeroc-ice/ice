@@ -409,13 +409,13 @@ namespace Glacier2
                     return;
                 }
 
-                if (_communicator.GetDefaultRouter() == null)
+                if (_communicator.DefaultRouter == null)
                 {
                     IRouterFinderPrx? finder = null;
                     try
                     {
                         finder = IRouterFinderPrx.Parse(_finderStr, _communicator);
-                        _communicator.SetDefaultRouter(finder.GetRouter());
+                        _communicator.DefaultRouter = finder.GetRouter();
                     }
                     catch (CommunicatorDestroyedException ex)
                     {
@@ -434,8 +434,8 @@ namespace Glacier2
                             //
                             // In case of error getting router identity from RouterFinder use default identity.
                             //
-                            _communicator.SetDefaultRouter(
-                                    finder.Clone(new Identity("router", "Glacier2"), Ice.IRouterPrx.Factory));
+                            _communicator.DefaultRouter =
+                                finder.Clone(new Identity("router", "Glacier2"), Ice.IRouterPrx.Factory);
                         }
                     }
                 }
@@ -443,7 +443,7 @@ namespace Glacier2
                 try
                 {
                     _callback.createdCommunicator(this);
-                    Ice.IRouterPrx? defaultRouter = _communicator.GetDefaultRouter();
+                    Ice.IRouterPrx? defaultRouter = _communicator.DefaultRouter;
                     Debug.Assert(defaultRouter != null);
                     var routerPrx = IRouterPrx.UncheckedCast(defaultRouter);
                     ISessionPrx session = factory(routerPrx);

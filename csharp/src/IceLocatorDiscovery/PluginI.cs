@@ -149,7 +149,7 @@ namespace IceLocatorDiscovery
             _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
             _instanceName = instanceName;
             _warned = false;
-            _locator = lookup.Communicator.GetDefaultLocator();
+            _locator = lookup.Communicator.DefaultLocator;
             _voidLocator = voidLocator;
             _pending = false;
             _pendingRetryCount = 0;
@@ -682,10 +682,10 @@ namespace IceLocatorDiscovery
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var id = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
-            _defaultLocator = _communicator.GetDefaultLocator();
+            _defaultLocator = _communicator.DefaultLocator;
             _locator = new LocatorI(_name, lookupPrx, _communicator, instanceName, voidLo);
             _locatorPrx = _locatorAdapter.AddWithUUID(_locator, ILocatorPrx.Factory);
-            _communicator.SetDefaultLocator(_locatorPrx);
+            _communicator.DefaultLocator = _locatorPrx;
 
             ILookupReply lookupReplyI = new LookupReplyI(_locator);
             _locator.SetLookupReply(_replyAdapter.AddWithUUID(lookupReplyI, ILookupReplyPrx.Factory)
@@ -706,10 +706,10 @@ namespace IceLocatorDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            if (IObjectPrx.Equals(_communicator.GetDefaultLocator(), _locatorPrx))
+            if (IObjectPrx.Equals(_communicator.DefaultLocator, _locatorPrx))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
-                _communicator.SetDefaultLocator(_defaultLocator);
+                _communicator.DefaultLocator = _defaultLocator;
             }
         }
 

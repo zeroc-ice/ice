@@ -22,22 +22,8 @@ namespace Ice
         /// <value>The locator proxy.</value>
         public ILocatorPrx? Locator
         {
-            get
-            {
-                lock (_mutex)
-                {
-                    CheckForDeactivation();
-                    return _locatorInfo?.Locator;
-                }
-            }
-            set
-            {
-                lock (_mutex)
-                {
-                    CheckForDeactivation();
-                    _locatorInfo = value != null ? Communicator.GetLocatorInfo(value) : null;
-                }
-             }
+            get => _locatorInfo?.Locator;
+            set => _locatorInfo = (value != null) ? Communicator.GetLocatorInfo(value) : null;
         }
 
         /// <summary>Returns the name of this object adapter. This name is used as prefix for the object adapter's
@@ -109,7 +95,7 @@ namespace Ice
             new Dictionary<IdentityPlusFacet, IObject>();
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
             new List<IncomingConnectionFactory>();
-        private LocatorInfo? _locatorInfo;
+        private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new object();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
         private Reference? _reference;
@@ -123,8 +109,6 @@ namespace Ice
         /// set).</summary>
         public void Activate()
         {
-            LocatorInfo? locatorInfo = null;
-
             lock (_mutex)
             {
                 CheckForDeactivation();
@@ -138,13 +122,11 @@ namespace Ice
                 // Update the locator registry. We set set state to State.Activating to prevent deactivation from
                 // other threads while the call is performed.
                 _state = State.Activating;
-
-                locatorInfo = _locatorInfo;
             }
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (System.Exception)
             {
@@ -728,7 +710,6 @@ namespace Ice
         /// endpoint information published in the proxies created by this object adapter.</summary>
         public void RefreshPublishedEndpoints()
         {
-            LocatorInfo? locatorInfo = null;
             IReadOnlyList<Endpoint> oldPublishedEndpoints;
 
             lock (_mutex)
@@ -737,13 +718,11 @@ namespace Ice
 
                 oldPublishedEndpoints = _publishedEndpoints;
                 _publishedEndpoints = ComputePublishedEndpoints();
-
-                locatorInfo = _locatorInfo;
             }
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (Exception)
             {
@@ -772,7 +751,6 @@ namespace Ice
         /// <param name="newEndpoints">The new published endpoints.</param>
         public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints)
         {
-            LocatorInfo? locatorInfo = null;
             IReadOnlyList<Endpoint> oldPublishedEndpoints;
 
             lock (_mutex)
@@ -790,12 +768,11 @@ namespace Ice
                 {
                     _publishedEndpoints = Array.Empty<Endpoint>();
                 }
-                locatorInfo = _locatorInfo;
             }
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (Exception)
             {
@@ -931,7 +908,7 @@ namespace Ice
                 // Parse published endpoints.
                 _publishedEndpoints = ComputePublishedEndpoints();
                 Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
-                    ?? Communicator.GetDefaultLocator();
+                    ?? Communicator.DefaultLocator;
             }
             catch (System.Exception)
             {

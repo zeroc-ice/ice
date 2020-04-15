@@ -54,7 +54,7 @@ public class Client : TestHelper
             {
                 Console.Out.Write("installing router with communicator... ");
                 Console.Out.Flush();
-                communicator.SetDefaultRouter(router);
+                communicator.DefaultRouter = router;
                 Console.Out.WriteLine("ok");
             }
 
@@ -378,7 +378,7 @@ public class Client : TestHelper
                 {
                     Console.Out.Write("uninstalling router with communicator... ");
                     Console.Out.Flush();
-                    communicator.SetDefaultRouter(null);
+                    communicator.DefaultRouter = null;
                     Console.Out.WriteLine("ok");
                 }
 

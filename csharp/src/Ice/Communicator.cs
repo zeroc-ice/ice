@@ -94,44 +94,51 @@ namespace Ice
             }
         }
 
-        /// <summary>The default context for proxies created using this communicator. Changing the value of
-        /// DefaultContext does not change the context of previously created proxies.</summary>
+        public bool DefaultCollocationOptimized { get; }
+
+        /// <summary>The default context for proxies created using this communicator.
+        /// Changing the value of DefaultContext does not change the context of previously created proxies.</summary>
         public IReadOnlyDictionary<string, string> DefaultContext
         {
-            get
-            {
-                lock (this)
-                {
-                    return _defaultContext;
-                }
-            }
-            set
-            {
-                lock (this)
-                {
-                    if (value.Count == 0)
-                    {
-                        _defaultContext = Reference.EmptyContext;
-                    }
-                    else
-                    {
-                        _defaultContext = new Dictionary<string, string>(value);
-                    }
-                }
-            }
+            get => _defaultContext;
+            set => _defaultContext = value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value);
         }
 
-        public bool DefaultCollocationOptimized { get; }
         public Encoding DefaultEncoding { get; }
         public EndpointSelectionType DefaultEndpointSelection { get; }
         public FormatType DefaultFormat { get; }
         public string? DefaultHost { get; }
+
+        /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
+        /// All newly created proxies and object adapters will use this default locator.
+        /// Note that setting this property has no effect on existing proxies or object adapters.
+        ///
+        /// You can also set a locator for an individual proxy by calling the operation ice_locator on the proxy,
+        /// or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.</summary>
+        public ILocatorPrx? DefaultLocator
+        {
+            get => _defaultLocator;
+            set => _defaultLocator = value;
+        }
+
         public bool DefaultPreferNonSecure { get; }
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
         public int DefaultTimeout { get; }
         public int DefaultInvocationTimeout { get; }
         public int DefaultLocatorCacheTimeout { get; }
+
+        /// <summary>The default router for this communicator. To disable the default router, null can be used.
+        /// All newly created proxies will use this default router.
+        /// Note that setting this property has no effect on existing proxies.
+        ///
+        /// You can also set a router for an individual proxy by calling the operation ice_router on the proxy.
+        /// </summary>
+        public IRouterPrx? DefaultRouter
+        {
+            get => _defaultRouter;
+            set => _defaultRouter = value;
+        }
 
         public bool? OverrideCompress { get; }
         public int? OverrideTimeout { get; }
@@ -190,9 +197,9 @@ namespace Ice
         private readonly string[] _compactIdNamespaces;
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
-        private IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
-        private ILocatorPrx? _defaultLocator;
-        private IRouterPrx? _defaultRouter;
+        private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
+        private volatile ILocatorPrx? _defaultLocator;
+        private volatile IRouterPrx? _defaultRouter;
 
         private bool _isShutdown = false;
         private static bool _oneOffDone = false;
@@ -711,26 +718,24 @@ namespace Ice
                 }
                 _clientThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
-                //
                 // The default router/locator may have been set during the loading of plugins.
-                // Therefore we make sure it is not already set before checking the property.
-                //
-                if (GetDefaultRouter() == null)
+                // Therefore we only set it if it hasn't already been set.
+                try
                 {
-                    IRouterPrx? router = GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
-                    if (router != null)
-                    {
-                        SetDefaultRouter(router);
-                    }
+                    _defaultLocator ??= GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
 
-                if (GetDefaultLocator() == null)
+                try
                 {
-                    ILocatorPrx? locator = GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
-                    if (locator != null)
-                    {
-                        SetDefaultLocator(locator);
-                    }
+                    _defaultRouter ??= GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
 
                 //
@@ -1627,39 +1632,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Get this communicator's default locator.
-        /// </summary>
-        /// <returns>The default locator for this communicator.</returns>
-        public ILocatorPrx? GetDefaultLocator()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _defaultLocator;
-            }
-        }
-
-        /// <summary>
-        /// Get this communicator's default router.
-        /// </summary>
-        /// <returns>The default router for this communicator.</returns>
-        public IRouterPrx? GetDefaultRouter()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                return _defaultRouter;
-            }
-        }
-
-        /// <summary>
         /// Check whether the communicator has been shut down.
         /// </summary>
         /// <returns>True if the communicator has been shut down; false otherwise.</returns>
@@ -1692,59 +1664,6 @@ namespace Ice
                     _adminAdapter.Remove(_adminIdentity.Value, facet);
                 }
                 return result;
-            }
-        }
-
-        /// <summary>
-        /// Set a default Ice locator for this communicator.
-        /// All newly
-        /// created proxy and object adapters will use this default
-        /// locator. To disable the default locator, null can be used.
-        /// Note that this operation has no effect on existing proxies or
-        /// object adapters.
-        ///
-        /// You can also set a locator for an individual proxy by calling the
-        /// operation ice_locator on the proxy, or for an object adapter
-        /// by calling ObjectAdapter.setLocator on the object adapter.
-        ///
-        /// </summary>
-        /// <param name="locator">The default locator to use for this communicator.</param>
-        public void SetDefaultLocator(ILocatorPrx? locator)
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                _defaultLocator = locator;
-            }
-        }
-
-        /// <summary>
-        /// Set a default router for this communicator.
-        /// All newly
-        /// created proxies will use this default router. To disable the
-        /// default router, null can be used. Note that this
-        /// operation has no effect on existing proxies.
-        ///
-        /// You can also set a router for an individual proxy
-        /// by calling the operation ice_router on the proxy.
-        ///
-        /// </summary>
-        /// <param name="router">The default router to use for this communicator.
-        ///
-        /// </param>
-        public void SetDefaultRouter(IRouterPrx? router)
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                _defaultRouter = router;
             }
         }
 

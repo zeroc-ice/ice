@@ -210,7 +210,7 @@ public class AllTests
                 var properties = communicator.GetProperties();
                 properties["IceDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
                 Communicator comm = new Communicator(properties);
-                TestHelper.Assert(comm.GetDefaultLocator() != null);
+                TestHelper.Assert(comm.DefaultLocator != null);
                 try
                 {
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
@@ -232,7 +232,7 @@ public class AllTests
                 properties["IceDiscovery.Lookup"] =
                     $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
                 var comm = new Communicator(properties);
-                TestHelper.Assert(comm.GetDefaultLocator() != null);
+                TestHelper.Assert(comm.DefaultLocator != null);
                 try
                 {
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
