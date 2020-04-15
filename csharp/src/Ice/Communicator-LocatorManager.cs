@@ -641,11 +641,6 @@ namespace Ice
         //
         internal LocatorInfo GetLocatorInfo(ILocatorPrx loc)
         {
-            if (loc == null)
-            {
-                throw new ArgumentNullException(nameof(loc));
-            }
-
             //
             // The locator can't be located.
             //
