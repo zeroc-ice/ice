@@ -112,8 +112,8 @@ namespace Ice
         /// </summary>
         public IReadOnlyDictionary<string, string> DefaultContext
         {
-            get { return _defaultContext; }
-            set { _defaultContext = Value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value); }
+            get => _defaultContext;
+            set => _defaultContext = value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value);
         }
 
         /// <summary>
@@ -129,8 +129,8 @@ namespace Ice
         /// </summary>
         public ILocatorPrx? DefaultLocator
         {
-            get { return _defaultLocator; }
-            set { _defaultLocator = value; }
+            get => _defaultLocator;
+            set => _defaultLocator = value;
         }
 
         /// <summary>
@@ -144,8 +144,8 @@ namespace Ice
         /// </summary>
         public IRouterPrx? DefaultRouter
         {
-            get { return _defaultRouter; }
-            set { _defaultRouter = value; }
+            get => _defaultRouter;
+            set => _defaultRouter = value;
         }
 
         public bool? OverrideCompress { get; }
@@ -732,7 +732,7 @@ namespace Ice
                 {
                     _defaultLocator ??= GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
                 }
-                catch(FormatException ex)
+                catch (FormatException ex)
                 {
                     throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
@@ -741,7 +741,7 @@ namespace Ice
                 {
                     _defaultRouter ??= GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
                 }
-                catch(FormatException ex)
+                catch (FormatException ex)
                 {
                     throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
