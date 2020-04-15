@@ -27,7 +27,7 @@ namespace Serialize
         public double d10;
         public double d11;
 
-        public string s1;
+        public string s1 = "";
 
         // Use as data member of Large to ensure that the class serialization will take more than 254 bytes
         public static readonly string LargeString =
@@ -39,10 +39,10 @@ namespace Serialize
     [Serializable]
     public class Struct // Used to test that null members marshal correctly.
     {
-        public object o;
-        public object o2;
-        public string s;
-        public string s2;
+        public object? o;
+        public object? o2;
+        public string? s;
+        public string? s2;
     }
 
 }

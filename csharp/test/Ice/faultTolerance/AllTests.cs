@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using Test;
 
-public class AllTests : Test.AllTests
+public class AllTests
 {
-    private static void exceptAbortI(Exception ex, TextWriter output)
+    private static void ExceptAbortI(Exception ex, TextWriter output)
     {
         try
         {
@@ -28,30 +28,30 @@ public class AllTests : Test.AllTests
         catch (Exception)
         {
             output.WriteLine(ex.ToString());
-            test(false);
+            TestHelper.Assert(false);
         }
     }
 
     public static void allTests(TestHelper helper, List<int> ports)
     {
-        Ice.Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        Ice.Communicator? communicator = helper.Communicator();
+        TestHelper.Assert(communicator != null);
+        TextWriter output = helper.GetWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
         string refString = "test";
         for (int i = 0; i < ports.Count; i++)
         {
-            refString += ":" + helper.getTestEndpoint(ports[i]);
+            refString += ":" + helper.GetTestEndpoint(ports[i]);
         }
-        Ice.IObjectPrx basePrx = Ice.IObjectPrx.Parse(refString, communicator);
-        test(basePrx != null);
+        var basePrx = Ice.IObjectPrx.Parse(refString, communicator);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
-        ITestIntfPrx obj = ITestIntfPrx.CheckedCast(basePrx);
-        test(obj != null);
-        test(obj.Equals(basePrx));
+        var obj = ITestIntfPrx.CheckedCast(basePrx);
+        TestHelper.Assert(obj != null);
+        TestHelper.Assert(obj.Equals(basePrx));
         output.WriteLine("ok");
 
         int oldPid = 0;
@@ -69,7 +69,7 @@ public class AllTests : Test.AllTests
                 output.Write("testing server #" + i + "... ");
                 output.Flush();
                 int pid = obj.pid();
-                test(pid != oldPid);
+                TestHelper.Assert(pid != oldPid);
                 output.WriteLine("ok");
                 oldPid = pid;
             }
@@ -77,8 +77,8 @@ public class AllTests : Test.AllTests
             {
                 output.Write("testing server #" + i + " with AMI... ");
                 output.Flush();
-                var pid = obj.pidAsync().Result;
-                test(pid != oldPid);
+                int pid = obj.pidAsync().Result;
+                TestHelper.Assert(pid != oldPid);
                 output.WriteLine("ok");
                 oldPid = pid;
             }
@@ -108,7 +108,7 @@ public class AllTests : Test.AllTests
                     try
                     {
                         obj.abort();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (Ice.ConnectionLostException)
                     {
@@ -130,11 +130,12 @@ public class AllTests : Test.AllTests
                     try
                     {
                         obj.abortAsync().Wait();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (AggregateException ex)
                     {
-                        exceptAbortI(ex.InnerException, output);
+                        TestHelper.Assert(ex.InnerException != null);
+                        ExceptAbortI(ex.InnerException, output);
                     }
                     output.WriteLine("ok");
                 }
@@ -148,7 +149,7 @@ public class AllTests : Test.AllTests
                     try
                     {
                         obj.idempotentAbort();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (Ice.ConnectionLostException)
                     {
@@ -170,11 +171,12 @@ public class AllTests : Test.AllTests
                     try
                     {
                         obj.idempotentAbortAsync().Wait();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (AggregateException ex)
                     {
-                        exceptAbortI(ex.InnerException, output);
+                        TestHelper.Assert(ex.InnerException != null);
+                        ExceptAbortI(ex.InnerException, output);
                     }
                     output.WriteLine("ok");
                 }
@@ -182,7 +184,7 @@ public class AllTests : Test.AllTests
             }
             else
             {
-                Debug.Assert(false);
+                TestHelper.Assert(false);
             }
         }
 
@@ -191,7 +193,7 @@ public class AllTests : Test.AllTests
         try
         {
             obj.IcePing();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (Exception)
         {

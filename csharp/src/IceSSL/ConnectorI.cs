@@ -47,7 +47,7 @@ namespace IceSSL
             return _delegate.Equals(p._delegate);
         }
 
-        public override string ToString() => _delegate.ToString();
+        public override string ToString() => _delegate.ToString()!;
 
         public override int GetHashCode() => _delegate.GetHashCode();
 

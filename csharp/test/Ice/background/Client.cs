@@ -2,8 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Reflection;
+using System.Collections.Generic;
+
+using Ice;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -11,9 +13,9 @@ using System.Reflection;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Dictionary<string, string> properties = CreateTestProperties(ref args);
 
         //
         // For this test, we want to disable retries.
@@ -32,20 +34,19 @@ public class Client : Test.TestHelper
         //
         // Setup the test transport plug-in.
         //
-        string? transport;
-        if (!properties.TryGetValue("Ice.Default.Transport", out transport))
+        if (!properties.TryGetValue("Ice.Default.Transport", out string? transport))
         {
             transport = "tcp";
         }
         properties["Ice.Default.Transport"] = $"test-{transport}";
 
-        using var communicator = initialize(properties);
-        Plugin plugin = new Plugin(communicator);
+        using Communicator communicator = Initialize(properties);
+        var plugin = new Plugin(communicator);
         plugin.Initialize();
         communicator.AddPlugin("Test", plugin);
         Test.IBackgroundPrx background = AllTests.allTests(this);
         background.shutdown();
     }
 
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }

@@ -15,10 +15,10 @@ public class PluginFactory : Ice.IPluginFactory
         public void Initialize()
         {
             _initialized = true;
-            test(_args.Length == 3);
-            test(_args[0] == "C:\\Program Files\\");
-            test(_args[1] == "--DatabasePath");
-            test(_args[2] == "C:\\Program Files\\Application\\db");
+            TestHelper.Assert(_args.Length == 3);
+            TestHelper.Assert(_args[0] == "C:\\Program Files\\");
+            TestHelper.Assert(_args[1] == "--DatabasePath");
+            TestHelper.Assert(_args[2] == "C:\\Program Files\\Application\\db");
         }
 
         public void Destroy() => _destroyed = true;
@@ -32,14 +32,6 @@ public class PluginFactory : Ice.IPluginFactory
             if (!_destroyed)
             {
                 Console.WriteLine("Plugin not destroyed");
-            }
-        }
-
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                throw new Exception();
             }
         }
 

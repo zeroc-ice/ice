@@ -14,12 +14,12 @@ using Ice;
 
 public class Server : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
         var properties = new Dictionary<string, string>();
         properties.ParseArgs(ref args, "TestAdapter");
 
-        using var communicator = initialize(ref args, properties);
+        using var communicator = Initialize(ref args, properties);
         ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
         try
@@ -32,5 +32,5 @@ public class Server : TestHelper
         communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

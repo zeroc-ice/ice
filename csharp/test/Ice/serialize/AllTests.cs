@@ -2,67 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using Test;
 
 namespace Ice.serialize
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
-        //
-        // There does not appear to be any way to compare collections
-        // in either C# or with the .NET framework. Something like
-        // C++ STL EqualRange would be nice...
-        //
-        private static bool Compare(ICollection c1, ICollection c2)
+        static public int allTests(TestHelper helper)
         {
-            if (c1 == null)
-            {
-                return c2 == null;
-            }
-            if (c2 == null)
-            {
-                return false;
-            }
-            if (!c1.GetType().Equals(c2.GetType()))
-            {
-                return false;
-            }
-
-            if (c1.Count != c2.Count)
-            {
-                return false;
-            }
-
-            IEnumerator i1 = c1.GetEnumerator();
-            IEnumerator i2 = c2.GetEnumerator();
-            while (i1.MoveNext())
-            {
-                i2.MoveNext();
-                if (i1.Current is ICollection)
-                {
-                    Debug.Assert(i2.Current is ICollection);
-                    if (!Compare((ICollection)i1.Current, (ICollection)i2.Current))
-                    {
-                        return false;
-                    }
-                }
-                else if (!i1.Current.Equals(i2.Current))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        static public int allTests(global::Test.TestHelper helper)
-        {
-            var communicator = helper.communicator();
-            var output = helper.getWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            TextWriter output = helper.GetWriter();
             output.Write("testing serialization... ");
             output.Flush();
 
@@ -78,7 +32,7 @@ namespace Ice.serialize
             ex.vsq = new Queue<Test.ValStruct>();
             ex.isd = new Dictionary<int, string>();
             ex.ivd = new Dictionary<int, Test.ValStruct>();
-            ex.ipd = null;
+            ex.ipd = new Dictionary<int, Test.IMyInterfacePrx?>(); ;
             ex.issd = new SortedDictionary<int, string>();
             ex.optName = null;
             ex.optInt = null;
@@ -89,22 +43,22 @@ namespace Ice.serialize
             ex.optProxy = null;
             ex2 = inOut(ex, communicator);
 
-            test(ex2.name == "");
-            test(ex2.vss!.Length == 0);
-            test(ex2.vsll!.Count == 0);
-            test(ex2.vssk!.Count == 0);
-            test(ex2.vsq!.Count == 0);
-            test(ex2.isd!.Count == 0);
-            test(ex2.ivd!.Count == 0);
-            test(ex2.ipd == null);
-            test(ex2.issd!.Count == 0);
-            test(ex2.optName == null);
-            test(ex2.optInt == null);
-            test(ex2.optValStruct == null);
-            test(ex2.optRefStruct == null);
-            test(ex2.optEnum == null);
-            test(ex2.optClass == null);
-            test(ex2.optProxy == null);
+            TestHelper.Assert(ex2.name == "");
+            TestHelper.Assert(ex2.vss!.Length == 0);
+            TestHelper.Assert(ex2.vsll!.Count == 0);
+            TestHelper.Assert(ex2.vssk!.Count == 0);
+            TestHelper.Assert(ex2.vsq!.Count == 0);
+            TestHelper.Assert(ex2.isd!.Count == 0);
+            TestHelper.Assert(ex2.ivd!.Count == 0);
+            TestHelper.Assert(ex2.ipd.Count == 0);
+            TestHelper.Assert(ex2.issd!.Count == 0);
+            TestHelper.Assert(ex2.optName == null);
+            TestHelper.Assert(ex2.optInt == null);
+            TestHelper.Assert(ex2.optValStruct == null);
+            TestHelper.Assert(ex2.optRefStruct == null);
+            TestHelper.Assert(ex2.optEnum == null);
+            TestHelper.Assert(ex2.optClass == null);
+            TestHelper.Assert(ex2.optProxy == null);
 
             ex.name = "MyException";
             ex.b = 1;
@@ -112,7 +66,7 @@ namespace Ice.serialize
             ex.i = 3;
             ex.l = 4;
             ex.vs = new Test.ValStruct(true, 1, 2, 3, 4, Test.MyEnum.enum2);
-            ex.rs = new Test.RefStruct("RefStruct", "prop", null, proxy, new Test.IMyInterfacePrx[] { proxy, null, proxy });
+            ex.rs = new Test.RefStruct("RefStruct", "prop", null, proxy, new Test.IMyInterfacePrx?[] { proxy, null, proxy });
             ex.vss = new Test.ValStruct[1];
             ex.vss[0] = ex.vs;
             ex.vsl = new List<Test.ValStruct>();
@@ -127,7 +81,7 @@ namespace Ice.serialize
             ex.isd[5] = "five";
             ex.ivd = new Dictionary<int, Test.ValStruct>();
             ex.ivd[1] = ex.vs;
-            ex.ipd = new Dictionary<int, Test.IMyInterfacePrx>() { { 1, proxy }, { 2, null }, { 3, proxy } };
+            ex.ipd = new Dictionary<int, Test.IMyInterfacePrx?>() { { 1, proxy }, { 2, null }, { 3, proxy } };
             ex.issd = new SortedDictionary<int, string>();
             ex.issd[3] = "three";
             ex.optName = "MyException";
@@ -139,28 +93,28 @@ namespace Ice.serialize
             ex.optProxy = proxy;
             ex2 = inOut(ex, communicator);
 
-            test(ex2.name.Equals(ex.name));
-            test(ex2.b == ex.b);
-            test(ex2.s == ex.s);
-            test(ex2.i == ex.i);
-            test(ex2.l == ex.l);
-            test(ex2.vs.Equals(ex.vs));
-            test(ex2.rs.p != null && ex2.rs.p.Equals(ex.rs.p));
-            test(ex2.vss[0].Equals(ex.vs));
-            test(ex2.vsll.Count == 1 && ex2.vsll.Last!.Value.Equals(ex.vs));
-            test(ex2.vssk.Count == 1 && ex2.vssk.Peek().Equals(ex.vs));
-            test(ex2.vsq.Count == 1 && ex2.vsq.Peek().Equals(ex.vs));
-            test(ex2.isd.Count == 1 && ex2.isd[5].Equals("five"));
-            test(ex2.ivd.Count == 1 && ex2.ivd[1].Equals(ex.vs));
-            test(ex2.ipd.Count == 3 && ex2.ipd[2] == null);
-            test(ex2.issd.Count == 1 && ex2.issd[3] == "three");
-            test(ex2.optName == "MyException");
-            test(ex2.optInt.HasValue && ex2.optInt.Value == 99);
-            test(ex2.optValStruct.HasValue && ex2.optValStruct.Value.Equals(ex.vs));
-            test(ex2.optRefStruct != null && ex2.optRefStruct.Value.p!.Equals(ex.rs.p));
-            test(ex2.optEnum.HasValue && ex2.optEnum.Value == Test.MyEnum.enum3);
-            test(ex2.optClass == null);
-            test(ex2.optProxy.Equals(proxy));
+            TestHelper.Assert(ex2.name.Equals(ex.name));
+            TestHelper.Assert(ex2.b == ex.b);
+            TestHelper.Assert(ex2.s == ex.s);
+            TestHelper.Assert(ex2.i == ex.i);
+            TestHelper.Assert(ex2.l == ex.l);
+            TestHelper.Assert(ex2.vs.Equals(ex.vs));
+            TestHelper.Assert(ex2.rs.p != null && ex2.rs.p.Equals(ex.rs.p));
+            TestHelper.Assert(ex2.vss[0].Equals(ex.vs));
+            TestHelper.Assert(ex2.vsll.Count == 1 && ex2.vsll.Last!.Value.Equals(ex.vs));
+            TestHelper.Assert(ex2.vssk.Count == 1 && ex2.vssk.Peek().Equals(ex.vs));
+            TestHelper.Assert(ex2.vsq.Count == 1 && ex2.vsq.Peek().Equals(ex.vs));
+            TestHelper.Assert(ex2.isd.Count == 1 && ex2.isd[5].Equals("five"));
+            TestHelper.Assert(ex2.ivd.Count == 1 && ex2.ivd[1].Equals(ex.vs));
+            TestHelper.Assert(ex2.ipd.Count == 3 && ex2.ipd[2] == null);
+            TestHelper.Assert(ex2.issd.Count == 1 && ex2.issd[3] == "three");
+            TestHelper.Assert(ex2.optName == "MyException");
+            TestHelper.Assert(ex2.optInt.HasValue && ex2.optInt.Value == 99);
+            TestHelper.Assert(ex2.optValStruct.HasValue && ex2.optValStruct.Value.Equals(ex.vs));
+            TestHelper.Assert(ex2.optRefStruct != null && ex2.optRefStruct.Value.p!.Equals(ex.rs.p));
+            TestHelper.Assert(ex2.optEnum.HasValue && ex2.optEnum.Value == Test.MyEnum.enum3);
+            TestHelper.Assert(ex2.optClass == null);
+            TestHelper.Assert(ex2.optProxy!.Equals(proxy));
 
             Test.RefStruct rs, rs2;
             rs = new Test.RefStruct();
@@ -170,37 +124,37 @@ namespace Ice.serialize
             rs.p = Test.IMyInterfacePrx.Parse("test", communicator);
             rs.seq = new Test.IMyInterfacePrx[] { rs.p };
             rs2 = inOut(rs, communicator);
-            test(rs2.s == "RefStruct");
-            test(rs2.sp == "prop");
-            test(rs2.c == null);
-            test(rs2.p != null && rs2.p.Equals(rs.p));
-            test(rs2.seq.Length == rs.seq.Length);
-            test(rs2.seq[0]!.Equals(rs.seq[0]));
+            TestHelper.Assert(rs2.s == "RefStruct");
+            TestHelper.Assert(rs2.sp == "prop");
+            TestHelper.Assert(rs2.c == null);
+            TestHelper.Assert(rs2.p != null && rs2.p.Equals(rs.p));
+            TestHelper.Assert(rs2.seq.Length == rs.seq.Length);
+            TestHelper.Assert(rs2.seq[0]!.Equals(rs.seq[0]));
 
             Test.Base b, b2;
             b = new Test.Base(true, 1, 2, 3, 4, Test.MyEnum.enum2);
             b2 = inOut(b, communicator);
-            test(b2.bo == b.bo);
-            test(b2.by == b.by);
-            test(b2.sh == b.sh);
-            test(b2.i == b.i);
-            test(b2.l == b.l);
-            test(b2.e == b.e);
+            TestHelper.Assert(b2.bo == b.bo);
+            TestHelper.Assert(b2.by == b.by);
+            TestHelper.Assert(b2.sh == b.sh);
+            TestHelper.Assert(b2.i == b.i);
+            TestHelper.Assert(b2.l == b.l);
+            TestHelper.Assert(b2.e == b.e);
 
             Test.MyClass c, c2;
             c = new Test.MyClass(true, 1, 2, 3, 4, Test.MyEnum.enum1, null, null, new Test.ValStruct(true, 1, 2, 3, 4, Test.MyEnum.enum2));
             c.c = c;
             c.o = c;
             c2 = inOut(c, communicator);
-            test(c2.bo == c.bo);
-            test(c2.by == c.by);
-            test(c2.sh == c.sh);
-            test(c2.i == c.i);
-            test(c2.l == c.l);
-            test(c2.e == c.e);
-            test(c2.c == c2);
-            test(c2.o == c2);
-            test(c2.s.Equals(c.s));
+            TestHelper.Assert(c2.bo == c.bo);
+            TestHelper.Assert(c2.by == c.by);
+            TestHelper.Assert(c2.sh == c.sh);
+            TestHelper.Assert(c2.i == c.i);
+            TestHelper.Assert(c2.l == c.l);
+            TestHelper.Assert(c2.e == c.e);
+            TestHelper.Assert(c2.c == c2);
+            TestHelper.Assert(c2.o == c2);
+            TestHelper.Assert(c2.s.Equals(c.s));
 
             output.WriteLine("ok");
             return 0;

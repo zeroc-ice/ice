@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
 using System;
-using System.Text;
 using System.Threading.Tasks;
+using Test;
 
 namespace Ice.adapterDeactivation
 {
@@ -34,20 +33,11 @@ namespace Ice.adapterDeactivation
             }
             else
             {
-                test(current.Identity.Category.Length == 0);
-                test(current.Identity.Name.Equals("test"));
+                TestHelper.Assert(current.Identity.Category.Length == 0);
+                TestHelper.Assert(current.Identity.Name.Equals("test"));
                 servant = new TestIntf();
             }
             return servant.DispatchAsync(request, current);
-        }
-
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
         }
     }
 }

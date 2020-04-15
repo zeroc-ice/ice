@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using Test;
 
 namespace Ice.info
 {
@@ -37,9 +38,9 @@ namespace Ice.info
 
         public Dictionary<string, string> getEndpointInfoAsContext(Current current)
         {
-            Debug.Assert(current.Connection != null);
-            Dictionary<string, string> ctx = new Dictionary<string, string>();
-            Ice.Endpoint endpoint = current.Connection.Endpoint;
+            TestHelper.Assert(current.Connection != null);
+            var ctx = new Dictionary<string, string>();
+            Endpoint endpoint = current.Connection.Endpoint;
             ctx["timeout"] = endpoint.Timeout.ToString();
             ctx["compress"] = endpoint.HasCompressionFlag ? "true" : "false";
             ctx["datagram"] = endpoint.IsDatagram ? "true" : "false";
@@ -47,7 +48,7 @@ namespace Ice.info
             ctx["type"] = endpoint.Type.ToString();
 
             IPEndpoint? ipEndpoint = getIPEndpoint(endpoint);
-            Debug.Assert(ipEndpoint != null);
+            TestHelper.Assert(ipEndpoint != null);
             ctx["host"] = ipEndpoint.Host;
             ctx["port"] = ipEndpoint.Port.ToString();
 
@@ -62,14 +63,14 @@ namespace Ice.info
 
         public Dictionary<string, string> getConnectionInfoAsContext(Current current)
         {
-            Debug.Assert(current.Connection != null);
-            Dictionary<string, string> ctx = new Dictionary<string, string>();
+            TestHelper.Assert(current.Connection != null);
+            var ctx = new Dictionary<string, string>();
             ConnectionInfo info = current.Connection.GetConnectionInfo();
-            ctx["adapterName"] = info.AdapterName;
+            ctx["adapterName"] = info.AdapterName!;
             ctx["incoming"] = info.Incoming ? "true" : "false";
 
             IPConnectionInfo? ipinfo = getIPConnectionInfo(info);
-            Debug.Assert(ipinfo != null);
+            TestHelper.Assert(ipinfo != null);
             ctx["localAddress"] = ipinfo.LocalAddress;
             ctx["localPort"] = ipinfo.LocalPort.ToString();
             ctx["remoteAddress"] = ipinfo.RemoteAddress;
@@ -77,8 +78,8 @@ namespace Ice.info
 
             if (info is WSConnectionInfo)
             {
-                WSConnectionInfo wsinfo = (WSConnectionInfo)info;
-                foreach (KeyValuePair<string, string> e in wsinfo.Headers)
+                var wsinfo = (WSConnectionInfo)info;
+                foreach (KeyValuePair<string, string> e in wsinfo.Headers!)
                 {
                     ctx["ws." + e.Key] = e.Value;
                 }

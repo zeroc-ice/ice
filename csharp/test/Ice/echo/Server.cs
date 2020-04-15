@@ -16,17 +16,17 @@ public class Server : TestHelper
         public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
     }
 
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using var communicator = initialize(ref args);
-        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        using Ice.Communicator communicator = Initialize(ref args);
+        communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        BlobjectI blob = new BlobjectI();
+        var blob = new BlobjectI();
         adapter.AddDefault(blob);
         adapter.Add("__echo", new Echo());
         adapter.Activate();
         communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

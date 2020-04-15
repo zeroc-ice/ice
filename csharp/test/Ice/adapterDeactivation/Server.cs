@@ -8,19 +8,17 @@ namespace Ice.adapterDeactivation
 {
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using (var communicator = initialize(ref args))
-            {
-                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                var adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.AddDefault(new Servant());
-                adapter.Activate();
-                serverReady();
-                adapter.WaitForDeactivate();
-            }
+            using Communicator communicator = Initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.AddDefault(new Servant());
+            adapter.Activate();
+            ServerReady();
+            adapter.WaitForDeactivate();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

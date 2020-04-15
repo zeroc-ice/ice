@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
+using Test;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,18 +10,19 @@ namespace Ice.dictMapping
 {
     public static class DictionaryExtension
     {
-        public static bool DictionaryEquals<K, V>(this Dictionary<K, V> self, Dictionary<K, V> other)
+        public static bool DictionaryEquals<TKey, TValue>(this Dictionary<TKey, TValue> self,
+                                                          Dictionary<TKey, TValue> other) where TKey : notnull
+                                                                                          where TValue : notnull
         {
             if (self.Count != other.Count)
             {
                 return false;
             }
 
-            foreach (var entry in self)
+            foreach (KeyValuePair<TKey, TValue> entry in self)
             {
-                V value;
 
-                if (!other.TryGetValue(entry.Key, out value))
+                if (!other.TryGetValue(entry.Key, out TValue value))
                 {
                     return false;
                 }
@@ -34,18 +35,20 @@ namespace Ice.dictMapping
             return true;
         }
 
-        public static bool DictionaryEquals<K, V>(this Dictionary<K, V> self, Dictionary<K, V> other, System.Func<V, V, bool> equals)
+        public static bool DictionaryEquals<TKey, TValue>(
+            this Dictionary<TKey, TValue> self,
+            Dictionary<TKey, TValue> other,
+            System.Func<TValue, TValue, bool> equals) where TKey : notnull
         {
             if (self.Count != other.Count)
             {
                 return false;
             }
 
-            foreach (var entry in self)
+            foreach (KeyValuePair<TKey, TValue> entry in self)
             {
-                V value;
 
-                if (!other.TryGetValue(entry.Key, out value))
+                if (!other.TryGetValue(entry.Key, out TValue value))
                 {
                     return false;
                 }
@@ -60,22 +63,11 @@ namespace Ice.dictMapping
     }
     public class TwowaysAMI
     {
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                throw new System.SystemException();
-            }
-        }
-
         private class CallbackBase
         {
-            internal CallbackBase()
-            {
-                _called = false;
-            }
+            internal CallbackBase() => _called = false;
 
-            public virtual void check()
+            public virtual void Check()
             {
                 lock (this)
                 {
@@ -88,11 +80,11 @@ namespace Ice.dictMapping
                 }
             }
 
-            public virtual void called()
+            public virtual void Called()
             {
                 lock (this)
                 {
-                    Debug.Assert(!_called);
+                    TestHelper.Assert(!_called);
                     _called = true;
                     System.Threading.Monitor.Pulse(this);
                 }
@@ -101,136 +93,125 @@ namespace Ice.dictMapping
             private bool _called;
         }
 
-        internal static void twowaysAMI(Communicator communicator, Test.IMyClassPrx p)
+        internal static void twowaysAMI(Test.IMyClassPrx p)
         {
             {
-                Dictionary<int, int> i = new Dictionary<int, int>();
-                i[0] = 1;
-                i[1] = 0;
+                var i = new Dictionary<int, int>
+                {
+                    [0] = 1,
+                    [1] = 0
+                };
 
-                var r = p.opNVAsync(i).Result;
-                test(r.o.DictionaryEquals(i));
-                test(r.ReturnValue.DictionaryEquals(i));
+                (Dictionary<int, int> ReturnValue, Dictionary<int, int> o) = p.opNVAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i));
             }
 
             {
-                Dictionary<string, string> i = new Dictionary<string, string>();
-                i["a"] = "b";
-                i["b"] = "a";
+                var i = new Dictionary<string, string>
+                {
+                    ["a"] = "b",
+                    ["b"] = "a"
+                };
 
-                var r = p.opNRAsync(i).Result;
-                test(r.o.DictionaryEquals(i));
-                test(r.ReturnValue.DictionaryEquals(i));
+                (Dictionary<string, string> ReturnValue, Dictionary<string, string> o) = p.opNRAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i));
             }
 
             {
-                Dictionary<string, Dictionary<int, int>> i = new Dictionary<string, Dictionary<int, int>>();
-                Dictionary<int, int> id = new Dictionary<int, int>();
-                id[0] = 1;
-                id[1] = 0;
+                var i = new Dictionary<string, Dictionary<int, int>>();
+                var id = new Dictionary<int, int>
+                {
+                    [0] = 1,
+                    [1] = 0
+                };
                 i["a"] = id;
                 i["b"] = id;
 
-                var r = p.opNDVAsync(i).Result;
-                test(r.o.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.DictionaryEquals(rhs);
-                    }));
-                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.DictionaryEquals(rhs);
-                    }));
+                (Dictionary<string, Dictionary<int, int>> ReturnValue,
+                 Dictionary<string, Dictionary<int, int>> o) = p.opNDVAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
             }
 
             {
-                Dictionary<string, Dictionary<string, string>> i = new Dictionary<string, Dictionary<string, string>>();
-                Dictionary<string, string> id = new Dictionary<string, string>();
-                id["a"] = "b";
-                id["b"] = "a";
+                var i = new Dictionary<string, Dictionary<string, string>>();
+                var id = new Dictionary<string, string>
+                {
+                    ["a"] = "b",
+                    ["b"] = "a"
+                };
                 i["a"] = id;
                 i["b"] = id;
 
-                var r = p.opNDRAsync(i).Result;
-                test(r.o.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.DictionaryEquals(rhs);
-                    }));
-                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.DictionaryEquals(rhs);
-                    }));
+                (Dictionary<string, Dictionary<string, string>> ReturnValue,
+                 Dictionary<string, Dictionary<string, string>> o) = p.opNDRAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.DictionaryEquals(rhs)));
             }
 
             {
                 int[] ii = new int[] { 1, 2 };
-                Dictionary<string, int[]> i = new Dictionary<string, int[]>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var i = new Dictionary<string, int[]>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
-                var r = p.opNDAISAsync(i).Result;
-                test(r.o.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
-                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
+                (Dictionary<string, int[]> ReturnValue, Dictionary<string, int[]> o) = p.opNDAISAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }
 
             {
-                List<int> ii = new List<int>();
-                ii.Add(1);
-                ii.Add(2);
-                Dictionary<string, List<int>> i = new Dictionary<string, List<int>>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var ii = new List<int>
+                {
+                    1,
+                    2
+                };
+                var i = new Dictionary<string, List<int>>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
-                var r = p.opNDGISAsync(i).Result;
-                test(r.o.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
-                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
+                (Dictionary<string, List<int>> ReturnValue,
+                 Dictionary<string, List<int>> o) = p.opNDGISAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }
 
             {
                 string[] ii = new string[] { "a", "b" };
-                Dictionary<string, string[]> i = new Dictionary<string, string[]>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var i = new Dictionary<string, string[]>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
-                var r = p.opNDASSAsync(i).Result;
-                test(r.o.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
-                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
+                (Dictionary<string, string[]> ReturnValue,
+                 Dictionary<string, string[]> o) = p.opNDASSAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }
 
             {
-                List<string> ii = new List<string>();
-                ii.Add("a");
-                ii.Add("b");
-                Dictionary<string, List<string>> i = new Dictionary<string, List<string>>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var ii = new List<string>
+                {
+                    "a",
+                    "b"
+                };
+                var i = new Dictionary<string, List<string>>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
-                var r = p.opNDGSSAsync(i).Result;
-                test(r.o.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
-                test(r.ReturnValue.DictionaryEquals(i, (lhs, rhs) =>
-                    {
-                        return lhs.SequenceEqual(rhs);
-                    }));
+                (Dictionary<string, List<string>> ReturnValue,
+                 Dictionary<string, List<string>> o) = p.opNDGSSAsync(i).Result;
+                TestHelper.Assert(o.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
+                TestHelper.Assert(ReturnValue.DictionaryEquals(i, (lhs, rhs) => lhs.SequenceEqual(rhs)));
             }
         }
     }

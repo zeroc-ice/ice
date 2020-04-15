@@ -2,21 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
+using Ice;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Ice;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : Test.TestHelper
+public class Client : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        Dictionary<string, string> properties = createTestProperties(ref args);
+        Dictionary<string, string> properties = CreateTestProperties(ref args);
         //
         // We must disable connection warnings, because we attempt to
         // ping the router before session establishment, as well as
@@ -24,30 +24,30 @@ public class Client : Test.TestHelper
         // ConnectionLostException.
         //
         properties["Ice.Warn.Connections"] = "0";
-        using (var communicator = initialize(properties))
+        using (var communicator = Initialize(properties))
         {
             IObjectPrx routerBase;
             {
                 Console.Out.Write("testing stringToProxy for router... ");
                 Console.Out.Flush();
-                routerBase = IObjectPrx.Parse($"Glacier2/router:{getTestEndpoint(50)}", communicator);
+                routerBase = IObjectPrx.Parse($"Glacier2/router:{GetTestEndpoint(50)}", communicator);
                 Console.Out.WriteLine("ok");
             }
 
-            Glacier2.IRouterPrx router;
+            Glacier2.IRouterPrx? router;
             {
                 Console.Out.Write("testing checked cast for router... ");
                 Console.Out.Flush();
                 router = Glacier2.IRouterPrx.CheckedCast(routerBase);
-                test(router != null);
+                Assert(router != null);
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
-                IRouterFinderPrx finder = IRouterFinderPrx.Parse($"Ice/RouterFinder:{getTestEndpoint(50)}", communicator);
-                test(finder.GetRouter().Identity.Equals(router.Identity));
+                IRouterFinderPrx finder = IRouterFinderPrx.Parse($"Ice/RouterFinder:{GetTestEndpoint(50)}", communicator);
+                Assert(finder.GetRouter()!.Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
 
@@ -63,15 +63,15 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 long sessionTimeout = router.GetSessionTimeout();
                 long acmTimeout = router.GetACMTimeout();
-                test(sessionTimeout == 30 && acmTimeout == 30);
+                Assert(sessionTimeout == 30 && acmTimeout == 30);
                 Console.Out.WriteLine("ok");
             }
 
-            IObjectPrx @base;
+            ICallbackPrx twoway;
             {
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                @base = IObjectPrx.Parse($"c1/callback:{getTestEndpoint(0)}", communicator);
+                twoway = ICallbackPrx.Parse($"c1/callback:{GetTestEndpoint(0)}", communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -80,8 +80,8 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    @base.IcePing();
-                    test(false);
+                    twoway.IcePing();
+                    Assert(false);
                 }
                 catch (ConnectionLostException)
                 {
@@ -89,7 +89,7 @@ public class Client : Test.TestHelper
                 }
                 catch (TransportException)
                 {
-                    test(false);
+                    Assert(false);
                 }
             }
 
@@ -99,7 +99,7 @@ public class Client : Test.TestHelper
                 try
                 {
                     router.CreateSession("userid", "xxx");
-                    test(false);
+                    Assert(false);
                 }
                 catch (Glacier2.PermissionDeniedException)
                 {
@@ -107,7 +107,7 @@ public class Client : Test.TestHelper
                 }
                 catch (Glacier2.CannotCreateSessionException)
                 {
-                    test(false);
+                    Assert(false);
                 }
             }
 
@@ -117,7 +117,7 @@ public class Client : Test.TestHelper
                 try
                 {
                     router.DestroySession();
-                    test(false);
+                    Assert(false);
                 }
                 catch (Glacier2.SessionNotExistException)
                 {
@@ -134,11 +134,11 @@ public class Client : Test.TestHelper
                 }
                 catch (Glacier2.PermissionDeniedException)
                 {
-                    test(false);
+                    Assert(false);
                 }
                 catch (Glacier2.CannotCreateSessionException)
                 {
-                    test(false);
+                    Assert(false);
                 }
                 Console.Out.WriteLine("ok");
             }
@@ -149,11 +149,11 @@ public class Client : Test.TestHelper
                 try
                 {
                     router.CreateSession("userid", "abc123");
-                    test(false);
+                    Assert(false);
                 }
                 catch (Glacier2.PermissionDeniedException)
                 {
-                    test(false);
+                    Assert(false);
                 }
                 catch (Glacier2.CannotCreateSessionException)
                 {
@@ -164,13 +164,13 @@ public class Client : Test.TestHelper
             {
                 Console.Out.Write("pinging server after session creation... ");
                 Console.Out.Flush();
-                @base.IcePing();
+                twoway.IcePing();
                 Console.Out.WriteLine("ok");
             }
 
             {
                 Console.Out.Write("pinging object with client endpoint... ");
-                IObjectPrx baseC = IObjectPrx.Parse($"collocated:{getTestEndpoint(50)}", communicator);
+                IObjectPrx baseC = IObjectPrx.Parse($"collocated:{GetTestEndpoint(50)}", communicator);
                 try
                 {
                     baseC.IcePing();
@@ -181,17 +181,7 @@ public class Client : Test.TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            ICallbackPrx twoway;
-
-            {
-                Console.Out.Write("testing checked cast for server object... ");
-                Console.Out.Flush();
-                twoway = ICallbackPrx.CheckedCast(@base);
-                test(twoway != null);
-                Console.Out.WriteLine("ok");
-            }
-
-            Ice.ObjectAdapter adapter;
+            ObjectAdapter adapter;
 
             {
                 Console.Out.Write("creating and activating callback receiver adapter... ");
@@ -258,12 +248,12 @@ public class Client : Test.TestHelper
                 try
                 {
                     twoway.initiateCallbackEx(twowayR, context);
-                    test(false);
+                    Assert(false);
                 }
                 catch (CallbackException ex)
                 {
-                    test(ex.someValue == 3.14);
-                    test(ex.someString.Equals("3.14"));
+                    Assert(ex.someValue == 3.14);
+                    Assert(ex.someString.Equals("3.14"));
                 }
                 callbackReceiverImpl.callbackOK();
                 Console.Out.WriteLine("ok");
@@ -277,7 +267,7 @@ public class Client : Test.TestHelper
                 try
                 {
                     twoway.initiateCallback(fakeTwowayR, context);
-                    test(false);
+                    Assert(false);
                 }
                 catch (Ice.ObjectNotExistException)
                 {
@@ -307,7 +297,7 @@ public class Client : Test.TestHelper
                     ICallbackPrx otherCategoryTwoway =
                         twoway.Clone(Identity.Parse("c3/callback"), ICallbackPrx.Factory);
                     otherCategoryTwoway.initiateCallback(twowayR, context);
-                    test(false);
+                    Assert(false);
                 }
                 catch (ObjectNotExistException)
                 {
@@ -339,7 +329,7 @@ public class Client : Test.TestHelper
                   try
                   {
                   base.IcePing();
-                  test(false);
+                  Assert(false);
                   }
                   // If we use the glacier router, the exact exception reason gets
                   // lost.
@@ -359,7 +349,7 @@ public class Client : Test.TestHelper
                 }
                 catch (System.Exception)
                 {
-                    test(false);
+                    Assert(false);
                 }
 
                 Console.Out.WriteLine("ok");
@@ -370,8 +360,8 @@ public class Client : Test.TestHelper
                 Console.Out.Flush();
                 try
                 {
-                    @base.IcePing();
-                    test(false);
+                    twoway.IcePing();
+                    Assert(false);
                 }
                 catch (ConnectionLostException)
                 {
@@ -379,7 +369,7 @@ public class Client : Test.TestHelper
                 }
                 catch (TransportException)
                 {
-                    test(false);
+                    Assert(false);
                 }
             }
 
@@ -392,10 +382,10 @@ public class Client : Test.TestHelper
                     Console.Out.WriteLine("ok");
                 }
 
-                IObjectPrx processBase;
+                IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for admin object... ");
-                    processBase = IObjectPrx.Parse($"Glacier2/admin -f Process:{getTestEndpoint(51)}", communicator);
+                    process = IProcessPrx.Parse($"Glacier2/admin -f Process:{GetTestEndpoint(51)}", communicator);
                     Console.Out.WriteLine("ok");
                 }
 
@@ -407,20 +397,12 @@ public class Client : Test.TestHelper
                   }
                 */
 
-                IProcessPrx process;
-                {
-                    Console.Out.Write("testing checked cast for process object... ");
-                    process = IProcessPrx.CheckedCast(processBase);
-                    process.IcePing();
-                    Console.Out.WriteLine("ok");
-                }
-
                 Console.Out.Write("testing Glacier2 shutdown... ");
                 process.Shutdown();
                 try
                 {
                     process.IcePing();
-                    test(false);
+                    Assert(false);
                 }
                 catch (System.Exception)
                 {
@@ -430,5 +412,5 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
 }

@@ -2,6 +2,21 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+
+public static class TestHelper
+{
+    public static void Assert([DoesNotReturnIf(false)] bool b)
+    {
+        if (!b)
+        {
+            Debug.Assert(false);
+            throw new Exception();
+        }
+    }
+}
 public abstract class BasePlugin : Ice.IPlugin
 {
     public BasePlugin(Ice.Communicator communicator) => _communicator = communicator;
@@ -10,20 +25,11 @@ public abstract class BasePlugin : Ice.IPlugin
 
     public bool isDestroyed() => _destroyed;
 
-    protected static void test(bool b)
-    {
-        if (!b)
-        {
-            System.Diagnostics.Debug.Assert(false);
-            throw new System.Exception();
-        }
-    }
-
     public abstract void Initialize();
     public abstract void Destroy();
 
     protected Ice.Communicator _communicator;
     protected bool _initialized = false;
     protected bool _destroyed = false;
-    protected BasePlugin _other = null;
+    protected BasePlugin? _other = null;
 }

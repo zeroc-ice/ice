@@ -10,30 +10,23 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override void Run(string[] args)
             {
-                using (var communicator = initialize(ref args))
-                {
-                    communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                using Communicator communicator = Initialize(ref args);
+                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
-                    //
-                    // 2 threads are necessary to dispatch the collocated transient() call with AMI
-                    //
-                    communicator.SetProperty("TestAdapter.ThreadPool.Size", "2");
+                // 2 threads are necessary to dispatch the collocated transient() call with AMI
+                communicator.SetProperty("TestAdapter.ThreadPool.Size", "2");
 
-                    var adapter = communicator.CreateObjectAdapter("TestAdapter");
-                    adapter.AddDefault(new Servant());
+                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+                adapter.AddDefault(new Servant());
 
-                    AllTests.allTests(this);
+                AllTests.allTests(this);
 
-                    adapter.WaitForDeactivate();
-                }
+                adapter.WaitForDeactivate();
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
         }
     }
 }

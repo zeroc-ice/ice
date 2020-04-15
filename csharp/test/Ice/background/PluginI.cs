@@ -4,9 +4,9 @@
 
 using Ice;
 
-internal class Plugin : Ice.IPlugin
+internal class Plugin : IPlugin
 {
-    internal Plugin(Ice.Communicator communicator) => _communicator = communicator;
+    internal Plugin(Communicator communicator) => _communicator = communicator;
 
     public void Initialize()
     {
@@ -25,5 +25,5 @@ internal class Plugin : Ice.IPlugin
     {
     }
 
-    private Ice.Communicator _communicator;
+    private readonly Communicator _communicator;
 }

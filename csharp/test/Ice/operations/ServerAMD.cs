@@ -9,22 +9,22 @@ namespace Ice.operations.AMD
 {
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             //
             // We don't want connection warnings because of the timeout test.
             //
             properties["Ice.Warn.Connections"] = "0";
-            using var communicator = initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.AMD.TypeId" });
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            using var communicator = Initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.AMD.TypeId" });
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClass());
             adapter.Activate();
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

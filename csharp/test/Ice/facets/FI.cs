@@ -12,15 +12,9 @@ namespace Ice
             {
             }
 
-            public string callE(Ice.Current current)
-            {
-                return "E";
-            }
+            public string callE(Current current) => "E";
 
-            public string callF(Ice.Current current)
-            {
-                return "F";
-            }
+            public string callF(Current current) => "F";
         }
     }
 }

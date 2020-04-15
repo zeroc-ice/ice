@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
+using Test;
 
 namespace Ice.udp
 {
@@ -10,31 +10,31 @@ namespace Ice.udp
     {
         public int getValue(Current current)
         {
-            Debug.Assert(false); // a two-way operation cannot be reached through UDP
+            TestHelper.Assert(false); // a two-way operation cannot be reached through UDP
             return 42;
         }
 
-        public void ping(Test.IPingReplyPrx reply, Current current)
+        public void ping(Test.IPingReplyPrx? reply, Current current)
         {
             try
             {
-                reply.reply();
+                reply!.reply();
             }
             catch (System.Exception)
             {
-                Debug.Assert(false);
+                TestHelper.Assert(false);
             }
         }
 
-        public void sendByteSeq(byte[] seq, Test.IPingReplyPrx reply, Current current)
+        public void sendByteSeq(byte[] seq, Test.IPingReplyPrx? reply, Current current)
         {
             try
             {
-                reply.reply();
+                reply!.reply();
             }
             catch (System.Exception)
             {
-                Debug.Assert(false);
+                TestHelper.Assert(false);
             }
         }
 
@@ -46,12 +46,13 @@ namespace Ice.udp
                 // Ensure sending too much data doesn't cause the UDP connection
                 // to be closed.
                 //
+                TestHelper.Assert(current.Connection != null);
                 try
                 {
                     byte[] seq = new byte[32 * 1024];
                     current.Connection.CreateProxy(id, Test.ITestIntfPrx.Factory).sendByteSeq(seq, null);
                 }
-                catch (Ice.DatagramLimitException)
+                catch (DatagramLimitException)
                 {
                     // Expected.
                 }
@@ -60,7 +61,7 @@ namespace Ice.udp
             }
             catch (System.Exception)
             {
-                Debug.Assert(false);
+                TestHelper.Assert(false);
             }
         }
 

@@ -2,26 +2,26 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
 using Test;
-using Ice.binding.Test;
 
 namespace Ice.binding
 {
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.ServerIdleTime"] = "30";
-            using var communicator = initialize(properties);
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            using Communicator communicator = Initialize(properties);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("communicator", new RemoteCommunicator());
             adapter.Activate();
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

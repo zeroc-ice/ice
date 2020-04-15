@@ -12,46 +12,34 @@ using Test;
 
 public class AllTests
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            Debug.Assert(false);
-            throw new System.Exception();
-        }
-    }
-
     private class Callback
     {
-        internal Callback()
-        {
-            _called = false;
-        }
+        internal Callback() => _called = false;
 
-        public virtual void check()
+        public virtual void Check()
         {
             lock (this)
             {
                 while (!_called)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(this);
                 }
 
                 _called = false;
             }
         }
 
-        public virtual void called()
+        public virtual void Called()
         {
             lock (this)
             {
-                Debug.Assert(!_called);
+                TestHelper.Assert(!_called);
                 _called = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
-        public virtual bool isCalled()
+        public virtual bool IsCalled()
         {
             lock (this)
             {
@@ -64,58 +52,58 @@ public class AllTests
 
     private class OpAMICallback
     {
-        public void response() => _response.called();
+        public void Response() => _response.Called();
 
-        public void responseNoOp()
+        public void ResponseNoOp()
         {
         }
 
-        public void noResponse() => test(false);
+        public void NoResponse() => TestHelper.Assert(false);
 
-        public void exception(System.Exception ex) => _response.called();
+        public void Exception() => _response.Called();
 
-        public void noException(System.Exception ex)
+        public void NoException(Exception ex)
         {
             Console.Error.WriteLine(ex);
-            test(false);
+            TestHelper.Assert(false);
         }
 
-        public void sent(bool ss) => _sent.called();
+        public void Sent() => _sent.Called();
 
-        public bool checkException(bool wait)
+        public bool CheckException(bool wait)
         {
             if (wait)
             {
-                _response.check();
+                _response.Check();
                 return true;
             }
             else
             {
-                return _response.isCalled();
+                return _response.IsCalled();
             }
         }
 
-        public bool checkResponse(bool wait)
+        public bool CheckResponse(bool wait)
         {
             if (wait)
             {
-                _response.check();
+                _response.Check();
                 return true;
             }
             else
             {
-                return _response.isCalled();
+                return _response.IsCalled();
             }
         }
 
-        public void checkResponseAndSent()
+        public void CheckResponseAndSent()
         {
-            _sent.check();
-            _response.check();
+            _sent.Check();
+            _response.Check();
         }
 
-        private Callback _response = new Callback();
-        private Callback _sent = new Callback();
+        private readonly Callback _response = new Callback();
+        private readonly Callback _sent = new Callback();
     }
 
     private class OpThread
@@ -128,7 +116,7 @@ public class AllTests
 
         public void Join()
         {
-            Debug.Assert(_thread != null);
+            TestHelper.Assert(_thread != null);
             _thread.Join();
         }
 
@@ -161,13 +149,13 @@ public class AllTests
                     _background.opAsync();
                     Thread.Sleep(1);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                 }
             }
         }
 
-        public void destroy()
+        public void Destroy()
         {
             lock (this)
             {
@@ -176,37 +164,38 @@ public class AllTests
         }
 
         private bool _destroyed = false;
-        private IBackgroundPrx _background;
+        private readonly IBackgroundPrx _background;
         private Thread? _thread;
     }
 
-    public static Test.IBackgroundPrx allTests(Test.TestHelper helper)
+    public static IBackgroundPrx allTests(TestHelper helper)
     {
-        Communicator communicator = helper.communicator();
-        var background = IBackgroundPrx.Parse($"background:{helper.getTestEndpoint(0)}", communicator);
+        Communicator? communicator = helper.Communicator();
+        TestHelper.Assert(communicator != null);
+        var background = IBackgroundPrx.Parse($"background:{helper.GetTestEndpoint(0)}", communicator);
 
-        var backgroundController = IBackgroundControllerPrx.Parse("backgroundController:" + helper.getTestEndpoint(1, "tcp"), communicator);
+        var backgroundController = IBackgroundControllerPrx.Parse("backgroundController:" + helper.GetTestEndpoint(1, "tcp"), communicator);
 
-        Configuration configuration = Configuration.getInstance();
+        var configuration = Configuration.GetInstance();
 
         Console.Write("testing connect... ");
         Console.Out.Flush();
         {
-            connectTests(configuration, background);
+            ConnectTests(configuration, background);
         }
         Console.Out.WriteLine("ok");
 
         Console.Write("testing initialization... ");
         Console.Out.Flush();
         {
-            initializeTests(configuration, background, backgroundController);
+            InitializeTests(configuration, background, backgroundController);
         }
         Console.Out.WriteLine("ok");
 
         Console.Write("testing connection validation... ");
         Console.Out.Flush();
         {
-            validationTests(configuration, background, backgroundController);
+            ValidationTests(configuration, background, backgroundController);
         }
         Console.Out.WriteLine("ok");
 
@@ -221,71 +210,71 @@ public class AllTests
         Console.Out.Flush();
         {
 
-            var locator = ILocatorPrx.Parse($"locator:{helper.getTestEndpoint(0)}", communicator).Clone(
+            ILocatorPrx locator = ILocatorPrx.Parse($"locator:{helper.GetTestEndpoint(0)}", communicator).Clone(
                 invocationTimeout: 250);
-            var obj = IObjectPrx.Parse("background@Test", communicator).Clone(locator: locator, oneway: true);
+            IObjectPrx obj = IObjectPrx.Parse("background@Test", communicator).Clone(locator: locator, oneway: true);
 
             backgroundController.pauseCall("findAdapterById");
             try
             {
                 obj.IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (TimeoutException)
             {
             }
             backgroundController.resumeCall("findAdapterById");
 
-            locator = ILocatorPrx.Parse($"locator:{helper.getTestEndpoint(0)}", communicator).Clone(locator: locator);
+            locator = ILocatorPrx.Parse($"locator:{helper.GetTestEndpoint(0)}", communicator).Clone(locator: locator);
             locator.IcePing();
 
-            var bg = IBackgroundPrx.Parse("background@Test", communicator).Clone(locator: locator);
+            IBackgroundPrx bg = IBackgroundPrx.Parse("background@Test", communicator).Clone(locator: locator);
 
             backgroundController.pauseCall("findAdapterById");
-            var t1 = bg.opAsync();
-            var t2 = bg.opAsync();
-            test(!t1.IsCompleted);
-            test(!t2.IsCompleted);
+            Task t1 = bg.opAsync();
+            Task t2 = bg.opAsync();
+            TestHelper.Assert(!t1.IsCompleted);
+            TestHelper.Assert(!t2.IsCompleted);
             backgroundController.resumeCall("findAdapterById");
             t1.Wait();
             t2.Wait();
-            test(t1.IsCompleted);
-            test(t2.IsCompleted);
+            TestHelper.Assert(t1.IsCompleted);
+            TestHelper.Assert(t2.IsCompleted);
         }
         Console.Out.WriteLine("ok");
 
         Console.Write("testing router... ");
         Console.Out.Flush();
         {
-            var router = IRouterPrx.Parse($"router:{helper.getTestEndpoint(0)}", communicator).Clone(
+            IRouterPrx router = IRouterPrx.Parse($"router:{helper.GetTestEndpoint(0)}", communicator).Clone(
                 invocationTimeout: 250);
-            var obj = IObjectPrx.Parse("background@Test", communicator).Clone(router: router, oneway: true);
+            IObjectPrx obj = IObjectPrx.Parse("background@Test", communicator).Clone(router: router, oneway: true);
 
             backgroundController.pauseCall("getClientProxy");
             try
             {
                 obj.IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (TimeoutException)
             {
             }
             backgroundController.resumeCall("getClientProxy");
 
-            router = IRouterPrx.Parse($"router:{helper.getTestEndpoint(0)}", communicator);
-            var bg = IBackgroundPrx.Parse("background@Test", communicator).Clone(router: router);
-            test(bg.Router != null);
+            router = IRouterPrx.Parse($"router:{helper.GetTestEndpoint(0)}", communicator);
+            IBackgroundPrx bg = IBackgroundPrx.Parse("background@Test", communicator).Clone(router: router);
+            TestHelper.Assert(bg.Router != null);
 
             backgroundController.pauseCall("getClientProxy");
-            var t1 = bg.opAsync();
-            var t2 = bg.opAsync();
-            test(!t1.IsCompleted);
-            test(!t2.IsCompleted);
+            Task t1 = bg.opAsync();
+            Task t2 = bg.opAsync();
+            TestHelper.Assert(!t1.IsCompleted);
+            TestHelper.Assert(!t2.IsCompleted);
             backgroundController.resumeCall("getClientProxy");
             t1.Wait();
             t2.Wait();
-            test(t1.IsCompleted);
-            test(t2.IsCompleted);
+            TestHelper.Assert(t1.IsCompleted);
+            TestHelper.Assert(t2.IsCompleted);
         }
         Console.Out.WriteLine("ok");
 
@@ -296,26 +285,26 @@ public class AllTests
             Console.Write("testing buffered transport... ");
             Console.Out.Flush();
 
-            configuration.buffered(true);
+            configuration.Buffered(true);
             backgroundController.buffered(true);
             background.opAsync();
             background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             background.opAsync();
 
-            OpAMICallback cb = new OpAMICallback();
+            var cb = new OpAMICallback();
             var results = new List<Task>();
             for (int i = 0; i < 10000; ++i)
             {
-                var t = background.opAsync().ContinueWith((Task p) =>
+                Task t = background.opAsync().ContinueWith((Task p) =>
                 {
                     try
                     {
                         p.Wait();
-                        cb.responseNoOp();
+                        cb.ResponseNoOp();
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
-                        cb.noException(ex);
+                        cb.NoException(ex);
                     }
                 });
                 results.Add(t);
@@ -336,16 +325,16 @@ public class AllTests
         return background;
     }
 
-    private static void connectTests(Configuration configuration, Test.IBackgroundPrx background)
+    private static void ConnectTests(Configuration configuration, IBackgroundPrx background)
     {
         try
         {
             background.op();
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            System.Console.Out.WriteLine(ex);
-            test(false);
+            Console.Out.WriteLine(ex);
+            TestHelper.Assert(false);
         }
         background.GetConnection().Close(ConnectionClose.GracefullyWithWait);
 
@@ -353,11 +342,11 @@ public class AllTests
         {
             if (i == 0 || i == 2)
             {
-                configuration.connectorsException(new DNSException());
+                configuration.ConnectorsException(new DNSException());
             }
             else
             {
-                configuration.connectException(new TransportException(""));
+                configuration.ConnectException(new TransportException(""));
             }
             IBackgroundPrx prx = (i == 1 || i == 3) ? background : background.Clone(oneway: true);
 
@@ -369,40 +358,40 @@ public class AllTests
             }
             catch (DNSException)
             {
-                test(i == 0 || i == 2);
+                TestHelper.Assert(i == 0 || i == 2);
             }
             catch (TransportException)
             {
-                test(i == 1 || i == 3);
+                TestHelper.Assert(i == 1 || i == 3);
             }
-            test(!called);
+            TestHelper.Assert(!called);
 
             try
             {
-                prx.opAsync(progress: new Progress<bool>(value => test(false)));
-                test(false);
+                prx.opAsync(progress: new Progress<bool>(value => TestHelper.Assert(false)));
+                TestHelper.Assert(false);
             }
             catch (DNSException)
             {
-                test(i == 0 || i == 2);
+                TestHelper.Assert(i == 0 || i == 2);
             }
             catch (TransportException)
             {
-                test(i == 1 || i == 3);
+                TestHelper.Assert(i == 1 || i == 3);
             }
 
             if (i == 0 || i == 2)
             {
-                configuration.connectorsException(null);
+                configuration.ConnectorsException(null);
             }
             else
             {
-                configuration.connectException(null);
+                configuration.ConnectException(null);
             }
         }
 
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
+        var thread1 = new OpThread(background);
+        var thread2 = new OpThread(background);
         try
         {
             for (int i = 0; i < 5; i++)
@@ -411,20 +400,20 @@ public class AllTests
                 {
                     background.IcePing();
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
 
-                configuration.connectException(new TransportException(""));
+                configuration.ConnectException(new TransportException(""));
                 background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
                 Thread.Sleep(10);
-                configuration.connectException(null);
+                configuration.ConnectException(null);
                 try
                 {
                     background.IcePing();
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                 }
             }
@@ -432,19 +421,19 @@ public class AllTests
         catch (Exception ex)
         {
             Console.Out.WriteLine(ex);
-            test(false);
+            TestHelper.Assert(false);
         }
         finally
         {
-            thread1.destroy();
-            thread2.destroy();
+            thread1.Destroy();
+            thread2.Destroy();
 
             thread1.Join();
             thread2.Join();
         }
     }
 
-    private static void initializeTests(Configuration configuration, IBackgroundPrx background,
+    private static void InitializeTests(Configuration configuration, IBackgroundPrx background,
         IBackgroundControllerPrx ctl)
     {
         try
@@ -453,7 +442,7 @@ public class AllTests
         }
         catch (Exception)
         {
-            test(false);
+            TestHelper.Assert(false);
         }
         background.GetConnection().Close(ConnectionClose.GracefullyWithWait);
 
@@ -461,7 +450,7 @@ public class AllTests
         {
             if (i == 0 || i == 2)
             {
-                configuration.initializeException(new TransportException(""));
+                configuration.InitializeException(new TransportException(""));
             }
             else
             {
@@ -472,7 +461,7 @@ public class AllTests
             try
             {
                 prx.op();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (TransportException)
             {
@@ -480,8 +469,8 @@ public class AllTests
 
             try
             {
-                prx.opAsync(progress: new Progress<bool>(value => test(false)));
-                test(false);
+                prx.opAsync(progress: new Progress<bool>(value => TestHelper.Assert(false)));
+                TestHelper.Assert(false);
             }
             catch (TransportException)
             {
@@ -489,7 +478,7 @@ public class AllTests
 
             if (i == 0 || i == 2)
             {
-                configuration.initializeException(null);
+                configuration.InitializeException(null);
             }
         }
 
@@ -501,7 +490,7 @@ public class AllTests
         {
             ctl.initializeException(true);
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (ConnectionLostException)
         {
@@ -512,8 +501,8 @@ public class AllTests
             ctl.initializeException(false);
         }
 
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
+        var thread1 = new OpThread(background);
+        var thread2 = new OpThread(background);
 
         for (int i = 0; i < 5; i++)
         {
@@ -521,15 +510,15 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
-            configuration.initializeException(new TransportException(""));
+            configuration.InitializeException(new TransportException(""));
             background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
             Thread.Sleep(10);
-            configuration.initializeException(null);
+            configuration.InitializeException(null);
             try
             {
                 background.IcePing();
@@ -543,7 +532,7 @@ public class AllTests
             }
             catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
@@ -566,7 +555,7 @@ public class AllTests
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
@@ -576,12 +565,12 @@ public class AllTests
             }
             catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
 
-        thread1.destroy();
-        thread2.destroy();
+        thread1.Destroy();
+        thread2.Destroy();
 
         thread1.Join();
         thread2.Join();
@@ -590,67 +579,62 @@ public class AllTests
     private sealed class CloseCallback : Callback
     {
 
-        public void closed(Connection con)
-        {
-            called();
-        }
+        public void Closed() => Called();
     }
 
     //
     // Close the connection associated with the proxy and wait until the close completes.
     //
-    private static void closeConnection(IObjectPrx prx)
+    private static void CloseConnection(IObjectPrx prx)
     {
-        CloseCallback cb = new CloseCallback();
-        prx.GetConnection().SetCloseCallback(cb.closed);
+        var cb = new CloseCallback();
+        prx.GetConnection().SetCloseCallback(_ => cb.Closed());
         prx.GetConnection().Close(ConnectionClose.GracefullyWithWait);
-        cb.check();
+        cb.Check();
     }
 
-    private static void validationTests(Configuration configuration, IBackgroundPrx background, IBackgroundControllerPrx ctl)
+    private static void ValidationTests(Configuration configuration, IBackgroundPrx background,
+        IBackgroundControllerPrx ctl)
     {
         try
         {
             background.op();
         }
-        catch (System.Exception)
+        catch (Exception)
         {
-            test(false);
+            TestHelper.Assert(false);
         }
-        closeConnection(background);
+        CloseConnection(background);
 
         try
         {
             // Get the read() of connection validation to throw right away.
-            configuration.readException(new TransportException(""));
+            configuration.ReadException(new TransportException(""));
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (TransportException)
         {
-            configuration.readException(null);
+            configuration.ReadException(null);
         }
 
         for (int i = 0; i < 2; ++i)
         {
-            configuration.readException(new TransportException(""));
+            configuration.ReadException(new TransportException(""));
             IBackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
             bool sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value =>
-            {
-                sentSynchronously = value;
-            }));
-            test(!sentSynchronously);
+            Task t = prx.opAsync(progress: new Progress<bool>(value => sentSynchronously = value));
+            TestHelper.Assert(!sentSynchronously);
             try
             {
                 t.Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
-            test(t.IsCompleted);
-            configuration.readException(null);
+            TestHelper.Assert(t.IsCompleted);
+            configuration.ReadException(null);
         }
 
         if (background.Communicator.GetProperty("Ice.Default.Transport") != "test-ssl" &&
@@ -659,52 +643,49 @@ public class AllTests
             try
             {
                 // Get the read() of the connection validation to return "would block"
-                configuration.readReady(false);
+                configuration.ReadReady(false);
                 background.op();
-                configuration.readReady(true);
+                configuration.ReadReady(true);
             }
             catch (System.Exception ex)
             {
                 Console.Error.WriteLine(ex);
-                test(false);
+                TestHelper.Assert(false);
             }
-            closeConnection(background);
+            CloseConnection(background);
 
             try
             {
                 // Get the read() of the connection validation to return "would block" and then throw.
-                configuration.readReady(false);
-                configuration.readException(new TransportException(""));
+                configuration.ReadReady(false);
+                configuration.ReadException(new TransportException(""));
                 background.op();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (TransportException)
             {
-                configuration.readException(null);
-                configuration.readReady(true);
+                configuration.ReadException(null);
+                configuration.ReadReady(true);
             }
 
             for (int i = 0; i < 2; ++i)
             {
-                configuration.readReady(false);
-                configuration.readException(new TransportException(""));
-                var sentSynchronously = false;
-                var t = background.opAsync(progress: new Progress<bool>(value =>
-                {
-                    sentSynchronously = value;
-                }));
-                test(!sentSynchronously);
+                configuration.ReadReady(false);
+                configuration.ReadException(new TransportException(""));
+                bool sentSynchronously = false;
+                Task t = background.opAsync(progress: new Progress<bool>(value => sentSynchronously = value));
+                TestHelper.Assert(!sentSynchronously);
                 try
                 {
                     t.Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (AggregateException ex) when (ex.InnerException is TransportException)
                 {
                 }
-                test(t.IsCompleted);
-                configuration.readException(null);
-                configuration.readReady(true);
+                TestHelper.Assert(t.IsCompleted);
+                configuration.ReadException(null);
+                configuration.ReadReady(true);
             }
         }
 
@@ -723,12 +704,12 @@ public class AllTests
             // {
             //     t2SentSynchronously = value;
             // }));
-            // test(!t1SentSynchronously && !t2SentSynchronously);
-            // test(!t1.IsCompleted && !t2.IsCompleted);
+            // TestHelper.Assert(!t1SentSynchronously && !t2SentSynchronously);
+            // TestHelper.Assert(!t1.IsCompleted && !t2.IsCompleted);
             // ctl.readReady(true);
             // t1.Wait();
             // t2.Wait();
-            // test(t1.IsCompleted && t2.IsCompleted);
+            // TestHelper.Assert(t1.IsCompleted && t2.IsCompleted);
         }
 
         try
@@ -736,7 +717,7 @@ public class AllTests
             // Get the write() of connection validation to throw right away.
             ctl.writeException(true);
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (ConnectionLostException)
         {
@@ -753,9 +734,9 @@ public class AllTests
         catch (System.Exception ex)
         {
             Console.Error.WriteLine(ex);
-            test(false);
+            TestHelper.Assert(false);
         }
-        closeConnection(background);
+        CloseConnection(background);
 
         try
         {
@@ -763,7 +744,7 @@ public class AllTests
             ctl.writeReady(false);
             ctl.writeException(true);
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (ConnectionLostException)
         {
@@ -782,7 +763,7 @@ public class AllTests
         catch (System.Exception ex)
         {
             Console.Error.WriteLine(ex);
-            test(false);
+            TestHelper.Assert(false);
         }
 
         for (int i = 0; i < 2; ++i)
@@ -792,94 +773,94 @@ public class AllTests
             try
             {
                 prx.IcePing();
-                configuration.writeException(new TransportException(""));
+                configuration.WriteException(new TransportException(""));
                 prx.op();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (TransportException)
             {
-                configuration.writeException(null);
+                configuration.WriteException(null);
             }
 
             try
             {
                 background.IcePing();
-                configuration.writeException(new TransportException(""));
-                prx.opAsync(progress: new Progress<bool>(value => test(false)));
-                test(false);
+                configuration.WriteException(new TransportException(""));
+                prx.opAsync(progress: new Progress<bool>(value => TestHelper.Assert(false)));
+                TestHelper.Assert(false);
             }
             catch (TransportException)
             {
-                configuration.writeException(null);
+                configuration.WriteException(null);
             }
         }
 
         try
         {
             background.IcePing();
-            configuration.readException(new TransportException(""));
+            configuration.ReadException(new TransportException(""));
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (TransportException)
         {
-            configuration.readException(null);
+            configuration.ReadException(null);
         }
 
         {
             background.IcePing();
-            configuration.readReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
-            configuration.readException(new TransportException(""));
-            var t = background.opAsync();
+            configuration.ReadReady(false); // Required in C# to make sure beginRead() doesn't throw too soon.
+            configuration.ReadException(new TransportException(""));
+            Task t = background.opAsync();
             try
             {
                 t.Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
-            test(t.IsCompleted);
-            configuration.readException(null);
-            configuration.readReady(true);
+            TestHelper.Assert(t.IsCompleted);
+            configuration.ReadException(null);
+            configuration.ReadReady(true);
         }
 
         try
         {
             background.IcePing();
-            configuration.writeReady(false);
+            configuration.WriteReady(false);
             background.op();
-            configuration.writeReady(true);
+            configuration.WriteReady(true);
         }
-        catch (System.Exception)
+        catch (Exception)
         {
-            test(false);
+            TestHelper.Assert(false);
         }
 
         try
         {
             background.IcePing();
-            configuration.readReady(false);
+            configuration.ReadReady(false);
             background.op();
-            configuration.readReady(true);
+            configuration.ReadReady(true);
         }
-        catch (System.Exception)
+        catch (Exception)
         {
-            test(false);
+            TestHelper.Assert(false);
         }
 
         try
         {
             background.IcePing();
-            configuration.writeReady(false);
-            configuration.writeException(new TransportException(""));
+            configuration.WriteReady(false);
+            configuration.WriteException(new TransportException(""));
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (TransportException)
         {
-            configuration.writeReady(true);
-            configuration.writeException(null);
+            configuration.WriteReady(true);
+            configuration.WriteException(null);
         }
 
         for (int i = 0; i < 2; ++i)
@@ -887,85 +868,82 @@ public class AllTests
             IBackgroundPrx prx = i == 0 ? background : background.Clone(oneway: true);
 
             background.IcePing();
-            configuration.writeReady(false);
-            configuration.writeException(new TransportException(""));
+            configuration.WriteReady(false);
+            configuration.WriteException(new TransportException(""));
             bool sentSynchronously = false;
-            var t = prx.opAsync(progress: new Progress<bool>(value =>
-            {
-                sentSynchronously = value;
-            }));
-            test(!sentSynchronously);
+            Task t = prx.opAsync(progress: new Progress<bool>(value => sentSynchronously = value));
+            TestHelper.Assert(!sentSynchronously);
             try
             {
                 t.Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
-            test(t.IsCompleted);
-            configuration.writeReady(true);
-            configuration.writeException(null);
+            TestHelper.Assert(t.IsCompleted);
+            configuration.WriteReady(true);
+            configuration.WriteException(null);
         }
 
         try
         {
             background.IcePing();
-            configuration.readReady(false);
-            configuration.readException(new TransportException(""));
+            configuration.ReadReady(false);
+            configuration.ReadException(new TransportException(""));
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (TransportException)
         {
-            configuration.readException(null);
-            configuration.readReady(true);
+            configuration.ReadException(null);
+            configuration.ReadReady(true);
         }
 
         {
             background.IcePing();
-            configuration.readReady(false);
-            configuration.readException(new TransportException(""));
-            var t = background.opAsync();
+            configuration.ReadReady(false);
+            configuration.ReadException(new TransportException(""));
+            Task t = background.opAsync();
             try
             {
                 t.Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
-            test(t.IsCompleted);
-            configuration.readReady(true);
-            configuration.readException(null);
+            TestHelper.Assert(t.IsCompleted);
+            configuration.ReadReady(true);
+            configuration.ReadException(null);
         }
 
         {
             background.IcePing();
-            configuration.readReady(false);
-            configuration.writeReady(false);
-            configuration.readException(new TransportException(""));
-            var t = background.opAsync();
+            configuration.ReadReady(false);
+            configuration.WriteReady(false);
+            configuration.ReadException(new TransportException(""));
+            Task t = background.opAsync();
             // The read exception might propagate before the message send is seen as completed on IOCP.
             //r.waitForSent();
             try
             {
                 t.Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex) when (ex.InnerException is TransportException)
             {
             }
-            test(t.IsCompleted);
-            configuration.writeReady(true);
-            configuration.readReady(true);
-            configuration.readException(null);
+            TestHelper.Assert(t.IsCompleted);
+            configuration.WriteReady(true);
+            configuration.ReadReady(true);
+            configuration.ReadException(null);
         }
 
         background.IcePing(); // Establish the connection
 
         IBackgroundPrx backgroundOneway = background.Clone(oneway: true);
-        test(backgroundOneway.GetConnection() == background.GetConnection());
+        TestHelper.Assert(backgroundOneway.GetConnection() == background.GetConnection());
 
         // TODO: This test relied on the connection hold behavior which has been removed. The test is disabled
         // for now and until the background tests are rewritten when we'll refactor the transport + thread pool.
@@ -1002,7 +980,7 @@ public class AllTests
         //         cb.exception(ex);
         //     }
         // });
-        // test(!t1Sent);
+        // TestHelper.Assert(!t1Sent);
 
         // OpAMICallback cb2 = new OpAMICallback();
         // var t2Sent = false;
@@ -1023,14 +1001,14 @@ public class AllTests
         //         cb2.noException(ex);
         //     }
         // });
-        // test(!t2Sent);
+        // TestHelper.Assert(!t2Sent);
 
         // var t3SentSynchronously = false;
         // var t3 = backgroundOneway.opWithPayloadAsync(seq, progress: new Progress<bool>(value =>
         // {
         //     t3SentSynchronously = value;
         // }));
-        // test(!t3SentSynchronously);
+        // TestHelper.Assert(!t3SentSynchronously);
         // t3.ContinueWith((Task p) =>
         // {
         //     try
@@ -1048,7 +1026,7 @@ public class AllTests
         // {
         //     t4SentSynchronously = value;
         // }));
-        // test(!t4SentSynchronously);
+        // TestHelper.Assert(!t4SentSynchronously);
         // t4.ContinueWith((Task p) =>
         // {
         //     try
@@ -1061,22 +1039,22 @@ public class AllTests
         //     }
         // });
 
-        // test(!cb.checkResponse(false));
-        // test(!cb2.checkResponse(false));
+        // TestHelper.Assert(!cb.checkResponse(false));
+        // TestHelper.Assert(!cb2.checkResponse(false));
         // ctl.readReady(true);
         // cb.checkResponseAndSent();
         // cb2.checkResponseAndSent();
-        // test(t1Sent);
-        // test(t1.IsCompleted);
-        // test(t2Sent);
-        // test(t2.IsCompleted);
+        // TestHelper.Assert(t1Sent);
+        // TestHelper.Assert(t1.IsCompleted);
+        // TestHelper.Assert(t2Sent);
+        // TestHelper.Assert(t2.IsCompleted);
 
         try
         {
             background.IcePing();
             ctl.writeException(true);
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (ConnectionLostException)
         {
@@ -1088,7 +1066,7 @@ public class AllTests
             background.IcePing();
             ctl.readException(true);
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (ConnectionLostException)
         {
@@ -1104,7 +1082,7 @@ public class AllTests
         }
         catch (System.Exception)
         {
-            test(false);
+            TestHelper.Assert(false);
         }
 
         try
@@ -1116,7 +1094,7 @@ public class AllTests
         }
         catch (System.Exception)
         {
-            test(false);
+            TestHelper.Assert(false);
         }
 
         try
@@ -1125,7 +1103,7 @@ public class AllTests
             ctl.writeReady(false);
             ctl.writeException(true);
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (ConnectionLostException)
         {
@@ -1139,7 +1117,7 @@ public class AllTests
             ctl.readReady(false);
             ctl.readException(true);
             background.op();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (ConnectionLostException)
         {
@@ -1147,8 +1125,8 @@ public class AllTests
             ctl.readReady(true);
         }
 
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
+        var thread1 = new OpThread(background);
+        var thread2 = new OpThread(background);
 
         for (int i = 0; i < 5; i++)
         {
@@ -1156,21 +1134,21 @@ public class AllTests
             {
                 background.IcePing();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             Thread.Sleep(10);
-            configuration.writeException(new TransportException(""));
+            configuration.WriteException(new TransportException(""));
             try
             {
                 background.op();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
             }
-            configuration.writeException(null);
+            configuration.WriteException(null);
 
             Thread.Sleep(10);
 
@@ -1181,8 +1159,8 @@ public class AllTests
             background.GetCachedConnection()!.Close(ConnectionClose.Forcefully);
         }
 
-        thread1.destroy();
-        thread2.destroy();
+        thread1.Destroy();
+        thread2.Destroy();
 
         thread1.Join();
         thread2.Join();

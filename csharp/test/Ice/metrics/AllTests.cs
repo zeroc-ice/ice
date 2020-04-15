@@ -2,23 +2,22 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.IO;
 using Ice;
-
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
 using Test;
 
-public class AllTests : Test.AllTests
+public class AllTests
 {
-    static IceMX.ConnectionMetrics
+    static IceMX.ConnectionMetrics?
     getServerConnectionMetrics(IceMX.IMetricsAdminPrx metrics, long expected)
     {
         try
         {
-            IceMX.ConnectionMetrics s;
-            s = (IceMX.ConnectionMetrics)metrics.GetMetricsView("View").ReturnValue["Connection"][0];
+            IceMX.ConnectionMetrics? s;
+            s = (IceMX.ConnectionMetrics?)metrics.GetMetricsView("View").ReturnValue["Connection"][0];
+            TestHelper.Assert(s != null);
             int nRetry = 30;
             while (s.SentBytes != expected && nRetry-- > 0)
             {
@@ -27,23 +26,21 @@ public class AllTests : Test.AllTests
                 // to the operation is sent and getMetricsView can be dispatched before the metric is really
                 // updated.
                 Thread.Sleep(100);
-                s = (IceMX.ConnectionMetrics)metrics.GetMetricsView("View").ReturnValue["Connection"][0];
+                s = (IceMX.ConnectionMetrics?)metrics.GetMetricsView("View").ReturnValue["Connection"][0];
+                TestHelper.Assert(s != null);
             }
             return s;
         }
         catch (IceMX.UnknownMetricsView)
         {
-            Debug.Assert(false);
+            TestHelper.Assert(false);
             return null;
         }
     }
 
     class Callback
     {
-        public Callback()
-        {
-            _wait = true;
-        }
+        public Callback() => _wait = true;
 
         public void response()
         {
@@ -54,10 +51,7 @@ public class AllTests : Test.AllTests
             }
         }
 
-        public void exception(System.Exception ex)
-        {
-            response();
-        }
+        public void exception(System.Exception ex) => response();
 
         public void waitForResponse()
         {
@@ -75,13 +69,10 @@ public class AllTests : Test.AllTests
     };
 
     static string
-    getPort(IPropertiesAdminPrx p)
-    {
-        return TestHelper.getTestPort(p.Communicator.GetProperties(), 0).ToString();
-    }
+    getPort(IPropertiesAdminPrx p) => TestHelper.GetTestPort(p.Communicator.GetProperties(), 0).ToString();
 
     static private Dictionary<string, string>
-    getClientProps(Ice.IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
+    getClientProps(IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
         foreach (string e in new List<string>(props.Keys))
@@ -104,7 +95,7 @@ public class AllTests : Test.AllTests
     }
 
     static private Dictionary<string, string>
-    getServerProps(Ice.IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
+    getServerProps(IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
         foreach (string e in new List<string>(props.Keys))
@@ -127,7 +118,7 @@ public class AllTests : Test.AllTests
 
     class UpdateCallbackI
     {
-        public UpdateCallbackI(Ice.IPropertiesAdminPrx serverProps)
+        public UpdateCallbackI(IPropertiesAdminPrx serverProps)
         {
             _updated = false;
             _serverProps = serverProps;
@@ -174,11 +165,12 @@ public class AllTests : Test.AllTests
     {
         while (true)
         {
-            Dictionary<string, IceMX.Metrics[]> view = metrics.GetMetricsView(viewName).ReturnValue;
-            test(view.ContainsKey(map));
+            Dictionary<string, IceMX.Metrics?[]> view = metrics.GetMetricsView(viewName).ReturnValue;
+            TestHelper.Assert(view.ContainsKey(map));
             bool ok = true;
-            foreach (IceMX.Metrics m in view[map])
+            foreach (IceMX.Metrics? m in view[map])
             {
+                TestHelper.Assert(m != null);
                 if (m.Current != value)
                 {
                     ok = false;
@@ -211,7 +203,7 @@ public class AllTests : Test.AllTests
 
     static void
     testAttribute(IceMX.IMetricsAdminPrx metrics,
-                  Ice.IPropertiesAdminPrx props,
+                  IPropertiesAdminPrx props,
                   UpdateCallbackI update,
                   string map,
                   string attr,
@@ -233,19 +225,19 @@ public class AllTests : Test.AllTests
         }
 
         func();
-        Dictionary<string, IceMX.Metrics[]> view = metrics.GetMetricsView("View").ReturnValue;
+        Dictionary<string, IceMX.Metrics?[]> view = metrics.GetMetricsView("View").ReturnValue;
         if (!view.ContainsKey(map) || view[map].Length == 0)
         {
             if (value.Length > 0)
             {
                 output.WriteLine("no map `" + map + "' for group by = `" + attr + "'");
-                test(false);
+                TestHelper.Assert(false);
             }
         }
-        else if (!view[map][0].Id.Equals(value))
+        else if (!view[map][0]!.Id.Equals(value))
         {
-            output.WriteLine("invalid attribute value: " + attr + " = " + value + " got " + view[map][0].Id);
-            test(false);
+            output.WriteLine("invalid attribute value: " + attr + " = " + value + " got " + view[map][0]!.Id);
+            TestHelper.Assert(false);
         }
 
         dict.Clear();
@@ -261,12 +253,12 @@ public class AllTests : Test.AllTests
         }
     }
 
-    static void connect(Ice.IObjectPrx proxy)
+    static void connect(IObjectPrx proxy)
     {
         var conn = proxy.GetCachedConnection();
         if (conn != null)
         {
-            conn.Close(Ice.ConnectionClose.GracefullyWithWait);
+            conn.Close(ConnectionClose.GracefullyWithWait);
         }
 
         try
@@ -280,7 +272,7 @@ public class AllTests : Test.AllTests
         conn = proxy.GetCachedConnection();
         if (conn != null)
         {
-            conn.Close(Ice.ConnectionClose.GracefullyWithWait);
+            conn.Close(ConnectionClose.GracefullyWithWait);
         }
     }
 
@@ -294,7 +286,7 @@ public class AllTests : Test.AllTests
 
     static void
     testAttribute(IceMX.IMetricsAdminPrx metrics,
-                  Ice.IPropertiesAdminPrx props,
+                  IPropertiesAdminPrx props,
                   UpdateCallbackI update,
                   string map,
                   string attr,
@@ -305,8 +297,8 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    updateProps(Ice.IPropertiesAdminPrx cprops,
-                Ice.IPropertiesAdminPrx sprops,
+    updateProps(IPropertiesAdminPrx cprops,
+                IPropertiesAdminPrx sprops,
                 UpdateCallbackI callback,
                 Dictionary<string, string> props,
                 string map)
@@ -333,7 +325,7 @@ public class AllTests : Test.AllTests
     }
 
     static void
-    clearView(Ice.IPropertiesAdminPrx cprops, Ice.IPropertiesAdminPrx sprops, UpdateCallbackI callback)
+    clearView(IPropertiesAdminPrx cprops, IPropertiesAdminPrx sprops, UpdateCallbackI callback)
     {
         Dictionary<string, string> dict;
 
@@ -365,20 +357,20 @@ public class AllTests : Test.AllTests
         if (!f.Failures.ContainsKey(failure))
         {
             output.WriteLine("couldn't find failure `" + failure + "' for `" + id + "'");
-            test(false);
+            TestHelper.Assert(false);
         }
         if (count > 0 && f.Failures[failure] != count)
         {
             output.Write("count for failure `" + failure + "' of `" + id + "' is different from expected: ");
             output.WriteLine(count + " != " + f.Failures[failure]);
-            test(false);
+            TestHelper.Assert(false);
         }
     }
 
     static Dictionary<string, IceMX.Metrics>
     toMap(IceMX.Metrics[] mmap)
     {
-        Dictionary<string, IceMX.Metrics> m = new Dictionary<string, IceMX.Metrics>();
+        var m = new Dictionary<string, IceMX.Metrics>();
         foreach (IceMX.Metrics e in mmap)
         {
             m.Add(e.Id, e);
@@ -388,53 +380,60 @@ public class AllTests : Test.AllTests
 
     public static IMetricsPrx allTests(TestHelper helper, CommunicatorObserver obsv)
     {
-        Communicator communicator = helper.communicator();
-
-        string host = helper.getTestHost();
-        string port = helper.getTestPort(0).ToString();
+        Communicator? communicator = helper.Communicator();
+        TestHelper.Assert(communicator != null);
+        string host = helper.GetTestHost();
+        string port = helper.GetTestPort(0).ToString();
         string hostAndPort = host + ":" + port;
-        string transport = helper.getTestTransport();
+        string transport = helper.GetTestTransport();
         string endpoint = transport + " -h " + host + " -p " + port;
         string timeout = communicator.GetProperty("Ice.Default.Timeout") ?? "60000";
 
         IMetricsPrx metrics = IMetricsPrx.Parse($"metrics:{endpoint}", communicator);
         bool collocated = metrics.GetConnection() == null;
-        var output = helper.getWriter();
+        var output = helper.GetWriter();
         output.Write("testing metrics admin facet checkedCast... ");
         output.Flush();
-        IObjectPrx admin = communicator.GetAdmin();
-        IPropertiesAdminPrx clientProps =
+        IObjectPrx? admin = communicator.GetAdmin();
+        TestHelper.Assert(admin != null);
+        IPropertiesAdminPrx? clientProps =
             IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties", IObjectPrx.Factory));
-        IceMX.IMetricsAdminPrx clientMetrics =
+        IceMX.IMetricsAdminPrx? clientMetrics =
             IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory));
-        test(clientProps != null && clientMetrics != null);
+        TestHelper.Assert(clientProps != null && clientMetrics != null);
 
         admin = metrics.getAdmin();
-        IPropertiesAdminPrx serverProps =
+        TestHelper.Assert(admin != null);
+        IPropertiesAdminPrx? serverProps =
             IPropertiesAdminPrx.CheckedCast(admin.Clone(facet: "Properties", IObjectPrx.Factory));
-        IceMX.IMetricsAdminPrx serverMetrics =
+        IceMX.IMetricsAdminPrx? serverMetrics =
             IceMX.IMetricsAdminPrx.CheckedCast(admin.Clone(facet: "Metrics", IObjectPrx.Factory));
-        test(serverProps != null && serverMetrics != null);
+        TestHelper.Assert(serverProps != null && serverMetrics != null);
 
         UpdateCallbackI update = new UpdateCallbackI(serverProps);
-        ((IPropertiesAdmin)communicator.FindAdminFacet("Properties")).Updated += (_, u) => update.Updated();
+        ((IPropertiesAdmin)communicator.FindAdminFacet("Properties")!).Updated += (_, u) => update.Updated();
 
         output.WriteLine("ok");
 
-        Dictionary<string, string> props = new Dictionary<string, string>();
+        var props = new Dictionary<string, string>();
 
         output.Write("testing group by none...");
         output.Flush();
 
         props.Add("IceMX.Metrics.View.GroupBy", "none");
         updateProps(clientProps, serverProps, update, props, "");
-        Dictionary<string, IceMX.Metrics[]> view = clientMetrics.GetMetricsView("View").ReturnValue;
+        Dictionary<string, IceMX.Metrics?[]> view = clientMetrics.GetMetricsView("View").ReturnValue;
         if (!collocated)
         {
-            test(view["Connection"].Length == 1 && view["Connection"][0].Current == 1 &&
-                 view["Connection"][0].Total == 1);
+            TestHelper.Assert(
+                view["Connection"].Length == 1 &&
+                view["Connection"][0]!.Current == 1 &&
+                view["Connection"][0]!.Total == 1);
         }
-        test(view["Thread"].Length == 1 && view["Thread"][0].Current == 5 && view["Thread"][0].Total == 5);
+        TestHelper.Assert(
+            view["Thread"].Length == 1 &&
+            view["Thread"][0]!.Current == 5 &&
+            view["Thread"][0]!.Total == 5);
         output.WriteLine("ok");
 
         output.Write("testing group by id...");
@@ -453,38 +452,38 @@ public class AllTests : Test.AllTests
         waitForCurrent(serverMetrics, "View", "Dispatch", 0);
 
         view = clientMetrics.GetMetricsView("View").ReturnValue;
-        test(view["Thread"].Length == 5);
+        TestHelper.Assert(view["Thread"].Length == 5);
         if (!collocated)
         {
-            test(view["Connection"].Length == 2);
+            TestHelper.Assert(view["Connection"].Length == 2);
         }
-        test(view["Invocation"].Length == 1);
+        TestHelper.Assert(view["Invocation"].Length == 1);
 
-        IceMX.InvocationMetrics invoke = (IceMX.InvocationMetrics)view["Invocation"][0];
+        IceMX.InvocationMetrics invoke = (IceMX.InvocationMetrics)view["Invocation"][0]!;
 
-        test(invoke.Id.IndexOf("[ice_ping]") > 0 && invoke.Current == 0 && invoke.Total == 5);
+        TestHelper.Assert(invoke.Id.IndexOf("[ice_ping]") > 0 && invoke.Current == 0 && invoke.Total == 5);
         if (!collocated)
         {
-            test(invoke.Remotes.Length == 2);
-            test(invoke.Remotes[0].Total >= 2 && invoke.Remotes[1].Total >= 2);
-            test((invoke.Remotes[0].Total + invoke.Remotes[1].Total) == 5);
+            TestHelper.Assert(invoke.Remotes.Length == 2);
+            TestHelper.Assert(invoke.Remotes[0]!.Total >= 2 && invoke.Remotes[1]!.Total >= 2);
+            TestHelper.Assert((invoke.Remotes[0]!.Total + invoke.Remotes[1]!.Total) == 5);
         }
         else
         {
-            test(invoke.Collocated.Length == 1);
-            test(invoke.Collocated[0].Total == 5);
+            TestHelper.Assert(invoke.Collocated.Length == 1);
+            TestHelper.Assert(invoke.Collocated[0]!.Total == 5);
         }
 
         view = serverMetrics.GetMetricsView("View").ReturnValue;
         // With Ice for .NET, a new dispatching thread isn't necessarily created.
-        //test(view["Thread"].Length > 5);
+        //TestHelper.Assert(view["Thread"].Length > 5);
         if (!collocated)
         {
-            test(view["Connection"].Length == 2);
+            TestHelper.Assert(view["Connection"].Length == 2);
         }
-        test(view["Dispatch"].Length == 1);
-        test(view["Dispatch"][0].Current == 0 && view["Dispatch"][0].Total == 5);
-        test(view["Dispatch"][0].Id.IndexOf("[ice_ping]") > 0);
+        TestHelper.Assert(view["Dispatch"].Length == 1);
+        TestHelper.Assert(view["Dispatch"][0]!.Current == 0 && view["Dispatch"][0]!.Total == 5);
+        TestHelper.Assert(view["Dispatch"][0]!.Id.IndexOf("[ice_ping]") > 0);
 
         if (!collocated)
         {
@@ -503,7 +502,7 @@ public class AllTests : Test.AllTests
         string isSecure = "";
         if (!collocated)
         {
-            Ice.Endpoint connectionEndpoint = metrics.GetConnection().Endpoint;
+            Endpoint connectionEndpoint = metrics.GetConnection().Endpoint;
             type = connectionEndpoint.Type.ToString();
             isSecure = connectionEndpoint.IsSecure ? "True" : "False";
         }
@@ -518,24 +517,24 @@ public class AllTests : Test.AllTests
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            test(clientMetrics.GetMetricsView("View").ReturnValue["Connection"].Length == 0);
-            test(serverMetrics.GetMetricsView("View").ReturnValue["Connection"].Length == 0);
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["Connection"].Length == 0);
+            TestHelper.Assert(serverMetrics.GetMetricsView("View").ReturnValue["Connection"].Length == 0);
 
             metrics.IcePing();
 
             IceMX.ConnectionMetrics cm1, sm1, cm2, sm2;
-            cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-            sm1 = getServerConnectionMetrics(serverMetrics, 25);
+            cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+            sm1 = getServerConnectionMetrics(serverMetrics, 25)!;
 
             metrics.IcePing();
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-            sm2 = getServerConnectionMetrics(serverMetrics, 50);
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+            sm2 = getServerConnectionMetrics(serverMetrics, 50)!;
 
-            test(cm2.SentBytes - cm1.SentBytes == 45); // 45 for IcePing request
-            test(cm2.ReceivedBytes - cm1.ReceivedBytes == 25); // 25 bytes for IcePing response
-            test(sm2.ReceivedBytes - sm1.ReceivedBytes == 45);
-            test(sm2.SentBytes - sm1.SentBytes == 25);
+            TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 45); // 45 for IcePing request
+            TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 25); // 25 bytes for IcePing response
+            TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 45);
+            TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 25);
 
             cm1 = cm2;
             sm1 = sm2;
@@ -543,8 +542,8 @@ public class AllTests : Test.AllTests
             byte[] bs = new byte[0];
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-            sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + cm2.ReceivedBytes - cm1.ReceivedBytes);
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+            sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + cm2.ReceivedBytes - cm1.ReceivedBytes)!;
             long requestSz = cm2.SentBytes - cm1.SentBytes;
             long replySz = cm2.ReceivedBytes - cm1.ReceivedBytes;
 
@@ -554,13 +553,13 @@ public class AllTests : Test.AllTests
             bs = new byte[456];
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-            sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz);
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+            sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-            test(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + 4); // 4 is for the seq variable size
-            test(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
-            test(sm2.ReceivedBytes - sm1.ReceivedBytes == requestSz + bs.Length + 4);
-            test(sm2.SentBytes - sm1.SentBytes == replySz);
+            TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + 4); // 4 is for the seq variable size
+            TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
+            TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == requestSz + bs.Length + 4);
+            TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == replySz);
 
             cm1 = cm2;
             sm1 = sm2;
@@ -568,28 +567,28 @@ public class AllTests : Test.AllTests
             bs = new byte[1024 * 1024 * 10]; // Try with large amount of data which should be sent in several chunks
             metrics.opByteS(bs);
 
-            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-            sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz);
+            cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+            sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-            test((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + 4)); // 4 is for the seq variable size
-            test((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
-            test((sm2.ReceivedBytes - sm1.ReceivedBytes) == (requestSz + bs.Length + 4));
-            test((sm2.SentBytes - sm1.SentBytes) == replySz);
+            TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + 4)); // 4 is for the seq variable size
+            TestHelper.Assert((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
+            TestHelper.Assert((sm2.ReceivedBytes - sm1.ReceivedBytes) == (requestSz + bs.Length + 4));
+            TestHelper.Assert((sm2.SentBytes - sm1.SentBytes) == replySz);
 
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";
             updateProps(clientProps, serverProps, update, props, "Connection");
 
-            map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]);
+            map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
 
-            test(map["active"].Current == 1);
+            TestHelper.Assert(map["active"].Current == 1);
 
-            IControllerPrx controller = IControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", communicator);
+            var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
 
-            metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
+            metrics.GetConnection().Close(ConnectionClose.GracefullyWithWait);
 
-            map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]);
+            map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
             // The connection might already be closed so it can be 0 or 1
-            test(map["closing"].Current == 0 || map["closing"].Current == 1);
+            TestHelper.Assert(map["closing"].Current == 0 || map["closing"].Current == 1);
 
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
             updateProps(clientProps, serverProps, update, props, "Connection");
@@ -602,7 +601,7 @@ public class AllTests : Test.AllTests
             // try
             // {
             //     metrics.Clone(connectionTimeout: 500).opByteS(new byte[10000000]);
-            //     test(false);
+            //     TestHelper.Assert(false);
             // }
             // catch (Ice.ConnectTimeoutException)
             // {
@@ -619,7 +618,7 @@ public class AllTests : Test.AllTests
             //     }
             //     Thread.Sleep(10);
             // }
-            // test(cm1.Failures == 2 && sm1.Failures >= 2);
+            // TestHelper.Assert(cm1.Failures == 2 && sm1.Failures >= 2);
 
             // checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectionTimeoutException", 1, output);
             // checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectTimeoutException", 1, output);
@@ -663,32 +662,33 @@ public class AllTests : Test.AllTests
 
             props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
             updateProps(clientProps, serverProps, update, props, "ConnectionEstablishment");
-            test(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 0);
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 0);
 
             metrics.IcePing();
 
-            test(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
-            IceMX.Metrics m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0];
-            test(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
+            IceMX.Metrics? m1;
+            m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
+            TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
 
-            metrics.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
+            metrics.GetConnection().Close(ConnectionClose.GracefullyWithWait);
             controller.hold();
             try
             {
                 IObjectPrx.Parse($"test:tcp -h 127.0.0.1 -p {port}", communicator).Clone(connectionTimeout: 10).IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
-            catch (Ice.ConnectTimeoutException)
+            catch (ConnectTimeoutException)
             {
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
             controller.resume();
-            test(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
-            m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0];
-            test(m1.Id.Equals(hostAndPort) && m1.Total == 3 && m1.Failures == 2);
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
+            m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
+            TestHelper.Assert(m1.Id.Equals(hostAndPort) && m1.Total == 3 && m1.Failures == 2);
 
             checkFailure(clientMetrics, "ConnectionEstablishment", m1.Id, "Ice.ConnectTimeoutException", 2, output);
 
@@ -716,7 +716,7 @@ public class AllTests : Test.AllTests
 
             props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
             updateProps(clientProps, serverProps, update, props, "EndpointLookup");
-            test(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 0);
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 0);
 
             var prx = IObjectPrx.Parse($"metrics:{transport} -p {port} -h localhost -t 500", communicator);
             try
@@ -728,15 +728,15 @@ public class AllTests : Test.AllTests
             {
             }
 
-            test(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 1);
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 1);
             m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][0];
-            test(m1.Current <= 1 && m1.Total == 1);
+            TestHelper.Assert(m1 != null && m1.Current <= 1 && m1.Total == 1);
 
             bool dnsException = false;
             try
             {
                 IObjectPrx.Parse($"test:tcp -t 500 -h unknownfoo.zeroc.com -p {port}", communicator).IcePing();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (DNSException)
             {
@@ -746,20 +746,20 @@ public class AllTests : Test.AllTests
             {
                 // Some DNS servers don't fail on unknown DNS names.
             }
-            test(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 2);
-            m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][0];
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 2);
+            m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][0]!;
             if (!m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
             {
-                m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][1];
+                m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][1]!;
             }
-            test(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.Total == 2 &&
+            TestHelper.Assert(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.Total == 2 &&
                  (!dnsException || m1.Failures == 2));
             if (dnsException)
             {
                 checkFailure(clientMetrics, "EndpointLookup", m1.Id, "Ice.DNSException", 2, output);
             }
 
-            c = () => { connect(prx); };
+            c = () => connect(prx);
 
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
             testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
@@ -782,13 +782,13 @@ public class AllTests : Test.AllTests
 
         props["IceMX.Metrics.View.Map.Dispatch.GroupBy"] = "operation";
         updateProps(clientProps, serverProps, update, props, "Dispatch");
-        test(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"].Length == 0);
+        TestHelper.Assert(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"].Length == 0);
 
         metrics.op();
         try
         {
             metrics.opWithUserException();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (UserEx)
         {
@@ -796,7 +796,7 @@ public class AllTests : Test.AllTests
         try
         {
             metrics.opWithRequestFailedException();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (DispatchException)
         {
@@ -804,15 +804,15 @@ public class AllTests : Test.AllTests
         try
         {
             metrics.opWithLocalException();
-            test(false);
+            TestHelper.Assert(false);
         }
-        catch (Ice.UnhandledException)
+        catch (UnhandledException)
         {
         }
         try
         {
             metrics.opWithUnknownException();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (Ice.UnhandledException)
         {
@@ -822,38 +822,38 @@ public class AllTests : Test.AllTests
             try
             {
                 metrics.fail();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Ice.ConnectionLostException)
             {
             }
         }
 
-        map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"]);
-        test(collocated ? map.Count == 5 : map.Count == 6);
+        map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"]!);
+        TestHelper.Assert(collocated ? map.Count == 5 : map.Count == 6);
 
         IceMX.DispatchMetrics dm1;
         dm1 = (IceMX.DispatchMetrics)map["op"];
-        test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 0);
-        test(dm1.Size == 21 && dm1.ReplySize == 7);
+        TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 0);
+        TestHelper.Assert(dm1.Size == 21 && dm1.ReplySize == 7);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithUserException"];
-        test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
-        test(dm1.Size == 38 && dm1.ReplySize == 27);
+        TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
+        TestHelper.Assert(dm1.Size == 38 && dm1.ReplySize == 27);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithLocalException"];
-        test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
+        TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.Id, "Ice.InvalidConfigurationException", 1, output);
-        test(dm1.Size == 39 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
+        TestHelper.Assert(dm1.Size == 39 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
 
         dm1 = (IceMX.DispatchMetrics)map["opWithRequestFailedException"];
-        test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
-        test(dm1.Size == 47 && dm1.ReplySize == 40);
+        TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
+        TestHelper.Assert(dm1.Size == 47 && dm1.ReplySize == 40);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithUnknownException"];
-        test(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
+        TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.Id, "System.ArgumentOutOfRangeException", 1, output);
-        test(dm1.Size == 41 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
+        TestHelper.Assert(dm1.Size == 41 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
 
         System.Action op = () => { invokeOp(metrics); };
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op, output);
@@ -905,7 +905,7 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "id";
         props["IceMX.Metrics.View.Map.Invocation.Map.Collocated.GroupBy"] = "id";
         updateProps(clientProps, serverProps, update, props, "Invocation");
-        test(serverMetrics.GetMetricsView("View").ReturnValue["Invocation"].Length == 0);
+        TestHelper.Assert(serverMetrics.GetMetricsView("View").ReturnValue["Invocation"].Length == 0);
 
         metrics.op();
         metrics.opAsync().Wait();
@@ -913,7 +913,7 @@ public class AllTests : Test.AllTests
         try
         {
             metrics.opWithUserException();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (UserEx)
         {
@@ -922,17 +922,17 @@ public class AllTests : Test.AllTests
         try
         {
             metrics.opWithUserExceptionAsync().Wait();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (System.AggregateException ex)
         {
-            test(ex.InnerException is UserEx);
+            TestHelper.Assert(ex.InnerException is UserEx);
         }
 
         try
         {
             metrics.opWithRequestFailedException();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (DispatchException)
         {
@@ -941,48 +941,48 @@ public class AllTests : Test.AllTests
         try
         {
             metrics.opWithRequestFailedExceptionAsync().Wait();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (System.AggregateException ex)
         {
-            test(ex.InnerException is DispatchException);
+            TestHelper.Assert(ex.InnerException is DispatchException);
         }
 
         try
         {
             metrics.opWithLocalException();
-            test(false);
+            TestHelper.Assert(false);
         }
-        catch (Ice.UnhandledException)
+        catch (UnhandledException)
         {
         }
         try
         {
             metrics.opWithLocalExceptionAsync().Wait();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (System.AggregateException ex)
         {
-            test(ex.InnerException is Ice.UnhandledException);
+            TestHelper.Assert(ex.InnerException is Ice.UnhandledException);
         }
 
         try
         {
             metrics.opWithUnknownException();
-            test(false);
+            TestHelper.Assert(false);
         }
-        catch (Ice.UnhandledException)
+        catch (UnhandledException)
         {
         }
 
         try
         {
             metrics.opWithUnknownExceptionAsync().Wait();
-            test(false);
+            TestHelper.Assert(false);
         }
         catch (System.AggregateException ex)
         {
-            test(ex.InnerException is Ice.UnhandledException);
+            TestHelper.Assert(ex.InnerException is UnhandledException);
         }
 
         if (!collocated)
@@ -990,75 +990,75 @@ public class AllTests : Test.AllTests
             try
             {
                 metrics.fail();
-                test(false);
+                TestHelper.Assert(false);
             }
-            catch (Ice.ConnectionLostException)
+            catch (ConnectionLostException)
             {
             }
 
             try
             {
                 metrics.failAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (System.AggregateException ex)
             {
-                test(ex.InnerException is Ice.ConnectionLostException);
+                TestHelper.Assert(ex.InnerException is Ice.ConnectionLostException);
             }
         }
 
-        map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Invocation"]);
-        test(map.Count == (collocated ? 5 : 6));
+        map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Invocation"]!);
+        TestHelper.Assert(map.Count == (collocated ? 5 : 6));
 
         IceMX.InvocationMetrics im1;
         IceMX.ChildInvocationMetrics rim1;
         im1 = (IceMX.InvocationMetrics)map["op"];
-        test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
-        test(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
-        test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-        test(rim1.Size == 42 && rim1.ReplySize == 14);
+        TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
+        TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
+        TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
+        TestHelper.Assert(rim1.Size == 42 && rim1.ReplySize == 14);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUserException"];
-        test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
-        test(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
-        test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-        test(rim1.Size == 76 && rim1.ReplySize == 54);
-        test(im1.UserException == 2);
+        TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
+        TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
+        TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
+        TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize == 54);
+        TestHelper.Assert(im1.UserException == 2);
 
         im1 = (IceMX.InvocationMetrics)map["opWithLocalException"];
-        test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
-        test(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
-        test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-        test(rim1.Size == 78 && rim1.ReplySize > 7);
+        TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
+        TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
+        TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
+        TestHelper.Assert(rim1.Size == 78 && rim1.ReplySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.Id, "Ice.UnhandledException", 2, output);
 
         im1 = (IceMX.InvocationMetrics)map["opWithRequestFailedException"];
-        test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
-        test(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
-        test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-        test(rim1.Size == 94 && rim1.ReplySize == 80);
+        TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
+        TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
+        TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
+        TestHelper.Assert(rim1.Size == 94 && rim1.ReplySize == 80);
         checkFailure(clientMetrics, "Invocation", im1.Id, "Ice.ObjectNotExistException", 2, output);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUnknownException"];
-        test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
-        test(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
-        test(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-        test(rim1.Size == 82 && rim1.ReplySize > 7);
+        TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 0);
+        TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
+        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
+        TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
+        TestHelper.Assert(rim1.Size == 82 && rim1.ReplySize > 7);
         checkFailure(clientMetrics, "Invocation", im1.Id, "Ice.UnhandledException", 2, output);
 
         if (!collocated)
         {
             im1 = (IceMX.InvocationMetrics)map["fail"];
-            test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 2 && im1.Remotes.Length == 1);
-            rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
-            test(rim1.Current == 0);
-            test(rim1.Total == 4);
-            test(rim1.Failures == 4);
+            TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 2 && im1.Retry == 2 && im1.Remotes.Length == 1);
+            rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
+            TestHelper.Assert(rim1.Current == 0);
+            TestHelper.Assert(rim1.Total == 4);
+            TestHelper.Assert(rim1.Failures == 4);
             checkFailure(clientMetrics, "Invocation", im1.Id, "Ice.ConnectionLostException", 2, output);
         }
 
@@ -1090,15 +1090,15 @@ public class AllTests : Test.AllTests
         metricsOneway.op();
         metricsOneway.opAsync().Wait();
 
-        map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Invocation"]);
-        test(map.Count == 1);
+        map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Invocation"]!);
+        TestHelper.Assert(map.Count == 1);
 
         im1 = (IceMX.InvocationMetrics)map["op"];
-        test(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
-        test(collocated ? (im1.Collocated.Length == 1) : (im1.Remotes.Length == 1));
-        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0] : im1.Remotes[0]);
-        test(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-        test(rim1.Size == 42 && rim1.ReplySize == 0);
+        TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
+        TestHelper.Assert(collocated ? (im1.Collocated.Length == 1) : (im1.Remotes.Length == 1));
+        rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
+        TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
+        TestHelper.Assert(rim1.Size == 42 && rim1.ReplySize == 0);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
                       () => invokeOp(metricsOneway), output);
@@ -1109,25 +1109,25 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.GroupBy"] = "none";
         props["IceMX.Metrics.View.Disabled"] = "0";
         updateProps(clientProps, serverProps, update, props, "Thread");
-        test(clientMetrics.GetMetricsView("View").ReturnValue["Thread"].Length != 0);
+        TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["Thread"].Length != 0);
         var (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        test(names.Length == 1 && disabledViews.Length == 0);
+        TestHelper.Assert(names.Length == 1 && disabledViews.Length == 0);
 
         props["IceMX.Metrics.View.Disabled"] = "1";
         updateProps(clientProps, serverProps, update, props, "Thread");
-        test(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Thread"));
+        TestHelper.Assert(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Thread"));
         (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        test(names.Length == 0 && disabledViews.Length == 1);
+        TestHelper.Assert(names.Length == 0 && disabledViews.Length == 1);
 
         clientMetrics.EnableMetricsView("View");
-        test(clientMetrics.GetMetricsView("View").ReturnValue["Thread"].Length != 0);
+        TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["Thread"].Length != 0);
         (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        test(names.Length == 1 && disabledViews.Length == 0);
+        TestHelper.Assert(names.Length == 1 && disabledViews.Length == 0);
 
         clientMetrics.DisableMetricsView("View");
-        test(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Thread"));
+        TestHelper.Assert(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Thread"));
         (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        test(names.Length == 0 && disabledViews.Length == 1);
+        TestHelper.Assert(names.Length == 0 && disabledViews.Length == 1);
 
         try
         {
@@ -1142,65 +1142,65 @@ public class AllTests : Test.AllTests
         output.Write("testing instrumentation observer delegate... ");
         output.Flush();
 
-        test(obsv.threadObserver.getTotal() > 0);
+        TestHelper.Assert(obsv.threadObserver!.getTotal() > 0);
         if (!collocated)
         {
-            test(obsv.connectionObserver.getTotal() > 0);
-            test(obsv.connectionEstablishmentObserver.getTotal() > 0);
-            test(obsv.endpointLookupObserver.getTotal() > 0);
-            test(obsv.invocationObserver.remoteObserver.getTotal() > 0);
+            TestHelper.Assert(obsv.connectionObserver!.getTotal() > 0);
+            TestHelper.Assert(obsv.connectionEstablishmentObserver!.getTotal() > 0);
+            TestHelper.Assert(obsv.endpointLookupObserver!.getTotal() > 0);
+            TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.getTotal() > 0);
         }
         else
         {
-            test(obsv.invocationObserver.collocatedObserver.getTotal() > 0);
+            TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.getTotal() > 0);
         }
 
-        test(obsv.dispatchObserver.getTotal() > 0);
-        test(obsv.invocationObserver.getTotal() > 0);
+        TestHelper.Assert(obsv.dispatchObserver!.getTotal() > 0);
+        TestHelper.Assert(obsv.invocationObserver!.getTotal() > 0);
 
-        test(obsv.threadObserver.GetCurrent() > 0);
+        TestHelper.Assert(obsv.threadObserver.GetCurrent() > 0);
         if (!collocated)
         {
-            test(obsv.connectionObserver.GetCurrent() > 0);
-            test(obsv.connectionEstablishmentObserver.GetCurrent() == 0);
-            test(obsv.endpointLookupObserver.GetCurrent() == 0);
-            waitForObserverCurrent(obsv.invocationObserver.remoteObserver, 0);
-            test(obsv.invocationObserver.remoteObserver.GetCurrent() == 0);
+            TestHelper.Assert(obsv.connectionObserver!.GetCurrent() > 0);
+            TestHelper.Assert(obsv.connectionEstablishmentObserver!.GetCurrent() == 0);
+            TestHelper.Assert(obsv.endpointLookupObserver!.GetCurrent() == 0);
+            waitForObserverCurrent(obsv.invocationObserver!.remoteObserver!, 0);
+            TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.GetCurrent() == 0);
         }
         else
         {
-            waitForObserverCurrent(obsv.invocationObserver.collocatedObserver, 0);
-            test(obsv.invocationObserver.collocatedObserver.GetCurrent() == 0);
+            waitForObserverCurrent(obsv.invocationObserver!.collocatedObserver!, 0);
+            TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.GetCurrent() == 0);
         }
         waitForObserverCurrent(obsv.dispatchObserver, 0);
-        test(obsv.dispatchObserver.GetCurrent() == 0);
+        TestHelper.Assert(obsv.dispatchObserver.GetCurrent() == 0);
         waitForObserverCurrent(obsv.invocationObserver, 0);
-        test(obsv.invocationObserver.GetCurrent() == 0);
+        TestHelper.Assert(obsv.invocationObserver.GetCurrent() == 0);
 
-        test(obsv.threadObserver.GetFailedCount() == 0);
+        TestHelper.Assert(obsv.threadObserver.GetFailedCount() == 0);
         if (!collocated)
         {
-            test(obsv.connectionObserver.GetFailedCount() > 0);
-            test(obsv.connectionEstablishmentObserver.GetFailedCount() > 0);
-            test(obsv.endpointLookupObserver.GetFailedCount() > 0);
-            test(obsv.invocationObserver.remoteObserver.GetFailedCount() > 0);
+            TestHelper.Assert(obsv.connectionObserver!.GetFailedCount() > 0);
+            TestHelper.Assert(obsv.connectionEstablishmentObserver!.GetFailedCount() > 0);
+            TestHelper.Assert(obsv.endpointLookupObserver!.GetFailedCount() > 0);
+            TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.GetFailedCount() > 0);
         }
-        //test(obsv.dispatchObserver.getFailedCount() > 0);
-        test(obsv.invocationObserver.GetFailedCount() > 0);
+        //TestHelper.Assert(obsv.dispatchObserver.getFailedCount() > 0);
+        TestHelper.Assert(obsv.invocationObserver.GetFailedCount() > 0);
 
         if (!collocated)
         {
-            test(obsv.threadObserver.states > 0);
-            test(obsv.connectionObserver.received > 0 && obsv.connectionObserver.sent > 0);
-            test(obsv.invocationObserver.retriedCount > 0);
-            test(obsv.invocationObserver.remoteObserver.replySize > 0);
+            TestHelper.Assert(obsv.threadObserver!.states > 0);
+            TestHelper.Assert(obsv.connectionObserver!.received > 0 && obsv.connectionObserver!.sent > 0);
+            TestHelper.Assert(obsv.invocationObserver!.retriedCount > 0);
+            TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.replySize > 0);
         }
         else
         {
-            test(obsv.invocationObserver.collocatedObserver.replySize > 0);
+            TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.replySize > 0);
         }
-        //test(obsv.dispatchObserver.userExceptionCount > 0);
-        test(obsv.invocationObserver.userExceptionCount > 0);
+        //TestHelper.Assert(obsv.dispatchObserver.userExceptionCount > 0);
+        TestHelper.Assert(obsv.invocationObserver.userExceptionCount > 0);
 
         output.WriteLine("ok");
         return metrics;

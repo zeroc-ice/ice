@@ -2,25 +2,26 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
+using System.Collections.Generic;
+
 namespace Ice.location
 {
-    using global::Test;
-    using Ice.location.Test;
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
             //
             // Register the server manager. The server manager creates a new
             // 'server'(a server isn't a different process, it's just a new
             // communicator and object adapter).
             //
-            var properties = createTestProperties(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.ThreadPool.Server.Size"] = "2";
 
-            using var communicator = initialize(properties);
-            communicator.SetProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
-            var adapter = communicator.CreateObjectAdapter("ServerManagerAdapter");
+            using Communicator communicator = Initialize(properties);
+            communicator.SetProperty("ServerManagerAdapter.Endpoints", GetTestEndpoint(0));
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("ServerManagerAdapter");
             //
             // We also register a sample server locator which implements the
             // locator interface, this locator is used by the clients and the
@@ -29,15 +30,15 @@ namespace Ice.location
             var registry = new ServerLocatorRegistry();
             var obj = new ServerManager(registry, this);
             adapter.Add("ServerManager", obj);
-            registry.addObject(adapter.CreateProxy("ServerManager", IObjectPrx.Factory));
-            var registryPrx = adapter.Add("registry", registry, ILocatorRegistryPrx.Factory);
+            registry.AddObject(adapter.CreateProxy("ServerManager", IObjectPrx.Factory));
+            ILocatorRegistryPrx registryPrx = adapter.Add("registry", registry, ILocatorRegistryPrx.Factory);
             adapter.Add("locator", new ServerLocator(registry, registryPrx));
 
             adapter.Activate();
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

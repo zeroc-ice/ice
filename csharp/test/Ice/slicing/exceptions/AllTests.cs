@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Test;
 using Ice;
-public class AllTests : Test.AllTests
+public class AllTests
 {
     private class Relay : IRelay
     {
@@ -53,22 +53,14 @@ public class AllTests : Test.AllTests
         public void clientPrivateException(Ice.Current current) => throw new ClientPrivateException("ClientPrivate");
     }
 
-    public static ITestIntfPrx allTests(Test.TestHelper helper, bool collocated)
+    public static ITestIntfPrx allTests(TestHelper helper, bool collocated)
     {
-        Communicator communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator? communicator = helper.Communicator();
+        TestHelper.Assert(communicator != null);
+        var output = helper.GetWriter();
         output.Write("testing stringToProxy... ");
         output.Flush();
-        string @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
-        var @base = IObjectPrx.Parse(@ref, communicator);
-        test(@base != null);
-        output.WriteLine("ok");
-
-        output.Write("testing checked cast... ");
-        output.Flush();
-        ITestIntfPrx testPrx = ITestIntfPrx.CheckedCast(@base);
-        test(testPrx != null);
-        test(testPrx.Equals(@base));
+        ITestIntfPrx testPrx = ITestIntfPrx.Parse($"Test:{helper.GetTestEndpoint(0)} -t 2000", communicator);
         output.WriteLine("ok");
 
         output.Write("base... ");
@@ -77,16 +69,16 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.baseAsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Base b)
             {
-                test(b.b.Equals("Base.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                TestHelper.Assert(b.b.Equals("Base.b"));
+                TestHelper.Assert(b.GetType().FullName!.Equals("Test.Base"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -97,22 +89,23 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.baseAsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (Base b)
                 {
-                    test(b.b.Equals("Base.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    TestHelper.Assert(b.b.Equals("Base.b"));
+                    TestHelper.Assert(b.GetType().Name.Equals("Base"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -124,16 +117,16 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownDerivedAsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Base b)
             {
-                test(b.b.Equals("UnknownDerived.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                TestHelper.Assert(b.b.Equals("UnknownDerived.b"));
+                TestHelper.Assert(b.GetType().FullName!.Equals("Test.Base"));
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -144,22 +137,23 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownDerivedAsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (Base b)
                 {
-                    test(b.b.Equals("UnknownDerived.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    TestHelper.Assert(b.b.Equals("UnknownDerived.b"));
+                    TestHelper.Assert(b.GetType().Name.Equals("Base"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -171,17 +165,17 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownDerivedAsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownDerived k)
             {
-                test(k.b.Equals("KnownDerived.b"));
-                test(k.kd.Equals("KnownDerived.kd"));
-                test(k.GetType().FullName.Equals("Test.KnownDerived"));
+                TestHelper.Assert(k.b.Equals("KnownDerived.b"));
+                TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                TestHelper.Assert(k.GetType().FullName!.Equals("Test.KnownDerived"));
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -192,23 +186,24 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownDerivedAsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownDerived k)
                 {
-                    test(k.b.Equals("KnownDerived.b"));
-                    test(k.kd.Equals("KnownDerived.kd"));
-                    test(k.GetType().Name.Equals("KnownDerived"));
+                    TestHelper.Assert(k.b.Equals("KnownDerived.b"));
+                    TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                    TestHelper.Assert(k.GetType().Name.Equals("KnownDerived"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -220,17 +215,17 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownDerivedAsKnownDerived();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownDerived k)
             {
-                test(k.b.Equals("KnownDerived.b"));
-                test(k.kd.Equals("KnownDerived.kd"));
-                test(k.GetType().FullName.Equals("Test.KnownDerived"));
+                TestHelper.Assert(k.b.Equals("KnownDerived.b"));
+                TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                TestHelper.Assert(k.GetType().FullName!.Equals("Test.KnownDerived"));
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -241,23 +236,24 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownDerivedAsKnownDerivedAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownDerived k)
                 {
-                    test(k.b.Equals("KnownDerived.b"));
-                    test(k.kd.Equals("KnownDerived.kd"));
-                    test(k.GetType().Name.Equals("KnownDerived"));
+                    TestHelper.Assert(k.b.Equals("KnownDerived.b"));
+                    TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                    TestHelper.Assert(k.GetType().Name.Equals("KnownDerived"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -269,16 +265,16 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownIntermediateAsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Base b)
             {
-                test(b.b.Equals("UnknownIntermediate.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                TestHelper.Assert(b.b.Equals("UnknownIntermediate.b"));
+                TestHelper.Assert(b.GetType().FullName!.Equals("Test.Base"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -289,22 +285,23 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownIntermediateAsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (Base b)
                 {
-                    test(b.b.Equals("UnknownIntermediate.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    TestHelper.Assert(b.b.Equals("UnknownIntermediate.b"));
+                    TestHelper.Assert(b.GetType().Name.Equals("Base"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -316,17 +313,17 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownIntermediateAsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownIntermediate ki)
             {
-                test(ki.b.Equals("KnownIntermediate.b"));
-                test(ki.ki.Equals("KnownIntermediate.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
+                TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                TestHelper.Assert(ki.GetType().FullName!.Equals("Test.KnownIntermediate"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -337,23 +334,24 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownIntermediateAsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("KnownIntermediate.b"));
-                    test(ki.ki.Equals("KnownIntermediate.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
+                    TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                    TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -365,18 +363,18 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownMostDerivedAsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownMostDerived kmd)
             {
-                test(kmd.b.Equals("KnownMostDerived.b"));
-                test(kmd.ki.Equals("KnownMostDerived.ki"));
-                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
+                TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
+                TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
+                TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                TestHelper.Assert(kmd.GetType().FullName!.Equals("Test.KnownMostDerived"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -387,24 +385,25 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownMostDerivedAsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownMostDerived kmd)
                 {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                    TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
+                    TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
+                    TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    TestHelper.Assert(kmd.GetType().Name.Equals("KnownMostDerived"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -416,17 +415,17 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownIntermediateAsKnownIntermediate();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownIntermediate ki)
             {
-                test(ki.b.Equals("KnownIntermediate.b"));
-                test(ki.ki.Equals("KnownIntermediate.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
+                TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                TestHelper.Assert(ki.GetType().FullName!.Equals("Test.KnownIntermediate"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -437,23 +436,24 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownIntermediateAsKnownIntermediateAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("KnownIntermediate.b"));
-                    test(ki.ki.Equals("KnownIntermediate.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
+                    TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                    TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -465,18 +465,18 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownMostDerivedAsKnownIntermediate();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownMostDerived kmd)
             {
-                test(kmd.b.Equals("KnownMostDerived.b"));
-                test(kmd.ki.Equals("KnownMostDerived.ki"));
-                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
+                TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
+                TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
+                TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                TestHelper.Assert(kmd.GetType().FullName!.Equals("Test.KnownMostDerived"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -487,24 +487,25 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownMostDerivedAsKnownIntermediateAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownMostDerived kmd)
                 {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                    TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
+                    TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
+                    TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    TestHelper.Assert(kmd.GetType().Name.Equals("KnownMostDerived"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -516,18 +517,18 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownMostDerivedAsKnownMostDerived();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownMostDerived kmd)
             {
-                test(kmd.b.Equals("KnownMostDerived.b"));
-                test(kmd.ki.Equals("KnownMostDerived.ki"));
-                test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
+                TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
+                TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
+                TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                TestHelper.Assert(kmd.GetType().FullName!.Equals("Test.KnownMostDerived"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -538,24 +539,25 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.knownMostDerivedAsKnownMostDerivedAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownMostDerived kmd)
                 {
-                    test(kmd.b.Equals("KnownMostDerived.b"));
-                    test(kmd.ki.Equals("KnownMostDerived.ki"));
-                    test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                    test(kmd.GetType().Name.Equals("KnownMostDerived"));
+                    TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
+                    TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
+                    TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    TestHelper.Assert(kmd.GetType().Name.Equals("KnownMostDerived"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -567,17 +569,17 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownMostDerived1AsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownIntermediate ki)
             {
-                test(ki.b.Equals("UnknownMostDerived1.b"));
-                test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
+                TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                TestHelper.Assert(ki.GetType().FullName!.Equals("Test.KnownIntermediate"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -588,23 +590,24 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownMostDerived1AsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("UnknownMostDerived1.b"));
-                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
+                    TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                    TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -616,17 +619,17 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownMostDerived1AsKnownIntermediate();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownIntermediate ki)
             {
-                test(ki.b.Equals("UnknownMostDerived1.b"));
-                test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
+                TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
+                TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                TestHelper.Assert(ki.GetType().FullName!.Equals("Test.KnownIntermediate"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -637,23 +640,24 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownMostDerived1AsKnownIntermediateAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (KnownIntermediate ki)
                 {
-                    test(ki.b.Equals("UnknownMostDerived1.b"));
-                    test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                    test(ki.GetType().Name.Equals("KnownIntermediate"));
+                    TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
+                    TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                    TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -665,16 +669,16 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownMostDerived2AsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Base b)
             {
-                test(b.b.Equals("UnknownMostDerived2.b"));
-                test(b.GetType().FullName.Equals("Test.Base"));
+                TestHelper.Assert(b.b.Equals("UnknownMostDerived2.b"));
+                TestHelper.Assert(b.GetType().FullName!.Equals("Test.Base"));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -685,22 +689,23 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownMostDerived2AsBaseAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ae)
             {
                 try
                 {
+                    TestHelper.Assert(ae.InnerException != null);
                     throw ae.InnerException;
                 }
                 catch (Base b)
                 {
-                    test(b.b.Equals("UnknownMostDerived2.b"));
-                    test(b.GetType().Name.Equals("Base"));
+                    TestHelper.Assert(b.b.Equals("UnknownMostDerived2.b"));
+                    TestHelper.Assert(b.GetType().Name.Equals("Base"));
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
             }
         }
@@ -712,19 +717,19 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownMostDerived2AsBaseCompact();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Base)
             {
                 // Exceptions are always marshaled in sliced format; format:compact applies only to in-parameters and
                 // return values.
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -735,17 +740,17 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.serverPrivateException();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (RemoteException ex)
             {
                 SlicedData slicedData = ex.GetSlicedData()!.Value;
-                test(slicedData.Slices.Count == 1);
-                test(slicedData.Slices[0].TypeId! == "::Test::ServerPrivateException");
+                TestHelper.Assert(slicedData.Slices.Count == 1);
+                TestHelper.Assert(slicedData.Slices[0].TypeId! == "::Test::ServerPrivateException");
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
         }
         output.WriteLine("ok");
@@ -756,28 +761,28 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.unknownPreservedAsBase();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Base ex)
             {
-                IReadOnlyList<Ice.SliceInfo> slices = ex.GetSlicedData().Value.Slices;
-                test(slices.Count == 2);
-                test(slices[1].TypeId.Equals("::Test::SPreserved1"));
-                test(slices[0].TypeId.Equals("::Test::SPreserved2"));
+                IReadOnlyList<SliceInfo> slices = ex.GetSlicedData()!.Value.Slices;
+                TestHelper.Assert(slices.Count == 2);
+                TestHelper.Assert(slices[1].TypeId!.Equals("::Test::SPreserved1"));
+                TestHelper.Assert(slices[0].TypeId!.Equals("::Test::SPreserved2"));
             }
 
             try
             {
                 testPrx.unknownPreservedAsKnownPreserved();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownPreserved ex)
             {
-                test(ex.kp.Equals("preserved"));
-                IReadOnlyList<Ice.SliceInfo> slices = ex.GetSlicedData().Value.Slices;
-                test(slices.Count == 2);
-                test(slices[1].TypeId.Equals("::Test::SPreserved1"));
-                test(slices[0].TypeId.Equals("::Test::SPreserved2"));
+                TestHelper.Assert(ex.kp.Equals("preserved"));
+                IReadOnlyList<SliceInfo> slices = ex.GetSlicedData()!.Value.Slices;
+                TestHelper.Assert(slices.Count == 2);
+                TestHelper.Assert(slices[1].TypeId!.Equals("::Test::SPreserved1"));
+                TestHelper.Assert(slices[0].TypeId!.Equals("::Test::SPreserved2"));
             }
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter();
@@ -788,101 +793,101 @@ public class AllTests : Test.AllTests
             try
             {
                 testPrx.relayKnownPreservedAsBase(relay);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownPreservedDerived ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                TestHelper.Assert(ex.b.Equals("base"));
+                TestHelper.Assert(ex.kp.Equals("preserved"));
+                TestHelper.Assert(ex.kpd.Equals("derived"));
             }
             catch (Ice.OperationNotExistException)
             {
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 testPrx.relayKnownPreservedAsKnownPreserved(relay);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (KnownPreservedDerived ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
+                TestHelper.Assert(ex.b.Equals("base"));
+                TestHelper.Assert(ex.kp.Equals("preserved"));
+                TestHelper.Assert(ex.kpd.Equals("derived"));
             }
             catch (Ice.OperationNotExistException)
             {
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 testPrx.relayUnknownPreservedAsBase(relay);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Preserved2 ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-                test(ex.p1.GetType().GetIceTypeId().Equals(typeof(PreservedClass).GetIceTypeId()));
-                PreservedClass pc = ex.p1 as PreservedClass;
-                test(pc.bc.Equals("bc"));
-                test(pc.pc.Equals("pc"));
-                test(ex.p2 == ex.p1);
+                TestHelper.Assert(ex.b.Equals("base"));
+                TestHelper.Assert(ex.kp.Equals("preserved"));
+                TestHelper.Assert(ex.kpd.Equals("derived"));
+                TestHelper.Assert(ex.p1!.GetType().GetIceTypeId()!.Equals(typeof(PreservedClass).GetIceTypeId()));
+                var pc = ex.p1 as PreservedClass;
+                TestHelper.Assert(pc!.bc.Equals("bc"));
+                TestHelper.Assert(pc!.pc.Equals("pc"));
+                TestHelper.Assert(ex.p2 == ex.p1);
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 testPrx.relayUnknownPreservedAsKnownPreserved(relay);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Preserved2 ex)
             {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-                test(ex.p1.GetType().GetIceTypeId().Equals(typeof(PreservedClass).GetIceTypeId()));
-                PreservedClass pc = ex.p1 as PreservedClass;
-                test(pc.bc.Equals("bc"));
-                test(pc.pc.Equals("pc"));
-                test(ex.p2 == ex.p1);
+                TestHelper.Assert(ex.b.Equals("base"));
+                TestHelper.Assert(ex.kp.Equals("preserved"));
+                TestHelper.Assert(ex.kpd.Equals("derived"));
+                TestHelper.Assert(ex.p1!.GetType().GetIceTypeId()!.Equals(typeof(PreservedClass).GetIceTypeId()));
+                var pc = ex.p1 as PreservedClass;
+                TestHelper.Assert(pc!.bc.Equals("bc"));
+                TestHelper.Assert(pc!.pc.Equals("pc"));
+                TestHelper.Assert(ex.p2 == ex.p1);
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             try
             {
                 testPrx.relayClientPrivateException(relay);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (ClientPrivateException ex)
             {
-                test(ex.cpe == "ClientPrivate");
+                TestHelper.Assert(ex.cpe == "ClientPrivate");
             }
             catch (System.Exception)
             {
-                test(false);
+                TestHelper.Assert(false);
             }
 
             adapter.Destroy();

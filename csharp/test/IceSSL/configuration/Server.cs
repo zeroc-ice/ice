@@ -12,15 +12,15 @@ using Test;
 
 public class Server : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using var communicator = Initialize(ref args);
         if (args.Length < 1)
         {
             throw new ArgumentException("Usage: server testdir");
         }
 
-        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
+        communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
         adapter.Activate();
@@ -28,5 +28,5 @@ public class Server : Test.TestHelper
         communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

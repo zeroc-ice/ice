@@ -4,28 +4,27 @@
 
 using Test;
 using System.Reflection;
+using Ice;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using (var communicator = initialize(ref args))
-        {
-            communicator.SetProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
-            communicator.CreateObjectAdapter("DeactivatedAdapter");
+        using Communicator communicator = Initialize(ref args);
+        communicator.SetProperty("DeactivatedAdapter.Endpoints", GetTestEndpoint(1));
+        communicator.CreateObjectAdapter("DeactivatedAdapter");
 
-            communicator.SetProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
-            var callbackI = new Callback();
-            adapter.Add("callback", callbackI);
-            adapter.Activate();
-            communicator.WaitForShutdown();
-        }
+        communicator.SetProperty("CallbackAdapter.Endpoints", GetTestEndpoint(0));
+        ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
+        var callbackI = new Callback();
+        adapter.Add("callback", callbackI);
+        adapter.Activate();
+        communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

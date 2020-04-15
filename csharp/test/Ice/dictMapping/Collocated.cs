@@ -3,27 +3,21 @@
 //
 
 using Test;
-using Ice.dictMapping.Test;
 
 namespace Ice.dictMapping
 {
     public class Collocated : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using (var communicator = initialize(ref args))
-            {
-                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                var adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.Add("test", new MyClass());
-                //adapter.activate(); // Don't activate OA to ensure collocation is used.
-                AllTests.allTests(this, true);
-            }
+            using Communicator communicator = Initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("test", new MyClass());
+            //adapter.activate(); // Don't activate OA to ensure collocation is used.
+            AllTests.allTests(this, true);
         }
 
-        public static int Main(string[] args)
-        {
-            return TestDriver.runTest<Collocated>(args);
-        }
+        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

@@ -226,7 +226,7 @@ namespace IceDiscovery
         {
             // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
             var single = new Endpoint[1];
-            foreach (ILookupPrx key in _lookups.Keys)
+            foreach (ILookupPrx key in _lookups.Keys.ToArray())
             {
                 var endpoint = (UdpEndpoint)key.Endpoints[0];
                 if (endpoint.McastInterface.Length > 0)

@@ -8,19 +8,19 @@ namespace Ice.threadPoolPriority
 {
     public class Server : global::Test.TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             properties["Ice.ThreadPool.Server.ThreadPriority"] = "AboveNormal";
-            using var communicator = initialize(properties);
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            using var communicator = Initialize(properties);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new Priority());
             adapter.Activate();
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Server>(args);
     }
 }

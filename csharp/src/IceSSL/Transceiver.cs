@@ -40,7 +40,7 @@ namespace IceSSL
             // the data in several chunks. Otherwise, we would only be
             // notified when all the data is received/written. The
             // connection timeout could easily be triggered when
-            // receiging/sending large messages.
+            // receiving/sending large messages.
             //
             _maxSendPacketSize = Math.Max(512, IceInternal.Network.GetSendBufferSize(fd));
             _maxRecvPacketSize = Math.Max(512, IceInternal.Network.GetRecvBufferSize(fd));
@@ -102,11 +102,11 @@ namespace IceSSL
 
         public void Destroy() => _delegate.Destroy();
 
-        // Force caller to use async write.
+        // Force caller to use asynchronous write.
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset) =>
             offset < buffer.GetByteCount() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
 
-        // Force caller to use async read.
+        // Force caller to use asynchronous read.
         public int Read(ref ArraySegment<byte> buffer, ref int offset) =>
             offset < buffer.Count ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
 
@@ -493,7 +493,7 @@ namespace IceSSL
                         {
                             if (_verifyPeer > 0)
                             {
-                                message += "\npuntrusted root certificate";
+                                message += "\nuntrusted root certificate";
                             }
                             else
                             {
@@ -588,7 +588,7 @@ namespace IceSSL
                             {
                                 if (_verifyPeer > 0)
                                 {
-                                    message += "\npuntrusted root certificate";
+                                    message += "\nuntrusted root certificate";
                                     ++errorCount;
                                 }
                                 else
@@ -701,7 +701,7 @@ namespace IceSSL
         {
             if (!result.CompletedSynchronously)
             {
-                Debug.Assert(_readCallback != null);
+                Debug.Assert(_readCallback != null && result.AsyncState != null);
                 _readCallback(result.AsyncState);
             }
         }
@@ -710,7 +710,7 @@ namespace IceSSL
         {
             if (!result.CompletedSynchronously)
             {
-                Debug.Assert(_writeCallback != null);
+                Debug.Assert(_writeCallback != null && result.AsyncState != null);
                 _writeCallback(result.AsyncState);
             }
         }

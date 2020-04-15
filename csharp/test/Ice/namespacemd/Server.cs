@@ -11,18 +11,18 @@ namespace Ice
     {
         public class Server : TestHelper
         {
-            public override void run(string[] args)
+            public override void Run(string[] args)
             {
-                using var communicator = initialize(ref args);
-                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                using var communicator = Initialize(ref args);
+                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
                 var adapter = communicator.CreateObjectAdapter("TestAdapter");
                 adapter.Add("initial", new Initial());
                 adapter.Activate();
-                serverReady();
+                ServerReady();
                 communicator.WaitForShutdown();
             }
 
-            public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+            public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
         }
     }
 }

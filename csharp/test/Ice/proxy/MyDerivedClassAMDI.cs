@@ -11,7 +11,7 @@ namespace Ice.proxy.AMD
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass
     {
-        public ValueTask<IObjectPrx?> echoAsync(IObjectPrx obj, Current c)
+        public ValueTask<IObjectPrx?> echoAsync(IObjectPrx? obj, Current c)
             => new ValueTask<IObjectPrx?>(obj);
 
         public ValueTask shutdownAsync(Current current)
@@ -21,7 +21,7 @@ namespace Ice.proxy.AMD
         }
 
         public ValueTask<Dictionary<string, string>> getContextAsync(Current current)
-            => new ValueTask<Dictionary<string, string>>(_ctx);
+            => new ValueTask<Dictionary<string, string>>(_ctx!);
 
         public bool IceIsA(string typeId, Current current)
         {
@@ -29,6 +29,6 @@ namespace Ice.proxy.AMD
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
-        private Dictionary<string, string> _ctx;
+        private Dictionary<string, string>? _ctx;
     }
 }

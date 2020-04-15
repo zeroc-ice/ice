@@ -92,18 +92,16 @@ namespace IceInternal
             // exception's message, but that is fragile due to localization issues. We
             // resort to extracting the value of the protected HResult member via reflection.
             //
-            int hr = (int)ex.GetType().GetProperty("HResult",
+            System.Reflection.PropertyInfo? hresult = ex.GetType().GetProperty("HResult",
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.Public).GetValue(ex, null);
-
-            //
-            // This value corresponds to the following errors:
-            //
-            // "Authentication failed because the remote party has closed the transport stream"
-            //
-            if (hr == -2146232800)
+                System.Reflection.BindingFlags.Public);
+            if (hresult != null && hresult.GetValue(ex, null) is int hresultValue &&
+                hresultValue == -2146232800)
             {
+                // This value corresponds to the following errors:
+                //
+                // "Authentication failed because the remote party has closed the transport stream"
                 return true;
             }
             return false;

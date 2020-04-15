@@ -2,17 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
+
 namespace Ice.operations
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
-        public static Test.IMyClassPrx allTests(global::Test.TestHelper helper)
+        public static Test.IMyClassPrx allTests(TestHelper helper)
         {
-            Ice.Communicator communicator = helper.communicator();
-            var output = helper.getWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            System.IO.TextWriter output = helper.GetWriter();
 
-            var cl = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
-            var derivedProxy = Test.IMyDerivedClassPrx.CheckedCast(cl);
+            var cl = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var derivedProxy = Test.IMyDerivedClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
 
             output.Write("testing twoway operations... ");
             output.Flush();

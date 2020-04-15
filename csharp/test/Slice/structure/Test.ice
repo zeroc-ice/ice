@@ -14,7 +14,6 @@ class C
     int i;
 }
 
-["clr:class"]
 struct S1
 {
     string name;

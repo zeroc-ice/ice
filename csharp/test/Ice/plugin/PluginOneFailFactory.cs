@@ -3,7 +3,6 @@
 //
 
 using System;
-using System.Diagnostics;
 
 public class PluginOneFailFactory : Ice.IPluginFactory
 {
@@ -18,24 +17,24 @@ public class PluginOneFailFactory : Ice.IPluginFactory
 
         public override void Initialize()
         {
-            BasePluginFail? two = (BasePluginFail?)_communicator.GetPlugin("PluginTwoFail");
-            Debug.Assert(two != null);
+            var two = (BasePluginFail?)_communicator.GetPlugin("PluginTwoFail");
+            TestHelper.Assert(two != null);
             _two = two;
-            test(!_two.isInitialized());
-            BasePluginFail? three = (BasePluginFail?)_communicator.GetPlugin("PluginThreeFail");
-            Debug.Assert(three != null);
+            TestHelper.Assert(!_two.isInitialized());
+            var three = (BasePluginFail?)_communicator.GetPlugin("PluginThreeFail");
+            TestHelper.Assert(three != null);
             _three = three;
-            test(!_three.isInitialized());
+            TestHelper.Assert(!_three.isInitialized());
             _initialized = true;
         }
 
         public override void Destroy()
         {
-            test(_two.isDestroyed());
+            TestHelper.Assert(_two != null && _two.isDestroyed());
             //
             // Not destroyed because initialize fails.
             //
-            test(!_three.isDestroyed());
+            TestHelper.Assert(_three != null && !_three.isDestroyed());
             _destroyed = true;
         }
 

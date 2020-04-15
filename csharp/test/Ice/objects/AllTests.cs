@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using Test;
 
 namespace Ice
 {
@@ -12,130 +13,118 @@ namespace Ice
         {
             public partial class IBase
             {
-                partial void Initialize()
-                {
-                    id = "My id";
-                }
+                partial void Initialize() => id = "My id";
             }
 
             public partial class IDerived
             {
-                partial void Initialize()
-                {
-                    name = "My name";
-                }
+                partial void Initialize() => name = "My name";
             }
 
             public partial class I2
             {
-                public bool called
+                public bool Called
                 {
                     get;
                     set;
                 }
 
-                partial void Initialize()
-                {
-                    called = true;
-                }
+                partial void Initialize() => Called = true;
             }
 
             public partial struct S1
             {
-                partial void Initialize()
-                {
-                    id = 1;
-                }
+                partial void Initialize() => id = 1;
             }
 
-            public class AllTests : global::Test.AllTests
+            public class AllTests
             {
-                public static Test.IInitialPrx allTests(global::Test.TestHelper helper)
+                public static IInitialPrx allTests(TestHelper helper)
                 {
-                    Ice.Communicator communicator = helper.communicator();
+                    Communicator? communicator = helper.Communicator();
+                    TestHelper.Assert(communicator != null);
+                    var output = helper.GetWriter();
 
-                    var output = helper.getWriter();
-
-                    var initial = IInitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
-
+                    var initial = IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
+                    TestHelper.Assert(initial != null);
                     output.Write("getting B1... ");
                     output.Flush();
-                    B b1 = initial.getB1();
-                    test(b1 != null);
+                    B? b1 = initial.getB1();
+                    TestHelper.Assert(b1 != null);
                     output.WriteLine("ok");
 
                     output.Write("getting B2... ");
                     output.Flush();
-                    B b2 = initial.getB2();
-                    test(b2 != null);
+                    B? b2 = initial.getB2();
+                    TestHelper.Assert(b2 != null);
                     output.WriteLine("ok");
 
                     output.Write("getting C... ");
                     output.Flush();
-                    C c = initial.getC();
-                    test(c != null);
+                    C? c = initial.getC();
+                    TestHelper.Assert(c != null);
                     output.WriteLine("ok");
 
                     output.Write("getting D... ");
                     output.Flush();
-                    D d = initial.getD();
-                    test(d != null);
+                    D? d = initial.getD();
+                    TestHelper.Assert(d != null);
                     output.WriteLine("ok");
 
                     output.Write("checking consistency... ");
                     output.Flush();
-                    test(b1 != b2);
-                    //test(b1 != c);
-                    //test(b1 != d);
-                    //test(b2 != c);
-                    //test(b2 != d);
-                    //test(c != d);
-                    test(b1.theB == b1);
-                    test(b1.theC == null);
-                    test(b1.theA is B);
-                    test(((B)b1.theA).theA == b1.theA);
-                    test(((B)b1.theA).theB == b1);
-                    //test(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
-                    test(((C)(((B)b1.theA).theC)).theB == b1.theA);
+                    TestHelper.Assert(b1 != b2);
+                    //TestHelper.Assert(b1 != c);
+                    //TestHelper.Assert(b1 != d);
+                    //TestHelper.Assert(b2 != c);
+                    //TestHelper.Assert(b2 != d);
+                    //TestHelper.Assert(c != d);
+                    TestHelper.Assert(b1.theB == b1);
+                    TestHelper.Assert(b1.theC == null);
+                    TestHelper.Assert(b1.theA is B);
+                    TestHelper.Assert(((B)b1.theA).theA == b1.theA);
+                    TestHelper.Assert(((B)b1.theA).theB == b1);
+                    //TestHelper.Assert(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
+                    TestHelper.Assert(((B)b1.theA).theC!.theB == b1.theA);
 
                     // More tests possible for b2 and d, but I think this is already
                     // sufficient.
-                    test(b2.theA == b2);
-                    test(d.theC == null);
+                    TestHelper.Assert(b2.theA == b2);
+                    TestHelper.Assert(d.theC == null);
                     output.WriteLine("ok");
 
                     output.Write("getting B1, B2, C, and D all at once... ");
                     output.Flush();
                     var (b1out, b2out, cout, dout) = initial.getAll();
-                    test(b1out != null);
-                    test(b2out != null);
-                    test(cout != null);
-                    test(dout != null);
+                    TestHelper.Assert(b1out != null);
+                    TestHelper.Assert(b2out != null);
+                    TestHelper.Assert(cout != null);
+                    TestHelper.Assert(dout != null);
                     output.WriteLine("ok");
 
                     output.Write("checking consistency... ");
                     output.Flush();
-                    test(b1out != b2out);
-                    test(b1out.theA == b2out);
-                    test(b1out.theB == b1out);
-                    test(b1out.theC == null);
-                    test(b2out.theA == b2out);
-                    test(b2out.theB == b1out);
-                    test(b2out.theC == cout);
-                    test(cout.theB == b2out);
-                    test(dout.theA == b1out);
-                    test(dout.theB == b2out);
-                    test(dout.theC == null);
+                    TestHelper.Assert(b1out != b2out);
+                    TestHelper.Assert(b1out.theA == b2out);
+                    TestHelper.Assert(b1out.theB == b1out);
+                    TestHelper.Assert(b1out.theC == null);
+                    TestHelper.Assert(b2out.theA == b2out);
+                    TestHelper.Assert(b2out.theB == b1out);
+                    TestHelper.Assert(b2out.theC == cout);
+                    TestHelper.Assert(cout.theB == b2out);
+                    TestHelper.Assert(dout.theA == b1out);
+                    TestHelper.Assert(dout.theB == b2out);
+                    TestHelper.Assert(dout.theC == null);
 
                     output.WriteLine("ok");
 
                     output.Write("getting K... ");
                     {
                         output.Flush();
-                        var k = initial.getK();
-                        var l = k.value as L;
-                        test(l != null);
-                        test(l.data.Equals("l"));
+                        K? k = initial.getK();
+                        var l = k!.value as L;
+                        TestHelper.Assert(l != null);
+                        TestHelper.Assert(l.data.Equals("l"));
                     }
                     output.WriteLine("ok");
 
@@ -143,34 +132,33 @@ namespace Ice
                     output.Flush();
                     {
                         AnyClass v1 = new L("l");
-                        var (v3, v2) = initial.opClass(v1);
-                        test(((L)v2).data.Equals("l"));
-                        test(((L)v3).data.Equals("l"));
+                        (AnyClass? v3, AnyClass? v2) = initial.opClass(v1);
+                        TestHelper.Assert(((L)v2!).data.Equals("l"));
+                        TestHelper.Assert(((L)v3!).data.Equals("l"));
                     }
                     {
                         L l = new L("l");
                         AnyClass[] v1 = new AnyClass[] { l };
-                        var (v3, v2) = initial.opClassSeq(v1);
-                        test(((L)v2[0]).data.Equals("l"));
-                        test(((L)v3[0]).data.Equals("l"));
+                        (AnyClass?[] v3, AnyClass?[] v2) = initial.opClassSeq(v1);
+                        TestHelper.Assert(((L)v2[0]!).data.Equals("l"));
+                        TestHelper.Assert(((L)v3[0]!).data.Equals("l"));
                     }
                     {
-                        L l = new L("l");
-                        Dictionary<string, AnyClass> v1 = new Dictionary<string, AnyClass> { { "l", l } };
-                        var (v3, v2) = initial.opClassMap(v1);
-                        test(((L)v2["l"]).data.Equals("l"));
-                        test(((L)v3["l"]).data.Equals("l"));
+                        var l = new L("l");
+                        var v1 = new Dictionary<string, AnyClass?> { { "l", l } };
+                        (Dictionary<string, AnyClass?> v3, Dictionary<string, AnyClass?> v2) = initial.opClassMap(v1);
+                        TestHelper.Assert(((L)v2["l"]!).data.Equals("l"));
+                        TestHelper.Assert(((L)v3["l"]!).data.Equals("l"));
                     }
                     output.WriteLine("ok");
 
                     output.Write("getting D1... ");
                     output.Flush();
-                    D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
-                    d1 = initial.getD1(d1);
-                    test(d1.a1.name.Equals("a1"));
-                    test(d1.a2.name.Equals("a2"));
-                    test(d1.a3.name.Equals("a3"));
-                    test(d1.a4.name.Equals("a4"));
+                    D1? d1 = initial.getD1(new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4")));
+                    TestHelper.Assert(d1!.a1!.name.Equals("a1"));
+                    TestHelper.Assert(d1!.a2!.name.Equals("a2"));
+                    TestHelper.Assert(d1!.a3!.name.Equals("a3"));
+                    TestHelper.Assert(d1!.a4!.name.Equals("a4"));
                     output.WriteLine("ok");
 
                     output.Write("throw EDerived... ");
@@ -178,14 +166,14 @@ namespace Ice
                     try
                     {
                         initial.throwEDerived();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (EDerived ederived)
                     {
-                        test(ederived.a1.name.Equals("a1"));
-                        test(ederived.a2.name.Equals("a2"));
-                        test(ederived.a3.name.Equals("a3"));
-                        test(ederived.a4.name.Equals("a4"));
+                        TestHelper.Assert(ederived.a1!.name.Equals("a1"));
+                        TestHelper.Assert(ederived.a2!.name.Equals("a2"));
+                        TestHelper.Assert(ederived.a3!.name.Equals("a3"));
+                        TestHelper.Assert(ederived.a4!.name.Equals("a4"));
                     }
                     output.WriteLine("ok");
 
@@ -195,7 +183,7 @@ namespace Ice
                     {
                         initial.setG(new G(new S("hello"), "g"));
                     }
-                    catch (Ice.OperationNotExistException)
+                    catch (OperationNotExistException)
                     {
                     }
                     output.WriteLine("ok");
@@ -210,9 +198,9 @@ namespace Ice
                         inS = new Base[1];
                         inS[0] = new Base(new S(""), "");
                         (retS, outS) = initial.opBaseSeq(inS);
-                        test(retS.Length == 1 && outS.Length == 1);
+                        TestHelper.Assert(retS.Length == 1 && outS.Length == 1);
                     }
-                    catch (Ice.OperationNotExistException)
+                    catch (OperationNotExistException)
                     {
                     }
                     output.WriteLine("ok");
@@ -226,7 +214,7 @@ namespace Ice
                     {
                         for (; depth <= 1000; ++depth)
                         {
-                            p.v = new Test.Recursive();
+                            p.v = new Recursive();
                             p = p.v;
                             if ((depth < 10 && (depth % 10) == 0) ||
                               (depth < 1000 && (depth % 100) == 0) ||
@@ -236,23 +224,23 @@ namespace Ice
                                 initial.setRecursive(top);
                             }
                         }
-                        test(!initial.supportsClassGraphDepthMax());
+                        TestHelper.Assert(!initial.supportsClassGraphDepthMax());
                     }
-                    catch (Ice.UnhandledException)
+                    catch (UnhandledException)
                     {
                         // Expected marshal exception from the server (max class graph depth reached)
                         // Expected stack overflow from the server(Java only)
                     }
-                    initial.setRecursive(new Test.Recursive());
+                    initial.setRecursive(new Recursive());
                     output.WriteLine("ok");
 
                     output.Write("testing compact ID...");
                     output.Flush();
                     try
                     {
-                        test(initial.getCompact() != null);
+                        TestHelper.Assert(initial.getCompact() != null);
                     }
-                    catch (Ice.OperationNotExistException)
+                    catch (OperationNotExistException)
                     {
                     }
                     output.WriteLine("ok");
@@ -260,71 +248,72 @@ namespace Ice
                     output.Write("testing marshaled results...");
                     output.Flush();
                     b1 = initial.getMB();
-                    test(b1 != null && b1.theB == b1);
+                    TestHelper.Assert(b1 != null && b1.theB == b1);
                     b1 = initial.getAMDMBAsync().Result;
-                    test(b1 != null && b1.theB == b1);
+                    TestHelper.Assert(b1 != null && b1.theB == b1);
                     output.WriteLine("ok");
 
                     output.Write("testing UnexpectedObjectException...");
                     output.Flush();
-                    var uoet = IUnexpectedObjectExceptionTestPrx.Parse($"uoet:{helper.getTestEndpoint(0)}", communicator);
+                    var uoet = IUnexpectedObjectExceptionTestPrx.Parse($"uoet:{helper.GetTestEndpoint(0)}", communicator);
                     try
                     {
                         uoet.op();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (InvalidDataException ex)
                     {
-                        test(ex.Message.Contains("Test.AlsoEmpty"));
-                        test(ex.Message.Contains("Test.Empty"));
+                        TestHelper.Assert(ex.Message.Contains("Test.AlsoEmpty"));
+                        TestHelper.Assert(ex.Message.Contains("Test.Empty"));
                     }
                     catch (System.Exception ex)
                     {
                         output.WriteLine(ex.ToString());
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     output.WriteLine("ok");
 
                     output.Write("testing partial ice_initialize...");
                     output.Flush();
                     var ib1 = new IBase();
-                    test(ib1.id.Equals("My id"));
+                    TestHelper.Assert(ib1.id.Equals("My id"));
                     var id1 = new IDerived();
-                    test(id1.id.Equals("My id"));
-                    test(id1.name.Equals("My name"));
+                    TestHelper.Assert(id1.id.Equals("My id"));
+                    TestHelper.Assert(id1.name.Equals("My name"));
 
-                    var id2 = new Test.IDerived2();
-                    test(id2.id.Equals("My id"));
+                    var id2 = new IDerived2();
+                    TestHelper.Assert(id2.id.Equals("My id"));
                     var i2 = new I2();
-                    test(i2.called);
+                    TestHelper.Assert(i2.Called);
 
                     var s1 = new S1();
                     // The struct default constructor do not call ice_initialize
-                    test(s1.id == 0);
+                    TestHelper.Assert(s1.id == 0);
                     s1 = new S1(2);
                     // The id should have the value set by ice_initialize and not 2
-                    test(s1.id == 1);
+                    TestHelper.Assert(s1.id == 1);
 
                     output.WriteLine("ok");
 
                     output.Write("testing class containing complex dictionary... ");
                     output.Flush();
                     {
-                        var m = new Test.M();
-                        m.v = new Dictionary<StructKey, L>();
+                        var m = new M();
+                        m.v = new Dictionary<StructKey, L?>();
                         var k1 = new StructKey(1, "1");
                         m.v[k1] = new L("one");
                         var k2 = new StructKey(2, "2");
                         m.v[k2] = new L("two");
-                        var (m2, m1) = initial.opM(m);
-                        test(m1.v.Count == 2);
-                        test(m2.v.Count == 2);
+                        (M? m2, M? m1) = initial.opM(m);
+                        TestHelper.Assert(m1 != null && m2 != null);
+                        TestHelper.Assert(m1.v.Count == 2);
+                        TestHelper.Assert(m2.v.Count == 2);
 
-                        test(m1.v[k1].data.Equals("one"));
-                        test(m2.v[k1].data.Equals("one"));
+                        TestHelper.Assert(m1.v[k1]!.data.Equals("one"));
+                        TestHelper.Assert(m2.v[k1]!.data.Equals("one"));
 
-                        test(m1.v[k2].data.Equals("two"));
-                        test(m2.v[k2].data.Equals("two"));
+                        TestHelper.Assert(m1.v[k2]!.data.Equals("two"));
+                        TestHelper.Assert(m2.v[k2]!.data.Equals("two"));
 
                     }
                     output.WriteLine("ok");
@@ -332,24 +321,25 @@ namespace Ice
                     output.Write("testing forward declared types... ");
                     output.Flush();
                     {
-                        var (f11, f12) = initial.opF1(new F1("F11"));
-                        test(f11.name.Equals("F11"));
-                        test(f12.name.Equals("F12"));
+                        (F1? f11, F1? f12) = initial.opF1(new F1("F11"));
+                        TestHelper.Assert(f11!.name.Equals("F11"));
+                        TestHelper.Assert(f12!.name.Equals("F12"));
 
-                        var (f21, f22) = initial.opF2(IF2Prx.Parse($"F21:{helper.getTestEndpoint()}", communicator));
-                        test(f21.Identity.Name.Equals("F21"));
+                        (IF2Prx? f21, IF2Prx? f22) =
+                            initial.opF2(IF2Prx.Parse($"F21:{helper.GetTestEndpoint()}", communicator));
+                        TestHelper.Assert(f21!.Identity.Name.Equals("F21"));
                         f21.op();
-                        test(f22.Identity.Name.Equals("F22"));
+                        TestHelper.Assert(f22!.Identity.Name.Equals("F22"));
 
                         if (initial.hasF3())
                         {
-                            var (f31, f32) = initial.opF3(new F3(new F1("F11"), IF2Prx.Parse("F21", communicator)));
+                            (F3? f31, F3? f32) = initial.opF3(new F3(new F1("F11"), IF2Prx.Parse("F21", communicator)));
 
-                            test(f31.f1.name.Equals("F11"));
-                            test(f31.f2.Identity.Name.Equals("F21"));
+                            TestHelper.Assert(f31!.f1!.name.Equals("F11"));
+                            TestHelper.Assert(f31!.f2!.Identity.Name.Equals("F21"));
 
-                            test(f32.f1.name.Equals("F12"));
-                            test(f32.f2.Identity.Name.Equals("F22"));
+                            TestHelper.Assert(f32!.f1!.name.Equals("F12"));
+                            TestHelper.Assert(f32!.f2!.Identity.Name.Equals("F22"));
                         }
                     }
                     output.WriteLine("ok");

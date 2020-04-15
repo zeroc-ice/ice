@@ -8,7 +8,7 @@ namespace Ice.invoke
 {
     public class BlobjectI : IObject
     {
-        public async ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
         {
             if (current.Operation.Equals("opOneway"))
             {
@@ -17,7 +17,7 @@ namespace Ice.invoke
                     // If called two-way, return exception to caller.
                     throw new Test.MyException();
                 }
-                return OutgoingResponseFrame.WithVoidReturnValue(current);
+                return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
             }
             else if (current.Operation.Equals("opString"))
             {
@@ -28,7 +28,7 @@ namespace Ice.invoke
                         ostr.WriteString(value.ReturnValue);
                         ostr.WriteString(value.s2);
                     });
-                return responseFrame;
+                return new ValueTask<OutgoingResponseFrame>(responseFrame);
             }
             else if (current.Operation.Equals("opException"))
             {
@@ -36,20 +36,20 @@ namespace Ice.invoke
                 {
                     throw new Test.MyException();
                 }
-                var ex = new Test.MyException();
-                return new OutgoingResponseFrame(current, ex);
+                return new ValueTask<OutgoingResponseFrame>(
+                    new OutgoingResponseFrame(current, new Test.MyException()));
             }
             else if (current.Operation.Equals("shutdown"))
             {
                 current.Adapter.Communicator.Shutdown();
-                return OutgoingResponseFrame.WithVoidReturnValue(current);
+                return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
             }
             else if (current.Operation.Equals("ice_isA"))
             {
                 string s = request.ReadParamList(InputStream.IceReaderIntoString);
-                OutgoingResponseFrame responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null,
+                var responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null,
                     s.Equals("::Test::MyClass"), OutputStream.IceWriterFromBool);
-                return responseFrame;
+                return new ValueTask<OutgoingResponseFrame >(responseFrame);
             }
             else
             {

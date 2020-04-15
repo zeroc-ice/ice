@@ -9,9 +9,9 @@ namespace Ice.udp
 {
     public class Server : global::Test.TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.UDP.RcvSize"] = "16384";
 
@@ -25,7 +25,7 @@ namespace Ice.udp
                 properties["Ice.IPv4"] = "0";
             }
 
-            using var communicator = initialize(properties);
+            using var communicator = Initialize(properties);
             int num = 0;
             try
             {
@@ -35,14 +35,14 @@ namespace Ice.udp
             {
             }
 
-            communicator.SetProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
+            communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num, "tcp"));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add("control", new TestIntf());
             adapter.Activate();
-            serverReady();
+            ServerReady();
             if (num == 0)
             {
-                communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
+                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(num, "udp"));
                 ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter");
                 adapter2.Add("test", new TestIntf());
                 adapter2.Activate();
@@ -69,7 +69,7 @@ namespace Ice.udp
                 }
             }
             endpoint.Append(" -p ");
-            endpoint.Append(getTestPort(properties, 10));
+            endpoint.Append(GetTestPort(properties, 10));
             communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
             ObjectAdapter mcastAdapter = communicator.CreateObjectAdapter("McastTestAdapter");
             mcastAdapter.Add("test", new TestIntf());
@@ -78,6 +78,6 @@ namespace Ice.udp
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Server>(args);
     }
 }
