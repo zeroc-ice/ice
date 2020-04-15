@@ -94,33 +94,6 @@ namespace Ice
             }
         }
 
-        /// <summary>The default context for proxies created using this communicator. Changing the value of
-        /// DefaultContext does not change the context of previously created proxies.</summary>
-        public IReadOnlyDictionary<string, string> DefaultContext
-        {
-            get
-            {
-                lock (this)
-                {
-                    return _defaultContext;
-                }
-            }
-            set
-            {
-                lock (this)
-                {
-                    if (value.Count == 0)
-                    {
-                        _defaultContext = Reference.EmptyContext;
-                    }
-                    else
-                    {
-                        _defaultContext = new Dictionary<string, string>(value);
-                    }
-                }
-            }
-        }
-
         public bool DefaultCollocationOptimized { get; }
         public Encoding DefaultEncoding { get; }
         public EndpointSelectionType DefaultEndpointSelection { get; }
@@ -132,6 +105,16 @@ namespace Ice
         public int DefaultTimeout { get; }
         public int DefaultInvocationTimeout { get; }
         public int DefaultLocatorCacheTimeout { get; }
+
+        /// <summary>
+        /// The default context for proxies created using this communicator. Changing the value of
+        /// DefaultContext does not change the context of previously created proxies.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> DefaultContext
+        {
+            get { return _defaultContext; }
+            set { _defaultContext = Value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value); }
+        }
 
         /// <summary>
         /// The default locator for this communicator.
@@ -222,7 +205,7 @@ namespace Ice
         private readonly string[] _compactIdNamespaces;
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
-        private IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext; //TODOAUSTIN
+        private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
 
