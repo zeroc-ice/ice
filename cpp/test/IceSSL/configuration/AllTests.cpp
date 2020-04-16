@@ -1155,8 +1155,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             }
             catch(const Ice::LocalException& ex)
             {
-                // Catalina requires certificate to have a DNS altName
-                test(isCatalinaOrGreater);
+                // Catalina and iOS13 require certificates to have a DNS altName
+                test(isCatalinaOrGreater || isIOS13OrGreater);
             }
 
             fact->destroyServer(server);
