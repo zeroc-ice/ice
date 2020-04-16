@@ -18,6 +18,9 @@ using Test;
 
 public class AllTests
 {
+    private static bool IsCatalinaOrGreater =>
+        AssemblyUtil.IsMacOS && Environment.OSVersion.Version.Major >= 19;
+
     private static X509Certificate2 createCertificate(string certPEM)
     {
         return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
@@ -581,14 +584,15 @@ public class AllTests
                         {
                             server!.IcePing();
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            Console.WriteLine(ex.ToString());
-                            TestHelper.Assert(false);
+                            // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
+                            TestHelper.Assert(IsCatalinaOrGreater);
                         }
                         fact.destroyServer(server);
                         comm.Destroy();
                     }
+
                     //
                     // Target host does not match the certificate Common Name and the certificate does not
                     // include a DNS altName
@@ -2152,8 +2156,8 @@ public class AllTests
                     "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
                     "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
                     "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-                    "THUMBPRINT:'F8 0E FB 30 3D B1 D8 11 E3 61 3B 17 AC 1B F5 6E 0B 98 55 90'",
-                    "SUBJECTKEYID:'8A 8A BD 67 CA 23 2B 5C 07 84 B6 BB B2 40 5B C0 29 46 FC 00'"
+                    "THUMBPRINT:'10 8D FB DE 94 EE 36 AC AC 3D 58 48 46 AE A4 28 C7 D2 49 A9'",
+                    "SUBJECTKEYID:'15 60 69 5F C5 27 48 7F 25 99 3F 3D D8 2E CB C2 F4 66 03 53'"
                 };
 
                 string[] serverFindCertProperties = new string[]
@@ -2161,8 +2165,8 @@ public class AllTests
                     "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
                     "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
                     "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-                    "THUMBPRINT:'4C 7B CC 45 FD CC FA 95 74 D5 F1 8F 5B CE D5 B9 64 30 31 9B'",
-                    "SUBJECTKEYID:'6B 85 D1 63 35 D4 EC 67 3F FE BB 7B 93 B1 72 F3 ED 14 5C ED'"
+                    "THUMBPRINT:'FF 66 AD CF D5 DA 3E E0 D9 91 E6 6B 8E 74 82 3A 54 E6 68 4A'",
+                    "SUBJECTKEYID:'14 56 24 99 69 6B AD B3 FB 72 0E 4D B4 DC 9E A8 7F DD B0 E3'"
                 };
 
                 string[] failFindCertProperties = new string[]
