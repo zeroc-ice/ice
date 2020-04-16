@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 namespace IceBox
 {
-
     public class Server
     {
         private static void Usage()
