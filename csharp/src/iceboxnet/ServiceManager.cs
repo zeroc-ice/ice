@@ -14,8 +14,7 @@ using Ice;
 
 namespace IceBox
 {
-    // NOTE: the class isn't final on purpose to allow users to extend it.
-    public class ServiceManager : IServiceManager
+    public sealed class ServiceManager : IServiceManager
     {
         private readonly bool _adminEnabled = false;
         private readonly HashSet<string>? _adminFacetFilter = null;
@@ -141,7 +140,7 @@ namespace IceBox
                 if (stopped)
                 {
                     info.Status = ServiceStatus.Stopped;
-                    ServicesStopped(new List<string>() { name }, _observers);
+                    ServicesStopped(new string[] { name }, _observers);
                 }
                 else
                 {
@@ -180,8 +179,19 @@ namespace IceBox
 
                 if (activeServices.Length > 0)
                 {
-                    observer.ServicesStartedAsync(activeServices).ContinueWith(
-                        t => ObserverCompleted(observer, t), TaskScheduler.Current);
+                    _ = StartedAsync(observer, activeServices);
+                }
+
+                async Task StartedAsync(IServiceObserverPrx observer, string[] services)
+                {
+                    try
+                    {
+                        await observer.ServicesStartedAsync(services).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        RemoveObserver(observer, ex);
+                    }
                 }
             }
         }
@@ -549,7 +559,7 @@ namespace IceBox
                 }
 
                 _services.Clear();
-                ServicesStopped(stoppedServices, _observers);
+                ServicesStopped(stoppedServices.ToArray(), _observers);
             }
         }
 
@@ -560,57 +570,60 @@ namespace IceBox
 
             foreach (IServiceObserverPrx observer in observers)
             {
-                observer.ServicesStartedAsync(services).ContinueWith((t) => ObserverCompleted(observer, t),
-                    TaskScheduler.Current);
+                _ = StartedAsync(observer, services);
             }
-        }
 
-        private void ServicesStopped(List<string> services, IEnumerable<IServiceObserverPrx> observers)
-        {
-            // Must be called with '_mutex' unlocked
-            if (services.Count > 0)
+            async Task StartedAsync(IServiceObserverPrx observer, string[] services)
             {
-                string[] servicesArray = services.ToArray();
-
-                foreach (IServiceObserverPrx observer in observers)
+                try
                 {
-                    observer.ServicesStoppedAsync(servicesArray).ContinueWith((t) => ObserverCompleted(observer, t),
-                        TaskScheduler.Current);
+                    await observer.ServicesStartedAsync(services).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    RemoveObserver(observer, ex);
                 }
             }
         }
 
-        private void
-        ObserverCompleted(IServiceObserverPrx observer, Task t)
+        private void ServicesStopped(string[] services, IEnumerable<IServiceObserverPrx> observers)
         {
-            try
+            // Must be called with '_mutex' unlocked
+            if (services.Length > 0)
             {
-                t.Wait();
-            }
-            catch (AggregateException ae)
-            {
-                lock (_mutex)
+                foreach (IServiceObserverPrx observer in observers)
                 {
-                    if (_observers.Remove(observer))
+                    _ = StoppedAsync(observer, services);
+                }
+
+                async Task StoppedAsync(IServiceObserverPrx observer, string[] services)
+                {
+                    try
                     {
-                        Debug.Assert(ae.InnerException != null);
-                        ObserverRemoved(observer, ae.InnerException);
+                        await observer.ServicesStoppedAsync(services).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        RemoveObserver(observer, ex);
                     }
                 }
             }
         }
 
-        private void ObserverRemoved(IServiceObserverPrx observer, Exception ex)
+        private void RemoveObserver(IServiceObserverPrx observer, Exception ex)
         {
-            if (_traceServiceObserver >= 1)
+            lock (_mutex)
             {
-                // CommunicatorDestroyedException may occur during shutdown. The observer notification has been sent,
-                // but the communicator was destroyed before the reply was received. We do not log a message for this
-                // exception.
-                if (!(ex is CommunicatorDestroyedException))
+                if (_observers.Remove(observer))
                 {
-                    _logger.Trace("IceBox.ServiceObserver",
-                                  $"Removed service observer {observer}\nafter catching {ex}");
+                    // CommunicatorDestroyedException may occur during shutdown. The observer notification has been sent,
+                    // but the communicator was destroyed before the reply was received. We do not log a message for this
+                    // exception.
+                    if (_traceServiceObserver >= 1 && !(ex is CommunicatorDestroyedException))
+                    {
+                        _logger.Trace("IceBox.ServiceObserver",
+                                      $"Removed service observer {observer}\nafter catching {ex}");
+                    }
                 }
             }
         }
