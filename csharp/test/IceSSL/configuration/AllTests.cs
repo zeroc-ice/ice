@@ -584,10 +584,10 @@ public class AllTests
                         {
                             server!.IcePing();
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
-                            test(IsCatalinaOrGreater);
+                            TestHelper.Assert(IsCatalinaOrGreater);
                         }
                         fact.destroyServer(server);
                         comm.Destroy();
