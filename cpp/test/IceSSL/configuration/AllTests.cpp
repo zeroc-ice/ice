@@ -3698,7 +3698,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
 //            "SUBJECT:Client",
             "LABEL:'Client'",
-            "SUBJECTKEYID:'C3 88 3A ED FB 06 97 BF D4 45 A6 83 C4 98 A7 D7 00 7B F2 D1'",
+            "SUBJECTKEYID:'15 60 69 5F C5 27 48 7F 25 99 3F 3D D8 2E CB C2 F4 66 03 53'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
             0
@@ -3711,7 +3711,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECT:Server",
 #endif
             "LABEL:'Server'",
-            "SUBJECTKEYID:'04 81 A3 82 E2 67 E1 48 4A 4C FA 51 A2 C1 CA EE 7F 56 E2 92'",
+            "SUBJECTKEYID:'14 56 24 99 69 6B AD B3 FB 72 0E 4D B4 DC 9E A8 7F DD B0 E3'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
             0
