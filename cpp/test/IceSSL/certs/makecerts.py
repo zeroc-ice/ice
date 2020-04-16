@@ -62,9 +62,13 @@ if clean:
     for h in [homeca1, homeca2]:
         IceCertUtils.CertificateFactory(home=h).destroy(True)
 
+#
 # Create 2 CAs, the DSA ca is actually ca1 but with a different the DSA key generation algorithm.
+# ca2 is also used as a server. The serverAuth extension is required on some OSs (macOS Catalina)
+#
 ca1 = IceCertUtils.CertificateFactory(home=homeca1, cn="ZeroC Test CA 1", ip="127.0.0.1", email="issuer@zeroc.com")
-ca2 = IceCertUtils.CertificateFactory(home=homeca2, cn="ZeroC Test CA 2", ip="127.0.0.1", email="issuer@zeroc.com")
+ca2 = IceCertUtils.CertificateFactory(home=homeca2, cn="ZeroC Test CA 2", ip="127.0.0.1", email="issuer@zeroc.com",
+                                      extendedKeyUsage="serverAuth")
 dsaca = IceCertUtils.OpenSSLCertificateFactory(home=ca1.home, keyalg="dsa", keysize=2048)
 
 #

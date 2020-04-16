@@ -1027,7 +1027,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             }
             catch(const Ice::LocalException& ex)
             {
-                cerr << ex << endl;
                 test(false);
             }
 
@@ -1077,7 +1076,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             catch(const Ice::LocalException&)
             {
                 //
-                // macOS catalina does not check the certificate common name
+                // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
                 //
                 test(isCatalinaOrGreater || isIOS13OrGreater);
             }
@@ -1156,8 +1155,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             }
             catch(const Ice::LocalException& ex)
             {
-                cerr << ex << endl;
-                test(false);
+                // Catalina requires certificate to have a DNS altName
+                test(isCatalinaOrGreater);
             }
 
             fact->destroyServer(server);
@@ -1299,16 +1298,16 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* authorities[] =
         {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
-            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
+            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
+            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
             0
         };
 
         const char* subjects[] =
         {
-            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
-            "8A:8A:BD:67:CA:23:2B:5C:07:84:B6:BB:B2:40:5B:C0:29:46:FC:00",
-            "6B:85:D1:63:35:D4:EC:67:3F:FE:BB:7B:93:B1:72:F3:ED:14:5C:ED",
+            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
+            "15:60:69:5F:C5:27:48:7F:25:99:3F:3D:D8:2E:CB:C2:F4:66:03:53",
+            "14:56:24:99:69:6B:AD:B3:FB:72:0E:4D:B4:DC:9E:A8:7F:DD:B0:E3",
             0
         };
 
