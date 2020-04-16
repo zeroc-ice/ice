@@ -395,7 +395,7 @@ namespace Ice
 
                 try
                 {
-                    pluginFactory = (IPluginFactory?)AssemblyUtil.CreateInstance(c);
+                    pluginFactory = (IPluginFactory?)Activator.CreateInstance(c);
                 }
                 catch (Exception ex)
                 {

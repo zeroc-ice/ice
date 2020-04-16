@@ -482,7 +482,7 @@ namespace IceBox
                         }
                         else
                         {
-                            info.Service = (IService?)AssemblyUtil.CreateInstance(c);
+                            info.Service = (IService?)Activator.CreateInstance(c);
                         }
                     }
                     catch (Exception ex)
