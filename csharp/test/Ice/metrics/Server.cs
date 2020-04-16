@@ -4,6 +4,7 @@
 //
 
 using System.Reflection;
+using System.Collections.Generic;
 using Test;
 
 [assembly: AssemblyTitle("IceTest")]
@@ -12,9 +13,9 @@ using Test;
 
 public class Server : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Dictionary<string, string> properties = CreateTestProperties(ref args);
         properties["Ice.Admin.Endpoints"] = "tcp";
         properties["Ice.Admin.InstanceName"] = "server";
         properties["Ice.Warn.Connections"] = "0";
@@ -22,12 +23,12 @@ public class Server : TestHelper
         properties["Ice.MessageSizeMax"] = "50000";
         properties["Ice.Default.Host"] = "127.0.0.1";
 
-        using var communicator = initialize(properties);
-        communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+        using Ice.Communicator communicator = Initialize(properties);
+        communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
         communicator.SetProperty("TestAdapter.ThreadPool.SizeMax",
-            communicator.GetProperty("Ice.ThreadPool.Server.SizeMax"));
+            communicator.GetProperty("Ice.ThreadPool.Server.SizeMax") ?? "");
 
-        communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+        communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
         Ice.ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
         controllerAdapter.Add("controller", new Controller(() => {
             Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
@@ -39,5 +40,5 @@ public class Server : TestHelper
         communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

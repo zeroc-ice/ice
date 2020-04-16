@@ -3,7 +3,7 @@
 //
 
 using Ice.location.Test;
-using System.Diagnostics;
+using Test;
 
 namespace Ice.location
 {
@@ -15,7 +15,7 @@ namespace Ice.location
             _adapter2 = adapter2;
             _registry = registry;
 
-            _registry.addObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
+            _registry.AddObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
         }
 
         public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
@@ -36,7 +36,7 @@ namespace Ice.location
             else
             {
                 servant = _adapter2.Remove(id);
-                Debug.Assert(servant != null);
+                TestHelper.Assert(servant != null);
                 _registry.addObject(_adapter1.Add(id, servant, IObjectPrx.Factory), current);
             }
         }

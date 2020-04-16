@@ -8,21 +8,18 @@ internal class Connector : IceInternal.IConnector
 {
     public IceInternal.ITransceiver Connect()
     {
-        _configuration.checkConnectException();
+        _configuration.CheckConnectException();
         return new Transceiver(_connector.Connect());
     }
 
-    public EndpointType Type()
-    {
-        return (EndpointType)(Endpoint.TYPE_BASE + (short)_connector.Type());
-    }
+    public EndpointType Type() => (EndpointType)(Endpoint.TYPE_BASE + (short)_connector.Type());
 
     //
     // Only for use by Endpoint
     //
     internal Connector(IceInternal.IConnector connector)
     {
-        _configuration = Configuration.getInstance();
+        _configuration = Configuration.GetInstance();
         _connector = connector;
     }
 
@@ -40,16 +37,10 @@ internal class Connector : IceInternal.IConnector
         return _connector.Equals(((Connector)obj)._connector);
     }
 
-    public override string? ToString()
-    {
-        return _connector.ToString();
-    }
+    public override string? ToString() => _connector.ToString();
 
-    public override int GetHashCode()
-    {
-        return _connector.GetHashCode();
-    }
+    public override int GetHashCode() => _connector.GetHashCode();
 
-    private IceInternal.IConnector _connector;
-    private Configuration _configuration;
+    private readonly IceInternal.IConnector _connector;
+    private readonly Configuration _configuration;
 }

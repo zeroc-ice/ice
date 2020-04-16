@@ -15,8 +15,8 @@ namespace Ice.optional.AMD
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<AnyClass>
-        pingPongAsync(AnyClass obj, Current current) => FromResult(obj);
+        public ValueTask<AnyClass?>
+        pingPongAsync(AnyClass? obj, Current current) => FromResult(obj);
 
         public ValueTask
         opOptionalExceptionAsync(int? a, string? b, Test.OneOptional? o, Current c) =>
@@ -144,11 +144,11 @@ namespace Ice.optional.AMD
         public ValueTask<(Dictionary<string, int>?, Dictionary<string, int>?)>
         opStringIntDictAsync(Dictionary<string, int>? p1, Current current) => FromResult((p1, p1));
 
-        public ValueTask<(Dictionary<int, Test.OneOptional>?, Dictionary<int, Test.OneOptional>?)>
-        opIntOneOptionalDictAsync(Dictionary<int, Test.OneOptional>? p1, Current current) => FromResult((p1, p1));
+        public ValueTask<(Dictionary<int, Test.OneOptional?>?, Dictionary<int, Test.OneOptional?>?)>
+        opIntOneOptionalDictAsync(Dictionary<int, Test.OneOptional?>? p1, Current current) => FromResult((p1, p1));
 
         public ValueTask
-        opClassAndUnknownOptionalAsync(Test.A p, Current current) => new ValueTask(Task.CompletedTask);
+        opClassAndUnknownOptionalAsync(Test.A? p, Current current) => new ValueTask(Task.CompletedTask);
 
         public ValueTask
         sendOptionalClassAsync(bool req, Test.OneOptional? o, Current current) => new ValueTask(Task.CompletedTask);
@@ -157,7 +157,7 @@ namespace Ice.optional.AMD
         returnOptionalClassAsync(bool req, Current current) =>
             FromResult<Test.OneOptional?>(new Test.OneOptional(53));
 
-        public ValueTask<Test.G> opGAsync(Test.G g, Current current) => FromResult(g);
+        public ValueTask<Test.G?> opGAsync(Test.G? g, Current current) => FromResult(g);
 
         public ValueTask opVoidAsync(Current current) => new ValueTask(Task.CompletedTask);
 

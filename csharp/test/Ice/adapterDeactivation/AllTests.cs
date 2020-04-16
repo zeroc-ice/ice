@@ -3,29 +3,30 @@
 //
 
 using System;
-using System.Diagnostics;
+using Test;
 
 namespace Ice
 {
     namespace adapterDeactivation
     {
-        public class AllTests : global::Test.AllTests
+        public class AllTests
         {
-            public static Test.ITestIntfPrx allTests(global::Test.TestHelper helper)
+            public static Test.ITestIntfPrx allTests(TestHelper helper)
             {
-                Ice.Communicator communicator = helper.communicator();
-                var output = helper.getWriter();
+                Communicator? communicator = helper.Communicator();
+                TestHelper.Assert(communicator != null);
+                var output = helper.GetWriter();
                 output.Write("testing stringToProxy... ");
                 output.Flush();
-                var baseprx = IObjectPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
-                Debug.Assert(baseprx != null);
+                var baseprx = IObjectPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                TestHelper.Assert(baseprx != null);
                 output.WriteLine("ok");
 
                 output.Write("testing checked cast... ");
                 output.Flush();
                 var obj = Test.ITestIntfPrx.CheckedCast(baseprx);
-                Debug.Assert(obj != null);
-                test(obj.Equals(baseprx));
+                TestHelper.Assert(obj != null);
+                TestHelper.Assert(obj.Equals(baseprx));
                 output.WriteLine("ok");
 
                 {
@@ -36,7 +37,7 @@ namespace Ice
                     try
                     {
                         communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (ArgumentException)
                     {
@@ -63,7 +64,7 @@ namespace Ice
                     for (int i = 0; i < 10; ++i)
                     {
                         var comm = new Communicator(communicator.GetProperties());
-                        IObjectPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator).IcePingAsync();
+                        IObjectPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator).IcePingAsync();
                         comm.Destroy();
                     }
                     output.WriteLine("ok");
@@ -74,25 +75,25 @@ namespace Ice
                 {
                     communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
                     var adapter = communicator.CreateObjectAdapter("PAdapter");
-                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                     var endpt = adapter.GetPublishedEndpoints()[0];
-                    Debug.Assert(endpt != null);
-                    test(endpt.ToString()!.Equals("tcp -h localhost -p 12345 -t 30000"));
+                    TestHelper.Assert(endpt != null);
+                    TestHelper.Assert(endpt.ToString()!.Equals("tcp -h localhost -p 12345 -t 30000"));
                     var prx = IObjectPrx.Parse("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000", communicator);
                     adapter.SetPublishedEndpoints(prx.Endpoints);
-                    test(adapter.GetPublishedEndpoints().Length == 2);
-                    test(global::Test.Collections.Equals(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints,
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 2);
+                    TestHelper.Assert(global::Test.Collections.Equals(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints,
                         prx.Endpoints));
-                    test(global::Test.Collections.Equals(adapter.GetPublishedEndpoints(), prx.Endpoints));
+                    TestHelper.Assert(global::Test.Collections.Equals(adapter.GetPublishedEndpoints(), prx.Endpoints));
                     adapter.RefreshPublishedEndpoints();
-                    test(adapter.GetPublishedEndpoints().Length == 1);
-                    test(adapter.GetPublishedEndpoints()[0].Equals(endpt));
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
+                    TestHelper.Assert(adapter.GetPublishedEndpoints()[0].Equals(endpt));
                     communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
                     adapter.RefreshPublishedEndpoints();
-                    test(adapter.GetPublishedEndpoints().Length == 1);
-                    test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345 -t 20000"));
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
+                    TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345 -t 20000"));
                     adapter.Destroy();
-                    test(adapter.GetPublishedEndpoints().Length == 0);
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 0);
                 }
                 output.WriteLine("ok");
 
@@ -107,7 +108,7 @@ namespace Ice
                     try
                     {
                         obj.GetConnection().SetAdapter(adapter);
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (ObjectAdapterDeactivatedException)
                     {
@@ -121,16 +122,16 @@ namespace Ice
                     var routerId = new Identity("router", "");
                     var router = baseprx.Clone(routerId, IRouterPrx.Factory, connectionId: "rc");
                     var adapter = communicator.CreateObjectAdapterWithRouter(router);
-                    test(adapter.GetPublishedEndpoints().Length == 1);
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                     var endpointsStr = adapter.GetPublishedEndpoints()[0].ToString();
-                    test(endpointsStr!.Equals("tcp -h localhost -p 23456 -t 30000"));
+                    TestHelper.Assert(endpointsStr!.Equals("tcp -h localhost -p 23456 -t 30000"));
                     adapter.RefreshPublishedEndpoints();
-                    test(adapter.GetPublishedEndpoints().Length == 1);
-                    test(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23457 -t 30000"));
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
+                    TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 23457 -t 30000"));
                     try
                     {
                         adapter.SetPublishedEndpoints(router.Endpoints);
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (InvalidOperationException)
                     {
@@ -143,7 +144,7 @@ namespace Ice
                         routerId = new Identity("test", "");
                         router = baseprx.Clone(routerId, IRouterPrx.Factory);
                         communicator.CreateObjectAdapterWithRouter(router);
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (OperationNotExistException)
                     {
@@ -152,9 +153,9 @@ namespace Ice
 
                     try
                     {
-                        router = IRouterPrx.Parse($"test:{helper.getTestEndpoint(1)}", communicator);
+                        router = IRouterPrx.Parse($"test:{helper.GetTestEndpoint(1)}", communicator);
                         communicator.CreateObjectAdapterWithRouter(router);
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (ConnectFailedException)
                     {
@@ -165,11 +166,11 @@ namespace Ice
                 output.Write("testing object adapter creation with port in use... ");
                 output.Flush();
                 {
-                    var adapter1 = communicator.CreateObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
+                    var adapter1 = communicator.CreateObjectAdapterWithEndpoints("Adpt1", helper.GetTestEndpoint(10));
                     try
                     {
-                        communicator.CreateObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
-                        test(false);
+                        communicator.CreateObjectAdapterWithEndpoints("Adpt2", helper.GetTestEndpoint(10));
+                        TestHelper.Assert(false);
                     }
                     catch (System.Exception)
                     {
@@ -189,7 +190,7 @@ namespace Ice
                 try
                 {
                     obj.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (System.Exception)
                 {

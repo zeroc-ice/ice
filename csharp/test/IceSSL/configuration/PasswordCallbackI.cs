@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using System.Security;
+using Test;
 
 public class PasswordCallback : IceSSL.IPasswordCallback
 {
@@ -15,7 +15,7 @@ public class PasswordCallback : IceSSL.IPasswordCallback
 
     public SecureString GetImportPassword(string file)
     {
-        Debug.Assert(false);
+        TestHelper.Assert(false);
         return null;
     }
 

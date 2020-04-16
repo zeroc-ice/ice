@@ -3,53 +3,51 @@
 //
 
 using System.Collections.Generic;
+using Test;
 
 namespace Ice.dictMapping
 {
     class Twoways
     {
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
-
-        internal static void twoways(Communicator communicator, Test.IMyClassPrx p)
+        internal static void twoways(Test.IMyClassPrx p)
         {
             {
-                Dictionary<int, int> i = new Dictionary<int, int>();
-                i[0] = 1;
-                i[1] = 0;
+                var i = new Dictionary<int, int>
+                {
+                    [0] = 1,
+                    [1] = 0
+                };
 
                 Dictionary<int, int> o;
                 Dictionary<int, int> r;
                 (r, o) = p.opNV(i);
 
-                test(global::Test.Collections.Equals(i, o));
-                test(global::Test.Collections.Equals(i, r));
+                TestHelper.Assert(Collections.Equals(i, o));
+                TestHelper.Assert(Collections.Equals(i, r));
             }
 
             {
-                Dictionary<string, string> i = new Dictionary<string, string>();
-                i["a"] = "b";
-                i["b"] = "a";
+                var i = new Dictionary<string, string>
+                {
+                    ["a"] = "b",
+                    ["b"] = "a"
+                };
 
                 Dictionary<string, string> o;
                 Dictionary<string, string> r;
                 (r, o) = p.opNR(i);
 
-                test(global::Test.Collections.Equals(i, o));
-                test(global::Test.Collections.Equals(i, r));
+                TestHelper.Assert(Collections.Equals(i, o));
+                TestHelper.Assert(Collections.Equals(i, r));
             }
 
             {
-                Dictionary<string, Dictionary<int, int>> i = new Dictionary<string, Dictionary<int, int>>();
-                Dictionary<int, int> id = new Dictionary<int, int>();
-                id[0] = 1;
-                id[1] = 0;
+                var i = new Dictionary<string, Dictionary<int, int>>();
+                var id = new Dictionary<int, int>
+                {
+                    [0] = 1,
+                    [1] = 0
+                };
                 i["a"] = id;
                 i["b"] = id;
 
@@ -59,16 +57,18 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(global::Test.Collections.Equals(i[key], o[key]));
-                    test(global::Test.Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
                 }
             }
 
             {
-                Dictionary<string, Dictionary<string, string>> i = new Dictionary<string, Dictionary<string, string>>();
-                Dictionary<string, string> id = new Dictionary<string, string>();
-                id["a"] = "b";
-                id["b"] = "a";
+                var i = new Dictionary<string, Dictionary<string, string>>();
+                var id = new Dictionary<string, string>
+                {
+                    ["a"] = "b",
+                    ["b"] = "a"
+                };
                 i["a"] = id;
                 i["b"] = id;
 
@@ -78,16 +78,18 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(global::Test.Collections.Equals(i[key], o[key]));
-                    test(global::Test.Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
                 }
             }
 
             {
                 int[] ii = new int[] { 1, 2 };
-                Dictionary<string, int[]> i = new Dictionary<string, int[]>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var i = new Dictionary<string, int[]>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
                 Dictionary<string, int[]> o;
                 Dictionary<string, int[]> r;
@@ -95,18 +97,22 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(global::Test.Collections.Equals(i[key], o[key]));
-                    test(global::Test.Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
                 }
             }
 
             {
-                List<int> ii = new List<int>();
-                ii.Add(1);
-                ii.Add(2);
-                Dictionary<string, List<int>> i = new Dictionary<string, List<int>>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var ii = new List<int>
+                {
+                    1,
+                    2
+                };
+                var i = new Dictionary<string, List<int>>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
                 Dictionary<string, List<int>> o;
                 Dictionary<string, List<int>> r;
@@ -114,16 +120,18 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(global::Test.Collections.Equals(i[key], o[key]));
-                    test(global::Test.Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
                 }
             }
 
             {
                 string[] ii = new string[] { "a", "b" };
-                Dictionary<string, string[]> i = new Dictionary<string, string[]>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var i = new Dictionary<string, string[]>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
                 Dictionary<string, string[]> o;
                 Dictionary<string, string[]> r;
@@ -131,18 +139,22 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(global::Test.Collections.Equals(i[key], o[key]));
-                    test(global::Test.Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
                 }
             }
 
             {
-                List<string> ii = new List<string>();
-                ii.Add("a");
-                ii.Add("b");
-                Dictionary<string, List<string>> i = new Dictionary<string, List<string>>();
-                i["a"] = ii;
-                i["b"] = ii;
+                var ii = new List<string>
+                {
+                    "a",
+                    "b"
+                };
+                var i = new Dictionary<string, List<string>>
+                {
+                    ["a"] = ii,
+                    ["b"] = ii
+                };
 
                 Dictionary<string, List<string>> o;
                 Dictionary<string, List<string>> r;
@@ -150,8 +162,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    test(global::Test.Collections.Equals(i[key], o[key]));
-                    test(global::Test.Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
+                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
                 }
             }
         }

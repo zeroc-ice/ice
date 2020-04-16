@@ -12,9 +12,9 @@ using Test;
 
 public class Server : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using var communicator = Initialize(ref args);
         int num = 0;
         try
         {
@@ -24,7 +24,7 @@ public class Server : TestHelper
         {
         }
 
-        communicator.SetProperty("ControlAdapter.Endpoints", getTestEndpoint(num));
+        communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num));
         communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
         communicator.SetProperty("ControlAdapter.ThreadPool.Size", "1");
 
@@ -35,5 +35,5 @@ public class Server : TestHelper
         communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

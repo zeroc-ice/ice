@@ -49,7 +49,13 @@ module IceBox
     /// @see ServiceManager
     interface ServiceObserver
     {
+        /// Called by the service manager when a service is started.
+        ///
+        /// @param services A list with the names of the services that has been started.
         void servicesStarted(Ice::StringSeq services);
+        /// Called by the service manager when a service is stopped.
+        ///
+        /// @param services A list with the names of the services that has been stopped.
         void servicesStopped(Ice::StringSeq services);
     }
 

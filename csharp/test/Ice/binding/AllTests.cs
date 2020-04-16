@@ -5,10 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Test;
 
 namespace Ice.binding
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
         private static string getAdapterNameWithAMI(Test.ITestIntfPrx testIntf) =>
             testIntf.getAdapterNameAsync().Result;
@@ -18,7 +19,7 @@ namespace Ice.binding
             for (int i = 0; i < array.Count - 1; ++i)
             {
                 int r = _rand.Next(array.Count - i) + i;
-                Debug.Assert(r >= i && r < array.Count);
+                TestHelper.Assert(r >= i && r < array.Count);
                 if (r != i)
                 {
                     var tmp = array[i];
@@ -31,18 +32,15 @@ namespace Ice.binding
         private static Test.ITestIntfPrx createTestIntfPrx(List<Test.IRemoteObjectAdapterPrx> adapters)
         {
             var endpoints = new List<Endpoint>();
-            Test.ITestIntfPrx obj = null;
+            Test.ITestIntfPrx? obj = null;
             IEnumerator<Test.IRemoteObjectAdapterPrx> p = adapters.GetEnumerator();
             while (p.MoveNext())
             {
                 obj = p.Current.getTestIntf();
-                foreach (var e in obj.Endpoints)
-                {
-                    endpoints.Add(e);
-                }
+                endpoints.AddRange(obj!.Endpoints);
             }
-            Debug.Assert(obj != null);
-            return obj.Clone(endpoints: endpoints.ToArray());
+            TestHelper.Assert(obj != null);
+            return obj.Clone(endpoints: endpoints);
         }
 
         private static void deactivate(Test.IRemoteCommunicatorPrx communicator, List<Test.IRemoteObjectAdapterPrx> adapters)
@@ -56,28 +54,27 @@ namespace Ice.binding
 
         private class StringComparator : IComparer<string>
         {
-            public int Compare(string l, string r)
-            {
-                return l.CompareTo(r);
-            }
+            public int Compare(string l, string r) => l.CompareTo(r);
         };
 
-        public static void allTests(global::Test.TestHelper helper)
+        public static void allTests(TestHelper helper)
         {
-            Communicator communicator = helper.communicator();
-            var com = Test.IRemoteCommunicatorPrx.Parse($"communicator:{helper.getTestEndpoint(0)}", communicator);
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            var com = Test.IRemoteCommunicatorPrx.Parse($"communicator:{helper.GetTestEndpoint(0)}", communicator);
 
             var rand = new Random(unchecked((int)DateTime.Now.Ticks));
-            var output = helper.getWriter();
+            System.IO.TextWriter output = helper.GetWriter();
 
             output.Write("testing binding with single endpoint... ");
             output.Flush();
             {
-                Test.IRemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter", "default");
-
-                var test1 = adapter.getTestIntf();
-                var test2 = adapter.getTestIntf();
-                test(test1.GetConnection() == test2.GetConnection());
+                Test.IRemoteObjectAdapterPrx? adapter = com.createObjectAdapter("Adapter", "default");
+                TestHelper.Assert(adapter != null);
+                Test.ITestIntfPrx? test1 = adapter.getTestIntf();
+                Test.ITestIntfPrx? test2 = adapter.getTestIntf();
+                TestHelper.Assert(test1 != null && test2 != null);
+                TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
 
                 test1.IcePing();
                 test2.IcePing();
@@ -85,13 +82,13 @@ namespace Ice.binding
                 com.deactivateObjectAdapter(adapter);
 
                 var test3 = Test.ITestIntfPrx.UncheckedCast(test1);
-                test(test3.GetConnection() == test1.GetConnection());
-                test(test3.GetConnection() == test2.GetConnection());
+                TestHelper.Assert(test3.GetConnection() == test1.GetConnection());
+                TestHelper.Assert(test3.GetConnection() == test2.GetConnection());
 
                 try
                 {
                     test3.IcePing();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ConnectFailedException)
                 {
@@ -102,10 +99,12 @@ namespace Ice.binding
             output.Write("testing binding with multiple endpoints... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("Adapter11", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter12", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter13", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("Adapter11", "default")!,
+                    com.createObjectAdapter("Adapter12", "default")!,
+                    com.createObjectAdapter("Adapter13", "default")!
+                };
 
                 //
                 // Ensure that when a connection is opened it's reused for new
@@ -125,8 +124,8 @@ namespace Ice.binding
                     shuffle(ref adpts);
                     var test3 = createTestIntfPrx(adpts);
                     test1.IcePing();
-                    test(test1.GetConnection() == test2.GetConnection());
-                    test(test2.GetConnection() == test3.GetConnection());
+                    TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
+                    TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.getAdapterName());
                     test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
@@ -137,9 +136,9 @@ namespace Ice.binding
                 // always send the request over the same connection.)
                 //
                 {
-                    foreach (var adpt in adapters)
+                    foreach (Test.IRemoteObjectAdapterPrx adpt in adapters)
                     {
-                        adpt.getTestIntf().IcePing();
+                        adpt.getTestIntf()!.IcePing();
                     }
 
                     var t = createTestIntfPrx(adapters);
@@ -147,11 +146,11 @@ namespace Ice.binding
                     int nRetry = 10;
                     int i;
                     for (i = 0; i < nRetry && t.getAdapterName().Equals(name); i++) ;
-                    test(i == nRetry);
+                    TestHelper.Assert(i == nRetry);
 
                     foreach (var adpt in adapters)
                     {
-                        adpt.getTestIntf().GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                        adpt.getTestIntf()!.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
                 }
 
@@ -172,8 +171,8 @@ namespace Ice.binding
                     shuffle(ref adpts);
                     var test3 = createTestIntfPrx(adpts);
 
-                    test(test1.GetConnection() == test2.GetConnection());
-                    test(test2.GetConnection() == test3.GetConnection());
+                    TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
+                    TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.getAdapterName());
                     test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
@@ -185,7 +184,7 @@ namespace Ice.binding
                 //
                 com.deactivateObjectAdapter((Test.IRemoteObjectAdapterPrx)adapters[2]);
                 var obj = createTestIntfPrx(adapters);
-                test(obj.getAdapterName().Equals("Adapter12"));
+                TestHelper.Assert(obj.getAdapterName().Equals("Adapter12"));
 
                 deactivate(com, adapters);
             }
@@ -194,12 +193,14 @@ namespace Ice.binding
             output.Write("testing binding with multiple random endpoints... ");
             output.Flush();
             {
-                var adapters = new Test.IRemoteObjectAdapterPrx[5];
-                adapters[0] = com.createObjectAdapter("AdapterRandom11", "default");
-                adapters[1] = com.createObjectAdapter("AdapterRandom12", "default");
-                adapters[2] = com.createObjectAdapter("AdapterRandom13", "default");
-                adapters[3] = com.createObjectAdapter("AdapterRandom14", "default");
-                adapters[4] = com.createObjectAdapter("AdapterRandom15", "default");
+                var adapters = new Test.IRemoteObjectAdapterPrx[5]
+                {
+                    com.createObjectAdapter("AdapterRandom11", "default")!,
+                    com.createObjectAdapter("AdapterRandom12", "default")!,
+                    com.createObjectAdapter("AdapterRandom13", "default")!,
+                    com.createObjectAdapter("AdapterRandom14", "default")!,
+                    com.createObjectAdapter("AdapterRandom15", "default")!
+                };
 
                 int count = 20;
                 int adapterCount = adapters.Length;
@@ -238,12 +239,12 @@ namespace Ice.binding
                         {
                             proxies[i].IcePing();
                         }
-                        catch (System.Exception)
+                        catch (Exception)
                         {
                         }
                     }
 
-                    List<Connection> connections = new List<Connection>();
+                    var connections = new List<Connection?>();
                     for (i = 0; i < proxies.Length; i++)
                     {
                         if (proxies[i].GetCachedConnection() != null)
@@ -254,15 +255,15 @@ namespace Ice.binding
                             }
                         }
                     }
-                    test(connections.Count <= adapterCount);
+                    TestHelper.Assert(connections.Count <= adapterCount);
 
-                    foreach (var a in adapters)
+                    foreach (Test.IRemoteObjectAdapterPrx a in adapters)
                     {
                         try
                         {
-                            a.getTestIntf().GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                            a.getTestIntf()!.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                         }
-                        catch (System.Exception)
+                        catch (Exception)
                         {
                             // Expected if adapter is down.
                         }
@@ -274,10 +275,12 @@ namespace Ice.binding
             output.Write("testing binding with multiple endpoints and AMI... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("AdapterAMI11", "default"));
-                adapters.Add(com.createObjectAdapter("AdapterAMI12", "default"));
-                adapters.Add(com.createObjectAdapter("AdapterAMI13", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("AdapterAMI11", "default")!,
+                    com.createObjectAdapter("AdapterAMI12", "default")!,
+                    com.createObjectAdapter("AdapterAMI13", "default")!
+                };
 
                 //
                 // Ensure that when a connection is opened it's reused for new
@@ -297,8 +300,8 @@ namespace Ice.binding
                     shuffle(ref adpts);
                     var test3 = createTestIntfPrx(adpts);
                     test1.IcePing();
-                    test(test1.GetConnection() == test2.GetConnection());
-                    test(test2.GetConnection() == test3.GetConnection());
+                    TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
+                    TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(getAdapterNameWithAMI(test1));
                     test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
@@ -311,7 +314,7 @@ namespace Ice.binding
                 {
                     foreach (var adpt in adapters)
                     {
-                        adpt.getTestIntf().IcePing();
+                        adpt.getTestIntf()!.IcePing();
                     }
 
                     var t = createTestIntfPrx(adapters);
@@ -319,11 +322,11 @@ namespace Ice.binding
                     int nRetry = 10;
                     int i;
                     for (i = 0; i < nRetry && getAdapterNameWithAMI(t).Equals(name); i++) ;
-                    test(i == nRetry);
+                    TestHelper.Assert(i == nRetry);
 
                     foreach (var adpt in adapters)
                     {
-                        adpt.getTestIntf().GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                        adpt.getTestIntf()!.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
                 }
 
@@ -344,8 +347,8 @@ namespace Ice.binding
                     shuffle(ref adpts);
                     var test3 = createTestIntfPrx(adpts);
 
-                    test(test1.GetConnection() == test2.GetConnection());
-                    test(test2.GetConnection() == test3.GetConnection());
+                    TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
+                    TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(getAdapterNameWithAMI(test1));
                     test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
@@ -357,7 +360,7 @@ namespace Ice.binding
                 //
                 com.deactivateObjectAdapter(adapters[2]);
                 var obj = createTestIntfPrx(adapters);
-                test(getAdapterNameWithAMI(obj).Equals("AdapterAMI12"));
+                TestHelper.Assert(getAdapterNameWithAMI(obj).Equals("AdapterAMI12"));
 
                 deactivate(com, adapters);
             }
@@ -366,18 +369,22 @@ namespace Ice.binding
             output.Write("testing random endpoint selection... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("Adapter21", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter22", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter23", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("Adapter21", "default")!,
+                    com.createObjectAdapter("Adapter22", "default")!,
+                    com.createObjectAdapter("Adapter23", "default")!
+                };
 
                 var obj = createTestIntfPrx(adapters);
-                test(obj.EndpointSelection == EndpointSelectionType.Random);
+                TestHelper.Assert(obj.EndpointSelection == EndpointSelectionType.Random);
 
-                var names = new List<string>();
-                names.Add("Adapter21");
-                names.Add("Adapter22");
-                names.Add("Adapter23");
+                var names = new List<string>
+                {
+                    "Adapter21",
+                    "Adapter22",
+                    "Adapter23"
+                };
                 while (names.Count > 0)
                 {
                     names.Remove(obj.getAdapterName());
@@ -385,7 +392,7 @@ namespace Ice.binding
                 }
 
                 obj = obj.Clone(endpointSelection: EndpointSelectionType.Random);
-                test(obj.EndpointSelection == EndpointSelectionType.Random);
+                TestHelper.Assert(obj.EndpointSelection == EndpointSelectionType.Random);
 
                 names.Add("Adapter21");
                 names.Add("Adapter22");
@@ -403,29 +410,31 @@ namespace Ice.binding
             output.Write("testing ordered endpoint selection... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("Adapter31", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter32", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter33", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("Adapter31", "default")!,
+                    com.createObjectAdapter("Adapter32", "default")!,
+                    com.createObjectAdapter("Adapter33", "default")!
+                };
 
                 var obj = createTestIntfPrx(adapters);
                 obj = obj.Clone(endpointSelection: EndpointSelectionType.Ordered);
-                test(obj.EndpointSelection == EndpointSelectionType.Ordered);
+                TestHelper.Assert(obj.EndpointSelection == EndpointSelectionType.Ordered);
                 int nRetry = 3;
                 int i;
 
                 //
-                // Ensure that endpoints are tried in order by deactiving the adapters
+                // Ensure that endpoints are tried in order by deactivating the adapters
                 // one after the other.
                 //
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter31"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[0]);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter32"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[1]);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter33"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[2]);
 
                 try
@@ -436,7 +445,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -444,17 +453,17 @@ namespace Ice.binding
                 // Now, re-activate the adapters with the same endpoints in the opposite
                 // order.
                 //
-                adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
+                adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
-                adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
+                adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter35"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
-                adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
+                adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter34"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
 
                 deactivate(com, adapters);
             }
@@ -463,14 +472,14 @@ namespace Ice.binding
             output.Write("testing per request binding with single endpoint... ");
             output.Flush();
             {
-                var adapter = com.createObjectAdapter("Adapter41", "default");
-
-                var test1 = adapter.getTestIntf().Clone(cacheConnection: false);
-                var test2 = adapter.getTestIntf().Clone(cacheConnection: false);
-                test(!test1.IsConnectionCached);
-                test(!test2.IsConnectionCached);
-                test(test1.GetConnection() != null && test2.GetConnection() != null);
-                test(test1.GetConnection() == test2.GetConnection());
+                Test.IRemoteObjectAdapterPrx? adapter = com.createObjectAdapter("Adapter41", "default");
+                TestHelper.Assert(adapter != null);
+                Test.ITestIntfPrx test1 = adapter.getTestIntf()!.Clone(cacheConnection: false);
+                Test.ITestIntfPrx test2 = adapter.getTestIntf()!.Clone(cacheConnection: false);
+                TestHelper.Assert(!test1.IsConnectionCached);
+                TestHelper.Assert(!test2.IsConnectionCached);
+                TestHelper.Assert(test1.GetConnection() != null && test2.GetConnection() != null);
+                TestHelper.Assert(test1.GetConnection() == test2.GetConnection());
 
                 test1.IcePing();
 
@@ -479,8 +488,8 @@ namespace Ice.binding
                 var test3 = Test.ITestIntfPrx.UncheckedCast(test1);
                 try
                 {
-                    test(test3.GetConnection() == test1.GetConnection());
-                    test(false);
+                    TestHelper.Assert(test3.GetConnection() == test1.GetConnection());
+                    TestHelper.Assert(false);
                 }
                 catch (ConnectFailedException)
                 {
@@ -491,18 +500,22 @@ namespace Ice.binding
             output.Write("testing per request binding with multiple endpoints... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("Adapter51", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter52", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter53", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("Adapter51", "default")!,
+                    com.createObjectAdapter("Adapter52", "default")!,
+                    com.createObjectAdapter("Adapter53", "default")!
+                };
 
-                var obj = createTestIntfPrx(adapters).Clone(cacheConnection: false);
-                test(!obj.IsConnectionCached);
+                Test.ITestIntfPrx obj = createTestIntfPrx(adapters).Clone(cacheConnection: false);
+                TestHelper.Assert(!obj.IsConnectionCached);
 
-                List<string> names = new List<string>();
-                names.Add("Adapter51");
-                names.Add("Adapter52");
-                names.Add("Adapter53");
+                var names = new List<string>
+                {
+                    "Adapter51",
+                    "Adapter52",
+                    "Adapter53"
+                };
                 while (names.Count > 0)
                 {
                     names.Remove(obj.getAdapterName());
@@ -519,7 +532,7 @@ namespace Ice.binding
 
                 com.deactivateObjectAdapter(adapters[2]);
 
-                test(obj.getAdapterName().Equals("Adapter52"));
+                TestHelper.Assert(obj.getAdapterName().Equals("Adapter52"));
 
                 deactivate(com, adapters);
             }
@@ -528,18 +541,22 @@ namespace Ice.binding
             output.Write("testing per request binding with multiple endpoints and AMI... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("AdapterAMI51", "default"));
-                adapters.Add(com.createObjectAdapter("AdapterAMI52", "default"));
-                adapters.Add(com.createObjectAdapter("AdapterAMI53", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("AdapterAMI51", "default")!,
+                    com.createObjectAdapter("AdapterAMI52", "default")!,
+                    com.createObjectAdapter("AdapterAMI53", "default")!
+                };
 
-                var obj = createTestIntfPrx(adapters).Clone(cacheConnection: false);
-                test(!obj.IsConnectionCached);
+                Test.ITestIntfPrx obj = createTestIntfPrx(adapters).Clone(cacheConnection: false);
+                TestHelper.Assert(!obj.IsConnectionCached);
 
-                var names = new List<string>();
-                names.Add("AdapterAMI51");
-                names.Add("AdapterAMI52");
-                names.Add("AdapterAMI53");
+                var names = new List<string>
+                {
+                    "AdapterAMI51",
+                    "AdapterAMI52",
+                    "AdapterAMI53"
+                };
                 while (names.Count > 0)
                 {
                     names.Remove(getAdapterNameWithAMI(obj));
@@ -556,7 +573,7 @@ namespace Ice.binding
 
                 com.deactivateObjectAdapter(adapters[2]);
 
-                test(getAdapterNameWithAMI(obj).Equals("AdapterAMI52"));
+                TestHelper.Assert(getAdapterNameWithAMI(obj).Equals("AdapterAMI52"));
 
                 deactivate(com, adapters);
             }
@@ -565,31 +582,33 @@ namespace Ice.binding
             output.Write("testing per request binding and ordered endpoint selection... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("Adapter61", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter62", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter63", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("Adapter61", "default")!,
+                    com.createObjectAdapter("Adapter62", "default")!,
+                    com.createObjectAdapter("Adapter63", "default")!
+                };
 
                 var obj = createTestIntfPrx(adapters);
                 obj = obj.Clone(endpointSelection: EndpointSelectionType.Ordered);
-                test(obj.EndpointSelection == EndpointSelectionType.Ordered);
+                TestHelper.Assert(obj.EndpointSelection == EndpointSelectionType.Ordered);
                 obj = obj.Clone(cacheConnection: false);
-                test(!obj.IsConnectionCached);
+                TestHelper.Assert(!obj.IsConnectionCached);
                 int nRetry = 3;
                 int i;
 
                 //
-                // Ensure that endpoints are tried in order by deactiving the adapters
+                // Ensure that endpoints are tried in order by deactivating the adapters
                 // one after the other.
                 //
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter61"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[0]);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter62"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[1]);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter63"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[2]);
 
                 try
@@ -600,7 +619,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -608,15 +627,15 @@ namespace Ice.binding
                 // Now, re-activate the adapters with the same endpoints in the opposite
                 // order.
                 //
-                adapters.Add(com.createObjectAdapter("Adapter66", endpoints[2].ToString()));
+                adapters.Add(com.createObjectAdapter("Adapter66", endpoints[2].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter66"); i++) ;
-                test(i == nRetry);
-                adapters.Add(com.createObjectAdapter("Adapter65", endpoints[1].ToString()));
+                TestHelper.Assert(i == nRetry);
+                adapters.Add(com.createObjectAdapter("Adapter65", endpoints[1].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter65"); i++) ;
-                test(i == nRetry);
-                adapters.Add(com.createObjectAdapter("Adapter64", endpoints[0].ToString()));
+                TestHelper.Assert(i == nRetry);
+                adapters.Add(com.createObjectAdapter("Adapter64", endpoints[0].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter64"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
 
                 deactivate(com, adapters);
             }
@@ -625,16 +644,18 @@ namespace Ice.binding
             output.Write("testing per request binding and ordered endpoint selection and AMI... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("AdapterAMI61", "default"));
-                adapters.Add(com.createObjectAdapter("AdapterAMI62", "default"));
-                adapters.Add(com.createObjectAdapter("AdapterAMI63", "default"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("AdapterAMI61", "default")!,
+                    com.createObjectAdapter("AdapterAMI62", "default")!,
+                    com.createObjectAdapter("AdapterAMI63", "default")!
+                };
 
                 var obj = createTestIntfPrx(adapters);
                 obj = obj.Clone(endpointSelection: EndpointSelectionType.Ordered);
-                test(obj.EndpointSelection == EndpointSelectionType.Ordered);
+                TestHelper.Assert(obj.EndpointSelection == EndpointSelectionType.Ordered);
                 obj = obj.Clone(cacheConnection: false);
-                test(!obj.IsConnectionCached);
+                TestHelper.Assert(!obj.IsConnectionCached);
                 int nRetry = 3;
                 int i;
 
@@ -643,13 +664,13 @@ namespace Ice.binding
                 // one after the other.
                 //
                 for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI61"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[0]);
                 for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI62"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[1]);
                 for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI63"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
                 com.deactivateObjectAdapter(adapters[2]);
 
                 try
@@ -660,7 +681,7 @@ namespace Ice.binding
                 {
                 }
 
-                Endpoint[] endpoints = obj.Endpoints;
+                var endpoints = obj.Endpoints;
 
                 adapters.Clear();
 
@@ -668,15 +689,15 @@ namespace Ice.binding
                 // Now, re-activate the adapters with the same endpoints in the opposite
                 // order.
                 //
-                adapters.Add(com.createObjectAdapter("AdapterAMI66", endpoints[2].ToString()));
+                adapters.Add(com.createObjectAdapter("AdapterAMI66", endpoints[2].ToString())!);
                 for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI66"); i++) ;
-                test(i == nRetry);
-                adapters.Add(com.createObjectAdapter("AdapterAMI65", endpoints[1].ToString()));
+                TestHelper.Assert(i == nRetry);
+                adapters.Add(com.createObjectAdapter("AdapterAMI65", endpoints[1].ToString())!);
                 for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI65"); i++) ;
-                test(i == nRetry);
-                adapters.Add(com.createObjectAdapter("AdapterAMI64", endpoints[0].ToString()));
+                TestHelper.Assert(i == nRetry);
+                adapters.Add(com.createObjectAdapter("AdapterAMI64", endpoints[0].ToString())!);
                 for (i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI64"); i++) ;
-                test(i == nRetry);
+                TestHelper.Assert(i == nRetry);
 
                 deactivate(com, adapters);
             }
@@ -685,19 +706,21 @@ namespace Ice.binding
             output.Write("testing endpoint mode filtering... ");
             output.Flush();
             {
-                var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                adapters.Add(com.createObjectAdapter("Adapter71", "default"));
-                adapters.Add(com.createObjectAdapter("Adapter72", "udp"));
+                var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                {
+                    com.createObjectAdapter("Adapter71", "default")!,
+                    com.createObjectAdapter("Adapter72", "udp")!
+                };
 
                 var obj = createTestIntfPrx(adapters);
-                test(obj.getAdapterName().Equals("Adapter71"));
+                TestHelper.Assert(obj.getAdapterName().Equals("Adapter71"));
 
                 var testUDP = obj.Clone(invocationMode: InvocationMode.Datagram);
-                test(obj.GetConnection() != testUDP.GetConnection());
+                TestHelper.Assert(obj.GetConnection() != testUDP.GetConnection());
                 try
                 {
                     testUDP.getAdapterName();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (System.InvalidOperationException)
                 {
@@ -710,29 +733,31 @@ namespace Ice.binding
                 output.Write("testing secure and non-secure endpoints... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.IRemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("Adapter81", "ssl"));
-                    adapters.Add(com.createObjectAdapter("Adapter82", "tcp"));
+                    var adapters = new List<Test.IRemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("Adapter81", "ssl")!,
+                        com.createObjectAdapter("Adapter82", "tcp")!
+                    };
 
                     var obj = createTestIntfPrx(adapters);
                     int i;
                     for (i = 0; i < 5; i++)
                     {
-                        test(obj.getAdapterName().Equals("Adapter82"));
+                        TestHelper.Assert(obj.getAdapterName().Equals("Adapter82"));
                         obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
                     var testNonSecure = obj.Clone(preferNonSecure: true);
-                    var testSecure = obj.Clone(preferNonSecure: false); // TODO: update when PreferNonSecure default
-                                                                        // is updated
-                    test(obj.GetConnection() != testSecure.GetConnection());
-                    test(obj.GetConnection() == testNonSecure.GetConnection());
+                    // TODO: update when PreferNonSecure default is updated
+                    var testSecure = obj.Clone(preferNonSecure: false);
+                    TestHelper.Assert(obj.GetConnection() != testSecure.GetConnection());
+                    TestHelper.Assert(obj.GetConnection() == testNonSecure.GetConnection());
 
                     com.deactivateObjectAdapter(adapters[1]);
 
                     for (i = 0; i < 5; i++)
                     {
-                        test(obj.getAdapterName().Equals("Adapter81"));
+                        TestHelper.Assert(obj.getAdapterName().Equals("Adapter81"));
                         obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
@@ -740,7 +765,7 @@ namespace Ice.binding
 
                     for (i = 0; i < 5; i++)
                     {
-                        test(obj.getAdapterName().Equals("Adapter83"));
+                        TestHelper.Assert(obj.getAdapterName().Equals("Adapter83"));
                         obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                     }
 
@@ -749,7 +774,7 @@ namespace Ice.binding
                     try
                     {
                         testSecure.IcePing();
-                        test(false);
+                        TestHelper.Assert(false);
                     }
                     catch (ConnectionRefusedException)
                     {
@@ -799,7 +824,7 @@ namespace Ice.binding
                     ipv4, ipv6, bothPreferIPv4, bothPreferIPv6
                 };
 
-                string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
+                string endpoint = "tcp -p " + helper.GetTestPort(2).ToString();
 
                 var anyipv4 = new Dictionary<string, string>(ipv4);
                 anyipv4["Adapter.Endpoints"] = endpoint;
@@ -873,7 +898,7 @@ namespace Ice.binding
                         continue;
                     }
 
-                    string strPrx = prx.ToString();
+                    string strPrx = prx.ToString()!;
                     foreach (var q in clientProps)
                     {
                         Communicator clientCommunicator = new Communicator(q);
@@ -881,7 +906,7 @@ namespace Ice.binding
                         try
                         {
                             prx.IcePing();
-                            test(false);
+                            TestHelper.Assert(false);
                         }
                         catch (ObjectNotExistException)
                         {
@@ -897,7 +922,7 @@ namespace Ice.binding
                         }
                         catch (TransportException)
                         {
-                            test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
+                            TestHelper.Assert((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
                                 (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
                                 (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
                                 (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||

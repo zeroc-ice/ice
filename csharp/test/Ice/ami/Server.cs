@@ -3,16 +3,14 @@
 //
 
 using Test;
-using Ice.ami.Test;
-using Ice.ami.Test.Outer.Inner;
 
 namespace Ice.ami
 {
     public class Server : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
 
             //
             // Disable collocation optimization to test async/await dispatch.
@@ -30,17 +28,17 @@ namespace Ice.ami
             //
             properties["Ice.TCP.RcvSize"] = "50000";
 
-            using var communicator = initialize(properties);
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            using Communicator communicator = Initialize(properties);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
-            var adapter = communicator.CreateObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
             adapter.Add("test2", new TestIntf2());
             adapter.Activate();
-            serverReady();
+            ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

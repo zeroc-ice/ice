@@ -3,20 +3,10 @@
 //
 
 using Ice;
-using System.Diagnostics;
 using Test;
 
 public sealed class TestIntf : ITestIntf
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            System.Diagnostics.Debug.Assert(false);
-            throw new System.Exception();
-        }
-    }
-
     public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
     public void baseAsBase(Current current) => throw new Base("Base.b");
@@ -69,58 +59,58 @@ public sealed class TestIntf : ITestIntf
 
     public void relayKnownPreservedAsBase(IRelayPrx? r, Current current)
     {
-        Debug.Assert(r != null);
-        IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
+        TestHelper.Assert(r != null);
+        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
         try
         {
             p.knownPreservedAsBase();
         }
         catch (RemoteException ex)
         {
-            test(ex.ConvertToUnhandled);
+            TestHelper.Assert(ex.ConvertToUnhandled);
             ex.ConvertToUnhandled = false;
             throw;
         }
-        test(false);
+        TestHelper.Assert(false);
     }
 
     public void relayKnownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
     {
-        Debug.Assert(r != null);
-        IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
+        TestHelper.Assert(r != null);
+        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
         try
         {
             p.knownPreservedAsKnownPreserved();
         }
         catch (RemoteException ex)
         {
-            test(ex.ConvertToUnhandled);
+            TestHelper.Assert(ex.ConvertToUnhandled);
             ex.ConvertToUnhandled = false;
             throw;
         }
-        test(false);
+        TestHelper.Assert(false);
     }
 
     public void relayClientPrivateException(IRelayPrx? r, Current current)
     {
-        Debug.Assert(r != null);
-        IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
+        TestHelper.Assert(r != null);
+        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
         try
         {
             p.clientPrivateException();
         }
         catch (RemoteException ex)
         {
-            test(ex.ConvertToUnhandled);
+            TestHelper.Assert(ex.ConvertToUnhandled);
             ex.ConvertToUnhandled = false;
             throw;
         }
-        test(false);
+        TestHelper.Assert(false);
     }
 
     public void unknownPreservedAsBase(Current current)
     {
-        SPreserved2 ex = new SPreserved2();
+        var ex = new SPreserved2();
         ex.b = "base";
         ex.kp = "preserved";
         ex.kpd = "derived";
@@ -131,7 +121,7 @@ public sealed class TestIntf : ITestIntf
 
     public void unknownPreservedAsKnownPreserved(Current current)
     {
-        SPreserved2 ex = new SPreserved2();
+        var ex = new SPreserved2();
         ex.b = "base";
         ex.kp = "preserved";
         ex.kpd = "derived";
@@ -142,35 +132,35 @@ public sealed class TestIntf : ITestIntf
 
     public void relayUnknownPreservedAsBase(IRelayPrx? r, Current current)
     {
-        Debug.Assert(r != null);
-        IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
+        TestHelper.Assert(r != null);
+        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
         try
         {
             p.unknownPreservedAsBase();
         }
         catch (RemoteException ex)
         {
-            test(ex.ConvertToUnhandled);
+            TestHelper.Assert(ex.ConvertToUnhandled);
             ex.ConvertToUnhandled = false;
             throw;
         }
-        test(false);
+        TestHelper.Assert(false);
     }
 
     public void relayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Ice.Current current)
     {
-        Debug.Assert(r != null);
-        IRelayPrx p = current.Connection.CreateProxy(r.Identity, IRelayPrx.Factory);
+        TestHelper.Assert(r != null);
+        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
         try
         {
             p.unknownPreservedAsKnownPreserved();
         }
         catch (RemoteException ex)
         {
-            test(ex.ConvertToUnhandled);
+            TestHelper.Assert(ex.ConvertToUnhandled);
             ex.ConvertToUnhandled = false;
             throw;
         }
-        test(false);
+        TestHelper.Assert(false);
     }
 }

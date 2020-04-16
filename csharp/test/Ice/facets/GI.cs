@@ -12,6 +12,6 @@ namespace Ice.facets
 
         public void shutdown(Current current) => _communicator.Shutdown();
 
-        private Communicator _communicator;
+        private readonly Communicator _communicator;
     }
 }

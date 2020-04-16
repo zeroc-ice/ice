@@ -10,15 +10,6 @@ public class PluginInitializeFailFactory : Ice.IPluginFactory
     {
         public void Initialize() => throw new PluginInitializeFailException();
 
-        public void Destroy() => test(false);
-
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                System.Diagnostics.Debug.Assert(false);
-                throw new System.Exception();
-            }
-        }
+        public void Destroy() => TestHelper.Assert(false);
     }
 }

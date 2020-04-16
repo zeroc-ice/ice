@@ -6,24 +6,25 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Ice;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : Test.TestHelper
+public class Client : TestHelper
 {
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
         {
             Console.Out.Write("testing load properties from UTF-8 path... ");
             Console.Out.Flush();
             var properties = new Dictionary<string, string>();
             properties.LoadIceConfigFile("./config/中国_client.config");
-            test(properties["Ice.Trace.Network"] == "1");
-            test(properties["Ice.Trace.Protocol"] == "1");
-            test(properties["Config.Path"] == "./config/中国_client.config");
-            test(properties["Ice.ProgramName"] == "PropertiesClient");
+            Assert(properties["Ice.Trace.Network"] == "1");
+            Assert(properties["Ice.Trace.Protocol"] == "1");
+            Assert(properties["Config.Path"] == "./config/中国_client.config");
+            Assert(properties["Ice.ProgramName"] == "PropertiesClient");
             Console.Out.WriteLine("ok");
         }
 
@@ -36,9 +37,9 @@ public class Client : Test.TestHelper
             var properties = new Dictionary<string, string>();
             string[] a = new string[] { "--Ice.Config=config/config.1, config/config.2, config/config.3" };
             properties.ParseArgs(ref a);
-            test(properties["Config1"] == "Config1");
-            test(properties["Config2"] == "Config2");
-            test(properties["Config3"] == "Config3");
+            Assert(properties["Config1"] == "Config1");
+            Assert(properties["Config2"] == "Config2");
+            Assert(properties["Config3"] == "Config3");
             Console.Out.WriteLine("ok");
         }
 
@@ -75,10 +76,10 @@ public class Client : Test.TestHelper
                 { "Ice.Config", "config/escapes.cfg" }
             };
 
-            test(global::Test.Collections.Equals(properties, props));
+            Assert(Collections.Equals(properties, props));
             Console.Out.WriteLine("ok");
         }
     }
 
-    public static int Main(string[] args) => Test.TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
 }

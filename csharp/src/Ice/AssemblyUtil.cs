@@ -43,8 +43,6 @@ namespace Ice
             return null;
         }
 
-        public static object? CreateInstance(Type t) => Activator.CreateInstance(t);
-
         public static void PreloadAssemblies()
         {
             lock (_mutex)

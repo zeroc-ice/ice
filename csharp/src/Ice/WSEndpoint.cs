@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace Ice
@@ -107,9 +108,9 @@ namespace Ice
         public override void ConnectorsAsync(Ice.EndpointSelectionType endpointSelection, IEndpointConnectors callback)
         {
             string host = "";
-            for (Ice.Endpoint? p = _delegate; p != null; p = p.Underlying)
+            for (Endpoint? p = _delegate; p != null; p = p.Underlying)
             {
-                if (p is Ice.IPEndpoint ipEndpoint)
+                if (p is IPEndpoint ipEndpoint)
                 {
                     host = $"{ipEndpoint.Host}:{ipEndpoint.Port.ToString(CultureInfo.InvariantCulture)}";
                     break;
@@ -118,26 +119,15 @@ namespace Ice
             _delegate.ConnectorsAsync(endpointSelection, new EndpointConnectors(_instance, host, Resource, callback));
         }
 
-        public override List<Endpoint> ExpandIfWildcard()
-        {
-            var l = new List<Endpoint>();
-            foreach (Endpoint e in _delegate.ExpandIfWildcard())
-            {
-                l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, Resource));
-            }
-            return l;
-        }
+        public override IEnumerable<Endpoint> ExpandIfWildcard() =>
+            _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
-        public override List<Endpoint> ExpandHost(out Endpoint? publish)
+        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
         {
-            var endpoints = new List<Endpoint>();
-            foreach (Endpoint e in _delegate.ExpandHost(out publish))
-            {
-                endpoints.Add(e == _delegate ? this : new WSEndpoint(_instance, e, Resource));
-            }
+            var endpoints = _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
             if (publish != null)
             {
-                publish = publish == _delegate ? this : new WSEndpoint(_instance, publish, Resource);
+                publish = GetEndpoint(publish);
             }
             return endpoints;
         }

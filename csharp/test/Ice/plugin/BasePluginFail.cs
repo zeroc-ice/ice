@@ -15,22 +15,13 @@ public abstract class BasePluginFail : Ice.IPlugin
 
     public bool isDestroyed() => _destroyed;
 
-    protected static void test(bool b)
-    {
-        if (!b)
-        {
-            System.Diagnostics.Debug.Assert(false);
-            throw new System.Exception();
-        }
-    }
-
     public abstract void Initialize();
     public abstract void Destroy();
 
     protected Ice.Communicator _communicator;
     protected bool _initialized;
     protected bool _destroyed;
-    protected BasePluginFail _one;
-    protected BasePluginFail _two;
-    protected BasePluginFail _three;
+    protected BasePluginFail? _one;
+    protected BasePluginFail? _two;
+    protected BasePluginFail? _three;
 }

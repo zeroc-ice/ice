@@ -8,8 +8,8 @@ namespace Ice.defaultValue
 {
     public class Client : TestHelper
     {
-        public override void run(string[] args) => AllTests.allTests(this);
+        public override void Run(string[] args) => AllTests.allTests(this);
 
-        public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

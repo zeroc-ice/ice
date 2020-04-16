@@ -2,111 +2,119 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Diagnostics;
+using Test;
+
 namespace Ice.inheritance
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
         public static Test.IInitialPrx allTests(global::Test.TestHelper helper)
         {
-            Ice.Communicator communicator = helper.communicator();
-            var output = helper.getWriter();
-            var initial = Test.IInitialPrx.Parse($"initial:{helper.getTestEndpoint(0)}", communicator);
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            System.IO.TextWriter output = helper.GetWriter();
+            var initial = Test.IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
 
             output.Write("getting proxies for interface hierarchy... ");
             output.Flush();
-            var ia = initial.iaop();
-            var ib1 = initial.ib1op();
-            var ib2 = initial.ib2op();
-            var ic = initial.icop();
-            test(ia != ib1);
-            test(ia != ib2);
-            test(ia != ic);
-            test(ib1 != ic);
-            test(ib2 != ic);
+            Test.MA.IIAPrx? ia = initial.iaop();
+            Test.MB.IIB1Prx? ib1 = initial.ib1op();
+            Test.MB.IIB2Prx? ib2 = initial.ib2op();
+            Test.MA.IICPrx? ic = initial.icop();
+            TestHelper.Assert(ia != null);
+            TestHelper.Assert(ib1 != null);
+            TestHelper.Assert(ib2 != null);
+            TestHelper.Assert(ic != null);
+            TestHelper.Assert(ia != ib1);
+            TestHelper.Assert(ia != ib2);
+            TestHelper.Assert(ia != ic);
+            TestHelper.Assert(ib1 != ic);
+            TestHelper.Assert(ib2 != ic);
             output.WriteLine("ok");
 
             output.Write("invoking proxy operations on interface hierarchy... ");
             output.Flush();
-            Test.MA.IIAPrx iao;
-            Test.MB.IIB1Prx ib1o;
-            Test.MB.IIB2Prx ib2o;
-            Test.MA.IICPrx ico;
+            Test.MA.IIAPrx? iao;
+            Test.MB.IIB1Prx? ib1o;
+            Test.MB.IIB2Prx? ib2o;
+            Test.MA.IICPrx? ico;
 
             iao = ia.iaop(ia);
-            test(iao.Equals(ia));
+            TestHelper.Assert(iao!.Equals(ia));
             iao = ia.iaop(ib1);
-            test(iao.Equals(ib1));
+            TestHelper.Assert(iao!.Equals(ib1));
             iao = ia.iaop(ib2);
-            test(iao.Equals(ib2));
+            TestHelper.Assert(iao!.Equals(ib2));
             iao = ia.iaop(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             iao = ib1.iaop(ia);
-            test(iao.Equals(ia));
+            TestHelper.Assert(iao!.Equals(ia));
             iao = ib1.iaop(ib1);
-            test(iao.Equals(ib1));
+            TestHelper.Assert(iao!.Equals(ib1));
             iao = ib1.iaop(ib2);
-            test(iao.Equals(ib2));
+            TestHelper.Assert(iao!.Equals(ib2));
             iao = ib1.iaop(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             iao = ib2.iaop(ia);
-            test(iao.Equals(ia));
+            TestHelper.Assert(iao!.Equals(ia));
             iao = ib2.iaop(ib1);
-            test(iao.Equals(ib1));
+            TestHelper.Assert(iao!.Equals(ib1));
             iao = ib2.iaop(ib2);
-            test(iao.Equals(ib2));
+            TestHelper.Assert(iao!.Equals(ib2));
             iao = ib2.iaop(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             iao = ic.iaop(ia);
-            test(iao.Equals(ia));
+            TestHelper.Assert(iao!.Equals(ia));
             iao = ic.iaop(ib1);
-            test(iao.Equals(ib1));
+            TestHelper.Assert(iao!.Equals(ib1));
             iao = ic.iaop(ib2);
-            test(iao.Equals(ib2));
+            TestHelper.Assert(iao!.Equals(ib2));
             iao = ic.iaop(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
 
             iao = ib1.ib1op(ib1);
-            test(iao.Equals(ib1));
+            TestHelper.Assert(iao!.Equals(ib1));
             ib1o = ib1.ib1op(ib1);
-            test(ib1o.Equals(ib1));
+            TestHelper.Assert(ib1o!.Equals(ib1));
             iao = ib1.ib1op(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             ib1o = ib1.ib1op(ic);
-            test(ib1o.Equals(ic));
+            TestHelper.Assert(ib1o!.Equals(ic));
             iao = ic.ib1op(ib1);
-            test(iao.Equals(ib1));
+            TestHelper.Assert(iao!.Equals(ib1));
             ib1o = ic.ib1op(ib1);
-            test(ib1o.Equals(ib1));
+            TestHelper.Assert(ib1o!.Equals(ib1));
             iao = ic.ib1op(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             ib1o = ic.ib1op(ic);
-            test(ib1o.Equals(ic));
+            TestHelper.Assert(ib1o!.Equals(ic));
 
             iao = ib2.ib2op(ib2);
-            test(iao.Equals(ib2));
+            TestHelper.Assert(iao!.Equals(ib2));
             ib2o = ib2.ib2op(ib2);
-            test(ib2o.Equals(ib2));
+            TestHelper.Assert(ib2o!.Equals(ib2));
             iao = ib2.ib2op(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             ib2o = ib2.ib2op(ic);
-            test(ib2o.Equals(ic));
+            TestHelper.Assert(ib2o!.Equals(ic));
             iao = ic.ib2op(ib2);
-            test(iao.Equals(ib2));
+            TestHelper.Assert(iao!.Equals(ib2));
             ib2o = ic.ib2op(ib2);
-            test(ib2o.Equals(ib2));
+            TestHelper.Assert(ib2o!.Equals(ib2));
             iao = ic.ib2op(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             ib2o = ic.ib2op(ic);
-            test(ib2o.Equals(ic));
+            TestHelper.Assert(ib2o!.Equals(ic));
 
             iao = ic.icop(ic);
-            test(iao.Equals(ic));
+            TestHelper.Assert(iao!.Equals(ic));
             ib1o = ic.icop(ic);
-            test(ib1o.Equals(ic));
+            TestHelper.Assert(ib1o!.Equals(ic));
             ib2o = ic.icop(ic);
-            test(ib2o.Equals(ic));
+            TestHelper.Assert(ib2o!.Equals(ic));
             ico = ic.icop(ic);
-            test(ico.Equals(ic));
+            TestHelper.Assert(ico!.Equals(ic));
             output.WriteLine("ok");
             return initial;
         }

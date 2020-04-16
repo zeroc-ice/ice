@@ -6,6 +6,7 @@ using Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -148,7 +149,7 @@ namespace IceLocatorDiscovery
             _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
             _instanceName = instanceName;
             _warned = false;
-            _locator = lookup.Communicator.GetDefaultLocator();
+            _locator = lookup.Communicator.DefaultLocator;
             _voidLocator = voidLocator;
             _pending = false;
             _pendingRetryCount = 0;
@@ -171,7 +172,7 @@ namespace IceLocatorDiscovery
         public void SetLookupReply(ILookupReplyPrx lookupReply)
         {
             //
-            // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+            // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
             //
             var single = new Endpoint[1];
             foreach (ILookupPrx key in new List<ILookupPrx>(_lookups.Keys))
@@ -328,31 +329,10 @@ namespace IceLocatorDiscovery
 
                 if (l != null)
                 {
-                    //
-                    // We found another locator replica, append its endpoints to the
-                    // current locator proxy endpoints.
-                    //
-                    var newEndpoints = new List<Endpoint>(l.Endpoints);
-                    foreach (Endpoint p in locator.Endpoints)
-                    {
-                        //
-                        // Only add endpoints if not already in the locator proxy endpoints
-                        //
-                        bool found = false;
-                        foreach (Endpoint q in newEndpoints)
-                        {
-                            if (p.Equals(q))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found)
-                        {
-                            newEndpoints.Add(p);
-                        }
-                    }
-                    l = l.Clone(endpoints: newEndpoints.ToArray());
+                    // We found another locator replica, append its endpoints to the current locator proxy endpoints,
+                    // while eliminating duplicates.
+                    var newEndpoints = l.Endpoints.Concat(locator.Endpoints).Distinct();
+                    l = l.Clone(endpoints: newEndpoints);
                 }
                 else
                 {
@@ -702,10 +682,10 @@ namespace IceLocatorDiscovery
             string instanceName = _communicator.GetProperty($"{_name}.InstanceName") ?? "";
             var id = new Identity("Locator", instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString());
 
-            _defaultLocator = _communicator.GetDefaultLocator();
+            _defaultLocator = _communicator.DefaultLocator;
             _locator = new LocatorI(_name, lookupPrx, _communicator, instanceName, voidLo);
             _locatorPrx = _locatorAdapter.AddWithUUID(_locator, ILocatorPrx.Factory);
-            _communicator.SetDefaultLocator(_locatorPrx);
+            _communicator.DefaultLocator = _locatorPrx;
 
             ILookupReply lookupReplyI = new LookupReplyI(_locator);
             _locator.SetLookupReply(_replyAdapter.AddWithUUID(lookupReplyI, ILookupReplyPrx.Factory)
@@ -726,10 +706,10 @@ namespace IceLocatorDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            if (IObjectPrx.Equals(_communicator.GetDefaultLocator(), _locatorPrx))
+            if (IObjectPrx.Equals(_communicator.DefaultLocator, _locatorPrx))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
-                _communicator.SetDefaultLocator(_defaultLocator);
+                _communicator.DefaultLocator = _defaultLocator;
             }
         }
 

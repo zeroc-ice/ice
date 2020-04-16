@@ -9,7 +9,7 @@ using Ice;
 
 public class Client : TestHelper
 {
-    private static void allTests(Ice.Communicator communicator)
+    private static void allTests(Communicator communicator)
     {
         Console.Out.Write("testing equals() for Slice structures... ");
         Console.Out.Flush();
@@ -24,26 +24,26 @@ public class Client : TestHelper
         def_il[0] = 1;
         def_il[1] = 2;
         def_il[2] = 3;
-        Dictionary<string, string> def_sd = new Dictionary<string, string>();
+        var def_sd = new Dictionary<string, string>();
         def_sd.Add("abc", "def");
-        var def_prx = Ice.IObjectPrx.Parse("test", communicator);
-        S2 def_s2 = new S2(true, 98, 99, 100, 101, 1.0f, 2.0, "string", def_ss, def_il, def_sd, def_s, def_cls, def_prx);
+        var def_prx = IObjectPrx.Parse("test", communicator);
+        _ = new S2(true, 98, 99, 100, 101, 1.0f, 2.0, "string", def_ss, def_il, def_sd, def_s, def_cls, def_prx);
 
         //
         // Compare default-constructed structures.
         //
         {
-            test(new S2().Equals(new S2()));
+            Assert(new S2().Equals(new S2()));
         }
 
         Console.Out.WriteLine("ok");
     }
 
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using var communicator = Initialize(ref args);
         allTests(communicator);
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Client>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
 }

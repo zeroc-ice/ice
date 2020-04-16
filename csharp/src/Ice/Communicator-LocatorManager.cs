@@ -15,7 +15,7 @@ namespace Ice
     {
         public interface IGetEndpointsCallback
         {
-            void SetEndpoints(Endpoint[] endpoints, bool cached);
+            void SetEndpoints(IReadOnlyList<Endpoint> endpoints, bool cached);
             void SetException(Exception ex);
         }
 
@@ -34,7 +34,7 @@ namespace Ice
 
             public void Response(LocatorInfo locatorInfo, IObjectPrx? proxy)
             {
-                Endpoint[]? endpoints = null;
+                IReadOnlyList<Endpoint>? endpoints = null;
                 if (proxy != null)
                 {
                     Reference r = proxy.IceReference;
@@ -313,7 +313,7 @@ namespace Ice
                 //
                 // The locator registry can't be located. We use ordered
                 // endpoint selection in case the locator returned a proxy
-                // with some endpoints which are prefered to be tried first.
+                // with some endpoints which are preferred to be tried first.
                 //
                 _locatorRegistry = locatorRegistry.Clone(clearLocator: true,
                     endpointSelection: EndpointSelectionType.Ordered);
@@ -328,7 +328,7 @@ namespace Ice
         GetEndpoints(Reference reference, Reference? wellKnownRef, int ttl, IGetEndpointsCallback? callback)
         {
             Debug.Assert(reference.IsIndirect);
-            Endpoint[]? endpoints = null;
+            IReadOnlyList<Endpoint>? endpoints = null;
             bool cached;
             if (!reference.IsWellKnown)
             {
@@ -394,7 +394,7 @@ namespace Ice
             Debug.Assert(rf.IsIndirect);
             if (!rf.IsWellKnown)
             {
-                Endpoint[]? endpoints = _table.RemoveAdapterEndpoints(rf.AdapterId);
+                IReadOnlyList<Endpoint>? endpoints = _table.RemoveAdapterEndpoints(rf.AdapterId);
 
                 if (endpoints != null && rf.Communicator.TraceLevels.Location >= 2)
                 {
@@ -425,7 +425,7 @@ namespace Ice
             }
         }
 
-        private void Trace(string msg, Reference r, Endpoint[] endpoints)
+        private void Trace(string msg, Reference r, IReadOnlyList<Endpoint> endpoints)
         {
             var s = new System.Text.StringBuilder();
             s.Append(msg + "\n");
@@ -439,16 +439,7 @@ namespace Ice
             }
 
             s.Append("endpoints = ");
-            int sz = endpoints.Length;
-            for (int i = 0; i < sz; i++)
-            {
-                s.Append(endpoints[i].ToString());
-                if (i + 1 < sz)
-                {
-                    s.Append(":");
-                }
-            }
-
+            s.Append(string.Join(":", endpoints));
             r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCat, s.ToString());
         }
 
@@ -468,9 +459,9 @@ namespace Ice
             r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCat, s.ToString());
         }
 
-        private void GetEndpointsTrace(Reference reference, Endpoint[]? endpoints, bool cached)
+        private void GetEndpointsTrace(Reference reference, IReadOnlyList<Endpoint>? endpoints, bool cached)
         {
-            if (endpoints != null && endpoints.Length > 0)
+            if (endpoints != null && endpoints.Count > 0)
             {
                 if (cached)
                 {
@@ -644,34 +635,22 @@ namespace Ice
             private readonly Identity _id;
             private readonly Encoding _encoding;
         }
-        //
+
         // Returns locator info for a given locator. Automatically creates
         // the locator info if it doesn't exist yet.
-        //
         internal LocatorInfo GetLocatorInfo(ILocatorPrx loc)
         {
-            if (loc == null)
-            {
-                throw new ArgumentNullException(nameof(loc));
-            }
-
-            //
             // The locator can't be located.
-            //
             ILocatorPrx locator = loc.Clone(clearLocator: true);
 
-            //
             // TODO: reap unused locator info objects?
-            //
             lock (_locatorInfoMap)
             {
                 if (!_locatorInfoMap.TryGetValue(locator, out LocatorInfo? info))
                 {
-                    //
                     // Rely on locator identity for the adapter table. We want to
                     // have only one table per locator (not one per locator
                     // proxy).
-                    //
                     var key = new LocatorKey(locator);
                     if (!_locatorTableMap.TryGetValue(key, out LocatorTable? table))
                     {
@@ -703,7 +682,7 @@ namespace Ice
             }
         }
 
-        internal Endpoint[]? GetAdapterEndpoints(string adapter, int ttl, out bool cached)
+        internal IReadOnlyList<Endpoint>? GetAdapterEndpoints(string adapter, int ttl, out bool cached)
         {
             if (ttl == 0) // Locator cache disabled.
             {
@@ -713,7 +692,8 @@ namespace Ice
 
             lock (this)
             {
-                if (_adapterEndpointsTable.TryGetValue(adapter, out (long Time, Endpoint[] Endpoints) entry))
+                if (_adapterEndpointsTable.TryGetValue(adapter,
+                    out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
                 {
                     cached = CheckTTL(entry.Time, ttl);
                     return entry.Endpoints;
@@ -724,7 +704,7 @@ namespace Ice
             }
         }
 
-        internal void AddAdapterEndpoints(string adapter, Endpoint[] endpoints)
+        internal void AddAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints)
         {
             lock (this)
             {
@@ -732,11 +712,12 @@ namespace Ice
             }
         }
 
-        internal Endpoint[]? RemoveAdapterEndpoints(string adapter)
+        internal IReadOnlyList<Endpoint>? RemoveAdapterEndpoints(string adapter)
         {
             lock (this)
             {
-                if (_adapterEndpointsTable.TryGetValue(adapter, out (long Time, Endpoint[] Endpoints) entry))
+                if (_adapterEndpointsTable.TryGetValue(adapter,
+                    out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
                 {
                     _adapterEndpointsTable.Remove(adapter);
                     return entry.Endpoints;
@@ -811,8 +792,8 @@ namespace Ice
             public readonly T Value;
         }
 
-        private readonly Dictionary<string, (long Time, Endpoint[] Endpoints)> _adapterEndpointsTable =
-            new Dictionary<string, (long Time, Endpoint[] Endpoints)>();
+        private readonly Dictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)> _adapterEndpointsTable =
+            new Dictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)>();
         private readonly Dictionary<Identity, (long Time, Reference Reference)> _objectTable =
             new Dictionary<Identity, (long Time, Reference Reference)>();
     }

@@ -29,10 +29,10 @@ namespace IceInternal
         public Ice.Communicator Communicator { get; protected set; }
         public bool PreferIPv6 => Communicator.PreferIPv6;
         public int IPVersion => Communicator.IPVersion;
-        public string DefaultHost => Communicator.DefaultsAndOverrides.DefaultHost ?? "";
-        public IPAddress? DefaultSourceAddress => Communicator.DefaultsAndOverrides.DefaultSourceAddress;
-        public Ice.Encoding DefaultEncoding => Communicator.DefaultsAndOverrides.DefaultEncoding;
-        public int DefaultTimeout => Communicator.DefaultsAndOverrides.DefaultTimeout;
+        public string DefaultHost => Communicator.DefaultHost ?? "";
+        public IPAddress? DefaultSourceAddress => Communicator.DefaultSourceAddress;
+        public Ice.Encoding DefaultEncoding => Communicator.DefaultEncoding;
+        public int DefaultTimeout => Communicator.DefaultTimeout;
         public int MessageSizeMax => Communicator.MessageSizeMax;
         public INetworkProxy? NetworkProxy => Communicator.NetworkProxy;
 

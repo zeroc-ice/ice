@@ -3,14 +3,14 @@
 //
 
 using System;
-using System.Threading;
 using Ice.timeout.Test;
+using Test;
 
 namespace Ice.timeout
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
-        private static Connection connect(Ice.IObjectPrx prx)
+        private static Connection connect(IObjectPrx prx)
         {
             int nRetry = 10;
             while (--nRetry > 0)
@@ -30,12 +30,14 @@ namespace Ice.timeout
 
         public static void allTests(global::Test.TestHelper helper)
         {
-            var controller = IControllerPrx.Parse($"controller:{helper.getTestEndpoint(1)}", helper.communicator());
+            var communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
             try
             {
                 allTestsWithController(helper, controller);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 // Ensure the adapter is not in the holding state when an unexpected exception occurs to prevent
                 // the test from hanging on exit in case a connection which disables timeouts is still opened.
@@ -44,24 +46,24 @@ namespace Ice.timeout
             }
         }
 
-        public static void allTestsWithController(global::Test.TestHelper helper, Test.IControllerPrx controller)
+        public static void allTestsWithController(TestHelper helper, IControllerPrx controller)
         {
-            var communicator = helper.communicator();
-            string sref = "timeout:" + helper.getTestEndpoint(0);
-            var timeout = ITimeoutPrx.Parse(sref, communicator);
-            var output = helper.getWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            var timeout = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", communicator);
+            System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing connect timeout... ");
             output.Flush();
             {
                 //
                 // Expect ConnectTimeoutException.
                 //
-                var to = timeout.Clone(connectionTimeout: 100);
+                ITimeoutPrx to = timeout.Clone(connectionTimeout: 100);
                 controller.holdAdapter(-1);
                 try
                 {
                     to.op();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
                 {
@@ -74,7 +76,7 @@ namespace Ice.timeout
                 //
                 // Expect success.
                 //
-                var to = timeout.Clone(connectionTimeout: -1);
+                ITimeoutPrx to = timeout.Clone(connectionTimeout: -1);
                 controller.holdAdapter(100);
                 to.op();
             }
@@ -128,27 +130,27 @@ namespace Ice.timeout
                 timeout.IcePing(); // Makes sure a working connection is associated with the proxy
                 var connection = timeout.GetConnection();
                 var to = timeout.Clone(invocationTimeout: 100);
-                test(connection == to.GetConnection());
+                TestHelper.Assert(connection == to.GetConnection());
                 try
                 {
                     to.sleep(1000);
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (TimeoutException)
                 {
                 }
                 timeout.IcePing();
                 to = timeout.Clone(invocationTimeout: 1000);
-                test(connection == to.GetConnection());
+                TestHelper.Assert(connection == to.GetConnection());
                 try
                 {
                     to.sleep(100);
                 }
                 catch (TimeoutException)
                 {
-                    test(false);
+                    TestHelper.Assert(false);
                 }
-                test(connection == to.GetConnection());
+                TestHelper.Assert(connection == to.GetConnection());
             }
             {
                 //
@@ -159,7 +161,7 @@ namespace Ice.timeout
                 {
                     to.sleepAsync(1000).Wait();
                 }
-                catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
+                catch (AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
                 }
                 timeout.IcePing();
@@ -262,13 +264,13 @@ namespace Ice.timeout
                 //
                 var properties = communicator.GetProperties();
                 properties["Ice.Override.ConnectTimeout"] = "250";
-                var comm = helper.initialize(properties);
+                var comm = helper.Initialize(properties);
                 controller.holdAdapter(-1);
-                var to = ITimeoutPrx.Parse(sref, comm);
+                var to = ITimeoutPrx.Parse($"timeout:{helper.GetTestEndpoint(0)}", comm);
                 try
                 {
                     to.op();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
                 {
@@ -285,7 +287,7 @@ namespace Ice.timeout
                 try
                 {
                     to.op();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
                 {
@@ -342,7 +344,7 @@ namespace Ice.timeout
                 try
                 {
                     proxy.sleep(500);
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (TimeoutException)
                 {
@@ -351,9 +353,9 @@ namespace Ice.timeout
                 try
                 {
                     proxy.sleepAsync(500).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
-                catch (System.AggregateException ex) when (ex.InnerException is TimeoutException)
+                catch (AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
                 }
                 adapter.Destroy();

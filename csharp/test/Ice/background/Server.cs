@@ -6,6 +6,7 @@ using Test;
 using Ice;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
@@ -27,11 +28,11 @@ public class Server : TestHelper
             return new ValueTask<IObjectPrx?>(current.Adapter.CreateDirectProxy(id, IObjectPrx.Factory));
         }
 
-        public ILocatorRegistryPrx GetRegistry(Current current) => null;
+        public ILocatorRegistryPrx? GetRegistry(Current current) => null;
 
         internal Locator(BackgroundController controller) => _controller = controller;
 
-        private BackgroundController _controller;
+        private readonly BackgroundController _controller;
     }
 
     internal class RouterI : IRouter
@@ -42,22 +43,22 @@ public class Server : TestHelper
             return (null, true);
         }
 
-        public IObjectPrx GetServerProxy(Current current)
+        public IObjectPrx? GetServerProxy(Current current)
         {
             _controller.checkCallPause(current);
             return null;
         }
 
-        public IObjectPrx[] AddProxies(IObjectPrx[] proxies, Current current) => new IObjectPrx[0];
+        public IObjectPrx[] AddProxies(IObjectPrx?[] proxies, Current current) => new IObjectPrx[0];
 
         internal RouterI(BackgroundController controller) => _controller = controller;
 
-        private BackgroundController _controller;
+        private readonly BackgroundController _controller;
     }
 
-    public override void run(string[] args)
+    public override void Run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Dictionary<string, string> properties = CreateTestProperties(ref args);
         //
         // This test kills connections, so we don't want warnings.
         //
@@ -72,14 +73,13 @@ public class Server : TestHelper
         //
         // Setup the test transport plug-in.
         //
-        string? transport;
-        if (!properties.TryGetValue("Ice.Default.Transport", out transport))
+        if (!properties.TryGetValue("Ice.Default.Transport", out string? transport))
         {
             transport = "tcp";
         }
         properties["Ice.Default.Transport"] = $"test-{transport}";
 
-        using var communicator = initialize(properties);
+        using Communicator communicator = Initialize(properties);
         var plugin = new Plugin(communicator);
         plugin.Initialize();
         communicator.AddPlugin("Test", plugin);
@@ -91,12 +91,12 @@ public class Server : TestHelper
         //
         if (communicator.GetProperty("TestAdapter.Endpoints") == null)
         {
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
         }
 
         if (communicator.GetProperty("ControllerAdapter.Endpoints") == null)
         {
-            communicator.SetProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+            communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1, "tcp"));
             communicator.SetProperty("ControllerAdapter.ThreadPool.Size", "1");
         }
 
@@ -108,10 +108,10 @@ public class Server : TestHelper
 
         adapter.Add("background", backgroundI);
 
-        Locator locatorI = new Locator(backgroundController);
+        var locatorI = new Locator(backgroundController);
         adapter.Add("locator", locatorI);
 
-        RouterI routerI = new RouterI(backgroundController);
+        var routerI = new RouterI(backgroundController);
         adapter.Add("router", routerI);
         adapter.Activate();
 
@@ -121,5 +121,5 @@ public class Server : TestHelper
         communicator.WaitForShutdown();
     }
 
-    public static int Main(string[] args) => TestDriver.runTest<Server>(args);
+    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

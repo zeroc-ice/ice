@@ -10,6 +10,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -93,36 +94,56 @@ namespace Ice
             }
         }
 
-        /// <summary>The default context for proxies created using this communicator. Changing the value of
-        /// DefaultContext does not change the context of previously created proxies.</summary>
+        public bool DefaultCollocationOptimized { get; }
+
+        /// <summary>The default context for proxies created using this communicator.
+        /// Changing the value of DefaultContext does not change the context of previously created proxies.</summary>
         public IReadOnlyDictionary<string, string> DefaultContext
         {
-            get
-            {
-                lock (this)
-                {
-                    return _defaultContext;
-                }
-            }
-            set
-            {
-                lock (this)
-                {
-                    if (value.Count == 0)
-                    {
-                        _defaultContext = Reference.EmptyContext;
-                    }
-                    else
-                    {
-                        _defaultContext = new Dictionary<string, string>(value);
-                    }
-                }
-            }
+            get => _defaultContext;
+            set => _defaultContext = value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value);
         }
 
-        /// <summary>The default format (Compact or Sliced) for class instances marshaled by this communicator.
+        public Encoding DefaultEncoding { get; }
+        public EndpointSelectionType DefaultEndpointSelection { get; }
+        public FormatType DefaultFormat { get; }
+        public string? DefaultHost { get; }
+
+        /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
+        /// All newly created proxies and object adapters will use this default locator.
+        /// Note that setting this property has no effect on existing proxies or object adapters.
+        ///
+        /// You can also set a locator for an individual proxy by calling the operation ice_locator on the proxy,
+        /// or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.</summary>
+        public ILocatorPrx? DefaultLocator
+        {
+            get => _defaultLocator;
+            set => _defaultLocator = value;
+        }
+
+        public bool DefaultPreferNonSecure { get; }
+        public IPAddress? DefaultSourceAddress { get; }
+        public string DefaultTransport { get; }
+        public int DefaultTimeout { get; }
+        public int DefaultInvocationTimeout { get; }
+        public int DefaultLocatorCacheTimeout { get; }
+
+        /// <summary>The default router for this communicator. To disable the default router, null can be used.
+        /// All newly created proxies will use this default router.
+        /// Note that setting this property has no effect on existing proxies.
+        ///
+        /// You can also set a router for an individual proxy by calling the operation ice_router on the proxy.
         /// </summary>
-        public FormatType DefaultFormat => DefaultsAndOverrides.DefaultFormat;
+        public IRouterPrx? DefaultRouter
+        {
+            get => _defaultRouter;
+            set => _defaultRouter = value;
+        }
+
+        public bool? OverrideCompress { get; }
+        public int? OverrideTimeout { get; }
+        public int? OverrideCloseTimeout { get; }
+        public int? OverrideConnectTimeout { get; }
 
         /// <summary>The logger for this communicator.</summary>
         public ILogger Logger { get; internal set; }
@@ -137,7 +158,6 @@ namespace Ice
 
         internal int ClassGraphDepthMax { get; }
         internal ACMConfig ClientACM { get; }
-        internal DefaultsAndOverrides DefaultsAndOverrides { get; private set; }
         internal int MessageSizeMax { get; }
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
@@ -177,9 +197,9 @@ namespace Ice
         private readonly string[] _compactIdNamespaces;
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
-        private IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
-        private ILocatorPrx? _defaultLocator;
-        private IRouterPrx? _defaultRouter;
+        private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
+        private volatile ILocatorPrx? _defaultLocator;
+        private volatile IRouterPrx? _defaultRouter;
 
         private bool _isShutdown = false;
         private static bool _oneOffDone = false;
@@ -360,7 +380,124 @@ namespace Ice
 
                 TraceLevels = new TraceLevels(this);
 
-                DefaultsAndOverrides = new DefaultsAndOverrides(this, Logger);
+                DefaultCollocationOptimized = (GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
+
+                if (GetProperty("Ice.Default.Encoding") is string encoding)
+                {
+                    try
+                    {
+                        DefaultEncoding = Encoding.Parse(encoding);
+                        DefaultEncoding.CheckSupported();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for for Ice.Default.Encoding: `{encoding}'", ex);
+                    }
+                }
+                else
+                {
+                    DefaultEncoding = Encoding.Latest;
+                }
+
+                var endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
+                DefaultEndpointSelection = endpointSelection switch
+                {
+                    "Random" => EndpointSelectionType.Random,
+                    "Ordered" => EndpointSelectionType.Ordered,
+                    _ => throw new InvalidConfigurationException(
+                             $"illegal value `{endpointSelection}'; expected `Random' or `Ordered'")
+                };
+
+                DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? FormatType.Sliced :
+                                                                                     FormatType.Compact;
+
+                DefaultHost = GetProperty("Ice.Default.Host");
+
+                // TODO: switch to 0 default
+                DefaultPreferNonSecure = (GetPropertyAsInt("Ice.Default.PreferNonSecure") ?? 1) > 0;
+
+                if (GetProperty("Ice.Default.SourceAddress") is string address)
+                {
+                    DefaultSourceAddress = Network.GetNumericAddress(address);
+                    if (DefaultSourceAddress == null)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid IP address set for Ice.Default.SourceAddress: `{address}'");
+                    }
+                }
+
+                DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
+
+                DefaultTimeout = GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
+                if (DefaultTimeout < 1 && DefaultTimeout != -1)
+                {
+                    throw new InvalidConfigurationException(
+                        $"invalid value for Ice.Default.Timeout: `{DefaultTimeout}'");
+                }
+
+                DefaultInvocationTimeout = GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
+                if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1)
+                {
+                    throw new InvalidConfigurationException(
+                        $"invalid value for Ice.Default.InvocationTimeout: `{DefaultInvocationTimeout}'");
+                }
+
+                DefaultLocatorCacheTimeout = GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
+                if (DefaultLocatorCacheTimeout < -1)
+                {
+                    throw new InvalidConfigurationException(
+                        $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
+                }
+
+                if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
+                {
+                    OverrideCompress = compress > 0;
+                    if (!BZip2.IsLoaded && OverrideCompress.Value)
+                    {
+                        throw new InvalidConfigurationException($"compression not supported, bzip2 library not found");
+                    }
+                }
+                else if (!BZip2.IsLoaded)
+                {
+                    OverrideCompress = false;
+                }
+
+                {
+                    if (GetPropertyAsInt("Ice.Override.Timeout") is int timeout)
+                    {
+                        OverrideTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"invalid value for Ice.Override.Timeout: `{timeout}'");
+                        }
+                    }
+                }
+
+                {
+                    if (GetPropertyAsInt("Ice.Override.CloseTimeout") is int timeout)
+                    {
+                        OverrideCloseTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"invalid value for Ice.Override.CloseTimeout: `{timeout}'");
+                        }
+                    }
+                }
+
+                {
+                    if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
+                    {
+                        OverrideConnectTimeout = timeout;
+                        if (timeout < 1 && timeout != -1)
+                        {
+                            throw new InvalidConfigurationException(
+                                $"invalid value for Ice.Override.ConnectTimeout: `{timeout}'");
+                        }
+                    }
+                }
 
                 ClientACM = new ACMConfig(this, Logger, "Ice.ACM.Client",
                                            new ACMConfig(this, Logger, "Ice.ACM", new ACMConfig(false)));
@@ -581,26 +718,24 @@ namespace Ice
                 }
                 _clientThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
-                //
                 // The default router/locator may have been set during the loading of plugins.
-                // Therefore we make sure it is not already set before checking the property.
-                //
-                if (GetDefaultRouter() == null)
+                // Therefore we only set it if it hasn't already been set.
+                try
                 {
-                    IRouterPrx? router = GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
-                    if (router != null)
-                    {
-                        SetDefaultRouter(router);
-                    }
+                    _defaultLocator ??= GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
 
-                if (GetDefaultLocator() == null)
+                try
                 {
-                    ILocatorPrx? locator = GetPropertyAsProxy("Ice.Default.Locator", ILocatorPrx.Factory);
-                    if (locator != null)
-                    {
-                        SetDefaultLocator(locator);
-                    }
+                    _defaultRouter ??= GetPropertyAsProxy("Ice.Default.Router", IRouterPrx.Factory);
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidConfigurationException("invalid value for Ice.Default.Locator", ex);
                 }
 
                 //
@@ -806,7 +941,7 @@ namespace Ice
 
             string facet = "";
             InvocationMode mode = InvocationMode.Twoway;
-            Encoding encoding = DefaultsAndOverrides.DefaultEncoding;
+            Encoding encoding = DefaultEncoding;
             Protocol protocol = Protocol.Ice1;
             string adapter;
 
@@ -1077,9 +1212,7 @@ namespace Ice
                     }
                     Logger.Warning(msg.ToString());
                 }
-
-                Endpoint[] ep = endpoints.ToArray();
-                return CreateReference(ident, facet, mode, protocol, encoding, ep, null, propertyPrefix);
+                return CreateReference(ident, facet, mode, protocol, encoding, endpoints, null, propertyPrefix);
             }
             else if (s[beg] == '@')
             {
@@ -1499,40 +1632,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Get the default locator this communicator.
-        /// </summary>
-        /// <returns>The default locator for this communicator.</returns>
-        public ILocatorPrx? GetDefaultLocator()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _defaultLocator;
-            }
-        }
-
-        /// <summary>
-        /// Get the default router this communicator.
-        /// </summary>
-        /// <returns>The default router for this communicator.</returns>
-        public IRouterPrx? GetDefaultRouter()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                return _defaultRouter;
-            }
-        }
-
-        /// <summary>
-        /// Check whether communicator has been shut down.
+        /// Check whether the communicator has been shut down.
         /// </summary>
         /// <returns>True if the communicator has been shut down; false otherwise.</returns>
         public bool IsShutdown()
@@ -1564,59 +1664,6 @@ namespace Ice
                     _adminAdapter.Remove(_adminIdentity.Value, facet);
                 }
                 return result;
-            }
-        }
-
-        /// <summary>
-        /// Set a default Ice locator for this communicator.
-        /// All newly
-        /// created proxy and object adapters will use this default
-        /// locator. To disable the default locator, null can be used.
-        /// Note that this operation has no effect on existing proxies or
-        /// object adapters.
-        ///
-        /// You can also set a locator for an individual proxy by calling the
-        /// operation ice_locator on the proxy, or for an object adapter
-        /// by calling ObjectAdapter.setLocator on the object adapter.
-        ///
-        /// </summary>
-        /// <param name="locator">The default locator to use for this communicator.</param>
-        public void SetDefaultLocator(ILocatorPrx? locator)
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                _defaultLocator = locator;
-            }
-        }
-
-        /// <summary>
-        /// Set a default router for this communicator.
-        /// All newly
-        /// created proxies will use this default router. To disable the
-        /// default router, null can be used. Note that this
-        /// operation has no effect on existing proxies.
-        ///
-        /// You can also set a router for an individual proxy
-        /// by calling the operation ice_router on the proxy.
-        ///
-        /// </summary>
-        /// <param name="router">The default router to use for this communicator.
-        ///
-        /// </param>
-        public void SetDefaultRouter(IRouterPrx? router)
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                _defaultRouter = router;
             }
         }
 
@@ -1784,7 +1831,8 @@ namespace Ice
             }
         }
 
-        internal Reference CreateReference(Identity ident, string facet, Reference tmpl, Endpoint[] endpoints)
+        internal Reference CreateReference(Identity ident, string facet, Reference tmpl,
+            IReadOnlyList<Endpoint> endpoints)
         {
             return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.Protocol, tmpl.Encoding,
                           endpoints, null, null);
@@ -1806,7 +1854,7 @@ namespace Ice
                 communicator: this,
                 compress: null,
                 context: DefaultContext,
-                encoding: DefaultsAndOverrides.DefaultEncoding,
+                encoding: DefaultEncoding,
                 facet: "",
                 fixedConnection: connection,
                 identity: identity,
@@ -2162,7 +2210,7 @@ namespace Ice
             InvocationMode mode,
             Protocol protocol,
             Encoding encoding,
-            Endpoint[] endpoints,
+            IReadOnlyList<Endpoint> endpoints,
             string? adapterId,
             string? propertyPrefix)
         {
@@ -2194,12 +2242,12 @@ namespace Ice
             {
                 routerInfo = GetRouterInfo(_defaultRouter);
             }
-            bool collocOptimized = DefaultsAndOverrides.DefaultCollocationOptimization;
+            bool collocOptimized = DefaultCollocationOptimized;
             bool cacheConnection = true;
-            bool preferNonSecure = DefaultsAndOverrides.DefaultPreferNonSecure;
-            EndpointSelectionType endpointSelection = DefaultsAndOverrides.DefaultEndpointSelection;
-            int locatorCacheTimeout = DefaultsAndOverrides.DefaultLocatorCacheTimeout;
-            int invocationTimeout = DefaultsAndOverrides.DefaultInvocationTimeout;
+            bool preferNonSecure = DefaultPreferNonSecure;
+            EndpointSelectionType endpointSelection = DefaultEndpointSelection;
+            int locatorCacheTimeout = DefaultLocatorCacheTimeout;
+            int invocationTimeout = DefaultInvocationTimeout;
             IReadOnlyDictionary<string, string>? context = null;
 
             //

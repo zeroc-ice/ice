@@ -2,20 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Test;
 
 namespace Ice.location
 {
     public class ServerLocatorRegistry : Test.ITestLocatorRegistry
     {
-        public ServerLocatorRegistry()
-        {
-            _adapters = new Hashtable();
-            _objects = new Hashtable();
-        }
-
-        public ValueTask SetAdapterDirectProxyAsync(string adapter, Ice.IObjectPrx obj, Ice.Current current)
+        public ValueTask SetAdapterDirectProxyAsync(string adapter, IObjectPrx? obj, Current current)
         {
             if (obj != null)
             {
@@ -28,7 +23,7 @@ namespace Ice.location
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, IObjectPrx obj,
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapter, string replica, IObjectPrx? obj,
             Current current)
         {
             if (obj != null)
@@ -44,33 +39,36 @@ namespace Ice.location
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx proxy, Current current)
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? proxy, Current current)
             => new ValueTask(Task.CompletedTask);
 
-        public void addObject(IObjectPrx obj, Current current) => addObject(obj);
-        public void addObject(IObjectPrx obj) => _objects[obj.Identity] = obj;
-
-        public IObjectPrx getAdapter(string adapter)
+        public void addObject(IObjectPrx? obj, Current current)
         {
-            object obj = _adapters[adapter];
-            if (obj == null)
+            TestHelper.Assert(obj != null);
+            AddObject(obj);
+        }
+
+        public void AddObject(IObjectPrx obj) => _objects[obj.Identity] = obj;
+
+        public IObjectPrx GetAdapter(string adapter)
+        {
+            if (!_adapters.TryGetValue(adapter, out IObjectPrx? obj))
             {
                 throw new AdapterNotFoundException();
             }
-            return (ObjectPrx)obj;
+            return obj;
         }
 
-        public IObjectPrx getObject(Ice.Identity id)
+        public IObjectPrx GetObject(Identity id)
         {
-            object obj = _objects[id];
-            if (obj == null)
+            if (!_objects.TryGetValue(id, out IObjectPrx? obj))
             {
-                throw new Ice.ObjectNotFoundException();
+                throw new ObjectNotFoundException();
             }
-            return (ObjectPrx)obj;
+            return obj;
         }
 
-        private Hashtable _adapters;
-        private Hashtable _objects;
+        private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
+        private readonly Dictionary<Identity, IObjectPrx> _objects = new Dictionary<Identity, IObjectPrx>();
     }
 }

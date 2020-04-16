@@ -9,10 +9,10 @@ namespace Ice.facets
 {
     public class Collocated : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            using var communicator = initialize(ref args);
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            using Communicator communicator = Initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
             adapter.Add("d", d);
@@ -24,6 +24,6 @@ namespace Ice.facets
             AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Collocated>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

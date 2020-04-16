@@ -11,9 +11,9 @@ namespace Ice.ami
 {
     public class Collocated : TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
 
             properties["Ice.Warn.AMICallback"] = "0";
             //
@@ -26,9 +26,9 @@ namespace Ice.ami
             // that task inlining works.
             //
             properties["Ice.ThreadPool.Client.Size"] = "5";
-            using var communicator = initialize(properties);
+            using var communicator = Initialize(properties);
 
-            communicator.SetProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
@@ -38,6 +38,6 @@ namespace Ice.ami
             AllTests.allTests(this, true);
         }
 
-        public static int Main(string[] args) => TestDriver.runTest<Collocated>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

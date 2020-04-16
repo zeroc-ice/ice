@@ -120,7 +120,7 @@ namespace IceDiscovery
                     endpoints.AddRange(prx.Endpoints);
                 }
                 Debug.Assert(result != null);
-                SendResponse(result.Clone(endpoints: endpoints.ToArray()));
+                SendResponse(result.Clone(endpoints: endpoints));
             }
         }
 
@@ -224,22 +224,20 @@ namespace IceDiscovery
 
         public void SetLookupReply(ILookupReplyPrx lookupReply)
         {
-            //
             // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
-            //
-            var single = new Ice.Endpoint[1];
-            foreach (ILookupPrx key in new List<ILookupPrx>(_lookups.Keys))
+            var single = new Endpoint[1];
+            foreach (ILookupPrx key in _lookups.Keys.ToArray())
             {
-                var endpoint = (Ice.UdpEndpoint)key.Endpoints[0];
+                var endpoint = (UdpEndpoint)key.Endpoints[0];
                 if (endpoint.McastInterface.Length > 0)
                 {
-                    foreach (Endpoint q in lookupReply.Endpoints)
+                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e =>
+                        e is IPEndpoint ipEndpoint && ipEndpoint.Host.Equals(endpoint.McastInterface));
+
+                    if (q != null)
                     {
-                        if (q is Ice.IPEndpoint && ((Ice.IPEndpoint)q).Host.Equals(endpoint.McastInterface))
-                        {
-                            single[0] = q;
-                            _lookups[key] = lookupReply.Clone(endpoints: single);
-                        }
+                         single[0] = q;
+                        _lookups[key] = lookupReply.Clone(endpoints: single);
                     }
                 }
 

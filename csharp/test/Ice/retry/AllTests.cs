@@ -3,19 +3,16 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Threading;
+using Test;
 
 namespace Ice.retry
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
         private class Callback
         {
-            internal Callback()
-            {
-                _called = false;
-            }
+            internal Callback() => _called = false;
 
             public void check()
             {
@@ -34,7 +31,7 @@ namespace Ice.retry
             {
                 lock (this)
                 {
-                    Debug.Assert(!_called);
+                    TestHelper.Assert(!_called);
                     _called = true;
                     Monitor.Pulse(this);
                 }
@@ -44,11 +41,11 @@ namespace Ice.retry
         }
 
         static public Test.IRetryPrx
-        allTests(global::Test.TestHelper helper, Communicator communicator, Communicator communicator2, string rf)
+        allTests(TestHelper helper, Communicator communicator, Communicator communicator2, string rf)
         {
             Instrumentation.testInvocationReset();
 
-            var output = helper.getWriter();
+            var output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
             var base1 = IObjectPrx.Parse(rf, communicator);
@@ -57,10 +54,10 @@ namespace Ice.retry
 
             output.Write("testing checked cast... ");
             output.Flush();
-            Test.IRetryPrx retry1 = Test.IRetryPrx.CheckedCast(base1);
-            test(retry1.Equals(base1));
-            Test.IRetryPrx retry2 = Test.IRetryPrx.CheckedCast(base2);
-            test(retry2.Equals(base2));
+            Test.IRetryPrx? retry1 = Test.IRetryPrx.CheckedCast(base1);
+            TestHelper.Assert(retry1 != null && retry1.Equals(base1));
+            Test.IRetryPrx? retry2 = Test.IRetryPrx.CheckedCast(base2);
+            TestHelper.Assert(retry2 != null && retry2.Equals(base2));
             output.WriteLine("ok");
 
             output.Write("calling regular operation with first proxy... ");
@@ -75,7 +72,7 @@ namespace Ice.retry
             try
             {
                 retry2.op(true);
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (UnhandledException)
             {
@@ -108,11 +105,12 @@ namespace Ice.retry
             try
             {
                 retry2.opAsync(true).Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex)
             {
-                test(ex.InnerException is ConnectionLostException || ex.InnerException is UnhandledException);
+                TestHelper.Assert(ex.InnerException is ConnectionLostException ||
+                                  ex.InnerException is UnhandledException);
             }
 
             Instrumentation.testInvocationCount(1);
@@ -128,11 +126,11 @@ namespace Ice.retry
             output.WriteLine("ok");
 
             output.Write("testing idempotent operation... ");
-            test(retry1.opIdempotent(4) == 4);
+            TestHelper.Assert(retry1.opIdempotent(4) == 4);
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
             Instrumentation.testRetryCount(4);
-            test(retry1.opIdempotentAsync(4).Result == 4);
+            TestHelper.Assert(retry1.opIdempotentAsync(4).Result == 4);
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
             Instrumentation.testRetryCount(4);
@@ -151,7 +149,7 @@ namespace Ice.retry
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(1);
                 Instrumentation.testRetryCount(0);
-                test(retry1.opIdempotent(4) == 4);
+                TestHelper.Assert(retry1.opIdempotent(4) == 4);
                 Instrumentation.testInvocationCount(1);
                 Instrumentation.testFailureCount(0);
                 // It succeeded after 3 retry because of the failed opIdempotent on the fixed proxy above
@@ -163,7 +161,7 @@ namespace Ice.retry
             try
             {
                 retry1.opNotIdempotent();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (UnhandledException)
             {
@@ -174,11 +172,11 @@ namespace Ice.retry
             try
             {
                 retry1.opNotIdempotentAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex)
             {
-                test(ex.InnerException is UnhandledException);
+                TestHelper.Assert(ex.InnerException is UnhandledException);
             }
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(1);
@@ -189,7 +187,7 @@ namespace Ice.retry
             try
             {
                 retry1.opSystemException();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (Test.SystemFailure)
             {
@@ -200,11 +198,11 @@ namespace Ice.retry
             try
             {
                 retry1.opSystemExceptionAsync().Wait();
-                test(false);
+                TestHelper.Assert(false);
             }
             catch (AggregateException ex)
             {
-                test(ex.InnerException is Test.SystemFailure);
+                TestHelper.Assert(ex.InnerException is Test.SystemFailure);
             }
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
@@ -215,12 +213,12 @@ namespace Ice.retry
                 output.Write("testing invocation timeout and retries... ");
                 output.Flush();
 
-                retry2 = Test.IRetryPrx.Parse(retry1.ToString(), communicator2);
+                retry2 = Test.IRetryPrx.Parse(retry1.ToString()!, communicator2);
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
                     retry2.Clone(invocationTimeout: 500).opIdempotent(4);
-                    test(false);
+                    TestHelper.Assert(false);
                 }
                 catch (TimeoutException)
                 {
@@ -233,11 +231,11 @@ namespace Ice.retry
                     // No more than 2 retries before timeout kicks-in
                     Test.IRetryPrx prx = retry2.Clone(invocationTimeout: 500);
                     prx.opIdempotentAsync(4).Wait();
-                    test(false);
+                    TestHelper.Assert(false);
                 }
-                catch (System.AggregateException ex)
+                catch (AggregateException ex)
                 {
-                    test(ex.InnerException is TimeoutException);
+                    TestHelper.Assert(ex.InnerException is TimeoutException);
                     Instrumentation.testRetryCount(2);
                     retry2.opIdempotent(-1); // Reset the counter
                     Instrumentation.testRetryCount(-1);

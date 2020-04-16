@@ -9,7 +9,7 @@ namespace Test
     public static class Collections
     {
         public static bool Equals<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? lhs,
-                                                IReadOnlyDictionary<TKey, TValue>? rhs)
+                                                IReadOnlyDictionary<TKey, TValue>? rhs) where TKey : notnull
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -55,15 +55,11 @@ namespace Test
             return true;
         }
 
-        public static bool Equals<T>(IReadOnlyList<T>? lhs, IReadOnlyList<T>? rhs)
-        {
-            return Equals<T>(lhs as IReadOnlyCollection<T>, rhs as IReadOnlyCollection<T>);
-        }
+        public static bool Equals<T>(IReadOnlyList<T>? lhs, IReadOnlyList<T>? rhs) =>
+            Equals(lhs as IReadOnlyCollection<T>, rhs as IReadOnlyCollection<T>);
 
-        public static bool Equals<T>(LinkedList<T>? lhs, LinkedList<T>? rhs)
-        {
-            return Equals<T>(lhs as IReadOnlyCollection<T>, rhs as IReadOnlyCollection<T>);
-        }
+        public static bool Equals<T>(LinkedList<T>? lhs, LinkedList<T>? rhs) =>
+            Equals(lhs as IReadOnlyCollection<T>, rhs as IReadOnlyCollection<T>);
 
         private static bool Equals<T>(IReadOnlyCollection<T>? lhs, IReadOnlyCollection<T>? rhs)
         {

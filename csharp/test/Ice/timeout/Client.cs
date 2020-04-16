@@ -6,9 +6,9 @@ namespace Ice.timeout
 {
     public class Client : global::Test.TestHelper
     {
-        public override void run(string[] args)
+        public override void Run(string[] args)
         {
-            var properties = createTestProperties(ref args);
+            var properties = CreateTestProperties(ref args);
 
             //
             // For this test, we want to disable retries.
@@ -25,10 +25,10 @@ namespace Ice.timeout
             // send() blocking after sending a given amount of data.
             //
             properties["Ice.TCP.SndSize"] = "50000";
-            using var communicator = initialize(properties);
+            using var communicator = Initialize(properties);
             AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.runTest<Client>(args);
+        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Client>(args);
     }
 }

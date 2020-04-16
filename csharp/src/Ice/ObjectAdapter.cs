@@ -6,6 +6,7 @@ using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Ice
@@ -21,22 +22,8 @@ namespace Ice
         /// <value>The locator proxy.</value>
         public ILocatorPrx? Locator
         {
-            get
-            {
-                lock (_mutex)
-                {
-                    CheckForDeactivation();
-                    return _locatorInfo?.Locator;
-                }
-            }
-            set
-            {
-                lock (_mutex)
-                {
-                    CheckForDeactivation();
-                    _locatorInfo = value != null ? Communicator.GetLocatorInfo(value) : null;
-                }
-             }
+            get => _locatorInfo?.Locator;
+            set => _locatorInfo = (value != null) ? Communicator.GetLocatorInfo(value) : null;
         }
 
         /// <summary>Returns the name of this object adapter. This name is used as prefix for the object adapter's
@@ -108,9 +95,9 @@ namespace Ice
             new Dictionary<IdentityPlusFacet, IObject>();
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
             new List<IncomingConnectionFactory>();
-        private LocatorInfo? _locatorInfo;
+        private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new object();
-        private Endpoint[] _publishedEndpoints;
+        private IReadOnlyList<Endpoint> _publishedEndpoints;
         private Reference? _reference;
         private readonly string _replicaGroupId;
         private RouterInfo? _routerInfo;
@@ -122,8 +109,6 @@ namespace Ice
         /// set).</summary>
         public void Activate()
         {
-            LocatorInfo? locatorInfo = null;
-
             lock (_mutex)
             {
                 CheckForDeactivation();
@@ -137,13 +122,11 @@ namespace Ice
                 // Update the locator registry. We set set state to State.Activating to prevent deactivation from
                 // other threads while the call is performed.
                 _state = State.Activating;
-
-                locatorInfo = _locatorInfo;
             }
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (System.Exception)
             {
@@ -711,18 +694,13 @@ namespace Ice
         public T CreateIndirectProxy<T>(string identity, ProxyFactory<T> factory) where T : class, IObjectPrx
             => CreateIndirectProxy(identity, "", factory);
 
-        /// <summary>Retrieves a copy of the endpoints configured with this object adapter.</summary>
+        /// <summary>Retrieves the endpoints configured with this object adapter.</summary>
         /// <returns>The endpoints.</returns>
-        public Endpoint[] GetEndpoints()
+        public IReadOnlyList<Endpoint> GetEndpoints()
         {
             lock (_mutex)
             {
-                var endpoints = new List<Endpoint>();
-                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    endpoints.Add(factory.Endpoint());
-                }
-                return endpoints.ToArray();
+                return _incomingConnectionFactories.Select(factory => factory.Endpoint()).ToArray();
             }
         }
 
@@ -732,8 +710,7 @@ namespace Ice
         /// endpoint information published in the proxies created by this object adapter.</summary>
         public void RefreshPublishedEndpoints()
         {
-            LocatorInfo? locatorInfo = null;
-            Endpoint[] oldPublishedEndpoints;
+            IReadOnlyList<Endpoint> oldPublishedEndpoints;
 
             lock (_mutex)
             {
@@ -741,13 +718,11 @@ namespace Ice
 
                 oldPublishedEndpoints = _publishedEndpoints;
                 _publishedEndpoints = ComputePublishedEndpoints();
-
-                locatorInfo = _locatorInfo;
             }
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (Exception)
             {
@@ -760,24 +735,23 @@ namespace Ice
             }
         }
 
-        /// <summary>Retrieves a copy of the endpoints that would be listed in a proxy created by this object adapter.
+        /// <summary>Retrieves the endpoints that would be listed in a proxy created by this object adapter.
         /// </summary>
         /// <returns>The published endpoints.</returns>
-        public Endpoint[] GetPublishedEndpoints()
+        public IReadOnlyList<Endpoint> GetPublishedEndpoints()
         {
             lock (_mutex)
             {
-                return (Endpoint[])_publishedEndpoints.Clone();
+                return _publishedEndpoints;
             }
         }
 
         /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
         /// </summary>
         /// <param name="newEndpoints">The new published endpoints.</param>
-        public void SetPublishedEndpoints(Endpoint[] newEndpoints)
+        public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints)
         {
-            LocatorInfo? locatorInfo = null;
-            Endpoint[] oldPublishedEndpoints;
+            IReadOnlyList<Endpoint> oldPublishedEndpoints;
 
             lock (_mutex)
             {
@@ -785,24 +759,20 @@ namespace Ice
                 if (_routerInfo != null)
                 {
                     throw new InvalidOperationException(
-                                    "cannot set published endpoints on an object adapter associated with a router");
+                        "cannot set published endpoints on an object adapter associated with a router");
                 }
 
                 oldPublishedEndpoints = _publishedEndpoints;
-                if (newEndpoints.Length == 0)
+                _publishedEndpoints = newEndpoints.ToArray();
+                if (_publishedEndpoints.Count == 0)
                 {
                     _publishedEndpoints = Array.Empty<Endpoint>();
                 }
-                else
-                {
-                    _publishedEndpoints = (Endpoint[])newEndpoints.Clone(); // can't reference the user-provided array
-                }
-                locatorInfo = _locatorInfo;
             }
 
             try
             {
-                UpdateLocatorRegistry(locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
             }
             catch (Exception)
             {
@@ -912,20 +882,20 @@ namespace Ice
                 }
                 else
                 {
+                    IReadOnlyList<Endpoint>? endpoints = null;
+
                     // Parse the endpoints, but don't store them in the adapter. The connection factory might change
                     // it, for example, to fill in the real port number.
-                    List<Endpoint> endpoints = ParseEndpoints(
-                        Communicator.GetProperty($"{Name}.Endpoints") ?? "", true);
-                    foreach (Endpoint endp in endpoints)
+                    if (Communicator.GetProperty($"{Name}.Endpoints") is string value)
                     {
-                        Endpoint? publishedEndpoint;
-                        foreach (Endpoint expanded in endp.ExpandHost(out publishedEndpoint))
-                        {
-                            var factory = new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm);
-                            _incomingConnectionFactories.Add(factory);
-                        }
+                        endpoints = ParseEndpoints(value, true);
+
+                        _incomingConnectionFactories.AddRange(endpoints.SelectMany(endpoint =>
+                            endpoint.ExpandHost(out Endpoint? publishedEndpoint).Select(expanded =>
+                                new IncomingConnectionFactory(this, expanded, publishedEndpoint, _acm))));
                     }
-                    if (endpoints.Count == 0)
+
+                    if (endpoints == null || endpoints.Count == 0)
                     {
                         TraceLevels tl = Communicator.TraceLevels;
                         if (tl.Network >= 2)
@@ -938,7 +908,7 @@ namespace Ice
                 // Parse published endpoints.
                 _publishedEndpoints = ComputePublishedEndpoints();
                 Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
-                    ?? Communicator.GetDefaultLocator();
+                    ?? Communicator.DefaultLocator;
             }
             catch (System.Exception)
             {
@@ -967,33 +937,15 @@ namespace Ice
             }
             else
             {
-                Endpoint[] endpoints = r.Endpoints;
-
                 lock (_mutex)
                 {
                     CheckForDeactivation();
 
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
-                    for (int i = 0; i < endpoints.Length; ++i)
-                    {
-                        foreach (Endpoint endpoint in _publishedEndpoints)
-                        {
-                            if (endpoints[i].Equivalent(endpoint))
-                            {
-                                return true;
-                            }
-                        }
-
-                        foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                        {
-                            if (factory.IsLocal(endpoints[i]))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
+                    return r.Endpoints.Any(endpoint =>
+                        _publishedEndpoints.Any(publishedEndpoint => endpoint.Equivalent(publishedEndpoint)) ||
+                        _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
             }
         }
@@ -1087,7 +1039,7 @@ namespace Ice
             }
         }
 
-        private List<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
+        private IReadOnlyList<Endpoint> ParseEndpoints(string endpts, bool oaEndpoints)
         {
             int beg;
             int end = 0;
@@ -1169,57 +1121,33 @@ namespace Ice
             return endpoints;
         }
 
-        private Endpoint[] ComputePublishedEndpoints()
+        private IReadOnlyList<Endpoint> ComputePublishedEndpoints()
         {
-            List<Endpoint> endpoints;
+            IReadOnlyList<Endpoint>? endpoints = null;
             if (_routerInfo != null)
             {
                 // Get the router's server proxy endpoints and use them as the published endpoints.
-                endpoints = new List<Endpoint>();
-                foreach (Endpoint endpt in _routerInfo.GetServerEndpoints())
-                {
-                    if (!endpoints.Contains(endpt))
-                    {
-                        endpoints.Add(endpt);
-                    }
-                }
+                endpoints = _routerInfo.GetServerEndpoints().Distinct().ToArray();
             }
             else
             {
                 // Parse published endpoints. If set, these are used in proxies instead of the connection factory
                 // endpoints.
-                string? publishedEndpoints = null;
-                if (Name.Length > 0)
+                if (Name.Length > 0 && Communicator.GetProperty($"{Name}.PublishedEndpoints") is string value)
                 {
-                    publishedEndpoints = Communicator.GetProperty($"{Name}.PublishedEndpoints");
+                    endpoints = ParseEndpoints(value, false);
                 }
-                if (publishedEndpoints != null)
+                if (endpoints == null || endpoints.Count == 0)
                 {
-                    endpoints = ParseEndpoints(publishedEndpoints, false);
-                }
-                else
-                {
-                    endpoints = new List<Endpoint>();
-                }
+                    // If the PublishedEndpoints property isn't set, we compute the published endpoints from the OA
+                    // endpoints, expanding any endpoint that may be listening on INADDR_ANY to include actual addresses
+                    // in the published endpoints.
+                    // We also filter out duplicate endpoints, this might occur if an endpoint with a DNS name
+                    // expands to multiple addresses. In this case, multiple incoming connection factories can point to
+                    // the same published endpoint.
 
-                if (endpoints.Count == 0)
-                {
-                    // If the PublishedEndpoints property isn't set, we compute the published endpoints
-                    // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
-                    // to include actual addresses in the published endpoints.
-                    foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                    {
-                        foreach (Endpoint endpt in factory.Endpoint().ExpandIfWildcard())
-                        {
-                            // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
-                            // expands to multiple addresses. In this case, multiple incoming connection
-                            // factories can point to the same published endpoint.
-                            if (!endpoints.Contains(endpt))
-                            {
-                                endpoints.Add(endpt);
-                            }
-                        }
-                    }
+                    endpoints = _incomingConnectionFactories.SelectMany(factory =>
+                        factory.Endpoint().ExpandIfWildcard()).Distinct().ToArray();
                 }
             }
 
@@ -1228,20 +1156,11 @@ namespace Ice
                 var s = new StringBuilder("published endpoints for object adapter `");
                 s.Append(Name);
                 s.Append("':\n");
-                bool first = true;
-                foreach (Endpoint endpoint in endpoints)
-                {
-                    if (!first)
-                    {
-                        s.Append(":");
-                    }
-                    s.Append(endpoint.ToString());
-                    first = false;
-                }
+                s.Append(string.Join(":", endpoints));
                 Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCat, s.ToString());
             }
 
-            return endpoints.ToArray();
+            return endpoints;
         }
 
         private void UpdateLocatorRegistry(LocatorInfo? locatorInfo, IObjectPrx? proxy)
@@ -1304,15 +1223,7 @@ namespace Ice
                 s.Append("endpoints = ");
                 if (proxy != null)
                 {
-                    Endpoint[] endpoints = proxy.Endpoints;
-                    for (int i = 0; i < endpoints.Length; i++)
-                    {
-                        s.Append(endpoints[i].ToString());
-                        if (i + 1 < endpoints.Length)
-                        {
-                            s.Append(":");
-                        }
-                    }
+                    s.Append(string.Join(":", proxy.Endpoints));
                 }
                 Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
             }

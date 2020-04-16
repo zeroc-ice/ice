@@ -3,7 +3,9 @@
 //
 
 using System.Collections.Generic;
+using Test;
 using System.Diagnostics;
+using System.Linq;
 
 internal class Endpoint : Ice.Endpoint
 {
@@ -102,7 +104,7 @@ internal class Endpoint : Ice.Endpoint
     public override IceInternal.IAcceptor GetAcceptor(string adapterName)
     {
         var acceptor = _endpoint.GetAcceptor(adapterName);
-        Debug.Assert(acceptor != null);
+        TestHelper.Assert(acceptor != null);
         return new Acceptor(this, acceptor);
     }
 
@@ -110,7 +112,7 @@ internal class Endpoint : Ice.Endpoint
     {
         try
         {
-            _configuration.checkConnectorsException();
+            _configuration.CheckConnectorsException();
             _endpoint.ConnectorsAsync(selType, new ConnectorsCallback(cb));
         }
         catch (System.Exception ex)
@@ -119,29 +121,18 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override List<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+    public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
     {
-        var endpoints = new List<Ice.Endpoint>();
-        foreach (var e in _endpoint.ExpandHost(out publish))
-        {
-            endpoints.Add(e == _endpoint ? this : new Endpoint(e));
-        }
+        var endpoints = _endpoint.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
         if (publish != null)
         {
-            publish = publish == _endpoint ? this : new Endpoint(publish);
+            publish = GetEndpoint(publish);
         }
         return endpoints;
     }
 
-    public override List<Ice.Endpoint> ExpandIfWildcard()
-    {
-        var endpoints = new List<Ice.Endpoint>();
-        foreach (var e in _endpoint.ExpandIfWildcard())
-        {
-            endpoints.Add(e == _endpoint ? this : new Endpoint(e));
-        }
-        return endpoints;
-    }
+    public override IEnumerable<Ice.Endpoint> ExpandIfWildcard() =>
+        _endpoint.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
     public override IceInternal.ITransceiver? GetTransceiver()
     {
@@ -159,7 +150,7 @@ internal class Endpoint : Ice.Endpoint
     internal Endpoint(Ice.Endpoint endpoint)
     {
         _endpoint = endpoint;
-        _configuration = Configuration.getInstance();
+        _configuration = Configuration.GetInstance();
     }
 
     internal Endpoint GetEndpoint(Ice.Endpoint del) => del == _endpoint ? this : new Endpoint(del);

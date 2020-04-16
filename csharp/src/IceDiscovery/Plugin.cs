@@ -95,8 +95,8 @@ namespace IceDiscovery
             // Setup locator on the communicator.
             //
             _locator = _locatorAdapter.AddWithUUID(new Locator(lookup, locatorRegistryPrx), ILocatorPrx.Factory);
-            _defaultLocator = _communicator.GetDefaultLocator();
-            _communicator.SetDefaultLocator(_locator);
+            _defaultLocator = _communicator.DefaultLocator;
+            _communicator.DefaultLocator = _locator;
 
             _multicastAdapter.Activate();
             _replyAdapter.Activate();
@@ -118,10 +118,10 @@ namespace IceDiscovery
                 _locatorAdapter.Destroy();
             }
 
-            if (IObjectPrx.Equals(_communicator.GetDefaultLocator(), _locator))
+            if (IObjectPrx.Equals(_communicator.DefaultLocator, _locator))
             {
                 // Restore original default locator proxy, if the user didn't change it in the meantime
-                _communicator.SetDefaultLocator(_defaultLocator);
+                _communicator.DefaultLocator = _defaultLocator;
             }
         }
 

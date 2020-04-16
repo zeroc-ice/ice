@@ -2,15 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
+
 namespace Ice.seqMapping
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
-        public static Test.IMyClassPrx allTests(global::Test.TestHelper helper, bool collocated)
+        public static Test.IMyClassPrx allTests(TestHelper helper, bool collocated)
         {
-            var communicator = helper.communicator();
-            var output = helper.getWriter();
-            var cl = Test.IMyClassPrx.Parse($"test:{helper.getTestEndpoint(0)}", communicator);
+            var communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            var output = helper.GetWriter();
+            var cl = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
             output.Write("testing twoway operations... ");
             output.Flush();
             Twoways.twoways(communicator, cl);

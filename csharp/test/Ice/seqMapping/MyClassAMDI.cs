@@ -228,14 +228,14 @@ namespace Ice.seqMapping.AMD
         public ValueTask<(Custom<Custom<Test.CV?>>, Custom<Custom<Test.CV?>>)>
         opCustomCVSSAsync(Custom<Custom<Test.CV?>> i, Current current) => FromResult((i, i));
 
-        public ValueTask<(Serialize.Small, Serialize.Small)> opSerialSmallCSharpAsync(Serialize.Small i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(Serialize.Small?, Serialize.Small?)> opSerialSmallCSharpAsync(
+            Serialize.Small? i, Current current) => FromResult((i, i));
 
-        public ValueTask<(Serialize.Large, Serialize.Large)> opSerialLargeCSharpAsync(Serialize.Large i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(Serialize.Large?, Serialize.Large?)> opSerialLargeCSharpAsync(
+            Serialize.Large? i, Current current) => FromResult((i, i));
 
-        public ValueTask<(Serialize.Struct, Serialize.Struct)> opSerialStructCSharpAsync(Serialize.Struct i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(Serialize.Struct?, Serialize.Struct?)> opSerialStructCSharpAsync(
+            Serialize.Struct? i, Current current) => FromResult((i, i));
 
         internal static ValueTask<T> FromResult<T>(T result) => new ValueTask<T>(result);
     }

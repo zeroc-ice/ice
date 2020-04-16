@@ -3,30 +3,33 @@
 //
 
 using System.Collections.Generic;
+using Test;
 
 namespace Ice.info
 {
-    public class AllTests : global::Test.AllTests
+    public class AllTests
     {
-        private static TcpEndpoint getTCPEndpoint(Endpoint endpoint)
+        private static TcpEndpoint? getTCPEndpoint(Endpoint endpoint)
         {
-            for (; endpoint != null; endpoint = endpoint.Underlying)
+            Endpoint? underlying = endpoint;
+            for (; underlying != null; underlying = underlying.Underlying)
             {
-                if (endpoint is TcpEndpoint)
+                if (underlying is TcpEndpoint)
                 {
-                    return endpoint as TcpEndpoint;
+                    return (TcpEndpoint)underlying;
                 }
             }
             return null;
         }
 
-        private static TCPConnectionInfo getTCPConnectionInfo(ConnectionInfo info)
+        private static TCPConnectionInfo? getTCPConnectionInfo(ConnectionInfo info)
         {
-            for (; info != null; info = info.Underlying)
+            ConnectionInfo? underlying = info;
+            for (; underlying != null; underlying = underlying.Underlying)
             {
                 if (info is TCPConnectionInfo)
                 {
-                    return info as TCPConnectionInfo;
+                    return (TCPConnectionInfo)underlying;
                 }
             }
             return null;
@@ -34,8 +37,9 @@ namespace Ice.info
 
         public static void allTests(global::Test.TestHelper helper)
         {
-            Communicator communicator = helper.communicator();
-            var output = helper.getWriter();
+            Communicator? communicator = helper.Communicator();
+            TestHelper.Assert(communicator != null);
+            var output = helper.GetWriter();
             output.Write("testing proxy endpoint information... ");
             output.Flush();
             {
@@ -44,41 +48,42 @@ namespace Ice.info
                                 "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
                                 "opaque -e 1.8 -t 100 -v ABCD", communicator);
 
-                Endpoint[] endps = p1.Endpoints;
+                var endps = p1.Endpoints;
 
                 Endpoint endpoint = endps[0];
-                TcpEndpoint tcpEndpoint = getTCPEndpoint(endpoint);
-                test(tcpEndpoint.Host.Equals("tcphost"));
-                test(tcpEndpoint.Port == 10000);
-                test(tcpEndpoint.SourceAddress.ToString().Equals("10.10.10.10"));
-                test(tcpEndpoint.Timeout == 1200);
-                test(tcpEndpoint.HasCompressionFlag);
-                test(!tcpEndpoint.IsDatagram);
+                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoint);
+                TestHelper.Assert(tcpEndpoint != null);
+                TestHelper.Assert(tcpEndpoint.Host.Equals("tcphost"));
+                TestHelper.Assert(tcpEndpoint.Port == 10000);
+                TestHelper.Assert(tcpEndpoint.SourceAddress!.ToString().Equals("10.10.10.10"));
+                TestHelper.Assert(tcpEndpoint.Timeout == 1200);
+                TestHelper.Assert(tcpEndpoint.HasCompressionFlag);
+                TestHelper.Assert(!tcpEndpoint.IsDatagram);
 
-                test(tcpEndpoint.Type == EndpointType.TCP && !tcpEndpoint.IsSecure ||
+                TestHelper.Assert(tcpEndpoint.Type == EndpointType.TCP && !tcpEndpoint.IsSecure ||
                         tcpEndpoint.Type == EndpointType.SSL && tcpEndpoint.IsSecure ||
                         tcpEndpoint.Type == EndpointType.WS && !tcpEndpoint.IsSecure ||
                         tcpEndpoint.Type == EndpointType.WSS && tcpEndpoint.IsSecure);
-                test(tcpEndpoint.Type == EndpointType.TCP && endpoint is TcpEndpoint ||
+                TestHelper.Assert(tcpEndpoint.Type == EndpointType.TCP && endpoint is TcpEndpoint ||
                         tcpEndpoint.Type == EndpointType.SSL && endpoint is IceSSL.Endpoint ||
                         tcpEndpoint.Type == EndpointType.WS && endpoint is WSEndpoint ||
                         tcpEndpoint.Type == EndpointType.WSS && endpoint is WSEndpoint);
 
                 UdpEndpoint udpEndpoint = (UdpEndpoint)endps[1];
-                test(udpEndpoint.Host.Equals("udphost"));
-                test(udpEndpoint.Port == 10001);
-                test(udpEndpoint.McastInterface.Equals("eth0"));
-                test(udpEndpoint.McastTtl == 5);
-                test(udpEndpoint.SourceAddress.ToString().Equals("10.10.10.10"));
-                test(udpEndpoint.Timeout == -1);
-                test(!udpEndpoint.HasCompressionFlag);
-                test(!udpEndpoint.IsSecure);
-                test(udpEndpoint.IsDatagram);
-                test(udpEndpoint.Type == EndpointType.UDP);
+                TestHelper.Assert(udpEndpoint.Host.Equals("udphost"));
+                TestHelper.Assert(udpEndpoint.Port == 10001);
+                TestHelper.Assert(udpEndpoint.McastInterface.Equals("eth0"));
+                TestHelper.Assert(udpEndpoint.McastTtl == 5);
+                TestHelper.Assert(udpEndpoint.SourceAddress!.ToString().Equals("10.10.10.10"));
+                TestHelper.Assert(udpEndpoint.Timeout == -1);
+                TestHelper.Assert(!udpEndpoint.HasCompressionFlag);
+                TestHelper.Assert(!udpEndpoint.IsSecure);
+                TestHelper.Assert(udpEndpoint.IsDatagram);
+                TestHelper.Assert(udpEndpoint.Type == EndpointType.UDP);
 
                 OpaqueEndpoint opaqueEndpoint = (OpaqueEndpoint)endps[2];
-                test(opaqueEndpoint.Bytes.Length > 0);
-                test(opaqueEndpoint.Encoding.Equals(new Encoding(1, 8)));
+                TestHelper.Assert(opaqueEndpoint.Bytes.Length > 0);
+                TestHelper.Assert(opaqueEndpoint.Encoding.Equals(new Encoding(1, 8)));
             }
             output.WriteLine("ok");
 
@@ -91,148 +96,151 @@ namespace Ice.info
                     "\" -t 15000:udp -h \"" + host + "\"");
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
-                Endpoint[] endpoints = adapter.GetEndpoints();
-                test(endpoints.Length == 2);
-                Endpoint[] publishedEndpoints = adapter.GetPublishedEndpoints();
-                test(global::Test.Collections.Equals(endpoints, publishedEndpoints));
+                var endpoints = adapter.GetEndpoints();
+                TestHelper.Assert(endpoints.Count == 2);
+                var publishedEndpoints = adapter.GetPublishedEndpoints();
+                TestHelper.Assert(global::Test.Collections.Equals(endpoints, publishedEndpoints));
 
-                TcpEndpoint tcpEndpoint = getTCPEndpoint(endpoints[0]);
-                test(tcpEndpoint.Type == EndpointType.TCP ||
+                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoints[0]);
+                TestHelper.Assert(tcpEndpoint != null);
+                TestHelper.Assert(
+                        tcpEndpoint.Type == EndpointType.TCP ||
                         tcpEndpoint.Type == EndpointType.SSL ||
                         tcpEndpoint.Type == EndpointType.WS ||
                         tcpEndpoint.Type == EndpointType.WSS);
 
-                test(tcpEndpoint.Host.Equals(host));
-                test(tcpEndpoint.Port > 0);
-                test(tcpEndpoint.Timeout == 15000);
+                TestHelper.Assert(tcpEndpoint.Host.Equals(host));
+                TestHelper.Assert(tcpEndpoint.Port > 0);
+                TestHelper.Assert(tcpEndpoint.Timeout == 15000);
 
                 UdpEndpoint udpEndpoint = (UdpEndpoint)endpoints[1];
-                test(udpEndpoint.Host.Equals(host));
-                test(udpEndpoint.IsDatagram);
-                test(udpEndpoint.Port > 0);
+                TestHelper.Assert(udpEndpoint.Host.Equals(host));
+                TestHelper.Assert(udpEndpoint.IsDatagram);
+                TestHelper.Assert(udpEndpoint.Port > 0);
 
-                endpoints = new Endpoint[] { endpoints[0] };
-                test(endpoints.Length == 1);
+                endpoints = new List<Endpoint> { endpoints[0] };
+                TestHelper.Assert(endpoints.Count == 1);
+
                 adapter.SetPublishedEndpoints(endpoints);
                 publishedEndpoints = adapter.GetPublishedEndpoints();
-                test(global::Test.Collections.Equals(endpoints, publishedEndpoints));
+                TestHelper.Assert(Collections.Equals(endpoints, publishedEndpoints));
 
                 adapter.Destroy();
 
-                int port = helper.getTestPort(1);
+                int port = helper.GetTestPort(1);
                 communicator.SetProperty("TestAdapter.Endpoints", $"default -h * -p {port}");
-                communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.getTestEndpoint(1));
+                communicator.SetProperty("TestAdapter.PublishedEndpoints", helper.GetTestEndpoint(1));
                 adapter = communicator.CreateObjectAdapter("TestAdapter");
 
                 endpoints = adapter.GetEndpoints();
-                test(endpoints.Length >= 1);
+                TestHelper.Assert(endpoints.Count >= 1);
                 publishedEndpoints = adapter.GetPublishedEndpoints();
-                test(publishedEndpoints.Length == 1);
+                TestHelper.Assert(publishedEndpoints.Count == 1);
 
                 foreach (var endpoint in endpoints)
                 {
                     tcpEndpoint = getTCPEndpoint(endpoint);
-                    test(tcpEndpoint.Port == port);
+                    TestHelper.Assert(tcpEndpoint!.Port == port);
                 }
 
                 tcpEndpoint = getTCPEndpoint(publishedEndpoints[0]);
-                test(tcpEndpoint.Host == "127.0.0.1");
-                test(tcpEndpoint.Port == port);
+                TestHelper.Assert(tcpEndpoint!.Host == "127.0.0.1");
+                TestHelper.Assert(tcpEndpoint!.Port == port);
 
                 adapter.Destroy();
             }
             output.WriteLine("ok");
 
-            int endpointPort = helper.getTestPort(0);
+            int endpointPort = helper.GetTestPort(0);
 
-            var @base = IObjectPrx.Parse("test:" +
-                                            helper.getTestEndpoint(0) + ":" +
-                                            helper.getTestEndpoint(0, "udp"), communicator);
-            var testIntf = Test.ITestIntfPrx.CheckedCast(@base);
+            var testIntf = Test.ITestIntfPrx.Parse("test:" +
+                                            helper.GetTestEndpoint(0) + ":" +
+                                            helper.GetTestEndpoint(0, "udp"), communicator);
 
             string defaultHost = communicator.GetProperty("Ice.Default.Host") ?? "";
 
             output.Write("test connection endpoint information... ");
             output.Flush();
             {
-                Endpoint endpoint = @base.GetConnection().Endpoint;
-                TcpEndpoint tcpEndpoint = getTCPEndpoint(endpoint);
-                test(tcpEndpoint.Port == endpointPort);
-                test(!tcpEndpoint.HasCompressionFlag);
-                test(tcpEndpoint.Host.Equals(defaultHost));
+                Endpoint endpoint = testIntf.GetConnection().Endpoint;
+                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoint);
+                TestHelper.Assert(tcpEndpoint != null);
+                TestHelper.Assert(tcpEndpoint.Port == endpointPort);
+                TestHelper.Assert(!tcpEndpoint.HasCompressionFlag);
+                TestHelper.Assert(tcpEndpoint.Host.Equals(defaultHost));
 
                 Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
-                test(ctx["host"].Equals(tcpEndpoint.Host));
-                test(ctx["compress"].Equals("false"));
+                TestHelper.Assert(ctx["host"].Equals(tcpEndpoint.Host));
+                TestHelper.Assert(ctx["compress"].Equals("false"));
                 int port = int.Parse(ctx["port"]);
-                test(port > 0);
+                TestHelper.Assert(port > 0);
 
-                endpoint = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection().Endpoint;
+                endpoint = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection().Endpoint;
                 UdpEndpoint udp = (UdpEndpoint)endpoint;
-                test(udp.Port == endpointPort);
-                test(udp.Host.Equals(defaultHost));
+                TestHelper.Assert(udp.Port == endpointPort);
+                TestHelper.Assert(udp.Host.Equals(defaultHost));
             }
             output.WriteLine("ok");
 
             output.Write("testing connection information... ");
             output.Flush();
             {
-                Connection connection = @base.GetConnection();
+                Connection connection = testIntf.GetConnection();
                 connection.SetBufferSize(1024, 2048);
 
                 ConnectionInfo info = connection.GetConnectionInfo();
-                TCPConnectionInfo ipInfo = getTCPConnectionInfo(info);
-                test(!info.Incoming);
-                test(info.AdapterName.Length == 0);
-                test(ipInfo.RemotePort == endpointPort);
-                test(ipInfo.LocalPort > 0);
+                TCPConnectionInfo ipInfo = getTCPConnectionInfo(info)!;
+                TestHelper.Assert(!info.Incoming);
+                TestHelper.Assert(info.AdapterName!.Length == 0);
+                TestHelper.Assert(ipInfo.RemotePort == endpointPort);
+                TestHelper.Assert(ipInfo.LocalPort > 0);
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    test(ipInfo.LocalAddress.Equals(defaultHost));
-                    test(ipInfo.RemoteAddress.Equals(defaultHost));
+                    TestHelper.Assert(ipInfo.LocalAddress.Equals(defaultHost));
+                    TestHelper.Assert(ipInfo.RemoteAddress.Equals(defaultHost));
                 }
-                test(ipInfo.RcvSize >= 1024);
-                test(ipInfo.SndSize >= 2048);
+                TestHelper.Assert(ipInfo.RcvSize >= 1024);
+                TestHelper.Assert(ipInfo.SndSize >= 2048);
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
-                test(ctx["incoming"].Equals("true"));
-                test(ctx["adapterName"].Equals("TestAdapter"));
-                test(ctx["remoteAddress"].Equals(ipInfo.LocalAddress));
-                test(ctx["localAddress"].Equals(ipInfo.RemoteAddress));
-                test(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
-                test(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
+                TestHelper.Assert(ctx["incoming"].Equals("true"));
+                TestHelper.Assert(ctx["adapterName"].Equals("TestAdapter"));
+                TestHelper.Assert(ctx["remoteAddress"].Equals(ipInfo.LocalAddress));
+                TestHelper.Assert(ctx["localAddress"].Equals(ipInfo.RemoteAddress));
+                TestHelper.Assert(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
+                TestHelper.Assert(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
 
-                if (@base.GetConnection().Type().Equals("ws") || @base.GetConnection().Type().Equals("wss"))
+                if (testIntf.GetConnection().Type().Equals("ws") || testIntf.GetConnection().Type().Equals("wss"))
                 {
-                    Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers;
-                    test(headers["Upgrade"].Equals("websocket"));
-                    test(headers["Connection"].Equals("Upgrade"));
-                    test(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
-                    test(headers["Sec-WebSocket-Accept"] != null);
+                    Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers!;
+                    TestHelper.Assert(headers["Upgrade"].Equals("websocket"));
+                    TestHelper.Assert(headers["Connection"].Equals("Upgrade"));
+                    TestHelper.Assert(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
+                    TestHelper.Assert(headers["Sec-WebSocket-Accept"] != null);
 
-                    test(ctx["ws.Upgrade"].Equals("websocket"));
-                    test(ctx["ws.Connection"].Equals("Upgrade"));
-                    test(ctx["ws.Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
-                    test(ctx["ws.Sec-WebSocket-Version"].Equals("13"));
-                    test(ctx["ws.Sec-WebSocket-Key"] != null);
+                    TestHelper.Assert(ctx["ws.Upgrade"].Equals("websocket"));
+                    TestHelper.Assert(ctx["ws.Connection"].Equals("Upgrade"));
+                    TestHelper.Assert(ctx["ws.Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
+                    TestHelper.Assert(ctx["ws.Sec-WebSocket-Version"].Equals("13"));
+                    TestHelper.Assert(ctx["ws.Sec-WebSocket-Key"] != null);
                 }
 
-                connection = @base.Clone(invocationMode: InvocationMode.Datagram).GetConnection();
+                connection = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection();
                 connection.SetBufferSize(2048, 1024);
 
                 UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.GetConnectionInfo();
-                test(!udpInfo.Incoming);
-                test(udpInfo.AdapterName.Length == 0);
-                test(udpInfo.LocalPort > 0);
-                test(udpInfo.RemotePort == endpointPort);
+                TestHelper.Assert(!udpInfo.Incoming);
+                TestHelper.Assert(udpInfo.AdapterName!.Length == 0);
+                TestHelper.Assert(udpInfo.LocalPort > 0);
+                TestHelper.Assert(udpInfo.RemotePort == endpointPort);
 
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    test(udpInfo.RemoteAddress.Equals(defaultHost));
-                    test(udpInfo.LocalAddress.Equals(defaultHost));
+                    TestHelper.Assert(udpInfo.RemoteAddress.Equals(defaultHost));
+                    TestHelper.Assert(udpInfo.LocalAddress.Equals(defaultHost));
                 }
-                test(udpInfo.RcvSize >= 2048);
-                test(udpInfo.SndSize >= 1024);
+                TestHelper.Assert(udpInfo.RcvSize >= 2048);
+                TestHelper.Assert(udpInfo.SndSize >= 1024);
             }
             output.WriteLine("ok");
 
