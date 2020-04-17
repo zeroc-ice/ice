@@ -10,7 +10,8 @@ public class TestFacet : ITestFacet
 {
     private volatile IReadOnlyDictionary<string, string>? _changes;
 
-    public Dictionary<string, string> getChanges(Ice.Current current) => new Dictionary<string, string>(_changes!);
+    public IReadOnlyDictionary<string, string> getChanges(Ice.Current current) =>
+        new Dictionary<string, string>(_changes!);
 
     internal void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
 }

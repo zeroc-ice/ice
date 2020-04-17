@@ -15,7 +15,7 @@ namespace Ice.proxy
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public Dictionary<string, string> getContext(Current current) => _ctx!;
+        public IReadOnlyDictionary<string, string> getContext(Current current) => _ctx!;
 
         public bool IceIsA(string typeId, Current current)
         {

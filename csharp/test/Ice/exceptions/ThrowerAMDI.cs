@@ -87,9 +87,9 @@ namespace Ice
                     return new ValueTask(Task.CompletedTask);
                 }
 
-                public ValueTask<byte[]>
+                public ValueTask<ReadOnlyMemory<byte>>
                 throwMemoryLimitExceptionAsync(byte[] seq, Current current) =>
-                    new ValueTask<byte[]>(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
+                    new ValueTask<ReadOnlyMemory<byte>>(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
 
                 public ValueTask
                 throwLocalExceptionIdempotentAsync(Current current) =>

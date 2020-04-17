@@ -2,8 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ice.seqMapping.AMD
 {
@@ -15,228 +16,244 @@ namespace Ice.seqMapping.AMD
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<(byte[], byte[])> opAByteSAsync(byte[] i, Current current) => FromResult((i, i));
+        public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> opAByteSAsync(byte[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<byte>, List<byte>)> opLByteSAsync(List<byte> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<byte>, IEnumerable<byte>)> opLByteSAsync(List<byte> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<byte>, LinkedList<byte>)>
-        opKByteSAsync(LinkedList<byte> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<byte>, IEnumerable<byte>)> opKByteSAsync(LinkedList<byte> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Queue<byte>, Queue<byte>)> opQByteSAsync(Queue<byte> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<byte>, IEnumerable<byte>)> opQByteSAsync(Queue<byte> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Stack<byte>, Stack<byte>)> opSByteSAsync(Stack<byte> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<byte>, IEnumerable<byte>)> opSByteSAsync(Stack<byte> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(bool[], bool[])> opABoolSAsync(bool[] i, Current current) => FromResult((i, i));
+        public ValueTask<(ReadOnlyMemory<bool>, ReadOnlyMemory<bool>)> opABoolSAsync(bool[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<bool>, List<bool>)> opLBoolSAsync(List<bool> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<bool>, IEnumerable<bool>)> opLBoolSAsync(List<bool> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<bool>, LinkedList<bool>)> opKBoolSAsync(LinkedList<bool> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<bool>, IEnumerable<bool>)> opKBoolSAsync(LinkedList<bool> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Queue<bool>, Queue<bool>)> opQBoolSAsync(Queue<bool> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<bool>, IEnumerable<bool>)> opQBoolSAsync(Queue<bool> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Stack<bool>, Stack<bool>)> opSBoolSAsync(Stack<bool> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<bool>, IEnumerable<bool>)> opSBoolSAsync(Stack<bool> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(short[], short[])> opAShortSAsync(short[] i, Current current) => FromResult((i, i));
+        public ValueTask<(ReadOnlyMemory<short>, ReadOnlyMemory<short>)> opAShortSAsync(short[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<short>, List<short>)> opLShortSAsync(List<short> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<short>, IEnumerable<short>)> opLShortSAsync(List<short> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<short>, LinkedList<short>)>
-        opKShortSAsync(LinkedList<short> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<short>, IEnumerable<short>)> opKShortSAsync(LinkedList<short> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<short>, Queue<short>)> opQShortSAsync(Queue<short> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<short>, IEnumerable<short>)> opQShortSAsync(Queue<short> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Stack<short>, Stack<short>)> opSShortSAsync(Stack<short> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<short>, IEnumerable<short>)> opSShortSAsync(Stack<short> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(int[], int[])> opAIntSAsync(int[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(ReadOnlyMemory<int>, ReadOnlyMemory<int>)> opAIntSAsync(int[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<int>, List<int>)> opLIntSAsync(List<int> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opLIntSAsync(List<int> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<int>, LinkedList<int>)> opKIntSAsync(LinkedList<int> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opKIntSAsync(LinkedList<int> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Queue<int>, Queue<int>)> opQIntSAsync(Queue<int> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opQIntSAsync(Queue<int> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Stack<int>, Stack<int>)> opSIntSAsync(Stack<int> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opSIntSAsync(Stack<int> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(long[], long[])> opALongSAsync(long[] i, Current current) => FromResult((i, i));
+        public ValueTask<(ReadOnlyMemory<long>, ReadOnlyMemory<long>)> opALongSAsync(long[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<long>, List<long>)> opLLongSAsync(List<long> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<long>, IEnumerable<long>)> opLLongSAsync(List<long> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<long>, LinkedList<long>)> opKLongSAsync(LinkedList<long> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<long>, IEnumerable<long>)> opKLongSAsync(LinkedList<long> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Queue<long>, Queue<long>)> opQLongSAsync(Queue<long> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<long>, IEnumerable<long>)> opQLongSAsync(Queue<long> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Stack<long>, Stack<long>)> opSLongSAsync(Stack<long> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<long>, IEnumerable<long>)> opSLongSAsync(Stack<long> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(float[], float[])> opAFloatSAsync(float[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(ReadOnlyMemory<float>, ReadOnlyMemory<float>)> opAFloatSAsync(float[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<float>, List<float>)> opLFloatSAsync(List<float> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<float>, IEnumerable<float>)> opLFloatSAsync(List<float> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<float>, LinkedList<float>)> opKFloatSAsync(LinkedList<float> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<float>, IEnumerable<float>)> opKFloatSAsync(LinkedList<float> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<float>, Queue<float>)> opQFloatSAsync(Queue<float> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<float>, IEnumerable<float>)> opQFloatSAsync(Queue<float> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Stack<float>, Stack<float>)> opSFloatSAsync(Stack<float> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<float>, IEnumerable<float>)> opSFloatSAsync(Stack<float> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(double[], double[])> opADoubleSAsync(double[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(ReadOnlyMemory<double>, ReadOnlyMemory<double>)> opADoubleSAsync(double[] i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(List<double>, List<double>)> opLDoubleSAsync(List<double> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<double>, IEnumerable<double>)> opLDoubleSAsync(List<double> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<double>, LinkedList<double>)> opKDoubleSAsync(LinkedList<double> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<double>, IEnumerable<double>)> opKDoubleSAsync(LinkedList<double> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<double>, Queue<double>)> opQDoubleSAsync(Queue<double> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<double>, IEnumerable<double>)> opQDoubleSAsync(Queue<double> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Stack<double>, Stack<double>)> opSDoubleSAsync(Stack<double> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<double>, IEnumerable<double>)> opSDoubleSAsync(Stack<double> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(string[], string[])> opAStringSAsync(string[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opAStringSAsync(string[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<string>, List<string>)> opLStringSAsync(List<string> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opLStringSAsync(List<string> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<string>, LinkedList<string>)> opKStringSAsync(LinkedList<string> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opKStringSAsync(LinkedList<string> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<string>, Queue<string>)> opQStringSAsync(Queue<string> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opQStringSAsync(Queue<string> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Stack<string>, Stack<string>)> opSStringSAsync(Stack<string> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opSStringSAsync(Stack<string> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(AnyClass?[], AnyClass?[])> opAObjectSAsync(AnyClass?[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<AnyClass?>, IEnumerable<AnyClass?>)> opAObjectSAsync(AnyClass?[] i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(List<AnyClass?>, List<AnyClass?>)> opLObjectSAsync(List<AnyClass?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<AnyClass?>, IEnumerable<AnyClass?>)> opLObjectSAsync(List<AnyClass?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(IObjectPrx?[], IObjectPrx?[])> opAObjectPrxSAsync(IObjectPrx?[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opAObjectPrxSAsync(IObjectPrx?[] i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(List<IObjectPrx?>, List<IObjectPrx?>)> opLObjectPrxSAsync(List<IObjectPrx?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opLObjectPrxSAsync(List<IObjectPrx?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(LinkedList<IObjectPrx?>, LinkedList<IObjectPrx?>)>
-        opKObjectPrxSAsync(LinkedList<IObjectPrx?> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opKObjectPrxSAsync(
+            LinkedList<IObjectPrx?> i, Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<IObjectPrx?>, Queue<IObjectPrx?>)> opQObjectPrxSAsync(Queue<IObjectPrx?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opQObjectPrxSAsync(Queue<IObjectPrx?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Stack<IObjectPrx?>, Stack<IObjectPrx?>)> opSObjectPrxSAsync(Stack<IObjectPrx?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opSObjectPrxSAsync(Stack<IObjectPrx?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Test.S[], Test.S[])> opAStructSAsync(Test.S[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.S>, IEnumerable<Test.S>)> opAStructSAsync(Test.S[] i, Current current) =>
+            ToReturnValue(i as IEnumerable<Test.S>);
 
-        public ValueTask<(List<Test.S>, List<Test.S>)> opLStructSAsync(List<Test.S> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.S>, IEnumerable<Test.S>)> opLStructSAsync(List<Test.S> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<Test.S>, LinkedList<Test.S>)> opKStructSAsync(LinkedList<Test.S> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.S>, IEnumerable<Test.S>)> opKStructSAsync(LinkedList<Test.S> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<Test.S>, Queue<Test.S>)> opQStructSAsync(Queue<Test.S> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.S>, IEnumerable<Test.S>)> opQStructSAsync(Queue<Test.S> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Stack<Test.S>, Stack<Test.S>)> opSStructSAsync(Stack<Test.S> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.S>, IEnumerable<Test.S>)> opSStructSAsync(Stack<Test.S> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Test.SD[], Test.SD[])> opAStructSDAsync(Test.SD[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.SD>, IEnumerable<Test.SD>)> opAStructSDAsync(Test.SD[] i, Current current) =>
+            ToReturnValue(i as IEnumerable<Test.SD>);
 
-        public ValueTask<(List<Test.SD>, List<Test.SD>)> opLStructSDAsync(List<Test.SD> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.SD>, IEnumerable<Test.SD>)> opLStructSDAsync(List<Test.SD> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(LinkedList<Test.SD>, LinkedList<Test.SD>)> opKStructSDAsync(LinkedList<Test.SD> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.SD>, IEnumerable<Test.SD>)> opKStructSDAsync(LinkedList<Test.SD> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<Test.SD>, Queue<Test.SD>)> opQStructSDAsync(Queue<Test.SD> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.SD>, IEnumerable<Test.SD>)> opQStructSDAsync(Queue<Test.SD> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Stack<Test.SD>, Stack<Test.SD>)> opSStructSDAsync(Stack<Test.SD> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.SD>, IEnumerable<Test.SD>)> opSStructSDAsync(Stack<Test.SD> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Test.CV?[], Test.CV?[])> opACVSAsync(Test.CV?[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.CV?>, IEnumerable<Test.CV?>)> opACVSAsync(Test.CV?[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<Test.CV?>, List<Test.CV?>)> opLCVSAsync(List<Test.CV?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.CV?>, IEnumerable<Test.CV?>)> opLCVSAsync(List<Test.CV?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Test.IIPrx?[], Test.IIPrx?[])> opAIPrxSAsync(Test.IIPrx?[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>)> opAIPrxSAsync(Test.IIPrx?[] i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(List<Test.IIPrx?>, List<Test.IIPrx?>)> opLIPrxSAsync(List<Test.IIPrx?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>)> opLIPrxSAsync(List<Test.IIPrx?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(LinkedList<Test.IIPrx?>, LinkedList<Test.IIPrx?>)>
-        opKIPrxSAsync(LinkedList<Test.IIPrx?> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>)> opKIPrxSAsync(LinkedList<Test.IIPrx?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<Test.IIPrx?>, Queue<Test.IIPrx?>)> opQIPrxSAsync(Queue<Test.IIPrx?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>)> opQIPrxSAsync(Queue<Test.IIPrx?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Stack<Test.IIPrx?>, Stack<Test.IIPrx?>)> opSIPrxSAsync(Stack<Test.IIPrx?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>)> opSIPrxSAsync(Stack<Test.IIPrx?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Test.CR?[], Test.CR?[])> opACRSAsync(Test.CR?[] i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.CR?>, IEnumerable<Test.CR?>)> opACRSAsync(Test.CR?[] i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(List<Test.CR?>, List<Test.CR?>)> opLCRSAsync(List<Test.CR?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.CR?>, IEnumerable<Test.CR?>)> opLCRSAsync(List<Test.CR?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Test.En[], Test.En[])> opAEnSAsync(Test.En[] i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.En>, IEnumerable<Test.En>)> opAEnSAsync(Test.En[] i, Current current) =>
+            ToReturnValue(i as IEnumerable<Test.En>);
 
-        public ValueTask<(List<Test.En>, List<Test.En>)> opLEnSAsync(List<Test.En> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.En>, IEnumerable<Test.En>)> opLEnSAsync(List<Test.En> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(LinkedList<Test.En>, LinkedList<Test.En>)> opKEnSAsync(LinkedList<Test.En> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.En>, IEnumerable<Test.En>)> opKEnSAsync(LinkedList<Test.En> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Queue<Test.En>, Queue<Test.En>)> opQEnSAsync(Queue<Test.En> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.En>, IEnumerable<Test.En>)> opQEnSAsync(Queue<Test.En> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Stack<Test.En>, Stack<Test.En>)> opSEnSAsync(Stack<Test.En> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.En>, IEnumerable<Test.En>)> opSEnSAsync(Stack<Test.En> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Custom<int>, Custom<int>)> opCustomIntSAsync(Custom<int> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opCustomIntSAsync(Custom<int> i, Current current) =>
+            ToReturnValue(i);
 
-        public ValueTask<(Custom<Test.CV?>, Custom<Test.CV?>)> opCustomCVSAsync(Custom<Test.CV?> i, Current current) =>
-            FromResult((i, i));
+        public ValueTask<(IEnumerable<Test.CV?>, IEnumerable<Test.CV?>)> opCustomCVSAsync(Custom<Test.CV?> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Custom<Custom<int>>, Custom<Custom<int>>)>
-        opCustomIntSSAsync(Custom<Custom<int>> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<Custom<int>>, IEnumerable<Custom<int>>)> opCustomIntSSAsync(Custom<Custom<int>> i,
+            Current current) => ToReturnValue(i);
 
-        public ValueTask<(Custom<Custom<Test.CV?>>, Custom<Custom<Test.CV?>>)>
-        opCustomCVSSAsync(Custom<Custom<Test.CV?>> i, Current current) => FromResult((i, i));
+        public ValueTask<(IEnumerable<Custom<Test.CV?>>, IEnumerable<Custom<Test.CV?>>)> opCustomCVSSAsync(
+            Custom<Custom<Test.CV?>> i, Current current) => ToReturnValue(i);
 
-        public ValueTask<(Serialize.Small?, Serialize.Small?)> opSerialSmallCSharpAsync(
-            Serialize.Small? i, Current current) => FromResult((i, i));
+        public ValueTask<(Serialize.Small, Serialize.Small)> opSerialSmallCSharpAsync(Serialize.Small i,
+            Current current) => new ValueTask<(Serialize.Small, Serialize.Small)>((i, i));
 
-        public ValueTask<(Serialize.Large?, Serialize.Large?)> opSerialLargeCSharpAsync(
-            Serialize.Large? i, Current current) => FromResult((i, i));
+        public ValueTask<(Serialize.Large, Serialize.Large)> opSerialLargeCSharpAsync(Serialize.Large i,
+            Current current) => new ValueTask<(Serialize.Large, Serialize.Large)>((i, i));
 
-        public ValueTask<(Serialize.Struct?, Serialize.Struct?)> opSerialStructCSharpAsync(
-            Serialize.Struct? i, Current current) => FromResult((i, i));
+        public ValueTask<(Serialize.Struct, Serialize.Struct)> opSerialStructCSharpAsync(Serialize.Struct i,
+            Current current) => new ValueTask<(Serialize.Struct, Serialize.Struct)>((i, i));
 
-        internal static ValueTask<T> FromResult<T>(T result) => new ValueTask<T>(result);
+        private static ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)> ToReturnValue<T>(T[] input) where T : struct =>
+            new ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)>((input, input));
+
+        private static ValueTask<(IEnumerable<T>, IEnumerable<T>)> ToReturnValue<T>(IEnumerable<T> input) =>
+            new ValueTask<(IEnumerable<T>, IEnumerable<T>)>((input, input));
     }
 }

@@ -93,7 +93,7 @@ namespace Ice
         public override void IceWrite(Ice.OutputStream s)
         {
             s.StartEndpointEncapsulation(Encoding);
-            s.WriteSpan(Bytes.Span);
+            s.WriteByteSpan(Bytes.Span);
             s.EndEndpointEncapsulation();
         }
 

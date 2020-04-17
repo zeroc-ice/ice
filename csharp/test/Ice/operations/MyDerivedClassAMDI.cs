@@ -49,7 +49,7 @@ namespace Ice.operations.AMD
 
         public void IcePing(Current current) => TestHelper.Assert(current.IsIdempotent);
 
-        public string[] IceIds(Current current)
+        public IEnumerable<string> IceIds(Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
@@ -73,7 +73,7 @@ namespace Ice.operations.AMD
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<bool> supportsCompressAsync(Current current) => FromResult(true);
+        public ValueTask<bool> supportsCompressAsync(Current current) => MakeValueTask(true);
 
         public ValueTask opVoidAsync(Current current)
         {
@@ -90,9 +90,10 @@ namespace Ice.operations.AMD
             return new ValueTask(_opVoidThread.Task);
         }
 
-        public ValueTask<(bool, bool)> opBoolAsync(bool p1, bool p2, Current current) => FromResult((p2, p1));
+        public ValueTask<(bool, bool)> opBoolAsync(bool p1, bool p2, Current current) => MakeValueTask((p2, p1));
 
-        public ValueTask<(bool[], bool[])> opBoolSAsync(bool[] p1, bool[] p2, Current current)
+        public ValueTask<(ReadOnlyMemory<bool>, ReadOnlyMemory<bool>)> opBoolSAsync(bool[] p1, bool[] p2,
+            Current current)
         {
             bool[] p3 = new bool[p1.Length + p2.Length];
             Array.Copy(p1, p3, p1.Length);
@@ -104,10 +105,10 @@ namespace Ice.operations.AMD
                 r[i] = p1[p1.Length - (i + 1)];
             }
 
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(bool[][], bool[][])>
+        public ValueTask<(IEnumerable<bool[]>, IEnumerable<bool[]>)>
         opBoolSSAsync(bool[][] p1, bool[][] p2, Current current)
         {
             bool[][] p3 = new bool[p1.Length + p2.Length][];
@@ -120,12 +121,12 @@ namespace Ice.operations.AMD
                 r[i] = p1[p1.Length - (i + 1)];
             }
 
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(byte, byte)> opByteAsync(byte p1, byte p2, Current current) => FromResult((p1, (byte)(p1 ^ p2)));
+        public ValueTask<(byte, byte)> opByteAsync(byte p1, byte p2, Current current) => MakeValueTask((p1, (byte)(p1 ^ p2)));
 
-        public ValueTask<(Dictionary<byte, bool>, Dictionary<byte, bool>)>
+        public ValueTask<(IReadOnlyDictionary<byte, bool>, IReadOnlyDictionary<byte, bool>)>
         opByteBoolDAsync(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Current current)
         {
             Dictionary<byte, bool> p3 = p1;
@@ -138,11 +139,11 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(byte[], byte[])>
-        opByteSAsync(byte[] p1, byte[] p2, Current current)
+        public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> opByteSAsync(byte[] p1, byte[] p2,
+            Current current)
         {
             byte[] p3 = new byte[p1.Length];
             for (int i = 0; i < p1.Length; i++)
@@ -154,10 +155,10 @@ namespace Ice.operations.AMD
             Array.Copy(p1, r, p1.Length);
             Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(byte[][], byte[][])>
+        public ValueTask<(IEnumerable<byte[]>, IEnumerable<byte[]>)>
         opByteSSAsync(byte[][] p1, byte[][] p2, Current current)
         {
             byte[][] p3 = new byte[p1.Length][];
@@ -170,14 +171,14 @@ namespace Ice.operations.AMD
             Array.Copy(p1, r, p1.Length);
             Array.Copy(p2, 0, r, p1.Length, p2.Length);
 
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
         public ValueTask<(double, float, double)>
-        opFloatDoubleAsync(float p1, double p2, Current current) => FromResult((p2, p1, p2));
+        opFloatDoubleAsync(float p1, double p2, Current current) => MakeValueTask((p2, p1, p2));
 
-        public ValueTask<(double[], float[], double[])>
-        opFloatDoubleSAsync(float[] p1, double[] p2, Current current)
+        public ValueTask<(ReadOnlyMemory<double>, ReadOnlyMemory<float>, ReadOnlyMemory<double>)> opFloatDoubleSAsync(
+            float[] p1, double[] p2, Current current)
         {
             float[] p3 = p1;
 
@@ -194,10 +195,10 @@ namespace Ice.operations.AMD
                 r[p2.Length + i] = p1[i];
             }
 
-            return FromResult((r, p3, p4));
+            return MakeValueTask(((ReadOnlyMemory<double>)r, (ReadOnlyMemory<float>)p3, (ReadOnlyMemory<double>)p4));
         }
 
-        public ValueTask<(double[][], float[][], double[][])>
+        public ValueTask<(IEnumerable<double[]>, IEnumerable<float[]>, IEnumerable<double[]>)>
         opFloatDoubleSSAsync(float[][] p1, double[][] p2, Current current)
         {
             var p3 = p1;
@@ -219,10 +220,10 @@ namespace Ice.operations.AMD
                 }
             }
 
-            return FromResult((r, p3, p4));
+            return MakeValueTask((r as IEnumerable<double[]>, p3 as IEnumerable<float[]>, p4 as IEnumerable<double[]>));
         }
 
-        public ValueTask<(Dictionary<long, float>, Dictionary<long, float>)>
+        public ValueTask<(IReadOnlyDictionary<long, float>, IReadOnlyDictionary<long, float>)>
         opLongFloatDAsync(Dictionary<long, float> p1, Dictionary<long, float> p2, Current current)
         {
             var p3 = p1;
@@ -236,7 +237,7 @@ namespace Ice.operations.AMD
                 r[e.Key] = e.Value;
             }
 
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
         public ValueTask<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>
@@ -244,14 +245,14 @@ namespace Ice.operations.AMD
         {
             var p2 = p1;
             var p3 = current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory);
-            return FromResult<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>((
+            return new ValueTask<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>((
                 current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory), p2, p3));
         }
 
         public ValueTask<(Test.MyEnum, Test.MyEnum)>
-        opMyEnumAsync(Test.MyEnum p1, Current current) => FromResult((Test.MyEnum.enum3, p1));
+        opMyEnumAsync(Test.MyEnum p1, Current current) => MakeValueTask((Test.MyEnum.enum3, p1));
 
-        public ValueTask<(Dictionary<short, int>, Dictionary<short, int>)>
+        public ValueTask<(IReadOnlyDictionary<short, int>, IReadOnlyDictionary<short, int>)>
         opShortIntDAsync(Dictionary<short, int> p1, Dictionary<short, int> p2, Current current)
         {
             var p3 = p1;
@@ -264,13 +265,13 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
         public ValueTask<(long, short, int, long)>
-        opShortIntLongAsync(short p1, int p2, long p3, Current current) => FromResult((p3, p1, p2, p3));
+        opShortIntLongAsync(short p1, int p2, long p3, Current current) => MakeValueTask((p3, p1, p2, p3));
 
-        public ValueTask<(long[], short[], int[], long[])>
+        public ValueTask<(ReadOnlyMemory<long>, ReadOnlyMemory<short>, ReadOnlyMemory<int>, ReadOnlyMemory<long>)>
         opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Current current)
         {
             var p4 = p1;
@@ -282,10 +283,11 @@ namespace Ice.operations.AMD
             var p6 = new long[p3.Length + p3.Length];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-            return FromResult((p3, p4, p5, p6));
+            return MakeValueTask(((ReadOnlyMemory<long>)p3, (ReadOnlyMemory<short>)p4, (ReadOnlyMemory<int>)p5,
+                (ReadOnlyMemory<long>)p6));
         }
 
-        public ValueTask<(long[][], short[][], int[][], long[][])>
+        public ValueTask<(IEnumerable<long[]>, IEnumerable<short[]>, IEnumerable<int[]>, IEnumerable<long[]>)>
         opShortIntLongSSAsync(short[][] p1, int[][] p2, long[][] p3, Current current)
         {
             var p4 = p1;
@@ -299,13 +301,14 @@ namespace Ice.operations.AMD
             var p6 = new long[p3.Length + p3.Length][];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-            return FromResult((p3, p4, p5, p6));
+            return MakeValueTask((p3 as IEnumerable<long[]>, p4 as IEnumerable<short[]>, p5 as IEnumerable<int[]>,
+                p6 as IEnumerable<long[]>));
         }
 
         public ValueTask<(string, string)>
-        opStringAsync(string p1, string p2, Current current) => FromResult(($"{p1} {p2}", $"{p2} {p1}"));
+        opStringAsync(string p1, string p2, Current current) => MakeValueTask(($"{p1} {p2}", $"{p2} {p1}"));
 
-        public ValueTask<(Dictionary<string, Test.MyEnum>, Dictionary<string, Test.MyEnum>)>
+        public ValueTask<(IReadOnlyDictionary<string, Test.MyEnum>, IReadOnlyDictionary<string, Test.MyEnum>)>
         opStringMyEnumDAsync(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
         {
             var p3 = p1;
@@ -318,10 +321,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<Test.MyEnum, string>, Dictionary<Test.MyEnum, string>)>
+        public ValueTask<(IReadOnlyDictionary<Test.MyEnum, string>, IReadOnlyDictionary<Test.MyEnum, string>)>
         opMyEnumStringDAsync(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
         {
             var p3 = p1;
@@ -334,10 +337,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<Test.MyStruct, Test.MyEnum>, Dictionary<Test.MyStruct, Test.MyEnum>)>
+        public ValueTask<(IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>, IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>)>
         opMyStructMyEnumDAsync(Dictionary<Test.MyStruct, Test.MyEnum> p1,
                                Dictionary<Test.MyStruct, Test.MyEnum> p2, Current current)
         {
@@ -351,10 +354,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<byte, bool>[], Dictionary<byte, bool>[])>
+        public ValueTask<(IEnumerable<Dictionary<byte, bool>>, IEnumerable<Dictionary<byte, bool>>)>
         opByteBoolDSAsync(Dictionary<byte, bool>[] p1, Dictionary<byte, bool>[] p2, Current current)
         {
             var p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
@@ -366,10 +369,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<short, int>[], Dictionary<short, int>[])>
+        public ValueTask<(IEnumerable<Dictionary<short, int>>, IEnumerable<Dictionary<short, int>>)>
         opShortIntDSAsync(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Current current)
         {
             var p3 = new Dictionary<short, int>[p1.Length + p2.Length];
@@ -381,10 +384,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<long, float>[], Dictionary<long, float>[])>
+        public ValueTask<(IEnumerable<Dictionary<long, float>>, IEnumerable<Dictionary<long, float>>)>
         opLongFloatDSAsync(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
         {
             var p3 = new Dictionary<long, float>[p1.Length + p2.Length];
@@ -396,10 +399,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<string, string>[], Dictionary<string, string>[])>
+        public ValueTask<(IEnumerable<Dictionary<string, string>>, IEnumerable<Dictionary<string, string>>)>
         opStringStringDSAsync(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Current current)
         {
             var p3 = new Dictionary<string, string>[p1.Length + p2.Length];
@@ -411,10 +414,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<string, Test.MyEnum>[], Dictionary<string, Test.MyEnum>[])>
+        public ValueTask<(IEnumerable<Dictionary<string, Test.MyEnum>>, IEnumerable<Dictionary<string, Test.MyEnum>>)>
         opStringMyEnumDSAsync(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Current current)
         {
             var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
@@ -426,10 +429,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<Test.MyEnum, string>[], Dictionary<Test.MyEnum, string>[])>
+        public ValueTask<(IEnumerable<Dictionary<Test.MyEnum, string>>, IEnumerable<Dictionary<Test.MyEnum, string>>)>
         opMyEnumStringDSAsync(Dictionary<Test.MyEnum, string>[] p1, Dictionary<Test.MyEnum, string>[] p2, Current current)
         {
             var p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
@@ -441,10 +444,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<Test.MyStruct, Test.MyEnum>[], Dictionary<Test.MyStruct, Test.MyEnum>[])>
+        public ValueTask<(IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>, IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>)>
         opMyStructMyEnumDSAsync(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
                                 Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
                                 Current current)
@@ -458,10 +461,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<byte, byte[]>, Dictionary<byte, byte[]>)>
+        public ValueTask<(IReadOnlyDictionary<byte, byte[]>, IReadOnlyDictionary<byte, byte[]>)>
         opByteByteSDAsync(Dictionary<byte, byte[]> p1, Dictionary<byte, byte[]> p2, Current current)
         {
             var p3 = p2;
@@ -474,10 +477,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<bool, bool[]>, Dictionary<bool, bool[]>)>
+        public ValueTask<(IReadOnlyDictionary<bool, bool[]>, IReadOnlyDictionary<bool, bool[]>)>
         opBoolBoolSDAsync(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current)
         {
             var p3 = p2;
@@ -490,10 +493,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<short, short[]>, Dictionary<short, short[]>)>
+        public ValueTask<(IReadOnlyDictionary<short, short[]>, IReadOnlyDictionary<short, short[]>)>
         opShortShortSDAsync(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current)
         {
             var p3 = p2;
@@ -506,10 +509,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<int, int[]>, Dictionary<int, int[]>)>
+        public ValueTask<(IReadOnlyDictionary<int, int[]>, IReadOnlyDictionary<int, int[]>)>
         opIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Current current)
         {
             var p3 = p2;
@@ -522,10 +525,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<long, long[]>, Dictionary<long, long[]>)>
+        public ValueTask<(IReadOnlyDictionary<long, long[]>, IReadOnlyDictionary<long, long[]>)>
         opLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
         {
             var p3 = p2;
@@ -538,10 +541,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<string, float[]>, Dictionary<string, float[]>)>
+        public ValueTask<(IReadOnlyDictionary<string, float[]>, IReadOnlyDictionary<string, float[]>)>
         opStringFloatSDAsync(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current)
         {
             var p3 = p2;
@@ -554,10 +557,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<string, double[]>, Dictionary<string, double[]>)>
+        public ValueTask<(IReadOnlyDictionary<string, double[]>, IReadOnlyDictionary<string, double[]>)>
         opStringDoubleSDAsync(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current)
         {
             var p3 = p2;
@@ -570,10 +573,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<string, string[]>, Dictionary<string, string[]>)>
+        public ValueTask<(IReadOnlyDictionary<string, string[]>, IReadOnlyDictionary<string, string[]>)>
         opStringStringSDAsync(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Current current)
         {
             var p3 = p2;
@@ -586,10 +589,10 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<Test.MyEnum, Test.MyEnum[]>, Dictionary<Test.MyEnum, Test.MyEnum[]>)>
+        public ValueTask<(IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>, IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>)>
         opMyEnumMyEnumSDAsync(Dictionary<Test.MyEnum, Test.MyEnum[]> p1, Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
             Current current)
         {
@@ -603,22 +606,21 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<int[]>
-        opIntSAsync(int[] s, Current current)
+        public ValueTask<ReadOnlyMemory<int>> opIntSAsync(int[] s, Current current)
         {
             var r = new int[s.Length];
             for (int i = 0; i < s.Length; ++i)
             {
                 r[i] = -s[i];
             }
-            return FromResult(r);
+            return MakeValueTask((ReadOnlyMemory<int>)r);
         }
 
-        public ValueTask<Dictionary<string, string>>
-        opContextAsync(Current current) => FromResult(current.Context);
+        public ValueTask<IReadOnlyDictionary<string, string>> opContextAsync(Current current) =>
+            MakeValueTask(current.Context as IReadOnlyDictionary<string, string>);
 
         public ValueTask
         opByteSOnewayAsync(byte[] s, Current current)
@@ -637,7 +639,7 @@ namespace Ice.operations.AMD
             {
                 var count = _opByteSOnewayCallCount;
                 _opByteSOnewayCallCount = 0;
-                return FromResult(count);
+                return MakeValueTask(count);
             }
         }
 
@@ -653,7 +655,7 @@ namespace Ice.operations.AMD
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<(string[], string[])>
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)>
         opStringSAsync(string[] p1, string[] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length];
@@ -665,10 +667,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p1[p1.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(string[][], string[][])>
+        public ValueTask<(IEnumerable<string[]>, IEnumerable<string[]>)>
         opStringSSAsync(string[][] p1, string[][] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length][];
@@ -679,10 +681,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p2[p2.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(string[][][], string[][][])>
+        public ValueTask<(IEnumerable<string[][]>, IEnumerable<string[][]>)>
         opStringSSSAsync(string[][][] p1, string[][][] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length][][];
@@ -694,10 +696,10 @@ namespace Ice.operations.AMD
             {
                 r[i] = p2[p2.Length - (i + 1)];
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Dictionary<string, string>, Dictionary<string, string>)>
+        public ValueTask<(IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)>
         opStringStringDAsync(Dictionary<string, string> p1, Dictionary<string, string> p2, Current current)
         {
             var p3 = p1;
@@ -710,7 +712,7 @@ namespace Ice.operations.AMD
             {
                 r[e.Key] = e.Value;
             }
-            return FromResult((r, p3));
+            return ToReturnValue(r, p3);
         }
 
         public ValueTask<(Test.Structure, Test.Structure)>
@@ -718,7 +720,7 @@ namespace Ice.operations.AMD
         {
             var p3 = p1;
             p3.s.s = "a new string";
-            return FromResult((p2, p3));
+            return MakeValueTask((p2, p3));
         }
 
         public ValueTask
@@ -738,48 +740,50 @@ namespace Ice.operations.AMD
         opDerivedAsync(Current current) => new ValueTask(Task.CompletedTask);
 
         public ValueTask<byte>
-        opByte1Async(byte value, Current current) => FromResult(value);
+        opByte1Async(byte value, Current current) => MakeValueTask(value);
 
         public ValueTask<short>
-        opShort1Async(short value, Current current) => FromResult(value);
+        opShort1Async(short value, Current current) => MakeValueTask(value);
 
         public ValueTask<int>
-        opInt1Async(int value, Current current) => FromResult(value);
+        opInt1Async(int value, Current current) => MakeValueTask(value);
 
         public ValueTask<long>
-        opLong1Async(long value, Current current) => FromResult(value);
+        opLong1Async(long value, Current current) => MakeValueTask(value);
 
         public ValueTask<float>
-        opFloat1Async(float value, Current current) => FromResult(value);
+        opFloat1Async(float value, Current current) => MakeValueTask(value);
 
         public ValueTask<double>
-        opDouble1Async(double value, Current current) => FromResult(value);
+        opDouble1Async(double value, Current current) => MakeValueTask(value);
 
         public ValueTask<string>
-        opString1Async(string value, Current current) => FromResult(value);
+        opString1Async(string value, Current current) => MakeValueTask(value);
 
-        public ValueTask<string[]>
-        opStringS1Async(string[] value, Current current) => FromResult(value);
+        public ValueTask<IEnumerable<string>>
+        opStringS1Async(string[] value, Current current) => MakeValueTask(value as IEnumerable<string>);
 
-        public ValueTask<Dictionary<byte, bool>>
-        opByteBoolD1Async(Dictionary<byte, bool> value, Current current) => FromResult(value);
+        public ValueTask<IReadOnlyDictionary<byte, bool>>
+        opByteBoolD1Async(Dictionary<byte, bool> value, Current current) =>
+            MakeValueTask(value as IReadOnlyDictionary<byte, bool>);
 
-        public ValueTask<string[]>
-        opStringS2Async(string[] value, Current current) => FromResult(value);
+        public ValueTask<IEnumerable<string>>
+        opStringS2Async(string[] value, Current current) => MakeValueTask(value as IEnumerable<string>);
 
-        public ValueTask<Dictionary<byte, bool>>
-        opByteBoolD2Async(Dictionary<byte, bool> value, Current current) => FromResult(value);
+        public ValueTask<IReadOnlyDictionary<byte, bool>>
+        opByteBoolD2Async(Dictionary<byte, bool> value, Current current) =>
+            MakeValueTask(value as IReadOnlyDictionary<byte, bool>);
 
         public ValueTask<Test.MyClass1?>
-        opMyClass1Async(Test.MyClass1? value, Current current) => FromResult(value);
+        opMyClass1Async(Test.MyClass1? value, Current current) => MakeValueTask(value);
 
         public ValueTask<Test.MyStruct1>
-        opMyStruct1Async(Test.MyStruct1 value, Current current) => FromResult(value);
+        opMyStruct1Async(Test.MyStruct1 value, Current current) => MakeValueTask(value);
 
-        public ValueTask<string[]>
+        public ValueTask<IEnumerable<string>>
         opStringLiteralsAsync(Current current)
         {
-            return FromResult(new string[]
+            return MakeValueTask(new string[]
                 {
                         Test.s0.value,
                         Test.s1.value,
@@ -814,13 +818,13 @@ namespace Ice.operations.AMD
                         Test.su0.value,
                         Test.su1.value,
                         Test.su2.value
-                });
+                } as IEnumerable<string>);
         }
 
-        public ValueTask<string[]>
+        public ValueTask<IEnumerable<string>>
         opWStringLiteralsAsync(Current current)
         {
-            return FromResult(new string[]
+            return MakeValueTask(new string[]
                 {
                         Test.s0.value,
                         Test.s1.value,
@@ -856,7 +860,7 @@ namespace Ice.operations.AMD
                         Test.su0.value,
                         Test.su1.value,
                         Test.su2.value
-                });
+                } as IEnumerable<string>);
         }
 
         public async ValueTask<Test.IMyClass.OpMStruct1MarshaledReturnValue>
@@ -902,7 +906,20 @@ namespace Ice.operations.AMD
             return new Test.IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
         }
 
-        internal static ValueTask<T> FromResult<T>(T result) => new ValueTask<T>(result);
+        // Type-inference helper method
+        private static ValueTask<T> MakeValueTask<T>(T result) => new ValueTask<T>(result);
+
+        private static ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)> ToReturnValue<T>(T[] input1,
+            T[] input2) where T : struct =>
+                new ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)>((input1, input2));
+
+        private static ValueTask<(IEnumerable<T>, IEnumerable<T>)> ToReturnValue<T>(IEnumerable<T> input1,
+            IEnumerable<T> input2) => new ValueTask<(IEnumerable<T>, IEnumerable<T>)>((input1, input2));
+
+        private static ValueTask<(IReadOnlyDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>)>
+        ToReturnValue<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> input1,
+            IReadOnlyDictionary<TKey, TValue> input2) where TKey : notnull =>
+            new ValueTask<(IReadOnlyDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>)>((input1, input2));
 
         private Thread_opVoid? _opVoidThread;
         private int _opByteSOnewayCallCount = 0;

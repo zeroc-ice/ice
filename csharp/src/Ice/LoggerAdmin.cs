@@ -131,8 +131,8 @@ namespace IceInternal
             return found;
         }
 
-        public (LogMessage[], string)
-        GetLog(LogMessageType[] messageTypes, string[] categories, int messageMax, Current current)
+        public (IEnumerable<LogMessage>, string) GetLog(LogMessageType[] messageTypes, string[] categories,
+            int messageMax, Current current)
         {
             LinkedList<Ice.LogMessage> logMessages;
             lock (this)

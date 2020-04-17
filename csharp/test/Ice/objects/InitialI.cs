@@ -47,10 +47,10 @@ namespace Ice.objects
 
         public (AnyClass?, AnyClass?) opClass(AnyClass? v1, Current current) => (v1, v1);
 
-        public (AnyClass?[], AnyClass?[]) opClassSeq(AnyClass?[] v1, Current current) => (v1, v1);
+        public (IEnumerable<AnyClass?>, IEnumerable<AnyClass?>) opClassSeq(AnyClass?[] v1, Current current) => (v1, v1);
 
-        public (Dictionary<string, AnyClass?>, Dictionary<string, AnyClass?>)
-        opClassMap(Dictionary<string, AnyClass?> v1, Current current) => (v1, v1);
+        public (IReadOnlyDictionary<string, AnyClass?>, IReadOnlyDictionary<string, AnyClass?>) opClassMap(
+            Dictionary<string, AnyClass?> v1, Current current) => (v1, v1);
 
         public void setRecursive(Test.Recursive? r, Current current)
         {
@@ -66,8 +66,8 @@ namespace Ice.objects
         public void setG(Test.G? theG, Current current)
         {
         }
-        public (Test.Base?[], Test.Base?[])
-        opBaseSeq(Test.Base?[] inS, Current current) => (inS, inS);
+        public (IEnumerable<Test.Base?>, IEnumerable<Test.Base?>) opBaseSeq(Test.Base?[] inS, Current current) =>
+            (inS, inS);
 
         public Test.Compact getCompact(Current current) => new Test.CompactExt();
 

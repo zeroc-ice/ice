@@ -14,16 +14,16 @@ namespace Ice.scope
         {
             public (S, S) opS(S s1, Current current) => (s1, s1);
 
-            public (S[], S[]) opSSeq(S[] s1, Current current) => (s1, s1);
+            public (IEnumerable<S>, IEnumerable<S>) opSSeq(S[] s1, Current current) => (s1, s1);
 
-            public (Dictionary<string, S>, Dictionary<string, S>)
+            public (IReadOnlyDictionary<string, S>, IReadOnlyDictionary<string, S>)
             opSMap(Dictionary<string, S> s1, Current current) => (s1, s1);
 
             public (C?, C?) opC(C? c1, Current current) => (c1, c1);
 
-            public (C?[], C?[]) opCSeq(C?[] c1, Current current) => (c1, c1);
+            public (IEnumerable<C?>, IEnumerable<C?>) opCSeq(C?[] c1, Current current) => (c1, c1);
 
-            public (Dictionary<string, C?>, Dictionary<string, C?>)
+            public (IReadOnlyDictionary<string, C?>, IReadOnlyDictionary<string, C?>)
             opCMap(Dictionary<string, C?> c1, Current current) => (c1, c1);
 
             public E1 opE1(E1 e1, Current current) => e1;
@@ -40,19 +40,19 @@ namespace Ice.scope
             public (Test.Inner.Inner2.S, Test.Inner.Inner2.S)
             opS(Test.Inner.Inner2.S s1, Current current) => (s1, s1);
 
-            public (Test.Inner.Inner2.S[], Test.Inner.Inner2.S[])
+            public (IEnumerable<Test.Inner.Inner2.S>, IEnumerable<Test.Inner.Inner2.S>)
             opSSeq(Test.Inner.Inner2.S[] s1, Current current) => (s1, s1);
 
-            public (Dictionary<string, Test.Inner.Inner2.S>, Dictionary<string, Test.Inner.Inner2.S>)
+            public (IReadOnlyDictionary<string, Test.Inner.Inner2.S>, IReadOnlyDictionary<string, Test.Inner.Inner2.S>)
             opSMap(Dictionary<string, Test.Inner.Inner2.S> s1, Current current) => (s1, s1);
 
             public (Test.Inner.Inner2.C?, Test.Inner.Inner2.C?)
             opC(Test.Inner.Inner2.C? c1, Current current) => (c1, c1);
 
-            public (Test.Inner.Inner2.C?[], Test.Inner.Inner2.C?[])
+            public (IEnumerable<Test.Inner.Inner2.C?>, IEnumerable<Test.Inner.Inner2.C?>)
             opCSeq(Test.Inner.Inner2.C?[] c1, Current current) => (c1, c1);
 
-            public (Dictionary<string, Test.Inner.Inner2.C?>, Dictionary<string, Test.Inner.Inner2.C?>)
+            public (IReadOnlyDictionary<string, Test.Inner.Inner2.C?>, IReadOnlyDictionary<string, Test.Inner.Inner2.C?>)
             opCMap(Dictionary<string, Test.Inner.Inner2.C?> c1, Current current) => (c1, c1);
 
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
@@ -63,19 +63,19 @@ namespace Ice.scope
             public (Test.Inner.Inner2.S, Test.Inner.Inner2.S)
             opS(Test.Inner.Inner2.S s1, Current current) => (s1, s1);
 
-            public (Test.Inner.Inner2.S[], Test.Inner.Inner2.S[])
+            public (IEnumerable<Test.Inner.Inner2.S>, IEnumerable<Test.Inner.Inner2.S>)
             opSSeq(Test.Inner.Inner2.S[] s1, Current current) => (s1, s1);
 
-            public (Dictionary<string, Test.Inner.Inner2.S>, Dictionary<string, Test.Inner.Inner2.S>)
+            public (IReadOnlyDictionary<string, Test.Inner.Inner2.S>, IReadOnlyDictionary<string, Test.Inner.Inner2.S>)
             opSMap(Dictionary<string, Test.Inner.Inner2.S> s1, Current current) => (s1, s1);
 
             public (Test.Inner.Inner2.C?, Test.Inner.Inner2.C?)
             opC(Test.Inner.Inner2.C? c1, Current current) => (c1, c1);
 
-            public (Test.Inner.Inner2.C?[], Test.Inner.Inner2.C?[])
+            public (IEnumerable<Test.Inner.Inner2.C?>, IEnumerable<Test.Inner.Inner2.C?>)
             opCSeq(Test.Inner.Inner2.C?[] c1, Current current) => (c1, c1);
 
-            public (Dictionary<string, Test.Inner.Inner2.C?>, Dictionary<string, Test.Inner.Inner2.C?>)
+            public (IReadOnlyDictionary<string, Test.Inner.Inner2.C?>, IReadOnlyDictionary<string, Test.Inner.Inner2.C?>)
             opCMap(Dictionary<string, Test.Inner.Inner2.C?> c1, Current current) => (c1, c1);
 
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
@@ -85,16 +85,16 @@ namespace Ice.scope
         {
             public (S, S) opS(S s1, Current current) => (s1, s1);
 
-            public (S[], S[]) opSSeq(S[] s1, Current current) => (s1, s1);
+            public (IEnumerable<S>, IEnumerable<S>) opSSeq(S[] s1, Current current) => (s1, s1);
 
-            public (Dictionary<string, S>, Dictionary<string, S>)
+            public (IReadOnlyDictionary<string, S>, IReadOnlyDictionary<string, S>)
             opSMap(Dictionary<string, S> s1, Current current) => (s1, s1);
 
             public (C?, C?) opC(C? c1, Current current) => (c1, c1);
 
-            public (C?[], C?[]) opCSeq(C?[] c1, Current current) => (c1, c1);
+            public (IEnumerable<C?>, IEnumerable<C?>) opCSeq(C?[] c1, Current current) => (c1, c1);
 
-            public (Dictionary<string, C?>, Dictionary<string, C?>)
+            public (IReadOnlyDictionary<string, C?>, IReadOnlyDictionary<string, C?>)
             opCMap(Dictionary<string, C?> c1, Current current) => (c1, c1);
 
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

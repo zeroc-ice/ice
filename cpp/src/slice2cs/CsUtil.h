@@ -15,6 +15,9 @@ namespace Slice
 
 enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
+enum class Direction { Outgoing, Incoming };
+enum class ForNestedType { Yes, No };
+
 std::string fixId(const std::string&, unsigned int = 0);
 //
 // Returns the namespace of a Contained entity.
@@ -42,9 +45,9 @@ struct ParamInfo
     ParamDeclPtr param; // 0 == return value
     OperationPtr operation;
 
-    ParamInfo(const OperationPtr& operation, const std::string& name, const TypePtr& type, bool tagged, int tag,
-              const std::string& prefix = "");
-    ParamInfo(const ParamDeclPtr& param, const std::string& prefix = "");
+    ParamInfo(const OperationPtr& operation, const std::string& name, const TypePtr& type, bool readOnly,
+        bool tagged, int tag, const std::string& prefix = "");
+    ParamInfo(const ParamDeclPtr& param, bool readOnly, const std::string& prefix = "");
 };
 
 bool normalizeCase(const ContainedPtr&);
@@ -68,12 +71,14 @@ bool isClassType(const TypePtr&);
 bool isValueType(const TypePtr&);
 bool isReferenceType(const TypePtr&);
 
-std::list<ParamInfo> getAllInParams(const OperationPtr&, const std::string& prefix = "");
-void getInParams(const OperationPtr&, std::list<ParamInfo>&, std::list<ParamInfo>&, const std::string& prefix = "");
+std::list<ParamInfo> getAllInParams(const OperationPtr&, Direction, const std::string& prefix = "");
+void getInParams(const OperationPtr&, Direction, std::list<ParamInfo>&, std::list<ParamInfo>&,
+    const std::string& prefix = "");
 
-std::list<ParamInfo> getAllOutParams(const OperationPtr&, const std::string& prefix = "",
+std::list<ParamInfo> getAllOutParams(const OperationPtr&, Direction direction, const std::string& prefix = "",
                                      bool returnTypeIsFirst = false);
-void getOutParams(const OperationPtr&, std::list<ParamInfo>&, std::list<ParamInfo>&, const std::string& prefix = "");
+void getOutParams(const OperationPtr&, Direction direction, std::list<ParamInfo>&, std::list<ParamInfo>&,
+    const std::string& prefix = "");
 
 std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::string prefix = "");
 std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::function<std::string (const ParamInfo&)>);
@@ -115,7 +120,7 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    std::string outputStreamWriter(const TypePtr&, const std::string&);
+    std::string outputStreamWriter(const TypePtr&, const std::string&, ForNestedType);
     void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                           const std::string& = "ostr");
 
@@ -123,8 +128,8 @@ protected:
     void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                             const std::string& = "istr");
 
-    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
-                                  int, const std::string& = "ostr");
+    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, const std::string&,
+                                const std::string&, int, const std::string& = "ostr");
     void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                                     int, const std::string& = "istr");
 

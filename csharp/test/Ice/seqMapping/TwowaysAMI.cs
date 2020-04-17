@@ -521,18 +521,12 @@ namespace Ice.seqMapping
             }
 
             {
-                var r = p.opSerialSmallCSharpAsync(null).Result;
-                TestHelper.Assert(r.o == null);
-                TestHelper.Assert(r.ReturnValue == null);
-            }
-
-            {
                 var i = new Serialize.Small();
                 i.i = 99;
 
-                (Serialize.Small? ReturnValue, Serialize.Small? o) = p.opSerialSmallCSharpAsync(i).Result;
-                TestHelper.Assert(o!.i == 99);
-                TestHelper.Assert(ReturnValue!.i == 99);
+                (Serialize.Small ReturnValue, Serialize.Small o) = p.opSerialSmallCSharpAsync(i).Result;
+                TestHelper.Assert(o.i == 99);
+                TestHelper.Assert(ReturnValue.i == 99);
             }
 
             {
@@ -550,8 +544,7 @@ namespace Ice.seqMapping
                 i.d11 = 11.0;
                 i.s1 = Serialize.Large.LargeString;
 
-                (Serialize.Large? ReturnValue, Serialize.Large? o) = p.opSerialLargeCSharpAsync(i).Result;
-                TestHelper.Assert(o != null && ReturnValue != null);
+                (Serialize.Large ReturnValue, Serialize.Large o) = p.opSerialLargeCSharpAsync(i).Result;
                 TestHelper.Assert(o.d1 == 1.0);
                 TestHelper.Assert(o.d2 == 2.0);
                 TestHelper.Assert(o.d3 == 3.0);
@@ -586,8 +579,7 @@ namespace Ice.seqMapping
                 i.s = null;
                 i.s2 = "Hello";
 
-                (Serialize.Struct? ReturnValue, Serialize.Struct? o) = p.opSerialStructCSharpAsync(i).Result;
-                TestHelper.Assert(o != null && ReturnValue != null);
+                (Serialize.Struct ReturnValue, Serialize.Struct o) = p.opSerialStructCSharpAsync(i).Result;
                 TestHelper.Assert(o.o == null);
                 TestHelper.Assert(o.o2 == o);
                 TestHelper.Assert(o.s == null);

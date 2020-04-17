@@ -965,10 +965,7 @@ namespace Ice.optional
                     (OutputStream ostr, VarStruct? p1) =>
                     {
                         TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.FSize);
-                        OutputStream.Position pos = ostr.StartSize();
-                        p1.Value.IceWrite(ostr);
-                        ostr.EndSize(pos);
+                        ostr.WriteTaggedStruct(2, p1);
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1070,13 +1067,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneOptionalProxy", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, IObjectPrx? p1) =>
-                    {
-                        ostr.WriteOptional(2, OptionalFormat.FSize);
-                        OutputStream.Position pos = ostr.StartSize();
-                        ostr.WriteProxy(p1);
-                        ostr.EndSize(pos);
-                    });
+                    (OutputStream ostr, IObjectPrx? p1) => ostr.WriteProxy(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
 
@@ -1426,14 +1417,7 @@ namespace Ice.optional
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opStringSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, string[]? p1) =>
-                    {
-                        if (p1 != null && ostr.WriteOptional(2, OptionalFormat.FSize))
-                        {
-                            OutputStream.Position pos = ostr.StartSize();
-                            ostr.WriteStringSeq(p1);
-                            ostr.EndSize(pos);
-                        }
-                    });
+                        ostr.WriteTaggedSeq(2, p1, (ost, s) => ostr.WriteString(s)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1478,7 +1462,7 @@ namespace Ice.optional
                         if (p1 != null && ostr.WriteOptional(2, OptionalFormat.VSize))
                         {
                             ostr.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
-                            ostr.Write(p1);
+                            SmallStructSeqHelper.Write(ostr, p1);
                         }
                     });
 
@@ -1529,7 +1513,7 @@ namespace Ice.optional
                         TestHelper.Assert(p1 != null);
                         ostr.WriteOptional(2, OptionalFormat.VSize);
                         ostr.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
-                        ostr.Write(p1);
+                        SmallStructListHelper.Write(ostr, p1);
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1575,7 +1559,7 @@ namespace Ice.optional
                         TestHelper.Assert(p1 != null);
                         ostr.WriteOptional(2, OptionalFormat.VSize);
                         ostr.WriteSize((p1.Length * 4) + (p1.Length > 254 ? 5 : 1));
-                        ostr.Write(p1);
+                        FixedStructSeqHelper.Write(ostr, p1);
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1625,7 +1609,7 @@ namespace Ice.optional
                         TestHelper.Assert(p1 != null);
                         ostr.WriteOptional(2, OptionalFormat.VSize);
                         ostr.WriteSize((p1.Count * 4) + (p1.Count > 254 ? 5 : 1));
-                        ostr.Write(p1);
+                        FixedStructListHelper.Write(ostr, p1);
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1668,10 +1652,7 @@ namespace Ice.optional
                     (OutputStream ostr, VarStruct[]? p1) =>
                     {
                         TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.FSize);
-                        OutputStream.Position pos = ostr.StartSize();
-                        ostr.Write(p1);
-                        ostr.EndSize(pos);
+                        ostr.WriteTaggedSeq(2, p1, (ostr, vs) => ostr.WriteStruct(vs));
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1807,10 +1788,8 @@ namespace Ice.optional
                     (OutputStream ostr, Dictionary<string, int>? p1) =>
                     {
                         TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.FSize);
-                        OutputStream.Position pos = ostr.StartSize();
-                        ostr.Write(p1);
-                        ostr.EndSize(pos);
+                        ostr.WriteTaggedDict(2, p1,
+                            (ostr, k) => ostr.WriteString(k), (ostr, v) => ostr.WriteInt(v));
                     });
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
@@ -1853,14 +1832,7 @@ namespace Ice.optional
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntOneOptionalDict", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, Dictionary<int, OneOptional?>? p1) =>
-                    {
-                        if (p1 != null && ostr.WriteOptional(2, OptionalFormat.FSize))
-                        {
-                            OutputStream.Position pos = ostr.StartSize();
-                            ostr.Write(p1);
-                            ostr.EndSize(pos);
-                        }
-                    });
+                        ostr.WriteTaggedDict(2, p1, (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteClass(v)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>

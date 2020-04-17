@@ -24,7 +24,8 @@ namespace Ice.admin
 
         public IObjectPrx? getAdmin(Current current) => _communicator.GetAdmin();
 
-        public Dictionary<string, string> getChanges(Current current) => new Dictionary<string, string>(_changes!);
+        public IReadOnlyDictionary<string, string> getChanges(Current current) =>
+            new Dictionary<string, string>(_changes!);
 
         public void print(string message, Current current) => _communicator.Logger.Print(message);
 

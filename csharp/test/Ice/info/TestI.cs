@@ -36,7 +36,7 @@ namespace Ice.info
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public Dictionary<string, string> getEndpointInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> getEndpointInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
@@ -61,7 +61,7 @@ namespace Ice.info
             return ctx;
         }
 
-        public Dictionary<string, string> getConnectionInfoAsContext(Current current)
+        public IReadOnlyDictionary<string, string> getConnectionInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();

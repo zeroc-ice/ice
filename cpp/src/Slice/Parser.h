@@ -375,6 +375,7 @@ public:
     virtual bool isVariableLength() const;
 
     bool isNumericType() const;
+    bool isNumericTypeOrBool() const;
     bool isIntegralType() const;
     bool isUnsignedType() const;
 

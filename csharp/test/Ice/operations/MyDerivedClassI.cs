@@ -21,7 +21,7 @@ namespace Ice.operations
 
         public void IcePing(Current current) => TestHelper.Assert(current.IsIdempotent);
 
-        public string[] IceIds(Current current)
+        public IEnumerable<string> IceIds(Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
@@ -42,7 +42,7 @@ namespace Ice.operations
 
         public (bool, bool) opBool(bool p1, bool p2, Current current) => (p2, p1);
 
-        public (bool[], bool[]) opBoolS(bool[] p1, bool[] p2, Current current)
+        public (ReadOnlyMemory<bool>, ReadOnlyMemory<bool>) opBoolS(bool[] p1, bool[] p2, Current current)
         {
             var p3 = new bool[p1.Length + p2.Length];
             Array.Copy(p1, p3, p1.Length);
@@ -56,7 +56,7 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (bool[][], bool[][]) opBoolSS(bool[][] p1, bool[][] p2, Current current)
+        public (IEnumerable<bool[]>, IEnumerable<bool[]>) opBoolSS(bool[][] p1, bool[][] p2, Current current)
         {
             var p3 = new bool[p1.Length + p2.Length][];
             Array.Copy(p1, p3, p1.Length);
@@ -72,8 +72,8 @@ namespace Ice.operations
 
         public (byte, byte) opByte(byte p1, byte p2, Current current) => (p1, (byte)(p1 ^ p2));
 
-        public (Dictionary<byte, bool>, Dictionary<byte, bool>)
-        opByteBoolD(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Current current)
+        public (IReadOnlyDictionary<byte, bool>, IReadOnlyDictionary<byte, bool>) opByteBoolD(
+            Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Current current)
         {
             var r = new Dictionary<byte, bool>();
             foreach (KeyValuePair<byte, bool> e in p1)
@@ -87,7 +87,7 @@ namespace Ice.operations
             return (r, p1);
         }
 
-        public (byte[], byte[]) opByteS(byte[] p1, byte[] p2, Current current)
+        public (ReadOnlyMemory<byte>, ReadOnlyMemory<byte>) opByteS(byte[] p1, byte[] p2, Current current)
         {
             var p3 = new byte[p1.Length];
             for (int i = 0; i < p1.Length; i++)
@@ -101,7 +101,7 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (byte[][], byte[][]) opByteSS(byte[][] p1, byte[][] p2, Current current)
+        public (IEnumerable<byte[]>, IEnumerable<byte[]>) opByteSS(byte[][] p1, byte[][] p2, Current current)
         {
             var p3 = new byte[p1.Length][];
             for (int i = 0; i < p1.Length; i++)
@@ -117,7 +117,8 @@ namespace Ice.operations
 
         public (double, float, double) opFloatDouble(float p1, double p2, Current current) => (p2, p1, p2);
 
-        public (double[], float[], double[]) opFloatDoubleS(float[] p1, double[] p2, Current current)
+        public (ReadOnlyMemory<double>, ReadOnlyMemory<float>, ReadOnlyMemory<double>) opFloatDoubleS(float[] p1,
+            double[] p2, Current current)
         {
             var p4 = new double[p2.Length];
             for (int i = 0; i < p2.Length; i++)
@@ -134,8 +135,8 @@ namespace Ice.operations
             return (r, p1, p4);
         }
 
-        public (double[][], float[][], double[][])
-        opFloatDoubleSS(float[][] p1, double[][] p2, Current current)
+        public (IEnumerable<double[]>, IEnumerable<float[]>, IEnumerable<double[]>) opFloatDoubleSS(float[][] p1,
+            double[][] p2, Current current)
         {
             var p4 = new double[p2.Length][];
             for (int i = 0; i < p2.Length; i++)
@@ -156,8 +157,8 @@ namespace Ice.operations
             return (r, p1, p4);
         }
 
-        public (Dictionary<long, float>, Dictionary<long, float>)
-        opLongFloatD(Dictionary<long, float> p1, Dictionary<long, float> p2, Current current)
+        public (IReadOnlyDictionary<long, float>, IReadOnlyDictionary<long, float>) opLongFloatD(
+            Dictionary<long, float> p1, Dictionary<long, float> p2, Current current)
         {
             var r = new Dictionary<long, float>();
             foreach (KeyValuePair<long, float> e in p1)
@@ -171,16 +172,16 @@ namespace Ice.operations
             return (r, p1);
         }
 
-        public (Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)
-        opMyClass(Test.IMyClassPrx? p1, Current current) =>
+        public (Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?) opMyClass(Test.IMyClassPrx? p1,
+            Current current) =>
             (current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory),
             p1,
             current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
 
         public (Test.MyEnum, Test.MyEnum) opMyEnum(Test.MyEnum p1, Current current) => (Test.MyEnum.enum3, p1);
 
-        public (Dictionary<short, int>, Dictionary<short, int>)
-        opShortIntD(Dictionary<short, int> p1, Dictionary<short, int> p2, Current current)
+        public (IReadOnlyDictionary<short, int>, IReadOnlyDictionary<short, int>) opShortIntD(Dictionary<short, int> p1,
+            Dictionary<short, int> p2, Current current)
         {
             var r = new Dictionary<short, int>();
             foreach (KeyValuePair<short, int> e in p1)
@@ -194,10 +195,10 @@ namespace Ice.operations
             return (r, p1);
         }
 
-        public (long, short, int, long)
-        opShortIntLong(short p1, int p2, long p3, Current current) => (p3, p1, p2, p3);
+        public (long, short, int, long) opShortIntLong(short p1, int p2, long p3, Current current) => (p3, p1, p2, p3);
 
-        public (long[], short[], int[], long[]) opShortIntLongS(short[] p1, int[] p2, long[] p3, Current current)
+        public (ReadOnlyMemory<long>, ReadOnlyMemory<short>, ReadOnlyMemory<int>, ReadOnlyMemory<long>) opShortIntLongS(
+            short[] p1, int[] p2, long[] p3, Current current)
         {
             var p5 = new int[p2.Length];
             for (int i = 0; i < p2.Length; i++)
@@ -212,8 +213,8 @@ namespace Ice.operations
             return (p3, p1, p5, p6);
         }
 
-        public (long[][], short[][], int[][], long[][])
-        opShortIntLongSS(short[][] p1, int[][] p2, long[][] p3, Current current)
+        public (IEnumerable<long[]>, IEnumerable<short[]>, IEnumerable<int[]>, IEnumerable<long[]>) opShortIntLongSS(
+            short[][] p1, int[][] p2, long[][] p3, Current current)
         {
             var p5 = new int[p2.Length][];
             for (int i = 0; i < p2.Length; i++)
@@ -230,8 +231,8 @@ namespace Ice.operations
 
         public (string, string) opString(string p1, string p2, Current current) => (p1 + " " + p2, p2 + " " + p1);
 
-        public (Dictionary<string, Test.MyEnum>, Dictionary<string, Test.MyEnum>)
-        opStringMyEnumD(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
+        public (IReadOnlyDictionary<string, Test.MyEnum>, IReadOnlyDictionary<string, Test.MyEnum>) opStringMyEnumD(
+            Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
         {
             var r = new Dictionary<string, Test.MyEnum>();
             foreach (KeyValuePair<string, Test.MyEnum> e in p1)
@@ -245,8 +246,8 @@ namespace Ice.operations
             return (r, p1);
         }
 
-        public (Dictionary<Test.MyEnum, string>, Dictionary<Test.MyEnum, string>)
-        opMyEnumStringD(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
+        public (IReadOnlyDictionary<Test.MyEnum, string>, IReadOnlyDictionary<Test.MyEnum, string>) opMyEnumStringD(
+            Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
         {
             var r = new Dictionary<Test.MyEnum, string>();
             foreach (var e in p1)
@@ -260,7 +261,7 @@ namespace Ice.operations
             return (r, p1);
         }
 
-        public (Dictionary<Test.MyStruct, Test.MyEnum>, Dictionary<Test.MyStruct, Test.MyEnum>)
+        public (IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>, IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>)
         opMyStructMyEnumD(Dictionary<Test.MyStruct, Test.MyEnum> p1, Dictionary<Test.MyStruct, Test.MyEnum> p2,
             Current current)
         {
@@ -276,7 +277,7 @@ namespace Ice.operations
             return (r, p1);
         }
 
-        public (Dictionary<byte, bool>[], Dictionary<byte, bool>[]) opByteBoolDS(
+        public (IEnumerable<Dictionary<byte, bool>>, IEnumerable<Dictionary<byte, bool>>) opByteBoolDS(
             Dictionary<byte, bool>[] p1, Dictionary<byte, bool>[] p2, Current current)
         {
             var p3 = new Dictionary<byte, bool>[p1.Length + p2.Length];
@@ -291,8 +292,8 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<short, int>[], Dictionary<short, int>[])
-        opShortIntDS(Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Current current)
+        public (IEnumerable<Dictionary<short, int>>, IEnumerable<Dictionary<short, int>>) opShortIntDS(
+            Dictionary<short, int>[] p1, Dictionary<short, int>[] p2, Current current)
         {
             var p3 = new Dictionary<short, int>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -306,8 +307,8 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<long, float>[], Dictionary<long, float>[])
-        opLongFloatDS(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
+        public (IEnumerable<Dictionary<long, float>>, IEnumerable<Dictionary<long, float>>) opLongFloatDS(
+            Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
         {
             var p3 = new Dictionary<long, float>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -321,8 +322,8 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<string, string>[], Dictionary<string, string>[])
-        opStringStringDS(Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Current current)
+        public (IEnumerable<Dictionary<string, string>>, IEnumerable<Dictionary<string, string>>) opStringStringDS(
+            Dictionary<string, string>[] p1, Dictionary<string, string>[] p2, Current current)
         {
             var p3 = new Dictionary<string, string>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
@@ -336,7 +337,7 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<string, Test.MyEnum>[], Dictionary<string, Test.MyEnum>[])
+        public (IEnumerable<Dictionary<string, Test.MyEnum>>, IEnumerable<Dictionary<string, Test.MyEnum>>)
         opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Current current)
         {
             var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
@@ -351,7 +352,7 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<Test.MyEnum, string>[], Dictionary<Test.MyEnum, string>[])
+        public (IEnumerable<Dictionary<Test.MyEnum, string>>, IEnumerable<Dictionary<Test.MyEnum, string>>)
         opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] p1,
                          Dictionary<Test.MyEnum, string>[] p2,
                             Current current)
@@ -368,7 +369,8 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<Test.MyStruct, Test.MyEnum>[], Dictionary<Test.MyStruct, Test.MyEnum>[])
+        public (IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>,
+                IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>)
         opMyStructMyEnumDS(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
             Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
             Current current)
@@ -385,8 +387,8 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<byte, byte[]>, Dictionary<byte, byte[]>)
-        opByteByteSD(Dictionary<byte, byte[]> p1,
+        public (IReadOnlyDictionary<byte, byte[]>, IReadOnlyDictionary<byte, byte[]>) opByteByteSD(
+            Dictionary<byte, byte[]> p1,
             Dictionary<byte, byte[]> p2,
             Current current)
         {
@@ -402,8 +404,8 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<bool, bool[]>, Dictionary<bool, bool[]>)
-        opBoolBoolSD(Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current)
+        public (IReadOnlyDictionary<bool, bool[]>, IReadOnlyDictionary<bool, bool[]>) opBoolBoolSD(
+            Dictionary<bool, bool[]> p1, Dictionary<bool, bool[]> p2, Current current)
         {
             var r = new Dictionary<bool, bool[]>();
             foreach (KeyValuePair<bool, bool[]> e in p1)
@@ -417,8 +419,8 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<short, short[]>, Dictionary<short, short[]>)
-        opShortShortSD(Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current)
+        public (IReadOnlyDictionary<short, short[]>, IReadOnlyDictionary<short, short[]>) opShortShortSD(
+            Dictionary<short, short[]> p1, Dictionary<short, short[]> p2, Current current)
         {
             var r = new Dictionary<short, short[]>();
             foreach (KeyValuePair<short, short[]> e in p1)
@@ -432,8 +434,7 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<int, int[]>, Dictionary<int, int[]>)
-        opIntIntSD(Dictionary<int, int[]> p1,
+        public (IReadOnlyDictionary<int, int[]>, IReadOnlyDictionary<int, int[]>) opIntIntSD(Dictionary<int, int[]> p1,
             Dictionary<int, int[]> p2,
             Current current)
         {
@@ -449,8 +450,8 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<long, long[]>, Dictionary<long, long[]>)
-        opLongLongSD(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
+        public (IReadOnlyDictionary<long, long[]>, IReadOnlyDictionary<long, long[]>) opLongLongSD(
+            Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
         {
             var r = new Dictionary<long, long[]>();
             foreach (KeyValuePair<long, long[]> e in p1)
@@ -464,8 +465,8 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<string, float[]>, Dictionary<string, float[]>)
-        opStringFloatSD(Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current)
+        public (IReadOnlyDictionary<string, float[]>, IReadOnlyDictionary<string, float[]>) opStringFloatSD(
+            Dictionary<string, float[]> p1, Dictionary<string, float[]> p2, Current current)
         {
             var r = new Dictionary<string, float[]>();
             foreach (KeyValuePair<string, float[]> e in p1)
@@ -479,8 +480,8 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<string, double[]>, Dictionary<string, double[]>)
-        opStringDoubleSD(Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current)
+        public (IReadOnlyDictionary<string, double[]>, IReadOnlyDictionary<string, double[]>) opStringDoubleSD(
+            Dictionary<string, double[]> p1, Dictionary<string, double[]> p2, Current current)
         {
             var r = new Dictionary<string, double[]>();
             foreach (KeyValuePair<string, double[]> e in p1)
@@ -494,8 +495,8 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<string, string[]>, Dictionary<string, string[]>)
-        opStringStringSD(Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Current current)
+        public (IReadOnlyDictionary<string, string[]>, IReadOnlyDictionary<string, string[]>) opStringStringSD(
+            Dictionary<string, string[]> p1, Dictionary<string, string[]> p2, Current current)
         {
             var r = new Dictionary<string, string[]>();
             foreach (KeyValuePair<string, string[]> e in p1)
@@ -509,7 +510,8 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public (Dictionary<Test.MyEnum, Test.MyEnum[]>, Dictionary<Test.MyEnum, Test.MyEnum[]>) opMyEnumMyEnumSD(
+        public (IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>, IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>)
+        opMyEnumMyEnumSD(
             Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
             Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
             Current ice)
@@ -526,7 +528,7 @@ namespace Ice.operations
             return (r, p2);
         }
 
-        public int[] opIntS(int[] s, Current current)
+        public ReadOnlyMemory<int> opIntS(int[] s, Current current)
         {
             int[] r = new int[s.Length];
             for (int i = 0; i < s.Length; ++i)
@@ -554,7 +556,7 @@ namespace Ice.operations
             }
         }
 
-        public Dictionary<string, string> opContext(Current current) =>
+        public IReadOnlyDictionary<string, string> opContext(Current current) =>
             current.Context == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.Context);
 
         public void opDoubleMarshaling(double p1, double[] p2, Current current)
@@ -567,8 +569,7 @@ namespace Ice.operations
             }
         }
 
-        public (string[], string[])
-        opStringS(string[] p1, string[] p2, Current current)
+        public (IEnumerable<string>, IEnumerable<string>) opStringS(string[] p1, string[] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length];
             Array.Copy(p1, p3, p1.Length);
@@ -582,8 +583,7 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (string[][], string[][])
-        opStringSS(string[][] p1, string[][] p2, Current current)
+        public (IEnumerable<string[]>, IEnumerable<string[]>) opStringSS(string[][] p1, string[][] p2, Current current)
         {
             var p3 = new string[p1.Length + p2.Length][];
             Array.Copy(p1, p3, p1.Length);
@@ -597,8 +597,8 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (string[][][], string[][][])
-        opStringSSS(string[][][] p1, string[][][] p2, Current current)
+        public (IEnumerable<string[][]>, IEnumerable<string[][]>) opStringSSS(string[][][] p1, string[][][] p2,
+            Current current)
         {
             var p3 = new string[p1.Length + p2.Length][][];
             Array.Copy(p1, p3, p1.Length);
@@ -612,8 +612,8 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Dictionary<string, string>, Dictionary<string, string>)
-        opStringStringD(Dictionary<string, string> p1,
+        public (IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>) opStringStringD(
+            Dictionary<string, string> p1,
             Dictionary<string, string> p2,
             Current current)
         {
@@ -630,8 +630,7 @@ namespace Ice.operations
             return (r, p3);
         }
 
-        public (Test.Structure, Test.Structure)
-        opStruct(Test.Structure p1, Test.Structure p2, Current current)
+        public (Test.Structure, Test.Structure) opStruct(Test.Structure p1, Test.Structure p2, Current current)
         {
             var p3 = p1;
             p3.s.s = "a new string";
@@ -661,20 +660,21 @@ namespace Ice.operations
 
         public string opString1(string opString1, Current current) => opString1;
 
-        public string[] opStringS1(string[] opStringS1, Current current) => opStringS1;
+        public IEnumerable<string> opStringS1(string[] opStringS1, Current current) => opStringS1;
 
-        public Dictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Current current) => opByteBoolD1;
+        public IReadOnlyDictionary<byte, bool> opByteBoolD1(Dictionary<byte, bool> opByteBoolD1, Current current) =>
+            opByteBoolD1;
 
-        public string[] opStringS2(string[] opStringS2, Current current) => opStringS2;
+        public IEnumerable<string> opStringS2(string[] opStringS2, Current current) => opStringS2;
 
-        public Dictionary<byte, bool>
-        opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Current current) => opByteBoolD2;
+        public IReadOnlyDictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Current current) =>
+            opByteBoolD2;
 
         public Test.MyClass1? opMyClass1(Test.MyClass1? c, Current current) => c;
 
         public Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Current current) => s;
 
-        public string[] opStringLiterals(Current current)
+        public IEnumerable<string> opStringLiterals(Current current)
         {
             return new string[]
                 {
@@ -715,7 +715,7 @@ namespace Ice.operations
                 };
         }
 
-        public string[] opWStringLiterals(Current current) => opStringLiterals(current);
+        public IEnumerable<string> opWStringLiterals(Current current) => opStringLiterals(current);
 
         public Test.IMyClass.OpMStruct1MarshaledReturnValue opMStruct1(Current current) =>
             new Test.IMyClass.OpMStruct1MarshaledReturnValue(
