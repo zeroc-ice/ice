@@ -62,9 +62,13 @@ if clean:
     for h in [homeca1, homeca2]:
         IceCertUtils.CertificateFactory(home=h).destroy(True)
 
+#
 # Create 2 CAs, the DSA ca is actually ca1 but with a different the DSA key generation algorithm.
+# ca2 is also used as a server. The serverAuth extension is required on some OSs (macOS Catalina)
+#
 ca1 = IceCertUtils.CertificateFactory(home=homeca1, cn="ZeroC Test CA 1", ip="127.0.0.1", email="issuer@zeroc.com")
-ca2 = IceCertUtils.CertificateFactory(home=homeca2, cn="ZeroC Test CA 2", ip="127.0.0.1", email="issuer@zeroc.com")
+ca2 = IceCertUtils.CertificateFactory(home=homeca2, cn="ZeroC Test CA 2", ip="127.0.0.1", email="issuer@zeroc.com",
+                                      extendedKeyUsage="serverAuth")
 dsaca = IceCertUtils.OpenSSLCertificateFactory(home=ca1.home, keyalg="dsa", keysize=2048)
 
 #
@@ -124,7 +128,7 @@ certs = [
 #
 for (ca, alias, args) in certs:
     if not ca.get(alias):
-        ca.create(alias, extendedKeyUsages="clientAuth" if alias.startswith("c_") else "serverAuth", **args)
+        ca.create(alias, extendedKeyUsage="clientAuth" if alias.startswith("c_") else "serverAuth", **args)
 
 savecerts = [
     (ca1, "s_rsa_ca1",     None,              {}),
@@ -181,7 +185,7 @@ if not os.path.exists("cacert_custom.pem"):
                 "openssl x509 -req -in cacert_custom.csr -signkey cakey1.pem -out cacert_custom.pem -extfile cacert_custom.ext"]
     for command in commands:
         if os.system(command) != 0:
-            print "error running command `{0}'".format(command)
+            print("error running command `{0}'".format(command))
             sys.exit(1)
 
     if os.path.exists("cacert_custom.csr"):
