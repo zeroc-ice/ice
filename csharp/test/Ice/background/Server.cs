@@ -49,7 +49,7 @@ public class Server : TestHelper
             return null;
         }
 
-        public IObjectPrx[] AddProxies(IObjectPrx?[] proxies, Current current) => new IObjectPrx[0];
+        public IEnumerable<IObjectPrx> AddProxies(IObjectPrx?[] proxies, Current current) => new IObjectPrx[0];
 
         internal RouterI(BackgroundController controller) => _controller = controller;
 

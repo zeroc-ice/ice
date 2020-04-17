@@ -86,11 +86,6 @@ Slice::isNullable(const TypePtr& type)
     {
         return true;
     }
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if(contained && contained->hasMetaDataWithPrefix("cs:serializable:"))
-    {
-        return true;
-    }
     return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
 }
 
@@ -340,9 +335,12 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         return "void";
     }
 
-    if(optional)
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+
+    if(optional && !(readOnly && seq))
     {
-        return typeToString(type, package) + "?";
+        // when handle read-only sequences below in if (seq)
+        return typeToString(type, package, false, readOnly) + "?";
     }
 
     static const std::array<std::string, 18> builtinTable =
@@ -408,29 +406,42 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
         string customType = seq->findMetaDataWithPrefix("cs:generic:");
         string serializableType = seq->findMetaDataWithPrefix("cs:serializable:");
-        if(!customType.empty())
+        if (!serializableType.empty())
         {
-            ostringstream out;
-            out << "global::";
-            if(customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
-            {
-                out << "System.Collections.Generic.";
-            }
-            out << customType << "<" << typeToString(seq->type(), package, isNullable(seq->type())) << ">";
-            return out.str();
+            return "global::" + serializableType + (readOnly && optional ? "?" : "");
         }
-        else if(!serializableType.empty())
+        else if (readOnly)
         {
-            return "global::" + serializableType;
+            auto elementType = seq->type();
+            string elementTypeStr = "<" + typeToString(elementType, package, isNullable(elementType)) + ">";
+            if (isMappedToReadOnlyMemory(seq))
+            {
+                return "global::System.ReadOnlyMemory" + elementTypeStr; // same for optional!
+            }
+            else
+            {
+                // See if (optional ...) earlier
+                return "global::System.Collections.Generic.IEnumerable" + elementTypeStr + (optional ? "?" : "");
+            }
+        }
+        else if (customType.empty())
+        {
+            return typeToString(seq->type(), package, isNullable(seq->type())) + "[]";
         }
         else
         {
-            return typeToString(seq->type(), package, isNullable(seq->type())) + "[]";
+          ostringstream out;
+          out << "global::";
+          if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
+          {
+              out << "System.Collections.Generic.";
+          }
+          out << customType << "<" << typeToString(seq->type(), package, isNullable(seq->type())) << ">";
+          return out.str();
         }
     }
 
@@ -479,7 +490,8 @@ string
 Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
 {
     ClassDefPtr cls = ClassDefPtr::dynamicCast(op->container());
-    list<ParamInfo> outParams = getAllOutParams(op, "", true);
+    // when dispatch is true, the result-type is read-only
+    list<ParamInfo> outParams = getAllOutParams(op, dispatch,  "", true);
     if(outParams.size() == 0)
     {
         return "void";
@@ -593,9 +605,18 @@ Slice::isValueType(const TypePtr& type)
     return StructPtr::dynamicCast(type);
 }
 
+bool
+Slice::isMappedToReadOnlyMemory(const SequencePtr& seq)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    return builtin && builtin->isNumericTypeOrBool() && !seq->hasMetaDataWithPrefix("cs:serializable") &&
+        !seq->hasMetaDataWithPrefix("cs:generic");
+}
+
 Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
                             const string& pName,
                             const TypePtr& pType,
+                            bool readOnly,
                             bool pTagged,
                             int pTag,
                             const string& pPrefix)
@@ -604,20 +625,20 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
     this->name = fixId(pPrefix + pName);
     this->type = pType;
     this->typeStr = CsGenerator::typeToString(pType, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
-                                              pTagged);
+                                              pTagged, readOnly);
     this->nullable = isNullable(pType);
     this->tagged = pTagged;
     this->tag = pTag;
     this->param = 0;
 }
 
-Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
+Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, bool readOnly, const string& pPrefix)
 {
     this->operation = OperationPtr::dynamicCast(pParam->container());
     this->name = fixId(pPrefix + pParam->name());
     this->type = pParam->type();
     this->typeStr = CsGenerator::typeToString(type, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
-                                              pParam->tagged());
+                                              pParam->tagged(), readOnly);
     this->nullable = isNullable(type);
     this->tagged = pParam->tagged();
     this->tag = pParam->tag();
@@ -625,22 +646,22 @@ Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, const string& pPrefix)
 }
 
 list<ParamInfo>
-Slice::getAllInParams(const OperationPtr& op, const string& prefix)
+Slice::getAllInParams(const OperationPtr& op, bool readOnly, const string& prefix)
 {
     list<ParamInfo> inParams;
     for(const auto& p : op->inParameters())
     {
-        inParams.push_back(ParamInfo(p, prefix));
+        inParams.push_back(ParamInfo(p, readOnly, prefix));
     }
     return inParams;
 }
 void
-Slice::getInParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams,
-                   const string&  prefix)
+Slice::getInParams(const OperationPtr& op, bool readOnly, list<ParamInfo>& requiredParams,
+    list<ParamInfo>& taggedParams, const string& prefix)
 {
     requiredParams.clear();
     taggedParams.clear();
-    for(const auto& p : getAllInParams(op, prefix))
+    for(const auto& p : getAllInParams(op, readOnly, prefix))
     {
         if(p.tagged)
         {
@@ -662,13 +683,13 @@ Slice::getInParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list
 }
 
 list<ParamInfo>
-Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool returnTypeIsFirst)
+Slice::getAllOutParams(const OperationPtr& op, bool readOnly, const string& prefix, bool returnTypeIsFirst)
 {
     list<ParamInfo> outParams;
 
     for(const auto& p : op->outParameters())
     {
-        outParams.push_back(ParamInfo(p, prefix));
+        outParams.push_back(ParamInfo(p, readOnly, prefix));
     }
 
     if(op->returnType())
@@ -676,6 +697,7 @@ Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool return
         auto ret = ParamInfo(op,
                              returnValueName(op->outParameters()),
                              op->returnType(),
+                             readOnly,
                              op->returnIsTagged(),
                              op->returnTag(),
                              prefix);
@@ -694,13 +716,13 @@ Slice::getAllOutParams(const OperationPtr& op, const string& prefix, bool return
 }
 
 void
-Slice::getOutParams(const OperationPtr& op, list<ParamInfo>& requiredParams, list<ParamInfo>& taggedParams,
-                    const string& prefix)
+Slice::getOutParams(const OperationPtr& op, bool readOnly, list<ParamInfo>& requiredParams,
+    list<ParamInfo>& taggedParams, const string& prefix)
 {
     requiredParams.clear();
     taggedParams.clear();
 
-    for(const auto& p : getAllOutParams(op, prefix))
+    for(const auto& p : getAllOutParams(op, readOnly, prefix))
     {
         if(p.tagged)
         {
@@ -792,17 +814,29 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope)
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool forNestedType)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
     if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << "Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
+        out << "global::Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
     }
-    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
+    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
     {
         out << helperName(type, scope) << ".IceWriter";
+    }
+    else if (SequencePtr seq = SequencePtr::dynamicCast(type))
+    {
+        if (forNestedType && isMappedToReadOnlyMemory(seq))
+        {
+            builtin = BuiltinPtr::dynamicCast(seq->type());
+            out << "global::Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()] << "Array";
+        }
+        else
+        {
+            out << helperName(type, scope) << ".IceWriter";
+        }
     }
     else
     {
@@ -895,6 +929,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
 void
 Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
                                            const TypePtr& type,
+                                           bool isDataMember,
                                            const string& scope,
                                            const string& param,
                                            int tag,
@@ -912,23 +947,12 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     }
     else if(st)
     {
-        out << nl << "if (" << param << " is " << typeToString(st, scope);
-        out << " && " << stream << ".WriteOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
-        out << sb;
-        if(st->isVariableLength())
+        out << nl << stream << ".WriteTaggedStruct(" << tag << ", " << param;
+        if(!st->isVariableLength())
         {
-            out << nl << "var pos = " << stream << ".StartSize();";
+            out << ", " << st->minWireSize();
         }
-        else
-        {
-            out << nl << stream << ".WriteSize(" << st->minWireSize() << ");";
-        }
-        writeMarshalCode(out, type, scope, param + ".Value", stream);
-        if(st->isVariableLength())
-        {
-            out << nl << stream << ".EndSize(pos);";
-        }
-        out << eb;
+        out << ");";
     }
     else if(en)
     {
@@ -940,48 +964,30 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     else if(seq)
     {
         const TypePtr elementType = seq->type();
-        const bool isArray = !seq->hasMetaDataWithPrefix("cs:generic:");
-        const string length = isArray ? param + ".Length" : param + ".Count";
         builtin = BuiltinPtr::dynamicCast(elementType);
-        st = StructPtr::dynamicCast(elementType);
-
-        if(elementType->isVariableLength())
+        if (isMappedToReadOnlyMemory(seq))
         {
-            out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                << getTagFormat(seq, scope) << "))";
-            out << sb;
-            out << nl << "var pos = " << stream << ".StartSize();";
-            writeMarshalCode(out, seq, scope, param, stream);
-            out << nl << stream << ".EndSize(pos);";
-            out << eb;
-        }
-        else if(st)
-        {
-            // Fixed size struct
-            out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-                << getTagFormat(seq, scope) << "))";
-            out << sb;
-            if(st->minWireSize() > 1)
+            out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param;
+            if (!isDataMember)
             {
-                out << nl << stream << ".WriteSize(" << length << " * " << st->minWireSize() << " + (" << length
-                    << " > 254 ? 5 : 1));";
+                out << ".Span";
             }
-            writeMarshalCode(out, seq, scope, param, stream);
-            out << eb;
+            out << ");";
         }
-        else if(seq->hasMetaDataWithPrefix("cs:serializable:"))
+        else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
-            assert(builtin->kind() == Builtin::KindByte);
-            out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag
-                << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".VSize))";
-            out << sb;
-            out << nl << stream << ".WriteSerializable(" << param << ");";
-            out << eb;
+            out << nl << stream << ".WriteSerializable(" << tag << ", " << param << ");";
+        }
+        else if (elementType->isVariableLength())
+        {
+            out << nl << stream << ".WriteTaggedSeq(" << tag << ", " << param << ", " <<
+                outputStreamWriter(elementType, scope, true) << ");";
         }
         else
         {
-            assert(builtin);
-            out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param
+            // Fixed size = min-size
+            out << nl << stream << ".WriteTaggedSeq(" << tag << ", " << param << ", "
+                << elementType->minWireSize() << ", " << outputStreamWriter(elementType, scope, true)
                 << ");";
         }
     }
@@ -991,25 +997,17 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         assert(d);
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
-        out << nl << "if (" << param << " != null && " << stream << ".WriteOptional(" << tag << ", "
-            << getTagFormat(d, scope) << "))";
-        out << sb;
-        if(keyType->isVariableLength() || valueType->isVariableLength())
+
+        out << nl << stream << ".WriteTaggedDict(" << tag << ", " << param << ", ";
+
+        if (!keyType->isVariableLength() && !valueType->isVariableLength())
         {
-            out << nl << "var pos = " << stream << ".StartSize();";
+            // Both are fixed size
+            out << (keyType->minWireSize() + valueType->minWireSize()) << ", ";
         }
-        else
-        {
-            out << nl << stream << ".WriteSize(" << param << ".Count * "
-                << (keyType->minWireSize() + valueType->minWireSize()) << " + (" << param
-                << ".Count > 254 ? 5 : 1));";
-        }
-        writeMarshalCode(out, type, scope, param, stream);
-        if(keyType->isVariableLength() || valueType->isVariableLength())
-        {
-            out << nl << stream << ".EndSize(pos);";
-        }
-        out << eb;
+
+        out << outputStreamWriter(keyType, scope, true) << ", "
+            << outputStreamWriter(valueType, scope, true) << ");";
     }
 }
 
@@ -1110,20 +1108,19 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
                                         const string& stream)
 {
     TypePtr type = seq->type();
-    StructPtr st = StructPtr::dynamicCast(type);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(seq->hasMetaDataWithPrefix("cs:serializable:"))
+    if (isMappedToReadOnlyMemory(seq))
+    {
+        out << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ".Span)";
+    }
+    else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
     {
         out << stream << ".WriteSerializable(" << param << ")";
     }
-    else if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
-    {
-        out << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ")";
-    }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope) << ")";
+        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, true) << ")";
     }
     return out.str();
 }
@@ -1140,7 +1137,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     ostringstream out;
     if(!serializable.empty())
     {
-        out << "(" << serializable << "?) " << stream << ".ReadSerializable()";
+        out << "(" << serializable << ") " << stream << ".ReadSerializable()";
     }
     else if(generic.empty())
     {

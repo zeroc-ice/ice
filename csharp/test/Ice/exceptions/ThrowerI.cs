@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using Test;
 
 namespace Ice.exceptions
@@ -43,7 +44,7 @@ namespace Ice.exceptions
         public void throwAssertException(Current current) => TestHelper.Assert(false);
 
         // 20KB is over the configured 10KB message size max.
-        public byte[] throwMemoryLimitException(byte[] seq, Current current) => new byte[1024 * 20];
+        public ReadOnlyMemory<byte> throwMemoryLimitException(byte[] seq, Current current) => new byte[1024 * 20];
 
         public void throwLocalExceptionIdempotent(Current current) => throw new ConnectionTimeoutException();
 

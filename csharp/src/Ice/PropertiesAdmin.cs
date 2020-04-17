@@ -27,7 +27,7 @@ namespace Ice
 
         public string GetProperty(string key, Current current) => _communicator.GetProperty(key) ?? "";
 
-        public Dictionary<string, string> GetPropertiesForPrefix(string prefix, Current current) =>
+        public IReadOnlyDictionary<string, string> GetPropertiesForPrefix(string prefix, Current current) =>
             _communicator.GetProperties(forPrefix: prefix);
 
         public void SetProperties(Dictionary<string, string> newProperties, Current current)

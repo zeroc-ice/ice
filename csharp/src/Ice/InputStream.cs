@@ -448,12 +448,12 @@ namespace Ice
 
         /// <summary>Extracts a serializable object from the stream.</summary>
         /// <returns>The serializable object.</returns>
-        public object? ReadSerializable()
+        public object ReadSerializable()
         {
             int sz = ReadAndCheckSeqSize(1);
             if (sz == 0)
             {
-                return null;
+                throw new InvalidDataException("read an empty byte sequence for non-null serializable object");
             }
             var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, Communicator));
             return f.Deserialize(new InputStreamWrapper(this));

@@ -20,8 +20,8 @@ namespace Ice.proxy.AMD
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<Dictionary<string, string>> getContextAsync(Current current)
-            => new ValueTask<Dictionary<string, string>>(_ctx!);
+        public ValueTask<IReadOnlyDictionary<string, string>> getContextAsync(Current current)
+            => new ValueTask<IReadOnlyDictionary<string, string>>(_ctx!);
 
         public bool IceIsA(string typeId, Current current)
         {
@@ -29,6 +29,6 @@ namespace Ice.proxy.AMD
             return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
-        private Dictionary<string, string>? _ctx;
+        private IReadOnlyDictionary<string, string>? _ctx;
     }
 }

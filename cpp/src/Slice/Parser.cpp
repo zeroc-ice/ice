@@ -548,6 +548,12 @@ Slice::Builtin::isNumericType() const
 }
 
 bool
+Slice::Builtin::isNumericTypeOrBool() const
+{
+    return isNumericType() || (_kind == KindBool);
+}
+
+bool
 Slice::Builtin::isIntegralType() const
 {
     switch(_kind)

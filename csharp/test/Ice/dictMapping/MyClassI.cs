@@ -10,28 +10,28 @@ namespace Ice.dictMapping
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-        public (Dictionary<int, int>, Dictionary<int, int>)
+        public (IReadOnlyDictionary<int, int>, IReadOnlyDictionary<int, int>)
         opNV(Dictionary<int, int> i, Current current) => (i, i);
 
-        public (Dictionary<string, string>, Dictionary<string, string>)
+        public (IReadOnlyDictionary<string, string>, IReadOnlyDictionary<string, string>)
         opNR(Dictionary<string, string> i, Current current) => (i, i);
 
-        public (Dictionary<string, Dictionary<int, int>>, Dictionary<string, Dictionary<int, int>>)
+        public (IReadOnlyDictionary<string, Dictionary<int, int>>, IReadOnlyDictionary<string, Dictionary<int, int>>)
         opNDV(Dictionary<string, Dictionary<int, int>> i, Current current) => (i, i);
 
-        public (Dictionary<string, Dictionary<string, string>>, Dictionary<string, Dictionary<string, string>>)
+        public (IReadOnlyDictionary<string, Dictionary<string, string>>, IReadOnlyDictionary<string, Dictionary<string, string>>)
         opNDR(Dictionary<string, Dictionary<string, string>> i, Current current) => (i, i);
 
-        public (Dictionary<string, int[]>, Dictionary<string, int[]>)
+        public (IReadOnlyDictionary<string, int[]>, IReadOnlyDictionary<string, int[]>)
         opNDAIS(Dictionary<string, int[]> i, Current current) => (i, i);
 
-        public (Dictionary<string, List<int>>, Dictionary<string, List<int>>)
+        public (IReadOnlyDictionary<string, List<int>>, IReadOnlyDictionary<string, List<int>>)
         opNDGIS(Dictionary<string, List<int>> i, Current current) => (i, i);
 
-        public (Dictionary<string, string[]>, Dictionary<string, string[]>)
+        public (IReadOnlyDictionary<string, string[]>, IReadOnlyDictionary<string, string[]>)
         opNDASS(Dictionary<string, string[]> i, Current current) => (i, i);
 
-        public (Dictionary<string, List<string>>, Dictionary<string, List<string>>)
+        public (IReadOnlyDictionary<string, List<string>>, IReadOnlyDictionary<string, List<string>>)
         opNDGSS(Dictionary<string, List<string>> i, Current current) => (i, i);
     }
 }

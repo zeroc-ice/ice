@@ -768,8 +768,7 @@ namespace IceInternal
             }
         }
 
-        public (string[], string[])
-        GetMetricsViewNames(Ice.Current current)
+        public (IEnumerable<string>, IEnumerable<string>) GetMetricsViewNames(Ice.Current current)
         {
             lock (this)
             {
@@ -797,8 +796,8 @@ namespace IceInternal
             UpdateViews();
         }
 
-        public (Dictionary<string, IceMX.Metrics?[]>, long)
-        GetMetricsView(string viewName, Ice.Current current)
+        public (IReadOnlyDictionary<string, IceMX.Metrics?[]>, long) GetMetricsView(string viewName,
+            Ice.Current current)
         {
             lock (this)
             {
@@ -808,7 +807,7 @@ namespace IceInternal
             }
         }
 
-        public IceMX.MetricsFailures[] GetMapMetricsFailures(string viewName, string mapName, Ice.Current c)
+        public IEnumerable<IceMX.MetricsFailures> GetMapMetricsFailures(string viewName, string mapName, Ice.Current c)
         {
             lock (this)
             {

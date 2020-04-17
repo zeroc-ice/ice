@@ -154,7 +154,7 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
 
     for(const auto& param : taggedParams)
     {
-        writeTaggedMarshalCode(_out, param.type, ns, obj + param.name, param.tag, stream);
+        writeTaggedMarshalCode(_out, param.type, false, ns, obj + param.name, param.tag, stream);
     }
 }
 
@@ -192,7 +192,7 @@ Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const stri
     const string stream = customStream.empty() ? "ostr" : customStream;
     if(member->tagged())
     {
-        writeTaggedMarshalCode(_out, member->type(), ns, "this." + name, member->tag(), stream);
+        writeTaggedMarshalCode(_out, member->type(), true, ns, "this." + name, member->tag(), stream);
     }
     else
     {
@@ -371,7 +371,7 @@ getInvocationParams(const OperationPtr& op, const string& ns)
         {
             param << "in ";
         }
-        param << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()))
+        param << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()), true)
               << " "
               << fixId(p->name());
         params.push_back(param.str());
@@ -398,7 +398,7 @@ getInvocationParamsAMI(const OperationPtr& op, const string& ns, bool defaultVal
         {
             param << "in ";
         }
-        param << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()))
+        param << CsGenerator::typeToString(p->type(), ns, p->tagged() || isNullable(p->type()), true)
               << " "
               << fixId(prefix + p->name());
         params.push_back(param.str());
@@ -431,7 +431,7 @@ getInvocationArgsAMI(const OperationPtr& op,
                      const string cancelationToken = "global::System.Threading.CancellationToken.None",
                      const string& async = "true")
 {
-    vector<string> args = getNames(getAllInParams(op));
+    vector<string> args = getNames(getAllInParams(op, true));
 
     if(context.empty())
     {
@@ -616,6 +616,8 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
 void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
+    // This helper function is called only for class/exception data members.
+
     for(const auto& p : members)
     {
         TypePtr type = p->type();
@@ -641,11 +643,18 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
             {
                 _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(st, ns) << "();";
             }
-            else if(seq && !seq->hasMetaDataWithPrefix("cs:serializable:"))
+            else if(seq)
             {
                 if(seq->hasMetaDataWithPrefix("cs:generic:"))
                 {
                     _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(type, ns) << "();";
+                }
+                else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
+                {
+                    // Disable warning
+                    // TODO: do the same for all non-nullable data members once we make the parameterless constructor
+                    // private.
+                    _out << nl << fixId(dataMemberName(p), baseTypes) << " = null!;";
                 }
                 else
                 {
@@ -964,7 +973,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     writeDocCommentLines(_out, comment.summaryLines, "summary");
     writeParamDocComment(p, comment, InParam);
 
-    list<ParamInfo> outParams = getAllOutParams(p,"", true);
+    list<ParamInfo> outParams = getAllOutParams(p, dispatch, "", true);
 
     if(dispatch)
     {
@@ -1042,7 +1051,7 @@ Slice::CsVisitor::writeParamDocComment(const OperationPtr& p, const CommentInfo&
             auto i = comment.params.find(param->name());
             if(i != comment.params.end())
             {
-                writeDocCommentLines(_out, i->second, "param", "name", paramName(param));
+                writeDocCommentLines(_out, i->second, "param", "name", fixId(param->name()));
             }
         }
     }
@@ -2333,7 +2342,7 @@ namespace
 {
 
 string
-requestType(const list<ParamInfo> inParams, const list<ParamInfo>& outParams)
+requestType(const list<ParamInfo>& inParams, const list<ParamInfo>& outParams)
 {
     ostringstream os;
     if(inParams.size() == 0)
@@ -2370,15 +2379,15 @@ requestType(const list<ParamInfo> inParams, const list<ParamInfo>& outParams)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 {
-    list<ParamInfo> outParams = getAllOutParams(operation);
+    list<ParamInfo> outParams = getAllOutParams(operation, false);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
-    getOutParams(operation, requiredOutParams, taggedOutParams, "iceP_");
+    getOutParams(operation, false, requiredOutParams, taggedOutParams, "iceP_");
 
-    list<ParamInfo> inParams = getAllInParams(operation);
+    list<ParamInfo> inParams = getAllInParams(operation, true);
     list<ParamInfo> requiredInParams;
     list<ParamInfo> taggedInParams;
-    getInParams(operation, requiredInParams, taggedInParams);
+    getInParams(operation, true, requiredInParams, taggedInParams);
 
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
@@ -2445,7 +2454,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out.dec();
     }
 
-    outParams = getAllOutParams(operation, "iceP_", true);
+    outParams = getAllOutParams(operation, false, "iceP_", true);
     string requestT = requestType(inParams, outParams);
     // Write the static outgoing request instance
     _out << sp;
@@ -2482,15 +2491,15 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(cl);
 
-    list<ParamInfo> params = getAllInParams(operation);
+    list<ParamInfo> params = getAllInParams(operation, true);
     list<ParamInfo> requiredParams;
     list<ParamInfo> taggedParams;
-    getInParams(operation, requiredParams, taggedParams, "iceP_");
+    getInParams(operation, true, requiredParams, taggedParams, "iceP_");
 
     bool defaultWriter = params.size() == 1 && !params.front().tagged;
     if(defaultWriter)
     {
-        _out << outputStreamWriter(params.front().type, ns);
+        _out << outputStreamWriter(params.front().type, ns, false);
     }
     else if(params.size() > 1)
     {
@@ -2518,10 +2527,10 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(cl);
 
-    list<ParamInfo> params = getAllOutParams(operation);
+    list<ParamInfo> params = getAllOutParams(operation, false);
     list<ParamInfo> requiredParams;
     list<ParamInfo> taggedParams;
-    getOutParams(operation, requiredParams, taggedParams, "iceP_");
+    getOutParams(operation, false, requiredParams, taggedParams, "iceP_");
 
     bool defaultReader = params.size() == 1 && !params.front().tagged;
 
@@ -2542,7 +2551,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
         }
         else
         {
-            params = getAllOutParams(operation, "iceP_", true);
+            params = getAllOutParams(operation, false, "iceP_", true);
             _out << nl << "return " << spar << getNames(params) << epar << ";";
         }
         _out << eb;
@@ -2580,8 +2589,8 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     string name = p->name();
     string scope = getNamespace(p);
-    string seqS = typeToString(p, scope, p->hasMetaDataWithPrefix("cs:serializable:"));
-    TypePtr type = p->type();
+    string seqS = typeToString(p, scope);
+    string seqReadOnly = typeToString(p, scope, false, true);
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -2589,13 +2598,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
 
     _out << sp;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqS << " sequence) => ";
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) => ";
     _out.inc();
     _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS << "> IceWriter = Write;";
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
 
     _out << sp;
     _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
@@ -2627,8 +2636,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
-         << outputStreamWriter(key, ns) << ", "
-         << outputStreamWriter(value, ns) << ");";
+         << outputStreamWriter(key, ns, true) << ", "
+         << outputStreamWriter(value, ns, true) << ");";
     _out.dec();
 
     _out << sp;
@@ -2791,10 +2800,10 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     string ns = getNamespace(cl);
     const string opName = pascalCase(operation->name());
 
-    list<ParamInfo> outParams = getAllOutParams(operation, "", true);
+    list<ParamInfo> outParams = getAllOutParams(operation, true, "", true);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
-    getOutParams(operation, requiredOutParams, taggedOutParams, "iceP_");
+    getOutParams(operation, false, requiredOutParams, taggedOutParams, "iceP_");
 
     if(operation->hasMarshaledResult())
     {
@@ -2844,7 +2853,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
     bool amd = cl->hasMetaData("amd") || operation->hasMetaData("amd");
     const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
-    list<ParamInfo> inParams = getAllInParams(operation);
+    list<ParamInfo> inParams = getAllInParams(operation, false);
 
     _out << sp;
     writeOperationDocComment(operation, deprecateReason, true, amd);
@@ -2878,18 +2887,19 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string name = fixId(opName + (amd ? "Async" : ""));
     string internalName = "IceD_" + operation->name() + "Async";
 
-    list<ParamInfo> inParams = getAllInParams(operation, "iceP_");
+    list<ParamInfo> inParams = getAllInParams(operation, false, "iceP_");
     list<ParamInfo> requiredInParams;
     list<ParamInfo> taggedInParams;
-    getInParams(operation, requiredInParams, taggedInParams, "iceP_");
+    getInParams(operation, false, requiredInParams, taggedInParams, "iceP_");
 
-    list<ParamInfo> outParams = getAllOutParams(operation, "", true);
+    list<ParamInfo> outParams = getAllOutParams(operation, true, "", true);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
-    getOutParams(operation, requiredOutParams, taggedOutParams);
+    getOutParams(operation, true, requiredOutParams, taggedOutParams);
 
     bool defaultWriter = outParams.size() == 1 && !outParams.front().tagged;
-    string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns) : "_iceD_" + opName + "Writer";
+    string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns, false) :
+        "_iceD_" + opName + "Writer";
 
     bool defaultReader = inParams.size() == 1 && !inParams.front().tagged;
     string reader = defaultReader ? inputStreamReader(inParams.front().type, ns) : "_iceD_" + opName + "Reader";
@@ -3089,14 +3099,14 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
     string ns = getNamespace(cl);
     string opName = operationName(op);
 
-    list<ParamInfo> outParams = getAllOutParams(op);
+    list<ParamInfo> outParams = getAllOutParams(op, true);
 
     _out << sp << nl;
 
     if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
     {
         _out << "public override " << resultTask(op, ns, true) << " " << opName << "Async" << spar
-             << getNames(getAllInParams(op))
+             << getNames(getAllInParams(op, false))
              << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
              << epar;
         _out << sb;
@@ -3114,7 +3124,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
         {
             _out << nl << "return new " << opName << (op->hasMarshaledResult() ? "MarshaledResult" : "Result")
                  << spar
-                 << getNames(getAllOutParams(op, "", true));
+                 << getNames(getAllOutParams(op, true, "", true));
             if(op->hasMarshaledResult())
             {
                 _out << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"));
@@ -3130,7 +3140,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
     else
     {
         _out << "public override " << resultType(op, ns, true) << " " << opName << spar
-             << getNames(getAllInParams(op))
+             << getNames(getAllInParams(op, false))
              << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
              << epar;
         _out << sb;
@@ -3139,7 +3149,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
         {
             _out << nl << "return new " << opName << "MarshaledResult"
                  << spar
-                 << getNames(getAllOutParams(op, "", true))
+                 << getNames(getAllOutParams(op, true, "", true))
                  << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
                  << epar << ";";
         }

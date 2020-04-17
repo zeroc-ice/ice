@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 
 namespace Ice.optional
@@ -67,54 +68,54 @@ namespace Ice.optional
 
         public (IObjectPrx?, IObjectPrx?) opOneOptionalProxy(IObjectPrx? p1, Current current) => (p1, p1);
 
-        public (byte[]?, byte[]?) opByteSeq(byte[]? p1, Current current) => (p1, p1);
-        public (List<byte>?, List<byte>?) opByteList(List<byte>? p1, Current current) => (p1, p1);
+        public (ReadOnlyMemory<byte>, ReadOnlyMemory<byte>) opByteSeq(byte[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<byte>?, IEnumerable<byte>?) opByteList(List<byte>? p1, Current current) => (p1, p1);
 
-        public (bool[]?, bool[]?) opBoolSeq(bool[]? p1, Current current) => (p1, p1);
-        public (List<bool>?, List<bool>?) opBoolList(List<bool>? p1, Current current) => (p1, p1);
+        public (ReadOnlyMemory<bool>, ReadOnlyMemory<bool>) opBoolSeq(bool[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<bool>?, IEnumerable<bool>?) opBoolList(List<bool>? p1, Current current) => (p1, p1);
 
-        public (short[]?, short[]?) opShortSeq(short[]? p1, Current current) => (p1, p1);
-        public (List<short>?, List<short>?) opShortList(List<short>? p1, Current current) => (p1, p1);
+        public (ReadOnlyMemory<short>, ReadOnlyMemory<short>) opShortSeq(short[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<short>?, IEnumerable<short>?) opShortList(List<short>? p1, Current current) => (p1, p1);
 
-        public (int[]?, int[]?) opIntSeq(int[]? p1, Current current) => (p1, p1);
-        public (List<int>?, List<int>?) opIntList(List<int>? p1, Current current) => (p1, p1);
+        public (ReadOnlyMemory<int>, ReadOnlyMemory<int>) opIntSeq(int[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<int>?, IEnumerable<int>?) opIntList(List<int>? p1, Current current) => (p1, p1);
 
-        public (long[]?, long[]?) opLongSeq(long[]? p1, Current current) => (p1, p1);
-        public (List<long>?, List<long>?) opLongList(List<long>? p1, Current current) => (p1, p1);
+        public (ReadOnlyMemory<long>, ReadOnlyMemory<long>) opLongSeq(long[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<long>?, IEnumerable<long>?) opLongList(List<long>? p1, Current current) => (p1, p1);
 
-        public (float[]?, float[]?) opFloatSeq(float[]? p1, Current current) => (p1, p1);
-        public (List<float>?, List<float>?) opFloatList(List<float>? p1, Current current) => (p1, p1);
+        public (ReadOnlyMemory<float>, ReadOnlyMemory<float>) opFloatSeq(float[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<float>?, IEnumerable<float>?) opFloatList(List<float>? p1, Current current) => (p1, p1);
 
-        public (double[]?, double[]?) opDoubleSeq(double[]? p1, Current current) => (p1, p1);
-        public (List<double>?, List<double>?) opDoubleList(List<double>? p1, Current current) => (p1, p1);
+        public (ReadOnlyMemory<double>, ReadOnlyMemory<double>) opDoubleSeq(double[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<double>?, IEnumerable<double>?) opDoubleList(List<double>? p1, Current current) => (p1, p1);
 
-        public (string[]?, string[]?) opStringSeq(string[]? p1, Current current) => (p1, p1);
-        public (List<string>?, List<string>?) opStringList(List<string>? p1, Current current) => (p1, p1);
+        public (IEnumerable<string>?, IEnumerable<string>?) opStringSeq(string[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<string>?, IEnumerable<string>?) opStringList(List<string>? p1, Current current) => (p1, p1);
 
-        public (Test.SmallStruct[]?, Test.SmallStruct[]?) opSmallStructSeq(Test.SmallStruct[]? p1, Current current) =>
+        public (IEnumerable<Test.SmallStruct>?, IEnumerable<Test.SmallStruct>?) opSmallStructSeq(Test.SmallStruct[]? p1, Current current) =>
             (p1, p1);
 
-        public (List<Test.SmallStruct>?, List<Test.SmallStruct>?)
+        public (IEnumerable<Test.SmallStruct>?, IEnumerable<Test.SmallStruct>?)
         opSmallStructList(List<Test.SmallStruct>? p1, Current current) => (p1, p1);
 
-        public (Test.FixedStruct[]?, Test.FixedStruct[]?)
+        public (IEnumerable<Test.FixedStruct>?, IEnumerable<Test.FixedStruct>?)
         opFixedStructSeq(Test.FixedStruct[]? p1, Current current) => (p1, p1);
 
-        public (LinkedList<Test.FixedStruct>?, LinkedList<Test.FixedStruct>?)
+        public (IEnumerable<Test.FixedStruct>?, IEnumerable<Test.FixedStruct>?)
         opFixedStructList(LinkedList<Test.FixedStruct>? p1, Current current) => (p1, p1);
 
-        public (Test.VarStruct[]?, Test.VarStruct[]?) opVarStructSeq(Test.VarStruct[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<Test.VarStruct>?, IEnumerable<Test.VarStruct>?) opVarStructSeq(Test.VarStruct[]? p1, Current current) => (p1, p1);
 
         public (Test.SerializableClass?, Test.SerializableClass?)
         opSerializable(Test.SerializableClass? p1, Current current) => (p1, p1);
 
-        public (Dictionary<int, int>?, Dictionary<int, int>?)
+        public (IReadOnlyDictionary<int, int>?, IReadOnlyDictionary<int, int>?)
         opIntIntDict(Dictionary<int, int>? p1, Current current) => (p1, p1);
 
-        public (Dictionary<string, int>?, Dictionary<string, int>?)
+        public (IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?)
         opStringIntDict(Dictionary<string, int>? p1, Current current) => (p1, p1);
 
-        public (Dictionary<int, Test.OneOptional?>?, Dictionary<int, Test.OneOptional?>?)
+        public (IReadOnlyDictionary<int, Test.OneOptional?>?, IReadOnlyDictionary<int, Test.OneOptional?>?)
         opIntOneOptionalDict(Dictionary<int, Test.OneOptional?>? p1, Current current) => (p1, p1);
 
         public void opClassAndUnknownOptional(Test.A? p, Current current)

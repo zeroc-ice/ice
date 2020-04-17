@@ -564,28 +564,17 @@ namespace Ice.seqMapping
             }
 
             {
-                Serialize.Small?i = null;
-                Serialize.Small? o;
-                Serialize.Small? r;
-
-                (r, o) = p.opSerialSmallCSharp(i);
-
-                TestHelper.Assert(o == null);
-                TestHelper.Assert(r == null);
-            }
-
-            {
                 Serialize.Small i = new Serialize.Small();
                 i.i = 99;
-                Serialize.Small? o;
-                Serialize.Small? r;
+                Serialize.Small o;
+                Serialize.Small r;
 
                 try
                 {
                     (r, o) = p.opSerialSmallCSharp(i);
 
-                    TestHelper.Assert(o!.i == 99);
-                    TestHelper.Assert(r!.i == 99);
+                    TestHelper.Assert(o.i == 99);
+                    TestHelper.Assert(r.i == 99);
                 }
                 catch (OperationNotExistException)
                 {
@@ -594,7 +583,7 @@ namespace Ice.seqMapping
             }
 
             {
-                Serialize.Large? i = new Serialize.Large();
+                Serialize.Large i = new Serialize.Large();
                 i.d1 = 1.0;
                 i.d2 = 2.0;
                 i.d3 = 3.0;
@@ -607,13 +596,12 @@ namespace Ice.seqMapping
                 i.d10 = 10.0;
                 i.d11 = 11.0;
                 i.s1 = Serialize.Large.LargeString;
-                Serialize.Large? o;
-                Serialize.Large? r;
+                Serialize.Large o;
+                Serialize.Large r;
 
                 try
                 {
                     (r, o) = p.opSerialLargeCSharp(i);
-                    TestHelper.Assert(r != null && o != null);
                     TestHelper.Assert(o.d1 == 1.0);
                     TestHelper.Assert(o.d2 == 2.0);
                     TestHelper.Assert(o.d3 == 3.0);
@@ -651,13 +639,12 @@ namespace Ice.seqMapping
                 i.o2 = i;
                 i.s = null;
                 i.s2 = "Hello";
-                Serialize.Struct? o;
-                Serialize.Struct? r;
+                Serialize.Struct o;
+                Serialize.Struct r;
 
                 try
                 {
                     (r, o) = p.opSerialStructCSharp(i);
-                    TestHelper.Assert(o != null && r != null);
                     TestHelper.Assert(o.o == null);
                     TestHelper.Assert(o.o2 != null);
                     TestHelper.Assert(((Serialize.Struct)(o.o2)).o == null);

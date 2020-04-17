@@ -52,7 +52,7 @@ namespace Ice
                 {
                     Debug.Assert(_pos <= _data.Length);
                     _stream.WriteSize(_pos);
-                    _stream.WriteSpan(_data.AsSpan(0, _pos));
+                    _stream.WriteByteSpan(_data.AsSpan(0, _pos));
                 }
                 else
                 {
@@ -94,14 +94,14 @@ namespace Ice
                     if (_pos > 0)
                     {
                         // Write the current contents of _data.
-                        _stream.WriteSpan(_data.AsSpan(0, _pos));
+                        _stream.WriteByteSpan(_data.AsSpan(0, _pos));
                     }
 
                     _data = null;
                 }
 
                 // Write data passed by caller.
-                _stream.WriteSpan(buffer);
+                _stream.WriteByteSpan(buffer);
                 _pos += buffer.Length;
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace Ice
                     if (_pos > 0)
                     {
                         // Write the current contents of _data.
-                        _stream.WriteSpan(_data.AsSpan(0, _pos));
+                        _stream.WriteByteSpan(_data.AsSpan(0, _pos));
                     }
 
                     _data = null;

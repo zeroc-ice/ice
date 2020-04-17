@@ -215,8 +215,8 @@ public sealed class TestIntf : ITestIntf
         return ss;
     }
 
-    public (Dictionary<int, B?>, Dictionary<int, B?>)
-    dictionaryTest(Dictionary<int, B?> bin, Ice.Current current)
+    public (IReadOnlyDictionary<int, B?>, IReadOnlyDictionary<int, B?>) dictionaryTest(Dictionary<int, B?> bin,
+        Ice.Current current)
     {
         var bout = new Dictionary<int, B?>();
         int i;

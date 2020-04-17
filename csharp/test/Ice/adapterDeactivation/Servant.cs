@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
@@ -15,7 +16,7 @@ namespace Ice.adapterDeactivation
         public IObjectPrx GetServerProxy(Current current) =>
             IObjectPrx.Parse($"dummy:tcp -h localhost -p {_nextPort++} -t 30000", current.Adapter.Communicator);
 
-        public IObjectPrx?[] AddProxies(IObjectPrx?[] proxies, Current current) => Array.Empty<IObjectPrx?>();
+        public IEnumerable<IObjectPrx?> AddProxies(IObjectPrx?[] proxies, Current current) => Array.Empty<IObjectPrx?>();
 
         private int _nextPort = 23456;
     }
