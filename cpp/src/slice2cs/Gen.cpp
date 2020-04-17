@@ -2606,15 +2606,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << sp;
     _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
 
-    if (isMappedToReadOnlyMemory(p))
-    {
-        // IceNestedWriter is used only when marshaling nested sequences, and we need them in the correct type because
-        // a T[] (where T : fixed size numeric type) is only implicitly converted to a ReadOnlyMemory<T>, there is no
-        // is-a relationship.
-        _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS
-            << "> IceNestedWriter = (ostr, sequence) => Write(ostr, sequence);";
-    }
-
     _out << sp;
     _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
     _out.inc();

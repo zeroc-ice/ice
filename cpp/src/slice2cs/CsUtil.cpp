@@ -826,11 +826,12 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     {
         out << helperName(type, scope) << ".IceWriter";
     }
-    else if (SequencePtr::dynamicCast(type))
+    else if (SequencePtr seq = SequencePtr::dynamicCast(type))
     {
-        if (forNestedType && isMappedToReadOnlyMemory(SequencePtr::dynamicCast(type)))
+        if (forNestedType && isMappedToReadOnlyMemory(seq))
         {
-            out << helperName(type, scope) << ".IceNestedWriter";
+            builtin = BuiltinPtr::dynamicCast(seq->type());
+            out << "Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()] << "Array";
         }
         else
         {

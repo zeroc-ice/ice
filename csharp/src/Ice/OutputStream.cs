@@ -52,8 +52,32 @@ namespace Ice
         public static readonly OutputStreamWriter<int> IceWriterFromInt = (ostr, value) => ostr.WriteInt(value);
         public static readonly OutputStreamWriter<long> IceWriterFromLong = (ostr, value) => ostr.WriteLong(value);
         public static readonly OutputStreamWriter<float> IceWriterFromFloat = (ostr, value) => ostr.WriteFloat(value);
-        public static readonly OutputStreamWriter<double> IceWriterFromDouble = (ostr, value) => ostr.WriteDouble(value);
-        public static readonly OutputStreamWriter<string> IceWriterFromString = (ostr, value) => ostr.WriteString(value);
+        public static readonly OutputStreamWriter<double> IceWriterFromDouble =
+            (ostr, value) => ostr.WriteDouble(value);
+
+        public static readonly OutputStreamWriter<string> IceWriterFromString =
+            (ostr, value) => ostr.WriteString(value);
+
+        public static readonly OutputStreamWriter<bool[]> IceWriterFromBoolArray =
+            (ostr, value) => ostr.WriteBoolSeq(value);
+
+        public static readonly OutputStreamWriter<byte[]> IceWriterFromByteArray =
+            (ostr, value) => ostr.WriteByteSeq(value);
+
+        public static readonly OutputStreamWriter<short[]> IceWriterFromShortArray =
+            (ostr, value) => ostr.WriteShortSeq(value);
+
+        public static readonly OutputStreamWriter<int[]> IceWriterFromIntArray =
+            (ostr, value) => ostr.WriteIntSeq(value);
+
+        public static readonly OutputStreamWriter<long[]> IceWriterFromLongArray =
+            (ostr, value) => ostr.WriteLongSeq(value);
+
+        public static readonly OutputStreamWriter<float[]> IceWriterFromFloatArray =
+            (ostr, value) => ostr.WriteFloatSeq(value);
+
+        public static readonly OutputStreamWriter<double[]> IceWriterFromDoubleArray =
+            (ostr, value) => ostr.WriteDoubleSeq(value);
 
         /// <summary>The encoding used when writing to this stream.</summary>
         /// <value>The encoding.</value>
