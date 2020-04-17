@@ -16,6 +16,9 @@ using System.Threading;
 
 public class AllTests
 {
+    private static bool IsCatalinaOrGreater =>
+        AssemblyUtil.IsMacOS && Environment.OSVersion.Version.Major >= 19;
+
     private static void test(bool b)
     {
         if(!b)
@@ -644,8 +647,8 @@ public class AllTests
                         }
                         catch(Ice.LocalException ex)
                         {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
+                            // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
+                            test(IsCatalinaOrGreater);
                         }
                         fact.destroyServer(server);
                         comm.destroy();
