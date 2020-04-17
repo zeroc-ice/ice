@@ -811,7 +811,7 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, ForNestedType forNestedType)
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool forNestedType)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
@@ -825,7 +825,7 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     }
     else if (SequencePtr::dynamicCast(type))
     {
-        if (forNestedType == ForNestedType::Yes)
+        if (forNestedType)
         {
             out << helperName(type, scope) << ".IceNestedWriter";
         }
@@ -970,7 +970,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         else if (elementType->isVariableLength())
         {
             out << nl << stream << ".WriteTaggedSeq(" << tag << ", " << param << ", " <<
-                outputStreamWriter(elementType, scope, ForNestedType::Yes) << ");";
+                outputStreamWriter(elementType, scope, true) << ");";
         }
         else if (builtin && isArray && builtin->isNumericTypeOrBool())
         {
@@ -985,7 +985,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         {
             // Fixed size = min-size
             out << nl << stream << ".WriteTaggedSeq(" << tag << ", " << param << ", "
-                << elementType->minWireSize() << ", " << outputStreamWriter(elementType, scope, ForNestedType::Yes)
+                << elementType->minWireSize() << ", " << outputStreamWriter(elementType, scope, true)
                 << ");";
         }
     }
@@ -1004,8 +1004,8 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
             out << (keyType->minWireSize() + valueType->minWireSize()) << ", ";
         }
 
-        out << outputStreamWriter(keyType, scope, ForNestedType::Yes) << ", "
-            << outputStreamWriter(valueType, scope, ForNestedType::Yes) << ");";
+        out << outputStreamWriter(keyType, scope, true) << ", "
+            << outputStreamWriter(valueType, scope, true) << ");";
     }
 }
 
@@ -1120,7 +1120,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, ForNestedType::Yes) << ")";
+        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, true) << ")";
     }
     return out.str();
 }

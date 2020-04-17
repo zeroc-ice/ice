@@ -16,7 +16,6 @@ namespace Slice
 enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
 enum class Direction { Outgoing, Incoming };
-enum class ForNestedType { Yes, No };
 
 std::string fixId(const std::string&, unsigned int = 0);
 //
@@ -120,7 +119,7 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    std::string outputStreamWriter(const TypePtr&, const std::string&, ForNestedType);
+    std::string outputStreamWriter(const TypePtr&, const std::string&, bool);
     void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                           const std::string& = "ostr");
 

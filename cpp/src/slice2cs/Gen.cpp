@@ -2499,7 +2499,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     bool defaultWriter = params.size() == 1 && !params.front().tagged;
     if(defaultWriter)
     {
-        _out << outputStreamWriter(params.front().type, ns, ForNestedType::No);
+        _out << outputStreamWriter(params.front().type, ns, false);
     }
     else if(params.size() > 1)
     {
@@ -2641,8 +2641,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) => ";
     _out.inc();
     _out << nl << "ostr.WriteDict(dictionary, "
-         << outputStreamWriter(key, ns, ForNestedType::Yes) << ", "
-         << outputStreamWriter(value, ns, ForNestedType::Yes) << ");";
+         << outputStreamWriter(key, ns, true) << ", "
+         << outputStreamWriter(value, ns, true) << ");";
     _out.dec();
 
     _out << sp;
@@ -2903,7 +2903,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     getOutParams(operation, Direction::Outgoing, requiredOutParams, taggedOutParams);
 
     bool defaultWriter = outParams.size() == 1 && !outParams.front().tagged;
-    string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns, ForNestedType::No) :
+    string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns, false) :
         "_iceD_" + opName + "Writer";
 
     bool defaultReader = inParams.size() == 1 && !inParams.front().tagged;
