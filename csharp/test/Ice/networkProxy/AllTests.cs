@@ -7,14 +7,13 @@ using Test;
 
 public class AllTests
 {
-    private static IPConnectionInfo? getIPConnectionInfo(ConnectionInfo info)
+    private static IPConnectionInfo? getIPConnectionInfo(ConnectionInfo? info)
     {
-        ConnectionInfo? underlying = info;
-        for (; underlying != null; underlying = underlying.Underlying)
+        for (; info != null; info = info.Underlying)
         {
             if (info is IPConnectionInfo)
             {
-                return (IPConnectionInfo)underlying;
+                return (IPConnectionInfo)info;
             }
         }
         return null;
