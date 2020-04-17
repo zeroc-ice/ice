@@ -1514,16 +1514,16 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* authorities[] =
         {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
-            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
+            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
+            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
             0
         };
 
         const char* subjects[] =
         {
-            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
-            "8A:8A:BD:67:CA:23:2B:5C:07:84:B6:BB:B2:40:5B:C0:29:46:FC:00",
-            "6B:85:D1:63:35:D4:EC:67:3F:FE:BB:7B:93:B1:72:F3:ED:14:5C:ED",
+            "FF:2B:17:61:F1:80:5C:11:B0:87:00:53:40:BD:F6:EA:52:CE:B7:58",
+            "15:60:69:5F:C5:27:48:7F:25:99:3F:3D:D8:2E:CB:C2:F4:66:03:53",
+            "14:56:24:99:69:6B:AD:B3:FB:72:0E:4D:B4:DC:9E:A8:7F:DD:B0:E3",
             0
         };
 
@@ -3815,8 +3815,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-            "THUMBPRINT:'F8 0E FB 30 3D B1 D8 11 E3 61 3B 17 AC 1B F5 6E 0B 98 55 90'",
-            "SUBJECTKEYID:'8A 8A BD 67 CA 23 2B 5C 07 84 B6 BB B2 40 5B C0 29 46 FC 00'",
+            "THUMBPRINT:'10 8D FB DE 94 EE 36 AC AC 3D 58 48 46 AE A4 28 C7 D2 49 A9'",
+            "SUBJECTKEYID:'15 60 69 5F C5 27 48 7F 25 99 3F 3D D8 2E CB C2 F4 66 03 53'",
             0
         };
 
@@ -3825,8 +3825,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
             "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
             "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-            "THUMBPRINT:'4C 7B CC 45 FD CC FA 95 74 D5 F1 8F 5B CE D5 B9 64 30 31 9B'",
-            "SUBJECTKEYID:'6B 85 D1 63 35 D4 EC 67 3F FE BB 7B 93 B1 72 F3 ED 14 5C ED'",
+            "THUMBPRINT:'FF 66 AD CF D5 DA 3E E0 D9 91 E6 6B 8E 74 82 3A 54 E6 68 4A'",
+            "SUBJECTKEYID:'14 56 24 99 69 6B AD B3 FB 72 0E 4D B4 DC 9E A8 7F DD B0 E3'",
             0
         };
 
@@ -3947,7 +3947,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* clientFindCertProperties[] =
         {
             "ISSUER:'ZeroC Test CA 1'",
-            "THUMBPRINT:'82 30 1E 35 9E 39 C1 D0 63 0D 67 3D 12 DD D4 96 90 1E EF 54'",
+            "THUMBPRINT:'10 8D FB DE 94 EE 36 AC AC 3D 58 48 46 AE A4 28 C7 D2 49 A9'",
             "FRIENDLYNAME:'c_rsa_ca1'",
             0
         };
@@ -4061,7 +4061,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         {
 //            "SUBJECT:Client",
             "LABEL:'Client'",
-            "SUBJECTKEYID:'8A 8A BD 67 CA 23 2B 5C 07 84 B6 BB B2 40 5B C0 29 46 FC 00'",
+            "SUBJECTKEYID:'15 60 69 5F C5 27 48 7F 25 99 3F 3D D8 2E CB C2 F4 66 03 53'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
             0
@@ -4074,7 +4074,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECT:Server",
 #endif
             "LABEL:'Server'",
-            "SUBJECTKEYID:'6B 85 D1 63 35 D4 EC 67 3F FE BB 7B 93 B1 72 F3 ED 14 5C ED'",
+            "SUBJECTKEYID:'14 56 24 99 69 6B AD B3 FB 72 0E 4D B4 DC 9E A8 7F DD B0 E3'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
             0
