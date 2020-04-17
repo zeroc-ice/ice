@@ -9,27 +9,25 @@ namespace Ice.info
 {
     public class AllTests
     {
-        private static TcpEndpoint? getTCPEndpoint(Endpoint endpoint)
+        private static TcpEndpoint? getTCPEndpoint(Endpoint? endpoint)
         {
-            Endpoint? underlying = endpoint;
-            for (; underlying != null; underlying = underlying.Underlying)
+            for (; endpoint != null; endpoint = endpoint.Underlying)
             {
-                if (underlying is TcpEndpoint)
+                if (endpoint is TcpEndpoint)
                 {
-                    return (TcpEndpoint)underlying;
+                    return (TcpEndpoint)endpoint;
                 }
             }
             return null;
         }
 
-        private static TCPConnectionInfo? getTCPConnectionInfo(ConnectionInfo info)
+        private static TCPConnectionInfo? getTCPConnectionInfo(ConnectionInfo? info)
         {
-            ConnectionInfo? underlying = info;
-            for (; underlying != null; underlying = underlying.Underlying)
+            for (; info != null; info = info.Underlying)
             {
                 if (info is TCPConnectionInfo)
                 {
-                    return (TCPConnectionInfo)underlying;
+                    return (TCPConnectionInfo)info;
                 }
             }
             return null;
