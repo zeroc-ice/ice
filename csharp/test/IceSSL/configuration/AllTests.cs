@@ -17,7 +17,7 @@ using System.Threading;
 public class AllTests
 {
     private static bool IsCatalinaOrGreater =>
-        AssemblyUtil.IsMacOS && Environment.OSVersion.Version.Major >= 19;
+        IceInternal.AssemblyUtil.isMacOS && Environment.OSVersion.Version.Major >= 19;
 
     private static void test(bool b)
     {
@@ -645,7 +645,7 @@ public class AllTests
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.LocalException ex)
+                        catch(Ice.LocalException)
                         {
                             // macOS >= Catalina requires a DNS altName. DNS name as the Common Name is not trusted
                             test(IsCatalinaOrGreater);
