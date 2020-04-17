@@ -121,7 +121,7 @@ checkTrustResult(SecTrustRef trust,
         if(engine->getCheckCertName() && !host.empty())
         {
             UniqueRef<CFStringRef> hostref(toCFString(host));
-            UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(false, hostref.get()));
+            UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, hostref.get()));
             UniqueRef<CFArrayRef> policies;
             if((err = SecTrustCopyPolicies(trust, &policies.get())))
             {
