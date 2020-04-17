@@ -217,8 +217,9 @@ These are the changes since Ice 3.7.3.
 ## General Changes
 
 - Fixed bug that would cause certificate verification failure on macOS Catalina
-  and iOS 13 when using SecureTransport and `IceSSL.CheckCertName > 0` with
-  certificates generated after July 1, 2019.
+  and iOS 13 when using SecureTransport and with `IceSSL.CheckCertName` property
+  is set to a value greater than `0`. This only affects certificates generated
+  after July 1, 2019.
 
 # Changes in Ice 3.7.3
 
