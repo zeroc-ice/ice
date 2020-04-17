@@ -307,9 +307,7 @@ namespace Ice
             }
         }
 
-        /// <summary>
-        /// Write the header information for a tagged  value.
-        /// </summary>
+        /// <summary>Write the header information for a tagged value.</summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
         /// <param name="format">The optional format of the value.</param>
         public bool WriteOptional(int tag, OptionalFormat format)
@@ -727,7 +725,7 @@ namespace Ice
             Debug.Assert(elementSize > 0);
             if (v is IEnumerable<T> value && WriteOptional(tag, OptionalFormat.VSize))
             {
-                int count = v.Count(); // potentially slow Linq Count()
+                int count = value.Count(); // potentially slow Linq Count()
 
                 if (elementSize > 1)
                 {
@@ -755,7 +753,7 @@ namespace Ice
             Debug.Assert(elementSize > 0);
             if (v is IEnumerable<T> value && WriteOptional(tag, OptionalFormat.VSize))
             {
-                int count = v.Count(); // potentially slow Linq Count()
+                int count = value.Count(); // potentially slow Linq Count()
 
                 if (elementSize > 1)
                 {

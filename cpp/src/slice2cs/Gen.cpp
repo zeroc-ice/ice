@@ -431,7 +431,7 @@ getInvocationArgsAMI(const OperationPtr& op,
                      const string cancelationToken = "global::System.Threading.CancellationToken.None",
                      const string& async = "true")
 {
-    vector<string> args = getNames(getAllInParams(op, Direction::Outgoing));
+    vector<string> args = getNames(getAllInParams(op, true));
 
     if(context.empty())
     {
@@ -973,7 +973,7 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
     writeDocCommentLines(_out, comment.summaryLines, "summary");
     writeParamDocComment(p, comment, InParam);
 
-    list<ParamInfo> outParams = getAllOutParams(p, dispatch ? Direction::Outgoing : Direction::Incoming, "", true);
+    list<ParamInfo> outParams = getAllOutParams(p, dispatch, "", true);
 
     if(dispatch)
     {
@@ -2379,15 +2379,15 @@ requestType(const list<ParamInfo>& inParams, const list<ParamInfo>& outParams)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 {
-    list<ParamInfo> outParams = getAllOutParams(operation, Direction::Incoming);
+    list<ParamInfo> outParams = getAllOutParams(operation, false);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
-    getOutParams(operation, Direction::Incoming, requiredOutParams, taggedOutParams, "iceP_");
+    getOutParams(operation, false, requiredOutParams, taggedOutParams, "iceP_");
 
-    list<ParamInfo> inParams = getAllInParams(operation, Direction::Outgoing);
+    list<ParamInfo> inParams = getAllInParams(operation, true);
     list<ParamInfo> requiredInParams;
     list<ParamInfo> taggedInParams;
-    getInParams(operation, Direction::Outgoing, requiredInParams, taggedInParams);
+    getInParams(operation, true, requiredInParams, taggedInParams);
 
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
@@ -2454,7 +2454,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         _out.dec();
     }
 
-    outParams = getAllOutParams(operation, Direction::Incoming, "iceP_", true);
+    outParams = getAllOutParams(operation, false, "iceP_", true);
     string requestT = requestType(inParams, outParams);
     // Write the static outgoing request instance
     _out << sp;
@@ -2491,10 +2491,10 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestWriter(const OperationPtr& operati
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(cl);
 
-    list<ParamInfo> params = getAllInParams(operation, Direction::Outgoing);
+    list<ParamInfo> params = getAllInParams(operation, true);
     list<ParamInfo> requiredParams;
     list<ParamInfo> taggedParams;
-    getInParams(operation, Direction::Outgoing, requiredParams, taggedParams, "iceP_");
+    getInParams(operation, true, requiredParams, taggedParams, "iceP_");
 
     bool defaultWriter = params.size() == 1 && !params.front().tagged;
     if(defaultWriter)
@@ -2527,10 +2527,10 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
     ClassDefPtr cl = ClassDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(cl);
 
-    list<ParamInfo> params = getAllOutParams(operation, Direction::Incoming);
+    list<ParamInfo> params = getAllOutParams(operation, false);
     list<ParamInfo> requiredParams;
     list<ParamInfo> taggedParams;
-    getOutParams(operation, Direction::Incoming, requiredParams, taggedParams, "iceP_");
+    getOutParams(operation, false, requiredParams, taggedParams, "iceP_");
 
     bool defaultReader = params.size() == 1 && !params.front().tagged;
 
@@ -2551,7 +2551,7 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
         }
         else
         {
-            params = getAllOutParams(operation, Direction::Incoming, "iceP_", true);
+            params = getAllOutParams(operation, false, "iceP_", true);
             _out << nl << "return " << spar << getNames(params) << epar << ";";
         }
         _out << eb;
@@ -2604,12 +2604,16 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out.dec();
 
     _out << sp;
-     _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
-    // IceNestedWriter is used only when marshaling nested sequences, and we need them in the correct type because
-    // a T[] (where T : fixed size numeric type) is only implicitly converted to a ReadOnlyMemory<T>, there is no is-a
-    // relationship.
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS
-        << "> IceNestedWriter = (ostr, sequence) => Write(ostr, sequence);";
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+
+    if (isMappedToReadOnlyMemory(p))
+    {
+        // IceNestedWriter is used only when marshaling nested sequences, and we need them in the correct type because
+        // a T[] (where T : fixed size numeric type) is only implicitly converted to a ReadOnlyMemory<T>, there is no
+        // is-a relationship.
+        _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqS
+            << "> IceNestedWriter = (ostr, sequence) => Write(ostr, sequence);";
+    }
 
     _out << sp;
     _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
@@ -2805,10 +2809,10 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
     string ns = getNamespace(cl);
     const string opName = pascalCase(operation->name());
 
-    list<ParamInfo> outParams = getAllOutParams(operation, Direction::Outgoing, "", true);
+    list<ParamInfo> outParams = getAllOutParams(operation, true, "", true);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
-    getOutParams(operation, Direction::Incoming, requiredOutParams, taggedOutParams, "iceP_");
+    getOutParams(operation, false, requiredOutParams, taggedOutParams, "iceP_");
 
     if(operation->hasMarshaledResult())
     {
@@ -2858,7 +2862,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     string deprecateReason = getDeprecateReason(operation, cl, "operation");
     bool amd = cl->hasMetaData("amd") || operation->hasMetaData("amd");
     const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
-    list<ParamInfo> inParams = getAllInParams(operation, Direction::Incoming);
+    list<ParamInfo> inParams = getAllInParams(operation, false);
 
     _out << sp;
     writeOperationDocComment(operation, deprecateReason, true, amd);
@@ -2892,15 +2896,15 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     string name = fixId(opName + (amd ? "Async" : ""));
     string internalName = "IceD_" + operation->name() + "Async";
 
-    list<ParamInfo> inParams = getAllInParams(operation, Direction::Incoming, "iceP_");
+    list<ParamInfo> inParams = getAllInParams(operation, false, "iceP_");
     list<ParamInfo> requiredInParams;
     list<ParamInfo> taggedInParams;
-    getInParams(operation, Direction::Incoming, requiredInParams, taggedInParams, "iceP_");
+    getInParams(operation, false, requiredInParams, taggedInParams, "iceP_");
 
-    list<ParamInfo> outParams = getAllOutParams(operation, Direction::Outgoing, "", true);
+    list<ParamInfo> outParams = getAllOutParams(operation, true, "", true);
     list<ParamInfo> requiredOutParams;
     list<ParamInfo> taggedOutParams;
-    getOutParams(operation, Direction::Outgoing, requiredOutParams, taggedOutParams);
+    getOutParams(operation, true, requiredOutParams, taggedOutParams);
 
     bool defaultWriter = outParams.size() == 1 && !outParams.front().tagged;
     string writer = defaultWriter ? outputStreamWriter(outParams.front().type, ns, false) :
@@ -3104,14 +3108,14 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
     string ns = getNamespace(cl);
     string opName = operationName(op);
 
-    list<ParamInfo> outParams = getAllOutParams(op, Direction::Outgoing);
+    list<ParamInfo> outParams = getAllOutParams(op, true);
 
     _out << sp << nl;
 
     if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
     {
         _out << "public override " << resultTask(op, ns, true) << " " << opName << "Async" << spar
-             << getNames(getAllInParams(op, Direction::Incoming))
+             << getNames(getAllInParams(op, false))
              << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
              << epar;
         _out << sb;
@@ -3129,7 +3133,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
         {
             _out << nl << "return new " << opName << (op->hasMarshaledResult() ? "MarshaledResult" : "Result")
                  << spar
-                 << getNames(getAllOutParams(op, Direction::Outgoing, "", true));
+                 << getNames(getAllOutParams(op, true, "", true));
             if(op->hasMarshaledResult())
             {
                 _out << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"));
@@ -3145,7 +3149,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
     else
     {
         _out << "public override " << resultType(op, ns, true) << " " << opName << spar
-             << getNames(getAllInParams(op, Direction::Incoming))
+             << getNames(getAllInParams(op, false))
              << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
              << epar;
         _out << sb;
@@ -3154,7 +3158,7 @@ Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
         {
             _out << nl << "return new " << opName << "MarshaledResult"
                  << spar
-                 << getNames(getAllOutParams(op, Direction::Outgoing, "", true))
+                 << getNames(getAllOutParams(op, true, "", true))
                  << (getUnqualified("Ice.Current", ns) + " " + getEscapedParamName(op, "current"))
                  << epar << ";";
         }

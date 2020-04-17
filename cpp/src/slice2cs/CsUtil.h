@@ -15,8 +15,6 @@ namespace Slice
 
 enum CSharpBaseType { ObjectType=1, ExceptionType=2 };
 
-enum class Direction { Outgoing, Incoming };
-
 std::string fixId(const std::string&, unsigned int = 0);
 //
 // Returns the namespace of a Contained entity.
@@ -69,14 +67,15 @@ bool isProxyType(const TypePtr&);
 bool isClassType(const TypePtr&);
 bool isValueType(const TypePtr&);
 bool isReferenceType(const TypePtr&);
+bool isMappedToReadOnlyMemory(const SequencePtr& seq);
 
-std::list<ParamInfo> getAllInParams(const OperationPtr&, Direction, const std::string& prefix = "");
-void getInParams(const OperationPtr&, Direction, std::list<ParamInfo>&, std::list<ParamInfo>&,
+std::list<ParamInfo> getAllInParams(const OperationPtr&, bool readOnly, const std::string& prefix = "");
+void getInParams(const OperationPtr&, bool, std::list<ParamInfo>&, std::list<ParamInfo>&,
     const std::string& prefix = "");
 
-std::list<ParamInfo> getAllOutParams(const OperationPtr&, Direction direction, const std::string& prefix = "",
+std::list<ParamInfo> getAllOutParams(const OperationPtr&, bool readOnly, const std::string& prefix = "",
                                      bool returnTypeIsFirst = false);
-void getOutParams(const OperationPtr&, Direction direction, std::list<ParamInfo>&, std::list<ParamInfo>&,
+void getOutParams(const OperationPtr&, bool readOnly, std::list<ParamInfo>&, std::list<ParamInfo>&,
     const std::string& prefix = "");
 
 std::vector<std::string> getNames(const std::list<ParamInfo>& params, std::string prefix = "");
