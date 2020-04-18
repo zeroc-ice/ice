@@ -949,20 +949,18 @@ namespace Ice
         internal void WriteEndpoint(Endpoint endpoint)
         {
             WriteShort((short)endpoint.Type);
+            var startPos = _tail;
             if (endpoint is OpaqueEndpoint opaqueEndpoint)
             {
-                var startPos = _tail;
                 WriteEncapsulationHeader(0, opaqueEndpoint.Encoding); // 0 is a placeholder for the size
                 WriteByteSpan(opaqueEndpoint.Bytes.Span); // WriteByteSpan is not encoding-sensitive
-                RewriteInt(Distance(startPos), startPos);
             }
             else
             {
-                var startPos = _tail;
                 WriteEncapsulationHeader(0, Encoding); // 0 is a placeholder for the size
                 endpoint.IceWritePayload(this);
-                RewriteInt(Distance(startPos), startPos);
             }
+            RewriteInt(Distance(startPos), startPos);
         }
 
         /// <summary>Writes a facet to the stream.</summary>
