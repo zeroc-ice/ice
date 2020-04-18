@@ -25,15 +25,6 @@ namespace Ice
         /// <summary>The time-to-live of the multicast datagrams, in milliseconds.</summary>
         public int McastTtl { get; } = -1;
 
-        public override OutputStreamWriter<Endpoint> PayloadWriter =>
-            (ostr, endpoint) =>
-            {
-                var udpEndpoint = (UdpEndpoint)endpoint;
-                ostr.WriteString(udpEndpoint.Host);
-                ostr.WriteInt(udpEndpoint.Port);
-                ostr.WriteBool(udpEndpoint.HasCompressionFlag);
-            };
-
         public override int Timeout => -1;
         private readonly bool _connect;
         private int _hashCode = 0;
@@ -131,6 +122,12 @@ namespace Ice
                 sb.Append(" -z");
             }
             return sb.ToString();
+        }
+
+        public override void IceWritePayload(Ice.OutputStream ostr)
+        {
+            base.IceWritePayload(ostr);
+            ostr.WriteBool(HasCompressionFlag);
         }
 
         public override Endpoint NewTimeout(int timeout) => this;

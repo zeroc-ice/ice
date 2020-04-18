@@ -124,8 +124,7 @@ namespace Ice
                     // 8 = size of short + size of encapsulation header
                     bufferList.Add(new byte[8 + opaqueEndpoint.Bytes.Length]);
                     var ostr = new OutputStream(Ice1Definitions.Encoding, bufferList);
-                    ostr.WriteShort((short)opaqueEndpoint.Type);
-                    opaqueEndpoint.Write(ostr);
+                    ostr.WriteEndpoint(opaqueEndpoint);
                     OutputStream.Position tail = ostr.Save();
                     Debug.Assert(bufferList.Count == 1);
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);

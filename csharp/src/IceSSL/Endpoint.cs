@@ -15,13 +15,6 @@ namespace IceSSL
         public override bool IsDatagram => _delegate.IsDatagram;
         public override bool IsSecure => _delegate.IsSecure;
 
-        public override Ice.OutputStreamWriter<Ice.Endpoint> PayloadWriter =>
-            (ostr, endpoint) =>
-            {
-                var sslEndpoint = (Endpoint)endpoint;
-                sslEndpoint._delegate.PayloadWriter(ostr, sslEndpoint._delegate);
-            };
-
         public override int Timeout => _delegate.Timeout;
         public override Ice.EndpointType Type => _delegate.Type;
         public override Ice.Endpoint Underlying => _delegate;
@@ -60,6 +53,8 @@ namespace IceSSL
                 return false;
             }
         }
+
+        public override void IceWritePayload(Ice.OutputStream ostr) => _delegate.IceWritePayload(ostr);
 
         public override Ice.Endpoint NewCompressionFlag(bool compressionFlag) =>
             compressionFlag == _delegate.HasCompressionFlag ? this :

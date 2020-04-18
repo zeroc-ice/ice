@@ -151,6 +151,12 @@ namespace Ice
             }
         }
 
+        public override void IceWritePayload(OutputStream ostr)
+        {
+            ostr.WriteString(Host);
+            ostr.WriteInt(Port);
+        }
+
         public override Endpoint NewConnectionId(string connectionId) =>
             connectionId == ConnectionId ? this : CreateEndpoint(Host, Port, connectionId);
 

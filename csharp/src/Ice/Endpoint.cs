@@ -59,10 +59,6 @@ namespace Ice
         /// unknown.</summary>
         public virtual string Name => Type.ToString().ToLowerInvariant();
 
-        /// <summary>The payload writer writes an endpoint's data to an OutputStream. It does not write the enclosing
-        /// encapsulation.</summary>
-        public abstract OutputStreamWriter<Endpoint> PayloadWriter { get; }
-
         /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
         public abstract int Timeout { get; }
 
@@ -101,6 +97,10 @@ namespace Ice
         // TODO: describe what equivalent means / is used for.
         public abstract bool Equivalent(Endpoint endpoint);
 
+        /// <summary>Writes the payload of this endpoint to the output stream. The payload does not include the type nor
+        /// the enclosing encapsulation header.</summary>
+        public abstract void IceWritePayload(OutputStream ostr);
+
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.
         public abstract Endpoint NewTimeout(int t);
@@ -131,8 +131,5 @@ namespace Ice
         // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an
         // acceptor.
         public abstract ITransceiver? GetTransceiver();
-
-        // Marshal the endpoint.
-        internal virtual void Write(OutputStream ostr) => ostr.WriteEndpoint(this, PayloadWriter);
     }
 }

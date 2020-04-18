@@ -20,14 +20,6 @@ namespace Ice
         public override bool IsDatagram => _delegate.IsDatagram;
         public override bool IsSecure => _delegate.IsSecure;
 
-        public override OutputStreamWriter<Endpoint> PayloadWriter =>
-            (ostr, endpoint) =>
-            {
-                var wsEndpoint = (WSEndpoint)endpoint;
-                wsEndpoint._delegate.PayloadWriter(ostr, wsEndpoint._delegate);
-                ostr.WriteString(wsEndpoint.Resource);
-            };
-
         /// <summary> The resource of the WebSocket endpoint.</summary>
         // TODO: better description
         public string Resource { get; }
@@ -94,6 +86,12 @@ namespace Ice
             {
                 return false;
             }
+        }
+
+        public override void IceWritePayload(Ice.OutputStream ostr)
+        {
+            _delegate.IceWritePayload(ostr);
+            ostr.WriteString(Resource);
         }
 
         public override Endpoint NewTimeout(int timeout) =>

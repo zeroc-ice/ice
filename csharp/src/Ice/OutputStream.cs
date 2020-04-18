@@ -946,12 +946,23 @@ namespace Ice
             return _tail;
         }
 
-        internal void WriteEndpoint(Endpoint endpoint, OutputStreamWriter<Endpoint> payloadWriter)
+        internal void WriteEndpoint(Endpoint endpoint)
         {
-            var startPos = _tail;
-            WriteEncapsulationHeader(0, Encoding); // 0 is a placeholder for the size
-            payloadWriter(this, endpoint);
-            RewriteInt(Distance(startPos), startPos);
+            WriteShort((short)endpoint.Type);
+            if (endpoint is OpaqueEndpoint opaqueEndpoint)
+            {
+                var startPos = _tail;
+                WriteEncapsulationHeader(0, opaqueEndpoint.Encoding); // 0 is a placeholder for the size
+                WriteByteSpan(opaqueEndpoint.Bytes.Span); // WriteByteSpan is not encoding-sensitive
+                RewriteInt(Distance(startPos), startPos);
+            }
+            else
+            {
+                var startPos = _tail;
+                WriteEncapsulationHeader(0, Encoding); // 0 is a placeholder for the size
+                endpoint.IceWritePayload(this);
+                RewriteInt(Distance(startPos), startPos);
+            }
         }
 
         /// <summary>Writes a facet to the stream.</summary>
@@ -968,14 +979,6 @@ namespace Ice
                 WriteSize(1);
                 WriteString(facet);
             }
-        }
-
-        internal void WriteOpaqueEndpoint(Encoding encoding, ReadOnlySpan<byte> payload)
-        {
-            var startPos = _tail;
-            WriteEncapsulationHeader(0, encoding); // 0 is a placeholder for the size
-            WriteByteSpan(payload); // WriteByteSpan is not encoding-sensitive
-            RewriteInt(Distance(startPos), startPos);
         }
 
         /// <summary>Writes a size to the stream.</summary>

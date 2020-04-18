@@ -16,14 +16,6 @@ internal class Endpoint : Ice.Endpoint
     public override bool IsSecure => _endpoint.IsSecure;
     public override string Name => _endpoint.Name;
 
-    public override Ice.OutputStreamWriter<Ice.Endpoint> PayloadWriter =>
-        (ostr, endpoint) =>
-        {
-            var customEndpoint = (Endpoint)endpoint;
-            ostr.WriteShort((short)customEndpoint._endpoint.Type);
-            customEndpoint._endpoint.PayloadWriter(ostr, customEndpoint._endpoint);
-        };
-
     public override int Timeout => _endpoint.Timeout;
     public override Ice.EndpointType Type => (Ice.EndpointType)(TYPE_BASE + (short)_endpoint.Type);
 
@@ -63,6 +55,12 @@ internal class Endpoint : Ice.Endpoint
         {
             return false;
         }
+    }
+
+    public override void IceWritePayload(Ice.OutputStream ostr)
+    {
+        ostr.WriteShort((short)_endpoint.Type);
+        _endpoint.IceWritePayload(ostr);
     }
 
     public override Ice.Endpoint NewCompressionFlag(bool compressionFlag)

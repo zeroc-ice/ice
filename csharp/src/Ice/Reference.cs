@@ -760,8 +760,7 @@ namespace Ice
                 Debug.Assert(AdapterId.Length == 0);
                 foreach (Endpoint endpoint in Endpoints)
                 {
-                    ostr.WriteShort((short)endpoint.Type);
-                    endpoint.Write(ostr);
+                    ostr.WriteEndpoint(endpoint);
                 }
             }
             else
