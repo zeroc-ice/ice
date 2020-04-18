@@ -970,10 +970,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     }
     else if(en)
     {
-        out << nl << "if (" << param << " is " << typeToString(en, scope) << ")";
-        out << sb;
-        out << nl << stream << ".WriteTaggedEnum(" << tag << ", (int)" << param << ".Value);";
-        out << eb;
+        out << nl << stream << ".WriteTaggedEnum(" << tag << ", (int?)" << param << ");";
     }
     else if(seq)
     {

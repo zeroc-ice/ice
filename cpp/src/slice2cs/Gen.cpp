@@ -2071,7 +2071,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     _out << nl << "public static void Write(this Ice.OutputStream ostr, " << name
-         << " value) => ostr.WriteSize((int)value);";
+         << " value) => ostr.WriteEnum((int)value);";
 
     _out << sp;
     _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter = Write;";

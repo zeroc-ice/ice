@@ -251,21 +251,6 @@ namespace Ice
             }
         }
 
-        /// <summary>Writes a size to the stream.</summary>
-        /// <param name="v">The size to write.</param>
-        public void WriteSize(int v)
-        {
-            if (v > 254)
-            {
-                WriteByte(255);
-                WriteInt(v);
-            }
-            else
-            {
-                WriteByte((byte)v);
-            }
-        }
-
         /// <summary>Writes a short to the stream.</summary>
         /// <param name="v">The short to write to the stream.</param>
         public void WriteShort(short v) => WriteFixedSizeNumeric(v, sizeof(short));
@@ -359,6 +344,10 @@ namespace Ice
                 valueWriter(this, value);
             }
         }
+
+        /// <summary>Writes an enumerator to the stream.</summary>
+        /// <param name="v">The enumerator's int value.</param>
+        public void WriteEnum(int v) => WriteSize(v);
 
         /// <summary>Writes an array of fixed-size numeric type, such as int and long, to the stream.</summary>
         /// <param name="v">The array of numeric types.</param>
@@ -896,21 +885,6 @@ namespace Ice
         // Other methods
         //
 
-        /// <summary>Returns all the data as a byte array.</summary>
-        /// <returns>A byte array with the contents of the buffer.</returns>
-        public byte[] ToArray()
-        {
-            byte[] data = new byte[Size];
-            int offset = 0;
-            foreach (ArraySegment<byte> segment in _segmentList)
-            {
-                Debug.Assert(segment.Array != null);
-                Buffer.BlockCopy(segment.Array, segment.Offset, data, offset, Math.Min(segment.Count, Size - offset));
-                offset += segment.Count;
-            }
-            return data;
-        }
-
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         // Constructor for protocol frame header and other non-encapsulated data.
@@ -1002,6 +976,21 @@ namespace Ice
             WriteEncapsulationHeader(0, encoding); // 0 is a placeholder for the size
             WriteByteSpan(payload); // WriteByteSpan is not encoding-sensitive
             RewriteInt(Distance(startPos), startPos);
+        }
+
+        /// <summary>Writes a size to the stream.</summary>
+        /// <param name="v">The size to write.</param>
+        internal void WriteSize(int v)
+        {
+            if (v > 254)
+            {
+                WriteByte(255);
+                WriteInt(v);
+            }
+            else
+            {
+                WriteByte((byte)v);
+            }
         }
 
         private static int Distance(IList<ArraySegment<byte>> data, Position start, Position end)

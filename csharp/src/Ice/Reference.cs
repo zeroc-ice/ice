@@ -761,7 +761,7 @@ namespace Ice
                 foreach (Endpoint endpoint in Endpoints)
                 {
                     ostr.WriteShort((short)endpoint.Type);
-                    endpoint.IceWrite(ostr);
+                    endpoint.Write(ostr);
                 }
             }
             else

@@ -26,7 +26,7 @@ namespace Ice
         public override OutputStreamWriter<Endpoint> PayloadWriter =>
             (ostr, endpoint) =>
             {
-                Debug.Assert(false); // This writer is not expected to be ever used, see IceWrite below.
+                Debug.Assert(false); // This writer is not expected to be ever used, see Write below.
 #pragma warning disable CA1065
                 throw new NotImplementedException("cannot write the payload for an opaque endpoint");
 #pragma warning restore CA1065
@@ -98,8 +98,6 @@ namespace Ice
         }
 
         public override bool Equivalent(Endpoint endpoint) => false;
-
-        public override void IceWrite(Ice.OutputStream ostr) => ostr.WriteOpaqueEndpoint(Encoding, Bytes.Span);
 
         public override string ToString()
         {
@@ -213,5 +211,7 @@ namespace Ice
             Encoding = encoding;
             Bytes = bytes;
         }
+
+        internal override void Write(Ice.OutputStream ostr) => ostr.WriteOpaqueEndpoint(Encoding, Bytes.Span);
     }
 }

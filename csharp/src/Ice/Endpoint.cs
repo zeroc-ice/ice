@@ -101,9 +101,6 @@ namespace Ice
         // TODO: describe what equivalent means / is used for.
         public abstract bool Equivalent(Endpoint endpoint);
 
-        // Marshal the endpoint.
-        public virtual void IceWrite(OutputStream ostr) => ostr.WriteEndpoint(this, PayloadWriter);
-
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.
         public abstract Endpoint NewTimeout(int t);
@@ -134,5 +131,8 @@ namespace Ice
         // Return a server side transceiver for this endpoint, or null if a transceiver can only be created by an
         // acceptor.
         public abstract ITransceiver? GetTransceiver();
+
+        // Marshal the endpoint.
+        internal virtual void Write(OutputStream ostr) => ostr.WriteEndpoint(this, PayloadWriter);
     }
 }
