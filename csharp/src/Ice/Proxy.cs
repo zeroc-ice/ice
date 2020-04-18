@@ -1170,7 +1170,7 @@ namespace Ice
         {
             iceCheckTwowayOnly(_ice_ids_name);
             var completed = new OperationTaskCompletionCallback<string[]>(progress, cancel);
-            iceI_ice_ids(context, completed, false);
+            iceI_ice_ids(context, completed, synchronous);
             return completed.Task;
         }
 
