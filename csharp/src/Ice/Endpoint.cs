@@ -59,6 +59,10 @@ namespace Ice
         /// unknown.</summary>
         public virtual string Name => Type.ToString().ToLowerInvariant();
 
+        /// <summary>The payload writer writes an endpoint's data to an OutputStream. It does not write the enclosing
+        /// encapsulation.</summary>
+        public abstract OutputStreamWriter<Endpoint> PayloadWriter { get; }
+
         /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
         public abstract int Timeout { get; }
 
@@ -98,13 +102,7 @@ namespace Ice
         public abstract bool Equivalent(Endpoint endpoint);
 
         // Marshal the endpoint.
-        public virtual void IceWrite(OutputStream s)
-        {
-            s.StartEndpointEncapsulation();
-            IceWriteImpl(s);
-            s.EndEndpointEncapsulation();
-        }
-        public abstract void IceWriteImpl(Ice.OutputStream s);
+        public virtual void IceWrite(OutputStream ostr) => ostr.WriteEndpoint(this, PayloadWriter);
 
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.

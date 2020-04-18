@@ -120,8 +120,7 @@ namespace Ice
             }
         }
 
-        internal static List<ArraySegment<byte>>
-        GetRequestData(OutgoingRequestFrame frame, int requestId)
+        internal static List<ArraySegment<byte>> GetRequestData(OutgoingRequestFrame frame, int requestId)
         {
             byte[] headerData = new byte[HeaderSize + 4];
             RequestHeader.CopyTo(headerData.AsSpan());
@@ -134,8 +133,7 @@ namespace Ice
             return data;
         }
 
-        internal static List<ArraySegment<byte>>
-        GetResponseData(OutgoingResponseFrame frame, int requestId)
+        internal static List<ArraySegment<byte>> GetResponseData(OutgoingResponseFrame frame, int requestId)
         {
             byte[] headerData = new byte[HeaderSize + 4];
             ReplyHeader.CopyTo(headerData.AsSpan());

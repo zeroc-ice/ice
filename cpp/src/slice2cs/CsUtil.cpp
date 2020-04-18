@@ -828,10 +828,11 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     }
     else if (SequencePtr seq = SequencePtr::dynamicCast(type))
     {
-        if (forNestedType && isMappedToReadOnlyMemory(seq))
+        if (isMappedToReadOnlyMemory(seq))
         {
             builtin = BuiltinPtr::dynamicCast(seq->type());
-            out << "global::Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()] << "Array";
+            out << "global::Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()] <<
+                (forNestedType ? "Array" : "Sequence");
         }
         else
         {
@@ -848,6 +849,7 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
 void
 Slice::CsGenerator::writeMarshalCode(Output& out,
                                      const TypePtr& type,
+                                     bool forNestedType,
                                      const string& scope,
                                      const string& param,
                                      const string& stream)
@@ -864,6 +866,18 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
     else if(st)
     {
         out << nl << param << ".IceWrite(" << stream << ");";
+    }
+    else if (seq && isMappedToReadOnlyMemory(seq))
+    {
+        out << nl << stream;
+        if (forNestedType)
+        {
+            out << ".WriteFixedSizeNumericArray(" << param << ");";
+        }
+        else
+        {
+            out << ".WriteFixedSizeNumericSequence(" << param << ".Span);";
+        }
     }
     else
     {
@@ -901,7 +915,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
 
-    out << param << " = ";
+    out << nl << param << " = ";
     if(isClassType(type))
     {
         out << stream << ".ReadClass<" << typeToString(type, scope) << ">();";
@@ -943,7 +957,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     if(builtin || isProxyType(type) || isClassType(type))
     {
         auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
-        out << nl << stream << ".Write" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
+        out << nl << stream << ".WriteTagged" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
     }
     else if(st)
     {
@@ -958,7 +972,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
     {
         out << nl << "if (" << param << " is " << typeToString(en, scope) << ")";
         out << sb;
-        out << nl << stream << ".WriteEnum(" << tag << ", (int)" << param << ".Value);";
+        out << nl << stream << ".WriteTaggedEnum(" << tag << ", (int)" << param << ".Value);";
         out << eb;
     }
     else if(seq)
@@ -967,26 +981,30 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         builtin = BuiltinPtr::dynamicCast(elementType);
         if (isMappedToReadOnlyMemory(seq))
         {
-            out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << tag << ", " << param;
-            if (!isDataMember)
+            out << nl << stream;
+            if (isDataMember)
             {
-                out << ".Span";
+                out << ".WriteTaggedFixedSizeNumericArray(" << tag << ", " << param;
             }
-            out << ");";
+            else
+            {
+                out << ".WriteTaggedFixedSizeNumericSequence(" << tag << ", " << param << ".Span";
+            }
+            out << ", sizeof(" << typeToString(builtin, scope) << "));";
         }
         else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
-            out << nl << stream << ".WriteSerializable(" << tag << ", " << param << ");";
+            out << nl << stream << ".WriteTaggedSerializable(" << tag << ", " << param << ");";
         }
         else if (elementType->isVariableLength())
         {
-            out << nl << stream << ".WriteTaggedSeq(" << tag << ", " << param << ", " <<
+            out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param << ", " <<
                 outputStreamWriter(elementType, scope, true) << ");";
         }
         else
         {
             // Fixed size = min-size
-            out << nl << stream << ".WriteTaggedSeq(" << tag << ", " << param << ", "
+            out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param << ", "
                 << elementType->minWireSize() << ", " << outputStreamWriter(elementType, scope, true)
                 << ");";
         }
@@ -998,7 +1016,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
 
-        out << nl << stream << ".WriteTaggedDict(" << tag << ", " << param << ", ";
+        out << nl << stream << ".WriteTaggedDictionary(" << tag << ", " << param << ", ";
 
         if (!keyType->isVariableLength() && !valueType->isVariableLength())
         {
@@ -1112,7 +1130,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     ostringstream out;
     if (isMappedToReadOnlyMemory(seq))
     {
-        out << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "Seq(" << param << ".Span)";
+        out << stream << ".WriteFixedSizeNumericSequence(" << param << ".Span)";
     }
     else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
     {
@@ -1120,7 +1138,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else
     {
-        out << stream << ".WriteSeq(" << param << ", " << outputStreamWriter(type, scope, true) << ")";
+        out << stream << ".WriteSequence(" << param << ", " << outputStreamWriter(type, scope, true) << ")";
     }
     return out.str();
 }

@@ -197,15 +197,7 @@ namespace Ice
             IsIdempotent = idempotent;
             var ostr = new OutputStream(Encoding.V1_1, Data, new OutputStream.Position(0, 0));
             Identity.IceWrite(ostr);
-            if (Facet.Length == 0)
-            {
-                ostr.WriteStringSeq(Array.Empty<string>());
-            }
-            else
-            {
-                ostr.WriteStringSeq(new string[] { Facet });
-            }
-
+            ostr.WriteFacet(Facet);
             ostr.WriteString(operation);
             ostr.Write(idempotent ? OperationMode.Idempotent : OperationMode.Normal);
 

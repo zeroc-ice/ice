@@ -746,17 +746,7 @@ namespace Ice
             }
 
             Identity.IceWrite(ostr);
-
-            // For compatibility with the old FacetPath
-            if (Facet.Length == 0)
-            {
-                ostr.WriteStringSeq(Array.Empty<string>());
-            }
-            else
-            {
-                ostr.WriteStringSeq(new string[] { Facet });
-            }
-
+            ostr.WriteFacet(Facet);
             ostr.WriteByte((byte)InvocationMode);
             ostr.WriteBool(false); // secure option, always false (not used)
             ostr.WriteByte((byte)Protocol);

@@ -16,6 +16,14 @@ internal class Endpoint : Ice.Endpoint
     public override bool IsSecure => _endpoint.IsSecure;
     public override string Name => _endpoint.Name;
 
+    public override Ice.OutputStreamWriter<Ice.Endpoint> PayloadWriter =>
+        (ostr, endpoint) =>
+        {
+            var customEndpoint = (Endpoint)endpoint;
+            ostr.WriteShort((short)customEndpoint._endpoint.Type);
+            customEndpoint._endpoint.PayloadWriter(ostr, customEndpoint._endpoint);
+        };
+
     public override int Timeout => _endpoint.Timeout;
     public override Ice.EndpointType Type => (Ice.EndpointType)(TYPE_BASE + (short)_endpoint.Type);
 
@@ -45,11 +53,6 @@ internal class Endpoint : Ice.Endpoint
 
     public override string OptionsToString() => _endpoint.OptionsToString();
 
-    public override void IceWriteImpl(Ice.OutputStream ostr)
-    {
-        ostr.WriteShort((short)_endpoint.Type);
-        _endpoint.IceWriteImpl(ostr);
-    }
     public override bool Equivalent(Ice.Endpoint endpoint)
     {
         if (endpoint is Endpoint testEndpoint)
