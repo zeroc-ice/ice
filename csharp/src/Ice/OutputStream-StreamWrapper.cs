@@ -37,7 +37,7 @@ namespace Ice
             }
 
             private readonly OutputStream _stream;
-            private OutputStream.Position _startPos;
+            private Position _startPos;
             private byte[]? _data;
             private int _pos;
 

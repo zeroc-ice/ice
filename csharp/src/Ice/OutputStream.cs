@@ -156,7 +156,6 @@ namespace Ice
 
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
-        // Used for asserts
         private bool InEncapsulation => _startPos != null;
 
         // The number of bytes that the stream can hold.
@@ -780,9 +779,9 @@ namespace Ice
         /// <param name="elementSize">The fixed size of each element of the sequence, in bytes.</param>
         /// <param name="writer">The delegate that writes each element to the stream.</param>
         public void WriteTaggedSequence<T>(int tag,
-                                          IEnumerable<T>? v,
-                                          int elementSize,
-                                          OutputStreamStructWriter<T> writer)
+                                           IEnumerable<T>? v,
+                                           int elementSize,
+                                           OutputStreamStructWriter<T> writer)
             where T : struct, IStreamableStruct
         {
             Debug.Assert(elementSize > 0);
@@ -798,6 +797,8 @@ namespace Ice
                     // when size is 1.
                     WriteSize(count == 0 ? 1 : (count * elementSize) + (count > 254 ? 5 : 1));
                 }
+
+                // Write the sequence "inline" instead of calling WriteSequence to avoid recomputing count.
                 WriteSize(count);
                 foreach (T item in value)
                 {
