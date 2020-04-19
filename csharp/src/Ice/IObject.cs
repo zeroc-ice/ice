@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -42,12 +43,12 @@ namespace Ice
         /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>True if this object implements the interface specified by typeId.</returns>
         public bool IceIsA(string typeId, Current current)
-            => Array.BinarySearch(IceIds(current), typeId, StringComparer.Ordinal) >= 0;
+            => Array.BinarySearch((string[])IceIds(current), typeId, StringComparer.Ordinal) >= 0;
 
         /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
-        public string[] IceIds(Current current) => new string[]{ "::Ice::Object" };
+        public IEnumerable<string> IceIds(Current current) => new string[]{ "::Ice::Object" };
 
         /// <summary>Returns the Slice type ID of the most-derived interface supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
@@ -96,10 +97,10 @@ namespace Ice
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
         {
             request.ReadEmptyParamList();
-            string[] ret = IceIds(current);
+            IEnumerable<string> ret = IceIds(current);
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current, format: null, ret,
-                                                      (ostr, ret) => ostr.WriteStringSeq(ret)));
+                    (ostr, ret) => ostr.WriteSequence(ret, OutputStream.IceWriterFromString)));
         }
     }
 }

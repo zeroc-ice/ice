@@ -151,10 +151,10 @@ namespace Ice
             }
         }
 
-        public override void IceWriteImpl(OutputStream s)
+        public override void IceWritePayload(OutputStream ostr)
         {
-            s.WriteString(Host);
-            s.WriteInt(Port);
+            ostr.WriteString(Host);
+            ostr.WriteInt(Port);
         }
 
         public override Endpoint NewConnectionId(string connectionId) =>

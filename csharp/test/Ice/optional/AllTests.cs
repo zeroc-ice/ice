@@ -383,10 +383,8 @@ namespace Ice.optional
                 initial, "opVoid", idempotent: false, format: null, context: null, (15, "test"),
                 (OutputStream ostr, (int n, string s) value) =>
                 {
-                    ostr.WriteOptional(1, OptionalFormat.F4);
-                    ostr.WriteInt(value.n);
-                    ostr.WriteOptional(1, OptionalFormat.VSize);
-                    ostr.WriteString(value.s);
+                    ostr.WriteTaggedInt(1, value.n);
+                    ostr.WriteTaggedString(1, value.s); // duplicate tag ignored by the server
                 });
 
             TestHelper.Assert(initial.Invoke(requestFrame).ReplyStatus == 0);
@@ -549,7 +547,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opByte", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, byte? p1) => ostr.WriteByte(2, p1));
+                    (OutputStream ostr, byte? p1) => ostr.WriteTaggedByte(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -584,7 +582,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opBool", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, bool? p1) => ostr.WriteBool(2, p1));
+                    (OutputStream ostr, bool? p1) => ostr.WriteTaggedBool(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -619,7 +617,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opShort", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, short? p1) => ostr.WriteShort(2, p1));
+                    (OutputStream ostr, short? p1) => ostr.WriteTaggedShort(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -654,7 +652,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opInt", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, int? p1) => ostr.WriteInt(2, p1));
+                    (OutputStream ostr, int? p1) => ostr.WriteTaggedInt(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p1, p2) = responseFrame.ReadReturnValue(istr =>
@@ -689,7 +687,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opLong", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, long? p1) => ostr.WriteLong(1, p1));
+                    (OutputStream ostr, long? p1) => ostr.WriteTaggedLong(1, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -724,7 +722,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloat", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, float? p1) =>  ostr.WriteFloat(2, p1));
+                    (OutputStream ostr, float? p1) =>  ostr.WriteTaggedFloat(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -759,7 +757,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opDouble", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, double? p1) => ostr.WriteDouble(2, p1));
+                    (OutputStream ostr, double? p1) => ostr.WriteTaggedDouble(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -796,7 +794,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opString", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, string? p1) => ostr.WriteString(2, p1));
+                    (OutputStream ostr, string? p1) => ostr.WriteTaggedString(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -831,7 +829,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opMyEnum", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, MyEnum? p1) => ostr.WriteEnum(2, (int?) p1));
+                    (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedEnum(2, (int?) p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -868,12 +866,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSmallStruct", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, SmallStruct? p1) =>
-                    {
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize(1);
-                        p1!.Value.IceWrite(ostr);
-                    });
+                    (OutputStream ostr, SmallStruct? p1) => ostr.WriteTaggedStruct(2, p1, 1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -913,12 +906,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFixedStruct", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, FixedStruct? p1) =>
-                    {
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize(4);
-                        p1!.Value.IceWrite(ostr);
-                    });
+                    (OutputStream ostr, FixedStruct? p1) => ostr.WriteTaggedStruct(2, p1, 4));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1027,11 +1015,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneOptional", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, OneOptional? p1) =>
-                    {
-                        ostr.WriteOptional(2, OptionalFormat.Class);
-                        ostr.WriteClass(p1);
-                    });
+                    (OutputStream ostr, OneOptional? p1) => ostr.WriteTaggedClass(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1067,7 +1051,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneOptionalProxy", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, IObjectPrx? p1) => ostr.WriteProxy(2, p1));
+                    (OutputStream ostr, IObjectPrx? p1) => ostr.WriteTaggedProxy(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
 
@@ -1103,12 +1087,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opByteSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, byte[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteByteSeq(p1);
-                    });
+                    (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(byte)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1145,12 +1124,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opBoolSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, bool[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteBoolSeq(p1);
-                    });
+                    (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(byte)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1189,13 +1163,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opShortSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, short[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize((p1.Length * 2) + (p1.Length > 254 ? 5 : 1));
-                        ostr.WriteShortSeq(p1);
-                    });
+                    (OutputStream ostr, short[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(short)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1234,13 +1202,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, int[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize((p1.Length * 4) + (p1.Length > 254 ? 5 : 1));
-                        ostr.WriteIntSeq(p1);
-                    });
+                    (OutputStream ostr, int[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(int)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1280,13 +1242,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opLongSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, long[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize((p1.Length * 8) + (p1.Length > 254 ? 5 : 1));
-                        ostr.WriteLongSeq(p1);
-                    });
+                    (OutputStream ostr, long[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(long)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1325,13 +1281,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloatSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, float[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize((p1.Length * 4) + (p1.Length > 254 ? 5 : 1));
-                        ostr.WriteFloatSeq(p1);
-                    });
+                    (OutputStream ostr, float[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(float)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1370,13 +1320,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opDoubleSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, double[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize(p1.Length * 8 + (p1.Length > 254 ? 5 : 1));
-                        ostr.WriteDoubleSeq(p1);
-                    });
+                    (OutputStream ostr, double[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(double)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1417,7 +1361,7 @@ namespace Ice.optional
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opStringSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, string[]? p1) =>
-                        ostr.WriteTaggedSeq(2, p1, (ost, s) => ostr.WriteString(s)));
+                        ostr.WriteTaggedSequence(2, p1, (ost, s) => ostr.WriteString(s)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1457,23 +1401,15 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSmallStructSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, SmallStruct[]? p1) =>
-                    {
-                        if (p1 != null && ostr.WriteOptional(2, OptionalFormat.VSize))
-                        {
-                            ostr.WriteSize(p1.Length + (p1.Length > 254 ? 5 : 1));
-                            SmallStructSeqHelper.Write(ostr, p1);
-                        }
-                    });
+                    (OutputStream ostr, SmallStruct[]? p1) => ostr.WriteTaggedSequence(2, p1, 1,
+                        (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
                         SmallStruct[] arr1 = istr.ReadSmallStructSeq();
                         istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
                         SmallStruct[] arr2 = istr.ReadSmallStructSeq();
                         return (arr1, arr2);
                     });
@@ -1508,22 +1444,15 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSmallStructList", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, List<SmallStruct>? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize(p1.Count + (p1.Count > 254 ? 5 : 1));
-                        SmallStructListHelper.Write(ostr, p1);
-                    });
+                    (OutputStream ostr, List<SmallStruct>? p1) => ostr.WriteTaggedSequence(2, p1, 1,
+                        (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
                         List<SmallStruct> arr1 = istr.ReadSmallStructList();
                         istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
                         List<SmallStruct> arr2 = istr.ReadSmallStructList();
                         return (arr1, arr2);
                     });
@@ -1554,13 +1483,8 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFixedStructSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, FixedStruct[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize((p1.Length * 4) + (p1.Length > 254 ? 5 : 1));
-                        FixedStructSeqHelper.Write(ostr, p1);
-                    });
+                    (OutputStream ostr, FixedStruct[]? p1) => ostr.WriteTaggedSequence(2, p1, 4,
+                        (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1604,13 +1528,8 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFixedStructList", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, LinkedList<FixedStruct> ? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize((p1.Count * 4) + (p1.Count > 254 ? 5 : 1));
-                        FixedStructListHelper.Write(ostr, p1);
-                    });
+                    (OutputStream ostr, LinkedList<FixedStruct> ? p1) => ostr.WriteTaggedSequence(2, p1, 4,
+                        (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1650,10 +1569,7 @@ namespace Ice.optional
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opVarStructSeq", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, VarStruct[]? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteTaggedSeq(2, p1, (ostr, vs) => ostr.WriteStruct(vs));
-                    });
+                        ostr.WriteTaggedSequence(2, p1, (ostr, vs) => ostr.WriteStruct(vs)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1693,12 +1609,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opSerializable", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, SerializableClass? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSerializable(p1);
-                    });
+                    (OutputStream ostr, SerializableClass? p1) => ostr.WriteTaggedSerializable(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1737,13 +1648,8 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntIntDict", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, Dictionary<int, int>? p1) =>
-                    {
-                        TestHelper.Assert(p1 != null);
-                        ostr.WriteOptional(2, OptionalFormat.VSize);
-                        ostr.WriteSize(p1.Count * 8 + (p1.Count > 254 ? 5 : 1));
-                        ostr.Write(p1);
-                    });
+                    (OutputStream ostr, Dictionary<int, int>? p1) => ostr.WriteTaggedDictionary(2, p1, 8,
+                        (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteInt(v)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1788,7 +1694,7 @@ namespace Ice.optional
                     (OutputStream ostr, Dictionary<string, int>? p1) =>
                     {
                         TestHelper.Assert(p1 != null);
-                        ostr.WriteTaggedDict(2, p1,
+                        ostr.WriteTaggedDictionary(2, p1,
                             (ostr, k) => ostr.WriteString(k), (ostr, v) => ostr.WriteInt(v));
                     });
 
@@ -1832,7 +1738,7 @@ namespace Ice.optional
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntOneOptionalDict", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, Dictionary<int, OneOptional?>? p1) =>
-                        ostr.WriteTaggedDict(2, p1, (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteClass(v)));
+                        ostr.WriteTaggedDictionary(2, p1, (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteClass(v)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>

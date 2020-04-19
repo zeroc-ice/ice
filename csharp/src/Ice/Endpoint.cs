@@ -97,14 +97,9 @@ namespace Ice
         // TODO: describe what equivalent means / is used for.
         public abstract bool Equivalent(Endpoint endpoint);
 
-        // Marshal the endpoint.
-        public virtual void IceWrite(OutputStream s)
-        {
-            s.StartEndpointEncapsulation();
-            IceWriteImpl(s);
-            s.EndEndpointEncapsulation();
-        }
-        public abstract void IceWriteImpl(Ice.OutputStream s);
+        /// <summary>Writes the payload of this endpoint to the output stream. The payload does not include the type nor
+        /// the enclosing encapsulation header.</summary>
+        public abstract void IceWritePayload(OutputStream ostr);
 
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.

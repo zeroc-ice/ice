@@ -108,33 +108,35 @@ namespace Ice
             //
             if (transport == "opaque")
             {
-                Endpoint ue = new OpaqueEndpoint(endpointString, options);
+                OpaqueEndpoint opaqueEndpoint = new OpaqueEndpoint(endpointString, options);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
-                factory = GetEndpointFactory(ue.Type);
+                factory = GetEndpointFactory(opaqueEndpoint.Type);
                 if (factory != null)
                 {
-                    //
-                    // Make a temporary stream, write the opaque endpoint data into the stream,
-                    // and ask the factory to read the endpoint data from that stream to create
-                    // the actual endpoint.
-                    //
-                    var ostr = new OutputStream(Ice1Definitions.Encoding, new List<ArraySegment<byte>>());
-                    ostr.WriteShort((short)ue.Type);
-                    ue.IceWrite(ostr);
-                    // TODO avoid copy OutputStream buffers
-                    var iss = new InputStream(this, ostr.ToArray());
-                    iss.Pos = 0;
-                    iss.ReadShort(); // type
-                    iss.StartEndpointEncapsulation();
-                    Endpoint? e = factory.Read(iss);
-                    iss.EndEndpointEncapsulation();
+                    // Make a temporary stream, write the opaque endpoint data into the stream, and ask the factory to
+                    // read the endpoint data from that stream to create the actual endpoint.
+
+                    var bufferList = new List<ArraySegment<byte>>();
+                    // 8 = size of short + size of encapsulation header
+                    bufferList.Add(new byte[8 + opaqueEndpoint.Bytes.Length]);
+                    var ostr = new OutputStream(Ice1Definitions.Encoding, bufferList);
+                    ostr.WriteEndpoint(opaqueEndpoint);
+                    OutputStream.Position tail = ostr.Save();
+                    Debug.Assert(bufferList.Count == 1);
+                    Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);
+
+                    var istr = new InputStream(this, bufferList[0]);
+                    istr.ReadShort(); // type
+                    istr.StartEndpointEncapsulation();
+                    Endpoint? e = factory.Read(istr);
+                    istr.EndEndpointEncapsulation();
                     return e;
                 }
-                return ue; // Endpoint is opaque, but we don't have a factory for its type.
+                return opaqueEndpoint; // Endpoint is opaque, but we don't have a factory for its type.
             }
 
             return null;

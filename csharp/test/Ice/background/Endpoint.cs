@@ -45,11 +45,6 @@ internal class Endpoint : Ice.Endpoint
 
     public override string OptionsToString() => _endpoint.OptionsToString();
 
-    public override void IceWriteImpl(Ice.OutputStream ostr)
-    {
-        ostr.WriteShort((short)_endpoint.Type);
-        _endpoint.IceWriteImpl(ostr);
-    }
     public override bool Equivalent(Ice.Endpoint endpoint)
     {
         if (endpoint is Endpoint testEndpoint)
@@ -60,6 +55,12 @@ internal class Endpoint : Ice.Endpoint
         {
             return false;
         }
+    }
+
+    public override void IceWritePayload(Ice.OutputStream ostr)
+    {
+        ostr.WriteShort((short)_endpoint.Type);
+        _endpoint.IceWritePayload(ostr);
     }
 
     public override Ice.Endpoint NewCompressionFlag(bool compressionFlag)

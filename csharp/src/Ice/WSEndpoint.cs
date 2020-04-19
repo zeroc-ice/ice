@@ -88,10 +88,10 @@ namespace Ice
             }
         }
 
-        public override void IceWriteImpl(Ice.OutputStream s)
+        public override void IceWritePayload(Ice.OutputStream ostr)
         {
-            _delegate.IceWriteImpl(s);
-            s.WriteString(Resource);
+            _delegate.IceWritePayload(ostr);
+            ostr.WriteString(Resource);
         }
 
         public override Endpoint NewTimeout(int timeout) =>

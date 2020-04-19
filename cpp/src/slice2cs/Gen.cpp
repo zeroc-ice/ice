@@ -149,7 +149,7 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
     string ns = getNamespace(ClassDefPtr::dynamicCast(op->container()));
     for(const auto& param : requiredParams)
     {
-        writeMarshalCode(_out, param.type, ns, obj + param.name, stream);
+        writeMarshalCode(_out, param.type, false, ns, obj + param.name, stream);
     }
 
     for(const auto& param : taggedParams)
@@ -196,7 +196,7 @@ Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const stri
     }
     else
     {
-        writeMarshalCode(_out, member->type(), ns, "this." + name, stream);
+        writeMarshalCode(_out, member->type(), true, ns, "this." + name, stream);
     }
 }
 
@@ -2071,7 +2071,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     _out << nl << "public static void Write(this Ice.OutputStream ostr, " << name
-         << " value) => ostr.WriteSize((int)value);";
+         << " value) => ostr.WriteEnum((int)value);";
 
     _out << sp;
     _out << nl << "public static readonly Ice.OutputStreamWriter<" << name << "> IceWriter = Write;";
@@ -2597,14 +2597,19 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "public static class " << name << "Helper";
     _out << sb;
 
-    _out << sp;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) => ";
-    _out.inc();
-    _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
-    _out.dec();
+    if (!isMappedToReadOnlyMemory(p))
+    {
+        // TODO: eliminate the entire helper class, not just the writer
 
-    _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+        _out << sp;
+        _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) => ";
+        _out.inc();
+        _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
+        _out.dec();
+
+        _out << sp;
+        _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+    }
 
     _out << sp;
     _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
@@ -2635,8 +2640,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) => ";
     _out.inc();
-    _out << nl << "ostr.WriteDict(dictionary, "
-         << outputStreamWriter(key, ns, true) << ", "
+    _out << nl << "ostr.WriteDictionary(dictionary, " << outputStreamWriter(key, ns, true) << ", "
          << outputStreamWriter(value, ns, true) << ");";
     _out.dec();
 
@@ -2744,7 +2748,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << "string global::Ice.IObject.IceId(global::Ice.Current current) => _iceTypeId;";
-    _out << nl << "string[] global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
+    _out << nl  << "global::System.Collections.Generic.IEnumerable<string> "
+        << "global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
     _out << nl << "global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "

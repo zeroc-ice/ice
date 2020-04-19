@@ -39,8 +39,10 @@ namespace Ice
         /// <param name="value">The return value to marshal.</param>
         /// <param name="writer">A delegate that must write the value to the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithReturnValue<T>(Current current, FormatType? format, in T value,
-            OutputStreamWriter<T> writer)
+        public static OutgoingResponseFrame WithReturnValue<T>(Current current,
+                                                               FormatType? format,
+                                                               T value,
+                                                               OutputStreamWriter<T> writer)
         {
             var response = new OutgoingResponseFrame(current.Encoding);
             byte[] buffer = new byte[256];
@@ -62,8 +64,11 @@ namespace Ice
         /// values they must be passed in a tuple.</param>
         /// <param name="writer">A delegate that must write the value to the frame.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithReturnValue<T>(Current current, FormatType? format, T value,
-            OutputStreamStructWriter<T> writer) where T : struct
+        public static OutgoingResponseFrame WithReturnValue<T>(Current current,
+                                                               FormatType? format,
+                                                               in T value,
+                                                               OutputStreamStructWriter<T> writer)
+            where T : struct
         {
             var response = new OutgoingResponseFrame(current.Encoding);
             byte[] buffer = new byte[256];
@@ -164,16 +169,7 @@ namespace Ice
 
                     ostr.WriteByte((byte)replyStatus);
                     preExecutionException.Id.IceWrite(ostr);
-
-                    // For compatibility with the old FacetPath.
-                    if (string.IsNullOrEmpty(preExecutionException.Facet))
-                    {
-                        ostr.WriteStringSeq(Array.Empty<string>());
-                    }
-                    else
-                    {
-                        ostr.WriteStringSeq(new string[] { preExecutionException.Facet });
-                    }
+                    ostr.WriteFacet(preExecutionException.Facet);
                     ostr.WriteString(preExecutionException.Operation);
                 }
                 else

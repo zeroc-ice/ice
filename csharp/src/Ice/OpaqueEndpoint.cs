@@ -22,6 +22,7 @@ namespace Ice
         public override bool IsDatagram => false;
         public override bool IsSecure => false;
         public override string Name => "opaque";
+
         public override int Timeout => -1;
         public override EndpointType Type { get; }
 
@@ -90,20 +91,17 @@ namespace Ice
 
         public override bool Equivalent(Endpoint endpoint) => false;
 
-        public override void IceWrite(Ice.OutputStream s)
-        {
-            s.StartEndpointEncapsulation(Encoding);
-            s.WriteByteSpan(Bytes.Span);
-            s.EndEndpointEncapsulation();
-        }
-
-        public override void IceWriteImpl(Ice.OutputStream s) => Debug.Assert(false);
-
         public override string ToString()
         {
             string val = System.Convert.ToBase64String(Bytes.Span);
             short typeNum = (short)Type;
             return $"opaque -t {typeNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
+        }
+
+        public override void IceWritePayload(Ice.OutputStream ostr)
+        {
+            Debug.Assert(false);
+            throw new NotImplementedException("cannot write the payload for an opaque endpoint");
         }
 
         public override Endpoint NewTimeout(int t) => this;

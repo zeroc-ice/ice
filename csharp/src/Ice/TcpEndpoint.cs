@@ -17,6 +17,7 @@ namespace Ice
     {
         public override bool IsDatagram => false;
         public override bool HasCompressionFlag { get; }
+
         public override int Timeout { get; }
 
         private int _hashCode = 0;
@@ -90,11 +91,11 @@ namespace Ice
             return sb.ToString();
         }
 
-        public override void IceWriteImpl(OutputStream s)
+        public override void IceWritePayload(OutputStream ostr)
         {
-            base.IceWriteImpl(s);
-            s.WriteInt(Timeout);
-            s.WriteBool(HasCompressionFlag);
+            base.IceWritePayload(ostr);
+            ostr.WriteInt(Timeout);
+            ostr.WriteBool(HasCompressionFlag);
         }
 
         public override Endpoint NewTimeout(int timeout) =>
