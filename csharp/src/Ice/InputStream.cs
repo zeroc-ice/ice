@@ -1729,48 +1729,19 @@ namespace Ice
             }
         }
 
-        private sealed class Collection<T> : ICollection<T>
+        // Collection<T> holds the size of a Slice sequence and reads the sequence elements from the InputStream
+        // on-demand. It does not fully implement IEnumerable<T> and ICollection<T> (i.e. some methods throw
+        // NotSupportedException) because it's not resettable: you can't use it to unmarshal the same bytes
+        // multiple times.
+        private sealed class Collection<T> : ICollection<T>, IEnumerator<T>
         {
-            private readonly InputStream _ins;
-            private readonly InputStreamReader<T> _read;
-
             public int Count { get; }
 
-            public bool IsReadOnly => true;
-
-            public Collection(InputStream ins, InputStreamReader<T> read, int minSize)
-            {
-                _ins = ins;
-                _read = read;
-                Count = ins.ReadAndCheckSeqSize(minSize);
-            }
-
-            // TODO: Ideally this should use a InputStream view and cache the input stream start
-            // position, so that successive enumerators yield same valid results. In practice
-            // GetEnumerator should only be called once when the collection is unmarshaled.
-            public IEnumerator<T> GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
-
-            IEnumerator IEnumerable.GetEnumerator() => new Enumerator<T>(_ins, _read, Count);
-            public void Add(T item) => throw new NotSupportedException();
-            public void Clear() => throw new NotSupportedException();
-            public bool Contains(T item) => throw new NotSupportedException();
-            public void CopyTo(T[] array, int arrayIndex)
-            {
-                foreach (T value in this)
-                {
-                    array[arrayIndex++] = value;
-                }
-            }
-            public bool Remove(T item) => throw new NotSupportedException();
-        }
-
-        private sealed class Enumerator<T> : IEnumerator<T>
-        {
             public T Current
             {
                 get
                 {
-                    if (_pos == 0 || _pos > _size)
+                    if (_pos == 0 || _pos > Count)
                     {
                         throw new InvalidOperationException();
                     }
@@ -1778,45 +1749,68 @@ namespace Ice
                 }
             }
 
-            object IEnumerator.Current => Current!;
-
+            object? IEnumerator.Current => Current;
+            public bool IsReadOnly => true;
             private T _current;
-            private readonly InputStream _ins;
-            private readonly InputStreamReader<T> _read;
+            private readonly InputStream _inputStream;
             private int _pos;
-            private readonly int _size;
+            private readonly InputStreamReader<T> _reader;
 
+            // Disable this warning as the _current field is never read before it is initialized in MoveNext. Declaring
+            // this field as nullable is not an option for a genericT  that can be used with reference and value types.
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-            // Disabled this warning as the _current field is never read until it is initialized
-            // in MoveNext. The Current property accessor warrants it. Declared the field as nullable
-            // is not an option for a generic that can be used with reference and value types.
-            public Enumerator(InputStream ins, InputStreamReader<T> read, int size)
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+            internal Collection(InputStream istr, InputStreamReader<T> reader, int minSize)
+#pragma warning restore CS8618
             {
-                _ins = ins;
-                _read = read;
-                _size = size;
-                _pos = 0;
+                _inputStream = istr;
+                _reader = reader;
+                Count = istr.ReadAndCheckSeqSize(minSize);
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                if (_pos != 0)
+                {
+                    throw new NotSupportedException("cannot create a second enumerator for this enumerable");
+                }
+                return this;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public void Add(T item) => throw new NotSupportedException();
+            public void Clear() => throw new NotSupportedException();
+            public bool Contains(T item) => throw new NotSupportedException();
+
+            public void CopyTo(T[] array, int arrayIndex)
+            {
+                foreach (T value in this)
+                {
+                    array[arrayIndex++] = value;
+                }
+            }
+
+            public void Dispose()
+            {
             }
 
             public bool MoveNext()
             {
-                if (++_pos > _size)
+                if (++_pos > Count)
                 {
-                    _pos = _size + 1;
+                    _pos = Count + 1;
                     return false;
                 }
                 else
                 {
-                    _current = _read(_ins);
+                    _current = _reader(_inputStream);
                     return true;
                 }
             }
 
+            public bool Remove(T item) => throw new NotSupportedException();
+
             public void Reset() => throw new NotSupportedException();
-            public void Dispose()
-            {
-            }
         }
     }
 }
