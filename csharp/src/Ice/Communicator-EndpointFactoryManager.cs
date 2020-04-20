@@ -93,13 +93,13 @@ namespace Ice
 
             if (factory != null)
             {
-                Endpoint? e = factory.Create(endpointString, options, oaEndpoint);
+                Endpoint endpoint = factory.Create(endpointString, options, oaEndpoint);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
-                return e;
+                return endpoint;
             }
 
             //
@@ -114,12 +114,11 @@ namespace Ice
                     throw new FormatException(
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
-                factory = GetEndpointFactory(opaqueEndpoint.Type);
-                if (factory != null)
-                {
-                    // Make a temporary stream, write the opaque endpoint data into the stream, and ask the factory to
-                    // read the endpoint data from that stream to create the actual endpoint.
 
+                if (opaqueEndpoint.Encoding.IsSupported && GetEndpointFactory(opaqueEndpoint.Type) != null)
+                {
+                    // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
+                    // unmarshal it from this buffer.
                     var bufferList = new List<ArraySegment<byte>>();
                     // 8 = size of short + size of encapsulation header
                     bufferList.Add(new byte[8 + opaqueEndpoint.Bytes.Length]);
@@ -131,7 +130,10 @@ namespace Ice
 
                     return new InputStream(this, bufferList[0]).ReadEndpoint();
                 }
-                return opaqueEndpoint; // Endpoint is opaque, but we don't have a factory for its type.
+                else
+                {
+                    return opaqueEndpoint;
+                }
             }
 
             return null;
