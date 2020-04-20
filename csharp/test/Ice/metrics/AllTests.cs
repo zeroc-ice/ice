@@ -38,41 +38,138 @@ public class AllTests : Test.AllTests
         }
     }
 
-    class Callback
+    public abstract class CallbackBase
     {
-        public Callback()
+        public CallbackBase()
         {
-            _wait = true;
+            Wait = true;
         }
 
-        public void response()
-        {
-            lock(this)
-            {
-                _wait = false;
-                Monitor.Pulse(this);
-            }
-        }
+        public abstract void response();
 
-        public void exception(Ice.Exception ex)
-        {
-            response();
-        }
+        public abstract void exception(Ice.Exception ex);
 
         public void waitForResponse()
         {
             lock(this)
             {
-                while(_wait)
+                while(Wait)
                 {
                     Monitor.Wait(this);
                 }
-                _wait = true;
+                Wait = true;
             }
         }
 
-        private bool _wait;
-    };
+        protected bool Wait;
+    }
+
+    class Callback : CallbackBase
+    {
+        public override void response()
+        {
+            lock (this)
+            {
+                Wait = false;
+                Monitor.Pulse(this);
+            }
+        }
+
+        public override void exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+    }
+
+    class UserExCallback : CallbackBase
+    {
+        public override void response()
+        {
+            test(false);
+        }
+
+        public override void exception(Ice.Exception ex)
+        {
+            test(ex is UserEx);
+            lock (this)
+            {
+                Wait = false;
+                Monitor.Pulse(this);
+            }
+        }
+    }
+
+    class RequestFailedExceptionCallback : CallbackBase
+    {
+        public override void response()
+        {
+            test(false);
+        }
+
+        public override void exception(Ice.Exception ex)
+        {
+            test(ex is Ice.RequestFailedException);
+            lock (this)
+            {
+                Wait = false;
+                Monitor.Pulse(this);
+            }
+        }
+    }
+
+    class LocalExceptionCallback : CallbackBase
+    {
+        public override void response()
+        {
+            test(false);
+        }
+
+        public override void exception(Ice.Exception ex)
+        {
+            test(ex is Ice.LocalException);
+            lock (this)
+            {
+                Wait = false;
+                Monitor.Pulse(this);
+            }
+        }
+    }
+
+    class UnknownExceptionCallback : CallbackBase
+    {
+        public override void response()
+        {
+            test(false);
+        }
+
+        public override void exception(Ice.Exception ex)
+        {
+            test(ex is Ice.UnknownException);
+            lock (this)
+            {
+                Wait = false;
+                Monitor.Pulse(this);
+            }
+        }
+    }
+
+    class ConnectionLostExceptionCallback : CallbackBase
+    {
+        public override void response()
+        {
+            test(false);
+        }
+
+        public override void exception(Ice.Exception ex)
+        {
+            test(ex is Ice.ConnectionLostException);
+            lock (this)
+            {
+                Wait = false;
+                Monitor.Pulse(this);
+            }
+        }
+    }
 
     static string
     getPort(Ice.PropertiesAdminPrx p)
@@ -919,13 +1016,14 @@ public class AllTests : Test.AllTests
         updateProps(clientProps, serverProps, update, props, "Invocation");
         test(serverMetrics.getMetricsView("View", out timestamp)["Invocation"].Length == 0);
 
-        Callback cb = new Callback();
+        CallbackBase cb = new Callback();
 
         metrics.op();
         metrics.end_op(metrics.begin_op());
         metrics.begin_op().whenCompleted(cb.response, cb.exception);
         cb.waitForResponse();
 
+        cb = new UserExCallback();
         try
         {
             metrics.opWithUserException();
@@ -934,6 +1032,7 @@ public class AllTests : Test.AllTests
         catch(UserEx)
         {
         }
+
         try
         {
             metrics.end_opWithUserException(metrics.begin_opWithUserException());
@@ -942,9 +1041,11 @@ public class AllTests : Test.AllTests
         catch(UserEx)
         {
         }
+
         metrics.begin_opWithUserException().whenCompleted(cb.response, cb.exception);
         cb.waitForResponse();
 
+        cb = new RequestFailedExceptionCallback();
         try
         {
             metrics.opWithRequestFailedException();
@@ -953,6 +1054,7 @@ public class AllTests : Test.AllTests
         catch(Ice.RequestFailedException)
         {
         }
+
         try
         {
             metrics.end_opWithRequestFailedException(metrics.begin_opWithRequestFailedException());
@@ -961,9 +1063,11 @@ public class AllTests : Test.AllTests
         catch(Ice.RequestFailedException)
         {
         }
+
         metrics.begin_opWithRequestFailedException().whenCompleted(cb.response, cb.exception);
         cb.waitForResponse();
 
+        cb = new LocalExceptionCallback();
         try
         {
             metrics.opWithLocalException();
@@ -972,6 +1076,7 @@ public class AllTests : Test.AllTests
         catch(Ice.LocalException)
         {
         }
+
         try
         {
             metrics.end_opWithLocalException(metrics.begin_opWithLocalException());
@@ -980,9 +1085,11 @@ public class AllTests : Test.AllTests
         catch(Ice.LocalException)
         {
         }
+
         metrics.begin_opWithLocalException().whenCompleted(cb.response, cb.exception);
         cb.waitForResponse();
 
+        cb = new UnknownExceptionCallback();
         try
         {
             metrics.opWithUnknownException();
@@ -991,6 +1098,7 @@ public class AllTests : Test.AllTests
         catch(Ice.UnknownException)
         {
         }
+
         try
         {
             metrics.end_opWithUnknownException(metrics.begin_opWithUnknownException());
@@ -999,11 +1107,13 @@ public class AllTests : Test.AllTests
         catch(Ice.UnknownException)
         {
         }
+
         metrics.begin_opWithUnknownException().whenCompleted(cb.response, cb.exception);
         cb.waitForResponse();
 
         if(!collocated)
         {
+            cb = new ConnectionLostExceptionCallback();
             try
             {
                 metrics.fail();
@@ -1012,6 +1122,7 @@ public class AllTests : Test.AllTests
             catch(Ice.ConnectionLostException)
             {
             }
+
             try
             {
                 metrics.end_fail(metrics.begin_fail());
@@ -1020,6 +1131,7 @@ public class AllTests : Test.AllTests
             catch(Ice.ConnectionLostException)
             {
             }
+
             metrics.begin_fail().whenCompleted(cb.response, cb.exception);
             cb.waitForResponse();
         }
@@ -1097,6 +1209,7 @@ public class AllTests : Test.AllTests
         //
         // Oneway tests
         //
+        cb = new Callback();
         clearView(clientProps, serverProps, update);
         props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";

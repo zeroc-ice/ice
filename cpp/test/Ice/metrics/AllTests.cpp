@@ -13,25 +13,17 @@ using namespace Test;
 namespace
 {
 
-class Callback : public IceUtil::Shared, private IceUtil::Monitor<IceUtil::Mutex>
+class CallbackBase : public IceUtil::Shared, protected IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    Callback() : _wait(true)
+    CallbackBase() : _wait(true)
     {
     }
 
-    void response()
-    {
-        Lock sync(*this);
-        _wait = false;
-        notify();
-    }
+    virtual void response() = 0;
 
-    void exception(const Ice::Exception&)
-    {
-        response();
-    }
+    virtual void exception(const Ice::Exception& ex) = 0;
 
     void
     waitForResponse()
@@ -44,11 +36,169 @@ public:
         _wait = true;
     }
 
-private:
+protected:
 
     bool _wait;
 };
-typedef IceUtil::Handle<Callback> CallbackPtr;
+typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
+
+class Callback : public CallbackBase
+{
+public:
+
+    virtual void response()
+    {
+        Lock sync(*this);
+        _wait = false;
+        notify();
+    }
+
+    virtual void exception(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+};
+
+class UserExCallback : public CallbackBase
+{
+public:
+
+    virtual void response()
+    {
+        test(false);
+    }
+
+    virtual void exception(const Ice::Exception& ex)
+    {
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Test::UserEx&)
+        {
+            Lock sync(*this);
+            _wait = false;
+            notify();
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+};
+
+class RequestFailedExceptionCallback : public CallbackBase
+{
+public:
+
+    virtual void response()
+    {
+        test(false);
+    }
+
+    virtual void exception(const Ice::Exception& ex)
+    {
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::RequestFailedException&)
+        {
+            Lock sync(*this);
+            _wait = false;
+            notify();
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+};
+
+class LocalExceptionCallback : public CallbackBase
+{
+public:
+
+    virtual void response()
+    {
+        test(false);
+    }
+
+    virtual void exception(const Ice::Exception& ex)
+    {
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::LocalException&)
+        {
+            Lock sync(*this);
+            _wait = false;
+            notify();
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+};
+
+class UnknownExceptionCallback : public CallbackBase
+{
+public:
+
+    virtual void response()
+    {
+        test(false);
+    }
+
+    virtual void exception(const Ice::Exception& ex)
+    {
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::UnknownException&)
+        {
+            Lock sync(*this);
+            _wait = false;
+            notify();
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+};
+
+class ConnectionLostExceptionCallback : public CallbackBase
+{
+public:
+
+    virtual void response()
+    {
+        test(false);
+    }
+
+    virtual void exception(const Ice::Exception& ex)
+    {
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::ConnectionLostException&)
+        {
+            Lock sync(*this);
+            _wait = false;
+            notify();
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+};
 
 string
 getPort(const Ice::PropertiesAdminPrxPtr& p)
@@ -970,16 +1120,10 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     updateProps(clientProps, serverProps, update.get(), props, "Invocation");
     test(serverMetrics->getMetricsView("View", timestamp)["Invocation"].empty());
 
-    CallbackPtr cb = new Callback();
+    CallbackBasePtr cb = new Callback();
     metrics->op();
 #ifdef ICE_CPP11_MAPPING
-    try
-    {
-        metrics->opAsync().get();
-    }
-    catch(const Ice::Exception&)
-    {
-    }
+    metrics->opAsync().get();
 
     metrics->opAsync(
         [cb]()
@@ -994,7 +1138,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             }
             catch(const Ice::Exception& ex)
             {
-                cb->exception(ex);
+                cerr << ex << endl;
+                test(false);
             }
             catch(...)
             {
@@ -1003,11 +1148,12 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         });
 #else
     metrics->end_op(metrics->begin_op());
-    metrics->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception));
+    metrics->begin_op(newCallback_Metrics_op(cb, &CallbackBase::response, &CallbackBase::exception));
 #endif
     cb->waitForResponse();
 
     // User exception
+    cb = new UserExCallback();
     try
     {
         metrics->opWithUserException();
@@ -1030,10 +1176,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
         test(false);
     }
+
     metrics->opWithUserExceptionAsync(
         [cb]()
         {
-            cb->response();
+            test(false);
         },
         [cb](exception_ptr e)
         {
@@ -1041,7 +1188,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             {
                 rethrow_exception(e);
             }
-            catch(const Test::UserEx& ex)
+            catch(const Ice::Exception& ex)
             {
                 cb->exception(ex);
             }
@@ -1059,12 +1206,14 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     catch(const Test::UserEx&)
     {
     }
-    metrics->begin_opWithUserException(newCallback_Metrics_opWithUserException(
-                                           cb, &Callback::response, &Callback::exception));
+
+    metrics->begin_opWithUserException(
+        newCallback_Metrics_opWithUserException(cb, &CallbackBase::response, &CallbackBase::exception));
 #endif
     cb->waitForResponse();
 
     // Request failed exception
+    cb = new RequestFailedExceptionCallback();
     try
     {
         metrics->opWithRequestFailedException();
@@ -1083,10 +1232,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     catch(const Ice::RequestFailedException&)
     {
     }
+
     metrics->opWithRequestFailedExceptionAsync(
         [cb]()
         {
-            cb->response();
+            test(false);
         },
         [cb](exception_ptr e)
         {
@@ -1094,7 +1244,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             {
                 rethrow_exception(e);
             }
-            catch(const Ice::RequestFailedException& ex)
+            catch(const Ice::Exception& ex)
             {
                 cb->exception(ex);
             }
@@ -1112,12 +1262,14 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     catch(const Ice::RequestFailedException&)
     {
     }
-    metrics->begin_opWithRequestFailedException(newCallback_Metrics_opWithRequestFailedException(
-                                                    cb, &Callback::response, &Callback::exception));
+
+    metrics->begin_opWithRequestFailedException(
+       newCallback_Metrics_opWithRequestFailedException(cb, &CallbackBase::response, &CallbackBase::exception));
 #endif
     cb->waitForResponse();
 
     // Local exception
+    cb = new LocalExceptionCallback();
     try
     {
         metrics->opWithLocalException();
@@ -1136,10 +1288,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     catch(const Ice::LocalException&)
     {
     }
+
     metrics->opWithLocalExceptionAsync(
         [cb]()
         {
-            cb->response();
+            test(false);
         },
         [cb](exception_ptr e)
         {
@@ -1147,7 +1300,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             {
                 rethrow_exception(e);
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::Exception& ex)
             {
                 cb->exception(ex);
             }
@@ -1165,12 +1318,14 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     catch(const Ice::LocalException&)
     {
     }
-    metrics->begin_opWithLocalException(newCallback_Metrics_opWithLocalException(
-                                            cb, &Callback::response, &Callback::exception));
+
+    metrics->begin_opWithLocalException(
+        newCallback_Metrics_opWithLocalException(cb, &CallbackBase::response, &CallbackBase::exception));
 #endif
     cb->waitForResponse();
 
     // Unknown exception
+    cb = new UnknownExceptionCallback();
     try
     {
         metrics->opWithUnknownException();
@@ -1189,10 +1344,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     catch(const Ice::UnknownException&)
     {
     }
+
     metrics->opWithUnknownExceptionAsync(
         [cb]()
         {
-            cb->response();
+            test(false);
         },
         [cb](exception_ptr e)
         {
@@ -1200,7 +1356,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             {
                 rethrow_exception(e);
             }
-            catch(const Ice::UnknownException& ex)
+            catch(const Ice::Exception& ex)
             {
                 cb->exception(ex);
             }
@@ -1218,14 +1374,16 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     catch(const Ice::UnknownException&)
     {
     }
-    metrics->begin_opWithUnknownException(newCallback_Metrics_opWithUnknownException(
-                                              cb, &Callback::response, &Callback::exception));
+
+    metrics->begin_opWithUnknownException(
+        newCallback_Metrics_opWithUnknownException(cb, &CallbackBase::response, &CallbackBase::exception));
 #endif
     cb->waitForResponse();
 
     // Fail
     if(!collocated)
     {
+        cb = new ConnectionLostExceptionCallback();
         try
         {
             metrics->fail();
@@ -1243,10 +1401,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         catch(const Ice::ConnectionLostException&)
         {
         }
+
         metrics->failAsync(
             [cb]()
             {
-                cb->response();
+                test(false);
             },
             [cb](exception_ptr e)
             {
@@ -1254,7 +1413,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                 {
                     rethrow_exception(e);
                 }
-                catch(const Ice::ConnectionLostException& ex)
+                catch(const Ice::Exception& ex)
                 {
                     cb->exception(ex);
                 }
@@ -1272,7 +1431,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         catch(const Ice::ConnectionLostException&)
         {
         }
-        metrics->begin_fail(newCallback_Metrics_fail(cb, &Callback::response, &Callback::exception));
+
+        metrics->begin_fail(newCallback_Metrics_fail(cb, &CallbackBase::response, &CallbackBase::exception));
 #endif
         cb->waitForResponse();
     }
@@ -1360,7 +1520,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
     props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
     updateProps(clientProps, serverProps, update.get(), props, "Invocation");
-
+    cb = new Callback();
     MetricsPrxPtr metricsOneway = metrics->ice_oneway();
     metricsOneway->op();
 #ifdef ICE_CPP11_MAPPING
@@ -1390,7 +1550,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     sent.get_future().get();
 #else
     metricsOneway->end_op(metricsOneway->begin_op());
-    metricsOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception))->waitForSent();
+    metricsOneway->begin_op(newCallback_Metrics_op(cb, &CallbackBase::response, &CallbackBase::exception))->waitForSent();
 #endif
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 1);
@@ -1418,7 +1578,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     metricsBatchOneway->opAsync([cb]() {}, [cb](exception_ptr) {});
 #else
     metricsBatchOneway->end_op(metricsBatchOneway->begin_op());
-    metricsBatchOneway->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception))->waitForCompleted();
+    metricsBatchOneway->begin_op(newCallback_Metrics_op(cb, &CallbackBase::response, &CallbackBase::exception))->waitForCompleted();
 #endif
 
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
@@ -1448,7 +1608,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 #else
     metricsBatchOneway->end_ice_flushBatchRequests(metricsBatchOneway->begin_ice_flushBatchRequests());
     metricsBatchOneway->begin_ice_flushBatchRequests(
-                    Ice::newCallback_Object_ice_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
+                    Ice::newCallback_Object_ice_flushBatchRequests(cb, &CallbackBase::exception))->waitForCompleted();
 #endif
 
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
@@ -1477,7 +1637,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 #else
         con->end_flushBatchRequests(con->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No)));
         con->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
-            Ice::newCallback_Connection_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
+            Ice::newCallback_Connection_flushBatchRequests(cb, &CallbackBase::exception))->waitForCompleted();
 #endif
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 3);
@@ -1498,7 +1658,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         communicator->end_flushBatchRequests(
             communicator->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No)));
         communicator->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
-            Ice::newCallback_Communicator_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
+            Ice::newCallback_Communicator_flushBatchRequests(cb, &CallbackBase::exception))->waitForCompleted();
 #endif
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 2);

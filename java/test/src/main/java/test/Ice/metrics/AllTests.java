@@ -925,6 +925,7 @@ public class AllTests
         metrics.opAsync().join();
         metrics.opAsync().whenComplete((response, ex) ->
             {
+                test(ex == null);
                 cb.completed();
             });
         cb.waitForResponse();
@@ -937,6 +938,7 @@ public class AllTests
         catch(UserEx ex)
         {
         }
+
         try
         {
             metrics.opWithUserExceptionAsync().join();
@@ -946,8 +948,10 @@ public class AllTests
         {
             test(ex.getCause() instanceof UserEx);
         }
+
         metrics.opWithUserExceptionAsync().whenComplete((response, ex) ->
             {
+                test(ex instanceof UserEx);
                 cb.completed();
             });
         cb.waitForResponse();
@@ -960,6 +964,7 @@ public class AllTests
         catch(com.zeroc.Ice.RequestFailedException ex)
         {
         }
+
         try
         {
             metrics.opWithRequestFailedExceptionAsync().join();
@@ -969,8 +974,10 @@ public class AllTests
         {
             test(ex.getCause() instanceof com.zeroc.Ice.RequestFailedException);
         }
+
         metrics.opWithRequestFailedExceptionAsync().whenComplete((result, ex) ->
             {
+                test(ex instanceof com.zeroc.Ice.RequestFailedException);
                 cb.completed();
             });
         cb.waitForResponse();
@@ -983,6 +990,7 @@ public class AllTests
         catch(com.zeroc.Ice.LocalException ex)
         {
         }
+
         try
         {
             metrics.opWithLocalExceptionAsync().join();
@@ -992,8 +1000,10 @@ public class AllTests
         {
             test(ex.getCause() instanceof com.zeroc.Ice.LocalException);
         }
+
         metrics.opWithLocalExceptionAsync().whenComplete((result, ex) ->
             {
+                test(ex instanceof com.zeroc.Ice.LocalException);
                 cb.completed();
             });
         cb.waitForResponse();
@@ -1006,6 +1016,7 @@ public class AllTests
         catch(com.zeroc.Ice.UnknownException ex)
         {
         }
+
         try
         {
             metrics.opWithUnknownExceptionAsync().join();
@@ -1015,8 +1026,10 @@ public class AllTests
         {
             test(ex.getCause() instanceof com.zeroc.Ice.UnknownException);
         }
+
         metrics.opWithUnknownExceptionAsync().whenComplete((result, ex) ->
             {
+                test(ex instanceof com.zeroc.Ice.UnknownException);
                 cb.completed();
             });
         cb.waitForResponse();
@@ -1031,6 +1044,7 @@ public class AllTests
             catch(com.zeroc.Ice.ConnectionLostException ex)
             {
             }
+
             try
             {
                 metrics.failAsync().join();
@@ -1040,8 +1054,10 @@ public class AllTests
             {
                 test(ex.getCause() instanceof com.zeroc.Ice.ConnectionLostException);
             }
+
             metrics.failAsync().whenComplete((result, ex) ->
                 {
+                    test(ex instanceof com.zeroc.Ice.ConnectionLostException);
                     cb.completed();
                 });
             cb.waitForResponse();
