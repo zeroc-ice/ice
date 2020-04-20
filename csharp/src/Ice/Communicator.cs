@@ -1317,7 +1317,7 @@ namespace Ice
                 endpoints = new Endpoint[sz];
                 for (int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = ReadEndpoint(s);
+                    endpoints[i] = s.ReadEndpoint();
                 }
             }
             else

@@ -32,6 +32,8 @@ namespace Ice
         /// <summary>The minor version number of this version of the Ice encoding.</summary>
         public readonly byte Minor;
 
+        internal bool IsSupported => this == V1_1; // TODO: add 2.0
+
         /// <summary>Parses a string into an Encoding.</summary>
         /// <param name="str">The string to parse.</param>
         /// <returns>A new encoding.</returns>
@@ -104,8 +106,7 @@ namespace Ice
 
         internal void CheckSupported()
         {
-            // TODO: add 2.0
-            if (this != V1_1)
+            if (!IsSupported)
             {
                 throw new NotSupportedException(
                     $"Ice encoding `{ToString()}' is not supported by this Ice runtime ({Util.StringVersion()})");
