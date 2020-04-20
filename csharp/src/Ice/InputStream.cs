@@ -1752,8 +1752,9 @@ namespace Ice
             object? IEnumerator.Current => Current;
             public bool IsReadOnly => true;
             private T _current;
+            private bool _enumeratorRetrieved = false;
             private readonly InputStream _inputStream;
-            private int _pos;
+            private int _pos = 0;
             private readonly InputStreamReader<T> _reader;
 
             // Disable this warning as the _current field is never read before it is initialized in MoveNext. Declaring
@@ -1769,10 +1770,11 @@ namespace Ice
 
             public IEnumerator<T> GetEnumerator()
             {
-                if (_pos != 0)
+                if (_enumeratorRetrieved)
                 {
-                    throw new NotSupportedException("cannot create a second enumerator for this enumerable");
+                    throw new NotSupportedException("cannot get a second enumerator for this enumerable");
                 }
+                _enumeratorRetrieved = true;
                 return this;
             }
 
