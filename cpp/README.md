@@ -541,7 +541,7 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-4
 [3]: https://github.com/zeroc-ice/bzip2
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/

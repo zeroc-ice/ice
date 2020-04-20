@@ -136,5 +136,5 @@ of `ok` messages. In case of a failure, the tests abort with `failed`.
  computer.
 
 [1]: https://doc.zeroc.com/ice/3.7/release-notes/using-the-macos-binary-distribution
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-3
+[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-4
 [3]: https://en.wikipedia.org/wiki/Automatic_Reference_Counting
