@@ -298,16 +298,14 @@ namespace IceInternal
                 _writeCallback = callback;
                 try
                 {
-                    EndPoint addr;
-                    if (_proxy != null)
+                    if (_sourceAddr != null)
                     {
-                        addr = _proxy.GetAddress();
+                        Network.DoBind(_fd, new IPEndPoint(_sourceAddr, 0));
                     }
-                    else
-                    {
-                        Debug.Assert(_addr != null);
-                        addr = _addr;
-                    }
+
+                    EndPoint? addr = _proxy != null ? _proxy.GetAddress() : _addr;
+                    Debug.Assert(addr != null);
+
                     _writeEventArgs.RemoteEndPoint = addr;
                     _writeEventArgs.UserToken = state;
                     return !_fd.ConnectAsync(_writeEventArgs);
