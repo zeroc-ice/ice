@@ -149,7 +149,8 @@ namespace IceInternal
                 return this;
             }
             Reference r = _instance.referenceFactory().copy(this);
-            r._identity = newIdentity; // Identity is a value type, therefore a copy of newIdentity is made.
+            // Identity is a reference type, therefore we make a copy of newIdentity.
+            r._identity = (Ice.Identity)newIdentity.Clone();
             return r;
         }
 
