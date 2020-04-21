@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1079,15 +1081,8 @@ namespace Ice
             int? oldLimit = _limit;
             _limit = _pos + size - 6;
 
-            IceInternal.IEndpointFactory? factory = null;
-            if (_encoding.Value.IsSupported)
-            {
-                factory = Communicator.GetEndpointFactory(type);
-            }
-            // else, no point in retrieving factory if we can't read the payload
-
             Endpoint result;
-            if (factory != null)
+            if (_encoding.Value.IsSupported && Communicator.GetEndpointFactory(type) is IEndpointFactory factory)
             {
                 result = factory.Read(this);
             }

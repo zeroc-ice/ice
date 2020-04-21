@@ -1263,7 +1263,7 @@ namespace Ice
             throw new FormatException($"malformed proxy `{s}'");
         }
 
-        public Reference CreateReference(Identity ident, InputStream s)
+        public Reference CreateReference(Identity ident, InputStream istr)
         {
             //
             // Don't read the identity here. Operations calling this
@@ -1273,7 +1273,7 @@ namespace Ice
             //
             // For compatibility with the old FacetPath.
             //
-            string[] facetPath = s.ReadStringArray();
+            string[] facetPath = istr.ReadStringArray();
             string facet;
             if (facetPath.Length > 0)
             {
@@ -1288,42 +1288,42 @@ namespace Ice
                 facet = "";
             }
 
-            int mode = s.ReadByte();
+            int mode = istr.ReadByte();
             if (mode < 0 || mode > (int)InvocationMode.Last)
             {
                 throw new InvalidDataException($"invalid invocation mode: {mode}");
             }
 
-            s.ReadBool(); // secure option, ignored
+            istr.ReadBool(); // secure option, ignored
 
-            byte major = s.ReadByte();
-            byte minor = s.ReadByte();
+            byte major = istr.ReadByte();
+            byte minor = istr.ReadByte();
             if (minor != 0)
             {
                 throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
             }
             var protocol = (Protocol)major;
 
-            major = s.ReadByte();
-            minor = s.ReadByte();
+            major = istr.ReadByte();
+            minor = istr.ReadByte();
             var encoding = new Encoding(major, minor);
 
             Endpoint[] endpoints;
             string adapterId = "";
 
-            int sz = s.ReadSize();
+            int sz = istr.ReadSize();
             if (sz > 0)
             {
                 endpoints = new Endpoint[sz];
                 for (int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = s.ReadEndpoint();
+                    endpoints[i] = istr.ReadEndpoint();
                 }
             }
             else
             {
                 endpoints = Array.Empty<Endpoint>();
-                adapterId = s.ReadString();
+                adapterId = istr.ReadString();
             }
 
             return CreateReference(ident, facet, (InvocationMode)mode, protocol, encoding, endpoints, adapterId,
