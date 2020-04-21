@@ -15,6 +15,7 @@ namespace Ice.operations
             p.opVoid();
             p.opIdempotent();
             p.opOneway();
+            p.opOnewayMetadata();
             p.opByte(0xff, 0x0f);
         }
     }

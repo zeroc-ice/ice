@@ -89,6 +89,13 @@ namespace Ice.operations
                 cb.check();
             }
 
+            {
+                var cb = new Callback();
+                p.opOnewayMetadataAsync(progress: new Progress<bool>(
+                    sentSynchronously => cb.sent(sentSynchronously)));
+                cb.check();
+            }
+
             (byte ReturnValue, byte p3) = p.opByteAsync(0xff, 0x0f).Result;
         }
     }

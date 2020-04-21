@@ -1421,6 +1421,9 @@ namespace Ice.operations
                 // expected
             }
 
+            // This is invoked as a oneway, despite using a twoway proxy.
+            p.opOnewayMetadata();
+
             {
                 TestHelper.Assert(p.opByte1(0xFF) == 0xFF);
                 TestHelper.Assert(p.opShort1(0x7FFF) == 0x7FFF);
