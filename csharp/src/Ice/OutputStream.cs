@@ -2787,7 +2787,7 @@ namespace Ice
 
             if(_encapsStack.format == FormatType.DefaultFormat)
             {
-                _encapsStack.format = _instance.defaultsAndOverrides().defaultFormat;
+                _encapsStack.format = _format;
             }
 
             if(_encapsStack.encoder == null) // Lazy initialization.
