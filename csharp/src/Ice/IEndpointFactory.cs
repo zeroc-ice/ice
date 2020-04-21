@@ -3,6 +3,7 @@
 //
 
 using Ice;
+using System;
 using System.Collections.Generic;
 
 namespace IceInternal
@@ -12,8 +13,8 @@ namespace IceInternal
         void Initialize();
         EndpointType Type();
         string Transport();
-        Endpoint? Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint);
-        Endpoint? Read(Ice.InputStream s);
+        Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint);
+        Endpoint Read(Ice.InputStream s);
         void Destroy();
 
         IEndpointFactory Clone(TransportInstance instance);
@@ -27,8 +28,7 @@ namespace IceInternal
 
         public void Initialize()
         {
-            // Get the endpoint factory for the underlying type and clone it with
-            // our transport instance.
+            // Get the endpoint factory for the underlying type and clone it with our transport instance.
             IEndpointFactory? factory = Instance.GetEndpointFactory(_type);
             if (factory != null)
             {
@@ -41,29 +41,25 @@ namespace IceInternal
 
         public string Transport() => Instance!.Transport;
 
-        public Endpoint? Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint)
+        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint)
         {
-            if (_underlying != null)
+            if (_underlying == null)
             {
-                Endpoint? underlyingEndpoint = _underlying.Create(endpointString, options, oaEndpoint);
-                if (underlyingEndpoint != null)
-                {
-                    return CreateWithUnderlying(underlyingEndpoint, endpointString, options, oaEndpoint);
-                }
+                throw new InvalidOperationException(
+                    $"cannot create a {Instance.Transport} endpoint without a factory for {_type}");
             }
-            return null;
+
+            Endpoint underlyingEndpoint = _underlying.Create(endpointString, options, oaEndpoint);
+            return CreateWithUnderlying(underlyingEndpoint, endpointString, options, oaEndpoint);
         }
-        public Endpoint? Read(Ice.InputStream istr)
+        public Endpoint Read(Ice.InputStream istr)
         {
-            if (_underlying != null)
+            if (_underlying == null)
             {
-                Endpoint? underlyingEndpoint = _underlying.Read(istr);
-                if (underlyingEndpoint != null)
-                {
-                    return ReadWithUnderlying(underlyingEndpoint, istr);
-                }
+                throw new InvalidOperationException(
+                    $"cannot create a {Instance.Transport} endpoint without a factory for {_type}");
             }
-            return null;
+            return ReadWithUnderlying(_underlying.Read(istr), istr);
         }
 
         public void Destroy() => _underlying?.Destroy();

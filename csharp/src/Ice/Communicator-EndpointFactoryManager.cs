@@ -93,13 +93,13 @@ namespace Ice
 
             if (factory != null)
             {
-                Endpoint? e = factory.Create(endpointString, options, oaEndpoint);
+                Endpoint endpoint = factory.Create(endpointString, options, oaEndpoint);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
-                return e;
+                return endpoint;
             }
 
             //
@@ -114,12 +114,11 @@ namespace Ice
                     throw new FormatException(
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
-                factory = GetEndpointFactory(opaqueEndpoint.Type);
-                if (factory != null)
-                {
-                    // Make a temporary stream, write the opaque endpoint data into the stream, and ask the factory to
-                    // read the endpoint data from that stream to create the actual endpoint.
 
+                if (opaqueEndpoint.Encoding.IsSupported && GetEndpointFactory(opaqueEndpoint.Type) != null)
+                {
+                    // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
+                    // unmarshal it from this buffer.
                     var bufferList = new List<ArraySegment<byte>>();
                     // 8 = size of short + size of encapsulation header
                     bufferList.Add(new byte[8 + opaqueEndpoint.Bytes.Length]);
@@ -129,20 +128,18 @@ namespace Ice
                     Debug.Assert(bufferList.Count == 1);
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);
 
-                    var istr = new InputStream(this, bufferList[0]);
-                    istr.ReadShort(); // type
-                    istr.StartEndpointEncapsulation();
-                    Endpoint? e = factory.Read(istr);
-                    istr.EndEndpointEncapsulation();
-                    return e;
+                    return new InputStream(this, bufferList[0]).ReadEndpoint();
                 }
-                return opaqueEndpoint; // Endpoint is opaque, but we don't have a factory for its type.
+                else
+                {
+                    return opaqueEndpoint;
+                }
             }
 
             return null;
         }
 
-        public IEndpointFactory? GetEndpointFactory(EndpointType type)
+        internal IEndpointFactory? GetEndpointFactory(EndpointType type)
         {
             lock (this)
             {
@@ -154,42 +151,6 @@ namespace Ice
                     }
                 }
                 return null;
-            }
-        }
-
-        public Endpoint ReadEndpoint(InputStream istr)
-        {
-            lock (this)
-            {
-                var type = (EndpointType)istr.ReadShort();
-
-                IEndpointFactory? factory = GetEndpointFactory(type);
-                Endpoint? e = null;
-
-                (Encoding encoding, int size) = istr.StartEndpointEncapsulation();
-                if (factory != null)
-                {
-                    e = factory.Read(istr);
-                }
-
-                // If the factory failed to read the endpoint, return an opaque endpoint. This can
-                // occur if for example the factory delegates to another factory and this factory
-                // isn't available. In this case, the factory needs to make sure the stream position
-                // is preserved for reading the opaque endpoint.
-                if (e == null)
-                {
-                    byte[] data = new byte[size];
-                    size = istr.ReadSpan(data);
-                    if (size < data.Length)
-                    {
-                        throw new InvalidDataException(@$"not enough bytes available reading opaque endpoint, requested {
-                            data.Length} bytes, but there was only {size} bytes remaining");
-                    }
-                    e = new OpaqueEndpoint(type, encoding, data);
-                }
-                istr.EndEndpointEncapsulation();
-
-                return e;
             }
         }
 

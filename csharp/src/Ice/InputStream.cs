@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using IceInternal;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -74,11 +76,6 @@ namespace Ice
         // When set, we are in reading a top-level encapsulation.
         private Encaps? _mainEncaps;
 
-        // When set, we are reading an endpoint encapsulation. An endpoint encapsulation is a lightweight
-        // encapsulation that cannot contain classes, exceptions, tagged members/parameters, or another
-        // endpoint. It is often but not always set when _mainEncaps is set (so nested inside _mainEncaps).
-        private Encaps? _endpointEncaps;
-
         // Temporary upper limit set by an encapsulation. See Remaining.
         private int? _limit;
 
@@ -97,7 +94,7 @@ namespace Ice
         private int _posAfterLatestInsertedTypeId = 0;
 
         // The remaining fields are used for class/exception unmarshaling.
-        // Class/exception unmarshaling is allowed only when _mainEncaps != null and _endpointEncaps == null.
+        // Class/exception unmarshaling is allowed only when _mainEncaps != null
 
         // Map of class instance ID to class instance.
         // When reading a top-level encapsulation:
@@ -127,7 +124,7 @@ namespace Ice
         /// <returns>The encoding of the encapsulation.</returns>
         public Encoding StartEncapsulation()
         {
-            Debug.Assert(_mainEncaps == null && _endpointEncaps == null);
+            Debug.Assert(_mainEncaps == null);
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
             Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
             _mainEncaps = new Encaps(_limit, encapsHeader.Size);
@@ -139,7 +136,7 @@ namespace Ice
         /// <summary>Ends an encapsulation started with StartEncpasulation or RestartEncapsulation.</summary>
         public void EndEncapsulation()
         {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            Debug.Assert(_mainEncaps != null);
             SkipTaggedMembers();
 
             if (_buffer.Count - _pos != 0)
@@ -152,7 +149,6 @@ namespace Ice
         /// <summary>Go to the end of the current main encapsulation, if we are in one.</summary>
         public void SkipCurrentEncapsulation()
         {
-            Debug.Assert(_endpointEncaps == null);
             if (_mainEncaps != null)
             {
                 _pos = _limit!.Value;
@@ -174,17 +170,6 @@ namespace Ice
             ArraySegment<byte> data = _buffer.Slice(_pos, encapsHeader.Size);
             _pos += encapsHeader.Size;
             return data;
-        }
-
-        /// <summary>
-        /// Determines the size of the current encapsulation, excluding the encapsulation header.
-        /// </summary>
-        /// <returns>The size of the encapsulated data.</returns>
-        public int GetEncapsulationSize()
-        {
-            Debug.Assert(_endpointEncaps != null || _mainEncaps != null);
-            int size = _endpointEncaps?.Size ?? _mainEncaps?.Size ?? 0;
-            return size - 6;
         }
 
         /// <summary>
@@ -211,7 +196,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceStartSlice(string typeId, bool firstSlice)
         {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            Debug.Assert(_mainEncaps != null);
             if (firstSlice)
             {
                 Debug.Assert(_current != null && (_current.SliceTypeId == null || _current.SliceTypeId == typeId));
@@ -240,7 +225,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public SlicedData? IceStartSliceAndGetSlicedData(string typeId)
         {
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            Debug.Assert(_mainEncaps != null);
             // Called by generated code for first slice instead of IceStartSlice
             Debug.Assert(_current != null && (_current.SliceTypeId == null || _current.SliceTypeId == typeId));
             if (_current.InstanceType == InstanceType.Class)
@@ -257,7 +242,7 @@ namespace Ice
         public void IceEndSlice()
         {
             // Note that IceEndSlice is not called when we call SkipSlice.
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null && _current != null);
+            Debug.Assert(_mainEncaps != null && _current != null);
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0)
             {
                 SkipTaggedMembers();
@@ -343,7 +328,7 @@ namespace Ice
         public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
             // Tagged members/parameters can only be in the main encapsulation
-            Debug.Assert(_mainEncaps != null && _endpointEncaps == null);
+            Debug.Assert(_mainEncaps != null);
 
             // The current slice has no tagged member
             if (_current != null && (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) == 0)
@@ -1085,26 +1070,44 @@ namespace Ice
             }
         }
 
-        internal (Encoding, int) StartEndpointEncapsulation()
+        internal Endpoint ReadEndpoint()
         {
-            Debug.Assert(_endpointEncaps == null);
-            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            _endpointEncaps = new Encaps(_limit, encapsHeader.Size);
-            _limit = _pos + encapsHeader.Size - 6;
-            return (encapsHeader.Encoding, encapsHeader.Size - 6);
-        }
+            var type = (EndpointType)ReadShort();
 
-        internal void EndEndpointEncapsulation()
-        {
-            Debug.Assert(_endpointEncaps != null);
+            Encoding? oldEncoding = _encoding; // TODO: update once we restore the Encoding property!
+            int size;
+            (_encoding, size) = ReadEncapsulationHeader();
+            Debug.Assert(_encoding != null);
+            int? oldLimit = _limit;
+            _limit = _pos + size - 6;
 
-            if (_limit - _pos != 0)
+            Endpoint result;
+            if (_encoding.Value.IsSupported && Communicator.GetEndpointFactory(type) is IEndpointFactory factory)
             {
-                throw new InvalidDataException($"there are {_limit - _pos} bytes remaining in endpoint encapsulation");
+                result = factory.Read(this);
+            }
+            else
+            {
+                byte[] data = new byte[size - 6];
+                int bytesRead = ReadSpan(data);
+                if (bytesRead < data.Length)
+                {
+                    throw new InvalidDataException("invalid endpoint encapsulation size while reading opaque endpoint");
+                }
+                result = new OpaqueEndpoint(type, _encoding.Value, data);
             }
 
-            _limit = _endpointEncaps.Value.OldLimit;
-            _endpointEncaps = null;
+            if (_limit.Value - _pos != 0)
+            {
+                throw new InvalidDataException(
+                    $"there are {_limit.Value - _pos} bytes remaining in endpoint encapsulation");
+            }
+
+            // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
+            // _limit or _encoding unless we succeed.
+            _limit = oldLimit;
+            _encoding = oldEncoding;
+            return result;
         }
 
         internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
