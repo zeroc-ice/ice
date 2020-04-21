@@ -240,6 +240,10 @@ namespace IceInternal
                 try
                 {
                     EndPoint addr = _proxy != null ? _proxy.getAddress() : _addr;
+                    if (_sourceAddr != null)
+                    {
+                        Network.doBind(_fd, _sourceAddr);
+                    }
                     _writeEventArgs.RemoteEndPoint = addr;
                     _writeEventArgs.UserToken = state;
                     return !_fd.ConnectAsync(_writeEventArgs);
