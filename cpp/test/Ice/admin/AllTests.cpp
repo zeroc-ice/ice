@@ -99,7 +99,7 @@ public:
     void checkNextInit(const string&, Ice::LogMessageType, const string&, const string& = "");
     void checkNextLog(Ice::LogMessageType, const string&, const string& = "");
 
-    void wait(int);
+    bool wait(int);
 
 private:
 
@@ -161,24 +161,26 @@ RemoteLoggerI::checkNextLog(Ice::LogMessageType type, const string& message, con
     _logMessages.pop_front();
 }
 
-void
+bool
 RemoteLoggerI::wait(int calls)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
     _receivedCalls -= calls;
     IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
     IceUtil::Time start = now;
-    IceUtil::Time delay = IceUtil::Time::seconds(10);
+    IceUtil::Time delay = IceUtil::Time::seconds(20);
     while(_receivedCalls < 0)
     {
         _monitor.timedWait(delay);
         now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        if(now - start >= IceUtil::Time::seconds(10))
+        if(now - start >= IceUtil::Time::seconds(20))
         {
-            test(false); // Waited for more than 2s for close, something's wrong.
+            cerr << "expected `" << calls << "' received: `" << (calls + _receivedCalls) << "'" << endl;
+            return false; // Waited for more than 20s for close, something's wrong.
         }
-        delay = start + IceUtil::Time::seconds(10) - now;
+        delay = start + IceUtil::Time::seconds(20) - now;
     }
+    return true;
 }
 
 void
@@ -519,7 +521,7 @@ allTests(Test::TestHelper* helper)
         //
         logMessages = logger->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1, prefix);
         logger->attachRemoteLogger(myProxy, Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1);
-        remoteLogger->wait(1);
+        test(remoteLogger->wait(1));
 
         for(LogMessageSeq::const_iterator i = logMessages.begin(); i != logMessages.end(); ++i)
         {
@@ -530,7 +532,7 @@ allTests(Test::TestHelper* helper)
         com->warning("rwarning");
         com->error("rerror");
         com->print("rprint");
-        remoteLogger->wait(4);
+        test(remoteLogger->wait(4));
 
         remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace", "testCat");
         remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, WarningMessage), "rwarning");
@@ -546,7 +548,7 @@ allTests(Test::TestHelper* helper)
         logMessages = logger->getLog(messageTypes, categories, 4, prefix);
         test(logMessages.size() == 4);
         logger->attachRemoteLogger(myProxy, messageTypes, categories, 4);
-        remoteLogger->wait(1);
+        test(remoteLogger->wait(1));
 
         for(LogMessageSeq::const_iterator i = logMessages.begin(); i != logMessages.end(); ++i)
         {
@@ -558,7 +560,7 @@ allTests(Test::TestHelper* helper)
         com->warning("rwarning3");
         com->error("rerror2");
         com->print("rprint2");
-        remoteLogger->wait(2);
+        test(remoteLogger->wait(2));
 
         remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace2", "testCat");
         remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror2");
