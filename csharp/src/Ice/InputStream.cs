@@ -73,17 +73,15 @@ namespace Ice
         /// <summary>Returns the current size of the stream.</summary>
         internal int Size => _buffer.Count;
 
-        // When set, we are in reading a top-level encapsulation.
-        private Encaps? _mainEncaps;
+        private bool InEncapsulation => _inEncapsulation;
 
-        // Temporary upper limit set by an encapsulation. See Remaining.
-        private int? _limit;
+        private readonly bool _inEncapsulation;
 
         // The sum of all the minimum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
         private int _minTotalSeqSize = 0;
 
-        private readonly ArraySegment<byte> _buffer;
+        private ArraySegment<byte> _buffer;
         private int _pos;
 
         // Map of type ID index to type ID string.
@@ -94,7 +92,6 @@ namespace Ice
         private int _posAfterLatestInsertedTypeId = 0;
 
         // The remaining fields are used for class/exception unmarshaling.
-        // Class/exception unmarshaling is allowed only when _mainEncaps != null
 
         // Map of class instance ID to class instance.
         // When reading a top-level encapsulation:
@@ -114,85 +111,49 @@ namespace Ice
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="pos">The initial position in the buffer.</param>
         internal InputStream(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
+            : this(communicator, buffer, false, pos)
         {
-            // TODO: pos/_should always be 0 and buffer should be a slice.
+            // TODO: pos/_should always be 0 and buffer should be a slice as needed.
             // Currently this does not work because of the tracing code that resets Pos to 0 to read the protocol frame
             // headers etc.
-
-            Communicator = communicator;
-            _buffer = buffer;
-            _pos = pos;
         }
 
         /// <summary>Reads the contents of an encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
         /// <param name="buffer">The byte buffer.</param>
-        /// <param name="pos">The initial position in the buffer.</param>
         /// <param name="payloadReader">The reader used to read the payload of this encapsulation.</param>
         internal static T ReadEncapsulation<T>(Communicator communicator,
                                                ArraySegment<byte> buffer,
-                                               int pos,
                                                InputStreamReader<T> payloadReader)
         {
-            var istr = new InputStream(communicator, buffer, pos);
-            istr.StartEncapsulation();
+            var istr = new InputStream(communicator, buffer, startEncaps: true, 0);
             T result = payloadReader(istr);
-            istr.EndEncapsulation();
+            istr.SkipTaggedMembers();
+            istr.CheckEndOfBuffer();
             return result;
         }
 
         /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
         /// <param name="buffer">The byte buffer.</param>
-        /// <param name="pos">The initial position in the buffer.</param>
-        internal static void ReadEmptyEncapsulation(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
+        internal static void ReadEmptyEncapsulation(Communicator communicator, ArraySegment<byte> buffer)
         {
-            var istr = new InputStream(communicator, buffer, pos);
-            istr.StartEncapsulation();
-            istr.EndEncapsulation();
+            var istr = new InputStream(communicator, buffer, startEncaps: true, 0);
+            istr.SkipTaggedMembers();
+            istr.CheckEndOfBuffer();
         }
 
-        /// <summary>Reads the start of an encapsulation.</summary>
-        /// <returns>The encoding of the encapsulation.</returns>
-        private Encoding StartEncapsulation()
-        {
-            Debug.Assert(_mainEncaps == null);
-            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            Debug.Assert(encapsHeader.Encoding == Encoding.V1_1); // TODO: temporary
-            _mainEncaps = new Encaps(_limit, encapsHeader.Size);
-            _limit = _pos + encapsHeader.Size - 6;
-            _encoding = encapsHeader.Encoding;
-            return encapsHeader.Encoding;
-        }
-
-        /// <summary>Ends an encapsulation started with StartEncpasulation or RestartEncapsulation.</summary>
-        private void EndEncapsulation()
-        {
-            Debug.Assert(_mainEncaps != null);
-            SkipTaggedMembers();
-
-            if (_buffer.Count - _pos != 0)
-            {
-                throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in encapsulation");
-            }
-            _limit = _mainEncaps.Value.OldLimit;
-        }
-
-        /// <summary>
-        /// Skips over an encapsulation.
-        /// </summary>
+        /// <summary>Skips over an encapsulation without reading it.</summary>
         /// <returns>The encoding version of the skipped encapsulation.</returns>
-        public Encoding SkipEncapsulation()
+        internal Encoding SkipEncapsulation()
         {
-            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-
-            int pos = _pos + encapsHeader.Size - 6;
-            if (pos > _buffer.Count)
+            (Encoding encoding, int size) = ReadEncapsulationHeader();
+            _pos += size - 6;
+            if (_pos > _buffer.Count)
             {
                 throw new InvalidDataException("the encapsulation's size extends beyond the end of the frame");
             }
-            _pos = pos;
-            return encapsHeader.Encoding;
+            return encoding;
         }
 
         // Start reading a slice of a class or exception instance.
@@ -202,7 +163,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceStartSlice(string typeId, bool firstSlice)
         {
-            Debug.Assert(_mainEncaps != null);
+            Debug.Assert(InEncapsulation);
             if (firstSlice)
             {
                 Debug.Assert(_current != null && (_current.SliceTypeId == null || _current.SliceTypeId == typeId));
@@ -231,7 +192,7 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public SlicedData? IceStartSliceAndGetSlicedData(string typeId)
         {
-            Debug.Assert(_mainEncaps != null);
+            Debug.Assert(InEncapsulation);
             // Called by generated code for first slice instead of IceStartSlice
             Debug.Assert(_current != null && (_current.SliceTypeId == null || _current.SliceTypeId == typeId));
             if (_current.InstanceType == InstanceType.Class)
@@ -248,7 +209,7 @@ namespace Ice
         public void IceEndSlice()
         {
             // Note that IceEndSlice is not called when we call SkipSlice.
-            Debug.Assert(_mainEncaps != null && _current != null);
+            Debug.Assert(InEncapsulation && _current != null);
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0)
             {
                 SkipTaggedMembers();
@@ -334,7 +295,7 @@ namespace Ice
         public bool ReadOptional(int tag, OptionalFormat expectedFormat)
         {
             // Tagged members/parameters can only be in the main encapsulation
-            Debug.Assert(_mainEncaps != null);
+            Debug.Assert(InEncapsulation);
 
             // The current slice has no tagged member
             if (_current != null && (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) == 0)
@@ -1076,62 +1037,101 @@ namespace Ice
             }
         }
 
-        internal Endpoint ReadEndpoint()
+        internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
-            var type = (EndpointType)ReadShort();
-
-            Encoding? oldEncoding = _encoding; // TODO: update once we restore the Encoding property!
-            int size;
-            (_encoding, size) = ReadEncapsulationHeader();
-            Debug.Assert(_encoding != null);
-            int? oldLimit = _limit;
-            _limit = _pos + size - 6;
-
-            Endpoint result;
-            if (_encoding.Value.IsSupported && Communicator.GetEndpointFactory(type) is IEndpointFactory factory)
-            {
-                result = factory.Read(this);
-            }
-            else
-            {
-                byte[] data = new byte[size - 6];
-                int bytesRead = ReadSpan(data);
-                if (bytesRead < data.Length)
-                {
-                    throw new InvalidDataException("invalid endpoint encapsulation size while reading opaque endpoint");
-                }
-                result = new OpaqueEndpoint(type, _encoding.Value, data);
-            }
-
-            if (_limit.Value - _pos != 0)
-            {
-                throw new InvalidDataException(
-                    $"there are {_limit.Value - _pos} bytes remaining in endpoint encapsulation");
-            }
-
-            // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
-            // _limit or _encoding unless we succeed.
-            _limit = oldLimit;
-            _encoding = oldEncoding;
+            var result = ReadEncapsulationHeader(_buffer.Slice(_pos), Encoding.V1_1);
+            _pos += 6;
             return result;
         }
 
-        internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
+        internal Endpoint ReadEndpoint()
         {
-            // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and
-            // not on a variable-length size, for ease of marshaling.
-            int sz = ReadInt();
-            if (sz < 6)
+            var type = (EndpointType)ReadShort();
+            (Encoding encoding, int size) = ReadEncapsulationHeader();
+
+            Endpoint endpoint;
+            if (encoding.IsSupported && Communicator.GetEndpointFactory(type) is IEndpointFactory factory)
             {
-                throw new InvalidDataException($"encapsulation has only {sz} bytes");
+                var oldEncoding = _encoding;
+                var oldBuffer = _buffer;
+                var oldPos = _pos;
+                var oldMinTotalSeqSize = _minTotalSeqSize;
+                _encoding = encoding;
+                _buffer = _buffer.Slice(_pos, size - 6);
+                _pos = 0;
+                _minTotalSeqSize = 0;
+
+                endpoint = factory.Read(this);
+                CheckEndOfBuffer();
+
+                // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
+                // anything unless we succeed.
+                _encoding = oldEncoding;
+                _buffer = oldBuffer;
+                _pos = oldPos + size - 6;
+                _minTotalSeqSize = oldMinTotalSeqSize;
             }
-            if (sz - 4 > _buffer.Count - _pos)
+            else
             {
-                throw new InvalidDataException("the encapsulation's size extends beyond the end of the frame");
+                endpoint = new OpaqueEndpoint(type, encoding, _buffer.Slice(_pos, size - 6).ToArray());
+                _pos += size - 6;
             }
-            byte major = ReadByte();
-            byte minor = ReadByte();
-            return (new Encoding(major, minor), sz);
+
+            return endpoint;
+        }
+
+        private static (Encoding Encoding, int Size) ReadEncapsulationHeader(ReadOnlySpan<byte> buffer,
+                                                                             Encoding encoding)
+        {
+            Debug.Assert(encoding == Encoding.V1_1); // temporary
+
+            // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and not on a variable-length
+            // size, for ease of marshaling.
+            if (buffer.Length < 6)
+            {
+                throw new InvalidDataException($"encapsulation buffer has only {buffer.Length} bytes");
+            }
+            int size = ReadInt(buffer);
+            if (size < 6)
+            {
+                throw new InvalidDataException($"encapsulation has only {size} bytes");
+            }
+            if (size - 4 > buffer.Length)
+            {
+                throw new InvalidDataException("the encapsulation's size extends beyond the end of the buffer");
+            }
+            return (new Encoding(buffer[4], buffer[5]), size);
+        }
+
+        private InputStream(Communicator communicator, ArraySegment<byte> buffer, bool startEncaps, int pos)
+        {
+            Debug.Assert(pos == 0 || !startEncaps); // while pos is still there, it's 0 when startEncaps is true
+            Communicator = communicator;
+
+            if (startEncaps)
+            {
+                _pos = 0;
+                int size;
+                (_encoding, size) = ReadEncapsulationHeader(buffer, Encoding.V1_1);
+                Debug.Assert(_encoding != null);
+                _encoding.Value.CheckSupported();
+                _buffer = buffer.Slice(6, size - 6);
+                _inEncapsulation = true;
+            }
+            else
+            {
+                _buffer = buffer;
+                _pos = pos;
+                _inEncapsulation = false;
+            }
+        }
+
+        private void CheckEndOfBuffer()
+        {
+            if (_pos != _buffer.Count)
+            {
+                throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in the InputStream buffer");
+            }
         }
 
         private void SkipTagged(OptionalFormat format)
@@ -1704,21 +1704,6 @@ namespace Ice
             // Indirection table of the current slice
             internal AnyClass[]? IndirectionTable;
             internal int? PosAfterIndirectionTable;
-        }
-
-        private readonly struct Encaps
-        {
-            // Previous upper limit of the buffer, if set
-            internal readonly int? OldLimit;
-
-            // Size of the encapsulation, as read from the stream
-            internal readonly int Size;
-
-            internal Encaps(int? oldLimit, int size)
-            {
-                OldLimit = oldLimit;
-                Size = size;
-            }
         }
 
         // Collection<T> holds the size of a Slice sequence and reads the sequence elements from the InputStream

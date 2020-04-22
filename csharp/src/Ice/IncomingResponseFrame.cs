@@ -38,7 +38,7 @@ namespace Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                return InputStream.ReadEncapsulation(_communicator, Payload, 1, reader);
+                return InputStream.ReadEncapsulation(_communicator, Payload.Slice(1), reader);
             }
             else
             {
@@ -52,7 +52,7 @@ namespace Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                InputStream.ReadEmptyEncapsulation(_communicator, Payload, 1);
+                InputStream.ReadEmptyEncapsulation(_communicator, Payload.Slice(1));
             }
             else
             {
@@ -102,7 +102,7 @@ namespace Ice
             {
                 case ReplyStatus.UserException:
                 {
-                    return InputStream.ReadEncapsulation(_communicator, Payload, 1, istr => istr.ReadException());
+                    return InputStream.ReadEncapsulation(_communicator, Payload.Slice(1), istr => istr.ReadException());
                 }
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.FacetNotExistException:

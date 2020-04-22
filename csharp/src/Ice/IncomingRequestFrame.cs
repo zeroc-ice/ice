@@ -81,6 +81,6 @@ namespace Ice
         /// <returns>The request parameters, when the frame parameter list contains multiple parameters
         /// they must be return as a tuple.</returns>
         public T ReadParamList<T>(InputStreamReader<T> reader) =>
-            InputStream.ReadEncapsulation(_communicator, Payload, 0, reader);
+            InputStream.ReadEncapsulation(_communicator, Payload, reader);
     }
 }
