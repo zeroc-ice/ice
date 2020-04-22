@@ -16,7 +16,7 @@ using System.Threading;
 
 public class AllTests
 {
-    private static bool IsCatalinaOrGreater =>
+    private static bool IsCatalinaOrGreater =
         IceInternal.AssemblyUtil.isMacOS && Environment.OSVersion.Version.Major >= 19;
 
     private static void test(bool b)
