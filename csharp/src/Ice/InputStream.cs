@@ -31,11 +31,13 @@ namespace Ice
         public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
         public static readonly InputStreamReader<string[]> IceReaderIntoStringArray = (istr) => istr.ReadStringArray();
 
-        /// <summary>
-        /// The communicator associated with this stream.
-        /// </summary>
+        /// <summary>The communicator associated with this stream.</summary>
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
+
+        /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
+        /// <value>The current encoding.</value>
+        public Encoding Encoding { get; private set; }
 
         // Returns the sliced data held by the current instance.
         internal SlicedData? SlicedData
@@ -49,8 +51,7 @@ namespace Ice
                 }
                 else
                 {
-                    Debug.Assert(_encoding != null);
-                    return new SlicedData(_encoding.Value, _current.Slices);
+                    return new SlicedData(Encoding, _current.Slices);
                 }
             }
         }
@@ -101,7 +102,6 @@ namespace Ice
         // Since the map is actually a list, we use instance ID - 2 to lookup an instance.
         private List<AnyClass>? _instanceMap;
         private int _classGraphDepth = 0;
-        private Encoding? _encoding;
 
          // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData? _current;
@@ -1039,7 +1039,7 @@ namespace Ice
 
         internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
-            var result = ReadEncapsulationHeader(_buffer.Slice(_pos), Encoding.V1_1);
+            var result = ReadEncapsulationHeader(_buffer.Slice(_pos), Encoding);
             _pos += 6;
             return result;
         }
@@ -1052,11 +1052,11 @@ namespace Ice
             Endpoint endpoint;
             if (encoding.IsSupported && Communicator.GetEndpointFactory(type) is IEndpointFactory factory)
             {
-                var oldEncoding = _encoding;
+                var oldEncoding = Encoding;
                 var oldBuffer = _buffer;
                 var oldPos = _pos;
                 var oldMinTotalSeqSize = _minTotalSeqSize;
-                _encoding = encoding;
+                Encoding = encoding;
                 _buffer = _buffer.Slice(_pos, size - 6);
                 _pos = 0;
                 _minTotalSeqSize = 0;
@@ -1066,7 +1066,7 @@ namespace Ice
 
                 // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
                 // anything unless we succeed.
-                _encoding = oldEncoding;
+                Encoding = oldEncoding;
                 _buffer = oldBuffer;
                 _pos = oldPos + size - 6;
                 _minTotalSeqSize = oldMinTotalSeqSize;
@@ -1112,9 +1112,8 @@ namespace Ice
             {
                 _pos = 0;
                 int size;
-                (_encoding, size) = ReadEncapsulationHeader(buffer, Encoding.V1_1);
-                Debug.Assert(_encoding != null);
-                _encoding.Value.CheckSupported();
+                (Encoding, size) = ReadEncapsulationHeader(buffer, Encoding.V1_1);
+                Encoding.CheckSupported();
                 _buffer = buffer.Slice(6, size - 6);
                 _inEncapsulation = true;
             }
@@ -1122,6 +1121,7 @@ namespace Ice
             {
                 _buffer = buffer;
                 _pos = pos;
+                Encoding = Encoding.V1_1;
                 _inEncapsulation = false;
             }
         }
