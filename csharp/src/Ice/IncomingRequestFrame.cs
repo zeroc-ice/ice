@@ -73,7 +73,7 @@ namespace Ice
 
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload
         /// correspond to the empty parameter list.</summary>
-        public void ReadEmptyParamList() => InputStream.ReadEmptyEncapsulation(_communicator, Payload, 0);
+        public void ReadEmptyParamList() => InputStream.ReadEmptyEncapsulation(_communicator, Payload);
 
         /// <summary>Reads the request frame parameter list.</summary>
         /// <param name="reader">An InputStreamReader delegate used to read the request frame

@@ -84,7 +84,7 @@ namespace Ice
         private int _minTotalSeqSize = 0;
 
         private readonly ArraySegment<byte> _buffer;
-        private int _pos = 0;
+        private int _pos;
 
         // Map of type ID index to type ID string.
         // When reading a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
@@ -112,8 +112,13 @@ namespace Ice
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
         /// <param name="buffer">The byte buffer.</param>
+        /// <param name="pos">The initial position in the buffer.</param>
         internal InputStream(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
         {
+            // TODO: pos/_should always be 0 and buffer should be a slice.
+            // Currently this does not work because of the tracing code that resets Pos to 0 to read the protocol frame
+            // headers etc.
+
             Communicator = communicator;
             _buffer = buffer;
             _pos = pos;
@@ -122,6 +127,7 @@ namespace Ice
         /// <summary>Reads the contents of an encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
         /// <param name="buffer">The byte buffer.</param>
+        /// <param name="pos">The initial position in the buffer.</param>
         /// <param name="payloadReader">The reader used to read the payload of this encapsulation.</param>
         internal static T ReadEncapsulation<T>(Communicator communicator,
                                                ArraySegment<byte> buffer,
@@ -138,7 +144,8 @@ namespace Ice
         /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
         /// <param name="buffer">The byte buffer.</param>
-        internal static void ReadEmptyEncapsulation(Communicator communicator, ArraySegment<byte> buffer, int pos)
+        /// <param name="pos">The initial position in the buffer.</param>
+        internal static void ReadEmptyEncapsulation(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
         {
             var istr = new InputStream(communicator, buffer, pos);
             istr.StartEncapsulation();
