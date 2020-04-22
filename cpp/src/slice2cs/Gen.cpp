@@ -2397,7 +2397,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string name = fixId(opName);
     string asyncName = opName + "Async";
     string internalName = "_iceI_" + opName + "Async";
-    bool oneway = cl->hasMetaData("oneway") || operation->hasMetaData("oneway");
+    bool oneway = operation->hasMetaData("oneway");
 
     TypePtr ret = operation->returnType();
     string retS = typeToString(operation->returnType(), ns, operation->returnIsTagged());
