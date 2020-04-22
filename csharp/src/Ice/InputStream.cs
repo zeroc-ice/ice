@@ -113,9 +113,9 @@ namespace Ice
         internal InputStream(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
             : this(communicator, buffer, false, pos)
         {
-            // TODO: pos/_should always be 0 and buffer should be a slice as needed.
+            // TODO: pos should always be 0 and buffer should be a slice as needed.
             // Currently this does not work because of the tracing code that resets Pos to 0 to read the protocol frame
-            // headers etc.
+            // headers.
         }
 
         /// <summary>Reads the contents of an encapsulation from the provided byte buffer.</summary>
