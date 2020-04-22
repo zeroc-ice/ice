@@ -84,7 +84,7 @@ namespace Ice
         private int _minTotalSeqSize = 0;
 
         private readonly ArraySegment<byte> _buffer;
-        private int _pos;
+        private int _pos = 0;
 
         // Map of type ID index to type ID string.
         // When reading a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
@@ -109,10 +109,9 @@ namespace Ice
          // Data for the class or exception instance that is currently getting unmarshaled.
         private InstanceData? _current;
 
-        /// <summary>This constructor uses the given encoding version.</summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
-        /// <param name="buffer">The stream initial data.</param>
-        /// <param name="pos">The zero base byte offset for the next read operation.</param>
+        /// <summary>Constructs a new InputStream over a byte buffer.</summary>
+        /// <param name="communicator">The communicator.</param>
+        /// <param name="buffer">The byte buffer.</param>
         internal InputStream(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
         {
             Communicator = communicator;
@@ -120,9 +119,35 @@ namespace Ice
             _pos = pos;
         }
 
+        /// <summary>Reads the contents of an encapsulation from the provided byte buffer.</summary>
+        /// <param name="communicator">The communicator.</param>
+        /// <param name="buffer">The byte buffer.</param>
+        /// <param name="payloadReader">The reader used to read the payload of this encapsulation.</param>
+        internal static T ReadEncapsulation<T>(Communicator communicator,
+                                               ArraySegment<byte> buffer,
+                                               int pos,
+                                               InputStreamReader<T> payloadReader)
+        {
+            var istr = new InputStream(communicator, buffer, pos);
+            istr.StartEncapsulation();
+            T result = payloadReader(istr);
+            istr.EndEncapsulation();
+            return result;
+        }
+
+        /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
+        /// <param name="communicator">The communicator.</param>
+        /// <param name="buffer">The byte buffer.</param>
+        internal static void ReadEmptyEncapsulation(Communicator communicator, ArraySegment<byte> buffer, int pos)
+        {
+            var istr = new InputStream(communicator, buffer, pos);
+            istr.StartEncapsulation();
+            istr.EndEncapsulation();
+        }
+
         /// <summary>Reads the start of an encapsulation.</summary>
         /// <returns>The encoding of the encapsulation.</returns>
-        public Encoding StartEncapsulation()
+        private Encoding StartEncapsulation()
         {
             Debug.Assert(_mainEncaps == null);
             (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
@@ -134,7 +159,7 @@ namespace Ice
         }
 
         /// <summary>Ends an encapsulation started with StartEncpasulation or RestartEncapsulation.</summary>
-        public void EndEncapsulation()
+        private void EndEncapsulation()
         {
             Debug.Assert(_mainEncaps != null);
             SkipTaggedMembers();
@@ -144,32 +169,6 @@ namespace Ice
                 throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in encapsulation");
             }
             _limit = _mainEncaps.Value.OldLimit;
-        }
-
-        /// <summary>Go to the end of the current main encapsulation, if we are in one.</summary>
-        public void SkipCurrentEncapsulation()
-        {
-            if (_mainEncaps != null)
-            {
-                _pos = _limit!.Value;
-                EndEncapsulation();
-            }
-        }
-
-        /// <summary>
-        /// Returns a blob of bytes representing an encapsulation. The encapsulation's encoding version
-        /// is returned in the argument.
-        /// </summary>
-        /// <param name="encoding">The encapsulation's encoding version.</param>
-        /// <returns>The encoded encapsulation.</returns>
-        public ArraySegment<byte> ReadEncapsulation(out Encoding encoding)
-        {
-            (Encoding Encoding, int Size) encapsHeader = ReadEncapsulationHeader();
-            _pos -= 6;
-            encoding = encapsHeader.Encoding;
-            ArraySegment<byte> data = _buffer.Slice(_pos, encapsHeader.Size);
-            _pos += encapsHeader.Size;
-            return data;
         }
 
         /// <summary>
@@ -1712,23 +1711,6 @@ namespace Ice
             {
                 OldLimit = oldLimit;
                 Size = size;
-            }
-        }
-
-        private readonly struct MainEncapsBackup
-        {
-            internal readonly Encaps Encaps;
-            internal readonly int Pos;
-
-            internal readonly Encoding Encoding;
-            internal readonly int MinTotalSeqSize;
-
-            internal MainEncapsBackup(Encaps encaps, int pos, Encoding encoding, int minTotalSeqSize)
-            {
-                Encaps = encaps;
-                Pos = pos;
-                Encoding = encoding;
-                MinTotalSeqSize = minTotalSeqSize;
             }
         }
 

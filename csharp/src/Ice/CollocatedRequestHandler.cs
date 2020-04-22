@@ -3,6 +3,7 @@
 //
 
 using Ice;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -230,9 +231,8 @@ namespace IceInternal
                         Ice1Definitions.GetResponseData(responseFrame, requestId));
                 if (_traceLevels.Protocol >= 1)
                 {
-                    var iss = new InputStream(_adapter.Communicator, responseBuffer,
-                        Ice1Definitions.HeaderSize + 4);
-                    TraceUtil.TraceRecv(iss, _logger, _traceLevels);
+                    var istr = new InputStream(_adapter.Communicator, responseBuffer, Ice1Definitions.HeaderSize + 4);
+                    TraceUtil.TraceRecv(istr, _logger, _traceLevels);
                 }
 
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
