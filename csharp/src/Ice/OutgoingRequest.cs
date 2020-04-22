@@ -161,12 +161,19 @@ namespace Ice
     // publicly visible Ice-internal class used as base class for void requests
     public class OutgoingRequest
     {
-        private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request, bool oneway)
+        private readonly bool _oneway;
+
+        private protected OutgoingRequest(bool oneway)
+        {
+            _oneway = oneway;
+        }
+
+        private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request)
         {
             try
             {
                 var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
-                var isOneway = oneway || prx.IsOneway;
+                var isOneway = _oneway || prx.IsOneway;
                 new OutgoingAsync(prx, completed, request, oneway: isOneway).Invoke(
                     request.Operation, request.Context, synchronous: true);
                 IncomingResponseFrame response = completed.Task.Result;
@@ -183,16 +190,16 @@ namespace Ice
         }
 
         private protected Task InvokeAsync(IObjectPrx prx, OutgoingRequestFrame request, IProgress<bool>? progress,
-                                           CancellationToken cancel, bool oneway)
+                                           CancellationToken cancel)
         {
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
-            var isOneway = oneway || prx.IsOneway;
+            var isOneway = _oneway || prx.IsOneway;
             new OutgoingAsync(prx, completed, request, oneway: isOneway).Invoke(
                 request.Operation, request.Context, synchronous: false);
 
-            return ReadVoidReturnValueAsync(prx, completed.Task, isOneway);
+            return ReadVoidReturnValueAsync(completed.Task, isOneway);
 
-            static async Task ReadVoidReturnValueAsync(IObjectPrx prx, Task<IncomingResponseFrame> task, bool oneway)
+            static async Task ReadVoidReturnValueAsync(Task<IncomingResponseFrame> task, bool oneway)
             {
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
                 if (!oneway)
@@ -208,24 +215,23 @@ namespace Ice
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
-        private readonly bool _oneway;
 
-        public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent, bool oneway)
+        public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent, bool oneway) :
+            base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
-            _oneway = oneway;
         }
 
         public void Invoke(IObjectPrx prx, IReadOnlyDictionary<string, string>? context) =>
-            Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context), _oneway);
+            Invoke(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context));
 
         public Task InvokeAsync(IObjectPrx prx,
                                 IReadOnlyDictionary<string, string>? context,
                                 IProgress<bool>? progress,
                                 CancellationToken cancel) =>
             InvokeAsync(prx, OutgoingRequestFrame.WithEmptyParamList(prx, _operationName, _idempotent, context),
-                progress, cancel, _oneway);
+                progress, cancel);
     }
 
     // publicly visible Ice-internal class used to make void requests with input parameters, the input parameters
@@ -235,7 +241,6 @@ namespace Ice
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
-        private readonly bool _oneway;
         private readonly FormatType? _format;
         private readonly OutputStreamWriter<TParamList> _writer;
 
@@ -244,25 +249,25 @@ namespace Ice
             bool idempotent,
             bool oneway,
             FormatType? format,
-            OutputStreamWriter<TParamList> writer)
+            OutputStreamWriter<TParamList> writer) :
+            base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
-            _oneway = oneway;
             _format = format;
             _writer = writer;
         }
 
         public void Invoke(IObjectPrx prx, TParamList paramList, IReadOnlyDictionary<string, string>? context) =>
             Invoke(prx, OutgoingRequestFrame.WithParamList(prx, _operationName, _idempotent, _format, context,
-                paramList, _writer), _oneway);
+                paramList, _writer));
 
         public Task InvokeAsync(IObjectPrx prx, TParamList paramList,
                                 IReadOnlyDictionary<string, string>? context,
                                 IProgress<bool>? progress,
                                 CancellationToken cancel) =>
             InvokeAsync(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer), progress, cancel, _oneway);
+                prx, _operationName, _idempotent, _format, context, paramList, _writer), progress, cancel);
     }
 
     // publicly visible Ice-internal type used to make void request with input parameters,
@@ -273,7 +278,6 @@ namespace Ice
     {
         private readonly string _operationName;
         private readonly bool _idempotent;
-        private readonly bool _oneway;
         private readonly FormatType? _format;
         private readonly OutputStreamStructWriter<TParamList> _writer;
 
@@ -282,24 +286,24 @@ namespace Ice
             bool idempotent,
             bool oneway,
             FormatType? format,
-            OutputStreamStructWriter<TParamList> writer)
+            OutputStreamStructWriter<TParamList> writer) :
+            base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
-            _oneway = oneway;
             _format = format;
             _writer = writer;
         }
 
         public void Invoke(IObjectPrx prx, in TParamList paramList, IReadOnlyDictionary<string, string>? context) =>
             Invoke(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer), _oneway);
+                prx, _operationName, _idempotent, _format, context, paramList, _writer));
 
         public Task InvokeAsync(IObjectPrx prx, in TParamList paramList,
                                 IReadOnlyDictionary<string, string>? context,
                                 IProgress<bool>? progress,
                                 CancellationToken cancel) =>
             InvokeAsync(prx, OutgoingRequestFrame.WithParamList(
-                prx, _operationName, _idempotent, _format, context, paramList, _writer), progress, cancel, _oneway);
+                prx, _operationName, _idempotent, _format, context, paramList, _writer), progress, cancel);
     }
 }

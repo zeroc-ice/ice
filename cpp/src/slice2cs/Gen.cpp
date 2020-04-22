@@ -2463,8 +2463,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
         const UnitPtr ut = operation->unit();
         const DefinitionContextPtr dc = ut->findDefinitionContext(operation->file());
         assert(dc);
-        dc->error(operation->file(), operation->line(),
-                  "only void operations with no out parameters can be marked oneway");
+        dc->error(operation->file(), operation->line(), "only void operations can be marked oneway");
     }
 
     // Write the static outgoing request instance
