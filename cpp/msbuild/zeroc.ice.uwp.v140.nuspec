@@ -8,7 +8,7 @@
     <copyright>Copyright (c) ZeroC, Inc. All rights reserved</copyright>
     <license type="expression">GPL-2.0-only</license>
     <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
-    <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>
+    <icon>images\logo.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Ice C++/CX SDK for Visual Studio 2015 (v140). Provides binaries for Universal Windows (UWP) x86 and x64. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</description>
     <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.4+Release+Notes</releaseNotes>
@@ -18,4 +18,7 @@
       <dependency id="zeroc.ice.uwp.v140.x64" version="[3.7.4]"/>
     </dependencies>
   </metadata>
+  <files>
+    <file src="..\logo.png" target="images\"/>
+  </files>
 </package>
