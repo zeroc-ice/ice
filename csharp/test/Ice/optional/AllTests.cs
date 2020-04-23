@@ -1678,7 +1678,6 @@ namespace Ice
                     os = new Ice.OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, Ice.OptionalFormat.VSize);
-                    os.writeSize(p1.Value.Length +(p1.Value.Length > 254 ? 5 : 1));
                     Test.SmallStructSeqHelper.write(os, p1.Value);
                     os.endEncapsulation();
                     inEncaps = os.finished();
@@ -1686,14 +1685,16 @@ namespace Ice
                     @in = new Ice.InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
                     test(@in.readOptional(1, Ice.OptionalFormat.VSize));
-                    @in.skipSize();
                     Test.SmallStruct[] arr = Test.SmallStructSeqHelper.read(@in);
                     test(ArraysEqual(arr, p1.Value));
                     test(@in.readOptional(3, Ice.OptionalFormat.VSize));
-                    @in.skipSize();
                     arr = Test.SmallStructSeqHelper.read(@in);
                     test(ArraysEqual(arr, p1.Value));
                     @in.endEncapsulation();
+
+                    // Check the outEncaps size matches the expected size, 6 bytes for the encapsulation, plus each
+                    // 12 bytes for each sequence ( 1 byte tag, 1 byte size, 10 byte contents)
+                    test(outEncaps.Length == 12 + 12 + 6);
 
                     @in = new Ice.InputStream(communicator, outEncaps);
                     @in.startEncapsulation();
