@@ -74,9 +74,7 @@ namespace Ice
         /// <summary>Returns the current size of the stream.</summary>
         internal int Size => _buffer.Count;
 
-        private bool InEncapsulation => _inEncapsulation;
-
-        private readonly bool _inEncapsulation;
+        private bool InEncapsulation { get; }
 
         // The sum of all the minimum sizes (in bytes) of the sequences read in this buffer. Must not exceed the buffer
         // size.
@@ -1052,10 +1050,10 @@ namespace Ice
             Endpoint endpoint;
             if (encoding.IsSupported && Communicator.GetEndpointFactory(type) is IEndpointFactory factory)
             {
-                var oldEncoding = Encoding;
-                var oldBuffer = _buffer;
-                var oldPos = _pos;
-                var oldMinTotalSeqSize = _minTotalSeqSize;
+                Encoding oldEncoding = Encoding;
+                ArraySegment<byte> oldBuffer = _buffer;
+                int oldPos = _pos;
+                int oldMinTotalSeqSize = _minTotalSeqSize;
                 Encoding = encoding;
                 _buffer = _buffer.Slice(_pos, size - 6);
                 _pos = 0;
@@ -1114,15 +1112,17 @@ namespace Ice
                 int size;
                 (Encoding, size) = ReadEncapsulationHeader(buffer, Encoding.V1_1);
                 Encoding.CheckSupported();
+                // We slice the provided buffer to the encapsulation (minus its header). This way, we can easily prevent
+                // reads past the end of the encapsulation.
                 _buffer = buffer.Slice(6, size - 6);
-                _inEncapsulation = true;
+                InEncapsulation = true;
             }
             else
             {
                 _buffer = buffer;
                 _pos = pos;
                 Encoding = Encoding.V1_1;
-                _inEncapsulation = false;
+                InEncapsulation = false;
             }
         }
 
