@@ -8,13 +8,11 @@
         <copyright>Copyright (c) ZeroC, Inc. All rights reserved</copyright>
         <license type="expression">GPL-2.0-only</license>
         <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
-        <icon>images\logo.png</icon>
+        <icon>logo.png</icon>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Ice C#/.NET SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</description>
         <releaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-4-release-notes</releaseNotes>
         <tags>ice</tags>
     </metadata>
-    <files>
-      <file src="..\logo.png" target="images\"/>
-    </files>
 </package>
+

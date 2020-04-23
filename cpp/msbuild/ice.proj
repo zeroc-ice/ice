@@ -305,6 +305,8 @@
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\ICE_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
+              DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\logo.png" />
         <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).nuspec"
               DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)" />
         <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).props"

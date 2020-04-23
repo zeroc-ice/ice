@@ -254,6 +254,9 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
               DestinationFiles="zeroc.ice.net\LICENSE.txt" />
 
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
+              DestinationFiles="zeroc.ice.net\logo.png" />
+
         <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and assembly paths -->
         <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\lib\net45\Ice.dll">
             <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>

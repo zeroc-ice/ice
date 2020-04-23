@@ -11,6 +11,7 @@
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE" DestinationFiles="$(PackageName)\ICE_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE" DestinationFiles="$(PackageName)\LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png" DestinationFiles="$(PackageName)\logo.png" />
 
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive" WorkingDirectory="$(PackageName)"/>
     </Target>
