@@ -42,9 +42,13 @@ namespace Ice
             {
                 message += $" with facet `{facet}'";
             }
+#if DEBUG
+            message += $":\n{innerException}\n---";
+#else
             // Since this custom message will be sent "over the wire", we don't include the stack trace of the inner
             // exception since it can include sensitive information. The stack trace is of course available locally.
             message += $":\n{innerException.Message}";
+#endif
             return message;
         }
     }
