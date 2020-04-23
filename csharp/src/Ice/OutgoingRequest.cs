@@ -163,10 +163,7 @@ namespace Ice
     {
         private readonly bool _oneway;
 
-        private protected OutgoingRequest(bool oneway)
-        {
-            _oneway = oneway;
-        }
+        private protected OutgoingRequest(bool oneway) => _oneway = oneway;
 
         private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request)
         {
@@ -216,8 +213,8 @@ namespace Ice
         private readonly string _operationName;
         private readonly bool _idempotent;
 
-        public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent, bool oneway) :
-            base(oneway)
+        public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent, bool oneway)
+        : base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -249,8 +246,8 @@ namespace Ice
             bool idempotent,
             bool oneway,
             FormatType? format,
-            OutputStreamWriter<TParamList> writer) :
-            base(oneway)
+            OutputStreamWriter<TParamList> writer)
+        : base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -286,8 +283,8 @@ namespace Ice
             bool idempotent,
             bool oneway,
             FormatType? format,
-            OutputStreamStructWriter<TParamList> writer) :
-            base(oneway)
+            OutputStreamStructWriter<TParamList> writer)
+        : base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
