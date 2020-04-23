@@ -7,4 +7,3 @@
 # the client certificate and fails with "unsupported certificate purpose"
 
 TestSuite(__name__, options = { "protocol" : ["tcp"] })
-
