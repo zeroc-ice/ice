@@ -1004,7 +1004,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
             {
                 out << ".WriteTaggedFixedSizeNumericSequence(" << tag << ", " << param << ".Span";
             }
-            out << ", sizeof(" << typeToString(builtin, scope) << "));";
+            out << ");";
         }
         else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
@@ -1012,15 +1012,24 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         }
         else if (elementType->isVariableLength())
         {
-            out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param << ", " <<
-                outputStreamWriter(elementType, scope, true) << ");";
+            out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param;
+            if (!StructPtr::dynamicCast(elementType))
+            {
+                out << ", " << outputStreamWriter(elementType, scope, true);
+            }
+            out << ");";
         }
         else
         {
             // Fixed size = min-size
             out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param << ", "
-                << "elementSize: " << elementType->minWireSize() << ", " << outputStreamWriter(elementType, scope, true)
-                << ");";
+                << "elementSize: " << elementType->minWireSize();
+
+            if (!StructPtr::dynamicCast(elementType))
+            {
+                out << ", " << outputStreamWriter(elementType, scope, true);
+            }
+            out << ");";
         }
     }
     else
@@ -1030,16 +1039,23 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
 
-        out << nl << stream << ".WriteTaggedDictionary(" << tag << ", " << param << ", ";
+        out << nl << stream << ".WriteTaggedDictionary(" << tag << ", " << param;
 
         if (!keyType->isVariableLength() && !valueType->isVariableLength())
         {
             // Both are fixed size
-            out << "entrySize: " << (keyType->minWireSize() + valueType->minWireSize()) << ", ";
+            out << ", entrySize: " << (keyType->minWireSize() + valueType->minWireSize());
         }
 
-        out << outputStreamWriter(keyType, scope, true) << ", "
-            << outputStreamWriter(valueType, scope, true) << ");";
+        if (!StructPtr::dynamicCast(keyType))
+        {
+            out << ", " << outputStreamWriter(keyType, scope, true);
+        }
+        if (!StructPtr::dynamicCast(valueType))
+        {
+            out << ", " << outputStreamWriter(valueType, scope, true);
+        }
+        out << ");";
     }
 }
 
@@ -1148,7 +1164,12 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
     }
     else
     {
-        out << stream << ".WriteSequence(" << param << ", " << outputStreamWriter(type, scope, true) << ")";
+        out << stream << ".WriteSequence(" << param;
+        if (!StructPtr::dynamicCast(seq->type()))
+        {
+            out << ", " << outputStreamWriter(type, scope, true);
+        }
+        out << ")";
     }
     return out.str();
 }

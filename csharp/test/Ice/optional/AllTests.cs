@@ -1054,7 +1054,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opByteSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(byte)));
+                    (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1086,7 +1086,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opBoolSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(byte)));
+                    (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1118,7 +1118,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opShortSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, short[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(short)));
+                    (OutputStream ostr, short[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1149,7 +1149,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, int[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(int)));
+                    (OutputStream ostr, int[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1180,7 +1180,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opLongSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, long[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(long)));
+                    (OutputStream ostr, long[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1211,7 +1211,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloatSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, float[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(float)));
+                    (OutputStream ostr, float[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1242,7 +1242,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opDoubleSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, double[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1, sizeof(double)));
+                    (OutputStream ostr, double[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>

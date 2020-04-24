@@ -1436,7 +1436,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReader =";
     _out.inc();
-    _out << nl << "(istr) => istr.ReadClass<" << name << ">();";
+    _out << nl << "istr => istr.ReadClass<" << name << ">();";
     _out.dec();
 
     _out << sp;
@@ -1853,7 +1853,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public static Ice.InputStreamReader<" << name << "> IceReader => ";
     _out.inc();
-    _out << nl << "(istr) => new " << name << "(istr);";
+    _out << nl << "istr => new " << name << "(istr);";
     _out.dec();
 
     _out << sp;
@@ -1999,20 +1999,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
     }
     _out << eb;
-
-    _out << eb;
-
-    _out << sp;
-    _out << nl << "public static class " << p->name() << "Helper";
-    _out << sb;
-
-    _out << sp;
-    _out << nl << "public static Ice.OutputStreamWriter<" << name
-         << "> IceWriter = (ostr, value) => value.IceWrite(ostr);";
-
-    _out << sp;
-    _out << nl << "public static Ice.InputStreamReader<" << name << "> IceReader = (istr) => new " << name << "(istr);";
-
     _out << eb;
 }
 
@@ -2234,7 +2220,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "public static readonly new Ice.InputStreamReader<" << name << "?> IceReader =";
     _out.inc();
-    _out << nl << "(istr) => istr.ReadProxy(Factory);";
+    _out << nl << "istr => istr.ReadProxy(Factory);";
     _out.dec();
 
     _out << sp;
@@ -2634,8 +2620,16 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) => ";
     _out.inc();
-    _out << nl << "ostr.WriteDictionary(dictionary, " << outputStreamWriter(key, ns, true) << ", "
-         << outputStreamWriter(value, ns, true) << ");";
+    _out << nl << "ostr.WriteDictionary(dictionary";
+    if (!StructPtr::dynamicCast(key))
+    {
+        _out << ", " << outputStreamWriter(key, ns, true);
+    }
+    if (!StructPtr::dynamicCast(value))
+    {
+        _out << ", " << outputStreamWriter(value, ns, true);
+    }
+    _out << ");";
     _out.dec();
 
     _out << sp;
