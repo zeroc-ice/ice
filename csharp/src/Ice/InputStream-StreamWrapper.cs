@@ -12,6 +12,9 @@ namespace Ice
         // Adapts InputStream to System.IO.Stream.
         private sealed class StreamWrapper : Stream
         {
+            public override bool CanRead => true;
+            public override bool CanSeek => false;
+            public override bool CanWrite => false;
             public override long Length => throw new NotSupportedException();
 
             public override long Position
@@ -25,10 +28,6 @@ namespace Ice
             public override void Flush()
             {
             }
-
-            public override bool CanRead => true;
-            public override bool CanSeek => false;
-            public override bool CanWrite => false;
 
             public override int Read(byte[] buffer, int offset, int count) => Read(buffer.AsSpan(offset, count));
 
