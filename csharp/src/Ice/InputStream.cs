@@ -353,48 +353,49 @@ namespace Ice
         /// <param name="tag">The tag.</param>
         /// <returns>The bool read from the stream, or null.</returns>
         public bool? ReadTaggedBool(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.F1) ? ReadBool() : (bool?)null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F1) ? ReadBool() : (bool?)null;
 
         /// <summary>Reads a tagged byte from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The byte read from the stream, or null.</returns>
         public byte? ReadTaggedByte(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.F1) ? ReadByte() : (byte?)null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F1) ? ReadByte() : (byte?)null;
 
         /// <summary>Reads a tagged double from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The double read from the stream, or null.</returns>
         public double? ReadTaggedDouble(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.F8) ? ReadDouble() : (double?)null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F8) ? ReadDouble() : (double?)null;
 
         /// <summary>Reads a tagged float from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The float read from the stream, or null.</returns>
         public float? ReadTaggedFloat(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.F4) ? ReadFloat() : (float?)null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F4) ? ReadFloat() : (float?)null;
 
         /// <summary>Reads a tagged int from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The int read from the stream, or null.</returns>
-        public int? ReadTaggedInt(int tag) => ReadTaggedParamHeader(tag, OptionalFormat.F4) ? ReadInt() : (int?)null;
+        public int? ReadTaggedInt(int tag) =>
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F4) ? ReadInt() : (int?)null;
 
         /// <summary>Reads a tagged long from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The long read from the stream, or null.</returns>
         public long? ReadTaggedLong(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.F8) ? ReadLong() : (long?)null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F8) ? ReadLong() : (long?)null;
 
         /// <summary>Reads a tagged short from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The short read from the stream, or null.</returns>
         public short? ReadTaggedShort(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.F2) ? ReadShort() : (short?)null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F2) ? ReadShort() : (short?)null;
 
         /// <summary>Reads a tagged string from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The string read from the stream, or null.</returns>
         public string? ReadTaggedString(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.VSize) ? ReadString() : null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize) ? ReadString() : null;
 
         //
         // Read methods for tagged constructed types except class
@@ -405,7 +406,7 @@ namespace Ice
         /// <param name="reader">The input stream reader used to create and validate the enum.</param>
         /// <returns>The enum read from the stream, or null.</returns>
         public T? ReadTaggedEnum<T>(int tag, InputStreamReader<T> reader) where T : struct, Enum =>
-            ReadTaggedParamHeader(tag, OptionalFormat.Size) ? reader(this) : (T?)null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Size) ? reader(this) : (T?)null;
 
         /// <summary>Reads a tagged sequence with fixed-size elements from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -435,7 +436,7 @@ namespace Ice
                                                                      int elementSize,
                                                                      InputStreamReader<T> reader)
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.VSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
                 if (elementSize > 1)
                 {
@@ -461,7 +462,7 @@ namespace Ice
             InputStreamReader<TKey> keyReader,
             InputStreamReader<TValue> valueReader) where TKey : notnull
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.VSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
                 _ = ReadSize();
                 return ReadDictionary(entrySize, keyReader, valueReader);
@@ -484,7 +485,7 @@ namespace Ice
             InputStreamReader<TKey> keyReader,
             InputStreamReader<TValue> valueReader) where TKey : notnull
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.VSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
                 _ = ReadSize();
                 return ReadSortedDictionary(entrySize, keyReader, valueReader);
@@ -501,7 +502,7 @@ namespace Ice
         /// <returns>The sequence read from the stream as an array, or null.</returns>
         public T[]? ReadTaggedFixedSizeNumericArray<T>(int tag, int elementSize) where T : struct
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.VSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
                 if (elementSize > 1)
                 {
@@ -522,7 +523,7 @@ namespace Ice
         /// <returns>The struct T read from the stream, or null.</returns>
         public T? ReadTaggedFixedSizeStruct<T>(int tag, InputStreamReader<T> reader) where T : struct
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.VSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
                 _ = ReadSize();
                 return reader(this);
@@ -539,7 +540,7 @@ namespace Ice
         /// <returns>The proxy read from the stream, or null.</returns>
         public T? ReadTaggedProxy<T>(int tag, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.FSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 _ = ReadInt(); // skip byte size
                 return ReadProxy(factory);
@@ -554,7 +555,7 @@ namespace Ice
         /// <param name="tag">The tag.</param>
         /// <returns>The object read from the stream, or null.</returns>
         public object? ReadTaggedSerializable(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.VSize) ? ReadSerializable() : null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize) ? ReadSerializable() : null;
 
         /// <summary>Reads a tagged sequence with variable-size elements from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -584,7 +585,7 @@ namespace Ice
                                                                         int minElementSize,
                                                                         InputStreamReader<T> reader)
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.FSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 _ = ReadInt(); // skip byte size
                 return ReadSequence<T>(minElementSize, reader);
@@ -607,7 +608,7 @@ namespace Ice
             InputStreamReader<TKey> keyReader,
             InputStreamReader<TValue> valueReader) where TKey : notnull
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.FSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 _ = ReadInt();
                 return ReadDictionary(minEntrySize, keyReader, valueReader);
@@ -630,7 +631,7 @@ namespace Ice
             InputStreamReader<TKey> keyReader,
             InputStreamReader<TValue> valueReader) where TKey : notnull
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.FSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 _ = ReadInt();
                 return ReadSortedDictionary(minEntrySize, keyReader, valueReader);
@@ -647,7 +648,7 @@ namespace Ice
         /// <returns>The struct T read from the stream, or null.</returns>
         public T? ReadTaggedVariableSizeStruct<T>(int tag, InputStreamReader<T> reader) where T : struct
         {
-            if (ReadTaggedParamHeader(tag, OptionalFormat.FSize))
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 _ = ReadInt();
                 return reader(this);
@@ -919,7 +920,7 @@ namespace Ice
         /// <param name="tag">The tag.</param>
         /// <param name="expectedFormat">The format of the tagged parameter.</param>
         /// <returns>True if the tagged parameter is present; otherwise, false.</returns>
-        private bool ReadTaggedParamHeader(int tag, OptionalFormat expectedFormat)
+        private bool ReadTaggedParamHeader(int tag, EncodingDefinitions.TagFormat expectedFormat)
         {
             // Tagged members/parameters can only be in the main encapsulation
             Debug.Assert(InEncapsulation);
@@ -946,7 +947,7 @@ namespace Ice
                     return false;
                 }
 
-                var format = (OptionalFormat)(v & 0x07); // First 3 bits.
+                var format = (EncodingDefinitions.TagFormat)(v & 0x07); // First 3 bits.
                 tag = v >> 3;
                 if (tag == 30)
                 {
@@ -993,32 +994,32 @@ namespace Ice
             }
         }
 
-        private void SkipTagged(OptionalFormat format)
+        private void SkipTagged(EncodingDefinitions.TagFormat format)
         {
             switch (format)
             {
-                case OptionalFormat.F1:
+                case EncodingDefinitions.TagFormat.F1:
                     Skip(1);
                     break;
-                case OptionalFormat.F2:
+                case EncodingDefinitions.TagFormat.F2:
                     Skip(2);
                     break;
-                case OptionalFormat.F4:
+                case EncodingDefinitions.TagFormat.F4:
                     Skip(4);
                     break;
-                case OptionalFormat.F8:
+                case EncodingDefinitions.TagFormat.F8:
                     Skip(8);
                     break;
-                case OptionalFormat.Size:
+                case EncodingDefinitions.TagFormat.Size:
                     SkipSize();
                     break;
-                case OptionalFormat.VSize:
+                case EncodingDefinitions.TagFormat.VSize:
                     Skip(ReadSize());
                     break;
-                case OptionalFormat.FSize:
+                case EncodingDefinitions.TagFormat.FSize:
                     Skip(ReadInt());
                     break;
-                case OptionalFormat.Class:
+                case EncodingDefinitions.TagFormat.Class:
                     ReadAnyClass();
                     break;
             }
@@ -1040,7 +1041,7 @@ namespace Ice
                     return true;
                 }
 
-                var format = (OptionalFormat)(v & 0x07); // Read first 3 bits.
+                var format = (EncodingDefinitions.TagFormat)(v & 0x07); // Read first 3 bits.
                 if ((v >> 3) == 30)
                 {
                     SkipSize();

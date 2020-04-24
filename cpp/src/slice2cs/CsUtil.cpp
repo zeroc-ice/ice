@@ -982,7 +982,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         out << nl << stream << ".WriteTaggedStruct(" << tag << ", " << param;
         if(!st->isVariableLength())
         {
-            out << ", " << st->minWireSize();
+            out << ", fixedSize: " << st->minWireSize();
         }
         out << ");";
     }
@@ -1020,7 +1020,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         {
             // Fixed size = min-size
             out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param << ", "
-                << elementType->minWireSize() << ", " << outputStreamWriter(elementType, scope, true)
+                << "elementSize: " << elementType->minWireSize() << ", " << outputStreamWriter(elementType, scope, true)
                 << ");";
         }
     }
@@ -1036,7 +1036,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
         if (!keyType->isVariableLength() && !valueType->isVariableLength())
         {
             // Both are fixed size
-            out << (keyType->minWireSize() + valueType->minWireSize()) << ", ";
+            out << "entrySize: " << (keyType->minWireSize() + valueType->minWireSize()) << ", ";
         }
 
         out << outputStreamWriter(keyType, scope, true) << ", "
@@ -1103,6 +1103,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         {
             out << nl << param << " = " << stream << ".ReadTagged"
                 << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementSequence(" << tag << ", "
+                << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
                 << elementType->minWireSize() << ", " << inputStreamReader(elementType, scope)
                 << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope) << "> "
                 << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)" << " : null;";
@@ -1111,6 +1112,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         {
             out << nl << param << " = " << stream << ".ReadTagged"
                 << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementArray(" << tag << ","
+                << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
                 << elementType->minWireSize() <<  ", " << inputStreamReader(elementType, scope) << ");";
         }
     }
@@ -1126,8 +1128,8 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
 
         out << nl << param << " = " << stream << ".ReadTagged" << (fixedSize ? "Fixed" : "Variable") << "SizeEntry"
             << (sorted ? "Sorted" : "") << "Dictionary(" << tag << ", "
-            << keyType->minWireSize() + valueType->minWireSize() << ", "
-            << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ");";
+            << (fixedSize ? "entrySize: " : "minEntrySize: ") << keyType->minWireSize() + valueType->minWireSize()
+            << ", " << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ");";
     }
 }
 
@@ -1176,7 +1178,8 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadArray(" << type->minWireSize() << ", " << inputStreamReader(type, scope) << ")";
+            out << stream << ".ReadArray(minElementSize: " << type->minWireSize() << ", "
+                << inputStreamReader(type, scope) << ")";
         }
     }
     else
@@ -1196,7 +1199,8 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         }
         else
         {
-            out << stream << ".ReadSequence(" << type->minWireSize() << ", " << inputStreamReader(type, scope) << ")";
+            out << stream << ".ReadSequence(minElementSize: " << type->minWireSize() << ", "
+                << inputStreamReader(type, scope) << ")";
         }
 
         if (generic == "Stack")

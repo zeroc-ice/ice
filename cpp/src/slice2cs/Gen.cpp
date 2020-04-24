@@ -1862,10 +1862,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     _out << nl << "(Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
     _out.dec();
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public const int IceMinWireSize = " << p->minWireSize() << ";";
     return true;
 }
 
@@ -2656,7 +2652,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     {
         _out << nl << "istr.ReadDictionary(";
     }
-    _out << (key->minWireSize() + value->minWireSize()) << ", "
+    _out << "minEntrySize: " << (key->minWireSize() + value->minWireSize()) << ", "
          << inputStreamReader(key, ns) << ", "
          << inputStreamReader(value, ns) << ");";
     _out.dec();

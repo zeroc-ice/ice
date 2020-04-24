@@ -193,7 +193,7 @@ namespace Ice
         {
             if (v != null)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.Class);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class);
                 WriteClass(v);
             }
         }

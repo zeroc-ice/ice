@@ -228,7 +228,7 @@ namespace Ice
 
         // Reads a tagged class instance.
         private AnyClass? ReadTaggedAnyClass(int tag) =>
-            ReadTaggedParamHeader(tag, OptionalFormat.Class) ? ReadAnyClass() : null;
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class) ? ReadAnyClass() : null;
 
         private AnyClass[] ReadIndirectionTable()
         {

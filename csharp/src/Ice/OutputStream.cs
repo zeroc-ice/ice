@@ -236,20 +236,6 @@ namespace Ice
         /// <param name="v">The long to write to the stream.</param>
         public void WriteLong(long v) => WriteFixedSizeNumeric(v, sizeof(long));
 
-        /// <summary>Writes a proxy to the stream.</summary>
-        /// <param name="v">The proxy to write.</param>
-        public void WriteProxy<T>(T? v) where T : class, IObjectPrx
-        {
-            if (v != null)
-            {
-                v.IceWrite(this);
-            }
-            else
-            {
-                Identity.Empty.IceWrite(this);
-            }
-        }
-
         /// <summary>Writes a short to the stream.</summary>
         /// <param name="v">The short to write to the stream.</param>
         public void WriteShort(short v) => WriteFixedSizeNumeric(v, sizeof(short));
@@ -363,6 +349,20 @@ namespace Ice
             WriteByteSpan(MemoryMarshal.AsBytes(v));
         }
 
+        /// <summary>Writes a proxy to the stream.</summary>
+        /// <param name="v">The proxy to write.</param>
+        public void WriteProxy<T>(T? v) where T : class, IObjectPrx
+        {
+            if (v != null)
+            {
+                v.IceWrite(this);
+            }
+            else
+            {
+                Identity.Empty.IceWrite(this);
+            }
+        }
+
         /// <summary>Writes a sequence to the stream.</summary>
         /// <param name="v">The sequence to write.</param>
         /// <param name="writer">The delegate that writes each element to the stream.</param>
@@ -413,7 +413,7 @@ namespace Ice
         {
             if (v is bool value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.F1);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F1);
                 WriteBool(value);
             }
         }
@@ -425,7 +425,7 @@ namespace Ice
         {
             if (v is byte value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.F1);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F1);
                 WriteByte(value);
             }
         }
@@ -437,7 +437,7 @@ namespace Ice
         {
             if (v is double value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.F8);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F8);
                 WriteDouble(value);
             }
         }
@@ -449,7 +449,7 @@ namespace Ice
         {
             if (v is float value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.F4);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F4);
                 WriteFloat(value);
             }
         }
@@ -461,7 +461,7 @@ namespace Ice
         {
             if (v is int value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.F4);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F4);
                 WriteInt(value);
             }
         }
@@ -473,22 +473,8 @@ namespace Ice
         {
             if (v is long value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.F8);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F8);
                 WriteLong(value);
-            }
-        }
-
-        /// <summary>Writes a tagged proxy to the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The proxy to write.</param>
-        public void WriteTaggedProxy(int tag, IObjectPrx? v)
-        {
-            if (v != null)
-            {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
-                Position pos = StartSize();
-                WriteProxy(v);
-                EndSize(pos);
             }
         }
 
@@ -499,7 +485,7 @@ namespace Ice
         {
             if (v is short value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.F2);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.F2);
                 WriteShort(value);
             }
         }
@@ -511,108 +497,108 @@ namespace Ice
         {
             if (v is string value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 WriteString(value);
             }
         }
 
         //
-        // Write methods for tagged constructed types except class and exception
+        // Write methods for tagged constructed types except class
         //
 
-        /// <summary>Writes a tagged dictionary with fixed-size elements to the stream.</summary>
+        /// <summary>Writes a tagged dictionary with fixed-size entries to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="elementSize">The size of each element (key + value), in bytes.</param>
+        /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int elementSize,
+                                                        int entrySize,
                                                         OutputStreamWriter<TKey> keyWriter,
                                                         OutputStreamWriter<TValue> valueWriter)
             where TKey : notnull
         {
-            Debug.Assert(elementSize > 1);
+            Debug.Assert(entrySize > 1);
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * elementSize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
                 WriteDictionary(dict, keyWriter, valueWriter);
             }
         }
 
-        /// <summary>Writes a tagged dictionary with fixed-size elements to the stream. The dictionary's key is a mapped
+        /// <summary>Writes a tagged dictionary with fixed-size entries to the stream. The dictionary's key is a mapped
         /// Slice struct.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="elementSize">The size of each element (key + value), in bytes.</param>
+        /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int elementSize,
+                                                        int entrySize,
                                                         OutputStreamStructWriter<TKey> keyWriter,
                                                         OutputStreamWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
         {
-            Debug.Assert(elementSize > 1);
+            Debug.Assert(entrySize > 1);
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * elementSize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
                 WriteDictionary(dict, keyWriter, valueWriter);
             }
         }
 
-        /// <summary>Writes a tagged dictionary with fixed-size elements to the stream. The dictionary's value is a
+        /// <summary>Writes a tagged dictionary with fixed-size entries to the stream. The dictionary's value is a
         /// mapped Slice struct.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="elementSize">The size of each element (key + value), in bytes.</param>
+        /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int elementSize,
+                                                        int entrySize,
                                                         OutputStreamWriter<TKey> keyWriter,
                                                         OutputStreamStructWriter<TValue> valueWriter)
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
-            Debug.Assert(elementSize > 1);
+            Debug.Assert(entrySize > 1);
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * elementSize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
                 WriteDictionary(dict, keyWriter, valueWriter);
             }
         }
 
-        /// <summary>Writes a tagged dictionary with fixed-size elements to the stream. Both the dictionary's key and
+        /// <summary>Writes a tagged dictionary with fixed-size entries to the stream. Both the dictionary's key and
         /// value are mapped Slice structs.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="elementSize">The size of each element (key + value), in bytes.</param>
+        /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int elementSize,
+                                                        int entrySize,
                                                         OutputStreamStructWriter<TKey> keyWriter,
                                                         OutputStreamStructWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
             where TValue : struct, IStreamableStruct
         {
-            Debug.Assert(elementSize > 1);
+            Debug.Assert(entrySize > 1);
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * elementSize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
                 WriteDictionary(dict, keyWriter, valueWriter);
             }
         }
@@ -630,7 +616,7 @@ namespace Ice
         {
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
                 WriteDictionary(dict, keyWriter, valueWriter);
                 EndSize(pos);
@@ -651,7 +637,7 @@ namespace Ice
         {
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
                 WriteDictionary(dict, keyWriter, valueWriter);
                 EndSize(pos);
@@ -673,7 +659,7 @@ namespace Ice
         {
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
                 WriteDictionary(dict, keyWriter, valueWriter);
                 EndSize(pos);
@@ -695,7 +681,7 @@ namespace Ice
         {
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
                 WriteDictionary(dict, keyWriter, valueWriter);
                 EndSize(pos);
@@ -709,7 +695,7 @@ namespace Ice
         {
             if (v is int value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.Size);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Size);
                 WriteSize(value);
             }
         }
@@ -734,13 +720,27 @@ namespace Ice
             // is distinct from the span of an empty sequence. This is why the "v != null" below works correctly.
             if (v != null)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 if (elementSize > 1)
                 {
                     // This size is redundant and optimized out by the encoding when elementSize is 1.
                     WriteSize(v.Length == 0 ? 1 : (v.Length * elementSize) + (v.Length > 254 ? 5 : 1));
                 }
                 WriteFixedSizeNumericSequence(v);
+            }
+        }
+
+        /// <summary>Writes a tagged proxy to the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The proxy to write.</param>
+        public void WriteTaggedProxy(int tag, IObjectPrx? v)
+        {
+            if (v != null)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartSize();
+                WriteProxy(v);
+                EndSize(pos);
             }
         }
 
@@ -754,7 +754,7 @@ namespace Ice
             Debug.Assert(elementSize > 0);
             if (v is IEnumerable<T> value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
 
                 int count = value.Count(); // potentially slow Linq Count()
 
@@ -787,7 +787,7 @@ namespace Ice
             Debug.Assert(elementSize > 0);
             if (v is IEnumerable<T> value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
 
                 int count = value.Count(); // potentially slow Linq Count()
 
@@ -815,7 +815,7 @@ namespace Ice
         {
             if (v is IEnumerable<T> value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
                 WriteSequence(value, writer);
                 EndSize(pos);
@@ -832,7 +832,7 @@ namespace Ice
         {
             if (v is IEnumerable<T> value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
                 WriteSequence(value, writer);
                 EndSize(pos);
@@ -846,7 +846,7 @@ namespace Ice
         {
             if (o !=null)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 var w = new StreamWrapper(this);
                 IFormatter f = new BinaryFormatter();
                 f.Serialize(w, o);
@@ -862,7 +862,7 @@ namespace Ice
         {
             if (v is T value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.VSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 WriteSize(fixedSize);
                 value.IceWrite(this);
             }
@@ -875,7 +875,7 @@ namespace Ice
         {
             if (v is T value)
             {
-                WriteTaggedParamHeader(tag, OptionalFormat.FSize);
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 var pos = StartSize();
                 value.IceWrite(this);
                 EndSize(pos);
@@ -1189,7 +1189,7 @@ namespace Ice
         /// <summary>Writes the header for a tagged parameter of data member.</summary>
         /// <param name="tag">The numeric tag associated with the parameter or data member.</param>
         /// <param name="format">The optional format of the parameter or data member.</param>
-        private void WriteTaggedParamHeader(int tag, OptionalFormat format)
+        private void WriteTaggedParamHeader(int tag, EncodingDefinitions.TagFormat format)
         {
             Debug.Assert(InEncapsulation);
 
