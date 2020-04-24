@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -278,17 +279,15 @@ namespace Ice
 
         /// <summary>Writes a dictionary to the stream. The dictionary's key is a mapped Slice struct.</summary>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v,
-                                                  OutputStreamStructWriter<TKey> keyWriter,
                                                   OutputStreamWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
         {
             WriteSize(v.Count);
             foreach ((TKey key, TValue value) in v)
             {
-                keyWriter(this, key);
+                key.IceWrite(this);
                 valueWriter(this, value);
             }
         }
@@ -296,10 +295,8 @@ namespace Ice
         /// <summary>Writes a dictionary to the stream. The dictionary's value is a mapped Slice struct.</summary>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v,
-                                                  OutputStreamWriter<TKey> keyWriter,
-                                                  OutputStreamStructWriter<TValue> valueWriter)
+                                                  OutputStreamWriter<TKey> keyWriter)
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
@@ -307,26 +304,22 @@ namespace Ice
             foreach ((TKey key, TValue value) in v)
             {
                 keyWriter(this, key);
-                valueWriter(this, value);
+                value.IceWrite(this);
             }
         }
 
         /// <summary>Writes a dictionary to the stream. Both the dictionary's key and value are mapped Slice structs.
         /// </summary>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v,
-                                                  OutputStreamStructWriter<TKey> keyWriter,
-                                                  OutputStreamStructWriter<TValue> valueWriter)
+        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v)
             where TKey : struct, IStreamableStruct
             where TValue : struct, IStreamableStruct
         {
             WriteSize(v.Count);
             foreach ((TKey key, TValue value) in v)
             {
-                keyWriter(this, key);
-                valueWriter(this, value);
+                key.IceWrite(this);
+                value.IceWrite(this);
             }
         }
 
@@ -377,14 +370,13 @@ namespace Ice
 
         /// <summary>Writes a sequence to the stream. Elements of the sequence are mapped Slice structs.</summary>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="writer">The delegate that writes each element to the stream.</param>
-        public void WriteSequence<T>(IEnumerable<T> v, OutputStreamStructWriter<T> writer)
+        public void WriteSequence<T>(IEnumerable<T> v)
             where T : struct, IStreamableStruct
         {
             WriteSize(v.Count()); // potentially slow Linq Count()
             foreach (T item in v)
             {
-                writer(this, item);
+                item.IceWrite(this);
             }
         }
 
@@ -534,12 +526,10 @@ namespace Ice
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
                                                         int entrySize,
-                                                        OutputStreamStructWriter<TKey> keyWriter,
                                                         OutputStreamWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
         {
@@ -549,7 +539,7 @@ namespace Ice
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
                 WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
-                WriteDictionary(dict, keyWriter, valueWriter);
+                WriteDictionary(dict, valueWriter);
             }
         }
 
@@ -559,12 +549,10 @@ namespace Ice
         /// <param name="v">The dictionary to write.</param>
         /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
                                                         int entrySize,
-                                                        OutputStreamWriter<TKey> keyWriter,
-                                                        OutputStreamStructWriter<TValue> valueWriter)
+                                                        OutputStreamWriter<TKey> keyWriter)
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
@@ -574,7 +562,7 @@ namespace Ice
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
                 WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
-                WriteDictionary(dict, keyWriter, valueWriter);
+                WriteDictionary(dict, keyWriter);
             }
         }
 
@@ -583,13 +571,9 @@ namespace Ice
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int entrySize,
-                                                        OutputStreamStructWriter<TKey> keyWriter,
-                                                        OutputStreamStructWriter<TValue> valueWriter)
+                                                        int entrySize)
             where TKey : struct, IStreamableStruct
             where TValue : struct, IStreamableStruct
         {
@@ -599,7 +583,7 @@ namespace Ice
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
                 WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
-                WriteDictionary(dict, keyWriter, valueWriter);
+                WriteDictionary(dict);
             }
         }
 
@@ -627,11 +611,9 @@ namespace Ice
         /// a mapped Slice struct.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
-                                                        OutputStreamStructWriter<TKey> keyWriter,
                                                         OutputStreamWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
         {
@@ -639,7 +621,7 @@ namespace Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
-                WriteDictionary(dict, keyWriter, valueWriter);
+                WriteDictionary(dict, valueWriter);
                 EndSize(pos);
             }
         }
@@ -649,11 +631,9 @@ namespace Ice
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
                                                         IReadOnlyDictionary<TKey, TValue>? v,
-                                                        OutputStreamWriter<TKey> keyWriter,
-                                                        OutputStreamStructWriter<TValue> valueWriter)
+                                                        OutputStreamWriter<TKey> keyWriter)
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
@@ -661,7 +641,7 @@ namespace Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
-                WriteDictionary(dict, keyWriter, valueWriter);
+                WriteDictionary(dict, keyWriter);
                 EndSize(pos);
             }
         }
@@ -670,12 +650,8 @@ namespace Ice
         /// value are mapped Slice structs.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
-        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
         public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        OutputStreamStructWriter<TKey> keyWriter,
-                                                        OutputStreamStructWriter<TValue> valueWriter)
+                                                        IReadOnlyDictionary<TKey, TValue>? v)
             where TKey : struct, IStreamableStruct
             where TValue : struct, IStreamableStruct
         {
@@ -683,7 +659,7 @@ namespace Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
-                WriteDictionary(dict, keyWriter, valueWriter);
+                WriteDictionary(dict);
                 EndSize(pos);
             }
         }
@@ -703,24 +679,21 @@ namespace Ice
         /// <summary>Writes a tagged array of fixed-size numeric type to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The array to write.</param>
-        /// <param name="elementSize">The fixed size of each element of the array.</param>
-        public void WriteTaggedFixedSizeNumericArray<T>(int tag, T[]? v, int elementSize) where T : struct
-            => WriteTaggedFixedSizeNumericSequence(tag, new ReadOnlySpan<T>(v), elementSize);
+        public void WriteTaggedFixedSizeNumericArray<T>(int tag, T[]? v) where T : struct
+            => WriteTaggedFixedSizeNumericSequence(tag, new ReadOnlySpan<T>(v));
 
         /// <summary>Writes a tagged sequence of fixed-size numeric type to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="elementSize">The fixed size of each element of the sequence.</param>
-        public void WriteTaggedFixedSizeNumericSequence<T>(int tag, ReadOnlySpan<T> v, int elementSize) where T : struct
+        public void WriteTaggedFixedSizeNumericSequence<T>(int tag, ReadOnlySpan<T> v) where T : struct
         {
-            Debug.Assert(elementSize > 0);
-
             // A null T[]? or List<T>? is implicitly converted into a default aka null ReadOnlyMemory<T> or
             // ReadOnlySpan<T>. Furthermore, the span of a default ReadOnlyMemory<T> is a default ReadOnlySpan<T>, which
             // is distinct from the span of an empty sequence. This is why the "v != null" below works correctly.
             if (v != null)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
+                int elementSize = Unsafe.SizeOf<T>();
                 if (elementSize > 1)
                 {
                     // This size is redundant and optimized out by the encoding when elementSize is 1.
@@ -777,11 +750,9 @@ namespace Ice
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
         /// <param name="elementSize">The fixed size of each element of the sequence, in bytes.</param>
-        /// <param name="writer">The delegate that writes each element to the stream.</param>
         public void WriteTaggedSequence<T>(int tag,
                                            IEnumerable<T>? v,
-                                           int elementSize,
-                                           OutputStreamStructWriter<T> writer)
+                                           int elementSize)
             where T : struct, IStreamableStruct
         {
             Debug.Assert(elementSize > 0);
@@ -802,7 +773,7 @@ namespace Ice
                 WriteSize(count);
                 foreach (T item in value)
                 {
-                    writer(this, item);
+                    item.IceWrite(this);
                 }
             }
         }
@@ -826,15 +797,14 @@ namespace Ice
         /// mapped Slice structs.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="writer">The delegate that writes each element to the stream.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v, OutputStreamStructWriter<T> writer)
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v)
             where T : struct, IStreamableStruct
         {
             if (v is IEnumerable<T> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartSize();
-                WriteSequence(value, writer);
+                WriteSequence(value);
                 EndSize(pos);
             }
         }
@@ -1177,7 +1147,7 @@ namespace Ice
 
         /// <summary>Writes a fixed-size numeric to the stream.</summary>
         /// <param name="v">The numeric value to write to the stream.</param>
-        /// <param name="elementSize">The size in bytes of the numeric type.</param>
+        /// <param name="elementSize">The sizeof the type.</param>
         private void WriteFixedSizeNumeric<T>(T v, int elementSize) where T : struct
         {
             Debug.Assert(elementSize > 1); // for size 1, we write the byte directly

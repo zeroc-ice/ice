@@ -2634,8 +2634,16 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) => ";
     _out.inc();
-    _out << nl << "ostr.WriteDictionary(dictionary, " << outputStreamWriter(key, ns, true) << ", "
-         << outputStreamWriter(value, ns, true) << ");";
+    _out << nl << "ostr.WriteDictionary(dictionary";
+    if (!StructPtr::dynamicCast(key))
+    {
+        _out << ", " << outputStreamWriter(key, ns, true);
+    }
+    if (!StructPtr::dynamicCast(value))
+    {
+        _out << ", " << outputStreamWriter(value, ns, true);
+    }
+    _out << ");";
     _out.dec();
 
     _out << sp;
