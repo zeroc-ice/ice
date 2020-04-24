@@ -223,23 +223,23 @@ namespace Ice
 
         /// <summary>Writes a double to the stream.</summary>
         /// <param name="v">The double to write to the stream.</param>
-        public void WriteDouble(double v) => WriteFixedSizeNumeric(v, sizeof(double));
+        public void WriteDouble(double v) => WriteFixedSizeNumeric(v);
 
         /// <summary>Writes a float to the stream.</summary>
         /// <param name="v">The float to write to the stream.</param>
-        public void WriteFloat(float v) => WriteFixedSizeNumeric(v, sizeof(float));
+        public void WriteFloat(float v) => WriteFixedSizeNumeric(v);
 
         /// <summary>Writes an int to the stream.</summary>
         /// <param name="v">The int to write to the stream.</param>
-        public void WriteInt(int v) => WriteFixedSizeNumeric(v, sizeof(int));
+        public void WriteInt(int v) => WriteFixedSizeNumeric(v);
 
         /// <summary>Writes a long to the stream.</summary>
         /// <param name="v">The long to write to the stream.</param>
-        public void WriteLong(long v) => WriteFixedSizeNumeric(v, sizeof(long));
+        public void WriteLong(long v) => WriteFixedSizeNumeric(v);
 
         /// <summary>Writes a short to the stream.</summary>
         /// <param name="v">The short to write to the stream.</param>
-        public void WriteShort(short v) => WriteFixedSizeNumeric(v, sizeof(short));
+        public void WriteShort(short v) => WriteFixedSizeNumeric(v);
 
         /// <summary>Writes a string to the stream.</summary>
         /// <param name="v">The string to write to the stream.</param>
@@ -1147,9 +1147,9 @@ namespace Ice
 
         /// <summary>Writes a fixed-size numeric to the stream.</summary>
         /// <param name="v">The numeric value to write to the stream.</param>
-        /// <param name="elementSize">The sizeof the type.</param>
-        private void WriteFixedSizeNumeric<T>(T v, int elementSize) where T : struct
+        private void WriteFixedSizeNumeric<T>(T v) where T : struct
         {
+            int elementSize = Unsafe.SizeOf<T>();
             Debug.Assert(elementSize > 1); // for size 1, we write the byte directly
             Span<byte> data = stackalloc byte[elementSize];
             MemoryMarshal.Write(data, ref v);
