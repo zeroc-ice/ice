@@ -1270,23 +1270,7 @@ namespace Ice
             // constructor read the identity, and pass it as a parameter.
             //
 
-            //
-            // For compatibility with the old FacetPath.
-            //
-            string[] facetPath = istr.ReadStringArray();
-            string facet;
-            if (facetPath.Length > 0)
-            {
-                if (facetPath.Length > 1)
-                {
-                    throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
-                }
-                facet = facetPath[0];
-            }
-            else
-            {
-                facet = "";
-            }
+            string facet = istr.ReadFacet();
 
             int mode = istr.ReadByte();
             if (mode < 0 || mode > (int)InvocationMode.Last)

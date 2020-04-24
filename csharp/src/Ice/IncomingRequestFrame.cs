@@ -44,14 +44,7 @@ namespace Ice
             var istr = new InputStream(communicator, data);
 
             Identity = new Identity(istr);
-
-            // For compatibility with the old FacetPath.
-            string[] facetPath = istr.ReadStringArray();
-            if (facetPath.Length > 1)
-            {
-                throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
-            }
-            Facet = facetPath.Length == 0 ? "" : facetPath[0];
+            Facet = istr.ReadFacet();
             Operation = istr.ReadString();
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
             Context = istr.ReadContext();

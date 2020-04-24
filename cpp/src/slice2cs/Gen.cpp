@@ -2079,7 +2079,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << sp;
     _out << nl << "public static " << name << " Read" << p->name() << "(this Ice.InputStream istr)";
     _out << sb;
-    _out << nl << "int value = istr.ReadSize();";
+    _out << nl << "int value = istr.ReadEnumValue();";
     if(explicitValue)
     {
         _out << nl << "if(!EnumeratorValues.Contains(value))";
@@ -2587,19 +2587,17 @@ Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    string name = p->name();
-    string scope = getNamespace(p);
-    string seqS = typeToString(p, scope);
-    string seqReadOnly = typeToString(p, scope, false, true);
-
-    _out << sp;
-    emitGeneratedCodeAttribute();
-    _out << nl << "public static class " << name << "Helper";
-    _out << sb;
-
     if (!isMappedToReadOnlyMemory(p))
     {
-        // TODO: eliminate the entire helper class, not just the writer
+        string name = p->name();
+        string scope = getNamespace(p);
+        string seqS = typeToString(p, scope);
+        string seqReadOnly = typeToString(p, scope, false, true);
+
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "public static class " << name << "Helper";
+        _out << sb;
 
         _out << sp;
         _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) => ";
@@ -2609,18 +2607,18 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
         _out << sp;
         _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+
+        _out << sp;
+        _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
+        _out.inc();
+        _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
+        _out.dec();
+
+        _out << sp;
+        _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
+
+        _out << eb;
     }
-
-    _out << sp;
-    _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) => ";
-    _out.inc();
-    _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
-
-    _out << eb;
 }
 
 void
@@ -2652,17 +2650,15 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.inc();
     if(generic == "SortedDictionary")
     {
-        _out << nl << "istr.ReadSortedDict("
-             << inputStreamReader(key, ns) << ", "
-             << inputStreamReader(value, ns) << ");";
+        _out << nl << "istr.ReadSortedDictionary(";
     }
     else
     {
-        _out << nl << "istr.ReadDict("
-             << inputStreamReader(key, ns) << ", "
-             << inputStreamReader(value, ns) << ", "
-             << (key->minWireSize() + value->minWireSize()) << ");";
+        _out << nl << "istr.ReadDictionary(";
     }
+    _out << (key->minWireSize() + value->minWireSize()) << ", "
+         << inputStreamReader(key, ns) << ", "
+         << inputStreamReader(value, ns) << ");";
     _out.dec();
 
     _out << sp;

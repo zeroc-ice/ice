@@ -894,7 +894,19 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     {
         out << "Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()];
     }
-    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type) || SequencePtr::dynamicCast(type))
+    else if (SequencePtr seq = SequencePtr::dynamicCast(type))
+    {
+        if (isMappedToReadOnlyMemory(seq))
+        {
+            builtin = BuiltinPtr::dynamicCast(seq->type());
+            out << "global::Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()] << "Array";
+        }
+        else
+        {
+            out << helperName(type, scope) << ".IceReader";
+        }
+    }
+    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
     {
         out << helperName(type, scope) << ".IceReader";
     }
@@ -913,6 +925,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
                                        const string& stream)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    SequencePtr seq = SequencePtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
 
     out << nl << param << " = ";
@@ -931,6 +944,11 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     else if(st)
     {
         out << "new " << getUnqualified(st, scope) << "(" << stream << ");";
+    }
+    else if (seq && isMappedToReadOnlyMemory(seq))
+    {
+        string typeStr = typeToString(seq->type(), scope);
+        out << stream << ".ReadFixedSizeNumericArray<" << typeStr << ">(sizeof(" << typeStr << "));";
     }
     else
     {
@@ -1043,57 +1061,58 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
 
     if(isClassType(type))
     {
-        out << nl << param << " = " << stream << ".ReadClass<" << typeToString(type, scope) << ">(" << tag << ");";
+        out << nl << param << " = " << stream << ".ReadTaggedClass<" << typeToString(type, scope) << ">(" << tag << ");";
     }
     else if(isProxyType(type))
     {
-        out << nl << param << " = " << stream << ".ReadProxy(" << tag << ", " << typeToString(type, scope)
+        out << nl << param << " = " << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope)
             << ".Factory);";
     }
     else if(builtin)
     {
-        out << nl << param << " = " << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "(" << tag << ");";
+        out << nl << param << " = " << stream << ".ReadTagged" << builtinSuffixTable[builtin->kind()] << "(" << tag
+            << ");";
     }
     else if(st)
     {
-        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(st, scope) << "))";
-        out << sb;
-        out << nl << stream << (st->isVariableLength() ? ".Skip(4);" : ".SkipSize();");
-        out << nl << param << " = new " << typeToString(type, scope) << "(" << stream << ");";
-        out << eb;
+        out << nl << param << " = " << stream << ".ReadTagged"
+            << (st->isVariableLength() ? "Variable" : "Fixed") << "SizeStruct(" << tag << ", "
+            << inputStreamReader(st, scope) << ");";
     }
     else if(en)
     {
-        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
-            << ".Size))";
-        out << sb;
-        out << nl;
-        writeUnmarshalCode(out, type, scope, param, stream);
-        out << eb;
+        // We must use the reader to check the enum.
+        out << nl << param << " = " << stream << ".ReadTaggedEnum(" << tag << ", "
+            << inputStreamReader(en, scope) << ");";
     }
-    else if(seq)
+    else if (seq)
     {
         const TypePtr elementType = seq->type();
-        builtin = BuiltinPtr::dynamicCast(elementType);
-        st = StructPtr::dynamicCast(elementType);
-
-        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(seq, scope) << "))";
-        out << sb;
-        if(elementType->isVariableLength())
+        if (isMappedToReadOnlyMemory(seq))
         {
-            out << nl << stream << ".Skip(4);";
+            string typeStr = typeToString(elementType, scope);
+            out << nl << param << " = " << stream << ".ReadTaggedFixedSizeNumericArray<" << typeStr << ">" << "(" << tag
+                << ", sizeof(" << typeStr << "));";
         }
-        else if(st && st->minWireSize() > 1)
+        else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
-            out << nl << stream << ".SkipSize();";
+            out << nl << param << " = " << stream << ".ReadTaggedSerializable(" << tag << ") as "
+                << typeToString(seq, scope) << ";";
         }
-        else if(builtin && builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)
+        else if (seq->hasMetaDataWithPrefix("cs:generic:"))
         {
-            out << nl << stream << ".SkipSize();";
+            out << nl << param << " = " << stream << ".ReadTagged"
+                << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementSequence(" << tag << ", "
+                << elementType->minWireSize() << ", " << inputStreamReader(elementType, scope)
+                << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope) << "> "
+                << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)" << " : null;";
         }
-        out << nl;
-        writeUnmarshalCode(out, seq, scope, param, stream);
-        out << eb;
+        else
+        {
+            out << nl << param << " = " << stream << ".ReadTagged"
+                << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementArray(" << tag << ","
+                << elementType->minWireSize() <<  ", " << inputStreamReader(elementType, scope) << ");";
+        }
     }
     else
     {
@@ -1102,19 +1121,13 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
 
-        out << nl << "if (" << stream << ".ReadOptional(" << tag << ", " << getTagFormat(d, scope) << "))";
-        out << sb;
-        if(keyType->isVariableLength() || valueType->isVariableLength())
-        {
-            out << nl << stream << ".Skip(4);";
-        }
-        else
-        {
-            out << nl << stream << ".SkipSize();";
-        }
-        out << nl;
-        writeUnmarshalCode(out, type, scope, param, stream);
-        out << eb;
+        bool fixedSize = !keyType->isVariableLength() && !valueType->isVariableLength();
+        bool sorted = d->findMetaDataWithPrefix("cs:generic:") == "SortedDictionary";
+
+        out << nl << param << " = " << stream << ".ReadTagged" << (fixedSize ? "Fixed" : "Variable") << "SizeEntry"
+            << (sorted ? "Sorted" : "") << "Dictionary(" << tag << ", "
+            << keyType->minWireSize() + valueType->minWireSize() << ", "
+            << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ");";
     }
 }
 
@@ -1154,33 +1167,43 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     {
         out << "(" << serializable << ") " << stream << ".ReadSerializable()";
     }
-    else if(generic.empty())
+    else if (generic.empty())
     {
-        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
+        if (builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength())
         {
-            out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "Array()";
+            string typeStr = typeToString(builtin, scope);
+            out << stream << ".ReadFixedSizeNumericArray<" << typeStr << ">(sizeof(" << typeStr << "))";
         }
         else
         {
-            out << stream << ".ReadArray(" << inputStreamReader(type, scope)
-                << ", " << type->minWireSize() << ")";
+            out << stream << ".ReadArray(" << type->minWireSize() << ", " << inputStreamReader(type, scope) << ")";
         }
     }
     else
     {
-        if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
+        out << "new " << typeToString(seq, scope) << "(";
+        if (generic == "Stack")
         {
-            out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "Array()";
+            out << "global::System.Linq.Enumerable.Reverse(";
+        }
+
+        if (builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength())
+        {
+            // We always read an array even when mapped to a collection, as it's expected to be faster than unmarshaling
+            // the collection elements one by one.
+            string typeStr = typeToString(builtin, scope);
+            out << stream << ".ReadFixedSizeNumericArray<" << typeStr << ">(sizeof(" << typeStr << "))";
         }
         else
         {
-            out << stream << ".ReadCollection(" << inputStreamReader(type, scope)
-                << ", " << type->minWireSize() << ")";
+            out << stream << ".ReadSequence(" << type->minWireSize() << ", " << inputStreamReader(type, scope) << ")";
         }
 
-        string reader = generic == "Stack" ? ("System.Linq.Enumerable.Reverse(" + out.str() + ")") : out.str();
-        out = ostringstream();
-        out << "new " << typeToString(seq, scope) << "(" << reader << ")";
+        if (generic == "Stack")
+        {
+            out << ")";
+        }
+        out << ")";
     }
     return out.str();
 }

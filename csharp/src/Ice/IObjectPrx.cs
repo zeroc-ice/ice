@@ -338,7 +338,7 @@ namespace Ice
         private static OutgoingRequestWithEmptyParamList<string[]>? _iceI_IdsRequest;
         private static OutgoingRequestWithEmptyParamList<string[]> IceI_IdsRequest =>
             _iceI_IdsRequest ??= new OutgoingRequestWithEmptyParamList<string[]>("ice_ids", idempotent: true,
-                reader: istr => istr.ReadStringArray());
+                reader: istr => istr.ReadArray(1, InputStream.IceReaderIntoString));
 
         private static OutgoingRequestWithEmptyParamList<string>? _iceI_IdRequest;
         private static OutgoingRequestWithEmptyParamList<string> IceI_IdRequest =>

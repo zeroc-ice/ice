@@ -121,21 +121,13 @@ namespace Ice
         }
 
         internal UnhandledException ReadUnhandledException() =>
-            new UnhandledException(InputStream.ReadString(Payload.Slice(1)), Identity.Empty, "", "");
+            new UnhandledException(InputStream.ReadString(Payload.Slice(1), Encoding), Identity.Empty, "", "");
 
         internal DispatchException ReadDispatchException()
         {
             var istr = new InputStream(_communicator, Payload, 1);
             var identity = new Identity(istr);
-
-            // For compatibility with the old FacetPath.
-            string[] facetPath = istr.ReadStringArray();
-            if (facetPath.Length > 1)
-            {
-                throw new InvalidDataException($"invalid facet path length: {facetPath.Length}");
-            }
-            string facet = facetPath.Length > 0 ? facetPath[0] : "";
-
+            string facet = istr.ReadFacet();
             string operation = istr.ReadString();
 
             if (ReplyStatus == ReplyStatus.OperationNotExistException)
