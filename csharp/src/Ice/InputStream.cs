@@ -176,7 +176,7 @@ namespace Ice
         {
             Debug.Assert(_buffer.Array != null);
             double value = BitConverter.ToDouble(_buffer.AsSpan(_pos, sizeof(double)));
-            _pos += 8;
+            _pos += sizeof(double);
             return value;
         }
 
@@ -186,7 +186,7 @@ namespace Ice
         {
             Debug.Assert(_buffer.Array != null);
             float value = BitConverter.ToSingle(_buffer.AsSpan(_pos, sizeof(float)));
-            _pos += 4;
+            _pos += sizeof(float);
             return value;
         }
 
@@ -196,7 +196,7 @@ namespace Ice
         {
             Debug.Assert(_buffer.Array != null);
             int value = BitConverter.ToInt32(_buffer.AsSpan(_pos, sizeof(int)));
-            _pos += 4;
+            _pos += sizeof(int);
             return value;
         }
 
@@ -206,7 +206,7 @@ namespace Ice
         {
             Debug.Assert(_buffer.Array != null);
             long value = BitConverter.ToInt64(_buffer.AsSpan(_pos, sizeof(long)));
-            _pos += 8;
+            _pos += sizeof(long);
             return value;
         }
 
@@ -216,7 +216,7 @@ namespace Ice
         {
             Debug.Assert(_buffer.Array != null);
             short value = BitConverter.ToInt16(_buffer.AsSpan(_pos, sizeof(short)));
-            _pos += 2;
+            _pos += sizeof(short);
             return value;
         }
 
