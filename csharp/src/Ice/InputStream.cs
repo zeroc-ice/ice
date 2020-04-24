@@ -9,6 +9,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -31,49 +33,49 @@ namespace Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<bool[]> IceReaderIntoBoolArray =
-            (istr) => istr.ReadFixedSizeNumericArray<bool>(sizeof(bool));
+            (istr) => istr.ReadFixedSizeNumericArray<bool>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<byte> IceReaderIntoByte = (istr) => istr.ReadByte();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<byte[]> IceReaderIntoByteArray =
-            (istr) => istr.ReadFixedSizeNumericArray<byte>(sizeof(byte));
+            (istr) => istr.ReadFixedSizeNumericArray<byte>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<double[]> IceReaderIntoDoubleArray =
-            (istr) => istr.ReadFixedSizeNumericArray<double>(sizeof(double));
+            (istr) => istr.ReadFixedSizeNumericArray<double>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<float[]> IceReaderIntoFloatArray =
-            (istr) => istr.ReadFixedSizeNumericArray<float>(sizeof(float));
+            (istr) => istr.ReadFixedSizeNumericArray<float>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int> IceReaderIntoInt = (istr) => istr.ReadInt();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int[]> IceReaderIntoIntArray =
-            (istr) => istr.ReadFixedSizeNumericArray<int>(sizeof(int));
+            (istr) => istr.ReadFixedSizeNumericArray<int>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<long> IceReaderIntoLong = (istr) => istr.ReadLong();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<long[]> IceReaderIntoLongArray =
-            (istr) => istr.ReadFixedSizeNumericArray<long>(sizeof(long));
+            (istr) => istr.ReadFixedSizeNumericArray<long>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<short> IceReaderIntoShort = (istr) => istr.ReadShort();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<short[]> IceReaderIntoShortArray =
-            (istr) => istr.ReadFixedSizeNumericArray<short>(sizeof(short));
+            (istr) => istr.ReadFixedSizeNumericArray<short>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
@@ -173,7 +175,7 @@ namespace Ice
         public double ReadDouble()
         {
             Debug.Assert(_buffer.Array != null);
-            double value = BitConverter.ToDouble(_buffer.Array, _buffer.Offset + _pos);
+            double value = BitConverter.ToDouble(_buffer.AsSpan(_pos, sizeof(double)));
             _pos += 8;
             return value;
         }
@@ -183,7 +185,7 @@ namespace Ice
         public float ReadFloat()
         {
             Debug.Assert(_buffer.Array != null);
-            float value = BitConverter.ToSingle(_buffer.Array, _buffer.Offset + _pos);
+            float value = BitConverter.ToSingle(_buffer.AsSpan(_pos, sizeof(float)));
             _pos += 4;
             return value;
         }
@@ -193,7 +195,7 @@ namespace Ice
         public int ReadInt()
         {
             Debug.Assert(_buffer.Array != null);
-            int value = BitConverter.ToInt32(_buffer.Array, _buffer.Offset + _pos);
+            int value = BitConverter.ToInt32(_buffer.AsSpan(_pos, sizeof(int)));
             _pos += 4;
             return value;
         }
@@ -203,7 +205,7 @@ namespace Ice
         public long ReadLong()
         {
             Debug.Assert(_buffer.Array != null);
-            long value = BitConverter.ToInt64(_buffer.Array, _buffer.Offset + _pos);
+            long value = BitConverter.ToInt64(_buffer.AsSpan(_pos, sizeof(long)));
             _pos += 8;
             return value;
         }
@@ -213,7 +215,7 @@ namespace Ice
         public short ReadShort()
         {
             Debug.Assert(_buffer.Array != null);
-            short value = BitConverter.ToInt16(_buffer.Array, _buffer.Offset + _pos);
+            short value = BitConverter.ToInt16(_buffer.AsSpan(_pos, sizeof(short)));
             _pos += 2;
             return value;
         }
@@ -269,20 +271,18 @@ namespace Ice
             return dict;
         }
 
-        /// <summary>Reads an enum value from the stream; this method does not validdate the value.</summary>
+        /// <summary>Reads an enum value from the stream; this method does not validate the value.</summary>
         /// <returns>The enum value (int) read from the stream.</returns>
         public int ReadEnumValue() => ReadSize();
 
         /// <summary>Reads a sequence of fixed-size numeric type from the stream and returns an array.</summary>
-        /// <param name="elementSize">The size of each element of the sequence, in bytes. Must be sizeof(T).</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T[] ReadFixedSizeNumericArray<T>(int elementSize) where T : struct
+        public T[] ReadFixedSizeNumericArray<T>() where T : struct
         {
-            Debug.Assert(_buffer.Array != null);
+            int elementSize = Unsafe.SizeOf<T>();
             T[] value = new T[ReadAndCheckSeqSize(elementSize)];
-            int byteCount = Buffer.ByteLength(value);
-            Debug.Assert(_buffer.Count - _pos >= byteCount);
-            Buffer.BlockCopy(_buffer.Array, _buffer.Offset + _pos, value, 0, byteCount);
+            int byteCount = elementSize * value.Length;
+            _buffer.AsSpan(_pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
             _pos += byteCount;
             return value;
         }
@@ -306,8 +306,10 @@ namespace Ice
         /// <summary>Reads a sequence from the stream.</summary>
         /// <param name="minElementSize">The minimum size of each element of the sequence, in bytes.</param>
         /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
-        /// <returns>The sequence read from the stream as an ICollection{T}. The return value does not fully implement
-        /// ICollection{T}, in particular you can only call GetEnumerator() once on this collection.</returns>
+        /// <returns>A collection that provides the size of the sequence and allows you read the sequence from the
+        /// the stream. The return value does not fully implement ICollection{T}, in particular you can only call
+        /// GetEnumerator() once on this collection. You would typically use this collection to construct a List{T} or
+        /// some other generic collection that can be constructed from an IEnumerable{T}.</returns>
         public ICollection<T> ReadSequence<T>(int minElementSize, InputStreamReader<T> reader) =>
             new Collection<T>(this, minElementSize, reader);
 
@@ -440,9 +442,9 @@ namespace Ice
             {
                 if (elementSize > 1)
                 {
-                    _ = ReadSize(); // skip byte size
+                    SkipSize(); // this size represents the number of bytes in in the tagged parameter.
                 }
-                return ReadSequence<T>(elementSize, reader);
+                return ReadSequence(elementSize, reader);
             }
             else
             {
@@ -464,7 +466,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
-                _ = ReadSize();
+                SkipSize();
                 return ReadDictionary(entrySize, keyReader, valueReader);
             }
             else
@@ -487,7 +489,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
-                _ = ReadSize();
+                SkipSize();
                 return ReadSortedDictionary(entrySize, keyReader, valueReader);
             }
             else
@@ -498,18 +500,19 @@ namespace Ice
 
         /// <summary>Reads a tagged sequence of a fixed-size numeric type from the stream.</summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="elementSize">The size of each element, in bytes. Must be sizeof(T).</param>
         /// <returns>The sequence read from the stream as an array, or null.</returns>
-        public T[]? ReadTaggedFixedSizeNumericArray<T>(int tag, int elementSize) where T : struct
+        public T[]? ReadTaggedFixedSizeNumericArray<T>(int tag) where T : struct
         {
+            int elementSize = Unsafe.SizeOf<T>();
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
                 if (elementSize > 1)
                 {
-                    // For elements with size > 1, the encoding includes a byte size that we skip.
-                    _ = ReadSize();
+                    // For elements with size > 1, the encoding includes a size (number of bytes in the tagged
+                    // parameter) that we skip.
+                    SkipSize();
                 }
-                return ReadFixedSizeNumericArray<T>(elementSize);
+                return ReadFixedSizeNumericArray<T>();
             }
             else
             {
@@ -525,7 +528,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
             {
-                _ = ReadSize();
+                SkipSize();
                 return reader(this);
             }
             else
@@ -542,7 +545,8 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
-                _ = ReadInt(); // skip byte size
+                // We skip this int that holds the size (in bytes) of the tagged parameter.
+                _ = ReadInt();
                 return ReadProxy(factory);
             }
             else
@@ -587,8 +591,8 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
-                _ = ReadInt(); // skip byte size
-                return ReadSequence<T>(minElementSize, reader);
+                _ = ReadInt();
+                return ReadSequence(minElementSize, reader);
             }
             else
             {
@@ -701,7 +705,7 @@ namespace Ice
             }
             else
             {
-                return _utf8.GetString(buffer.AsSpan(size < 254 ? 1 : 4, size));
+                return _utf8.GetString(buffer.AsSpan(size < 255 ? 1 : 5, size));
             }
         }
 

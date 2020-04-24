@@ -1058,8 +1058,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<byte>(1, sizeof(byte)),
-                        istr.ReadTaggedFixedSizeNumericArray<byte>(3, sizeof(byte))));
+                    (istr.ReadTaggedFixedSizeNumericArray<byte>(1), istr.ReadTaggedFixedSizeNumericArray<byte>(3)));
 
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
@@ -1091,8 +1090,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<bool>(1, sizeof(bool)),
-                        istr.ReadTaggedFixedSizeNumericArray<bool>(3, sizeof(bool))));
+                    (istr.ReadTaggedFixedSizeNumericArray<bool>(1), istr.ReadTaggedFixedSizeNumericArray<bool>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1124,8 +1122,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<short>(1, sizeof(short)),
-                        istr.ReadTaggedFixedSizeNumericArray<short>(3, sizeof(short))));
+                    (istr.ReadTaggedFixedSizeNumericArray<short>(1), istr.ReadTaggedFixedSizeNumericArray<short>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1156,8 +1153,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<int>(1, sizeof(int)),
-                        istr.ReadTaggedFixedSizeNumericArray<int>(3, sizeof(int))));
+                    (istr.ReadTaggedFixedSizeNumericArray<int>(1), istr.ReadTaggedFixedSizeNumericArray<int>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1188,8 +1184,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<long>(1, sizeof(long)),
-                        istr.ReadTaggedFixedSizeNumericArray<long>(3, sizeof(long))));
+                    (istr.ReadTaggedFixedSizeNumericArray<long>(1), istr.ReadTaggedFixedSizeNumericArray<long>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1220,8 +1215,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<float>(1, sizeof(float)),
-                        istr.ReadTaggedFixedSizeNumericArray<float>(3, sizeof(float))));
+                    (istr.ReadTaggedFixedSizeNumericArray<float>(1), istr.ReadTaggedFixedSizeNumericArray<float>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1252,8 +1246,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<double>(1, sizeof(double)),
-                        istr.ReadTaggedFixedSizeNumericArray<double>(3, sizeof(double))));
+                    (istr.ReadTaggedFixedSizeNumericArray<double>(1), istr.ReadTaggedFixedSizeNumericArray<double>(3)));
 
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));

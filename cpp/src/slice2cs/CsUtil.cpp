@@ -947,8 +947,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if (seq && isMappedToReadOnlyMemory(seq))
     {
-        string typeStr = typeToString(seq->type(), scope);
-        out << stream << ".ReadFixedSizeNumericArray<" << typeStr << ">(sizeof(" << typeStr << "));";
+        out << stream << ".ReadFixedSizeNumericArray<" << typeToString(seq->type(), scope) << ">();";
     }
     else
     {
@@ -1090,9 +1089,8 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         const TypePtr elementType = seq->type();
         if (isMappedToReadOnlyMemory(seq))
         {
-            string typeStr = typeToString(elementType, scope);
-            out << nl << param << " = " << stream << ".ReadTaggedFixedSizeNumericArray<" << typeStr << ">" << "(" << tag
-                << ", sizeof(" << typeStr << "));";
+            out << nl << param << " = " << stream << ".ReadTaggedFixedSizeNumericArray<" <<
+                typeToString(elementType, scope) << ">(" << tag << ");";
         }
         else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
@@ -1173,8 +1171,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     {
         if (builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength())
         {
-            string typeStr = typeToString(builtin, scope);
-            out << stream << ".ReadFixedSizeNumericArray<" << typeStr << ">(sizeof(" << typeStr << "))";
+            out << stream << ".ReadFixedSizeNumericArray<" << typeToString(builtin, scope) << ">()";
         }
         else
         {
@@ -1194,8 +1191,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         {
             // We always read an array even when mapped to a collection, as it's expected to be faster than unmarshaling
             // the collection elements one by one.
-            string typeStr = typeToString(builtin, scope);
-            out << stream << ".ReadFixedSizeNumericArray<" << typeStr << ">(sizeof(" << typeStr << "))";
+            out << stream << ".ReadFixedSizeNumericArray<" << typeToString(builtin, scope) << ">()";
         }
         else
         {
