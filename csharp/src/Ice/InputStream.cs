@@ -442,7 +442,7 @@ namespace Ice
             {
                 if (elementSize > 1)
                 {
-                    SkipSize(); // this size represents the number of bytes in in the tagged parameter.
+                    SkipSize(); // this size represents the number of bytes in the tagged parameter.
                 }
                 return ReadSequence(elementSize, reader);
             }
