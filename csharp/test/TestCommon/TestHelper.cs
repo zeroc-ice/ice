@@ -43,10 +43,10 @@ namespace Test
         public string GetTestEndpoint(int num = 0, string transport = "") =>
             GetTestEndpoint(_communicator!.GetProperties(), num, transport);
 
-        static public string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
+        public static string GetTestEndpoint(Dictionary<string, string> properties, int num = 0, string transport = "")
         {
             string? value;
-            if (transport == "")
+            if (transport.Length == 0)
             {
                 if (!properties.TryGetValue("Ice.Default.Transport", out value))
                 {
@@ -71,7 +71,7 @@ namespace Test
 
         public string GetTestHost() => GetTestHost(_communicator!.GetProperties());
 
-        static public string GetTestHost(Dictionary<string, string> properties)
+        public static string GetTestHost(Dictionary<string, string> properties)
         {
             if (!properties.TryGetValue("Ice.Default.Host", out string? host))
             {
@@ -82,7 +82,7 @@ namespace Test
 
         public string GetTestTransport() => GetTestTransport(_communicator!.GetProperties());
 
-        static public string GetTestTransport(Dictionary<string, string> properties)
+        public static string GetTestTransport(Dictionary<string, string> properties)
         {
             if (!properties.TryGetValue("Ice.Default.Transport", out string? transport))
             {
@@ -93,7 +93,7 @@ namespace Test
 
         public int GetTestPort(int num) => GetTestPort(_communicator!.GetProperties(), num);
 
-        static public int GetTestPort(Dictionary<string, string> properties, int num)
+        public static int GetTestPort(Dictionary<string, string> properties, int num)
         {
             int basePort = 12010;
             if (properties.TryGetValue("Test.BasePort", out string? value))
