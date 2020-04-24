@@ -552,8 +552,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
-                        byte? b1 = istr.ReadByte(1);
-                        byte? b2 = istr.ReadByte(3);
+                        byte? b1 = istr.ReadTaggedByte(1);
+                        byte? b2 = istr.ReadTaggedByte(3);
                         return (b1, b2);
                     });
                 TestHelper.Assert(p1 == 56);
@@ -587,8 +587,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
-                    bool? b1 = istr.ReadBool(1);
-                    bool? b2 = istr.ReadBool(3);
+                    bool? b1 = istr.ReadTaggedBool(1);
+                    bool? b2 = istr.ReadTaggedBool(3);
                     return (b1, b2);
                 });
                 TestHelper.Assert(p2 == true);
@@ -622,8 +622,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
-                        short? s1 = istr.ReadShort(1);
-                        short? s2 = istr.ReadShort(3);
+                        short? s1 = istr.ReadTaggedShort(1);
+                        short? s2 = istr.ReadTaggedShort(3);
                         return (s1, s2);
                     });
                 TestHelper.Assert(p2 == 56);
@@ -657,8 +657,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p1, p2) = responseFrame.ReadReturnValue(istr =>
                 {
-                    int? i1 = istr.ReadInt(1);
-                    int? i2 = istr.ReadInt(3);
+                    int? i1 = istr.ReadTaggedInt(1);
+                    int? i2 = istr.ReadTaggedInt(3);
                     return (i1, i2);
                 });
                 TestHelper.Assert(p1 == 56);
@@ -692,8 +692,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
-                    long? l1 = istr.ReadLong(2);
-                    long? l2 = istr.ReadLong(3);
+                    long? l1 = istr.ReadTaggedLong(2);
+                    long? l2 = istr.ReadTaggedLong(3);
                     return (l1, l2);
                 });
                 TestHelper.Assert(p2 == 56);
@@ -727,8 +727,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
-                        float? f1 = istr.ReadFloat(1);
-                        float? f2 = istr.ReadFloat(3);
+                        float? f1 = istr.ReadTaggedFloat(1);
+                        float? f2 = istr.ReadTaggedFloat(3);
                         return (f1, f2);
                     });
                 TestHelper.Assert(p2 == 1.0f);
@@ -762,8 +762,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
-                        double? d1 = istr.ReadDouble(1);
-                        double? d2 = istr.ReadDouble(3);
+                        double? d1 = istr.ReadTaggedDouble(1);
+                        double? d2 = istr.ReadTaggedDouble(3);
                         return (d1, d2);
                     });
                 TestHelper.Assert(p2 == 1.0);
@@ -799,8 +799,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                 {
-                    string? s1 = istr.ReadString(1);
-                    string? s2 = istr.ReadString(3);
+                    string? s1 = istr.ReadTaggedString(1);
+                    string? s2 = istr.ReadTaggedString(3);
                     return (s1, s2);
                 });
                 TestHelper.Assert(p2 == "test");
@@ -833,13 +833,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                {
-                    istr.ReadOptional(1, OptionalFormat.Size);
-                    MyEnum e1 = istr.ReadMyEnum();
-                    istr.ReadOptional(3, OptionalFormat.Size);
-                    MyEnum e2 = istr.ReadMyEnum();
-                    return (e1, e2);
-                });
+                    (istr.ReadTaggedEnum(1, istr => istr.ReadMyEnum()),
+                        istr.ReadTaggedEnum(3, istr => istr.ReadMyEnum())));
                 TestHelper.Assert(p2 == MyEnum.MyEnumMember);
                 TestHelper.Assert(p3 == MyEnum.MyEnumMember);
             }
@@ -870,15 +865,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                {
-                    istr.ReadOptional(1, OptionalFormat.VSize);
-                    istr.SkipSize();
-                    var s1 = new SmallStruct(istr);
-                    istr.ReadOptional(3, OptionalFormat.VSize);
-                    istr.SkipSize();
-                    var s2 = new SmallStruct(istr);
-                    return (s1, s2);
-                });
+                    (istr.ReadTaggedFixedSizeStruct(1, istr => new SmallStruct(istr)),
+                        istr.ReadTaggedFixedSizeStruct(3, istr => new SmallStruct(istr))));
 
                 TestHelper.Assert(p2!.Value.m == 56);
                 TestHelper.Assert(p3!.Value.m == 56);
@@ -910,15 +898,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        FixedStruct? f1 = new FixedStruct(istr);
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        FixedStruct? f2 = new FixedStruct(istr);
-                        return (f1, f2);
-                    });
+                    (istr.ReadTaggedFixedSizeStruct(1, istr => new FixedStruct(istr)),
+                        istr.ReadTaggedFixedSizeStruct(3, istr => new FixedStruct(istr))));
                 TestHelper.Assert(p2!.Value.m == 56);
                 TestHelper.Assert(p3!.Value.m == 56);
             }
@@ -958,15 +939,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        VarStruct? v1 = new VarStruct(istr);
-                        istr.ReadOptional(3, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        VarStruct? v2 = new VarStruct(istr);
-                        return (v1, v2);
-                    });
+                    (istr.ReadTaggedVariableSizeStruct(1, istr => new VarStruct(istr)),
+                        istr.ReadTaggedVariableSizeStruct(3, istr => new VarStruct(istr))));
                 TestHelper.Assert(p2!.Value.m.Equals("test"));
                 TestHelper.Assert(p3!.Value.m.Equals("test"));
 
@@ -1019,14 +993,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.Class);
-                        OneOptional? c1 = istr.ReadClass<OneOptional>();
-                        istr.ReadOptional(3, OptionalFormat.Class);
-                        OneOptional? c2 = istr.ReadClass<OneOptional>();
-
-                        return (c1, c2);
-                    });
+                    (istr.ReadTaggedClass<OneOptional>(1), istr.ReadTaggedClass<OneOptional>(3)));
                 TestHelper.Assert(p2!.a == 58 && p3!.a == 58);
             }
 
@@ -1057,8 +1024,8 @@ namespace Ice.optional
 
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
-                        IObjectPrx? prx1 = istr.ReadProxy(1, IObjectPrx.Factory);
-                        IObjectPrx? prx2 = istr.ReadProxy(3, IObjectPrx.Factory);
+                        IObjectPrx? prx1 = istr.ReadTaggedProxy(1, IObjectPrx.Factory);
+                        IObjectPrx? prx2 = istr.ReadTaggedProxy(3, IObjectPrx.Factory);
                         return (prx1, prx2);
                     });
                 TestHelper.Assert(IObjectPrx.Equals(p1, p2));
@@ -1091,13 +1058,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        byte[]? arr1 = istr.ReadByteArray();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        byte[]? arr2 = istr.ReadByteArray();
-                        return (arr1, arr2);
-                    });
+                    (istr.ReadTaggedFixedSizeNumericArray<byte>(1), istr.ReadTaggedFixedSizeNumericArray<byte>(3)));
+
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1128,14 +1090,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        bool[]? arr1 = istr.ReadBoolArray();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        bool[]? arr2 = istr.ReadBoolArray();
-                        return (arr1, arr2);
-                    });
-
+                    (istr.ReadTaggedFixedSizeNumericArray<bool>(1), istr.ReadTaggedFixedSizeNumericArray<bool>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1167,15 +1122,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        short[]? arr1 = istr .ReadShortArray();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        short[]? arr2 = istr.ReadShortArray();
-                        return (arr1, arr2);
-                    });
+                    (istr.ReadTaggedFixedSizeNumericArray<short>(1), istr.ReadTaggedFixedSizeNumericArray<short>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1206,16 +1153,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        int[] arr1 = istr.ReadIntArray();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        int[] arr2 = istr.ReadIntArray();
-                        return (arr1, arr2);
-                    });
-
+                    (istr.ReadTaggedFixedSizeNumericArray<int>(1), istr.ReadTaggedFixedSizeNumericArray<int>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1246,15 +1184,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        long[]? arr1 = istr.ReadLongArray();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        long[]? arr2 = istr.ReadLongArray();
-                        return (arr1, arr2);
-                    });
+                    (istr.ReadTaggedFixedSizeNumericArray<long>(1), istr.ReadTaggedFixedSizeNumericArray<long>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1285,15 +1215,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        float[] arr1 = istr.ReadFloatArray();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        float[] arr2 = istr.ReadFloatArray();
-                        return (arr1, arr2);
-                    });
+                    (istr.ReadTaggedFixedSizeNumericArray<float>(1), istr.ReadTaggedFixedSizeNumericArray<float>(3)));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1324,15 +1246,7 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                {
-                    istr.ReadOptional(1, OptionalFormat.VSize);
-                    istr.SkipSize();
-                    double[] arr1 = istr.ReadDoubleArray();
-                    istr.ReadOptional(3, OptionalFormat.VSize);
-                    istr.SkipSize();
-                    double[] arr2 = istr.ReadDoubleArray();
-                    return (arr1, arr2);
-                });
+                    (istr.ReadTaggedFixedSizeNumericArray<double>(1), istr.ReadTaggedFixedSizeNumericArray<double>(3)));
 
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
@@ -1365,16 +1279,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        string[] arr1 = istr.ReadStringArray();
-                        istr.ReadOptional(3, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        string[] arr2 = istr.ReadStringArray();
-                        return (arr1, arr2);
-                    });
-
+                    (istr.ReadTaggedVariableSizeElementArray(1, 1, istr => istr.ReadString()),
+                       istr.ReadTaggedVariableSizeElementArray(3, 1, istr => istr.ReadString())));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1406,13 +1312,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        SmallStruct[] arr1 = istr.ReadSmallStructSeq();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        SmallStruct[] arr2 = istr.ReadSmallStructSeq();
-                        return (arr1, arr2);
-                    });
+                    (istr.ReadTaggedFixedSizeElementArray(1, 1, istr => new SmallStruct(istr)),
+                        istr.ReadTaggedFixedSizeElementArray(3, 1, istr => new SmallStruct(istr))));
 
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
@@ -1450,11 +1351,15 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        List<SmallStruct> arr1 = istr.ReadSmallStructList();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        List<SmallStruct> arr2 = istr.ReadSmallStructList();
-                        return (arr1, arr2);
+                        List<SmallStruct>? list1 =
+                            istr.ReadTaggedFixedSizeElementSequence(1, 1, istr => new SmallStruct(istr)) is
+                                ICollection<SmallStruct> collection1 ? new List<SmallStruct>(collection1) : null;
+
+                        List<SmallStruct>? list2 =
+                            istr.ReadTaggedFixedSizeElementSequence(3, 1, istr => new SmallStruct(istr)) is
+                                ICollection<SmallStruct> collection2 ? new List<SmallStruct>(collection2) : null;
+
+                        return (list1, list2);
                     });
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
@@ -1488,15 +1393,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        FixedStruct[] arr1 = istr.ReadFixedStructSeq();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        FixedStruct[] arr2 = istr.ReadFixedStructSeq();
-                        return (arr1, arr2);
-                    });
+                    (istr.ReadTaggedFixedSizeElementArray(1, 4, istr => new FixedStruct(istr)),
+                        istr.ReadTaggedFixedSizeElementArray(3, 4, istr => new FixedStruct(istr))));
 
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
@@ -1528,19 +1426,21 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFixedStructList", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, LinkedList<FixedStruct> ? p1) => ostr.WriteTaggedSequence(2, p1, 4,
+                    (OutputStream ostr, LinkedList<FixedStruct>? p1) => ostr.WriteTaggedSequence(2, p1, 4,
                         (ostr, st) => ostr.WriteStruct(st)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        LinkedList<FixedStruct> arr1 = istr.ReadFixedStructList();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        LinkedList<FixedStruct> arr2 = istr.ReadFixedStructList();
-                        return (arr1, arr2);
+                        LinkedList<FixedStruct>? list1 =
+                            istr.ReadTaggedFixedSizeElementSequence(1, 4, istr => new FixedStruct(istr)) is
+                                ICollection<FixedStruct> collection1 ? new LinkedList<FixedStruct>(collection1) : null;
+
+                        LinkedList<FixedStruct>? list2 =
+                            istr.ReadTaggedFixedSizeElementSequence(3, 4, istr => new FixedStruct(istr)) is
+                                ICollection<FixedStruct> collection2 ? new LinkedList<FixedStruct>(collection2) : null;
+
+                        return (list1, list2);
                     });
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
@@ -1573,15 +1473,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        VarStruct[] arr1 = istr.ReadVarStructSeq();
-                        istr.ReadOptional(3, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        VarStruct[] arr2 = istr.ReadVarStructSeq();
-                        return (arr1, arr2);
-                    });
+                      (istr.ReadTaggedVariableSizeElementArray(1, 1, istr => new VarStruct(istr)),
+                        istr.ReadTaggedVariableSizeElementArray(3, 1, istr => new VarStruct(istr))));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1613,13 +1506,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        var sc1 = (SerializableClass?)istr.ReadSerializable();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        var sc2 = (SerializableClass?)istr.ReadSerializable();
-                        return (sc1, sc2);
-                    });
+                    (istr.ReadTaggedSerializable(1) as SerializableClass,
+                        istr.ReadTaggedSerializable(3) as SerializableClass));
                 TestHelper.Assert(p2!.Equals(p1));
                 TestHelper.Assert(p3!.Equals(p1));
             }
@@ -1653,15 +1541,8 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        Dictionary<int, int> m1 = istr.ReadIntIntDict();
-                        istr.ReadOptional(3, OptionalFormat.VSize);
-                        istr.SkipSize();
-                        Dictionary<int, int> m2 = istr.ReadIntIntDict();
-                        return (m1, m2);
-                    });
+                    (istr.ReadTaggedFixedSizeEntryDictionary(1, 8, istr => istr.ReadInt(), istr => istr.ReadInt()),
+                        istr.ReadTaggedFixedSizeEntryDictionary(3, 8, istr => istr.ReadInt(), istr => istr.ReadInt())));
 
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
@@ -1700,15 +1581,10 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        Dictionary<string, int> m1 = istr.ReadStringIntDict();
-                        istr.ReadOptional(3, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        Dictionary<string, int> m2 = istr.ReadStringIntDict();
-                        return (m1, m2);
-                    });
+                      (istr.ReadTaggedVariableSizeEntryDictionary(1, 5, istr => istr.ReadString(),
+                                                                        istr => istr.ReadInt()),
+                            istr.ReadTaggedVariableSizeEntryDictionary(3, 5, istr => istr.ReadString(),
+                                                                             istr => istr.ReadInt())));
                 TestHelper.Assert(Collections.Equals(p1, p2));
                 TestHelper.Assert(Collections.Equals(p1, p3));
             }
@@ -1742,17 +1618,12 @@ namespace Ice.optional
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        istr.ReadOptional(1, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        Dictionary<int, OneOptional?> m1 = istr.ReadIntOneOptionalDict();
-                        istr.ReadOptional(3, OptionalFormat.FSize);
-                        istr.Skip(4);
-                        Dictionary<int, OneOptional?> m2 = istr.ReadIntOneOptionalDict();
-                        return (m1, m2);
-                    });
-                TestHelper.Assert(p2[1]!.a == 58);
-                TestHelper.Assert(p3[1]!.a == 58);
+                    (istr.ReadTaggedVariableSizeEntryDictionary(1, 5, istr => istr.ReadInt(),
+                                                                     istr => istr.ReadClass<OneOptional>()),
+                        istr.ReadTaggedVariableSizeEntryDictionary(3, 5, istr => istr.ReadInt(),
+                                                                         istr => istr.ReadClass<OneOptional>())));
+                TestHelper.Assert(p2![1]!.a == 58);
+                TestHelper.Assert(p3![1]!.a == 58);
             }
             output.WriteLine("ok");
 

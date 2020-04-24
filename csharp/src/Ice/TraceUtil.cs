@@ -85,11 +85,11 @@ namespace IceInternal
                 var identity = new Ice.Identity(str);
                 s.Write("\nidentity = " + identity.ToString(toStringMode));
 
-                string[] facet = str.ReadStringArray();
+                string facet = str.ReadFacet();
                 s.Write("\nfacet = ");
                 if (facet.Length > 0)
                 {
-                    s.Write(IceUtilInternal.StringUtil.EscapeString(facet[0], "", toStringMode));
+                    s.Write(IceUtilInternal.StringUtil.EscapeString(facet, "", toStringMode));
                 }
 
                 string operation = str.ReadString();
