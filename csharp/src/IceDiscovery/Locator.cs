@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace IceDiscovery
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Ice;
-
     internal class LocatorRegistry : ILocatorRegistry
     {
         public
@@ -77,7 +77,7 @@ namespace IceDiscovery
 
                 IObjectPrx prx = _wellKnownProxy.Clone(identity, IObjectPrx.Factory);
 
-                List<string> adapterIds = new List<string>();
+                var adapterIds = new List<string>();
                 foreach (KeyValuePair<string, HashSet<string>> entry in _replicaGroups)
                 {
                     try
@@ -117,8 +117,7 @@ namespace IceDiscovery
         {
             lock (this)
             {
-                IObjectPrx? result;
-                if (_adapters.TryGetValue(adapterId, out result))
+                if (_adapters.TryGetValue(adapterId, out IObjectPrx? result))
                 {
                     isReplicaGroup = false;
                     return result;

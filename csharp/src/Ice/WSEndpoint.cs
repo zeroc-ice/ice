@@ -124,7 +124,8 @@ namespace Ice
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
         {
-            var endpoints = _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
+            IEnumerable<Endpoint> endpoints =
+                    _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
             if (publish != null)
             {
                 publish = GetEndpoint(publish);
@@ -157,8 +158,7 @@ namespace Ice
             _instance = instance;
             _delegate = del;
 
-            string? argument;
-            if (options.TryGetValue("-r", out argument))
+            if (options.TryGetValue("-r", out string? argument))
             {
                 Resource = argument ?? throw new FormatException(
                         $"no argument provided for -r option in endpoint `{endpointString}'");

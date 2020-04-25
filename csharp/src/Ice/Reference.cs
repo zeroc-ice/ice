@@ -222,7 +222,7 @@ namespace Ice
                     hash.Add(AdapterId);
                     hash.Add(ConnectionId);
                     hash.Add(ConnectionTimeout);
-                    foreach (var e in Endpoints)
+                    foreach (Endpoint e in Endpoints)
                     {
                         hash.Add(e);
                     }
@@ -363,7 +363,7 @@ namespace Ice
             }
             else
             {
-                foreach (var e in Endpoints)
+                foreach (Endpoint e in Endpoints)
                 {
                     s.Append(":");
                     s.Append(e);
@@ -661,7 +661,7 @@ namespace Ice
                     newEndpoints = endpoints.ToArray(); // make a copy
                 }
 
-                var locatorInfo = LocatorInfo;
+                LocatorInfo? locatorInfo = LocatorInfo;
                 if (locator != null)
                 {
                     locatorInfo = Communicator.GetLocatorInfo(locator);
@@ -676,7 +676,7 @@ namespace Ice
                     locatorInfo = Communicator.GetLocatorInfo(locatorInfo.Locator.Clone(encoding: encoding));
                 }
 
-                var routerInfo = RouterInfo;
+                RouterInfo? routerInfo = RouterInfo;
                 if (router != null)
                 {
                     routerInfo = Communicator.GetRouterInfo(router);
@@ -1039,7 +1039,7 @@ namespace Ice
             if (EndpointSelection == EndpointSelectionType.Random)
             {
                 // Shuffle the filtered endpoints using _rand
-                var array = filteredEndpoints.ToArray();
+                Endpoint[] array = filteredEndpoints.ToArray();
                 lock (_rand)
                 {
                     for (int i = 0; i < array.Length - 1; ++i)
@@ -1240,7 +1240,7 @@ namespace Ice
 
             private readonly Reference _rr;
             private readonly IReadOnlyList<Endpoint>? _endpoints;
-            private IEnumerator<Endpoint>? _endpointEnumerator;
+            private readonly IEnumerator<Endpoint>? _endpointEnumerator;
             private bool _hasMoreEndpoints;
             private readonly IGetConnectionCallback _callback;
             private System.Exception? _exception = null;

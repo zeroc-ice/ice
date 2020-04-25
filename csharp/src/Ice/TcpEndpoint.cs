@@ -141,9 +141,7 @@ namespace Ice
                              bool oaEndpoint)
             : base(instance, endpointString, options, oaEndpoint)
         {
-            string? argument;
-
-            if (options.TryGetValue("-t", out argument))
+            if (options.TryGetValue("-t", out string? argument))
             {
                 if (argument == null)
                 {

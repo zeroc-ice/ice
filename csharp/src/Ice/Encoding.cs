@@ -109,7 +109,7 @@ namespace Ice
             if (!IsSupported)
             {
                 throw new NotSupportedException(
-                    $"Ice encoding `{ToString()}' is not supported by this Ice runtime ({Util.StringVersion()})");
+                    $"Ice encoding `{this}' is not supported by this Ice runtime ({Util.StringVersion()})");
             }
         }
     }

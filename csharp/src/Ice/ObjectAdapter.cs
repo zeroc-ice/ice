@@ -307,8 +307,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                IObject? servant;
-                if (!_identityServantMap.TryGetValue(new IdentityPlusFacet(identity, facet), out servant))
+                if (!_identityServantMap.TryGetValue(new IdentityPlusFacet(identity, facet), out IObject? servant))
                 {
                     if (!_categoryServantMap.TryGetValue(new CategoryPlusFacet(identity.Category, facet), out servant))
                     {
@@ -455,8 +454,7 @@ namespace Ice
             lock (_mutex)
             {
                 var key = new IdentityPlusFacet(identity, facet);
-                IObject? servant;
-                if (_identityServantMap.TryGetValue(key, out servant))
+                if (_identityServantMap.TryGetValue(key, out IObject? servant))
                 {
                     _identityServantMap.Remove(key);
                 }
@@ -501,8 +499,7 @@ namespace Ice
             lock (_mutex)
             {
                 var key = new CategoryPlusFacet(category, facet);
-                IObject? servant;
-                if (_categoryServantMap.TryGetValue(key, out servant))
+                if (_categoryServantMap.TryGetValue(key, out IObject? servant))
                 {
                     _categoryServantMap.Remove(key);
                 }
@@ -536,8 +533,7 @@ namespace Ice
         {
             lock (_mutex)
             {
-                IObject? servant;
-                if (_defaultServantMap.TryGetValue(facet, out servant))
+                if (_defaultServantMap.TryGetValue(facet, out IObject? servant))
                 {
                     _defaultServantMap.Remove(facet);
                 }

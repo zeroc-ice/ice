@@ -108,7 +108,7 @@ namespace Ice
             //
             if (transport == "opaque")
             {
-                OpaqueEndpoint opaqueEndpoint = new OpaqueEndpoint(endpointString, options);
+                var opaqueEndpoint = new OpaqueEndpoint(endpointString, options);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
@@ -119,9 +119,12 @@ namespace Ice
                 {
                     // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
                     // unmarshal it from this buffer.
-                    var bufferList = new List<ArraySegment<byte>>();
-                    // 8 = size of short + size of encapsulation header
-                    bufferList.Add(new byte[8 + opaqueEndpoint.Bytes.Length]);
+                    var bufferList = new List<ArraySegment<byte>>
+                    {
+                        // 8 = size of short + size of encapsulation header
+                        new byte[8 + opaqueEndpoint.Bytes.Length]
+                    };
+
                     var ostr = new OutputStream(Ice1Definitions.Encoding, bufferList);
                     ostr.WriteEndpoint(opaqueEndpoint);
                     OutputStream.Position tail = ostr.Save();
@@ -156,7 +159,7 @@ namespace Ice
 
         private static string ToString(Dictionary<string, string?> options)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach ((string option, string? argument) in options)
             {
                 if (sb.Length > 0)

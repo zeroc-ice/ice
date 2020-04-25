@@ -239,9 +239,8 @@ namespace Ice
                                      Dictionary<string, string?> options, bool oaEndpoint)
         {
             Instance = instance;
-            string? argument;
 
-            if (options.TryGetValue("-h", out argument))
+            if (options.TryGetValue("-h", out string? argument))
             {
                 Host = argument ??
                     throw new FormatException($"no argument provided for -h option in endpoint `{endpointString}'");

@@ -125,9 +125,7 @@ namespace Ice
 
         internal OpaqueEndpoint(string endpointString, Dictionary<string, string?> options)
         {
-            string? argument;
-
-            if (options.TryGetValue("-t", out argument))
+            if (options.TryGetValue("-t", out string? argument))
             {
                 if (argument == null)
                 {
