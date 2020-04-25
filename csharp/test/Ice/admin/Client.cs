@@ -17,7 +17,7 @@ namespace Ice
                     using Communicator communicator = Initialize(ref args);
                     AllTests.allTests(this);
                 }
-                catch(System.Exception ex)
+                catch (System.Exception ex)
                 {
                     System.Console.WriteLine(ex.ToString());
                 }

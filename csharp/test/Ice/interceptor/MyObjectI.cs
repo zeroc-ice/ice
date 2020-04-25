@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ice.interceptor
 {
-    class MyObject : Test.IMyObject
+    public class MyObject : Test.IMyObject
     {
         public int
         add(int x, int y, Current current) => x + y;

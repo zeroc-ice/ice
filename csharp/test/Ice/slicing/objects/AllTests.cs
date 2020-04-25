@@ -30,7 +30,7 @@ namespace Test
 
 public class AllTests
 {
-    public static ITestIntfPrx allTests(TestHelper helper, bool collocated)
+    public static ITestIntfPrx allTests(TestHelper helper)
     {
         Communicator? communicator = helper.Communicator();
         TestHelper.Assert(communicator != null);

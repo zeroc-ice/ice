@@ -8,9 +8,9 @@ using Test;
 
 namespace Ice.seqMapping
 {
-    class Twoways
+    public class Twoways
     {
-        const int Length = 100;
+        private const int Length = 100;
 
         internal static void twoways(Communicator communicator, Test.IMyClassPrx p)
         {

@@ -73,11 +73,11 @@ namespace Ice.location
                     adapter2.Activate();
                     break;
                 }
-                catch (TransportException ex)
+                catch (TransportException)
                 {
                     if (nRetry == 0)
                     {
-                        throw ex;
+                        throw;
                     }
 
                     // Retry, if OA creation fails with EADDRINUSE(this can occur when running with JS web

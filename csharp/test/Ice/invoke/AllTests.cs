@@ -9,7 +9,7 @@ namespace Ice.invoke
 {
     public class AllTests
     {
-        private static readonly string _testString = "This is a test string";
+        private const string _testString = "This is a test string";
 
         public static Test.IMyClassPrx allTests(global::Test.TestHelper helper)
         {

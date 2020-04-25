@@ -41,14 +41,7 @@ namespace Ice.operations
 
         private class Callback : CallbackBase
         {
-            public Callback()
-            {
-            }
-
-            public void
-            sent(bool sentSynchronously) => called();
-
-            public void noException(Exception ex) => TestHelper.Assert(false);
+            public void sent() => called();
         }
 
         internal static void onewaysAMI(TestHelper helper, Test.IMyClassPrx proxy)
@@ -59,8 +52,7 @@ namespace Ice.operations
 
             {
                 var cb = new Callback();
-                p.IcePingAsync(progress: new Progress<bool>(
-                    sentSynchronously => cb.sent(sentSynchronously)));
+                p.IcePingAsync(progress: new Progress<bool>(sentSynchronously => cb.sent()));
                 cb.check();
             }
 
@@ -70,29 +62,25 @@ namespace Ice.operations
 
             {
                 var cb = new Callback();
-                p.opVoidAsync(progress: new Progress<bool>(
-                    sentSynchronously => cb.sent(sentSynchronously)));
+                p.opVoidAsync(progress: new Progress<bool>(sentSynchronously => cb.sent()));
                 cb.check();
             }
 
             {
                 var cb = new Callback();
-                p.opIdempotentAsync(progress: new Progress<bool>(
-                    sentSynchronously => cb.sent(sentSynchronously)));
+                p.opIdempotentAsync(progress: new Progress<bool>(sentSynchronously => cb.sent()));
                 cb.check();
             }
 
             {
                 var cb = new Callback();
-                p.opOnewayAsync(progress: new Progress<bool>(
-                    sentSynchronously => cb.sent(sentSynchronously)));
+                p.opOnewayAsync(progress: new Progress<bool>(sentSynchronously => cb.sent()));
                 cb.check();
             }
 
             {
                 var cb = new Callback();
-                p.opOnewayMetadataAsync(progress: new Progress<bool>(
-                    sentSynchronously => cb.sent(sentSynchronously)));
+                p.opOnewayMetadataAsync(progress: new Progress<bool>(sentSynchronously => cb.sent()));
                 cb.check();
             }
 

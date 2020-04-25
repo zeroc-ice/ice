@@ -26,7 +26,7 @@ namespace Ice.operations
 
             output.Write("testing oneway operations... ");
             output.Flush();
-            Oneways.oneways(helper, cl);
+            Oneways.oneways(cl);
             output.WriteLine("ok");
 
             output.Write("testing twoway operations with AMI... ");

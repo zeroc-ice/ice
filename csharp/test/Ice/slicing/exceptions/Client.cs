@@ -9,7 +9,7 @@ public class Client : TestHelper
     public override void Run(string[] args)
     {
         using var communicator = Initialize(ref args);
-        ITestIntfPrx test = AllTests.allTests(this, false);
+        ITestIntfPrx test = AllTests.allTests(this);
         test.shutdown();
     }
 

@@ -3,12 +3,7 @@
 //
 
 using System;
-using System.Reflection;
 using Test;
-
-[assembly: AssemblyTitle("IceDiscoveryTest")]
-[assembly: AssemblyDescription("IceDiscovery test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Server : TestHelper
 {

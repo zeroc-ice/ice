@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 using Ice.DefaultServant.Test;
-
-using System.Diagnostics;
 using System.IO;
 
 using Test;
@@ -109,7 +107,7 @@ namespace Ice.DefaultServant
             TestHelper.Assert(removed == servant);
             removed = oa.RemoveDefaultForCategory("foo");
             TestHelper.Assert(removed == null);
-            identity =  new Identity(identity.Name, "foo");
+            identity = new Identity(identity.Name, "foo");
             prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
             {

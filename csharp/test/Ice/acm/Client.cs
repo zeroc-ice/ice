@@ -11,7 +11,7 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            override public void Run(string[] args)
+            public override void Run(string[] args)
             {
                 Dictionary<string, string> properties = CreateTestProperties(ref args);
                 properties["Ice.Warn.Connections"] = "0";

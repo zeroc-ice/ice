@@ -13,7 +13,7 @@ namespace Ice.seqMapping
 
         public Custom(IEnumerable<T> enumerable)
         {
-            foreach(T v in enumerable)
+            foreach (T v in enumerable)
             {
                 Add(v);
             }

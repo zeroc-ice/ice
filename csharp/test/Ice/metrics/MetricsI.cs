@@ -23,7 +23,7 @@ public sealed class Controller : IController
 
     public void resume(Ice.Current current) => _adapter.Activate();
 
-    readonly private Func<Ice.ObjectAdapter> _factory;
+    private readonly Func<Ice.ObjectAdapter> _factory;
     private Ice.ObjectAdapter _adapter;
 };
 

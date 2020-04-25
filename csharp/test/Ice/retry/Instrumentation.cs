@@ -9,9 +9,9 @@ namespace Ice.retry
 {
     public class Instrumentation
     {
-        static object mutex = new object();
+        private static object mutex = new object();
 
-        class InvocationObserver : Ice.Instrumentation.IInvocationObserver
+        private class InvocationObserver : Ice.Instrumentation.IInvocationObserver
         {
             public void
             Attach()
@@ -58,9 +58,9 @@ namespace Ice.retry
 
         };
 
-        static private Ice.Instrumentation.IInvocationObserver invocationObserver = new InvocationObserver();
+        private static Ice.Instrumentation.IInvocationObserver invocationObserver = new InvocationObserver();
 
-        class CommunicatorObserverI : Ice.Instrumentation.ICommunicatorObserver
+        private class CommunicatorObserverI : Ice.Instrumentation.ICommunicatorObserver
         {
             public Ice.Instrumentation.IObserver? GetConnectionEstablishmentObserver(Endpoint e, string s) => null;
 
@@ -85,11 +85,11 @@ namespace Ice.retry
             }
         };
 
-        static private Ice.Instrumentation.ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
+        private static Ice.Instrumentation.ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
-        static public Ice.Instrumentation.ICommunicatorObserver GetObserver() => communicatorObserver;
+        public static Ice.Instrumentation.ICommunicatorObserver GetObserver() => communicatorObserver;
 
-        static private void
+        private static void
         testEqual(ref int value, int expected)
         {
             if (expected < 0)
@@ -119,22 +119,22 @@ namespace Ice.retry
             value = 0;
         }
 
-        static public void
+        public static void
         testRetryCount(int expected) => testEqual(ref nRetry, expected);
 
-        static public void
+        public static void
         testFailureCount(int expected)
         {
             testEqual(ref nFailure, expected);
         }
 
-        static public void
+        public static void
         testInvocationCount(int expected)
         {
             testEqual(ref nInvocation, expected);
         }
 
-        static public void
+        public static void
         testInvocationReset()
         {
             nRetry = 0;
@@ -142,8 +142,8 @@ namespace Ice.retry
             nInvocation = 0;
         }
 
-        static private int nRetry = 0;
-        static private int nFailure = 0;
-        static private int nInvocation = 0;
+        private static int nRetry = 0;
+        private static int nFailure = 0;
+        private static int nInvocation = 0;
     }
 }

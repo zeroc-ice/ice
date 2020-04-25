@@ -4,13 +4,8 @@
 
 using Test;
 using System;
-using System.Reflection;
 using System.Threading;
 using Ice;
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client : TestHelper
 {

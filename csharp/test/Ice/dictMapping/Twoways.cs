@@ -9,7 +9,7 @@ using Test;
 
 namespace Ice.dictMapping
 {
-    class Twoways
+    public class Twoways
     {
         internal static void twoways(Test.IMyClassPrx p)
         {

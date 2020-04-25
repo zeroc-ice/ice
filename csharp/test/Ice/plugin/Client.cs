@@ -8,10 +8,6 @@ using System.Reflection;
 using System.Collections.Generic;
 using Test;
 
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
 public class Client : TestHelper
 {
     public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);

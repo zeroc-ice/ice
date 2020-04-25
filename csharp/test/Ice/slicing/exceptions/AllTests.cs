@@ -31,7 +31,7 @@ public class AllTests
         public void clientPrivateException(Ice.Current current) => throw new ClientPrivateException("ClientPrivate");
     }
 
-    public static ITestIntfPrx allTests(TestHelper helper, bool collocated)
+    public static ITestIntfPrx allTests(TestHelper helper)
     {
         Communicator? communicator = helper.Communicator();
         TestHelper.Assert(communicator != null);

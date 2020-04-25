@@ -2,16 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Reflection;
 using Test;
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Server : TestHelper
 {
-    class TestIntf : ITestIntf
+    public class TestIntf : ITestIntf
     {
         public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
     }

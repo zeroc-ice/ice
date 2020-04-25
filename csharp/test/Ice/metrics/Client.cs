@@ -2,12 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Reflection;
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
 public class Client : Test.TestHelper
 {
     public override void Run(string[] args)

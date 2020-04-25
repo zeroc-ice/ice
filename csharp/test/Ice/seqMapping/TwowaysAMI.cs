@@ -10,7 +10,7 @@ namespace Ice.seqMapping
 {
     public class TwowaysAMI
     {
-        const int Length = 100;
+        private const int Length = 100;
 
         internal static void twowaysAMI(Ice.Communicator communicator, Test.IMyClassPrx p)
         {
@@ -593,7 +593,7 @@ namespace Ice.seqMapping
         }
     }
 
-    class ValueComparer<T> : IEqualityComparer<T>
+    public class ValueComparer<T> : IEqualityComparer<T>
     {
         public bool Equals(T x, T y)
         {
@@ -613,7 +613,7 @@ namespace Ice.seqMapping
         public int GetHashCode(T obj) => obj!.GetHashCode();
     }
 
-    class CVComparer : IEqualityComparer<AnyClass?>
+    public class CVComparer : IEqualityComparer<AnyClass?>
     {
         public bool Equals(AnyClass? x, AnyClass? y)
         {
@@ -632,7 +632,7 @@ namespace Ice.seqMapping
         public int GetHashCode(AnyClass? obj) => obj!.GetHashCode();
     }
 
-    class CRComparer : IEqualityComparer<Test.CR?>
+    public class CRComparer : IEqualityComparer<Test.CR?>
     {
         public bool Equals(Test.CR? x, Test.CR? y)
         {

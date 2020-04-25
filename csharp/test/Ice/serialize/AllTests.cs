@@ -12,7 +12,7 @@ namespace Ice.serialize
 {
     public class AllTests
     {
-        static public int allTests(TestHelper helper)
+        public static int allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

@@ -10,7 +10,7 @@ using Test;
 
 public class AllTests
 {
-    static IceMX.ConnectionMetrics?
+    public static IceMX.ConnectionMetrics?
     getServerConnectionMetrics(IceMX.IMetricsAdminPrx metrics, long expected)
     {
         try
@@ -38,40 +38,10 @@ public class AllTests
         }
     }
 
-    class Callback
-    {
-        public Callback() => _wait = true;
-
-        public void response()
-        {
-            lock (this)
-            {
-                _wait = false;
-                Monitor.Pulse(this);
-            }
-        }
-
-        public void exception(System.Exception ex) => response();
-
-        public void waitForResponse()
-        {
-            lock (this)
-            {
-                while (_wait)
-                {
-                    Monitor.Wait(this);
-                }
-                _wait = true;
-            }
-        }
-
-        private bool _wait;
-    };
-
-    static string
+    public static string
     getPort(IPropertiesAdminPrx p) => TestHelper.GetTestPort(p.Communicator.GetProperties(), 0).ToString();
 
-    static private Dictionary<string, string>
+    private static Dictionary<string, string>
     getClientProps(IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
@@ -94,7 +64,7 @@ public class AllTests
         return props;
     }
 
-    static private Dictionary<string, string>
+    private static Dictionary<string, string>
     getServerProps(IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
     {
         Dictionary<string, string> props = p.GetPropertiesForPrefix("IceMX.Metrics");
@@ -116,7 +86,7 @@ public class AllTests
         return props;
     }
 
-    class UpdateCallbackI
+    public class UpdateCallbackI
     {
         public UpdateCallbackI(IPropertiesAdminPrx serverProps)
         {
@@ -160,7 +130,7 @@ public class AllTests
         private Ice.IPropertiesAdminPrx _serverProps;
     };
 
-    static void
+    public static void
     waitForCurrent(IceMX.IMetricsAdminPrx metrics, string viewName, string map, int value)
     {
         while (true)
@@ -185,8 +155,8 @@ public class AllTests
         }
     }
 
-    static void
-    waitForObserverCurrent(Observer observer, int value)
+    public static void
+    waitForObserverCurrent(Observer observer)
     {
         for (int i = 0; i < 10; ++i)
         {
@@ -201,7 +171,7 @@ public class AllTests
         }
     }
 
-    static void
+    public static void
     testAttribute(IceMX.IMetricsAdminPrx metrics,
                   IPropertiesAdminPrx props,
                   UpdateCallbackI update,
@@ -253,7 +223,7 @@ public class AllTests
         }
     }
 
-    static void connect(IObjectPrx proxy)
+    public static void connect(IObjectPrx proxy)
     {
         var conn = proxy.GetCachedConnection();
         if (conn != null)
@@ -276,7 +246,7 @@ public class AllTests
         }
     }
 
-    static void invokeOp(IMetricsPrx proxy)
+    public static void invokeOp(IMetricsPrx proxy)
     {
         Dictionary<string, string> ctx = new Dictionary<string, string>();
         ctx.Add("entry1", "test");
@@ -284,7 +254,7 @@ public class AllTests
         proxy.op(ctx);
     }
 
-    static void
+    public static void
     testAttribute(IceMX.IMetricsAdminPrx metrics,
                   IPropertiesAdminPrx props,
                   UpdateCallbackI update,
@@ -296,7 +266,7 @@ public class AllTests
         testAttribute(metrics, props, update, map, attr, value, () => { }, output);
     }
 
-    static void
+    public static void
     updateProps(IPropertiesAdminPrx cprops,
                 IPropertiesAdminPrx sprops,
                 UpdateCallbackI callback,
@@ -324,7 +294,7 @@ public class AllTests
         callback.waitForUpdate();
     }
 
-    static void
+    public static void
     clearView(IPropertiesAdminPrx cprops, IPropertiesAdminPrx sprops, UpdateCallbackI callback)
     {
         Dictionary<string, string> dict;
@@ -350,7 +320,7 @@ public class AllTests
         callback.waitForUpdate();
     }
 
-    static void
+    public static void
     checkFailure(IceMX.IMetricsAdminPrx m, string map, string id, string failure, int count, TextWriter output)
     {
         IceMX.MetricsFailures f = m.GetMetricsFailures("View", map, id);
@@ -367,7 +337,7 @@ public class AllTests
         }
     }
 
-    static Dictionary<string, IceMX.Metrics>
+    public static Dictionary<string, IceMX.Metrics>
     toMap(IceMX.Metrics[] mmap)
     {
         var m = new Dictionary<string, IceMX.Metrics>();
@@ -1164,17 +1134,17 @@ public class AllTests
             TestHelper.Assert(obsv.connectionObserver!.GetCurrent() > 0);
             TestHelper.Assert(obsv.connectionEstablishmentObserver!.GetCurrent() == 0);
             TestHelper.Assert(obsv.endpointLookupObserver!.GetCurrent() == 0);
-            waitForObserverCurrent(obsv.invocationObserver!.remoteObserver!, 0);
+            waitForObserverCurrent(obsv.invocationObserver!.remoteObserver!);
             TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.GetCurrent() == 0);
         }
         else
         {
-            waitForObserverCurrent(obsv.invocationObserver!.collocatedObserver!, 0);
+            waitForObserverCurrent(obsv.invocationObserver!.collocatedObserver!);
             TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.GetCurrent() == 0);
         }
-        waitForObserverCurrent(obsv.dispatchObserver, 0);
+        waitForObserverCurrent(obsv.dispatchObserver);
         TestHelper.Assert(obsv.dispatchObserver.GetCurrent() == 0);
-        waitForObserverCurrent(obsv.invocationObserver, 0);
+        waitForObserverCurrent(obsv.invocationObserver);
         TestHelper.Assert(obsv.invocationObserver.GetCurrent() == 0);
 
         TestHelper.Assert(obsv.threadObserver.GetFailedCount() == 0);

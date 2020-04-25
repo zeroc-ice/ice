@@ -8,7 +8,7 @@ using Test;
 
 public class Observer : Ice.Instrumentation.IObserver
 {
-    virtual public void
+    public virtual void
     reset()
     {
         lock (this)
@@ -79,7 +79,7 @@ public class Observer : Ice.Instrumentation.IObserver
 
 public class ChildInvocationObserver : Observer, Ice.Instrumentation.IChildInvocationObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -111,7 +111,7 @@ public class CollocatedObserver : ChildInvocationObserver, Ice.Instrumentation.I
 
 public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -185,7 +185,7 @@ public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObser
 
 public class DispatchObserver : Observer, Ice.Instrumentation.IDispatchObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -220,7 +220,7 @@ public class DispatchObserver : Observer, Ice.Instrumentation.IDispatchObserver
 
 public class ConnectionObserver : Observer, Ice.Instrumentation.IConnectionObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)
@@ -255,7 +255,7 @@ public class ConnectionObserver : Observer, Ice.Instrumentation.IConnectionObser
 
 public class ThreadObserver : Observer, Ice.Instrumentation.IThreadObserver
 {
-    override public void
+    public override void
     reset()
     {
         lock (this)

@@ -3,13 +3,8 @@
 //
 
 using System;
-using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client : Test.TestHelper
 {

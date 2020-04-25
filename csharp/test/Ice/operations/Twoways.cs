@@ -9,7 +9,7 @@ using Test;
 
 namespace Ice.operations
 {
-    class Twoways
+    public class Twoways
     {
         internal static void twoways(TestHelper helper, Test.IMyClassPrx p)
         {

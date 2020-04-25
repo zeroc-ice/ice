@@ -11,10 +11,6 @@ using Test;
 
 using Ice;
 
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
 public class Client : TestHelper
 {
     public override void Run(string[] args)

@@ -3,9 +3,8 @@
 //
 
 using IceBox;
-using Test;
 
-class TestService : IService
+public class TestService : IService
 {
     public void
     start(string name, Ice.Communicator communicator, string[] args)

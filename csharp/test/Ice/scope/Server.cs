@@ -10,7 +10,7 @@ namespace Ice.scope
 {
     public class Server : TestHelper
     {
-        class I1 : II
+        private class I1 : II
         {
             public (S, S) opS(S s1, Current current) => (s1, s1);
 
@@ -35,7 +35,7 @@ namespace Ice.scope
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
-        class I2 : Test.Inner.II
+        private class I2 : Test.Inner.II
         {
             public (Test.Inner.Inner2.S, Test.Inner.Inner2.S)
             opS(Test.Inner.Inner2.S s1, Current current) => (s1, s1);
@@ -58,7 +58,7 @@ namespace Ice.scope
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
-        class I3 : Test.Inner.Inner2.II
+        private class I3 : Test.Inner.Inner2.II
         {
             public (Test.Inner.Inner2.S, Test.Inner.Inner2.S)
             opS(Test.Inner.Inner2.S s1, Current current) => (s1, s1);
@@ -81,7 +81,7 @@ namespace Ice.scope
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
-        class I4 : Inner.Test.Inner2.II
+        private class I4 : Inner.Test.Inner2.II
         {
             public (S, S) opS(S s1, Current current) => (s1, s1);
 

@@ -145,7 +145,7 @@ internal class Configuration
 
     public bool Buffered() => _buffered;
 
-    static public Configuration GetInstance() => _instance;
+    public static Configuration GetInstance() => _instance;
 
     private System.Exception? _connectorsException;
     private System.Exception? _connectException;

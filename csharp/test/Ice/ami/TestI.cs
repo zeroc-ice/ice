@@ -90,7 +90,7 @@ namespace Ice.ami
                 reply.Scheduler).Wait();
         }
 
-        Test.ITestIntfPrx Self(Current current) =>
+        private Test.ITestIntfPrx Self(Current current) =>
             current.Adapter.CreateProxy(current.Identity, Test.ITestIntfPrx.Factory);
 
         public ValueTask startDispatchAsync(Current current)

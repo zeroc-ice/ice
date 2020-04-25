@@ -13,7 +13,7 @@ namespace Ice.admin
 {
     public class AllTests
     {
-        static void
+        public static void
         TestFacets(Communicator com, bool builtInFacets, bool filtered)
         {
             if (builtInFacets && !filtered)

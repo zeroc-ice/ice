@@ -48,7 +48,7 @@ public class Client : TestHelper
         }
     }
 
-    static void
+    public static void
     testtypes()
     {
         var a = @as.@base;

@@ -40,7 +40,7 @@ namespace Ice.retry
             private bool _called;
         }
 
-        static public Test.IRetryPrx
+        public static Test.IRetryPrx
         allTests(TestHelper helper, Communicator communicator, Communicator communicator2, string rf)
         {
             Instrumentation.testInvocationReset();

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Ice.acm
 {
-    class LoggerI : ILogger
+    public class LoggerI : ILogger
     {
         public LoggerI(string name, TextWriter output)
         {
@@ -116,13 +116,13 @@ namespace Ice.acm
 
         private readonly string _name;
         private bool _started;
-        private readonly static string _date = "d";
-        private readonly static string _time = "HH:mm:ss:fff";
+        private const string _date = "d";
+        private const string _time = "HH:mm:ss:fff";
         private readonly TextWriter _output;
         private readonly List<string> _messages = new List<string>();
     }
 
-    abstract class TestCase
+    public abstract class TestCase
     {
         public TestCase(string name, Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper)
         {
@@ -280,7 +280,7 @@ namespace Ice.acm
 
     public class AllTests
     {
-        class InvocationHeartbeatTest : TestCase
+        public class InvocationHeartbeatTest : TestCase
         {
             public InvocationHeartbeatTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("invocation heartbeat", com, helper) => SetServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
@@ -296,7 +296,7 @@ namespace Ice.acm
             }
         }
 
-        class InvocationNoHeartbeatTest : TestCase
+        public class InvocationNoHeartbeatTest : TestCase
         {
             // Disable heartbeat on invocations
             public InvocationNoHeartbeatTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
@@ -325,7 +325,7 @@ namespace Ice.acm
             }
         }
 
-        class InvocationHeartbeatCloseOnIdleTest : TestCase
+        public class InvocationHeartbeatCloseOnIdleTest : TestCase
         {
             public InvocationHeartbeatCloseOnIdleTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("invocation with no heartbeat and close on idle", com, helper)
@@ -348,7 +348,7 @@ namespace Ice.acm
             }
         }
 
-        class CloseOnIdleTest : TestCase
+        public class CloseOnIdleTest : TestCase
         {
             public CloseOnIdleTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("close on idle", com, helper) => SetClientACM(1, 1, 0); // Only close on idle
@@ -372,7 +372,7 @@ namespace Ice.acm
             }
         }
 
-        class CloseOnInvocationTest : TestCase
+        public class CloseOnInvocationTest : TestCase
         {
             public CloseOnInvocationTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("close on invocation", com, helper) => SetClientACM(1, 2, 0); // Only close on invocation
@@ -389,7 +389,7 @@ namespace Ice.acm
             }
         }
 
-        class CloseOnIdleAndInvocationTest : TestCase
+        public class CloseOnIdleAndInvocationTest : TestCase
         {
             // Only close on idle and invocation
             public CloseOnIdleAndInvocationTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
@@ -413,7 +413,7 @@ namespace Ice.acm
             }
         }
 
-        class ForcefulCloseOnIdleAndInvocationTest : TestCase
+        public class ForcefulCloseOnIdleAndInvocationTest : TestCase
         {
             // Only close on idle and invocation
             public ForcefulCloseOnIdleAndInvocationTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
@@ -437,7 +437,7 @@ namespace Ice.acm
             }
         }
 
-        class HeartbeatOnIdleTest : TestCase
+        public class HeartbeatOnIdleTest : TestCase
         {
             public HeartbeatOnIdleTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("heartbeat on idle", com, helper) => SetServerACM(1, -1, 2); // Enable server heartbeats.
@@ -453,7 +453,7 @@ namespace Ice.acm
             }
         }
 
-        class HeartbeatAlwaysTest : TestCase
+        public class HeartbeatAlwaysTest : TestCase
         {
             // Enable server heartbeats.
             public HeartbeatAlwaysTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
@@ -474,7 +474,7 @@ namespace Ice.acm
             }
         }
 
-        class HeartbeatManualTest : TestCase
+        public class HeartbeatManualTest : TestCase
         {
             public HeartbeatManualTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("manual heartbeats", com, helper)
@@ -499,7 +499,7 @@ namespace Ice.acm
             }
         }
 
-        class SetACMTest : TestCase
+        public class SetACMTest : TestCase
         {
             public SetACMTest(Test.IRemoteCommunicatorPrx com, global::Test.TestHelper helper) :
                 base("setACM/getACM", com, helper) => SetClientACM(15, 4, 0);

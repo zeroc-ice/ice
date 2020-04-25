@@ -723,7 +723,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloat", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, float? p1) =>  ostr.WriteTaggedFloat(2, p1));
+                    (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>

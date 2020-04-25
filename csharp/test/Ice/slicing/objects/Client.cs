@@ -9,7 +9,7 @@ public class Client : TestHelper
     public override void Run(string[] args)
     {
         using var communicator = Initialize(ref args);
-        AllTests.allTests(this, false).shutdown();
+        AllTests.allTests(this).shutdown();
     }
 
     public static int Main(string[] args) => TestDriver.RunTest<Client>(args);

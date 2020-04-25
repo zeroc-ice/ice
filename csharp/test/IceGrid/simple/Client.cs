@@ -2,13 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-using System.Reflection;
 using System.Linq;
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client : Test.TestHelper
 {

@@ -3,11 +3,6 @@
 //
 
 using System;
-using System.Reflection;
-
-[assembly: AssemblyTitle("IceDiscoveryTest")]
-[assembly: AssemblyDescription("IceDiscovery test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Client : Test.TestHelper
 {

@@ -5,7 +5,6 @@
   <Import Project="$(MSbuildThisFileDirectory)ice.common.props"/>
 
   <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
 

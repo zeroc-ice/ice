@@ -60,7 +60,7 @@ namespace Ice.stream
             return true;
         }
 
-        static public int allTests(TestHelper helper)
+        public static int allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
 

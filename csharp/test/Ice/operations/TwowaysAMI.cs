@@ -60,7 +60,7 @@ namespace Ice.operations
                 called();
             }
 
-            public void exception(Exception ex)
+            public void exception()
             {
                 _succeeded = false;
                 called();
@@ -924,14 +924,6 @@ namespace Ice.operations
                 TestHelper.Assert(r.DictionaryEqual(_d));
                 called();
             }
-
-            public void opIdempotent() => called();
-
-            public void OpNonmutating() => called();
-
-            public void opDerived() => called();
-
-            public void exCB(Exception ex) => TestHelper.Assert(false);
 
             private Communicator? _communicator;
             private readonly int _l;

@@ -98,7 +98,7 @@ namespace Ice.optional.AMD
             Current current) => ToReturnValue(p1);
 
         public ValueTask<(IEnumerable<short>?, IEnumerable<short>?)> opShortListAsync(List<short>? p1,
-            Current current) =>  ToReturnValue(p1);
+            Current current) => ToReturnValue(p1);
 
         public ValueTask<(ReadOnlyMemory<int>, ReadOnlyMemory<int>)> opIntSeqAsync(int[]? p1, Current current) =>
             ToReturnValue(p1);
