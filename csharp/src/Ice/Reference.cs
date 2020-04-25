@@ -737,36 +737,128 @@ namespace Ice
             }
         }
 
-        // Marshal the reference.
-        internal void Write(OutputStream ostr)
+        internal void CreateConnection(IReadOnlyList<Endpoint> allEndpoints, IGetConnectionCallback callback)
         {
-            if (IsFixed)
+            Debug.Assert(!IsFixed);
+            IReadOnlyList<Endpoint> endpoints = FilterEndpoints(allEndpoints);
+            if (endpoints.Count == 0)
             {
-                throw new NotSupportedException("cannot marshal a fixed proxy");
+                callback.SetException(new NoEndpointException(ToString()));
+                return;
             }
 
-            Identity.IceWrite(ostr);
-            ostr.WriteFacet(Facet);
-            ostr.WriteByte((byte)InvocationMode);
-            ostr.WriteBool(false); // secure option, always false (not used)
-            ostr.WriteByte((byte)Protocol);
-            ostr.WriteByte(0);
-            ostr.WriteByte(Encoding.Major);
-            ostr.WriteByte(Encoding.Minor);
-
-            ostr.WriteSize(Endpoints.Count);
-            if (Endpoints.Count > 0)
+            //
+            // Finally, create the connection.
+            //
+            OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
+            if (IsConnectionCached || endpoints.Count == 1)
             {
-                Debug.Assert(AdapterId.Length == 0);
-                foreach (Endpoint endpoint in Endpoints)
-                {
-                    ostr.WriteEndpoint(endpoint);
-                }
+                //
+                // Get an existing connection or create one if there's no
+                // existing connection to one of the given endpoints.
+                //
+                factory.Create(endpoints, false, EndpointSelection,
+                               new CreateConnectionCallback(this, null, callback));
             }
             else
             {
-                ostr.WriteString(AdapterId);
+                //
+                // Go through the list of endpoints and try to create the
+                // connection until it succeeds. This is different from just
+                // calling create() with the given endpoints since this might
+                // create a new connection even if there's an existing
+                // connection for one of the endpoints.
+                //
+
+                factory.Create(new Endpoint[] { endpoints[0] }, true, EndpointSelection,
+                               new CreateConnectionCallback(this, endpoints, callback));
             }
+        }
+
+        internal Ice.Connection? GetCachedConnection()
+        {
+            if (IsFixed)
+            {
+                return _requestHandler!.GetConnection();
+            }
+            else
+            {
+                if (IsConnectionCached)
+                {
+                    Debug.Assert(_requestHandlerMutex != null);
+                    IRequestHandler? handler;
+                    lock (_requestHandlerMutex)
+                    {
+                        handler = _requestHandler;
+                    }
+                    try
+                    {
+                        return handler?.GetConnection();
+                    }
+                    catch (System.Exception)
+                    {
+                    }
+                }
+                return null;
+            }
+        }
+
+        internal void GetConnection(IGetConnectionCallback callback)
+        {
+            Debug.Assert(!IsFixed);
+            if (RouterInfo != null)
+            {
+                //
+                // If we route, we send everything to the router's client
+                // proxy endpoints.
+                //
+                RouterInfo.GetClientEndpoints(new RouterEndpointsCallback(this, callback));
+            }
+            else
+            {
+                GetConnectionNoRouterInfo(callback);
+            }
+        }
+
+        internal IRequestHandler GetRequestHandler()
+        {
+            if (IsFixed)
+            {
+                return _requestHandler!;
+            }
+            else
+            {
+                if (IsConnectionCached)
+                {
+                    Debug.Assert(_requestHandlerMutex != null);
+                    lock (_requestHandlerMutex)
+                    {
+                        if (_requestHandler != null)
+                        {
+                            return _requestHandler;
+                        }
+                    }
+                }
+                return Communicator.GetRequestHandler(this);
+            }
+        }
+
+        internal IRequestHandler SetRequestHandler(IRequestHandler handler)
+        {
+            Debug.Assert(!IsFixed);
+            if (IsConnectionCached)
+            {
+                Debug.Assert(_requestHandlerMutex != null);
+                lock (_requestHandlerMutex)
+                {
+                    if (_requestHandler == null)
+                    {
+                        _requestHandler = handler;
+                    }
+                    return _requestHandler;
+                }
+            }
+            return handler;
         }
 
         internal Dictionary<string, string> ToProperty(string prefix)
@@ -809,132 +901,6 @@ namespace Ice
             return properties;
         }
 
-        internal IRequestHandler GetRequestHandler()
-        {
-            if (IsFixed)
-            {
-                return _requestHandler!;
-            }
-            else
-            {
-                if (IsConnectionCached)
-                {
-                    Debug.Assert(_requestHandlerMutex != null);
-                    lock (_requestHandlerMutex)
-                    {
-                        if (_requestHandler != null)
-                        {
-                            return _requestHandler;
-                        }
-                    }
-                }
-                return Communicator.GetRequestHandler(this);
-            }
-        }
-
-        internal Ice.Connection? GetCachedConnection()
-        {
-            if (IsFixed)
-            {
-                return _requestHandler!.GetConnection();
-            }
-            else
-            {
-                if (IsConnectionCached)
-                {
-                    Debug.Assert(_requestHandlerMutex != null);
-                    IRequestHandler? handler;
-                    lock (_requestHandlerMutex)
-                    {
-                        handler = _requestHandler;
-                    }
-                    try
-                    {
-                        return handler?.GetConnection();
-                    }
-                    catch (System.Exception)
-                    {
-                    }
-                }
-                return null;
-            }
-        }
-
-        // The remaining methods are used only for routable references.
-
-        internal void GetConnection(IGetConnectionCallback callback)
-        {
-            Debug.Assert(!IsFixed);
-            if (RouterInfo != null)
-            {
-                //
-                // If we route, we send everything to the router's client
-                // proxy endpoints.
-                //
-                RouterInfo.GetClientEndpoints(new RouterEndpointsCallback(this, callback));
-            }
-            else
-            {
-                GetConnectionNoRouterInfo(callback);
-            }
-        }
-
-        internal void CreateConnection(IReadOnlyList<Endpoint> allEndpoints, IGetConnectionCallback callback)
-        {
-            Debug.Assert(!IsFixed);
-            IReadOnlyList<Endpoint> endpoints = FilterEndpoints(allEndpoints);
-            if (endpoints.Count == 0)
-            {
-                callback.SetException(new NoEndpointException(ToString()));
-                return;
-            }
-
-            //
-            // Finally, create the connection.
-            //
-            OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
-            if (IsConnectionCached || endpoints.Count == 1)
-            {
-                //
-                // Get an existing connection or create one if there's no
-                // existing connection to one of the given endpoints.
-                //
-                factory.Create(endpoints, false, EndpointSelection,
-                               new CreateConnectionCallback(this, null, callback));
-            }
-            else
-            {
-                //
-                // Go through the list of endpoints and try to create the
-                // connection until it succeeds. This is different from just
-                // calling create() with the given endpoints since this might
-                // create a new connection even if there's an existing
-                // connection for one of the endpoints.
-                //
-
-                factory.Create(new Endpoint[] { endpoints[0] }, true, EndpointSelection,
-                               new CreateConnectionCallback(this, endpoints, callback));
-            }
-        }
-
-        internal IRequestHandler SetRequestHandler(IRequestHandler handler)
-        {
-            Debug.Assert(!IsFixed);
-            if (IsConnectionCached)
-            {
-                Debug.Assert(_requestHandlerMutex != null);
-                lock (_requestHandlerMutex)
-                {
-                    if (_requestHandler == null)
-                    {
-                        _requestHandler = handler;
-                    }
-                    return _requestHandler;
-                }
-            }
-            return handler;
-        }
-
         internal void UpdateRequestHandler(IRequestHandler? previous, IRequestHandler? handler)
         {
             Debug.Assert(!IsFixed);
@@ -958,22 +924,35 @@ namespace Ice
             }
         }
 
-        private void GetConnectionNoRouterInfo(IGetConnectionCallback callback)
+        // Marshal the reference.
+        internal void Write(OutputStream ostr)
         {
-            Debug.Assert(!IsFixed);
-            if (Endpoints.Count > 0)
+            if (IsFixed)
             {
-                CreateConnection(Endpoints, callback);
-                return;
+                throw new NotSupportedException("cannot marshal a fixed proxy");
             }
 
-            if (LocatorInfo != null)
+            Identity.IceWrite(ostr);
+            ostr.WriteFacet(Facet);
+            ostr.WriteByte((byte)InvocationMode);
+            ostr.WriteBool(false); // secure option, always false (not used)
+            ostr.WriteByte((byte)Protocol);
+            ostr.WriteByte(0);
+            ostr.WriteByte(Encoding.Major);
+            ostr.WriteByte(Encoding.Minor);
+
+            ostr.WriteSize(Endpoints.Count);
+            if (Endpoints.Count > 0)
             {
-                LocatorInfo.GetEndpoints(this, LocatorCacheTimeout, new LocatorEndpointsCallback(this, callback));
+                Debug.Assert(AdapterId.Length == 0);
+                foreach (Endpoint endpoint in Endpoints)
+                {
+                    ostr.WriteEndpoint(endpoint);
+                }
             }
             else
             {
-                callback.SetException(new NoEndpointException(ToString()));
+                ostr.WriteString(AdapterId);
             }
         }
 
@@ -1074,6 +1053,25 @@ namespace Ice
             // else, already filtered out
 
             return filteredEndpoints.ToArray();
+        }
+
+        private void GetConnectionNoRouterInfo(IGetConnectionCallback callback)
+        {
+            Debug.Assert(!IsFixed);
+            if (Endpoints.Count > 0)
+            {
+                CreateConnection(Endpoints, callback);
+                return;
+            }
+
+            if (LocatorInfo != null)
+            {
+                LocatorInfo.GetEndpoints(this, LocatorCacheTimeout, new LocatorEndpointsCallback(this, callback));
+            }
+            else
+            {
+                callback.SetException(new NoEndpointException(ToString()));
+            }
         }
 
         // TODO: refactor this class
