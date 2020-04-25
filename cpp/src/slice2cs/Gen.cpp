@@ -2170,7 +2170,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << nl << "public static new " << name << " Parse("
          << "string s, "
          << getUnqualified("Ice.Communicator", ns) << " communicator) => "
-         << "new _" << p->name() << "Prx(communicator.CreateReference(s));";
+         << "new _" << p->name() << "Prx(" << getUnqualified("Ice.Reference", ns) << ".Parse(s, communicator));";
 
     _out << sp;
     _out << nl << "public static bool TryParse("
@@ -2180,7 +2180,8 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "try";
     _out << sb;
-    _out << nl << "prx = new _" << p->name() << "Prx(communicator.CreateReference(s));";
+    _out << nl << "prx = new _" << p->name() << "Prx(" << getUnqualified("Ice.Reference", ns)
+        << ".Parse(s, communicator));";
     _out << eb;
     _out << nl << "catch (global::System.Exception)";
     _out << sb;

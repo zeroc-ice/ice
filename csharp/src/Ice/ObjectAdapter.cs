@@ -795,7 +795,7 @@ namespace Ice
             {
                 _id = "";
                 _replicaGroupId = "";
-                _reference = Communicator.CreateReference("dummy -t", "");
+                _reference = Reference.Parse("dummy -t", Communicator);
                 _acm = Communicator.ServerACM;
                 return;
             }
@@ -829,7 +829,7 @@ namespace Ice
             // Setup a reference to be used to get the default proxy options when creating new proxies. By default,
             // create twoway proxies.
             string proxyOptions = Communicator.GetProperty($"{Name}.ProxyOptions") ?? "-t";
-            _reference = Communicator.CreateReference($"dummy {proxyOptions}", "");
+            _reference = Reference.Parse($"dummy {proxyOptions}", Communicator);
 
             _acm = new ACMConfig(Communicator, Communicator.Logger, $"{Name}.ACM", Communicator.ServerACM);
             {

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace Ice
 {
@@ -72,6 +73,10 @@ namespace Ice
         }
 
         public static bool operator !=(Reference? lhs, Reference? rhs) => !(lhs == rhs);
+
+        /// <summary>Creates a reference from a string and a communucator. This an Ice-internal publicly visible static
+        /// method.</summary>
+        public static Reference Parse(string s, Communicator communicator) => Parse(s, null, communicator);
 
         public override bool Equals(object? obj) => Equals(obj as Reference);
 
@@ -296,34 +301,20 @@ namespace Ice
             switch (InvocationMode)
             {
                 case InvocationMode.Twoway:
-                    {
-                        s.Append(" -t");
-                        break;
-                    }
-
+                    s.Append(" -t");
+                    break;
                 case InvocationMode.Oneway:
-                    {
-                        s.Append(" -o");
-                        break;
-                    }
-
+                    s.Append(" -o");
+                    break;
                 case InvocationMode.BatchOneway:
-                    {
-                        s.Append(" -O");
-                        break;
-                    }
-
+                    s.Append(" -O");
+                    break;
                 case InvocationMode.Datagram:
-                    {
-                        s.Append(" -d");
-                        break;
-                    }
-
+                    s.Append(" -d");
+                    break;
                 case InvocationMode.BatchDatagram:
-                    {
-                        s.Append(" -D");
-                        break;
-                    }
+                    s.Append(" -D");
+                    break;
             }
 
             s.Append(" -p ");
@@ -370,6 +361,346 @@ namespace Ice
                 }
             }
             return s.ToString();
+        }
+
+        internal static Reference Parse(string s, string? propertyPrefix, Communicator communicator)
+        {
+            const string delim = " \t\n\r";
+
+            int beg;
+            int end = 0;
+
+            beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
+            if (beg == -1)
+            {
+                throw new FormatException($"no non-whitespace characters found in `{s}'");
+            }
+
+            // Extract the identity, which may be enclosed in single or double quotation marks.
+            string identityString;
+            end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
+            if (end == -1)
+            {
+                throw new FormatException($"mismatched quotes around identity in `{s} '");
+            }
+            else if (end == 0)
+            {
+                end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
+                if (end == -1)
+                {
+                    end = s.Length;
+                }
+                identityString = s[beg..end];
+            }
+            else
+            {
+                beg++; // Skip leading quote
+                identityString = s[beg..end];
+                end++; // Skip trailing quote
+            }
+
+            if (beg == end)
+            {
+                throw new FormatException($"no identity in `{s}'");
+            }
+
+            // Parsing the identity may raise FormatException.
+            var identity = Identity.Parse(identityString);
+
+            string facet = "";
+            InvocationMode mode = InvocationMode.Twoway;
+            Encoding encoding = communicator.DefaultEncoding;
+            Protocol protocol = Protocol.Ice1;
+            string adapter;
+
+            while (true)
+            {
+                beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
+                if (beg == -1)
+                {
+                    break;
+                }
+
+                if (s[beg] == ':' || s[beg] == '@')
+                {
+                    break;
+                }
+
+                end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
+                if (end == -1)
+                {
+                    end = s.Length;
+                }
+
+                if (beg == end)
+                {
+                    break;
+                }
+
+                string option = s[beg..end];
+                if (option.Length != 2 || option[0] != '-')
+                {
+                    throw new FormatException("expected a proxy option but found `{option}' in `{s}'");
+                }
+
+                // Check for the presence of an option argument. The argument may be enclosed in single or double
+                // quotation marks.
+                string? argument = null;
+                int argumentBeg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
+                if (argumentBeg != -1)
+                {
+                    char ch = s[argumentBeg];
+                    if (ch != '@' && ch != ':' && ch != '-')
+                    {
+                        beg = argumentBeg;
+                        end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
+                        if (end == -1)
+                        {
+                            throw new FormatException($"mismatched quotes around value for {option} option in `{s}'");
+                        }
+                        else if (end == 0)
+                        {
+                            end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
+                            if (end == -1)
+                            {
+                                end = s.Length;
+                            }
+                            argument = s[beg..end];
+                        }
+                        else
+                        {
+                            beg++; // Skip leading quote
+                            argument = s[beg..end];
+                            end++; // Skip trailing quote
+                        }
+                    }
+                }
+
+                switch (option[1])
+                {
+                    case 'f':
+                        if (argument == null)
+                        {
+                            throw new FormatException($"no argument provided for -f option in `{s}'");
+                        }
+                        facet = IceUtilInternal.StringUtil.UnescapeString(argument, 0, argument.Length, "");
+                        break;
+
+                    case 't':
+                        if (argument != null)
+                        {
+                            throw new FormatException(
+                                $"unexpected argument `{argument}' provided for -t option in `{s}'");
+                        }
+                        mode = InvocationMode.Twoway;
+                        break;
+
+                    case 'o':
+                        if (argument != null)
+                        {
+                            throw new FormatException(
+                                $"unexpected argument `{argument}' provided for -o option in `{s}'");
+                        }
+                        mode = InvocationMode.Oneway;
+                        break;
+
+                    case 'O':
+                        if (argument != null)
+                        {
+                            throw new FormatException(
+                                $"unexpected argument `{argument}' provided for -O option in `{s}'");
+                        }
+                        mode = InvocationMode.BatchOneway;
+                        break;
+
+                    case 'd':
+                        if (argument != null)
+                        {
+                            throw new FormatException(
+                                $"unexpected argument `{argument}' provided for -d option in `{s}'");
+                        }
+                        mode = InvocationMode.Datagram;
+                        break;
+
+                    case 'D':
+                        if (argument != null)
+                        {
+                            throw new FormatException(
+                                $"unexpected argument `{argument}' provided for -D option in `{s}'");
+                        }
+                        mode = InvocationMode.BatchDatagram;
+                        break;
+
+                    case 's':
+                        if (argument != null)
+                        {
+                            throw new FormatException(
+                                $"unexpected argument `{argument}' provided for -s option in `{s}'");
+                        }
+                        communicator.Logger.Warning(
+                            $"while parsing `{s}': the `-s' proxy option no longer has any effect");
+                        break;
+
+                    case 'e':
+                        if (argument == null)
+                        {
+                            throw new FormatException($"no argument provided for -e option in `{s}'");
+                        }
+                        encoding = Encoding.Parse(argument);
+                        break;
+
+                    case 'p':
+                        if (argument == null)
+                        {
+                            throw new FormatException($"no argument provided for -p option `{s}'");
+                        }
+                        protocol = ProtocolExtensions.Parse(argument);
+                        break;
+
+                    default:
+                        throw new FormatException("unknown option `{option}' in `{s}'");
+                }
+            }
+
+            if (beg == -1)
+            {
+                return communicator.CreateReference(identity, facet, mode, protocol, encoding, Array.Empty<Endpoint>(),
+                    null, propertyPrefix);
+            }
+
+            var endpoints = new List<Endpoint>();
+
+            if (s[beg] == ':')
+            {
+                var unknownEndpoints = new List<string>();
+                end = beg;
+
+                while (end < s.Length && s[end] == ':')
+                {
+                    beg = end + 1;
+
+                    end = beg;
+                    while (true)
+                    {
+                        end = s.IndexOf(':', end);
+                        if (end == -1)
+                        {
+                            end = s.Length;
+                            break;
+                        }
+                        else
+                        {
+                            bool quoted = false;
+                            int quote = beg;
+                            while (true)
+                            {
+                                quote = s.IndexOf('\"', quote);
+                                if (quote == -1 || end < quote)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    quote = s.IndexOf('\"', ++quote);
+                                    if (quote == -1)
+                                    {
+                                        break;
+                                    }
+                                    else if (end < quote)
+                                    {
+                                        quoted = true;
+                                        break;
+                                    }
+                                    ++quote;
+                                }
+                            }
+                            if (!quoted)
+                            {
+                                break;
+                            }
+                            ++end;
+                        }
+                    }
+
+                    string es = s[beg..end];
+                    Endpoint? endp = communicator.CreateEndpoint(es, false);
+                    if (endp != null)
+                    {
+                        endpoints.Add(endp);
+                    }
+                    else
+                    {
+                        unknownEndpoints.Add(es);
+                    }
+                }
+
+                if (endpoints.Count == 0)
+                {
+                    Debug.Assert(unknownEndpoints.Count > 0);
+                    throw new FormatException($"invalid endpoint `{unknownEndpoints[0]}' in `{s}'");
+                }
+                else if (unknownEndpoints.Count != 0 && (communicator.GetPropertyAsInt("Ice.Warn.Endpoints") ?? 1) > 0)
+                {
+                    var msg = new StringBuilder("Proxy contains unknown endpoints:");
+                    int sz = unknownEndpoints.Count;
+                    for (int idx = 0; idx < sz; ++idx)
+                    {
+                        msg.Append(" `");
+                        msg.Append(unknownEndpoints[idx]);
+                        msg.Append("'");
+                    }
+                    communicator.Logger.Warning(msg.ToString());
+                }
+                return communicator.CreateReference(identity, facet, mode, protocol, encoding, endpoints, null,
+                    propertyPrefix);
+            }
+            else if (s[beg] == '@')
+            {
+                beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, beg + 1);
+                if (beg == -1)
+                {
+                    throw new FormatException($"missing adapter id in `{s}'");
+                }
+
+                string adapterstr;
+                end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
+                if (end == -1)
+                {
+                    throw new FormatException($"mismatched quotes around adapter id in `{s}'");
+                }
+                else if (end == 0)
+                {
+                    end = IceUtilInternal.StringUtil.FindFirstOf(s, delim, beg);
+                    if (end == -1)
+                    {
+                        end = s.Length;
+                    }
+                    adapterstr = s[beg..end];
+                }
+                else
+                {
+                    beg++; // Skip leading quote
+                    adapterstr = s[beg..end];
+                    end++; // Skip trailing quote
+                }
+
+                if (end != s.Length && IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end) != -1)
+                {
+                    throw new FormatException(
+                        $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
+                }
+
+                adapter = IceUtilInternal.StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
+
+                if (adapter.Length == 0)
+                {
+                    throw new FormatException($"empty adapter id in `{s}'");
+                }
+                return communicator.CreateReference(identity, facet, mode, protocol, encoding, Array.Empty<Endpoint>(),
+                    adapter, propertyPrefix);
+            }
+
+            throw new FormatException($"malformed proxy `{s}'");
         }
 
         // Constructor for routable references, not bound to a connection

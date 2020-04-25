@@ -125,7 +125,7 @@ namespace Ice
             {
                 return null;
             }
-            return factory(CreateReference(proxy, name));
+            return factory(Reference.Parse(proxy, name, this));
         }
 
         /// <summary>Insert a new property or change the value of an existing property.

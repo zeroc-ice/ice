@@ -243,13 +243,13 @@ namespace Ice
         public static readonly ProxyFactory<IObjectPrx> Factory = (reference) => new ObjectPrx(reference);
 
         public static IObjectPrx Parse(string s, Communicator communicator) =>
-            new ObjectPrx(communicator.CreateReference(s));
+            new ObjectPrx(Reference.Parse(s, communicator));
 
         public static bool TryParse(string s, Communicator communicator, out IObjectPrx? prx)
         {
             try
             {
-                prx = new ObjectPrx(communicator.CreateReference(s));
+                prx = new ObjectPrx(Reference.Parse(s, communicator));
             }
             catch (Exception)
             {
@@ -393,7 +393,7 @@ namespace Ice
             }
             string? str = info.GetString("proxy");
             Debug.Assert(str != null);
-            IceReference = communicator.CreateReference(str, null);
+            IceReference = Reference.Parse(str, communicator);
         }
     }
 }
