@@ -8,5 +8,9 @@
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <RepositoryUrl>https://github.com/zeroc-ice/ice</RepositoryUrl>
     </PropertyGroup>
+    <ItemGroup>
+        <!-- TODO: move back to ice.common.props, when test build no longer hangs -->
+        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8" PrivateAssets="All"/>
+    </ItemGroup>
     <Import Project="$(MSBuildThisFileDirectory)ice.common.props" />
 </Project>
