@@ -38,11 +38,10 @@ protected:
 
     virtual void writeMarshaling(const ClassDefPtr&);
 
-    void emitAttributes(const ContainedPtr&);
-    void emitComVisibleAttribute();
-    void emitGeneratedCodeAttribute();
-    void emitTypeIdAttribute(const std::string&);
-    void emitPartialTypeAttributes();
+    void emitCommonAttributes(); // GeneratedCode and more if needed
+    void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
+    void emitSerializableAttribute();
+    void emitTypeIdAttribute(const std::string&); // the Ice type ID attribute
 
     std::string writeValue(const TypePtr&, const std::string&);
 

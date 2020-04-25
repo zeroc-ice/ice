@@ -928,7 +928,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
 
-    out << nl << param << " = ";
+    out << param << " = ";
     if(isClassType(type))
     {
         out << stream << ".ReadClass<" << typeToString(type, scope) << ">();";
@@ -1125,7 +1125,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         else
         {
             out << nl << param << " = " << stream << ".ReadTagged"
-                << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementArray(" << tag << ","
+                << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementArray(" << tag << ", "
                 << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
                 << elementType->minWireSize() <<  ", " << inputStreamReader(elementType, scope) << ");";
         }
