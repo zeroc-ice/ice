@@ -636,12 +636,19 @@ namespace Ice
             private readonly Encoding _encoding;
         }
 
-        // Returns locator info for a given locator. Automatically creates
-        // the locator info if it doesn't exist yet.
-        internal LocatorInfo GetLocatorInfo(ILocatorPrx loc)
+        // Returns locator info for a given locator. Automatically creates the locator info if it doesn't exist yet.
+        internal LocatorInfo? GetLocatorInfo(ILocatorPrx? locator, Encoding encoding)
         {
-            // The locator can't be located.
-            ILocatorPrx locator = loc.Clone(clearLocator: true);
+            if (locator == null)
+            {
+                return null;
+            }
+
+            if (locator.Locator != null || locator.Encoding != encoding)
+            {
+                // The locator can't be located.
+                locator = locator.Clone(clearLocator: true, encoding: encoding);
+            }
 
             // TODO: reap unused locator info objects?
             lock (_locatorInfoMap)

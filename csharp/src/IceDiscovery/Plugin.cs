@@ -20,8 +20,8 @@ namespace IceDiscovery
 
         public void Initialize()
         {
-            bool ipv4 = (_communicator.GetPropertyAsInt("Ice.IPv4") ?? 1) > 0;
-            bool preferIPv6 = _communicator.GetPropertyAsInt("Ice.PreferIPv6Address") > 0;
+            bool ipv4 = _communicator.GetPropertyAsBool("Ice.IPv4") ?? true;
+            bool preferIPv6 = _communicator.GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
             string address;
             if (ipv4 && !preferIPv6)
             {

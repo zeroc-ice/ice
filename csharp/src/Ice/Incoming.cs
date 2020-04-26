@@ -15,7 +15,7 @@ namespace IceInternal
         {
             bool unhandledException = ex is Ice.UnhandledException;
 
-            if (unhandledException && current.Adapter.Communicator.GetPropertyAsInt("Ice.Warn.Dispatch") > 0)
+            if (unhandledException && (current.Adapter.Communicator.GetPropertyAsBool("Ice.Warn.Dispatch") ?? false))
             {
                 Warning((Ice.UnhandledException)ex, current);
             }

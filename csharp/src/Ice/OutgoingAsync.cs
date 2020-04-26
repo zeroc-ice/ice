@@ -319,7 +319,7 @@ namespace IceInternal
 
         protected void Warning(Exception ex)
         {
-            if ((Communicator.GetPropertyAsInt("Ice.Warn.AMICallback") ?? 1) > 0)
+            if (Communicator.GetPropertyAsBool("Ice.Warn.AMICallback") ?? true)
             {
                 Communicator.Logger.Warning("exception raised by AMI callback:\n" + ex);
             }

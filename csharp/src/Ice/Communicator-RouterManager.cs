@@ -270,8 +270,13 @@ namespace Ice
     {
         // Returns router info for a given router. Automatically creates
         // the router info if it doesn't exist yet.
-        public RouterInfo GetRouterInfo(IRouterPrx rtr)
+        public RouterInfo? GetRouterInfo(IRouterPrx? rtr)
         {
+            if (rtr == null)
+            {
+                return null;
+            }
+
             //
             // The router cannot be routed.
             //

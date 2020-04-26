@@ -71,7 +71,7 @@ namespace IceSSL
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
             //
-            _checkCertName = ic.GetPropertyAsInt("IceSSL.CheckCertName") > 0;
+            _checkCertName = ic.GetPropertyAsBool("IceSSL.CheckCertName") ?? false;
 
             //
             // VerifyDepthMax establishes the maximum length of a peer's certificate
@@ -256,7 +256,7 @@ namespace IceSSL
                     certAuthFile = ic.GetProperty("IceSSL.CertAuthFile");
                 }
 
-                if (certAuthFile != null || (ic.GetPropertyAsInt("IceSSL.UsePlatformCAs") ?? 0) <= 0)
+                if (certAuthFile != null || !(ic.GetPropertyAsBool("IceSSL.UsePlatformCAs") ?? false))
                 {
                     _caCerts = new X509Certificate2Collection();
                 }

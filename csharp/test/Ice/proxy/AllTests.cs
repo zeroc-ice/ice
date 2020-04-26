@@ -1029,7 +1029,7 @@ namespace Ice.proxy
                 communicator);
             TestHelper.Assert(p1.ToString()!.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
-            if ((communicator.GetPropertyAsInt("Ice.IPv6") ?? 0) == 0)
+            if (!(communicator.GetPropertyAsBool("Ice.IPv6") ?? false))
             {
                 // Working?
                 bool ssl = communicator.GetProperty("Ice.Default.Transport") == "ssl";

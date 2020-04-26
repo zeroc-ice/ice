@@ -149,7 +149,7 @@ namespace Ice.operations
                 //
                 // We can't do the callbacks below in connection serialization mode.
                 //
-                if (_communicator!.GetPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                if (!(_communicator!.GetPropertyAsBool("Ice.ThreadPool.Client.Serialize") ?? false))
                 {
                     r.opVoid();
                     c1.opVoid();
@@ -176,7 +176,7 @@ namespace Ice.operations
                 //
                 // We can't do the callbacks below in connection serialization mode.
                 //
-                if (_communicator!.GetPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                if (!(_communicator!.GetPropertyAsBool("Ice.ThreadPool.Client.Serialize") ?? false))
                 {
                     so.p!.opVoid();
                 }
