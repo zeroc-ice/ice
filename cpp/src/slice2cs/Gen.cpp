@@ -2951,24 +2951,37 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     }
 
     // Write the output stream writer used to fill the request frame
-    if(outParams.size() > 1)
+    if (!operation->hasMarshaledResult())
     {
-        _out << sp;
-        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
-             << toTupleType(outParams) << " value)";
-        _out << sb;
-        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "value.");
-        _out << eb;
-    }
-    else if(outParams.size() == 1 && !defaultWriter)
-    {
-        auto param = outParams.front();
-        _out << sp;
-        _out << nl << "private static void " << writer << "(" << getUnqualified("Ice.OutputStream", ns) << " ostr, "
-             << param.typeStr << " " << param.name << ")";
-        _out << sb;
-        writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
-        _out << eb;
+        if (outParams.size() > 1)
+        {
+            _out << sp;
+            _out << nl << "private static readonly global::Ice.OutputStreamStructWriter<" << toTupleType(outParams)
+                 << "> " << writer << " = (" << getUnqualified("Ice.OutputStream", ns) << " ostr, in "
+                 << toTupleType(outParams) << " value) =>";
+            _out << sb;
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "value.");
+            _out << eb << ";";
+        }
+        else if (outParams.size() == 1 && !defaultWriter)
+        {
+            auto param = outParams.front();
+            _out << sp;
+            if (!param.tagged && StructPtr::dynamicCast(param.type))
+            {
+                _out << nl << "private static readonly global::Ice.OutputStreamStructWriter<" << param.typeStr
+                     << "> " << writer << " = (" << getUnqualified("Ice.OutputStream", ns) << " ostr, in "
+                     << param.typeStr << " " << param.name << ") =>";
+            }
+            else
+            {
+                _out << nl << "private static readonly global::Ice.OutputStreamWriter<" << param.typeStr
+                     << "> " << writer << " = (ostr, " << param.name << ") =>";
+            }
+            _out.inc();
+            writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr");
+            _out.dec();
+        }
     }
 
     if(inParams.size() > 1)
