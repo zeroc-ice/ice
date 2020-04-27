@@ -89,7 +89,7 @@ namespace Ice.info
             output.Write("test object adapter endpoint information... ");
             output.Flush();
             {
-                string host = communicator.GetPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+                string host = (communicator.GetPropertyAsBool("Ice.IPv6") ?? false) ? "::1" : "127.0.0.1";
                 communicator.SetProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
                     "\" -t 15000:udp -h \"" + host + "\"");
                 adapter = communicator.CreateObjectAdapter("TestAdapter");

@@ -408,10 +408,10 @@ namespace Ice
             var identity = Identity.Parse(identityString);
 
             string facet = "";
-            InvocationMode mode = InvocationMode.Twoway;
+            InvocationMode invocationMode = InvocationMode.Twoway;
             Encoding encoding = communicator.DefaultEncoding;
             Protocol protocol = Protocol.Ice1;
-            string adapter;
+            string adapterId;
 
             while (true)
             {
@@ -492,7 +492,7 @@ namespace Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -t option in `{s}'");
                         }
-                        mode = InvocationMode.Twoway;
+                        invocationMode = InvocationMode.Twoway;
                         break;
 
                     case 'o':
@@ -501,7 +501,7 @@ namespace Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -o option in `{s}'");
                         }
-                        mode = InvocationMode.Oneway;
+                        invocationMode = InvocationMode.Oneway;
                         break;
 
                     case 'O':
@@ -510,7 +510,7 @@ namespace Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -O option in `{s}'");
                         }
-                        mode = InvocationMode.BatchOneway;
+                        invocationMode = InvocationMode.BatchOneway;
                         break;
 
                     case 'd':
@@ -519,7 +519,7 @@ namespace Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -d option in `{s}'");
                         }
-                        mode = InvocationMode.Datagram;
+                        invocationMode = InvocationMode.Datagram;
                         break;
 
                     case 'D':
@@ -528,7 +528,7 @@ namespace Ice
                             throw new FormatException(
                                 $"unexpected argument `{argument}' provided for -D option in `{s}'");
                         }
-                        mode = InvocationMode.BatchDatagram;
+                        invocationMode = InvocationMode.BatchDatagram;
                         break;
 
                     case 's':
@@ -564,8 +564,8 @@ namespace Ice
 
             if (beg == -1)
             {
-                return communicator.CreateReference(identity, facet, mode, protocol, encoding, Array.Empty<Endpoint>(),
-                    null, propertyPrefix);
+                return Create(adapterId: "", communicator, encoding, endpoints: Array.Empty<Endpoint>(), facet,
+                    identity, invocationMode, propertyPrefix, protocol);
             }
 
             var endpoints = new List<Endpoint>();
@@ -639,7 +639,7 @@ namespace Ice
                     Debug.Assert(unknownEndpoints.Count > 0);
                     throw new FormatException($"invalid endpoint `{unknownEndpoints[0]}' in `{s}'");
                 }
-                else if (unknownEndpoints.Count != 0 && (communicator.GetPropertyAsInt("Ice.Warn.Endpoints") ?? 1) > 0)
+                else if (unknownEndpoints.Count != 0 && (communicator.GetPropertyAsBool("Ice.Warn.Endpoints") ?? true))
                 {
                     var msg = new StringBuilder("Proxy contains unknown endpoints:");
                     int sz = unknownEndpoints.Count;
@@ -651,8 +651,9 @@ namespace Ice
                     }
                     communicator.Logger.Warning(msg.ToString());
                 }
-                return communicator.CreateReference(identity, facet, mode, protocol, encoding, endpoints, null,
-                    propertyPrefix);
+
+                return Create(adapterId: "", communicator, encoding, endpoints, facet, identity, invocationMode,
+                    propertyPrefix, protocol);
             }
             else if (s[beg] == '@')
             {
@@ -690,116 +691,120 @@ namespace Ice
                         $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
                 }
 
-                adapter = IceUtilInternal.StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
+                adapterId = IceUtilInternal.StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
 
-                if (adapter.Length == 0)
+                if (adapterId.Length == 0)
                 {
                     throw new FormatException($"empty adapter id in `{s}'");
                 }
-                return communicator.CreateReference(identity, facet, mode, protocol, encoding, Array.Empty<Endpoint>(),
-                    adapter, propertyPrefix);
+
+                return Create(adapterId, communicator, encoding, endpoints: Array.Empty<Endpoint>(), facet, identity,
+                    invocationMode, propertyPrefix, protocol);
             }
 
             throw new FormatException($"malformed proxy `{s}'");
         }
 
-        // Constructor for routable references, not bound to a connection
+        /// <summary>Reads a reference from the input stream.</summary>
+        /// <param name="istr">The input stream to read from.</param>
+        /// <returns>The reference read from the stream (can be null).</returns>
+        internal static Reference? Read(InputStream istr)
+        {
+            Identity identity = new Identity(istr);
+            if (identity.Name.Length == 0)
+            {
+                return null;
+            }
+
+            string facet = istr.ReadFacet();
+            int mode = istr.ReadByte();
+            if (mode < 0 || mode > (int)InvocationMode.Last)
+            {
+                throw new InvalidDataException($"invalid invocation mode: {mode}");
+            }
+
+            istr.ReadBool(); // secure option, ignored
+
+            byte major = istr.ReadByte();
+            byte minor = istr.ReadByte();
+            if (minor != 0)
+            {
+                throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
+            }
+            var protocol = (Protocol)major;
+
+            major = istr.ReadByte();
+            minor = istr.ReadByte();
+            var encoding = new Encoding(major, minor);
+
+            Endpoint[] endpoints;
+            string adapterId = "";
+
+            int sz = istr.ReadSize();
+            if (sz > 0)
+            {
+                endpoints = new Endpoint[sz];
+                for (int i = 0; i < sz; i++)
+                {
+                    endpoints[i] = istr.ReadEndpoint();
+                }
+            }
+            else
+            {
+                endpoints = Array.Empty<Endpoint>();
+                adapterId = istr.ReadString();
+            }
+
+            return new Reference(adapterId: adapterId, communicator: istr.Communicator, encoding: encoding,
+                endpoints: endpoints, facet: facet, identity: identity, invocationMode: (InvocationMode)mode,
+                protocol: protocol);
+        }
+
+        // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.
         internal Reference(string adapterId,
-                           bool cacheConnection,
-                           bool collocationOptimized,
                            Communicator communicator,
-                           bool? compress,
-                           string connectionId,
-                           int? connectionTimeout,
-                           IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
                            Encoding encoding,
-                           EndpointSelectionType endpointSelection,
                            IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
                            string facet,
                            Identity identity,
                            InvocationMode invocationMode,
-                           int invocationTimeout,
-                           int locatorCacheTimeout,
-                           LocatorInfo? locatorInfo,
-                           bool preferNonSecure,
-                           Protocol protocol,
-                           RouterInfo? routerInfo)
+                           Protocol protocol)
+            : this(adapterId: adapterId,
+                   cacheConnection: true,
+                   collocationOptimized: communicator.DefaultCollocationOptimized,
+                   communicator: communicator,
+                   compress: null,
+                   connectionId: "",
+                   connectionTimeout: null,
+                   context: communicator.DefaultContext,
+                   encoding: encoding,
+                   endpointSelection: communicator.DefaultEndpointSelection,
+                   endpoints: endpoints,
+                   facet: facet,
+                   identity: identity,
+                   invocationMode: invocationMode,
+                   invocationTimeout: communicator.DefaultInvocationTimeout,
+                   locatorCacheTimeout: communicator.DefaultLocatorCacheTimeout,
+                   locatorInfo: communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
+                   preferNonSecure: communicator.DefaultPreferNonSecure,
+                   protocol: protocol,
+                   routerInfo: communicator.GetRouterInfo(communicator.DefaultRouter))
         {
-            AdapterId = adapterId;
-            Communicator = communicator;
-            Compress = compress;
-            ConnectionId = connectionId;
-            ConnectionTimeout = connectionTimeout;
-            Context = context;
-            Encoding = encoding;
-            EndpointSelection = endpointSelection;
-            Endpoints = endpoints;
-            Facet = facet;
-            Identity = identity;
-            InvocationMode = invocationMode;
-            InvocationTimeout = invocationTimeout;
-            IsCollocationOptimized = collocationOptimized;
-            LocatorCacheTimeout = locatorCacheTimeout;
-            LocatorInfo = locatorInfo;
-            PreferNonSecure = preferNonSecure;
-            Protocol = protocol;
-            RouterInfo = routerInfo;
-
-            if (cacheConnection)
-            {
-                _requestHandlerMutex = new object();
-            }
         }
 
-        // Constructor for fixed references
-        internal Reference(Communicator communicator,
-                           bool? compress,
-                           IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
-                           Encoding encoding,
-                           string facet,
-                           Connection fixedConnection,
-                           Identity identity,
-                           InvocationMode invocationMode,
-                           int invocationTimeout)
+        // Helper constructor for fixed references. Uses the communicator's defaults.
+        internal Reference(Communicator communicator, Connection fixedConnection, Identity identity)
+            : this(communicator: communicator,
+                   compress: null,
+                   context: communicator.DefaultContext,
+                   encoding: communicator.DefaultEncoding,
+                   facet: "",
+                   fixedConnection: fixedConnection,
+                   identity: identity,
+                   invocationMode: fixedConnection.Endpoint.IsDatagram ?
+                      InvocationMode.Datagram : InvocationMode.Twoway,
+                   invocationTimeout: -1)
         {
-            AdapterId = "";
-            Communicator = communicator;
-            Compress = compress;
-            ConnectionId = "";
-            ConnectionTimeout = null;
-            Context = context;
-            Encoding = encoding;
-            EndpointSelection = EndpointSelectionType.Random;
-            Endpoints = Array.Empty<Endpoint>();
-            Facet = facet;
-            Identity = identity;
-            InvocationMode = invocationMode;
-            InvocationTimeout = invocationTimeout;
-            IsCollocationOptimized = false;
-            LocatorCacheTimeout = 0;
-            LocatorInfo = null;
-            PreferNonSecure = false;
-            Protocol = Protocol.Ice1; // it's really the connection's protocol
-            RouterInfo = null;
-
-            _fixedConnection = fixedConnection;
-
-            if (InvocationMode == InvocationMode.Datagram)
-            {
-                if (!(_fixedConnection.Endpoint as Endpoint)!.IsDatagram)
-                {
-                    throw new ArgumentException("a fixed datagram proxy requires a datagram connection",
-                        nameof(fixedConnection));
-                }
-            }
-            else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
-            {
-                throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
-            }
-
-            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection,
-                                                           Communicator.OverrideCompress ?? compress ?? false);
         }
 
         internal Reference Clone(string? adapterId = null,
@@ -995,16 +1000,11 @@ namespace Ice
                 LocatorInfo? locatorInfo = LocatorInfo;
                 if (locator != null)
                 {
-                    locatorInfo = Communicator.GetLocatorInfo(locator);
+                    locatorInfo = Communicator.GetLocatorInfo(locator, encoding ?? locator.Encoding);
                 }
                 else if (clearLocator)
                 {
                     locatorInfo = null;
-                }
-                if (encoding != null && locatorInfo != null && locatorInfo.Locator.Encoding != encoding)
-                {
-                    // Need to adjust the encoding used by the locator until we update the locator API
-                    locatorInfo = Communicator.GetLocatorInfo(locatorInfo.Locator.Clone(encoding: encoding));
                 }
 
                 RouterInfo? routerInfo = RouterInfo;
@@ -1285,6 +1285,221 @@ namespace Ice
             {
                 ostr.WriteString(AdapterId);
             }
+        }
+
+        // Helper factory method used by Parse.
+        private static Reference Create(string adapterId,
+                                        Communicator communicator,
+                                        Encoding encoding,
+                                        IReadOnlyList<Endpoint> endpoints,
+                                        string facet,
+                                        Identity identity,
+                                        InvocationMode invocationMode,
+                                        string? propertyPrefix,
+                                        Protocol protocol)
+        {
+            bool? cacheConnection = null;
+            bool? collocOptimized = null;
+            IReadOnlyDictionary<string, string>? context = null;
+            EndpointSelectionType? endpointSelection = null;
+            int? invocationTimeout = null;
+            int? locatorCacheTimeout = null;
+            LocatorInfo? locatorInfo = null;
+            bool? preferNonSecure = null;
+            RouterInfo? routerInfo = null;
+
+            // Override the defaults with the proxy properties if a property prefix is defined.
+            if (propertyPrefix != null && propertyPrefix.Length > 0)
+            {
+                // Warn about unknown properties.
+                if (communicator.GetPropertyAsBool("Ice.Warn.UnknownProperties") ?? true)
+                {
+                    communicator.CheckForUnknownProperties(propertyPrefix);
+                }
+
+                cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.ConnectionCached");
+                collocOptimized = communicator.GetPropertyAsBool($"{propertyPrefix}.CollocationOptimized");
+
+                string property = $"{propertyPrefix}.Context.";
+                context = communicator.GetProperties(forPrefix: property).
+                    ToDictionary(e => e.Key.Substring(property.Length), e => e.Value);
+                if (context.Count == 0)
+                {
+                    context = null;
+                }
+
+                property = $"{propertyPrefix}.EndpointSelection";
+                try
+                {
+                    endpointSelection =
+                        communicator.GetProperty(property) is string endpointSelectionStr ?
+                            Enum.Parse<EndpointSelectionType>(endpointSelectionStr) : (EndpointSelectionType?)null;
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidConfigurationException($"cannot parse property `{property}'", ex);
+                }
+
+                property = $"{propertyPrefix}.InvocationTimeout";
+                invocationTimeout = communicator.GetPropertyAsInt(property);
+                if (invocationTimeout is int invocationTimeoutValue)
+                {
+                    if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for property `{property}': `{invocationTimeoutValue}'");
+                    }
+                }
+
+                locatorInfo = communicator.GetLocatorInfo(
+                    communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
+
+                property = $"{propertyPrefix}.LocatorCacheTimeout";
+                locatorCacheTimeout = communicator.GetPropertyAsInt(property);
+                if (locatorCacheTimeout is int locatorCacheTimeoutValue)
+                {
+                    if (locatorCacheTimeoutValue < -1)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for property `{property}': `{locatorCacheTimeoutValue}'");
+                    }
+                }
+
+                preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");
+
+                property = $"{propertyPrefix}.Router";
+                IRouterPrx? router = communicator.GetPropertyAsProxy(property, IRouterPrx.Factory);
+                if (router != null)
+                {
+                    if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
+                    {
+                        throw new InvalidConfigurationException(
+                            $"`{property}={communicator.GetProperty(property)}': cannot set a router on a router");
+                    }
+                    routerInfo = communicator.GetRouterInfo(router);
+                }
+            }
+
+            return new Reference(adapterId: adapterId,
+                                 cacheConnection: cacheConnection ?? true,
+                                 collocationOptimized: collocOptimized ?? communicator.DefaultCollocationOptimized,
+                                 communicator: communicator,
+                                 compress: null,
+                                 connectionId: "",
+                                 connectionTimeout: null,
+                                 context: context ?? communicator.DefaultContext,
+                                 encoding: encoding,
+                                 endpointSelection: endpointSelection ?? communicator.DefaultEndpointSelection,
+                                 endpoints: endpoints,
+                                 facet: facet,
+                                 identity: identity,
+                                 invocationMode: invocationMode,
+                                 invocationTimeout: invocationTimeout ?? communicator.DefaultInvocationTimeout,
+                                 locatorCacheTimeout: locatorCacheTimeout ?? communicator.DefaultLocatorCacheTimeout,
+                                 locatorInfo:
+                                    locatorInfo ?? communicator.GetLocatorInfo(communicator.DefaultLocator, encoding),
+                                 preferNonSecure: preferNonSecure ?? communicator.DefaultPreferNonSecure,
+                                 protocol: protocol,
+                                 routerInfo: routerInfo ?? communicator.GetRouterInfo(communicator.DefaultRouter));
+        }
+
+        // Constructor for routable references, not bound to a connection
+        private Reference(string adapterId,
+                          bool cacheConnection,
+                          bool collocationOptimized,
+                          Communicator communicator,
+                          bool? compress,
+                          string connectionId,
+                          int? connectionTimeout,
+                          IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
+                          Encoding encoding,
+                          EndpointSelectionType endpointSelection,
+                          IReadOnlyList<Endpoint> endpoints, // already a copy provided by Ice
+                          string facet,
+                          Identity identity,
+                          InvocationMode invocationMode,
+                          int invocationTimeout,
+                          int locatorCacheTimeout,
+                          LocatorInfo? locatorInfo,
+                          bool preferNonSecure,
+                          Protocol protocol,
+                          RouterInfo? routerInfo)
+        {
+            AdapterId = adapterId;
+            Communicator = communicator;
+            Compress = compress;
+            ConnectionId = connectionId;
+            ConnectionTimeout = connectionTimeout;
+            Context = context;
+            Encoding = encoding;
+            EndpointSelection = endpointSelection;
+            Endpoints = endpoints;
+            Facet = facet;
+            Identity = identity;
+            InvocationMode = invocationMode;
+            InvocationTimeout = invocationTimeout;
+            IsCollocationOptimized = collocationOptimized;
+            LocatorCacheTimeout = locatorCacheTimeout;
+            LocatorInfo = locatorInfo;
+            PreferNonSecure = preferNonSecure;
+            Protocol = protocol;
+            RouterInfo = routerInfo;
+
+            if (cacheConnection)
+            {
+                _requestHandlerMutex = new object();
+            }
+        }
+
+        // Constructor for fixed references.
+        private Reference(Communicator communicator,
+                          bool? compress,
+                          IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
+                          Encoding encoding,
+                          string facet,
+                          Connection fixedConnection,
+                          Identity identity,
+                          InvocationMode invocationMode,
+                          int invocationTimeout)
+        {
+            AdapterId = "";
+            Communicator = communicator;
+            Compress = compress;
+            ConnectionId = "";
+            ConnectionTimeout = null;
+            Context = context;
+            Encoding = encoding;
+            EndpointSelection = EndpointSelectionType.Random;
+            Endpoints = Array.Empty<Endpoint>();
+            Facet = facet;
+            Identity = identity;
+            InvocationMode = invocationMode;
+            InvocationTimeout = invocationTimeout;
+            IsCollocationOptimized = false;
+            LocatorCacheTimeout = 0;
+            LocatorInfo = null;
+            PreferNonSecure = false;
+            Protocol = Protocol.Ice1; // it's really the connection's protocol
+            RouterInfo = null;
+
+            _fixedConnection = fixedConnection;
+
+            if (InvocationMode == InvocationMode.Datagram)
+            {
+                if (!(_fixedConnection.Endpoint as Endpoint)!.IsDatagram)
+                {
+                    throw new ArgumentException("a fixed datagram proxy requires a datagram connection",
+                        nameof(fixedConnection));
+                }
+            }
+            else if (InvocationMode == InvocationMode.BatchOneway || InvocationMode == InvocationMode.BatchDatagram)
+            {
+                throw new NotSupportedException("batch invocation modes are not supported for fixed proxies");
+            }
+
+            _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
+            _requestHandler = new ConnectionRequestHandler(_fixedConnection,
+                                                           Communicator.OverrideCompress ?? compress ?? false);
         }
 
         private IEnumerable<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)

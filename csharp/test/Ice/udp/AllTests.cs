@@ -102,7 +102,7 @@ namespace Ice.udp
             }
             TestHelper.Assert(ret == true);
 
-            if ((communicator.GetPropertyAsInt("Ice.Override.Compress") ?? 0) == 0)
+            if (!(communicator.GetPropertyAsBool("Ice.Override.Compress") ?? false))
             {
                 //
                 // Only run this test if compression is disabled, the test expect fixed message size

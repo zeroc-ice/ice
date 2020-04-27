@@ -1255,7 +1255,7 @@ namespace IceInternal
             _endpoint = endpoint;
             _publishedEndpoint = publish;
             _adapter = adapter;
-            _warn = _communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
+            _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _state = State.Uninitialized;
             _monitor = new FactoryACMMonitor(_communicator, acmConfig);
 

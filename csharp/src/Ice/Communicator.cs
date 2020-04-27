@@ -96,8 +96,8 @@ namespace Ice
 
         public bool DefaultCollocationOptimized { get; }
 
-        /// <summary>The default context for proxies created using this communicator.
-        /// Changing the value of DefaultContext does not change the context of previously created proxies.</summary>
+        /// <summary>The default context for proxies created using this communicator. Changing the value of
+        /// DefaultContext does not change the context of previously created proxies.</summary>
         public IReadOnlyDictionary<string, string> DefaultContext
         {
             get => _defaultContext;
@@ -110,11 +110,8 @@ namespace Ice
         public string? DefaultHost { get; }
 
         /// <summary>The default locator for this communicator. To disable the default locator, null can be used.
-        /// All newly created proxies and object adapters will use this default locator.
-        /// Note that setting this property has no effect on existing proxies or object adapters.
-        ///
-        /// You can also set a locator for an individual proxy by calling the operation ice_locator on the proxy,
-        /// or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.</summary>
+        /// All newly created proxies and object adapters will use this default locator. Note that setting this property
+        /// has no effect on existing proxies or object adapters.</summary>
         public ILocatorPrx? DefaultLocator
         {
             get => _defaultLocator;
@@ -129,11 +126,8 @@ namespace Ice
         public int DefaultLocatorCacheTimeout { get; }
 
         /// <summary>The default router for this communicator. To disable the default router, null can be used.
-        /// All newly created proxies will use this default router.
-        /// Note that setting this property has no effect on existing proxies.
-        ///
-        /// You can also set a router for an individual proxy by calling the operation ice_router on the proxy.
-        /// </summary>
+        /// All newly created proxies will use this default router. Note that setting this property has no effect on
+        /// existing proxies.</summary>
         public IRouterPrx? DefaultRouter
         {
             get => _defaultRouter;
@@ -373,14 +367,14 @@ namespace Ice
                         //
                         // Ice.ConsoleListener is enabled by default.
                         //
-                        Logger = new TraceLogger(programName, (GetPropertyAsInt("Ice.ConsoleListener") ?? 1) > 0);
+                        Logger = new TraceLogger(programName, GetPropertyAsBool("Ice.ConsoleListener") ?? true);
                     }
                     // else already set to process logger
                 }
 
                 TraceLevels = new TraceLevels(this);
 
-                DefaultCollocationOptimized = (GetPropertyAsInt("Ice.Default.CollocationOptimized") ?? 1) > 0;
+                DefaultCollocationOptimized = GetPropertyAsBool("Ice.Default.CollocationOptimized") ?? true;
 
                 if (GetProperty("Ice.Default.Encoding") is string encoding)
                 {
@@ -409,13 +403,13 @@ namespace Ice
                              $"illegal value `{endpointSelection}'; expected `Random' or `Ordered'")
                 };
 
-                DefaultFormat = (GetPropertyAsInt("Ice.Default.SlicedFormat") > 0) ? FormatType.Sliced :
-                                                                                     FormatType.Compact;
+                DefaultFormat = (GetPropertyAsBool("Ice.Default.SlicedFormat") ?? false) ?
+                    FormatType.Sliced : FormatType.Compact;
 
                 DefaultHost = GetProperty("Ice.Default.Host");
 
-                // TODO: switch to 0 default
-                DefaultPreferNonSecure = (GetPropertyAsInt("Ice.Default.PreferNonSecure") ?? 1) > 0;
+                // TODO: switch to 0/false default
+                DefaultPreferNonSecure = GetPropertyAsBool("Ice.Default.PreferNonSecure") ?? true;
 
                 if (GetProperty("Ice.Default.SourceAddress") is string address)
                 {
@@ -450,10 +444,10 @@ namespace Ice
                         $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
                 }
 
-                if (GetPropertyAsInt("Ice.Override.Compress") is int compress)
+                if (GetPropertyAsBool("Ice.Override.Compress") is bool compress)
                 {
-                    OverrideCompress = compress > 0;
-                    if (!BZip2.IsLoaded && OverrideCompress.Value)
+                    OverrideCompress = compress;
+                    if (!BZip2.IsLoaded && compress)
                     {
                         throw new InvalidConfigurationException($"compression not supported, bzip2 library not found");
                     }
@@ -518,7 +512,7 @@ namespace Ice
                 }
 
                 // TODO: switch to 0 default
-                AcceptNonSecureConnections = (GetPropertyAsInt("Ice.AcceptNonSecureConnections") ?? 1) > 0;
+                AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;
 
                 {
                     int num = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
@@ -534,7 +528,7 @@ namespace Ice
 
                 ToStringMode = Enum.Parse<ToStringMode>(GetProperty("Ice.ToStringMode") ?? "Unicode");
 
-                _backgroundLocatorCacheUpdates = GetPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
+                _backgroundLocatorCacheUpdates = GetPropertyAsBool("Ice.BackgroundLocatorCacheUpdates") ?? false;
 
                 string[]? arr = GetPropertyAsList("Ice.RetryIntervals");
 
@@ -562,8 +556,8 @@ namespace Ice
                 }
 
                 bool isIPv6Supported = Network.IsIPv6Supported();
-                bool ipv4 = (GetPropertyAsInt("Ice.IPv4") ?? 1) > 0;
-                bool ipv6 = (GetPropertyAsInt("Ice.IPv6") ?? (isIPv6Supported ? 1 : 0)) > 0;
+                bool ipv4 = GetPropertyAsBool("Ice.IPv4") ?? true;
+                bool ipv6 = GetPropertyAsBool("Ice.IPv6") ?? isIPv6Supported;
                 if (!ipv4 && !ipv6)
                 {
                     throw new InvalidConfigurationException("Both IPV4 and IPv6 support cannot be disabled.");
@@ -580,7 +574,7 @@ namespace Ice
                 {
                     IPVersion = Network.EnableIPv6;
                 }
-                PreferIPv6 = GetPropertyAsInt("Ice.PreferIPv6Address") > 0;
+                PreferIPv6 = GetPropertyAsBool("Ice.PreferIPv6Address") ?? false;
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
@@ -592,7 +586,7 @@ namespace Ice
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
-                if (GetPropertyAsInt("Ice.PreloadAssemblies") > 0)
+                if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
                     AssemblyUtil.PreloadAssemblies();
                 }
@@ -625,7 +619,7 @@ namespace Ice
                 }
                 else
                 {
-                    _adminEnabled = GetPropertyAsInt("Ice.Admin.Enabled") > 0;
+                    _adminEnabled = GetPropertyAsBool("Ice.Admin.Enabled") ?? false;
                 }
 
                 _adminFacetFilter = new HashSet<string>(
@@ -743,7 +737,7 @@ namespace Ice
                 //
                 lock (this)
                 {
-                    if (!_printProcessIdDone && GetPropertyAsInt("Ice.PrintProcessId") > 0)
+                    if (!_printProcessIdDone && (GetPropertyAsBool("Ice.PrintProcessId") ?? false))
                     {
                         using var p = System.Diagnostics.Process.GetCurrentProcess();
                         Console.WriteLine(p.Id);
@@ -760,7 +754,7 @@ namespace Ice
                 // initialization until after it has interacted directly with the
                 // plug-ins.
                 //
-                if ((GetPropertyAsInt("Ice.InitPlugins") ?? 1) > 0)
+                if (GetPropertyAsBool("Ice.InitPlugins") ?? true)
                 {
                     InitializePlugins();
                 }
@@ -770,7 +764,7 @@ namespace Ice
                 // and eventually registers a process proxy with the Ice locator (allowing
                 // remote clients to invoke on Ice.Admin facets as soon as it's registered).
                 //
-                if ((GetPropertyAsInt("Ice.Admin.DelayCreation") ?? 0) <= 0)
+                if (!(GetPropertyAsBool("Ice.Admin.DelayCreation") ?? false))
                 {
                     GetAdmin();
                 }
@@ -888,57 +882,6 @@ namespace Ice
             }
             SetServerProcessProxy(_adminAdapter, adminIdentity);
             return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
-        }
-
-        public Reference CreateReference(Identity ident, InputStream istr)
-        {
-            //
-            // Don't read the identity here. Operations calling this
-            // constructor read the identity, and pass it as a parameter.
-            //
-
-            string facet = istr.ReadFacet();
-
-            int mode = istr.ReadByte();
-            if (mode < 0 || mode > (int)InvocationMode.Last)
-            {
-                throw new InvalidDataException($"invalid invocation mode: {mode}");
-            }
-
-            istr.ReadBool(); // secure option, ignored
-
-            byte major = istr.ReadByte();
-            byte minor = istr.ReadByte();
-            if (minor != 0)
-            {
-                throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
-            }
-            var protocol = (Protocol)major;
-
-            major = istr.ReadByte();
-            minor = istr.ReadByte();
-            var encoding = new Encoding(major, minor);
-
-            Endpoint[] endpoints;
-            string adapterId = "";
-
-            int sz = istr.ReadSize();
-            if (sz > 0)
-            {
-                endpoints = new Endpoint[sz];
-                for (int i = 0; i < sz; i++)
-                {
-                    endpoints[i] = istr.ReadEndpoint();
-                }
-            }
-            else
-            {
-                endpoints = Array.Empty<Endpoint>();
-                adapterId = istr.ReadString();
-            }
-
-            return CreateReference(ident, facet, (InvocationMode)mode, protocol, encoding, endpoints, adapterId,
-                                   null);
         }
 
         /// <summary>
@@ -1061,7 +1004,7 @@ namespace Ice
             }
             _endpointFactories.Clear();
 
-            if (GetPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+            if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
             {
                 List<string> unusedProperties = GetUnusedProperties();
                 if (unusedProperties.Count != 0)
@@ -1442,37 +1385,6 @@ namespace Ice
             }
         }
 
-        internal Reference CreateReference(Identity ident, string facet, Reference tmpl,
-            IReadOnlyList<Endpoint> endpoints)
-        {
-            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.Protocol, tmpl.Encoding,
-                          endpoints, null, null);
-        }
-
-        internal Reference CreateReference(Identity ident, string facet, Reference tmpl, string adapterId)
-        {
-            //
-            // Create new reference
-            //
-            return CreateReference(ident, facet, tmpl.InvocationMode, tmpl.Protocol, tmpl.Encoding,
-                          Array.Empty<Endpoint>(), adapterId, null);
-        }
-
-        internal Reference CreateReference(Identity identity, Connection connection)
-        {
-            // Fixed reference
-            return new Reference(
-                communicator: this,
-                compress: null,
-                context: DefaultContext,
-                encoding: DefaultEncoding,
-                facet: "",
-                fixedConnection: connection,
-                identity: identity,
-                invocationMode: connection.Endpoint.IsDatagram ? InvocationMode.Datagram : InvocationMode.Twoway,
-                invocationTimeout: -1);
-        }
-
         internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
         {
             lock (_setBufSizeWarn)
@@ -1746,54 +1658,6 @@ namespace Ice
             }
         }
 
-        private void CheckForUnknownProperties(string prefix)
-        {
-            //
-            // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
-            //
-            foreach (string name in PropertyNames.clPropNames)
-            {
-                if (prefix.StartsWith(string.Format("{0}.", name), StringComparison.Ordinal))
-                {
-                    return;
-                }
-            }
-
-            var unknownProps = new List<string>();
-            Dictionary<string, string> props = GetProperties(forPrefix: $"{prefix}.");
-            foreach (string prop in props.Keys)
-            {
-                bool valid = false;
-                for (int i = 0; i < _suffixes.Length; ++i)
-                {
-                    string pattern = "^" + Regex.Escape(prefix + ".") + _suffixes[i] + "$";
-                    if (new Regex(pattern).Match(prop).Success)
-                    {
-                        valid = true;
-                        break;
-                    }
-                }
-
-                if (!valid)
-                {
-                    unknownProps.Add(prop);
-                }
-            }
-
-            if (unknownProps.Count != 0)
-            {
-                var message = new StringBuilder("found unknown properties for proxy '");
-                message.Append(prefix);
-                message.Append("':");
-                foreach (string s in unknownProps)
-                {
-                    message.Append("\n    ");
-                    message.Append(s);
-                }
-                Logger.Warning(message.ToString());
-            }
-        }
-
         private INetworkProxy? CreateNetworkProxy(int protocolSupport)
         {
             string? proxyHost = GetProperty("Ice.SOCKSProxyHost");
@@ -1813,167 +1677,6 @@ namespace Ice
             }
 
             return null;
-        }
-
-        // TODO: convert into Reference constructor
-        internal Reference CreateReference(
-            Identity ident,
-            string facet,
-            InvocationMode mode,
-            Protocol protocol,
-            Encoding encoding,
-            IReadOnlyList<Endpoint> endpoints,
-            string? adapterId,
-            string? propertyPrefix)
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-            }
-
-            //
-            // Default local proxy options.
-            //
-            LocatorInfo? locatorInfo = null;
-            if (_defaultLocator != null)
-            {
-                if (!_defaultLocator.IceReference.Encoding.Equals(encoding))
-                {
-                    locatorInfo = GetLocatorInfo(_defaultLocator.Clone(encoding: encoding));
-                }
-                else
-                {
-                    locatorInfo = GetLocatorInfo(_defaultLocator);
-                }
-            }
-            RouterInfo? routerInfo = null;
-            if (_defaultRouter != null)
-            {
-                routerInfo = GetRouterInfo(_defaultRouter);
-            }
-            bool collocOptimized = DefaultCollocationOptimized;
-            bool cacheConnection = true;
-            bool preferNonSecure = DefaultPreferNonSecure;
-            EndpointSelectionType endpointSelection = DefaultEndpointSelection;
-            int locatorCacheTimeout = DefaultLocatorCacheTimeout;
-            int invocationTimeout = DefaultInvocationTimeout;
-            IReadOnlyDictionary<string, string>? context = null;
-
-            //
-            // Override the defaults with the proxy properties if a property prefix is defined.
-            //
-            if (propertyPrefix != null && propertyPrefix.Length > 0)
-            {
-                //
-                // Warn about unknown properties.
-                //
-                if ((GetPropertyAsInt("Ice.Warn.UnknownProperties") ?? 1) > 0)
-                {
-                    CheckForUnknownProperties(propertyPrefix);
-                }
-
-                string property = $"{propertyPrefix}.Locator";
-                ILocatorPrx? locator = GetPropertyAsProxy(property, ILocatorPrx.Factory);
-                if (locator != null)
-                {
-                    if (!locator.IceReference.Encoding.Equals(encoding))
-                    {
-                        locatorInfo = GetLocatorInfo(locator.Clone(encoding: encoding));
-                    }
-                    else
-                    {
-                        locatorInfo = GetLocatorInfo(locator);
-                    }
-                }
-
-                property = $"{propertyPrefix}.Router";
-                IRouterPrx? router = GetPropertyAsProxy(property, IRouterPrx.Factory);
-                if (router != null)
-                {
-                    if (propertyPrefix.EndsWith(".Router", StringComparison.Ordinal))
-                    {
-                        Logger.Warning($"`{property}={GetProperty(property)}': cannot set a router on a router; setting ignored");
-                    }
-                    else
-                    {
-                        routerInfo = GetRouterInfo(router);
-                    }
-                }
-
-                property = $"{propertyPrefix}.CollocationOptimized";
-                collocOptimized = (GetPropertyAsInt(property) ?? (collocOptimized ? 1 : 0)) > 0;
-
-                property = $"{propertyPrefix}.ConnectionCached";
-                cacheConnection = (GetPropertyAsInt(property) ?? (cacheConnection ? 1 : 0)) > 0;
-
-                property = $"{propertyPrefix}.PreferNonSecure";
-                preferNonSecure = (GetPropertyAsInt(property) ?? (preferNonSecure ? 1 : 0)) > 0;
-
-                property = propertyPrefix + ".EndpointSelection";
-                string? val = GetProperty(property);
-                if (val != null)
-                {
-                    endpointSelection = Enum.Parse<EndpointSelectionType>(val);
-                }
-
-                property = $"{propertyPrefix}.LocatorCacheTimeout";
-                val = GetProperty(property);
-                if (val != null)
-                {
-                    locatorCacheTimeout = GetPropertyAsInt(property) ?? locatorCacheTimeout;
-                    if (locatorCacheTimeout < -1)
-                    {
-                        locatorCacheTimeout = -1;
-                        Logger.Warning($"invalid value for {property} `{val}': defaulting to -1");
-                    }
-                }
-
-                property = $"{propertyPrefix}.InvocationTimeout";
-                val = GetProperty(property);
-                if (val != null)
-                {
-                    invocationTimeout = GetPropertyAsInt(property) ?? invocationTimeout;
-                    if (invocationTimeout < 1 && invocationTimeout != -1)
-                    {
-                        invocationTimeout = -1;
-                        Logger.Warning($"invalid value for {property} `{val}': defaulting to -1");
-                    }
-                }
-
-                property = $"{propertyPrefix}.Context.";
-                context = GetProperties(forPrefix: property).ToDictionary(e => e.Key.Substring(property.Length),
-                                                                          e => e.Value);
-            }
-
-            if (context == null || context.Count == 0)
-            {
-                context = DefaultContext;
-            }
-
-            // routable reference
-            return new Reference(adapterId: adapterId ?? "", // TODO: make adapterId parameter non null
-                                 cacheConnection: cacheConnection,
-                                 collocationOptimized: collocOptimized,
-                                 communicator: this,
-                                 compress: null,
-                                 connectionId: "",
-                                 connectionTimeout: null,
-                                 context: context,
-                                 encoding: encoding,
-                                 endpointSelection: endpointSelection,
-                                 endpoints: endpoints,
-                                 facet: facet,
-                                 identity: ident,
-                                 invocationMode: mode,
-                                 invocationTimeout: invocationTimeout,
-                                 locatorCacheTimeout: locatorCacheTimeout,
-                                 locatorInfo: locatorInfo,
-                                 preferNonSecure: preferNonSecure,
-                                 protocol: protocol,
-                                 routerInfo: routerInfo);
         }
     }
 }

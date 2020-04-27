@@ -138,7 +138,7 @@ namespace IceInternal
             _prefix = prefix;
             _threadIndex = 0;
             _inUse = 0;
-            _serialize = _communicator.GetPropertyAsInt($"{_prefix}.Serialize") > 0;
+            _serialize = _communicator.GetPropertyAsBool($"{_prefix}.Serialize") ?? false;
             _serverIdleTime = timeout;
 
             string? programName = _communicator.GetProperty("Ice.ProgramName");

@@ -749,7 +749,7 @@ namespace Ice
         /// </param>
         /// <returns>A proxy that matches the given identity and uses this connection.</returns>
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => factory(_communicator.CreateReference(identity, this));
+            => factory(new Reference(_communicator, this, identity));
 
         internal void SetAdapterImpl(ObjectAdapter adapter)
         {
@@ -1545,8 +1545,8 @@ namespace Ice
             _writeTimeoutScheduled = false;
             _readTimeout = new TimeoutCallback(this);
             _readTimeoutScheduled = false;
-            _warn = communicator.GetPropertyAsInt("Ice.Warn.Connections") > 0;
-            _warnUdp = communicator.GetPropertyAsInt("Ice.Warn.Datagrams") > 0;
+            _warn = communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
+            _warnUdp = communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
 
             if (_monitor != null && _monitor.GetACM().Timeout > 0)
             {

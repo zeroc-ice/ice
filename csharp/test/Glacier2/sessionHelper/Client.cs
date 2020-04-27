@@ -348,7 +348,7 @@ public class Client : TestHelper
             Console.Out.Flush();
             try
             {
-                IObjectPrx.Parse("dummy", session.Communicator()!);
+                IObjectPrx.Parse("dummy", session.Communicator()!).IcePing();
                 Assert(false);
             }
             catch (CommunicatorDestroyedException)
@@ -415,7 +415,7 @@ public class Client : TestHelper
             Console.Out.Flush();
             try
             {
-                IObjectPrx.Parse("dummy", session.Communicator()!);
+                IObjectPrx.Parse("dummy", session.Communicator()!).IcePing();
                 Assert(false);
             }
             catch (CommunicatorDestroyedException)

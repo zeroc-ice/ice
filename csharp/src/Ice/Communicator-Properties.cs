@@ -28,7 +28,7 @@ namespace Ice
             }
         }
 
-        /// <summary>Get the value of a property. If the property is not set, returns null.</summary>
+        /// <summary>Gets the value of a property. If the property is not set, returns null.</summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value.</returns>
         public string? GetProperty(string name)
@@ -44,7 +44,14 @@ namespace Ice
             }
         }
 
-        /// <summary>Get the value of a property as an integer. If the property is not set, returns null.</summary>
+        /// <summary>Gets the value of a property as a bool. If the property is not set, returns null.</summary>
+        /// <param name="name">The property name.</param>
+        /// <returns>True if the property value is parsed into an integer greater than 0; false of the property value
+        /// is parsed into an integer smaller or equal to 0.</returns>
+        public bool? GetPropertyAsBool(string name) =>
+            GetPropertyAsInt(name) is int intValue ? intValue > 0 : (bool?)null;
+
+        /// <summary>Gets the value of a property as an integer. If the property is not set, returns null.</summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into an integer or null.</returns>
         public int? GetPropertyAsInt(string name)
@@ -58,10 +65,10 @@ namespace Ice
                         pv.Used = true;
                         return int.Parse(pv.Val, CultureInfo.InvariantCulture);
                     }
-                    catch (Exception ex)
+                    catch (FormatException ex)
                     {
-                        throw new InvalidConfigurationException($"illegal value `{pv.Val}'; {name} must be an integer",
-                                                                ex);
+                        throw new InvalidConfigurationException(
+                            $"the value of property `{name}' is not an integer", ex);
                     }
                 }
                 return null;
@@ -69,7 +76,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Get the value of a property as an array of strings. If the property is not set, returns null.
+        /// Gets the value of a property as an array of strings. If the property is not set, returns null.
         /// The value must contain strings separated by whitespace or comma. These strings can contain
         /// whitespace and commas if they are enclosed in single or double quotes. Within single quotes or
         /// double quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as
@@ -90,7 +97,7 @@ namespace Ice
             }
         }
 
-        /// <summary>Get all properties whose keys begins with forPrefix.
+        /// <summary>Gets all properties whose keys begins with forPrefix.
         /// If forPrefix is an empty string, then all properties are returned.
         /// </summary>
         /// <param name="forPrefix">The prefix to search for (empty string if none).</param>
@@ -114,18 +121,27 @@ namespace Ice
             }
         }
 
-        /// <summary>Get the value of a property as a proxy. If the property is not set, returns null.</summary>
+        /// <summary>Gets the value of a property as a proxy. If the property is not set, returns null.</summary>
         /// <param name="name">The property name. The property name is also used as the prefix for proxy options.</param>
         /// <param name="factory">The proxy factory. Use IAPrx.Factory to create IAPrx proxies.</param>
         /// <returns>The property value parsed into a proxy or null.</returns>
         public T? GetPropertyAsProxy<T>(string name, ProxyFactory<T> factory) where T : class, IObjectPrx
         {
-            string? proxy = GetProperty(name);
-            if (proxy == null)
+            if (GetProperty(name) is string value)
+            {
+                try
+                {
+                    return factory(Reference.Parse(value, name, this));
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidConfigurationException($"the value of property `{name}' is not a proxy", ex);
+                }
+            }
+            else
             {
                 return null;
             }
-            return factory(Reference.Parse(proxy, name, this));
         }
 
         /// <summary>Insert a new property or change the value of an existing property.
@@ -186,6 +202,52 @@ namespace Ice
             lock (_properties)
             {
                 return _properties.Where(p => !p.Value.Used).Select(p => p.Key).ToList();
+            }
+        }
+
+        internal void CheckForUnknownProperties(string prefix)
+        {
+            // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
+            foreach (string name in IceInternal.PropertyNames.clPropNames)
+            {
+                if (prefix.StartsWith(string.Format("{0}.", name), StringComparison.Ordinal))
+                {
+                    return;
+                }
+            }
+
+            var unknownProps = new List<string>();
+            Dictionary<string, string> props = GetProperties(forPrefix: $"{prefix}.");
+            foreach (string prop in props.Keys)
+            {
+                bool valid = false;
+                for (int i = 0; i < _suffixes.Length; ++i)
+                {
+                    string pattern = "^" + Regex.Escape(prefix + ".") + _suffixes[i] + "$";
+                    if (new Regex(pattern).Match(prop).Success)
+                    {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (!valid)
+                {
+                    unknownProps.Add(prop);
+                }
+            }
+
+            if (unknownProps.Count != 0)
+            {
+                var message = new StringBuilder("found unknown properties for proxy '");
+                message.Append(prefix);
+                message.Append("':");
+                foreach (string s in unknownProps)
+                {
+                    message.Append("\n    ");
+                    message.Append(s);
+                }
+                Logger.Warning(message.ToString());
             }
         }
 

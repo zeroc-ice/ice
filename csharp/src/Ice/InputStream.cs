@@ -290,18 +290,8 @@ namespace Ice
         /// <summary>Reads a proxy from the stream.</summary>
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
         /// <returns>The proxy read from the stream.</returns>
-        public T? ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx
-        {
-            var ident = new Identity(this);
-            if (ident.Name.Length == 0)
-            {
-                return null;
-            }
-            else
-            {
-                return factory(Communicator.CreateReference(ident, this));
-            }
-        }
+        public T? ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            Reference.Read(this) is Reference reference ? factory(reference) : null;
 
         /// <summary>Reads a sequence from the stream.</summary>
         /// <param name="minElementSize">The minimum size of each element of the sequence, in bytes.</param>

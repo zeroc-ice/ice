@@ -39,7 +39,7 @@ namespace IceBox
             }
             else
             {
-                _adminEnabled = _communicator.GetPropertyAsInt("Ice.Admin.Enabled") > 0;
+                _adminEnabled = _communicator.GetPropertyAsBool("Ice.Admin.Enabled") ?? false;
             }
 
             if (_adminEnabled)
@@ -256,7 +256,7 @@ namespace IceBox
                     Dictionary<string, string> properties = CreateServiceProperties("SharedCommunicator");
                     foreach (StartServiceInfo service in servicesInfo)
                     {
-                        if ((_communicator.GetPropertyAsInt($"IceBox.UseSharedCommunicator.{service.Name}") ?? 0) <= 0)
+                        if (!(_communicator.GetPropertyAsBool($"IceBox.UseSharedCommunicator.{service.Name}") ?? false))
                         {
                             continue;
                         }
@@ -413,7 +413,7 @@ namespace IceBox
                 // communicator inherits from the shared communicator properties. If it's not defined, add the
                 // service properties to the shared communicator property set.
                 Communicator communicator;
-                if (_communicator.GetPropertyAsInt($"IceBox.UseSharedCommunicator.{service}") > 0)
+                if (_communicator.GetPropertyAsBool($"IceBox.UseSharedCommunicator.{service}") ?? false)
                 {
                     Debug.Assert(_sharedCommunicator != null);
                     communicator = _sharedCommunicator;
@@ -631,7 +631,7 @@ namespace IceBox
         private Dictionary<string, string> CreateServiceProperties(string service)
         {
             Dictionary<string, string> properties;
-            if ((_communicator.GetPropertyAsInt("IceBox.InheritProperties") ?? 0) > 0)
+            if (_communicator.GetPropertyAsBool("IceBox.InheritProperties") ?? false)
             {
                 // Inherit all except Ice.Admin.xxx properties
                 properties = _communicator.GetProperties().Where(p => !p.Key.StartsWith("Ice.Admin.")).ToDictionary(
