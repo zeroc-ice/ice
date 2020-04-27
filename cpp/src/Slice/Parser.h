@@ -524,12 +524,12 @@ public:
     bool hasStructs() const;
     bool hasExceptions() const;
     bool hasDictionaries() const;
-    bool hasOnlyDictionaries(DictionaryList&) const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasInterfaceDefs() const;
     bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
+    bool hasOnlyInterfaces() const;
     bool hasOperations() const; // interfaces or classes with operations
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;

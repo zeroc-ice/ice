@@ -2289,40 +2289,6 @@ Slice::Container::hasDictionaries() const
 }
 
 bool
-Slice::Container::hasOnlyDictionaries(DictionaryList& dicts) const
-{
-    bool ret = true;
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr m = ModulePtr::dynamicCast(*p);
-        if(m)
-        {
-            bool subret = m->hasOnlyDictionaries(dicts);
-            if(!subret && ret)
-            {
-                ret = false;
-            }
-        }
-        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
-        if(d && ret)
-        {
-            dicts.push_back(d);
-        }
-        else
-        {
-            ret = false;
-        }
-    }
-
-    if(!ret)
-    {
-        dicts.clear();
-    }
-
-    return ret;
-}
-
-bool
 Slice::Container::hasClassDefs() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2401,6 +2367,42 @@ Slice::Container::hasOnlyClassDecls() const
         }
     }
 
+    return true;
+}
+
+bool
+Slice::Container::hasOnlyInterfaces() const
+{
+    for (const auto& p: _contents)
+    {
+        ModulePtr m = ModulePtr::dynamicCast(p);
+        if (m)
+        {
+            if (!m->hasOnlyInterfaces())
+            {
+                return false;
+            }
+        }
+        else
+        {
+            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(p);
+            if (classDecl)
+            {
+                if (!classDecl->isInterface())
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                ClassDefPtr classDef = ClassDefPtr::dynamicCast(p);
+                if (!classDef || !classDef->isInterface())
+                {
+                    return false;
+                }
+            }
+        }
+    }
     return true;
 }
 

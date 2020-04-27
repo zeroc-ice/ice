@@ -528,12 +528,13 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 }
 
 void
-Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
+Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value,
+    const string& ns)
 {
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
-    if(constant)
+    if (constant)
     {
-        _out << fixId(constant->scoped()) << ".value";
+        _out << getUnqualified(constant, ns, "Constants.");
     }
     else
     {
@@ -592,7 +593,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
         if(p->defaultValueType())
         {
             _out << nl << "this." << dataMemberName(p) << " = ";
-            writeConstantValue(type, p->defaultValueType(), p->defaultValue());
+            writeConstantValue(type, p->defaultValueType(), p->defaultValue(), ns);
             _out << ';';
         }
         else if(!p->tagged())
@@ -1138,9 +1139,6 @@ Slice::Gen::generate(const UnitPtr& p)
     ProxyVisitor proxyVisitor(_out);
     p->visit(&proxyVisitor, false);
 
-    HelperVisitor helperVisitor(_out);
-    p->visit(&helperVisitor, false);
-
     DispatcherVisitor dispatcherVisitor(_out);
     p->visit(&dispatcherVisitor, false);
 }
@@ -1331,16 +1329,9 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    DictionaryList dicts;
-    if(p->hasOnlyDictionaries(dicts))
+    if (p->hasOnlyClassDecls() || p->hasOnlyInterfaces())
     {
-        //
-        // If this module contains only dictionaries, we don't need to generate
-        // anything for the dictionary types. The early return prevents
-        // an empty namespace from being emitted, the namespace will
-        // be emitted later by the dictionary helper .
-        //
-        return false;
+        return false; // avoid empty namespace
     }
 
     moduleStart(p);
@@ -1348,9 +1339,37 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     _out << sp;
     emitCustomAttributes(p);
     _out << nl << "namespace " << name;
-
     _out << sb;
 
+    // Write constants if there are any
+    if (!p->consts().empty())
+    {
+        emitCommonAttributes();
+        _out << nl << "public static partial class Constants";
+        _out << sb;
+        bool firstOne = true;
+        for (auto q : p->consts())
+        {
+            if (firstOne)
+            {
+                firstOne = false;
+            }
+            else
+            {
+                _out << sp;
+            }
+
+            // TODO: doc comments
+
+            name = fixId(q->name());
+            string ns = getNamespace(q);
+            emitCustomAttributes(q);
+            _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
+            writeConstantValue(q->type(), q->valueType(), q->value(), ns);
+            _out << ";";
+        }
+        _out << eb;
+    }
     return true;
 }
 
@@ -2021,21 +2040,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
-{
-    string name = fixId(p->name());
-    _out << sp;
-    emitCommonAttributes();
-    emitCustomAttributes(p);
-    _out << nl << "public abstract class " << name;
-    _out << sb;
-    _out << sp << nl << "public const " << typeToString(p->type(), "") << " value = ";
-    writeConstantValue(p->type(), p->valueType(), p->value());
-    _out << ";";
-    _out << eb;
-}
-
-void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
@@ -2067,6 +2071,97 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         _out << ";";
     }
+}
+
+void
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
+{
+    if (!isMappedToReadOnlyMemory(p))
+    {
+        string name = p->name();
+        string scope = getNamespace(p);
+        string seqS = typeToString(p, scope);
+        string seqReadOnly = typeToString(p, scope, false, true);
+
+        _out << sp;
+        emitCommonAttributes();
+        _out << nl << "public static class " << name << "Helper";
+        _out << sb;
+
+        _out << sp;
+        _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
+        _out.inc();
+        _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
+        _out.dec();
+
+        _out << sp;
+        _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+
+        _out << sp;
+        _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) =>";
+        _out.inc();
+        _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
+        _out.dec();
+
+        _out << sp;
+        _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
+
+        _out << eb;
+    }
+}
+
+void
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    string ns = getNamespace(p);
+    string name = p->name();
+    TypePtr key = p->keyType();
+    TypePtr value = p->valueType();
+    string dictS = typeToString(p, ns);
+    string readOnlyDictS = typeToString(p, ns, false, true);
+    string generic = p->findMetaDataWithPrefix("cs:generic:");
+
+    _out << sp;
+    emitCommonAttributes();
+    _out << nl << "public static class " << name << "Helper";
+    _out << sb;
+    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) =>";
+    _out.inc();
+    _out << nl << "ostr.WriteDictionary(dictionary";
+    if (!StructPtr::dynamicCast(key))
+    {
+        _out << ", " << outputStreamWriter(key, ns, true);
+    }
+    if (!StructPtr::dynamicCast(value))
+    {
+        _out << ", " << outputStreamWriter(value, ns, true);
+    }
+    _out << ");";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
+
+    _out << sp;
+    _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) =>";
+    _out.inc();
+    if(generic == "SortedDictionary")
+    {
+        _out << nl << "istr.ReadSortedDictionary(";
+    }
+    else
+    {
+        _out << nl << "istr.ReadDictionary(";
+    }
+    _out << "minEntrySize: " << (key->minWireSize() + value->minWireSize()) << ", "
+         << inputStreamReader(key, ns) << ", "
+         << inputStreamReader(value, ns) << ");";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
+
+    _out << eb;
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
@@ -2493,123 +2588,6 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
         }
         _out << eb;
     }
-}
-
-Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasSequences() && !p->hasDictionaries())
-    {
-        return false;
-    }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-void
-Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
-{
-    if (!isMappedToReadOnlyMemory(p))
-    {
-        string name = p->name();
-        string scope = getNamespace(p);
-        string seqS = typeToString(p, scope);
-        string seqReadOnly = typeToString(p, scope, false, true);
-
-        _out << sp;
-        emitCommonAttributes();
-        _out << nl << "public static class " << name << "Helper";
-        _out << sb;
-
-        _out << sp;
-        _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
-        _out.inc();
-        _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
-        _out.dec();
-
-        _out << sp;
-        _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
-
-        _out << sp;
-        _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) =>";
-        _out.inc();
-        _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
-        _out.dec();
-
-        _out << sp;
-        _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
-
-        _out << eb;
-    }
-}
-
-void
-Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    string ns = getNamespace(p);
-    string name = p->name();
-    TypePtr key = p->keyType();
-    TypePtr value = p->valueType();
-    string dictS = typeToString(p, ns);
-    string readOnlyDictS = typeToString(p, ns, false, true);
-    string generic = p->findMetaDataWithPrefix("cs:generic:");
-
-    _out << sp;
-    emitCommonAttributes();
-    _out << nl << "public static class " << name << "Helper";
-    _out << sb;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) =>";
-    _out.inc();
-    _out << nl << "ostr.WriteDictionary(dictionary";
-    if (!StructPtr::dynamicCast(key))
-    {
-        _out << ", " << outputStreamWriter(key, ns, true);
-    }
-    if (!StructPtr::dynamicCast(value))
-    {
-        _out << ", " << outputStreamWriter(value, ns, true);
-    }
-    _out << ");";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
-
-    _out << sp;
-    _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) =>";
-    _out.inc();
-    if(generic == "SortedDictionary")
-    {
-        _out << nl << "istr.ReadSortedDictionary(";
-    }
-    else
-    {
-        _out << nl << "istr.ReadDictionary(";
-    }
-    _out << "minEntrySize: " << (key->minWireSize() + value->minWireSize()) << ", "
-         << inputStreamReader(key, ns) << ", "
-         << inputStreamReader(value, ns) << ");";
-    _out.dec();
-
-    _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
-
-    _out << eb;
 }
 
 Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out) :
