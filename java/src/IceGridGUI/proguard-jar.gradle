@@ -12,14 +12,6 @@ buildscript {
     }
 }
 
-configurations {
-    bundleapp
-}
-
-dependencies {
-      bundleapp 'com.panayotis:appbundler:1.1.0'
-}
-
 if(JavaVersion.current() == JavaVersion.VERSION_1_8) {
     ['rt.jar',
      'jsse.jar',
@@ -66,43 +58,7 @@ task copyJars(type: Copy, dependsOn: proguardJar) {
     from new File("${libDir}/${jarName}")
     into "${DESTDIR}${jarDir}"
 }
+
 task install(dependsOn: copyJars)
 
-if(System.properties['os.name'] == "Mac OS X") {
-    def appName = "IceGrid GUI"
-    task bundleapp(dependsOn: proguardJar) {
-        doLast {
-            ant.taskdef(name: 'bundleapp',
-                        classname: 'com.oracle.appbundler.AppBundlerTask',
-                        classpath: configurations.bundleapp.asPath)
-
-            ant.bundleapp(outputdirectory: "${libDir}",
-                          name: appName,
-                          displayname: appName,
-                          identifier: "com.zeroc.IceGridGUI",
-                          icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
-                          shortversion: "${project.version}",
-                          applicationCategory: "public.app-category.utilities",
-                          mainclassname: "com.zeroc.IceGridGUI/Main",
-                          copyright: "Copyright © ZeroC, Inc. All rights reserved.") {
-                classpath(file: "${libDir}/${jarName}") {}
-                option(value: "-Dapple.laf.useScreenMenuBar=true") {}
-                option(value: "-Dcom.apple.macos.use-file-dialog-packages=true") {}
-                option(value: "-Dcom.apple.macos.useScreenMenuBar=true") {}
-                option(value: "-Xdock:name=IceGrid GUI") {}
-                option(value: "-Dcom.apple.mrj.application.apple.menu.about.name=${appName}") {}
-            }
-        }
-    }
-    assemble.dependsOn(bundleapp)
-
-    task copyBundle(type: Copy, dependsOn: bundleapp) {
-        from "${libDir}/${appName}.app"
-        into "${DESTDIR}/${prefix}/${appName}.app"
-    }
-
-    install.dependsOn(copyBundle)
-}
-else {
-    assemble.dependsOn(proguardJar)
-}
+assemble.dependsOn(proguardJar)
