@@ -736,11 +736,8 @@ namespace Ice.operations.AMD
             throw new Test.SomeException();
         }
 
-        public ValueTask opOnewayMetadataAsync(Current current)
-        {
-            // "return" exception when called two-way, otherwise succeeds.
-            throw new Test.SomeException();
-        }
+        // "return" exception when called two-way, otherwise succeeds.
+        public ValueTask opOnewayMetadataAsync(Current current) => throw new Test.SomeException();
 
         public ValueTask
         opDerivedAsync(Current current) => new ValueTask(Task.CompletedTask);

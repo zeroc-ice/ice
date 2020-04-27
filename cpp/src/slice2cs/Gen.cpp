@@ -2476,11 +2476,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     _out.inc();
     _out << nl << "operationName: \"" << operation->name() << "\",";
     _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false");
+
     if(outParams.size() == 0)
     {
         _out << ",";
         _out << nl << "oneway: " << (oneway ? "true" : "false");
     }
+
     if(inParams.size() > 0)
     {
         _out << ",";
