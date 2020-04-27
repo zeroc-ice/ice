@@ -2373,19 +2373,19 @@ Slice::Container::hasOnlyClassDecls() const
 bool
 Slice::Container::hasOnlyInterfaces() const
 {
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& p: _contents)
     {
-        ModulePtr m = ModulePtr::dynamicCast(*p);
-        if(m)
+        ModulePtr m = ModulePtr::dynamicCast(p);
+        if (m)
         {
-            if(!m->hasOnlyInterfaces())
+            if (!m->hasOnlyInterfaces())
             {
                 return false;
             }
         }
         else
         {
-            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(*p);
+            ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(p);
             if (classDecl)
             {
                 if (!classDecl->isInterface())
@@ -2395,7 +2395,7 @@ Slice::Container::hasOnlyInterfaces() const
             }
             else
             {
-                ClassDefPtr classDef = ClassDefPtr::dynamicCast(*p);
+                ClassDefPtr classDef = ClassDefPtr::dynamicCast(p);
                 if (!classDef || !classDef->isInterface())
                 {
                     return false;

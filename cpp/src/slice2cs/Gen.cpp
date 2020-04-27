@@ -1341,7 +1341,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
     _out << nl << "namespace " << name;
     _out << sb;
 
-    // Write constants if there is any
+    // Write constants if there are any
     if (!p->consts().empty())
     {
         emitCommonAttributes();
