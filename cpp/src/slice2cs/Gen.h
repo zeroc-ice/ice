@@ -45,7 +45,7 @@ protected:
 
     std::string writeValue(const TypePtr&, const std::string&);
 
-    void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
+    void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&, const std::string& ns);
 
     //
     // Generate assignment statements for those data members that have default values.
@@ -138,8 +138,9 @@ private:
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitStructEnd(const StructPtr&);
         virtual void visitEnum(const EnumPtr&);
-        virtual void visitConst(const ConstPtr&);
         virtual void visitDataMember(const DataMemberPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
     };
 
     class ProxyVisitor : public CsVisitor
@@ -156,18 +157,6 @@ private:
 
         void writeOutgoingRequestReader(const OperationPtr&);
         void writeOutgoingRequestWriter(const OperationPtr&);
-    };
-
-    class HelperVisitor : public CsVisitor
-    {
-    public:
-
-        HelperVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
     };
 
     class DispatcherVisitor : public CsVisitor
