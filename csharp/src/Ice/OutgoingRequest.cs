@@ -38,7 +38,7 @@ namespace Ice
         private protected Task<TReturnValue> InvokeAsync(IObjectPrx prx,
                                                          OutgoingRequestFrame request,
                                                          IProgress<bool>? progress,
-                                                 CancellationToken cancel)
+                                                         CancellationToken cancel)
         {
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
             new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
@@ -161,15 +161,20 @@ namespace Ice
     // publicly visible Ice-internal class used as base class for void requests
     public class OutgoingRequest
     {
+        private readonly bool _oneway;
+
+        private protected OutgoingRequest(bool oneway) => _oneway = oneway;
+
         private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request)
         {
             try
             {
                 var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
-                new OutgoingAsync(prx, completed, request, oneway: prx.IsOneway).Invoke(
+                var isOneway = _oneway || prx.IsOneway;
+                new OutgoingAsync(prx, completed, request, oneway: isOneway).Invoke(
                     request.Operation, request.Context, synchronous: true);
                 IncomingResponseFrame response = completed.Task.Result;
-                if (!prx.IsOneway)
+                if (!isOneway)
                 {
                     response.ReadVoidReturnValue();
                 }
@@ -185,15 +190,16 @@ namespace Ice
                                            CancellationToken cancel)
         {
             var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
-            new OutgoingAsync(prx, completed, request, oneway: prx.IsOneway).Invoke(
+            var isOneway = _oneway || prx.IsOneway;
+            new OutgoingAsync(prx, completed, request, oneway: isOneway).Invoke(
                 request.Operation, request.Context, synchronous: false);
 
-            return ReadVoidReturnValueAsync(prx, completed.Task);
+            return ReadVoidReturnValueAsync(completed.Task, isOneway);
 
-            static async Task ReadVoidReturnValueAsync(IObjectPrx prx, Task<IncomingResponseFrame> task)
+            static async Task ReadVoidReturnValueAsync(Task<IncomingResponseFrame> task, bool oneway)
             {
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
-                if (!prx.IsOneway)
+                if (!oneway)
                 {
                     response.ReadVoidReturnValue();
                 }
@@ -207,7 +213,8 @@ namespace Ice
         private readonly string _operationName;
         private readonly bool _idempotent;
 
-        public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent)
+        public OutgoingRequestWithEmptyParamList(string operationName, bool idempotent, bool oneway)
+        : base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -237,8 +244,10 @@ namespace Ice
         public OutgoingRequestWithParam(
             string operationName,
             bool idempotent,
+            bool oneway,
             FormatType? format,
             OutputStreamWriter<TParamList> writer)
+        : base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;
@@ -272,8 +281,10 @@ namespace Ice
         public OutgoingRequestWithStructParam(
             string operationName,
             bool idempotent,
+            bool oneway,
             FormatType? format,
             OutputStreamStructWriter<TParamList> writer)
+        : base(oneway)
         {
             _operationName = operationName;
             _idempotent = idempotent;

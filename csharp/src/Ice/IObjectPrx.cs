@@ -347,7 +347,7 @@ namespace Ice
 
         private static OutgoingRequestWithEmptyParamList? _iceI_PingRequest;
         private static OutgoingRequestWithEmptyParamList IceI_PingRequest =>
-            _iceI_PingRequest ??= new OutgoingRequestWithEmptyParamList("ice_ping", idempotent: true);
+            _iceI_PingRequest ??= new OutgoingRequestWithEmptyParamList("ice_ping", idempotent: true, oneway: false);
     }
 
     // The base class for all proxies. It's a publicly visible Ice-internal class. Applications should not use it

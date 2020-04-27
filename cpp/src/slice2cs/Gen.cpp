@@ -2317,6 +2317,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     string name = fixId(opName);
     string asyncName = opName + "Async";
     string internalName = "_iceI_" + opName + "Async";
+    bool oneway = operation->hasMetaData("oneway");
 
     TypePtr ret = operation->returnType();
     string retS = typeToString(operation->returnType(), ns, operation->returnIsTagged());
@@ -2376,6 +2377,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
     outParams = getAllOutParams(operation, false, "iceP_", true);
     string requestT = requestType(inParams, outParams);
+
+    if(oneway && (outParams.size() > 0))
+    {
+        const UnitPtr ut = operation->unit();
+        const DefinitionContextPtr dc = ut->findDefinitionContext(operation->file());
+        assert(dc);
+        dc->error(operation->file(), operation->line(), "only void operations can be marked oneway");
+    }
+
     // Write the static outgoing request instance
     _out << sp;
 
@@ -2386,6 +2396,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     _out.inc();
     _out << nl << "operationName: \"" << operation->name() << "\",";
     _out << nl << "idempotent: " << (isIdempotent(operation) ? "true" : "false");
+
+    if(outParams.size() == 0)
+    {
+        _out << ",";
+        _out << nl << "oneway: " << (oneway ? "true" : "false");
+    }
+
     if(inParams.size() > 0)
     {
         _out << ",";

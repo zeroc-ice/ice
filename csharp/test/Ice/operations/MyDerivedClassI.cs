@@ -642,6 +642,9 @@ namespace Ice.operations
         // "return" exception when called two-way, otherwise succeeds.
         public void opOneway(Current current) => throw new Test.SomeException();
 
+        // "return" exception when called two-way, otherwise succeeds.
+        public void opOnewayMetadata(Current current) => throw new Test.SomeException();
+
         public void opDerived(Current current)
         {
         }

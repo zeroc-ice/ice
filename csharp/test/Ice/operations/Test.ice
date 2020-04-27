@@ -238,6 +238,9 @@ interface MyClass
 
     void opOneway();
 
+    ["oneway"]
+    void opOnewayMetadata();
+
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);
     int opInt1(int opInt1);

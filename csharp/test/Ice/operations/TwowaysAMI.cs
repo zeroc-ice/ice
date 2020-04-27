@@ -1663,6 +1663,9 @@ namespace Ice.operations
                 TestHelper.Assert(ex.InnerException is Test.SomeException);
             }
 
+            // This is invoked as a oneway, despite using a twoway proxy.
+            p.opOnewayMetadataAsync().Wait();
+
             {
                 var derived = Test.IMyDerivedClassPrx.CheckedCast(p);
                 TestHelper.Assert(derived != null);
