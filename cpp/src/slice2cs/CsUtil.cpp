@@ -1074,30 +1074,32 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
 
     const string stream = customStream.empty() ? "istr" : customStream;
 
+    out << param << " = ";
+
     if(isClassType(type))
     {
-        out << nl << param << " = " << stream << ".ReadTaggedClass<" << typeToString(type, scope) << ">(" << tag << ");";
+        out << stream << ".ReadTaggedClass<" << typeToString(type, scope) << ">(" << tag << ");";
     }
     else if(isProxyType(type))
     {
-        out << nl << param << " = " << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope)
+        out << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope)
             << ".Factory);";
     }
     else if(builtin)
     {
-        out << nl << param << " = " << stream << ".ReadTagged" << builtinSuffixTable[builtin->kind()] << "(" << tag
+        out << stream << ".ReadTagged" << builtinSuffixTable[builtin->kind()] << "(" << tag
             << ");";
     }
     else if(st)
     {
-        out << nl << param << " = " << stream << ".ReadTagged"
+        out << stream << ".ReadTagged"
             << (st->isVariableLength() ? "Variable" : "Fixed") << "SizeStruct(" << tag << ", "
             << inputStreamReader(st, scope) << ");";
     }
     else if(en)
     {
         // We must use the reader to check the enum.
-        out << nl << param << " = " << stream << ".ReadTaggedEnum(" << tag << ", "
+        out << stream << ".ReadTaggedEnum(" << tag << ", "
             << inputStreamReader(en, scope) << ");";
     }
     else if (seq)
@@ -1105,17 +1107,17 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         const TypePtr elementType = seq->type();
         if (isMappedToReadOnlyMemory(seq))
         {
-            out << nl << param << " = " << stream << ".ReadTaggedFixedSizeNumericArray<" <<
+            out << stream << ".ReadTaggedFixedSizeNumericArray<" <<
                 typeToString(elementType, scope) << ">(" << tag << ");";
         }
         else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
-            out << nl << param << " = " << stream << ".ReadTaggedSerializable(" << tag << ") as "
+            out << stream << ".ReadTaggedSerializable(" << tag << ") as "
                 << typeToString(seq, scope) << ";";
         }
         else if (seq->hasMetaDataWithPrefix("cs:generic:"))
         {
-            out << nl << param << " = " << stream << ".ReadTagged"
+            out << stream << ".ReadTagged"
                 << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementSequence(" << tag << ", "
                 << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
                 << elementType->minWireSize() << ", " << inputStreamReader(elementType, scope)
@@ -1124,7 +1126,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << param << " = " << stream << ".ReadTagged"
+            out << stream << ".ReadTagged"
                 << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementArray(" << tag << ", "
                 << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
                 << elementType->minWireSize() <<  ", " << inputStreamReader(elementType, scope) << ");";
@@ -1140,7 +1142,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         bool fixedSize = !keyType->isVariableLength() && !valueType->isVariableLength();
         bool sorted = d->findMetaDataWithPrefix("cs:generic:") == "SortedDictionary";
 
-        out << nl << param << " = " << stream << ".ReadTagged" << (fixedSize ? "Fixed" : "Variable") << "SizeEntry"
+        out << stream << ".ReadTagged" << (fixedSize ? "Fixed" : "Variable") << "SizeEntry"
             << (sorted ? "Sorted" : "") << "Dictionary(" << tag << ", "
             << (fixedSize ? "entrySize: " : "minEntrySize: ") << keyType->minWireSize() + valueType->minWireSize()
             << ", " << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ");";

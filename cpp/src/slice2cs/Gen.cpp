@@ -179,7 +179,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
 
     for(const auto& param : taggedParams)
     {
-        _out << nl << param.typeStr << " " << param.name << " = null;";
+        _out << nl << param.typeStr << " ";
         writeTaggedUnmarshalCode(_out, param.type, ns, param.name, param.tag,
                                    stream);
     }
@@ -207,6 +207,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
     const string stream = customStream.empty() ? "ostr" : customStream;
     if(member->tagged())
     {
+        _out << nl;
         writeTaggedUnmarshalCode(_out, member->type(), ns, name, member->tag(), stream);
     }
     else
