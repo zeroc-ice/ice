@@ -2683,9 +2683,9 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "// and reuse the generated implementation.";
     _out << nl << "protected static global::System.Threading.Tasks.ValueTask<global::Ice.OutgoingResponseFrame> "
         << "DispatchAsync(" << fixId(name) << " servant, "
-        << "global::Ice.IncomingRequestFrame request, global::Ice.Current current)";
-    _out << sb;
-    _out << nl << "switch (current.Operation)";
+        << "global::Ice.IncomingRequestFrame request, global::Ice.Current current) =>";
+    _out.inc();
+    _out << nl << "current.Operation switch";
     _out << sb;
     StringList allOpNames;
     for(const auto& op : p->allOperations())
@@ -2699,21 +2699,14 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     for(const auto& opName : allOpNames)
     {
-        _out << nl << "case \"" << opName << "\":";
-        _out << sb;
-        _out << nl << "return servant.IceD_" << opName << "Async(request, current);";
-        _out << eb;
+        _out << nl << "\"" << opName << "\" => " << "servant.IceD_" << opName << "Async(request, current),";
     }
 
-    _out << nl << "default:";
-    _out << sb;
-    _out << nl << "throw new " << getUnqualified("Ice.OperationNotExistException", ns)
-            << "(current.Identity, current.Facet, current.Operation);";
-    _out << eb;
+    _out << nl << "_ => throw new " << getUnqualified("Ice.OperationNotExistException", ns)
+        << "(current.Identity, current.Facet, current.Operation)";
 
-    _out << eb; // switch
-    _out << eb; // method
-
+    _out << eb << ";"; // switch expression
+    _out.dec(); // method
     return true;
 }
 
