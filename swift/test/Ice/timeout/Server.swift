@@ -7,7 +7,6 @@ import TestCommon
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-        let writer = getWriter()
 
         let properties = try createTestProperties(args)
 

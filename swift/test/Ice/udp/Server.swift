@@ -7,8 +7,6 @@ import TestCommon
 
 class Server: TestHelperI {
     public override func run(args: [String]) throws {
-        let writer = getWriter()
-
         var restArgs = args
         let properties = try createTestProperties(&restArgs)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")

@@ -8,8 +8,6 @@ import TestCommon
 
 class Collocated: TestHelperI {
     public override func run(args: [String]) throws {
-        let writer = getWriter()
-
         var properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10 1")
 

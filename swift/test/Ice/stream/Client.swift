@@ -8,7 +8,7 @@ import TestCommon
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
-        var writer = getWriter()
+        let writer = getWriter()
         writer.write("testing primitive types... ")
 
         var initData = Ice.InitializationData()
