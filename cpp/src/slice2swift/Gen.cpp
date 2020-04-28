@@ -836,15 +836,20 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         string keyParam = "let key: " + keyType;
         writeMarshalUnmarshalCode(out, p->keyType(), p, keyParam, false);
         out << nl << "v[key] = nil as " << valueType;
+        out << nl << "Swift.withUnsafeMutablePointer(to: &v[key, default:nil])";
+        out << sb;
         out << nl << "e.values[i] = Ice.DictEntry<" << keyType << ", " << valueType << ">("
             << "key: key, "
-            << "value: UnsafeMutablePointer<" << valueType << ">(&v[key, default:nil]))";
+            << "value: $0)";
+        out << eb;
         writeMarshalUnmarshalCode(out, p->valueType(), p, "e.values[i].value.pointee", false);
         out << eb;
 
         out << nl << "for i in 0..<sz" << sb;
-        out << nl << "e.values[i].value = Swift.UnsafeMutablePointer<" << valueType
-            << ">(&v[e.values[i].key, default:nil])";
+        out << nl << "Swift.withUnsafeMutablePointer(to: &v[e.values[i].key, default:nil])";
+        out << sb;
+        out << nl << "e.values[i].value = $0";
+        out << eb;
         out << eb;
     }
     else
