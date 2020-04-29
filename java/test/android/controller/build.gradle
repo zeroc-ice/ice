@@ -11,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath 'gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.7'
     }
 }
