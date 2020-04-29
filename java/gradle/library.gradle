@@ -154,13 +154,10 @@ clean {
     delete(pomName)
 }
 
-//
-// Check if we need to update the JARs class-path
-//
-
-task install(type: Copy, dependsOn: jarSources, overwrite: true) {
+task installJars(type: Copy, dependsOn: jarSources) {
     from "${pomName}"
     from "${libDir}/${jar.archiveName}"
     from "${libDir}/${project.name}-${project.version}-sources.jar"
     into "${DESTDIR}${jarDir}"
 }
+install.dependsOn installJars

@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import org.gradle.util.GradleVersion
+
 subprojects {
     project.ext.topSrcDir = "$rootProject.projectDir/.."
 
