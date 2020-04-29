@@ -413,7 +413,7 @@ Ice::CommunicatorHolder::operator=(shared_ptr<Communicator> communicator)
 }
 
 Ice::CommunicatorHolder&
-Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other)
+Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other) noexcept
 {
     if(_communicator)
     {

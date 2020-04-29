@@ -471,7 +471,7 @@ PerThreadImplicitContext::clearThreadContext() const
 #   ifdef _WIN32
             if(TlsSetValue(_key, 0) == 0)
             {
-                IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+                throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
             }
 #   else
             if(int err = pthread_setspecific(_key, 0))

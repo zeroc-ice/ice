@@ -298,7 +298,7 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback, bool singleAdd
             break;
     }
 
-    DWORD size;
+    DWORD size = 0;
     DWORD rv = GetAdaptersAddresses(family, 0, ICE_NULLPTR, ICE_NULLPTR, &size);
     if(rv == ERROR_BUFFER_OVERFLOW)
     {
