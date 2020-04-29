@@ -19,43 +19,38 @@
 
 [["java:package:com.zeroc"]]
 
-/// IceBox is an application server specifically for Ice
-/// applications. IceBox can easily run and administer Ice services
-/// that are dynamically loaded as a DLL, shared library, or Java
-/// class.
+/// IceBox is an application server for Ice applications. IceBox can load IceBox services packaged as DLLs, .NET
+/// assemblies, Java classes and similar.
 module IceBox
 {
-    /// This exception is thrown if an attempt is made to start an
-    /// already-started service.
+    /// This exception is thrown if an attempt is made to start an already-started service.
     exception AlreadyStartedException
     {
     }
 
-    /// This exception is thrown if an attempt is made to stop an
-    /// already-stopped service.
+    /// This exception is thrown if an attempt is made to stop an already-stopped service.
     exception AlreadyStoppedException
     {
     }
 
-    /// This exception is thrown if a service name does not refer
-    /// to an existing service.
+    /// This exception is thrown if a service name does not refer to an existing service.
     exception NoSuchServiceException
     {
     }
 
-    /// An Observer interface implemented by admin clients
-    /// interested in the status of services
+    /// An Observer interface implemented by admin clients interested in the status of services.
     ///
     /// @see ServiceManager
     interface ServiceObserver
     {
-        /// Called by the service manager when a service is started.
+        /// Receives the names of the services that were started.
         ///
-        /// @param services A list with the names of the services that has been started.
+        /// @param services The names of the services.
         void servicesStarted(Ice::StringSeq services);
-        /// Called by the service manager when a service is stopped.
+
+        /// Receives the names of the services that were stopped.
         ///
-        /// @param services A list with the names of the services that has been stopped.
+        /// @param services The names of the services.
         void servicesStopped(Ice::StringSeq services);
     }
 
@@ -64,7 +59,7 @@ module IceBox
     /// @see Service
     interface ServiceManager
     {
-        /// Start an individual service.
+        /// Starts an individual service.
         ///
         /// @param service The service name.
         ///
@@ -73,7 +68,7 @@ module IceBox
         void startService(string service)
             throws AlreadyStartedException, NoSuchServiceException;
 
-        /// Stop an individual service.
+        /// Stops an individual service.
         ///
         /// @param service The service name.
         ///
@@ -84,10 +79,10 @@ module IceBox
 
         /// Registers a new observer with the ServiceManager.
         ///
-        /// @param observer The new observer
+        /// @param observer The new observer.
         void addObserver(ServiceObserver* observer);
 
-        /// Shut down all services. This causes stop to be invoked on all configured services.
+        /// Shuts down all services. This causes stop to be invoked on all configured services.
         void shutdown();
     }
 }
