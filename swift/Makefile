@@ -26,9 +26,15 @@ ice-test.xcodeproj: Rakefile | carthage
 
 all:: tests
 
-# Workaround use "sh" to avoid carthage sporadic SEGFAULT (https://github.com/Carthage/Carthage/issues/2760).
+# Workaround for carthage sporadic SEGFAULT (https://github.com/Carthage/Carthage/issues/2760).
+# If it SEGFAULT we retry.
 carthage:
-	$(Q)cd .. && sh -c "carthage update --cache-builds"
+	$(Q)cd .. && \
+	carthage update --cache-builds || if [ $$? = 139 ]; then \
+	carthage update --cache-builds || if [ $$? = 139 ]; then \
+	carthage update --cache-builds || if [ $$? = 139 ]; then \
+	carthage update --cache-builds || if [ $$? = 139 ]; then \
+	carthage update --cache-builds; fi; fi; fi; fi
 
 tests srcs:: carthage
 
