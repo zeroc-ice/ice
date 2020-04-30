@@ -560,10 +560,10 @@ public:
         {
             if(!communicator->getDefaultRouter())
             {
+                Ice::RouterFinderPrxPtr finder;
                 try
                 {
-                    Ice::RouterFinderPrxPtr finder =
-                        ICE_UNCHECKED_CAST(Ice::RouterFinderPrx, communicator->stringToProxy(_finder));
+                    finder = ICE_UNCHECKED_CAST(Ice::RouterFinderPrx, communicator->stringToProxy(_finder));
                     communicator->setDefaultRouter(finder->getRouter());
                 }
                 catch(const Ice::CommunicatorDestroyedException& ex)
