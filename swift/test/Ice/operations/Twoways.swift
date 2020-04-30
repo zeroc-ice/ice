@@ -5,6 +5,8 @@
 import Ice
 import TestCommon
 
+// temporary work-around for issue #816
+@_optimize(none)
 func twoways(_ helper: TestHelper, _ p: MyClassPrx, _ bprx: MBPrx) throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
