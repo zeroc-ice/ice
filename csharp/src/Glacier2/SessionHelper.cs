@@ -389,10 +389,10 @@ public class SessionHelper
 
             if(_communicator.getDefaultRouter() == null)
             {
+                Ice.RouterFinderPrx finder = null;
                 try
                 {
-                    Ice.RouterFinderPrx finder =
-                        Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
+                    finder = Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
                     _communicator.setDefaultRouter(finder.getRouter());
                 }
                 catch(Ice.CommunicatorDestroyedException ex)
