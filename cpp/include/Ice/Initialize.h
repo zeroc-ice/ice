@@ -682,7 +682,7 @@ public:
      * it will be destroyed.
      * @param holder The holder from which to adopt a communicator.
      */
-    CommunicatorHolder& operator=(CommunicatorHolder&& holder);
+    CommunicatorHolder& operator=(CommunicatorHolder&& holder) noexcept;
 
     /**
      * Determines whether the holder contains an instance.

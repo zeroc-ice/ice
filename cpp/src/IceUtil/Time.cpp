@@ -97,7 +97,7 @@ IceUtil::Time::now(Clock clock)
         struct timeb tb;
         ftime(&tb);
 #  endif
-        return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + tb.millitm * 1000);
+        return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + Int64(tb.millitm) * 1000);
 #else
         struct timeval tv;
         if(gettimeofday(&tv, 0) < 0)
@@ -130,7 +130,7 @@ IceUtil::Time::now(Clock clock)
             struct timeb tb;
             ftime(&tb);
 #  endif
-            return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + tb.millitm * 1000);
+            return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + Int64(tb.millitm) * 1000);
         }
 #elif defined(__hppa)
         //

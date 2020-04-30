@@ -228,7 +228,7 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
 #   pragma warning(default:4996) // localtime is depercated
 #endif
 
-    IceUtil::Time time = IceUtil::Time::seconds(mktime(&tm) - offset * 60 + tzone);
+    IceUtil::Time time = IceUtil::Time::seconds(mktime(&tm) - IceUtil::Int64(offset) * 60 + tzone);
 
 #ifdef ICE_CPP11_MAPPING
     return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
