@@ -389,10 +389,10 @@ public class SessionHelper
                        }
                        if(_communicator.getDefaultRouter() == null)
                        {
-                           final com.zeroc.Ice.RouterFinderPrx finder =
-                               com.zeroc.Ice.RouterFinderPrx.uncheckedCast(_communicator.stringToProxy(_finderStr));
                            try
                            {
+                               final com.zeroc.Ice.RouterFinderPrx finder =
+                                   com.zeroc.Ice.RouterFinderPrx.uncheckedCast(_communicator.stringToProxy(_finderStr));
                                _communicator.setDefaultRouter(finder.getRouter());
                            }
                            catch(final com.zeroc.Ice.CommunicatorDestroyedException ex)
