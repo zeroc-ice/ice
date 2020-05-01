@@ -3,6 +3,8 @@
 //
 
 using System;
+using System.Linq;
+
 using Test;
 
 namespace Ice
@@ -82,9 +84,9 @@ namespace Ice
                     var prx = IObjectPrx.Parse("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000", communicator);
                     adapter.SetPublishedEndpoints(prx.Endpoints);
                     TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 2);
-                    TestHelper.Assert(global::Test.Collections.Equals(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints,
-                        prx.Endpoints));
-                    TestHelper.Assert(global::Test.Collections.Equals(adapter.GetPublishedEndpoints(), prx.Endpoints));
+                    TestHelper.Assert(adapter.CreateProxy(new Identity("dummy", ""), IObjectPrx.Factory).Endpoints.
+                        SequenceEqual(prx.Endpoints));
+                    TestHelper.Assert(adapter.GetPublishedEndpoints().SequenceEqual(prx.Endpoints));
                     adapter.RefreshPublishedEndpoints();
                     TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                     TestHelper.Assert(adapter.GetPublishedEndpoints()[0].Equals(endpt));

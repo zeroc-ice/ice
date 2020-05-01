@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Linq;
 using Test;
 
 public class AllTests
@@ -28,7 +29,7 @@ public class AllTests
             TestHelper.Assert(service1.getProperty("Arg") == "1");
 
             string[] args1 = { "-a", "--Arg=2" };
-            TestHelper.Assert(Collections.Equals(service1.getArgs(), args1));
+            TestHelper.Assert(service1.getArgs().SequenceEqual(args1));
 
             TestHelper.Assert(service2.getProperty("Ice.ProgramName") == "Test");
             TestHelper.Assert(service2.getProperty("Service") == "2");
@@ -36,7 +37,7 @@ public class AllTests
             TestHelper.Assert(service2.getProperty("IceBox.InheritProperties") == "1");
 
             string[] args2 = { "--Service1.ArgProp=1" };
-            TestHelper.Assert(Collections.Equals(service2.getArgs(), args2));
+            TestHelper.Assert(service2.getArgs().SequenceEqual(args2));
 
             Console.Out.WriteLine("ok");
 
@@ -56,7 +57,7 @@ public class AllTests
             TestHelper.Assert(service4.getProperty("Ice.Trace.Slicing") == "3");
 
             string[] args4 = { "--Service3.Prop=2" };
-            TestHelper.Assert(Collections.Equals(service4.getArgs(), args4));
+            TestHelper.Assert(service4.getArgs().SequenceEqual(args4));
 
             Console.Out.WriteLine("ok");
         }

@@ -158,7 +158,7 @@ namespace Ice
             {
                 return false;
             }
-            if (!Collections.Equals(Context, other.Context))
+            if (!Context.DictionaryEqual(other.Context))
             {
                 return false;
             }
@@ -211,7 +211,7 @@ namespace Ice
                 {
                     hash.Add(Compress.Value);
                 }
-                hash.Add(Collections.GetHashCode(Context));
+                hash.Add(Context.GetDictionaryHashCode());
                 hash.Add(Encoding);
                 hash.Add(Facet);
                 hash.Add(Identity);
