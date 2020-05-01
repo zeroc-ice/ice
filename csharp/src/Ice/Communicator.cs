@@ -191,7 +191,6 @@ namespace Ice
         private readonly IceInternal.ThreadPool _clientThreadPool;
         private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
             new ConcurrentDictionary<int, IClassFactory?>();
-        private readonly string[] _compactIdNamespaces;
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
         private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
@@ -279,8 +278,7 @@ namespace Ice
             Observer = observer;
             ThreadStart = threadStart;
             ThreadStop = threadStop;
-            _typeIdNamespaces = typeIdNamespaces ?? new string[] { "Ice.TypeId" };
-            _compactIdNamespaces = new string[] { "IceCompactId" }.Concat(_typeIdNamespaces).ToArray();
+            _typeIdNamespaces = typeIdNamespaces ?? Array.Empty<string>();
 
             if (properties == null)
             {
@@ -1503,24 +1501,33 @@ namespace Ice
         internal IClassFactory? FindClassFactory(int compactId) =>
             _compactIdCache.GetOrAdd(compactId, compactId =>
             {
-                foreach (string ns in _compactIdNamespaces)
+                Type? factoryClass = AssemblyUtil.FindType($"Ice.ClassFactory.CompactId_{compactId}");
+                if (factoryClass != null)
                 {
                     try
                     {
-                        Type? classType = AssemblyUtil.FindType($"{ns}.TypeId_{compactId}");
-                        if (classType != null)
-                        {
-                            string? result = (string?)classType.GetField("typeId")!.GetValue(null);
-                            if (result != null)
-                            {
-                                return FindClassFactory(result);
-                            }
-                            return null;
-                        }
+                        return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
                     }
                     catch
                     {
                         return null;
+                    }
+                }
+
+                // Same but with the to-be-removed typeIdNamespaces
+                foreach (string ns in _typeIdNamespaces)
+                {
+                    factoryClass = AssemblyUtil.FindType($"{ns}.Ice.ClassFactory.CompactId_{compactId}");
+                    if (factoryClass != null)
+                    {
+                        try
+                        {
+                            return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                        }
+                        catch
+                        {
+                            return null;
+                        }
                     }
                 }
                 return null;

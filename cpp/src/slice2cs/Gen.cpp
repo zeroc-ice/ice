@@ -1128,23 +1128,23 @@ Slice::Gen::generate(const UnitPtr& p)
     UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor, false);
 
-    CompactIdVisitor compactIdVisitor(_out);
-    p->visit(&compactIdVisitor, false);
-
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor, false);
-
-    ClassFactoryVisitor classFactoryVisitor(_out);
-    p->visit(&classFactoryVisitor, false);
-
-    RemoteExceptionFactoryVisitor remoteExceptionFactoryVisitor(_out);
-    p->visit(&remoteExceptionFactoryVisitor, false);
 
     ProxyVisitor proxyVisitor(_out);
     p->visit(&proxyVisitor, false);
 
     DispatcherVisitor dispatcherVisitor(_out);
     p->visit(&dispatcherVisitor, false);
+
+    ClassFactoryVisitor classFactoryVisitor(_out);
+    p->visit(&classFactoryVisitor, false);
+
+    CompactIdVisitor compactIdVisitor(_out);
+    p->visit(&compactIdVisitor, false);
+
+    RemoteExceptionFactoryVisitor remoteExceptionFactoryVisitor(_out);
+    p->visit(&remoteExceptionFactoryVisitor, false);
 }
 
 void
@@ -1202,182 +1202,6 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
             _out << nl << '[' << attrib << ']';
         }
     }
-    return false;
-}
-
-Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(p->hasCompactTypeId())
-    {
-        string typeIdNs = getCustomTypeIdNamespace(p);
-
-        if(typeIdNs.empty())
-        {
-            // TODO: replace by namespace Ice.TypeId, see issue #239
-            //
-            _out << sp << nl << "namespace IceCompactId";
-        }
-        else
-        {
-            _out << sp << nl << "namespace " << typeIdNs;
-        }
-
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->compactId() >= 0)
-    {
-        _out << sp;
-        emitCommonAttributes();
-        //
-        // TODO: rename to class Compact_Xxx, see issue #239
-        //
-        _out << nl << "public sealed class TypeId_" << p->compactId();
-        _out << sb;
-        _out << nl << "public const string typeId = \"" << p->scoped() << "\";";
-        _out << eb;
-    }
-    return false;
-}
-
-Slice::Gen::ClassFactoryVisitor::ClassFactoryVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::ClassFactoryVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (p->hasValueDefs())
-    {
-        string ns = getNamespacePrefix(p);
-
-        string name = fixId(p->name());
-        if (!ContainedPtr::dynamicCast(p->container()))
-        {
-            // We are generating code for a top-level module
-            // TODO: eliminate this typeIdNs
-            string typeIdNs = getCustomTypeIdNamespace(p->unit());
-
-            if (typeIdNs.empty())
-            {
-                name = "Ice.ClassFactory." + name;
-            }
-            else
-            {
-                name = typeIdNs + ".Ice.ClassFactory." + name;
-            }
-        }
-        _out << sp << nl << "namespace " << name;
-        _out << sb;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-void
-Slice::Gen::ClassFactoryVisitor::visitModuleEnd(const ModulePtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(!p->isInterface())
-    {
-        string name = fixId(p->name());
-        _out << sp;
-        emitCommonAttributes();
-        _out << nl << "public class " << name << " : global::Ice.IClassFactory";
-        _out << sb;
-        _out << nl << "public global::Ice.AnyClass CreateDefaultInstance() =>";
-        _out.inc();
-        _out << nl << "new global::" << getNamespace(p) << "." << name << "();";
-        _out.dec();
-        _out << eb;
-    }
-    return false;
-}
-
-Slice::Gen::RemoteExceptionFactoryVisitor::RemoteExceptionFactoryVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (p->hasExceptions())
-    {
-        string ns = getNamespacePrefix(p);
-
-        string name = fixId(p->name());
-        if (!ContainedPtr::dynamicCast(p->container()))
-        {
-            // We are generating code for a top-level module
-            // TODO: eliminate this typeIdNs
-            string typeIdNs = getCustomTypeIdNamespace(p->unit());
-
-            if (typeIdNs.empty())
-            {
-                name = "Ice.RemoteExceptionFactory." + name;
-            }
-            else
-            {
-                name = typeIdNs + ".Ice.RemoteExceptionFactory." + name;
-            }
-        }
-        _out << sp << nl << "namespace " << name;
-        _out << sb;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-void
-Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleEnd(const ModulePtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    string name = fixId(p->name());
-    _out << sp;
-    emitCommonAttributes();
-    _out << nl << "public class " << name << " : global::Ice.IRemoteExceptionFactory";
-    _out << sb;
-    _out << nl << "public global::Ice.RemoteException Read(global::Ice.InputStream istr) =>";
-    _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "(istr);";
-    _out.dec();
-    _out << eb;
     return false;
 }
 
@@ -3176,4 +3000,178 @@ void
 Slice::Gen::ImplVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
+}
+
+Slice::Gen::ClassFactoryVisitor::ClassFactoryVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::ClassFactoryVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (p->hasValueDefs())
+    {
+        string ns = getNamespacePrefix(p);
+
+        string name = fixId(p->name());
+        if (!ContainedPtr::dynamicCast(p->container()))
+        {
+            // We are generating code for a top-level module
+            // TODO: eliminate this typeIdNs
+            string typeIdNs = getCustomTypeIdNamespace(p->unit());
+
+            if (typeIdNs.empty())
+            {
+                name = "Ice.ClassFactory." + name;
+            }
+            else
+            {
+                name = typeIdNs + ".Ice.ClassFactory." + name;
+            }
+        }
+        _out << sp << nl << "namespace " << name;
+        _out << sb;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void
+Slice::Gen::ClassFactoryVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(!p->isInterface())
+    {
+        string name = fixId(p->name());
+        _out << sp;
+        emitCommonAttributes();
+        _out << nl << "public class " << name << " : global::Ice.IClassFactory";
+        _out << sb;
+        _out << nl << "public global::Ice.AnyClass CreateDefaultInstance() =>";
+        _out.inc();
+        _out << nl << "new global::" << getNamespace(p) << "." << name << "();";
+        _out.dec();
+        _out << eb;
+    }
+    return false;
+}
+
+Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
+{
+    if(p->hasCompactTypeId())
+    {
+        string typeIdNs = getCustomTypeIdNamespace(p);
+
+        if(typeIdNs.empty())
+        {
+            _out << sp << nl << "namespace Ice.ClassFactory";
+        }
+        else
+        {
+            _out << sp << nl << "namespace " << typeIdNs << ".Ice.ClassFactory";
+        }
+
+        _out << sb;
+        return true;
+    }
+    return false;
+}
+
+void
+Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->compactId() >= 0)
+    {
+        _out << sp;
+        emitCommonAttributes();
+        _out << nl << "public class CompactId_" << p->compactId() << " : global::Ice.IClassFactory";
+        _out << sb;
+        _out << nl << "public global::Ice.AnyClass CreateDefaultInstance() =>";
+        _out.inc();
+        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name()) << "();";
+        _out.dec();
+        _out << eb;
+    }
+    return false;
+}
+
+Slice::Gen::RemoteExceptionFactoryVisitor::RemoteExceptionFactoryVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (p->hasExceptions())
+    {
+        string ns = getNamespacePrefix(p);
+
+        string name = fixId(p->name());
+        if (!ContainedPtr::dynamicCast(p->container()))
+        {
+            // We are generating code for a top-level module
+            // TODO: eliminate this typeIdNs
+            string typeIdNs = getCustomTypeIdNamespace(p->unit());
+
+            if (typeIdNs.empty())
+            {
+                name = "Ice.RemoteExceptionFactory." + name;
+            }
+            else
+            {
+                name = typeIdNs + ".Ice.RemoteExceptionFactory." + name;
+            }
+        }
+        _out << sp << nl << "namespace " << name;
+        _out << sb;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void
+Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    string name = fixId(p->name());
+    _out << sp;
+    emitCommonAttributes();
+    _out << nl << "public class " << name << " : global::Ice.IRemoteExceptionFactory";
+    _out << sb;
+    _out << nl << "public global::Ice.RemoteException Read(global::Ice.InputStream istr) =>";
+    _out.inc();
+    _out << nl << "new global::" << getNamespace(p) << "." << name << "(istr);";
+    _out.dec();
+    _out << eb;
+    return false;
 }

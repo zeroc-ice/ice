@@ -99,36 +99,6 @@ private:
         virtual bool visitUnitStart(const UnitPtr&);
     };
 
-    class CompactIdVisitor : public CsVisitor
-    {
-    public:
-
-        CompactIdVisitor(IceUtilInternal::Output&);
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
-    class ClassFactoryVisitor : public CsVisitor
-    {
-    public:
-
-        ClassFactoryVisitor(IceUtilInternal::Output&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
-    class RemoteExceptionFactoryVisitor : public CsVisitor
-    {
-    public:
-
-        RemoteExceptionFactoryVisitor(IceUtilInternal::Output&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-    };
-
     class TypesVisitor : public CsVisitor
     {
     public:
@@ -194,6 +164,36 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitOperation(const OperationPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
+    };
+
+    class ClassFactoryVisitor : public CsVisitor
+    {
+    public:
+
+        ClassFactoryVisitor(IceUtilInternal::Output&);
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class CompactIdVisitor : public CsVisitor
+    {
+    public:
+
+        CompactIdVisitor(IceUtilInternal::Output&);
+        virtual bool visitUnitStart(const UnitPtr&);
+        virtual void visitUnitEnd(const UnitPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class RemoteExceptionFactoryVisitor : public CsVisitor
+    {
+    public:
+
+        RemoteExceptionFactoryVisitor(IceUtilInternal::Output&);
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
     };
 };
 
