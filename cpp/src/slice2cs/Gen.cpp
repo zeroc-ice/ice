@@ -1373,12 +1373,10 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
     emitCommonAttributes();
     _out << nl << "public class " << name << " : global::Ice.IRemoteExceptionFactory";
     _out << sb;
-    _out << nl << "public global::Ice.RemoteException Read(global::Ice.InputStream istr)";
-    _out << sb;
-    _out << nl << "var remoteEx = new global::" << getNamespace(p) << "." << name << "();";
-    _out << nl << "remoteEx.Read(istr);";
-    _out << nl << "return remoteEx;";
-    _out << eb;
+    _out << nl << "public global::Ice.RemoteException Read(global::Ice.InputStream istr) =>";
+    _out.inc();
+    _out << nl << "new global::" << getNamespace(p) << "." << name << "(istr);";
+    _out.dec();
     _out << eb;
     return false;
 }
@@ -1713,6 +1711,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
     }
 
+    // Serializable constructor
     _out << sp;
     _out << nl << "protected " << name << "(global::System.Runtime.Serialization.SerializationInfo info, "
          << "global::System.Runtime.Serialization.StreamingContext context)";
@@ -1801,6 +1800,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
         }
     }
+    _out << eb;
+
+    // internal constructor used for unmarshaling
+    _out << sp;
+    _out << nl << "internal " << name << "(global::Ice.InputStream istr)";
+    _out.inc();
+    _out << nl << ": this()"; // parameterless constructor
+    _out.dec();
+    _out << sb;
+    _out << nl << "IceRead(istr, true);";
+    _out << nl << "ConvertToUnhandled = true;";
     _out << eb;
 
     string scoped = p->scoped();

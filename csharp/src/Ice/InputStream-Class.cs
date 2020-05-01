@@ -137,7 +137,6 @@ namespace Ice
                 if (factory != null)
                 {
                     RemoteException remoteEx = factory.Read(this);
-                    remoteEx.ConvertToUnhandled = true;
                     Pop(null);
                     return remoteEx;
                 }
@@ -149,9 +148,7 @@ namespace Ice
                 {
                     // Create and throw a plain RemoteException with the SlicedData.
                     Debug.Assert(SlicedData != null);
-                    var remoteEx = new RemoteException(SlicedData.Value);
-                    remoteEx.ConvertToUnhandled = true;
-                    return remoteEx;
+                    return new RemoteException(SlicedData.Value);
                 }
 
                 typeId = ReadSliceHeaderIntoCurrent()!;
