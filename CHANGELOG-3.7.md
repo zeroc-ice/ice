@@ -68,12 +68,12 @@ These are the changes since Ice 3.7.3.
   is set to a value greater than `0`. This only affects certificates generated
   after July 1, 2019.
 
-- Fixed bug in Glacier2 session helper classes that could cause and unhandled
-  `CommunicatorDestroyedException` see #744.
+- Fixed bug in Glacier2 session helper classes that could cause an unhandled
+  `CommunicatorDestroyedException` (#744).
 
 ## C++ Changes
 
-- Fixed a bug that causes a build failure when using OpenSSL < 1.0.2, thanks to
+- Fixed a bug that causes a build failure when using OpenSSL < 1.0.2. Thanks to
   @Harvey-Liu for the PR #801.
 
 - Fixed build failures with clang when building with C++ 17 mode.
@@ -90,7 +90,7 @@ These are the changes since Ice 3.7.3.
 
 - Added `js:defined-in:` metadata for forward defined types, this metadata is
   required to generate the correct JavaScript import statements for forward defined
-  types see #633.
+  types. (#633)
 
 ## MATLAB Changes
 
