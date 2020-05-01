@@ -69,7 +69,7 @@ These are the changes since Ice 3.7.3.
   after July 1, 2019.
 
 - Fixed bug in Glacier2 session helper classes that could cause an unhandled
-  `CommunicatorDestroyedException` (#744).
+  `CommunicatorDestroyedException` [#744](https://github.com/zeroc-ice/ice/issues/744).
 
 ## C++ Changes
 
@@ -84,13 +84,13 @@ These are the changes since Ice 3.7.3.
 
 - Update .NET Core build to use .Net Core 3.1.
 
-- Fixed a bug that causes TCPEndpint `--sourceAddress` to be ignored by C#.
+- Fixed a bug that causes TCPEndpoint `--sourceAddress` to be ignored by C#.
 
 ## JavaScript Changes
 
 - Added `js:defined-in:` metadata for forward defined types, this metadata is
   required to generate the correct JavaScript import statements for forward defined
-  types. (#633)
+  types. [#633](https://github.com/zeroc-ice/ice/issues/633).
 
 ## MATLAB Changes
 
