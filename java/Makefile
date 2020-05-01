@@ -35,7 +35,7 @@ distclean clean:
 	$(GRADLE) $(GRADLEARGS) clean
 
 install::
-	$(GRADLE) $(GRADLEARGS) install
+	$(GRADLE) $(GRADLEARGS) installJars :IceGridGUI:install
 
 install-icegridgui::
 	$(GRADLE) $(GRADLEARGS) :IceGridGUI:install
