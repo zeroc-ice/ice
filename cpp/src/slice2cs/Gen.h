@@ -123,6 +123,26 @@ private:
         void generateHelperClass(const ContainedPtr&);
     };
 
+    class ClassFactoryVisitor : public CsVisitor
+    {
+    public:
+
+        ClassFactoryVisitor(IceUtilInternal::Output&);
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class RemoteExceptionFactoryVisitor : public CsVisitor
+    {
+    public:
+
+        RemoteExceptionFactoryVisitor(IceUtilInternal::Output&);
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+    };
+
     class TypesVisitor : public CsVisitor
     {
     public:

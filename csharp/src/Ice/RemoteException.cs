@@ -64,7 +64,7 @@ namespace Ice
             // constructor. As a result, this base method implementation is never called.
             Debug.Assert(false);
         }
-        internal void Read(InputStream istr) => IceRead(istr, true);
+        public void Read(InputStream istr) => IceRead(istr, true);
 
         // See OutputStream
         protected virtual void IceWrite(OutputStream ostr, bool firstSlice)

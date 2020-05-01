@@ -1137,6 +1137,12 @@ Slice::Gen::generate(const UnitPtr& p)
     TypeIdVisitor typeIdVisitor(_out);
     p->visit(&typeIdVisitor, false);
 
+    ClassFactoryVisitor classFactoryVisitor(_out);
+    p->visit(&classFactoryVisitor, false);
+
+    RemoteExceptionFactoryVisitor remoteExceptionFactoryVisitor(_out);
+    p->visit(&remoteExceptionFactoryVisitor, false);
+
     ProxyVisitor proxyVisitor(_out);
     p->visit(&proxyVisitor, false);
 
@@ -1320,6 +1326,131 @@ Slice::Gen::TypeIdVisitor::generateHelperClass(const ContainedPtr& p)
     _out << sb;
     _out << nl << "public abstract global::" << getNamespace(p) << "." << name << " targetClass { get; }";
     _out << eb;
+}
+
+Slice::Gen::ClassFactoryVisitor::ClassFactoryVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::ClassFactoryVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (p->hasValueDefs())
+    {
+        string ns = getNamespacePrefix(p);
+
+        string name = fixId(p->name());
+        if (!ContainedPtr::dynamicCast(p->container()))
+        {
+            // We are generating code for a top-level module
+            // TODO: eliminate this typeIdNs
+            string typeIdNs = getCustomTypeIdNamespace(p->unit());
+
+            if (typeIdNs.empty())
+            {
+                name = "Ice.ClassFactory." + name;
+            }
+            else
+            {
+                name = typeIdNs + ".Ice.ClassFactory." + name;
+            }
+        }
+        _out << sp << nl << "namespace " << name;
+        _out << sb;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void
+Slice::Gen::ClassFactoryVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(!p->isInterface())
+    {
+        string name = fixId(p->name());
+        _out << sp;
+        emitCommonAttributes();
+        _out << nl << "public class " << name << " : global::Ice.IClassFactory";
+        _out << sb;
+        _out << nl << "public global::Ice.AnyClass CreateDefaultInstance() =>";
+        _out.inc();
+        _out << nl << "new global::" << getNamespace(p) << "." << name << "();";
+        _out.dec();
+        _out << eb;
+    }
+    return false;
+}
+
+Slice::Gen::RemoteExceptionFactoryVisitor::RemoteExceptionFactoryVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (p->hasExceptions())
+    {
+        string ns = getNamespacePrefix(p);
+
+        string name = fixId(p->name());
+        if (!ContainedPtr::dynamicCast(p->container()))
+        {
+            // We are generating code for a top-level module
+            // TODO: eliminate this typeIdNs
+            string typeIdNs = getCustomTypeIdNamespace(p->unit());
+
+            if (typeIdNs.empty())
+            {
+                name = "Ice.RemoteExceptionFactory." + name;
+            }
+            else
+            {
+                name = typeIdNs + ".Ice.RemoteExceptionFactory." + name;
+            }
+        }
+        _out << sp << nl << "namespace " << name;
+        _out << sb;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void
+Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    string name = fixId(p->name());
+    _out << sp;
+    emitCommonAttributes();
+    _out << nl << "public class " << name << " : global::Ice.IRemoteExceptionFactory";
+    _out << sb;
+    _out << nl << "public global::Ice.RemoteException Read(global::Ice.InputStream istr)";
+    _out << sb;
+    _out << nl << "var remoteEx = new global::" << getNamespace(p) << "." << name << "();";
+    _out << nl << "remoteEx.Read(istr);";
+    _out << nl << "return remoteEx;";
+    _out << eb;
+    _out << eb;
+    return false;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :

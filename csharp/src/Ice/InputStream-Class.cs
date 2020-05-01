@@ -133,27 +133,11 @@ namespace Ice
 
             while (true)
             {
-                RemoteException? remoteEx = null;
-                Type? type = Communicator.ResolveClass(typeId);
-                if (type != null)
+                IRemoteExceptionFactory? factory = Communicator.ResolveRemoteException(typeId);
+                if (factory != null)
                 {
-                    try
-                    {
-                        remoteEx = (RemoteException?)Activator.CreateInstance(type);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidDataException(
-                            @$"failed to create an instance of type `{type.Name
-                            }' while reading a remote exception with type ID `{typeId}'", ex);
-                    }
-                }
-
-                // We found the exception.
-                if (remoteEx != null)
-                {
+                    RemoteException remoteEx = factory.Read(this);
                     remoteEx.ConvertToUnhandled = true;
-                    remoteEx.Read(this);
                     Pop(null);
                     return remoteEx;
                 }
@@ -165,7 +149,7 @@ namespace Ice
                 {
                     // Create and throw a plain RemoteException with the SlicedData.
                     Debug.Assert(SlicedData != null);
-                    remoteEx = new RemoteException(SlicedData.Value);
+                    var remoteEx = new RemoteException(SlicedData.Value);
                     remoteEx.ConvertToUnhandled = true;
                     return remoteEx;
                 }
@@ -297,36 +281,21 @@ namespace Ice
 
             while (true)
             {
-                Type? cls = null;
+                IClassFactory? factory = null;
                 if (typeId != null)
                 {
                     Debug.Assert(_current.SliceCompactId == null);
-                    cls = Communicator.ResolveClass(typeId);
+                    factory = Communicator.ResolveClass(typeId);
                 }
-                else if (_current.SliceCompactId.HasValue)
+                else if (_current.SliceCompactId is int compactId)
                 {
-                    cls = Communicator.ResolveCompactId(_current.SliceCompactId.Value);
-                }
-
-                if (cls != null)
-                {
-                    try
-                    {
-                        Debug.Assert(!cls.IsAbstract && !cls.IsInterface);
-                        v = (AnyClass?)Activator.CreateInstance(cls);
-                    }
-                    catch (Exception ex)
-                    {
-                        string typeIdString = typeId ?? _current.SliceCompactId!.ToString()!;
-                        throw new InvalidDataException(@$"failed to create an instance of type `{cls.Name
-                            } while reading a class with type ID {typeIdString}", ex);
-                    }
+                    factory = Communicator.ResolveCompactId(compactId);
                 }
 
-                if (v != null)
+                if (factory != null)
                 {
-                    // We have an instance, get out of this loop.
-                    break;
+                    v = factory.CreateDefaultInstance();
+                    break; // We have an instance, get out of this loop.
                 }
 
                 // Slice off what we don't understand, and save the indirection table (if any) in
