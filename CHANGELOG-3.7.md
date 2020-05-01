@@ -74,7 +74,7 @@ These are the changes since Ice 3.7.3.
 ## C++ Changes
 
 - Fixed a bug that causes a build failure when using OpenSSL < 1.0.2. Thanks to
-  @Harvey-Liu for the PR #801.
+  @Harvey-Liu for the pull request [#801](https://github.com/zeroc-ice/ice/issues/801).
 
 - Fixed build failures with clang when building with C++ 17 mode.
 
