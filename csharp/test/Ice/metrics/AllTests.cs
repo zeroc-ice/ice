@@ -1294,7 +1294,21 @@ public class AllTests : Test.AllTests
             test(map.Count == 3);
 
             im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
-            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            if (!(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0))
+            {
+                output.WriteLine("");
+                output.WriteLine(string.Format("im1.current: {0}", im1.current));
+                output.WriteLine(string.Format("im1.total: {0}", im1.total));
+                output.WriteLine(string.Format("im1.failures: {0}", im1.failures));
+                output.WriteLine(string.Format("im1.retry: {0}", im1.retry));
+
+                IceMX.MetricsFailures f = clientMetrics.getMetricsFailures("View", "Invocation", im1.id);
+                foreach (KeyValuePair<string, int> kvp in f.failures)
+                {
+                    output.WriteLine(string.Format("{0} = {1}", kvp.Key, kvp.Value));
+                }
+                test(false);
+            }
             test(im1.remotes.Length == 1); // The first operation got sent over a connection
 
             clearView(clientProps, serverProps, update);
