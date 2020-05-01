@@ -1424,7 +1424,7 @@ namespace Ice
         }
 
         // Returns the IClassFactory associated with this Slice type ID, not null if not found.
-        internal IClassFactory? ResolveClass(string typeId) =>
+        internal IClassFactory? FindClassFactory(string typeId) =>
             _classFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
@@ -1462,7 +1462,7 @@ namespace Ice
                 return null;
             });
 
-        internal IRemoteExceptionFactory? ResolveRemoteException(string typeId) =>
+        internal IRemoteExceptionFactory? FindRemoteExceptionFactory(string typeId) =>
             _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
@@ -1500,7 +1500,7 @@ namespace Ice
                 return null;
             });
 
-        internal IClassFactory? ResolveCompactId(int compactId) =>
+        internal IClassFactory? FindClassFactory(int compactId) =>
             _compactIdCache.GetOrAdd(compactId, compactId =>
             {
                 foreach (string ns in _compactIdNamespaces)
@@ -1513,7 +1513,7 @@ namespace Ice
                             string? result = (string?)classType.GetField("typeId")!.GetValue(null);
                             if (result != null)
                             {
-                                return ResolveClass(result);
+                                return FindClassFactory(result);
                             }
                             return null;
                         }

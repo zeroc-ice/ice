@@ -1134,9 +1134,6 @@ Slice::Gen::generate(const UnitPtr& p)
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor, false);
 
-    TypeIdVisitor typeIdVisitor(_out);
-    p->visit(&typeIdVisitor, false);
-
     ClassFactoryVisitor classFactoryVisitor(_out);
     p->visit(&classFactoryVisitor, false);
 
@@ -1259,73 +1256,6 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
     }
     return false;
-}
-
-Slice::Gen::TypeIdVisitor::TypeIdVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitModuleStart(const ModulePtr& p)
-{
-    string ns = getNamespacePrefix(p);
-
-    if(!ns.empty() && (p->hasValueDefs() || p->hasExceptions()))
-    {
-        string name = fixId(p->name());
-        if(!ContainedPtr::dynamicCast(p->container()))
-        {
-            // Top-level module
-            //
-            string typeIdNs = getCustomTypeIdNamespace(p->unit());
-            if(typeIdNs.empty())
-            {
-                typeIdNs = "Ice.TypeId";
-            }
-
-            name = typeIdNs + "." + name;
-        }
-        _out << sp << nl << "namespace " << name;
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::TypeIdVisitor::visitModuleEnd(const ModulePtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(!p->isInterface())
-    {
-        generateHelperClass(p);
-    }
-    return false;
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    generateHelperClass(p);
-    return false;
-}
-
-void
-Slice::Gen::TypeIdVisitor::generateHelperClass(const ContainedPtr& p)
-{
-    string name = fixId(p->name());
-    _out << sp;
-    emitCommonAttributes();
-    _out << nl << "public abstract class " << name;
-    _out << sb;
-    _out << nl << "public abstract global::" << getNamespace(p) << "." << name << " targetClass { get; }";
-    _out << eb;
 }
 
 Slice::Gen::ClassFactoryVisitor::ClassFactoryVisitor(IceUtilInternal::Output& out) :

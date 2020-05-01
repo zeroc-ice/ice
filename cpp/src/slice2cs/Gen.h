@@ -109,20 +109,6 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
-    class TypeIdVisitor : public CsVisitor
-    {
-    public:
-
-        TypeIdVisitor(IceUtilInternal::Output&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-
-    private:
-        void generateHelperClass(const ContainedPtr&);
-    };
-
     class ClassFactoryVisitor : public CsVisitor
     {
     public:

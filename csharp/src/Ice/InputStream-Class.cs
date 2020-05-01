@@ -133,7 +133,7 @@ namespace Ice
 
             while (true)
             {
-                IRemoteExceptionFactory? factory = Communicator.ResolveRemoteException(typeId);
+                IRemoteExceptionFactory? factory = Communicator.FindRemoteExceptionFactory(typeId);
                 if (factory != null)
                 {
                     RemoteException remoteEx = factory.Read(this);
@@ -285,11 +285,11 @@ namespace Ice
                 if (typeId != null)
                 {
                     Debug.Assert(_current.SliceCompactId == null);
-                    factory = Communicator.ResolveClass(typeId);
+                    factory = Communicator.FindClassFactory(typeId);
                 }
                 else if (_current.SliceCompactId is int compactId)
                 {
-                    factory = Communicator.ResolveCompactId(compactId);
+                    factory = Communicator.FindClassFactory(compactId);
                 }
 
                 if (factory != null)
