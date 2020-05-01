@@ -3018,17 +3018,12 @@ Slice::Gen::ClassFactoryVisitor::visitModuleStart(const ModulePtr& p)
         if (!ContainedPtr::dynamicCast(p->container()))
         {
             // We are generating code for a top-level module
-            // TODO: eliminate this typeIdNs
             string typeIdNs = getCustomTypeIdNamespace(p->unit());
-
             if (typeIdNs.empty())
             {
-                name = "Ice.ClassFactory." + name;
+                typeIdNs = "Ice.ClassFactory";
             }
-            else
-            {
-                name = typeIdNs + ".Ice.ClassFactory." + name;
-            }
+            name = typeIdNs + "." + name;
         }
         _out << sp << nl << "namespace " << name;
         _out << sb;
@@ -3076,16 +3071,12 @@ Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
     if(p->hasCompactTypeId())
     {
         string typeIdNs = getCustomTypeIdNamespace(p);
-
-        if(typeIdNs.empty())
+        if (typeIdNs.empty())
         {
-            _out << sp << nl << "namespace Ice.ClassFactory";
-        }
-        else
-        {
-            _out << sp << nl << "namespace " << typeIdNs << ".Ice.ClassFactory";
+            typeIdNs = "Ice.ClassFactory";
         }
 
+        _out << sp << nl << "namespace " << typeIdNs;
         _out << sb;
         return true;
     }
@@ -3132,17 +3123,12 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleStart(const ModulePtr& p)
         if (!ContainedPtr::dynamicCast(p->container()))
         {
             // We are generating code for a top-level module
-            // TODO: eliminate this typeIdNs
             string typeIdNs = getCustomTypeIdNamespace(p->unit());
-
             if (typeIdNs.empty())
             {
-                name = "Ice.RemoteExceptionFactory." + name;
+                typeIdNs = "Ice.RemoteExceptionFactory";
             }
-            else
-            {
-                name = typeIdNs + ".Ice.RemoteExceptionFactory." + name;
-            }
+            name = typeIdNs + "." + name;
         }
         _out << sp << nl << "namespace " << name;
         _out << sb;

@@ -188,6 +188,7 @@ namespace Ice
         private AsyncIOThread? _asyncIOThread;
         private readonly ConcurrentDictionary<string, IClassFactory?> _classFactoryCache =
             new ConcurrentDictionary<string, IClassFactory?>();
+        private readonly string[] _classFactoryNamespaces;
         private readonly IceInternal.ThreadPool _clientThreadPool;
         private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
             new ConcurrentDictionary<int, IClassFactory?>();
@@ -203,13 +204,13 @@ namespace Ice
         private static bool _printProcessIdDone = false;
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
+        private readonly string[] _remoteExceptionFactoryNamespaces;
         private readonly int[] _retryIntervals;
         private IceInternal.ThreadPool? _serverThreadPool;
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
         private int _state;
         private readonly IceInternal.Timer _timer;
-        private readonly string[] _typeIdNamespaces;
 
         public Communicator(Dictionary<string, string>? properties,
                             ILogger? logger = null,
@@ -278,7 +279,15 @@ namespace Ice
             Observer = observer;
             ThreadStart = threadStart;
             ThreadStop = threadStop;
-            _typeIdNamespaces = typeIdNamespaces ?? Array.Empty<string>();
+
+            _classFactoryNamespaces = new string[] { "Ice.ClassFactory" };
+            _remoteExceptionFactoryNamespaces = new string[] { "Ice.RemoteExceptionFactory" };
+            if (typeIdNamespaces != null)
+            {
+                _classFactoryNamespaces = _classFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
+                _remoteExceptionFactoryNamespaces =
+                    _remoteExceptionFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
+            }
 
             if (properties == null)
             {
@@ -1426,25 +1435,9 @@ namespace Ice
             _classFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                Type? factoryClass = AssemblyUtil.FindType($"Ice.ClassFactory.{className}");
-                if (factoryClass != null)
+                foreach (string ns in _classFactoryNamespaces)
                 {
-                    try
-                    {
-                        return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
-                    }
-                    catch
-                    {
-                        // Could not create the instance.
-                        // TODO: should we really ignore all exceptions?
-                        return null;
-                    }
-                }
-
-                // Same but with the to-be-removed typeIdNamespaces
-                foreach (string ns in _typeIdNamespaces)
-                {
-                    factoryClass = AssemblyUtil.FindType($"{ns}.Ice.ClassFactory.{className}");
+                    Type? factoryClass = AssemblyUtil.FindType($"{ns}.{className}");
                     if (factoryClass != null)
                     {
                         try
@@ -1453,6 +1446,7 @@ namespace Ice
                         }
                         catch
                         {
+                            // TODO: should we really ignore all exceptions?
                             return null;
                         }
                     }
@@ -1460,29 +1454,34 @@ namespace Ice
                 return null;
             });
 
+        internal IClassFactory? FindClassFactory(int compactId) =>
+           _compactIdCache.GetOrAdd(compactId, compactId =>
+           {
+               foreach (string ns in _classFactoryNamespaces)
+               {
+                   Type? factoryClass = AssemblyUtil.FindType($"{ns}.CompactId_{compactId}");
+                   if (factoryClass != null)
+                   {
+                       try
+                       {
+                           return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                       }
+                       catch
+                       {
+                           return null;
+                       }
+                   }
+               }
+               return null;
+           });
+
         internal IRemoteExceptionFactory? FindRemoteExceptionFactory(string typeId) =>
             _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                Type? factoryClass = AssemblyUtil.FindType($"Ice.RemoteExceptionFactory.{className}");
-                if (factoryClass != null)
+                foreach (string ns in _remoteExceptionFactoryNamespaces)
                 {
-                    try
-                    {
-                        return (IRemoteExceptionFactory?)Activator.CreateInstance(factoryClass, false);
-                    }
-                    catch
-                    {
-                        // Could not create the instance.
-                        // TODO: should we really ignore all exceptions?
-                        return null;
-                    }
-                }
-
-                // Same but with the to-be-removed typeIdNamespaces
-                foreach (string ns in _typeIdNamespaces)
-                {
-                    factoryClass = AssemblyUtil.FindType($"{ns}.Ice.RemoteExceptionFactory.{className}");
+                    Type? factoryClass = AssemblyUtil.FindType($"{ns}.{className}");
                     if (factoryClass != null)
                     {
                         try
@@ -1498,230 +1497,195 @@ namespace Ice
                 return null;
             });
 
-        internal IClassFactory? FindClassFactory(int compactId) =>
-            _compactIdCache.GetOrAdd(compactId, compactId =>
-            {
-                Type? factoryClass = AssemblyUtil.FindType($"Ice.ClassFactory.CompactId_{compactId}");
-                if (factoryClass != null)
-                {
-                    try
-                    {
-                        return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                }
-
-                // Same but with the to-be-removed typeIdNamespaces
-                foreach (string ns in _typeIdNamespaces)
-                {
-                    factoryClass = AssemblyUtil.FindType($"{ns}.Ice.ClassFactory.CompactId_{compactId}");
-                    if (factoryClass != null)
-                    {
-                        try
-                        {
-                            return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
-                        }
-                        catch
-                        {
-                            return null;
-                        }
-                    }
-                }
-                return null;
-            });
-
-    internal IceInternal.ThreadPool ServerThreadPool()
-    {
-        lock (this)
+        internal IceInternal.ThreadPool ServerThreadPool()
         {
-            if (_state == StateDestroyed)
+            lock (this)
             {
-                throw new CommunicatorDestroyedException();
-            }
-
-            if (_serverThreadPool == null) // Lazy initialization.
-            {
-                if (_state == StateDestroyInProgress)
+                if (_state == StateDestroyed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
-                _serverThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Server",
-                    GetPropertyAsInt("Ice.ServerIdleTime") ?? 0);
+
+                if (_serverThreadPool == null) // Lazy initialization.
+                {
+                    if (_state == StateDestroyInProgress)
+                    {
+                        throw new CommunicatorDestroyedException();
+                    }
+                    _serverThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Server",
+                        GetPropertyAsInt("Ice.ServerIdleTime") ?? 0);
+                }
+
+                return _serverThreadPool;
             }
-
-            return _serverThreadPool;
         }
-    }
 
-    internal void SetRcvBufSizeWarn(EndpointType type, int size)
-    {
-        lock (_setBufSizeWarn)
+        internal void SetRcvBufSizeWarn(EndpointType type, int size)
         {
-            BufSizeWarnInfo info = GetBufSizeWarn(type);
-            info.RcvWarn = true;
-            info.RcvSize = size;
-            _setBufSizeWarn[type] = info;
-        }
-    }
-
-    internal void SetServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity)
-    {
-        IObjectPrx? admin = adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
-        ILocatorPrx? locator = adminAdapter.Locator;
-        string? serverId = GetProperty("Ice.Admin.ServerId");
-
-        if (locator != null && serverId != null)
-        {
-            IProcessPrx process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
-            try
+            lock (_setBufSizeWarn)
             {
-                //
-                // Note that as soon as the process proxy is registered, the communicator might be
-                // shutdown by a remote client and admin facets might start receiving calls.
-                //
-                locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
+                BufSizeWarnInfo info = GetBufSizeWarn(type);
+                info.RcvWarn = true;
+                info.RcvSize = size;
+                _setBufSizeWarn[type] = info;
             }
-            catch (Exception ex)
+        }
+
+        internal void SetServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity)
+        {
+            IObjectPrx? admin = adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
+            ILocatorPrx? locator = adminAdapter.Locator;
+            string? serverId = GetProperty("Ice.Admin.ServerId");
+
+            if (locator != null && serverId != null)
             {
+                IProcessPrx process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
+                try
+                {
+                    //
+                    // Note that as soon as the process proxy is registered, the communicator might be
+                    // shutdown by a remote client and admin facets might start receiving calls.
+                    //
+                    locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
+                }
+                catch (Exception ex)
+                {
+                    if (TraceLevels.Location >= 1)
+                    {
+                        Logger.Trace(TraceLevels.LocationCat,
+                            $"could not register server `{serverId}' with the locator registry:\n{ex}");
+                    }
+                    throw;
+                }
+
                 if (TraceLevels.Location >= 1)
                 {
-                    Logger.Trace(TraceLevels.LocationCat,
-                        $"could not register server `{serverId}' with the locator registry:\n{ex}");
+                    Logger.Trace(TraceLevels.LocationCat, $"registered server `{serverId}' with the locator registry");
                 }
-                throw;
-            }
-
-            if (TraceLevels.Location >= 1)
-            {
-                Logger.Trace(TraceLevels.LocationCat, $"registered server `{serverId}' with the locator registry");
             }
         }
-    }
 
-    internal void SetSndBufSizeWarn(EndpointType type, int size)
-    {
-        lock (_setBufSizeWarn)
+        internal void SetSndBufSizeWarn(EndpointType type, int size)
         {
-            BufSizeWarnInfo info = GetBufSizeWarn(type);
-            info.SndWarn = true;
-            info.SndSize = size;
-            _setBufSizeWarn[type] = info;
-        }
-    }
-
-    internal void SetThreadHook(Action threadStart, Action threadStop)
-    {
-        //
-        // No locking, as it can only be called during plug-in loading
-        //
-        ThreadStart = threadStart;
-        ThreadStop = threadStop;
-    }
-
-    internal void UpdateConnectionObservers()
-    {
-        try
-        {
-            _outgoingConnectionFactory.UpdateConnectionObservers();
-
-            ObjectAdapter[] adapters;
-            lock (this)
+            lock (_setBufSizeWarn)
             {
-                adapters = _adapters.ToArray();
-            }
-
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.UpdateConnectionObservers();
+                BufSizeWarnInfo info = GetBufSizeWarn(type);
+                info.SndWarn = true;
+                info.SndSize = size;
+                _setBufSizeWarn[type] = info;
             }
         }
-        catch (CommunicatorDestroyedException)
+
+        internal void SetThreadHook(Action threadStart, Action threadStop)
         {
+            //
+            // No locking, as it can only be called during plug-in loading
+            //
+            ThreadStart = threadStart;
+            ThreadStop = threadStop;
         }
-    }
 
-    internal void UpdateThreadObservers()
-    {
-        try
+        internal void UpdateConnectionObservers()
         {
-            _clientThreadPool.UpdateObservers();
-            if (_serverThreadPool != null)
+            try
             {
-                _serverThreadPool.UpdateObservers();
-            }
+                _outgoingConnectionFactory.UpdateConnectionObservers();
 
-            ObjectAdapter[] adapters;
-            lock (this)
-            {
-                adapters = _adapters.ToArray();
-            }
-
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.UpdateThreadObservers();
-            }
-
-            UpdateEndpointHostResolverObserver();
-
-            if (_asyncIOThread != null)
-            {
-                _asyncIOThread.UpdateObserver();
-            }
-            Debug.Assert(Observer != null);
-            _timer.UpdateObserver(Observer);
-        }
-        catch (CommunicatorDestroyedException)
-        {
-        }
-    }
-
-    private static string TypeIdToClassName(string typeId)
-    {
-        if (!typeId.StartsWith("::", StringComparison.Ordinal))
-        {
-            throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
-        }
-        return typeId.Substring(2).Replace("::", ".");
-    }
-
-    private void AddAllAdminFacets()
-    {
-        lock (this)
-        {
-            Debug.Assert(_adminAdapter != null);
-            foreach (KeyValuePair<string, IObject> entry in _adminFacets)
-            {
-                if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
+                ObjectAdapter[] adapters;
+                lock (this)
                 {
-                    Debug.Assert(_adminIdentity != null);
-                    _adminAdapter.Add(_adminIdentity.Value, entry.Key, entry.Value);
+                    adapters = _adapters.ToArray();
+                }
+
+                foreach (ObjectAdapter adapter in adapters)
+                {
+                    adapter.UpdateConnectionObservers();
+                }
+            }
+            catch (CommunicatorDestroyedException)
+            {
+            }
+        }
+
+        internal void UpdateThreadObservers()
+        {
+            try
+            {
+                _clientThreadPool.UpdateObservers();
+                if (_serverThreadPool != null)
+                {
+                    _serverThreadPool.UpdateObservers();
+                }
+
+                ObjectAdapter[] adapters;
+                lock (this)
+                {
+                    adapters = _adapters.ToArray();
+                }
+
+                foreach (ObjectAdapter adapter in adapters)
+                {
+                    adapter.UpdateThreadObservers();
+                }
+
+                UpdateEndpointHostResolverObserver();
+
+                if (_asyncIOThread != null)
+                {
+                    _asyncIOThread.UpdateObserver();
+                }
+                Debug.Assert(Observer != null);
+                _timer.UpdateObserver(Observer);
+            }
+            catch (CommunicatorDestroyedException)
+            {
+            }
+        }
+
+        private static string TypeIdToClassName(string typeId)
+        {
+            if (!typeId.StartsWith("::", StringComparison.Ordinal))
+            {
+                throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
+            }
+            return typeId.Substring(2).Replace("::", ".");
+        }
+
+        private void AddAllAdminFacets()
+        {
+            lock (this)
+            {
+                Debug.Assert(_adminAdapter != null);
+                foreach (KeyValuePair<string, IObject> entry in _adminFacets)
+                {
+                    if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
+                    {
+                        Debug.Assert(_adminIdentity != null);
+                        _adminAdapter.Add(_adminIdentity.Value, entry.Key, entry.Value);
+                    }
                 }
             }
         }
-    }
 
-    private INetworkProxy? CreateNetworkProxy(int protocolSupport)
-    {
-        string? proxyHost = GetProperty("Ice.SOCKSProxyHost");
-        if (proxyHost != null)
+        private INetworkProxy? CreateNetworkProxy(int protocolSupport)
         {
-            if (protocolSupport == Network.EnableIPv6)
+            string? proxyHost = GetProperty("Ice.SOCKSProxyHost");
+            if (proxyHost != null)
             {
-                throw new InvalidConfigurationException("IPv6 only is not supported with SOCKS4 proxies");
+                if (protocolSupport == Network.EnableIPv6)
+                {
+                    throw new InvalidConfigurationException("IPv6 only is not supported with SOCKS4 proxies");
+                }
+                return new SOCKSNetworkProxy(proxyHost, GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 1080);
             }
-            return new SOCKSNetworkProxy(proxyHost, GetPropertyAsInt("Ice.SOCKSProxyPort") ?? 1080);
-        }
 
-        proxyHost = GetProperty("Ice.HTTPProxyHost");
-        if (proxyHost != null)
-        {
-            return new HTTPNetworkProxy(proxyHost, GetPropertyAsInt("Ice.HTTPProxyPort") ?? 1080);
-        }
+            proxyHost = GetProperty("Ice.HTTPProxyHost");
+            if (proxyHost != null)
+            {
+                return new HTTPNetworkProxy(proxyHost, GetPropertyAsInt("Ice.HTTPProxyPort") ?? 1080);
+            }
 
-        return null;
+            return null;
+        }
     }
-}
 }
