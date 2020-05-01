@@ -76,7 +76,7 @@ public class Client : TestHelper
                 { "Ice.Config", "config/escapes.cfg" }
             };
 
-            Assert(Collections.Equals(properties, props));
+            Assert(properties.DictionaryEqual(props));
             Console.Out.WriteLine("ok");
         }
     }

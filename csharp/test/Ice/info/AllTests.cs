@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using Test;
 
 namespace Ice.info
@@ -97,7 +98,7 @@ namespace Ice.info
                 var endpoints = adapter.GetEndpoints();
                 TestHelper.Assert(endpoints.Count == 2);
                 var publishedEndpoints = adapter.GetPublishedEndpoints();
-                TestHelper.Assert(global::Test.Collections.Equals(endpoints, publishedEndpoints));
+                TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
                 TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoints[0]);
                 TestHelper.Assert(tcpEndpoint != null);
@@ -121,7 +122,7 @@ namespace Ice.info
 
                 adapter.SetPublishedEndpoints(endpoints);
                 publishedEndpoints = adapter.GetPublishedEndpoints();
-                TestHelper.Assert(Collections.Equals(endpoints, publishedEndpoints));
+                TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
                 adapter.Destroy();
 

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Test;
 
 namespace Ice.operations
@@ -627,7 +628,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opByteBoolD(di1, di2);
 
-                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[10] == true);
                 TestHelper.Assert(ro[11] == false);
@@ -646,7 +647,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opShortIntD(di1, di2);
 
-                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[110] == -1);
                 TestHelper.Assert(ro[111] == -100);
@@ -665,7 +666,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opLongFloatD(di1, di2);
 
-                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[999999110L] == -1.1f);
                 TestHelper.Assert(ro[999999120L] == -100.4f);
@@ -684,7 +685,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opStringStringD(di1, di2);
 
-                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro["foo"].Equals("abc -1.1"));
                 TestHelper.Assert(ro["FOO"].Equals("abc -100.4"));
@@ -703,7 +704,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opStringMyEnumD(di1, di2);
 
-                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro["abc"] == Test.MyEnum.enum1);
                 TestHelper.Assert(ro["qwerty"] == Test.MyEnum.enum3);
@@ -720,7 +721,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opMyEnumStringD(di1, di2);
 
-                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 3);
                 TestHelper.Assert(ro[Test.MyEnum.enum1].Equals("abc"));
                 TestHelper.Assert(ro[Test.MyEnum.enum2].Equals("Hello!!"));
@@ -743,7 +744,7 @@ namespace Ice.operations
 
                 var (ro, _do) = p.opMyStructMyEnumD(di1, di2);
 
-                TestHelper.Assert(Collections.Equals(_do, di1));
+                TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
                 TestHelper.Assert(ro[s11] == Test.MyEnum.enum1);
                 TestHelper.Assert(ro[s12] == Test.MyEnum.enum2);
@@ -1351,15 +1352,15 @@ namespace Ice.operations
                 }
                 {
                     Dictionary<string, string> r = p.opContext(ctx);
-                    TestHelper.Assert(Collections.Equals(r, ctx));
+                    TestHelper.Assert(r.DictionaryEqual(ctx));
                 }
                 {
                     var p2 = p.Clone(context: ctx);
-                    TestHelper.Assert(Collections.Equals(p2.Context, ctx));
+                    TestHelper.Assert(p2.Context.DictionaryEqual(ctx));
                     Dictionary<string, string> r = p2.opContext();
-                    TestHelper.Assert(Collections.Equals(r, ctx));
+                    TestHelper.Assert(r.DictionaryEqual(ctx));
                     r = p2.opContext(ctx);
-                    TestHelper.Assert(Collections.Equals(r, ctx));
+                    TestHelper.Assert(r.DictionaryEqual(ctx));
                 }
             }
 
@@ -1370,7 +1371,7 @@ namespace Ice.operations
                 communicator.CurrentContext["three"] = "THREE";
 
                 var p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-                TestHelper.Assert(Collections.Equals(p3.opContext(), communicator.CurrentContext));
+                TestHelper.Assert(p3.opContext().DictionaryEqual(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
@@ -1393,16 +1394,16 @@ namespace Ice.operations
                 TestHelper.Assert(communicator.DefaultContext.Count == 0);
                 communicator.DefaultContext = prxContext;
                 TestHelper.Assert(communicator.DefaultContext != prxContext); // it's a copy
-                TestHelper.Assert(Collections.Equals(communicator.DefaultContext, prxContext));
+                TestHelper.Assert(communicator.DefaultContext.DictionaryEqual(prxContext));
 
                 p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
 
                 communicator.CurrentContext.Clear();
-                TestHelper.Assert(Collections.Equals(p3.opContext(), prxContext));
+                TestHelper.Assert(p3.opContext().DictionaryEqual(prxContext));
 
                 communicator.CurrentContext = ctx;
-                TestHelper.Assert(Collections.Equals(p3.opContext(), combined));
+                TestHelper.Assert(p3.opContext().DictionaryEqual(combined));
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
@@ -1472,7 +1473,7 @@ namespace Ice.operations
                 p1[0] = "test";
                 string[] p2, p3;
                 (p3, p2) = p.opMSeq2(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(p2.SequenceEqual(p1) && p3.SequenceEqual(p1));
             }
 
             {
@@ -1482,7 +1483,7 @@ namespace Ice.operations
                 p1["test"] = "test";
                 Dictionary<string, string> p2, p3;
                 (p3, p2) = p.opMDict2(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(p2.DictionaryEqual(p1) && p3.DictionaryEqual(p1));
             }
         }
     }

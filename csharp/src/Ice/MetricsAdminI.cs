@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -550,7 +552,7 @@ namespace IceInternal
                 return _maps.Remove(mapName);
             }
 
-            if (_maps.TryGetValue(mapName, out IMetricsMap? m) && Ice.Collections.Equals(m.GetProperties(), mapProps))
+            if (_maps.TryGetValue(mapName, out IMetricsMap? m) && m.GetProperties().DictionaryEqual(mapProps))
             {
                 return false; // The map configuration didn't change, no need to re-create.
             }

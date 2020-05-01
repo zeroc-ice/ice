@@ -2,9 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Ice.optional.Test;
+
 using System.Linq;
 using System.Collections.Generic;
-using Ice.optional.Test;
 using Test;
 
 namespace Ice.optional
@@ -82,8 +83,8 @@ namespace Ice.optional
             TestHelper.Assert(mo1.h.Equals("test"));
             TestHelper.Assert(mo1.i == MyEnum.MyEnumMember);
             TestHelper.Assert(mo1.k == mo1);
-            TestHelper.Assert(Collections.Equals(mo1.bs, new byte[] { 5 }));
-            TestHelper.Assert(Collections.Equals(mo1.ss, new string[] { "test", "test2" }));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo1.bs, new byte[] { 5 }));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo1.ss, new string[] { "test", "test2" }));
             TestHelper.Assert(mo1.iid[4] == 3);
             TestHelper.Assert(mo1.sid["test"] == 10);
             TestHelper.Assert(mo1.fs.Equals(new FixedStruct(78)));
@@ -100,7 +101,7 @@ namespace Ice.optional
             TestHelper.Assert(mo1.ivsd[5].Equals(new VarStruct("hello")));
             TestHelper.Assert(mo1.iood[5]!.a == 15);
 
-            TestHelper.Assert(Collections.Equals(mo1.bos, new bool[] { false, true, false }));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo1.bos, new bool[] { false, true, false }));
             TestHelper.Assert(mo1.ser.Equals(new SerializableClass(56)));
 
             output.WriteLine("ok");
@@ -166,13 +167,13 @@ namespace Ice.optional
             TestHelper.Assert(mo5.h!.Equals(mo1.h));
             TestHelper.Assert(mo5.i == mo1.i);
             TestHelper.Assert(mo5.k == mo5);
-            TestHelper.Assert(Collections.Equals(mo5.bs, mo1.bs));
-            TestHelper.Assert(Collections.Equals(mo5.ss, mo1.ss));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo5.bs, mo1.bs));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo5.ss, mo1.ss));
             TestHelper.Assert(mo5.iid != null && mo5.iid[4] == 3);
             TestHelper.Assert(mo5.sid != null && mo5.sid["test"] == 10);
             TestHelper.Assert(mo5.fs.Equals(mo1.fs));
             TestHelper.Assert(mo5.vs.Equals(mo1.vs));
-            TestHelper.Assert(Collections.Equals(mo5.shs, mo1.shs));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo5.shs, mo1.shs));
             TestHelper.Assert(mo5.es != null && mo5.es[0] == MyEnum.MyEnumMember && mo1.es[1] == MyEnum.MyEnumMember);
             TestHelper.Assert(mo5.fss != null && mo5.fss[0].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo5.vss != null && mo5.vss[0].Equals(new VarStruct("hello")));
@@ -183,7 +184,7 @@ namespace Ice.optional
             TestHelper.Assert(mo5.ivsd != null && mo5.ivsd[5].Equals(new VarStruct("hello")));
             TestHelper.Assert(mo5.iood != null && mo5.iood[5]!.a == 15);
 
-            TestHelper.Assert(Collections.Equals(mo5.bos, new bool[] { false, true, false }));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo5.bos, new bool[] { false, true, false }));
             if (supportsCsharpSerializable)
             {
                 TestHelper.Assert(mo5.ser!.Equals(new SerializableClass(56)));
@@ -217,14 +218,14 @@ namespace Ice.optional
             TestHelper.Assert(mo7.h != null && mo7.h.Equals(mo1.h));
             TestHelper.Assert(mo7.i == null);
             TestHelper.Assert(mo7.k == null);
-            TestHelper.Assert(Collections.Equals(mo7.bs, mo1.bs));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo7.bs, mo1.bs));
             TestHelper.Assert(mo7.ss == null);
             TestHelper.Assert(mo7.iid != null && mo7.iid[4] == 3);
             TestHelper.Assert(mo7.sid == null);
             TestHelper.Assert(mo7.fs.Equals(mo1.fs));
             TestHelper.Assert(mo7.vs == null);
 
-            TestHelper.Assert(Collections.Equals(mo7.shs, mo1.shs));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo7.shs, mo1.shs));
             TestHelper.Assert(mo7.es == null);
             TestHelper.Assert(mo7.fss != null && mo7.fss[0].Equals(new FixedStruct(78)));
             TestHelper.Assert(mo7.vss == null);
@@ -235,7 +236,7 @@ namespace Ice.optional
             TestHelper.Assert(mo7.ivsd == null);
             TestHelper.Assert(mo7.iood != null && mo7.iood[5]!.a == 15);
 
-            TestHelper.Assert(Collections.Equals(mo7.bos, new bool[] { false, true, false }));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo7.bos, new bool[] { false, true, false }));
             TestHelper.Assert(mo7.ser == null);
 
             // Clear the second half of the optional members
@@ -273,7 +274,7 @@ namespace Ice.optional
             TestHelper.Assert(mo9.i.Equals(mo1.i));
             TestHelper.Assert(mo9.k == mo9);
             TestHelper.Assert(mo9.bs == null);
-            TestHelper.Assert(Collections.Equals(mo9.ss, mo1.ss));
+            TestHelper.Assert(Enumerable.SequenceEqual(mo9.ss, mo1.ss));
             TestHelper.Assert(mo9.iid == null);
             TestHelper.Assert(mo9.sid != null && mo9.sid["test"] == 10);
             TestHelper.Assert(mo9.fs == null);
@@ -306,7 +307,7 @@ namespace Ice.optional
                 var owc2 = (OptionalWithCustom?)initial.pingPong(owc1);
                 TestHelper.Assert(owc2 != null);
                 TestHelper.Assert(owc2.l != null);
-                TestHelper.Assert(Collections.Equals(owc1.l, owc2.l));
+                TestHelper.Assert(Enumerable.SequenceEqual(owc1.l, owc2.l));
                 TestHelper.Assert(owc2.s != null && owc2.s.Value.a == 5);
             }
 
@@ -1041,13 +1042,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(x => (byte)56).ToArray();
                 (p2, p3) = initial.opByteSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opByteSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opByteSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opByteSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opByteSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1060,8 +1061,8 @@ namespace Ice.optional
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedFixedSizeNumericArray<byte>(1), istr.ReadTaggedFixedSizeNumericArray<byte>(3)));
 
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1073,13 +1074,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => true).ToArray();
                 (p2, p3) = initial.opBoolSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opBoolSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opBoolSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opBoolSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opBoolSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1091,8 +1092,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedFixedSizeNumericArray<bool>(1), istr.ReadTaggedFixedSizeNumericArray<bool>(3)));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1104,14 +1105,14 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => (short)56).ToArray();
                 (p2, p3) = initial.opShortSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opShortSeqAsync(p1).Result;
 
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opShortSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opShortSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opShortSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1123,8 +1124,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedFixedSizeNumericArray<short>(1), istr.ReadTaggedFixedSizeNumericArray<short>(3)));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1136,13 +1137,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 56).ToArray();
                 (p2, p3) = initial.opIntSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opIntSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opIntSeq(p1);
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 r = initial.opIntSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opIntSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1154,8 +1155,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedFixedSizeNumericArray<int>(1), istr.ReadTaggedFixedSizeNumericArray<int>(3)));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1167,13 +1168,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 56L).ToArray();
                 (p2, p3) = initial.opLongSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opLongSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opLongSeq(p1);
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 r = initial.opLongSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opLongSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1185,8 +1186,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedFixedSizeNumericArray<long>(1), istr.ReadTaggedFixedSizeNumericArray<long>(3)));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1198,13 +1199,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0f).ToArray();
                 (p2, p3) = initial.opFloatSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opFloatSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opFloatSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opFloatSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opFloatSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1216,8 +1217,8 @@ namespace Ice.optional
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedFixedSizeNumericArray<float>(1), istr.ReadTaggedFixedSizeNumericArray<float>(3)));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1229,13 +1230,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 100).Select(_ => 1.0).ToArray();
                 (p2, p3) = initial.opDoubleSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opDoubleSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opDoubleSeq(p1);
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 r = initial.opDoubleSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opDoubleSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1248,8 +1249,8 @@ namespace Ice.optional
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedFixedSizeNumericArray<double>(1), istr.ReadTaggedFixedSizeNumericArray<double>(3)));
 
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1261,13 +1262,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => "test1").ToArray();
                 (p2, p3) = initial.opStringSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opStringSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opStringSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opStringSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opStringSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1281,8 +1282,8 @@ namespace Ice.optional
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedVariableSizeElementArray(1, 1, istr => istr.ReadString()),
                        istr.ReadTaggedVariableSizeElementArray(3, 1, istr => istr.ReadString())));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1294,13 +1295,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new SmallStruct()).ToArray();
                 (p2, p3) = initial.opSmallStructSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opSmallStructSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opSmallStructSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opSmallStructSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opSmallStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1315,8 +1316,8 @@ namespace Ice.optional
                     (istr.ReadTaggedFixedSizeElementArray(1, 1, istr => new SmallStruct(istr)),
                         istr.ReadTaggedFixedSizeElementArray(3, 1, istr => new SmallStruct(istr))));
 
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1332,13 +1333,13 @@ namespace Ice.optional
                     p1.Add(new SmallStruct());
                 }
                 (p2, p3) = initial.opSmallStructList(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1));
                 var r = initial.opSmallStructListAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(p2, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1));
                 (p2, p3) = initial.opSmallStructList(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1));
                 r = initial.opSmallStructListAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1));
 
                 (p2, p3) = initial.opSmallStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1361,8 +1362,8 @@ namespace Ice.optional
 
                         return (list1, list2);
                     });
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
 
             }
 
@@ -1375,13 +1376,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new FixedStruct()).ToArray();
                 (p2, p3) = initial.opFixedStructSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opFixedStructSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opFixedStructSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opFixedStructSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opFixedStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1396,8 +1397,8 @@ namespace Ice.optional
                     (istr.ReadTaggedFixedSizeElementArray(1, 4, istr => new FixedStruct(istr)),
                         istr.ReadTaggedFixedSizeElementArray(3, 4, istr => new FixedStruct(istr))));
 
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1413,13 +1414,13 @@ namespace Ice.optional
                     p1.AddLast(new FixedStruct());
                 }
                 (p2, p3) = initial.opFixedStructList(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opFixedStructListAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opFixedStructList(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opFixedStructListAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opFixedStructList(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1442,8 +1443,8 @@ namespace Ice.optional
 
                         return (list1, list2);
                     });
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1455,13 +1456,13 @@ namespace Ice.optional
 
                 p1 = Enumerable.Range(0, 10).Select(_ => new VarStruct("")).ToArray();
                 (p2, p3) = initial.opVarStructSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opVarStructSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opVarStructSeq(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opVarStructSeqAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opVarStructSeq(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1475,8 +1476,8 @@ namespace Ice.optional
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                       (istr.ReadTaggedVariableSizeElementArray(1, 1, istr => new VarStruct(istr)),
                         istr.ReadTaggedVariableSizeElementArray(3, 1, istr => new VarStruct(istr))));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             if (supportsCsharpSerializable)
@@ -1523,13 +1524,13 @@ namespace Ice.optional
                 p1.Add(1, 2);
                 p1.Add(2, 3);
                 (p2, p3) = initial.opIntIntDict(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opIntIntDictAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opIntIntDict(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opIntIntDictAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opIntIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1544,8 +1545,8 @@ namespace Ice.optional
                     (istr.ReadTaggedFixedSizeEntryDictionary(1, 8, istr => istr.ReadInt(), istr => istr.ReadInt()),
                         istr.ReadTaggedFixedSizeEntryDictionary(3, 8, istr => istr.ReadInt(), istr => istr.ReadInt())));
 
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1559,13 +1560,13 @@ namespace Ice.optional
                 p1.Add("1", 1);
                 p1.Add("2", 2);
                 (p2, p3) = initial.opStringIntDict(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 var r = initial.opStringIntDictAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
                 (p2, p3) = initial.opStringIntDict(p1);
-                TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 r = initial.opStringIntDictAsync(p1).Result;
-                TestHelper.Assert(Collections.Equals(r.ReturnValue, p1) && Collections.Equals(r.p3, p1));
+                TestHelper.Assert(Enumerable.SequenceEqual(r.ReturnValue, p1) && Enumerable.SequenceEqual(r.p3, p1));
 
                 (p2, p3) = initial.opStringIntDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
@@ -1585,8 +1586,8 @@ namespace Ice.optional
                                                                         istr => istr.ReadInt()),
                             istr.ReadTaggedVariableSizeEntryDictionary(3, 5, istr => istr.ReadString(),
                                                                              istr => istr.ReadInt())));
-                TestHelper.Assert(Collections.Equals(p1, p2));
-                TestHelper.Assert(Collections.Equals(p1, p3));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
+                TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
 
             {
@@ -1748,7 +1749,7 @@ namespace Ice.optional
 
                     p1 = new string[1] { "hello" };
                     (p3, p2) = initial.opMSeq2(p1);
-                    TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 }
                 {
                     Dictionary<string, int>? p1, p2, p3;
@@ -1758,7 +1759,7 @@ namespace Ice.optional
                     p1 = new Dictionary<string, int>();
                     p1["test"] = 54;
                     (p3, p2) = initial.opMDict2(p1);
-                    TestHelper.Assert(Collections.Equals(p2, p1) && Collections.Equals(p3, p1));
+                    TestHelper.Assert(Enumerable.SequenceEqual(p2, p1) && Enumerable.SequenceEqual(p3, p1));
                 }
                 {
                     G? p1, p2, p3;

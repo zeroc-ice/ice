@@ -3,6 +3,8 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
+
 using Test;
 
 namespace Ice.dictMapping
@@ -22,8 +24,8 @@ namespace Ice.dictMapping
                 Dictionary<int, int> r;
                 (r, o) = p.opNV(i);
 
-                TestHelper.Assert(Collections.Equals(i, o));
-                TestHelper.Assert(Collections.Equals(i, r));
+                TestHelper.Assert(i.DictionaryEqual(o));
+                TestHelper.Assert(i.DictionaryEqual(r));
             }
 
             {
@@ -37,8 +39,8 @@ namespace Ice.dictMapping
                 Dictionary<string, string> r;
                 (r, o) = p.opNR(i);
 
-                TestHelper.Assert(Collections.Equals(i, o));
-                TestHelper.Assert(Collections.Equals(i, r));
+                TestHelper.Assert(i.DictionaryEqual(o));
+                TestHelper.Assert(i.DictionaryEqual(r));
             }
 
             {
@@ -57,8 +59,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
-                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(i[key].DictionaryEqual(o[key]));
+                    TestHelper.Assert(i[key].DictionaryEqual(r[key]));
                 }
             }
 
@@ -78,8 +80,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
-                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(i[key].DictionaryEqual(o[key]));
+                    TestHelper.Assert(i[key].DictionaryEqual(r[key]));
                 }
             }
 
@@ -97,8 +99,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
-                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
                 }
             }
 
@@ -120,8 +122,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
-                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
                 }
             }
 
@@ -139,8 +141,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
-                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
                 }
             }
 
@@ -162,8 +164,8 @@ namespace Ice.dictMapping
 
                 foreach (string key in i.Keys)
                 {
-                    TestHelper.Assert(Collections.Equals(i[key], o[key]));
-                    TestHelper.Assert(Collections.Equals(i[key], r[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(o[key]));
+                    TestHelper.Assert(i[key].SequenceEqual(r[key]));
                 }
             }
         }
