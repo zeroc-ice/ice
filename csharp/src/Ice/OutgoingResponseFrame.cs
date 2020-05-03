@@ -135,37 +135,12 @@ namespace Ice
                 ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
                 if (dispatchException is PreExecutionException preExecutionException)
                 {
-                    // TODO: the null checks are necessary due to the way we unmarshal the exception through reflection.
-
-                    if (string.IsNullOrEmpty(preExecutionException.Id.Name))
+                    ReplyStatus replyStatus = preExecutionException switch
                     {
-                        preExecutionException.Id = current.Identity;
-                    }
-
-                    if (string.IsNullOrEmpty(preExecutionException.Facet))
-                    {
-                        preExecutionException.Facet = current.Facet;
-                    }
-
-                    if (string.IsNullOrEmpty(preExecutionException.Operation))
-                    {
-                        preExecutionException.Operation = current.Operation;
-                    }
-
-                    ReplyStatus replyStatus = default;
-
-                    if (preExecutionException is ObjectNotExistException)
-                    {
-                        replyStatus = ReplyStatus.ObjectNotExistException;
-                    }
-                    else if (preExecutionException is OperationNotExistException)
-                    {
-                        replyStatus = ReplyStatus.OperationNotExistException;
-                    }
-                    else
-                    {
-                        Debug.Assert(false);
-                    }
+                        ObjectNotExistException _ => ReplyStatus.ObjectNotExistException,
+                        OperationNotExistException _ => ReplyStatus.OperationNotExistException,
+                        _ => throw new ArgumentException("unknown PreExecutionException", nameof(exception))
+                    };
 
                     ostr.WriteByte((byte)replyStatus);
                     preExecutionException.Id.IceWrite(ostr);

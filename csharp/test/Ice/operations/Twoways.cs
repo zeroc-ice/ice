@@ -1447,10 +1447,7 @@ namespace Ice.operations
                 TestHelper.Assert(s.tesT.Equals("MyStruct1.s"));
                 TestHelper.Assert(s.myClass == null);
                 TestHelper.Assert(s.myStruct1.Equals("MyStruct1.myStruct1"));
-                Test.MyClass1? c = new Test.MyClass1();
-                c.tesT = "MyClass1.testT";
-                c.myClass = null;
-                c.myClass1 = "MyClass1.myClass1";
+                Test.MyClass1? c = new Test.MyClass1("MyClass1.testT", null, "MyClass1.myClass1");
                 c = d.opMyClass1(c);
                 TestHelper.Assert(c != null);
                 TestHelper.Assert(c.tesT.Equals("MyClass1.testT"));

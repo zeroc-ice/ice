@@ -9,6 +9,21 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+namespace IceMX
+{
+    // Extends generated class that requires a public parameterless constructor in the code below.
+    public partial class InvocationMetrics
+    {
+        public InvocationMetrics()
+        {
+            Retry = 0;
+            UserException = 0;
+            Remotes = Array.Empty<Metrics>();
+            Collocated = Array.Empty<Metrics>();
+        }
+    }
+}
+
 namespace IceInternal
 {
     public class ObserverWithDelegate<T, O> : Observer<T>

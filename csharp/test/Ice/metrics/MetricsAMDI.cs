@@ -40,7 +40,7 @@ public sealed class Metrics : IMetrics
     public ValueTask opWithUserExceptionAsync(Ice.Current current) => throw new UserEx();
 
     public ValueTask opWithRequestFailedExceptionAsync(Ice.Current current) =>
-        throw new Ice.ObjectNotExistException();
+        throw new Ice.ObjectNotExistException(current);
 
     public ValueTask opWithLocalExceptionAsync(Ice.Current current) =>
         throw new Ice.InvalidConfigurationException("fake");

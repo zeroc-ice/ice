@@ -35,6 +35,46 @@ isIdempotent(const OperationPtr& operation)
     return operation->mode() != Operation::Normal;
 }
 
+bool
+isDefaultInitialized(const DataMemberPtr& member, bool considerDefaultValue)
+{
+    if (considerDefaultValue && member->defaultValueType())
+    {
+        return true;
+    }
+
+    if (member->tagged() || isNullable(member->type()))
+    {
+        return true;
+    }
+
+    auto builtin = BuiltinPtr::dynamicCast(member->type());
+    if (builtin && builtin->kind() != Builtin::Kind::KindString)
+    {
+        // Currently we consider Object and AnyClass as always nullable.
+        return true;
+    }
+
+    if (EnumPtr::dynamicCast(member->type()))
+    {
+        return true;
+    }
+
+    auto st = StructPtr::dynamicCast(member->type());
+    if (st)
+    {
+        for (auto m: st->dataMembers())
+        {
+            if (!isDefaultInitialized(m, false))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 string
 opFormatTypeToString(const OperationPtr& op, string ns)
 {
@@ -215,117 +255,6 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
         _out << nl;
         writeUnmarshalCode(_out, member->type(), ns, name, stream);
     }
-}
-
-void
-Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
-{
-    string name = fixId(p->name());
-    string scoped = p->scoped();
-    string ns = getNamespace(p);
-    ClassList allBases = p->allBases();
-    ClassList bases = p->bases();
-
-    //
-    // Marshaling support
-    //
-    DataMemberList members = p->dataMembers();
-    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
-
-    ClassDefPtr base;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        base = bases.front();
-    }
-
-    if(preserved && !basePreserved)
-    {
-        _out << sp;
-        _out << nl << "protected override " << getUnqualified("Ice.SlicedData", ns) << "? IceSlicedData { get; set; }";
-    }
-
-    _out << sp;
-    _out << nl << "protected override void IceWrite(" << getUnqualified("Ice.OutputStream", ns)
-         << " iceP_ostr, bool iceP_firstSlice)";
-    _out << sb;
-    _out << nl << "iceP_ostr.IceStartSlice" << spar << "_iceTypeId" << "iceP_firstSlice";
-    if (preserved || basePreserved)
-    {
-        _out << "iceP_firstSlice ? IceSlicedData : null";
-    }
-    else
-    {
-        _out << "null";
-    }
-    if (p->compactId() >= 0)
-    {
-        _out << p->compactId();
-    }
-    _out << epar << ";";
-    for(auto m : members)
-    {
-        if(!m->tagged())
-        {
-            writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
-        }
-    }
-
-    for(auto m : taggedMembers)
-    {
-        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
-    }
-    if(base)
-    {
-        _out << nl << "iceP_ostr.IceEndSlice(false);";
-        _out << nl << "base.IceWrite(iceP_ostr, false);";
-    }
-    else
-    {
-         _out << nl << "iceP_ostr.IceEndSlice(true);"; // last slice
-    }
-    _out << eb;
-
-    _out << sp;
-
-    _out << nl << "protected override void IceRead("
-         << getUnqualified("Ice.InputStream", ns) << " iceP_istr, bool iceP_firstSlice)";
-    _out << sb;
-    if (preserved || basePreserved)
-    {
-        _out << nl << "if (iceP_firstSlice)";
-        _out << sb;
-        _out << nl << "IceSlicedData = iceP_istr.IceStartSliceAndGetSlicedData(_iceTypeId);";
-        _out << eb;
-        _out << "else";
-        _out << sb;
-        _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << "false" << epar << ";";
-        _out << eb;
-    }
-    else
-    {
-        _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << "iceP_firstSlice" << epar << ";";
-    }
-
-    for(auto m : members)
-    {
-        if(!m->tagged())
-        {
-            writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
-        }
-    }
-
-    for(auto m : taggedMembers)
-    {
-        writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
-    }
-    _out << nl << "iceP_istr.IceEndSlice();";
-    if(base)
-    {
-        _out << nl << "base.IceRead(iceP_istr, false);";
-    }
-    _out << eb;
 }
 
 string
@@ -587,53 +516,29 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
 {
     // This helper function is called only for class/exception data members.
 
-    for(const auto& p : members)
+    for (const auto& p: members)
     {
         TypePtr type = p->type();
+        string lhs = "this." + fixId(dataMemberName(p), baseTypes);
 
-        if(p->defaultValueType())
+        if (p->defaultValueType())
         {
-            _out << nl << "this." << dataMemberName(p) << " = ";
+            _out << nl << lhs << " = ";
             writeConstantValue(type, p->defaultValueType(), p->defaultValue(), ns);
             _out << ';';
         }
-        else if(!p->tagged())
+        else if (!p->tagged())
         {
+            // These initializers are used only for non-public constructors that right after initialization read these
+            // fields from an InputStream.
+
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-            StructPtr st = StructPtr::dynamicCast(type);
             SequencePtr seq = SequencePtr::dynamicCast(type);
             DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
 
-            if(builtin && builtin->kind() == Builtin::KindString)
+            if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
             {
-                _out << nl << fixId(dataMemberName(p), baseTypes) << " = \"\";";
-            }
-            else if(st)
-            {
-                _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(st, ns) << "();";
-            }
-            else if(seq)
-            {
-                if(seq->hasMetaDataWithPrefix("cs:generic:"))
-                {
-                    _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(type, ns) << "();";
-                }
-                else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
-                {
-                    // Disable warning
-                    // TODO: do the same for all non-nullable data members once we make the parameterless constructor
-                    // private.
-                    _out << nl << fixId(dataMemberName(p), baseTypes) << " = null!;";
-                }
-                else
-                {
-                    _out << nl << fixId(dataMemberName(p), baseTypes) << " = global::System.Array.Empty<"
-                         << typeToString(seq->type(), ns, false) << ">();";
-                }
-            }
-            else if(dict)
-            {
-                _out << nl << fixId(dataMemberName(p), baseTypes) << " = new " << typeToString(type, ns) << "();";
+                _out << nl << lhs << " = null!; // suppress compiler warning";
             }
         }
     }
@@ -1128,20 +1033,23 @@ Slice::Gen::generate(const UnitPtr& p)
     UnitVisitor unitVisitor(_out);
     p->visit(&unitVisitor, false);
 
-    CompactIdVisitor compactIdVisitor(_out);
-    p->visit(&compactIdVisitor, false);
-
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor, false);
-
-    TypeIdVisitor typeIdVisitor(_out);
-    p->visit(&typeIdVisitor, false);
 
     ProxyVisitor proxyVisitor(_out);
     p->visit(&proxyVisitor, false);
 
     DispatcherVisitor dispatcherVisitor(_out);
     p->visit(&dispatcherVisitor, false);
+
+    ClassFactoryVisitor classFactoryVisitor(_out);
+    p->visit(&classFactoryVisitor, false);
+
+    CompactIdVisitor compactIdVisitor(_out);
+    p->visit(&compactIdVisitor, false);
+
+    RemoteExceptionFactoryVisitor remoteExceptionFactoryVisitor(_out);
+    p->visit(&remoteExceptionFactoryVisitor, false);
 }
 
 void
@@ -1200,126 +1108,6 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& p)
         }
     }
     return false;
-}
-
-Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(p->hasCompactTypeId())
-    {
-        string typeIdNs = getCustomTypeIdNamespace(p);
-
-        if(typeIdNs.empty())
-        {
-            // TODO: replace by namespace Ice.TypeId, see issue #239
-            //
-            _out << sp << nl << "namespace IceCompactId";
-        }
-        else
-        {
-            _out << sp << nl << "namespace " << typeIdNs;
-        }
-
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->compactId() >= 0)
-    {
-        _out << sp;
-        emitCommonAttributes();
-        //
-        // TODO: rename to class Compact_Xxx, see issue #239
-        //
-        _out << nl << "public sealed class TypeId_" << p->compactId();
-        _out << sb;
-        _out << nl << "public const string typeId = \"" << p->scoped() << "\";";
-        _out << eb;
-    }
-    return false;
-}
-
-Slice::Gen::TypeIdVisitor::TypeIdVisitor(IceUtilInternal::Output& out) :
-    CsVisitor(out)
-{
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitModuleStart(const ModulePtr& p)
-{
-    string ns = getNamespacePrefix(p);
-
-    if(!ns.empty() && (p->hasValueDefs() || p->hasExceptions()))
-    {
-        string name = fixId(p->name());
-        if(!ContainedPtr::dynamicCast(p->container()))
-        {
-            // Top-level module
-            //
-            string typeIdNs = getCustomTypeIdNamespace(p->unit());
-            if(typeIdNs.empty())
-            {
-                typeIdNs = "Ice.TypeId";
-            }
-
-            name = typeIdNs + "." + name;
-        }
-        _out << sp << nl << "namespace " << name;
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::TypeIdVisitor::visitModuleEnd(const ModulePtr&)
-{
-    _out << eb;
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(!p->isInterface())
-    {
-        generateHelperClass(p);
-    }
-    return false;
-}
-
-bool
-Slice::Gen::TypeIdVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    generateHelperClass(p);
-    return false;
-}
-
-void
-Slice::Gen::TypeIdVisitor::generateHelperClass(const ContainedPtr& p)
-{
-    string name = fixId(p->name());
-    _out << sp;
-    emitCommonAttributes();
-    _out << nl << "public abstract class " << name;
-    _out << sb;
-    _out << nl << "public abstract global::" << getNamespace(p) << "." << name << " targetClass { get; }";
-    _out << eb;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& out) :
@@ -1439,6 +1227,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sp << nl << "partial void Initialize();";
     }
 
+    bool hasPublicParameterlessCtor = true;
     if(allDataMembers.empty())
     {
         if(partialInitialize)
@@ -1452,18 +1241,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     else
     {
-        const bool propertyMapping = p->hasMetaData("cs:property");
-
-        _out << sp;
-        _out << nl << "public " << name << spar << epar;
-        _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, propertyMapping);
-        if(partialInitialize)
-        {
-            _out << nl << "Initialize();";
-        }
-        _out << eb;
-
+        // "One-shot" constructor
         _out << sp;
         _out << nl << "public " << name
              << spar
@@ -1495,9 +1273,180 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << nl << "Initialize();";
         }
         _out << eb;
+
+        // public parameterless constructor, which does not get generated all the time.
+        // When not generating a public parameterless constructor, we don't generate a protected or internal
+        // parameterless constructor. This way, the application can define its own parameterless constructor in a
+        // partial class. See also the unmarshaling constructor below.
+        for (const auto& member: allDataMembers)
+        {
+            if (hasPublicParameterlessCtor)
+            {
+                hasPublicParameterlessCtor = isDefaultInitialized(member, true);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (hasPublicParameterlessCtor)
+        {
+            _out << sp;
+            _out << nl << "public " << name << spar << epar;
+            _out << sb;
+            writeDataMemberInitializers(dataMembers, ns, ObjectType);
+            if(partialInitialize)
+            {
+                _out << nl << "Initialize();";
+            }
+            _out << eb;
+        }
     }
 
+    // protected internal constructor used for unmarshaling (always generated).
+    _out << sp;
+    _out << nl << "protected internal " << name << "(global::Ice.InputStream istr, bool mostDerived)";
+    if (hasPublicParameterlessCtor)
+    {
+        // We call this() to get the field initialization (of the entire class hierarchy) + the call to Initialize.
+        _out.inc();
+        _out << nl << ": this()";
+        _out.dec();
+    }
+    else if (hasBaseClass)
+    {
+        // We call the base class to initialize the base class' fields.
+        _out.inc();
+        _out << nl << ": base(istr, mostDerived: false)";
+        _out.dec();
+    }
+    _out << sb;
+    if (!hasPublicParameterlessCtor) // i.e. we did not call this()
+    {
+        // We perform the initialization of defaulted members (and call Initialize) in this constructor.
+        writeDataMemberInitializers(dataMembers, ns, ObjectType);
+        if(partialInitialize)
+        {
+            _out << nl << "Initialize();";
+        }
+    }
+    _out << nl << "if (mostDerived)";
+    _out << sb;
+    _out << nl << "IceRead(istr, true);";
+    _out << eb;
+    _out << eb;
+
     writeMarshaling(p);
+    _out << eb;
+}
+
+void
+Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
+{
+    string name = fixId(p->name());
+    string scoped = p->scoped();
+    string ns = getNamespace(p);
+    ClassList allBases = p->allBases();
+    ClassList bases = p->bases();
+
+    //
+    // Marshaling support
+    //
+    DataMemberList members = p->dataMembers();
+    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
+    const bool basePreserved = p->inheritsMetaData("preserve-slice");
+    const bool preserved = p->hasMetaData("preserve-slice");
+
+    ClassDefPtr base;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        base = bases.front();
+    }
+
+    if(preserved && !basePreserved)
+    {
+        _out << sp;
+        _out << nl << "protected override " << getUnqualified("Ice.SlicedData", ns) << "? IceSlicedData { get; set; }";
+    }
+
+    _out << sp;
+    _out << nl << "protected override void IceWrite(" << getUnqualified("Ice.OutputStream", ns)
+         << " iceP_ostr, bool iceP_firstSlice)";
+    _out << sb;
+    _out << nl << "iceP_ostr.IceStartSlice" << spar << "_iceTypeId" << "iceP_firstSlice";
+    if (preserved || basePreserved)
+    {
+        _out << "iceP_firstSlice ? IceSlicedData : null";
+    }
+    else
+    {
+        _out << "null";
+    }
+    if (p->compactId() >= 0)
+    {
+        _out << p->compactId();
+    }
+    _out << epar << ";";
+    for(auto m : members)
+    {
+        if(!m->tagged())
+        {
+            writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
+        }
+    }
+
+    for(auto m : taggedMembers)
+    {
+        writeMarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_ostr");
+    }
+    if(base)
+    {
+        _out << nl << "iceP_ostr.IceEndSlice(false);";
+        _out << nl << "base.IceWrite(iceP_ostr, false);";
+    }
+    else
+    {
+         _out << nl << "iceP_ostr.IceEndSlice(true);"; // last slice
+    }
+    _out << eb;
+
+    _out << sp;
+
+    _out << nl << "protected" << (bases.empty() ? " " : " new ") << "void IceRead("
+        << getUnqualified("Ice.InputStream", ns) << " iceP_istr, bool iceP_firstSlice)";
+    _out << sb;
+    _out << nl << "if (iceP_firstSlice)";
+    _out << sb;
+    _out << nl << "iceP_istr.IceStartFirstSlice" << spar << "_iceTypeId" << "this";
+    if (preserved || basePreserved)
+    {
+        _out << "setSlicedData: true";
+    }
+    _out << epar << ";";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << epar << ";";
+    _out << eb;
+
+    for(auto m : members)
+    {
+        if(!m->tagged())
+        {
+            writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
+        }
+    }
+
+    for(auto m : taggedMembers)
+    {
+        writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
+    }
+    _out << nl << "iceP_istr.IceEndSlice();";
+    if(base)
+    {
+        _out << nl << "base.IceRead(iceP_istr, false);";
+    }
     _out << eb;
 }
 
@@ -1540,6 +1489,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string messageParamName = getEscapedParamName(p, "message");
     string innerExceptionParamName = getEscapedParamName(p, "innerException");
 
+    bool hasPublicParameterlessCtor = true;
     vector<string> allParamDecl;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
@@ -1551,6 +1501,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             memberType += "?";
         }
         allParamDecl.push_back(memberType + " " + memberName);
+
+        if (hasPublicParameterlessCtor)
+        {
+            hasPublicParameterlessCtor = isDefaultInitialized(member, true);
+        }
     }
 
     vector<string> baseParamNames;
@@ -1565,14 +1520,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << nl << "private readonly string _iceTypeId = global::Ice.TypeExtensions.GetIceTypeId(typeof("
          << name << "))!;";
-
-    _out << sp;
-
-    // Parameterless constructor - all exceptions derived from System.Exception should provide such a constructor.
-    _out << nl << "public " << name << "()";
-    _out << sb;
-    writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType);
-    _out << eb;
 
     // Up to 3 "one-shot" constructors
     for (int i = 0; i < 3; i++)
@@ -1614,6 +1561,16 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
     }
 
+    // public parameterless constructor (not always generated, see class comment)
+    if (hasPublicParameterlessCtor)
+    {
+        _out << sp;
+        _out << nl << "public " << name << "()";
+        _out << sb;
+        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType);
+        _out << eb;
+    }
+
     if(!dataMembers.empty())
     {
         _out << sp;
@@ -1652,6 +1609,37 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
     }
 
+    // protected internal constructor used for unmarshaling (always generated).
+    _out << sp;
+    _out << nl << "protected internal " << name << "(global::Ice.InputStream istr, bool mostDerived)";
+    if (hasPublicParameterlessCtor)
+    {
+        // We call this() to get the field initialization (of the entire hierarchy)
+        _out.inc();
+        _out << nl << ": this()";
+        _out.dec();
+    }
+    else if (p->base())
+    {
+        // We call the base class to initialize the base class' fields.
+        _out.inc();
+        _out << nl << ": base(istr, mostDerived: false)";
+        _out.dec();
+    }
+    _out << sb;
+    if (!hasPublicParameterlessCtor) // i.e. we did not call this()
+    {
+        // We perform the initialization of defaulted members in this constructor.
+        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType);
+    }
+    _out << nl << "if (mostDerived)";
+    _out << sb;
+    _out << nl << "IceRead(istr, true);";
+    _out << nl << "ConvertToUnhandled = true;";
+    _out << eb;
+    _out << eb;
+
+    // Serializable constructor
     _out << sp;
     _out << nl << "protected " << name << "(global::System.Runtime.Serialization.SerializationInfo info, "
          << "global::System.Runtime.Serialization.StreamingContext context)";
@@ -1772,17 +1760,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp;
 
-    _out << nl << "protected override void IceRead("
-         << getUnqualified("Ice.InputStream", ns) << " iceP_istr, bool iceP_firstSlice)";
+    _out << nl << "protected " << (base ? "new " : "") << "void IceRead("
+        << getUnqualified("Ice.InputStream", ns) << " iceP_istr, bool iceP_firstSlice)";
     _out << sb;
 
     _out << nl << "if (iceP_firstSlice)";
     _out << sb;
-    _out << nl << "IceSlicedData = iceP_istr.IceStartSliceAndGetSlicedData(_iceTypeId);";
+    _out << nl << "IceSlicedData = iceP_istr.IceStartFirstSlice(_iceTypeId);";
     _out << eb;
     _out << nl << "else";
     _out << sb;
-    _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << "false" << epar << ";";
+    _out << nl << "iceP_istr.IceStartSlice" << spar << "_iceTypeId" << epar << ";";
     _out << eb;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -3105,4 +3093,160 @@ void
 Slice::Gen::ImplVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _out << eb;
+}
+
+Slice::Gen::ClassFactoryVisitor::ClassFactoryVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::ClassFactoryVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (p->hasValueDefs())
+    {
+        string name = fixId(p->name());
+        if (!ContainedPtr::dynamicCast(p->container()))
+        {
+            // We are generating code for a top-level module
+            string typeIdNs = getCustomTypeIdNamespace(p->unit());
+            if (typeIdNs.empty())
+            {
+                typeIdNs = "Ice.ClassFactory";
+            }
+            name = typeIdNs + "." + name;
+        }
+        _out << sp << nl << "namespace " << name;
+        _out << sb;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void
+Slice::Gen::ClassFactoryVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (!p->isInterface())
+    {
+        string name = fixId(p->name());
+        _out << sp;
+        emitCommonAttributes();
+        _out << nl << "public class " << name << " : global::Ice.IClassFactory";
+        _out << sb;
+        _out << nl << "public global::Ice.AnyClass Read(global::Ice.InputStream istr) =>";
+        _out.inc();
+        _out << nl << "new global::" << getNamespace(p) << "." << name << "(istr, mostDerived: true);";
+        _out.dec();
+        _out << eb;
+    }
+    return false;
+}
+
+Slice::Gen::CompactIdVisitor::CompactIdVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
+{
+    if (p->hasCompactTypeId())
+    {
+        string typeIdNs = getCustomTypeIdNamespace(p);
+        if (typeIdNs.empty())
+        {
+            typeIdNs = "Ice.ClassFactory";
+        }
+
+        _out << sp << nl << "namespace " << typeIdNs;
+        _out << sb;
+        return true;
+    }
+    return false;
+}
+
+void
+Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->compactId() >= 0)
+    {
+        _out << sp;
+        emitCommonAttributes();
+        _out << nl << "public class CompactId_" << p->compactId() << " : global::Ice.IClassFactory";
+        _out << sb;
+        _out << nl << "public global::Ice.AnyClass Read(global::Ice.InputStream istr) =>";
+        _out.inc();
+        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name()) << "(istr, mostDerived: true);";
+        _out.dec();
+        _out << eb;
+    }
+    return false;
+}
+
+Slice::Gen::RemoteExceptionFactoryVisitor::RemoteExceptionFactoryVisitor(IceUtilInternal::Output& out) :
+    CsVisitor(out)
+{
+}
+
+bool
+Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (p->hasExceptions())
+    {
+        string name = fixId(p->name());
+        if (!ContainedPtr::dynamicCast(p->container()))
+        {
+            // We are generating code for a top-level module
+            string typeIdNs = getCustomTypeIdNamespace(p->unit());
+            if (typeIdNs.empty())
+            {
+                typeIdNs = "Ice.RemoteExceptionFactory";
+            }
+            name = typeIdNs + "." + name;
+        }
+        _out << sp << nl << "namespace " << name;
+        _out << sb;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void
+Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+}
+
+bool
+Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    string name = fixId(p->name());
+    _out << sp;
+    emitCommonAttributes();
+    _out << nl << "public class " << name << " : global::Ice.IRemoteExceptionFactory";
+    _out << sb;
+    _out << nl << "public global::Ice.RemoteException Read(global::Ice.InputStream istr) =>";
+    _out.inc();
+    _out << nl << "new global::" << getNamespace(p) << "." << name << "(istr, mostDerived: true);";
+    _out.dec();
+    _out << eb;
+    return false;
 }

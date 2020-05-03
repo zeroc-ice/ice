@@ -26,7 +26,7 @@ namespace Ice.defaultValue
                 TestHelper.Assert(v.f == 5.1F);
                 TestHelper.Assert(v.d == 6.2);
                 TestHelper.Assert(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-                TestHelper.Assert(v.noDefault.Equals(""));
+                TestHelper.Assert(v.noDefault == null);
                 TestHelper.Assert(v.zeroI == 0);
                 TestHelper.Assert(v.zeroL == 0);
                 TestHelper.Assert(v.zeroF == 0);
@@ -52,7 +52,7 @@ namespace Ice.defaultValue
                 TestHelper.Assert(v.nc1 == Test.Nested.Color.red);
                 TestHelper.Assert(v.nc2 == Test.Nested.Color.green);
                 TestHelper.Assert(v.nc3 == Test.Nested.Color.blue);
-                TestHelper.Assert(v.noDefault.Equals(""));
+                TestHelper.Assert(v.noDefault == null);
                 TestHelper.Assert(v.zeroI == 0);
                 TestHelper.Assert(v.zeroL == 0);
                 TestHelper.Assert(v.zeroF == 0);
@@ -72,7 +72,7 @@ namespace Ice.defaultValue
                 TestHelper.Assert(v.f == 5.1F);
                 TestHelper.Assert(v.d == 6.2);
                 TestHelper.Assert(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
-                TestHelper.Assert(v.noDefault.Equals(""));
+                TestHelper.Assert(v.noDefault == null);
                 TestHelper.Assert(v.zeroI == 0);
                 TestHelper.Assert(v.zeroL == 0);
                 TestHelper.Assert(v.zeroF == 0);
@@ -92,7 +92,7 @@ namespace Ice.defaultValue
                 TestHelper.Assert(v.f == 5.1F);
                 TestHelper.Assert(v.d == 6.2);
                 TestHelper.Assert(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
-                TestHelper.Assert(v.noDefault.Equals(""));
+                TestHelper.Assert(v.noDefault == null);
                 TestHelper.Assert(v.c1 == Test.Color.red);
                 TestHelper.Assert(v.c2 == Test.Color.green);
                 TestHelper.Assert(v.c3 == Test.Color.blue);
@@ -118,7 +118,7 @@ namespace Ice.defaultValue
                 TestHelper.Assert(v.f == 5.1F);
                 TestHelper.Assert(v.d == 6.2);
                 TestHelper.Assert(v.str.Equals("foo bar"));
-                TestHelper.Assert(v.noDefault.Equals(""));
+                TestHelper.Assert(v.noDefault == null);
                 TestHelper.Assert(v.zeroI == 0);
                 TestHelper.Assert(v.zeroL == 0);
                 TestHelper.Assert(v.zeroF == 0);
@@ -138,7 +138,7 @@ namespace Ice.defaultValue
                 TestHelper.Assert(v.f == 5.1F);
                 TestHelper.Assert(v.d == 6.2);
                 TestHelper.Assert(v.str.Equals("foo bar"));
-                TestHelper.Assert(v.noDefault.Equals(""));
+                TestHelper.Assert(v.noDefault == null);
                 TestHelper.Assert(v.zeroI == 0);
                 TestHelper.Assert(v.zeroL == 0);
                 TestHelper.Assert(v.zeroF == 0);
@@ -147,27 +147,6 @@ namespace Ice.defaultValue
                 TestHelper.Assert(v.zeroDotD == 0);
             }
 
-            output.WriteLine("ok");
-
-            output.Write("testing default constructor... ");
-            output.Flush();
-            {
-                var e = new Test.ExceptionNoDefaults();
-                TestHelper.Assert(e.str.Equals(""));
-                TestHelper.Assert(e.c1 == Test.Color.red);
-                TestHelper.Assert(e.bs.Length == 0);
-                TestHelper.Assert(e.st.a == 0);
-                TestHelper.Assert(e.st2 != null);
-                TestHelper.Assert(e.dict.Count == 0);
-
-                var cl = new Test.ClassNoDefaults();
-                TestHelper.Assert(cl.str.Equals(""));
-                TestHelper.Assert(cl.c1 == Test.Color.red);
-                TestHelper.Assert(cl.bs.Length == 0);
-                TestHelper.Assert(cl.st.a == 0);
-                TestHelper.Assert(cl.st2 != null);
-                TestHelper.Assert(cl.dict.Count == 0);
-            }
             output.WriteLine("ok");
         }
     }

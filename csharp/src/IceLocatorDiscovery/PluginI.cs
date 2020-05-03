@@ -27,25 +27,19 @@ namespace IceLocatorDiscovery
     internal class Request : TaskCompletionSource<IncomingResponseFrame>
     {
         private readonly LocatorI _locator;
-        private readonly string _operation;
-        private readonly bool _idempotent;
-        private readonly IReadOnlyDictionary<string, string>? _context;
         private readonly ArraySegment<byte> _payload;
+        private readonly Current _current;
 
         private ILocatorPrx? _locatorPrx;
         private System.Exception? _exception;
 
         internal Request(LocatorI locator,
-                       string operation,
-                       bool idempotent,
-                       ArraySegment<byte> payload,
-                       IReadOnlyDictionary<string, string>? context)
+                         ArraySegment<byte> payload,
+                         Current current)
         {
             _locator = locator;
-            _operation = operation;
-            _idempotent = idempotent;
             _payload = payload;
-            _context = context;
+            _current = current;
         }
 
         internal void Invoke(ILocatorPrx l)
@@ -53,7 +47,8 @@ namespace IceLocatorDiscovery
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
                 _locatorPrx = l;
-                var requestFrame = new OutgoingRequestFrame(l, _operation, _idempotent, _context, _payload);
+                var requestFrame = new OutgoingRequestFrame(l, _current.Operation, _current.IsIdempotent,
+                    _current.Context, _payload);
 
                 l.InvokeAsync(requestFrame).ContinueWith(
                     task =>
@@ -89,15 +84,15 @@ namespace IceLocatorDiscovery
             }
             catch (Ice.NoEndpointException)
             {
-                SetException(new Ice.ObjectNotExistException());
+                SetException(new Ice.ObjectNotExistException(_current));
             }
             catch (Ice.ObjectAdapterDeactivatedException)
             {
-                SetException(new Ice.ObjectNotExistException());
+                SetException(new Ice.ObjectNotExistException(_current));
             }
             catch (Ice.CommunicatorDestroyedException)
             {
-                SetException(new Ice.ObjectNotExistException());
+                SetException(new Ice.ObjectNotExistException(_current));
             }
             catch (System.Exception exc)
             {
@@ -200,8 +195,7 @@ namespace IceLocatorDiscovery
 
         public async ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame requestFrame, Current current)
         {
-            var request = new Request(this, current.Operation, current.IsIdempotent, requestFrame.Payload,
-                current.Context);
+            var request = new Request(this, requestFrame.Payload, current);
             Invoke(null, request);
             IncomingResponseFrame incomingResponseFrame = await request.Task.ConfigureAwait(false);
             return new OutgoingResponseFrame(current.Encoding, incomingResponseFrame.Payload);

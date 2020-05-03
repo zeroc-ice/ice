@@ -22,10 +22,10 @@ namespace Ice.interceptor
         }
 
         public int
-        badAdd(int x, int y, Current current) => throw new Test.InvalidInputException();
+        badAdd(int x, int y, Current current) => throw new Test.InvalidInputException("badAdd");
 
         public int
-        notExistAdd(int x, int y, Current current) => throw new ObjectNotExistException();
+        notExistAdd(int x, int y, Current current) => throw new ObjectNotExistException(current);
 
         //
         // AMD
@@ -54,13 +54,13 @@ namespace Ice.interceptor
         public async ValueTask<int> amdBadAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
-            throw new Test.InvalidInputException();
+            throw new Test.InvalidInputException("amdBadAdd");
         }
 
         public async ValueTask<int> amdNotExistAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
-            throw new ObjectNotExistException();
+            throw new ObjectNotExistException(current);
         }
     }
 }

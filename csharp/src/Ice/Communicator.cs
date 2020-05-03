@@ -45,14 +45,14 @@ namespace Ice
             private readonly Communicator _communicator;
         }
 
-         /// <summary>Indicates whether or not object adapters created by this communicator accept non-secure incoming
-         /// connections. When false, they accept only secure connections; when true, they accept both secure and
-         /// non-secure connections. This property corresponds to the Ice.AcceptNonSecureConnections configuration
-         /// property. It can be overridden for each object adapter by the object adapter property with the same name.
-         /// </summary>
-         // TODO: update doc with default value for AcceptNonSecureConnections - it's currently true but should be
-         // false.
-         // TODO: currently only this property is implemented and nothing else.
+        /// <summary>Indicates whether or not object adapters created by this communicator accept non-secure incoming
+        /// connections. When false, they accept only secure connections; when true, they accept both secure and
+        /// non-secure connections. This property corresponds to the Ice.AcceptNonSecureConnections configuration
+        /// property. It can be overridden for each object adapter by the object adapter property with the same name.
+        /// </summary>
+        // TODO: update doc with default value for AcceptNonSecureConnections - it's currently true but should be
+        // false.
+        // TODO: currently only this property is implemented and nothing else.
         public bool AcceptNonSecureConnections { get; }
 
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
@@ -186,9 +186,12 @@ namespace Ice
         private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
         private Identity? _adminIdentity;
         private AsyncIOThread? _asyncIOThread;
+        private readonly ConcurrentDictionary<string, IClassFactory?> _classFactoryCache =
+            new ConcurrentDictionary<string, IClassFactory?>();
+        private readonly string[] _classFactoryNamespaces;
         private readonly IceInternal.ThreadPool _clientThreadPool;
-        private readonly ConcurrentDictionary<int, Type?> _compactIdCache = new ConcurrentDictionary<int, Type?>();
-        private readonly string[] _compactIdNamespaces;
+        private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
+            new ConcurrentDictionary<int, IClassFactory?>();
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
         private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
@@ -199,14 +202,15 @@ namespace Ice
         private static bool _oneOffDone = false;
         private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
+        private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
+            new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
+        private readonly string[] _remoteExceptionFactoryNamespaces;
         private readonly int[] _retryIntervals;
         private IceInternal.ThreadPool? _serverThreadPool;
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
         private int _state;
         private readonly IceInternal.Timer _timer;
-        private readonly ConcurrentDictionary<string, Type?> _typeIdCache = new ConcurrentDictionary<string, Type?>();
-        private readonly string[] _typeIdNamespaces;
 
         public Communicator(Dictionary<string, string>? properties,
                             ILogger? logger = null,
@@ -275,8 +279,15 @@ namespace Ice
             Observer = observer;
             ThreadStart = threadStart;
             ThreadStop = threadStop;
-            _typeIdNamespaces = typeIdNamespaces ?? new string[] { "Ice.TypeId" };
-            _compactIdNamespaces = new string[] { "IceCompactId" }.Concat(_typeIdNamespaces).ToArray();
+
+            _classFactoryNamespaces = new string[] { "Ice.ClassFactory" };
+            _remoteExceptionFactoryNamespaces = new string[] { "Ice.RemoteExceptionFactory" };
+            if (typeIdNamespaces != null)
+            {
+                _classFactoryNamespaces = _classFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
+                _remoteExceptionFactoryNamespaces =
+                    _remoteExceptionFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
+            }
 
             if (properties == null)
             {
@@ -1419,74 +1430,50 @@ namespace Ice
             }
         }
 
-        // Return the C# class associated with this Slice type-id
-        // Used for both Slice classes and exceptions
-        internal Type? ResolveClass(string typeId)
-        {
-            return _typeIdCache.GetOrAdd(typeId, typeId =>
+        // Returns the IClassFactory associated with this Slice type ID, not null if not found.
+        internal IClassFactory? FindClassFactory(string typeId) =>
+            _classFactoryCache.GetOrAdd(typeId, typeId =>
             {
-                // First attempt corresponds to no cs:namespace metadata in the
-                // enclosing top-level module
                 string className = TypeIdToClassName(typeId);
-                Type? classType = AssemblyUtil.FindType(className);
-
-                // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
-                if (classType == null)
+                foreach (string ns in _classFactoryNamespaces)
                 {
-                    foreach (string ns in _typeIdNamespaces)
+                    Type? factoryClass = AssemblyUtil.FindType($"{ns}.{className}");
+                    if (factoryClass != null)
                     {
-                        Type? helper = AssemblyUtil.FindType($"{ns}.{className}");
-                        if (helper != null)
-                        {
-                            try
-                            {
-                                classType = helper.GetProperty("targetClass")!.PropertyType;
-                                break; // foreach
-                            }
-                            catch (Exception)
-                            {
-                            }
-                        }
+                        return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
                     }
                 }
-
-                // Ensure the class can be instantiate.
-                if (classType != null && !classType.IsAbstract && !classType.IsInterface)
-                {
-                    return classType;
-                }
-
                 return null;
             });
-        }
 
-        internal Type? ResolveCompactId(int compactId)
-        {
-            return _compactIdCache.GetOrAdd(compactId, compactId =>
+        internal IClassFactory? FindClassFactory(int compactId) =>
+           _compactIdCache.GetOrAdd(compactId, compactId =>
+           {
+               foreach (string ns in _classFactoryNamespaces)
+               {
+                   Type? factoryClass = AssemblyUtil.FindType($"{ns}.CompactId_{compactId}");
+                   if (factoryClass != null)
+                   {
+                       return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                   }
+               }
+               return null;
+           });
+
+        internal IRemoteExceptionFactory? FindRemoteExceptionFactory(string typeId) =>
+            _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
-                foreach (string ns in _compactIdNamespaces)
+                string className = TypeIdToClassName(typeId);
+                foreach (string ns in _remoteExceptionFactoryNamespaces)
                 {
-                    try
+                    Type? factoryClass = AssemblyUtil.FindType($"{ns}.{className}");
+                    if (factoryClass != null)
                     {
-                        Type? classType = AssemblyUtil.FindType($"{ns}.TypeId_{compactId}");
-                        if (classType != null)
-                        {
-                            string? result = (string?)classType.GetField("typeId")!.GetValue(null);
-                            if (result != null)
-                            {
-                                return ResolveClass(result);
-                            }
-                            return null;
-                        }
-                    }
-                    catch (Exception)
-                    {
+                        return (IRemoteExceptionFactory?)Activator.CreateInstance(factoryClass, false);
                     }
                 }
-
                 return null;
             });
-        }
 
         internal IceInternal.ThreadPool ServerThreadPool()
         {
