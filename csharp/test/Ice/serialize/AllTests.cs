@@ -23,24 +23,32 @@ namespace Ice.serialize
             var proxy = Test.IMyInterfacePrx.Parse("test", communicator);
 
             Test.MyException ex, ex2;
-            ex = new Test.MyException();
-            ex.name = "";
-            ex.vss = new Test.ValStruct[0];
-            ex.vsl = new List<Test.ValStruct>();
-            ex.vsll = new LinkedList<Test.ValStruct>();
-            ex.vssk = new Stack<Test.ValStruct>();
-            ex.vsq = new Queue<Test.ValStruct>();
-            ex.isd = new Dictionary<int, string>();
-            ex.ivd = new Dictionary<int, Test.ValStruct>();
-            ex.ipd = new Dictionary<int, Test.IMyInterfacePrx?>(); ;
-            ex.issd = new SortedDictionary<int, string>();
-            ex.optName = null;
-            ex.optInt = null;
-            ex.optValStruct = null;
-            ex.optRefStruct = null;
-            ex.optEnum = null;
-            ex.optClass = null;
-            ex.optProxy = null;
+            ex = new Test.MyException(name: "",
+                                      b: 0,
+                                      s: 0,
+                                      i: 0,
+                                      l: 0,
+                                      vs: default,
+                                      rs: default,
+                                      c: null,
+                                      p: null,
+                                      vss: new Test.ValStruct[0],
+                                      vsl: new List<Test.ValStruct>(),
+                                      vsll: new LinkedList<Test.ValStruct>(),
+                                      vssk: new Stack<Test.ValStruct>(),
+                                      vsq: new Queue<Test.ValStruct>(),
+                                      isd: new Dictionary<int, string>(),
+                                      ivd: new Dictionary<int, Test.ValStruct>(),
+                                      ipd: new Dictionary<int, Test.IMyInterfacePrx?>(),
+                                      issd: new SortedDictionary<int, string>(),
+                                      optName: null,
+                                      optInt: null,
+                                      optValStruct: null,
+                                      optRefStruct: null,
+                                      optEnum: null,
+                                      optClass: null,
+                                      optProxy: null);
+
             ex2 = inOut(ex, communicator);
 
             TestHelper.Assert(ex2.name == "");

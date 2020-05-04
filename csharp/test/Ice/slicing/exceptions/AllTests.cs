@@ -10,44 +10,22 @@ public class AllTests
 {
     private class Relay : IRelay
     {
-        public void knownPreservedAsBase(Ice.Current current)
-        {
-            KnownPreservedDerived ex = new KnownPreservedDerived();
-            ex.b = "base";
-            ex.kp = "preserved";
-            ex.kpd = "derived";
-            throw ex;
-        }
+        public void knownPreservedAsBase(Ice.Current current) =>
+            throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public void knownPreservedAsKnownPreserved(Ice.Current current)
-        {
-            KnownPreservedDerived ex = new KnownPreservedDerived();
-            ex.b = "base";
-            ex.kp = "preserved";
-            ex.kpd = "derived";
-            throw ex;
-        }
+        public void knownPreservedAsKnownPreserved(Ice.Current current) =>
+            throw new KnownPreservedDerived("base", "preserved", "derived");
 
         public void unknownPreservedAsBase(Ice.Current current)
         {
-            Preserved2 ex = new Preserved2();
-            ex.b = "base";
-            ex.kp = "preserved";
-            ex.kpd = "derived";
-            ex.p1 = new PreservedClass("bc", "pc");
-            ex.p2 = ex.p1;
-            throw ex;
+            var p = new PreservedClass("bc", "pc");
+            throw new Preserved2("base", "preserved", "derived", p, p);
         }
 
         public void unknownPreservedAsKnownPreserved(Ice.Current current)
         {
-            Preserved2 ex = new Preserved2();
-            ex.b = "base";
-            ex.kp = "preserved";
-            ex.kpd = "derived";
-            ex.p1 = new PreservedClass("bc", "pc");
-            ex.p2 = ex.p1;
-            throw ex;
+            var p = new PreservedClass("bc", "pc");
+            throw new Preserved2("base", "preserved", "derived", p, p);
         }
 
         public void clientPrivateException(Ice.Current current) => throw new ClientPrivateException("ClientPrivate");

@@ -17,11 +17,11 @@ namespace Ice.interceptor
             {
                 if (context.Equals("invalidInput"))
                 {
-                    throw new Test.InvalidInputException();
+                    throw new Test.InvalidInputException("intercept");
                 }
                 else if (context.Equals("notExist"))
                 {
-                    throw new ObjectNotExistException();
+                    throw new ObjectNotExistException(current);
                 }
             }
 
@@ -61,11 +61,11 @@ namespace Ice.interceptor
             {
                 if (context.Equals("invalidInput"))
                 {
-                    throw new Test.InvalidInputException();
+                    throw new Test.InvalidInputException("raiseAfterDispatch");
                 }
                 else if (context.Equals("notExist"))
                 {
-                    throw new ObjectNotExistException();
+                    throw new ObjectNotExistException(current);
                 }
             }
 

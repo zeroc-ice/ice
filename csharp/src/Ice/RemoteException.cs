@@ -31,7 +31,11 @@ namespace Ice
 
         private readonly bool _hasCustomMessage = false;
 
-        internal RemoteException(SlicedData slicedData) => IceSlicedData = slicedData;
+        internal RemoteException(SlicedData slicedData)
+        {
+            IceSlicedData = slicedData;
+            ConvertToUnhandled = true;
+        }
 
         /// <summary>Constructs a remote exception with the default system message.</summary>
         protected RemoteException()
@@ -56,15 +60,6 @@ namespace Ice
             : base(info, context)
         {
         }
-
-        // See InputStream.
-        protected virtual void IceRead(InputStream istr, bool firstSlice)
-        {
-            // If this exception is a plain RemoteException, IceSlicedData is set using the internal RemoteException
-            // constructor. As a result, this base method implementation is never called.
-            Debug.Assert(false);
-        }
-        internal void Read(InputStream istr) => IceRead(istr, true);
 
         // See OutputStream
         protected virtual void IceWrite(OutputStream ostr, bool firstSlice)

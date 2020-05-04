@@ -4,10 +4,25 @@
 
 #pragma once
 
+#include <Ice/Identity.ice>
+
 [["cs:typeid-namespace:Ice.objects.TypeId", "suppress-warning:deprecated"]] // For classes with operations
 ["cs:namespace:Ice.objects"]
 module Test
 {
+
+class IdentityWrapper
+{
+    Ice::Identity myId;
+    string s = "";
+    int n;
+}
+
+class DerivedIdentityWrapper : IdentityWrapper
+{
+    string s2;
+    int n2;
+}
 
 struct S
 {
@@ -225,12 +240,12 @@ interface UnexpectedObjectExceptionTest
 
 class IBase
 {
-    string id;
+    string id = "";
 }
 
 class IDerived : IBase
 {
-    string name;
+    string name = "";
 }
 
 class IDerived2 : IBase

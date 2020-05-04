@@ -115,25 +115,15 @@ public sealed class TestIntf : ITestIntf
 
     public ValueTask unknownPreservedAsBaseAsync(Current current)
     {
-        var ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
+        var p = new SPreservedClass("bc", "spc");
+        throw new SPreserved2("base", "preserved", "derived", p, p);
     }
 
     public ValueTask
     unknownPreservedAsKnownPreservedAsync(Current current)
     {
-        var ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
+        var p = new SPreservedClass("bc", "spc");
+        throw new SPreserved2("base", "preserved", "derived", p, p);
     }
 
     public ValueTask

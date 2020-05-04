@@ -273,7 +273,7 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
-                    output.Write("testing partial ice_initialize...");
+                    output.Write("testing partial Initialize...");
                     output.Flush();
                     var ib1 = new IBase();
                     TestHelper.Assert(ib1.id.Equals("My id"));
@@ -298,8 +298,7 @@ namespace Ice
                     output.Write("testing class containing complex dictionary... ");
                     output.Flush();
                     {
-                        var m = new M();
-                        m.v = new Dictionary<StructKey, L?>();
+                        var m = new M(new Dictionary<StructKey, L?>());
                         var k1 = new StructKey(1, "1");
                         m.v[k1] = new L("one");
                         var k2 = new StructKey(2, "2");

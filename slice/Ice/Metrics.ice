@@ -33,7 +33,7 @@ module IceMX
     class Metrics
     {
         /// The metrics identifier.
-        string id;
+        string id = "";
 
         /// The total number of objects observed by this metrics. This includes
         /// the number of currently observed objects and the number of objects

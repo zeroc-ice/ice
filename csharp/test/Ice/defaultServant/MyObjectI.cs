@@ -12,7 +12,7 @@ namespace Ice.DefaultServant
 
             if (name == "ObjectNotExist")
             {
-                throw new ObjectNotExistException();
+                throw new ObjectNotExistException(current);
             }
         }
 
@@ -22,7 +22,7 @@ namespace Ice.DefaultServant
 
             if (name == "ObjectNotExist")
             {
-                throw new ObjectNotExistException();
+                throw new ObjectNotExistException(current);
             }
             return name;
         }

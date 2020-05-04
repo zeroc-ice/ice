@@ -45,10 +45,7 @@ public sealed class CallbackReceiver : ICallbackReceiver
     callbackEx(Ice.Current current)
     {
         callback(current);
-        var ex = new CallbackException();
-        ex.someValue = 3.14;
-        ex.someString = "3.14";
-        throw ex;
+        throw new CallbackException(3.14, "3.14");
     }
 
     public void

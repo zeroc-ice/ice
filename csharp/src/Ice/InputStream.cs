@@ -103,23 +103,6 @@ namespace Ice
             }
         }
 
-        /// <summary>Returns the sliced data held by the current instance.</summary>
-        internal SlicedData? SlicedData
-        {
-            get
-            {
-                Debug.Assert(_current != null);
-                if (_current.Slices == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return new SlicedData(Encoding, _current.Slices);
-                }
-            }
-        }
-
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
         // True when reading a top-level encapsulation; otherwise, false.

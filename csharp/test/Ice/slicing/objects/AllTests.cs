@@ -1138,13 +1138,13 @@ public class AllTests
                     ss2d1.pd1 = ss1d3;
                     ss2d3.pd3 = ss1d1;
 
-                    SS1 ss1 = new SS1();
+                    SS1 ss1 = new SS1(Array.Empty<B>());
                     ss1.s = new B[3];
                     ss1.s[0] = ss1b;
                     ss1.s[1] = ss1d1;
                     ss1.s[2] = ss1d3;
 
-                    SS2 ss2 = new SS2();
+                    SS2 ss2 = new SS2(Array.Empty<B>());
                     ss2.s = new B[3];
                     ss2.s[0] = ss2b;
                     ss2.s[1] = ss2d1;
@@ -1227,13 +1227,13 @@ public class AllTests
                 ss2d1.pd1 = ss1d3;
                 ss2d3.pd3 = ss1d1;
 
-                SS1 ss1 = new SS1();
+                SS1 ss1 = new SS1(Array.Empty<B>());
                 ss1.s = new B[3];
                 ss1.s[0] = ss1b;
                 ss1.s[1] = ss1d1;
                 ss1.s[2] = ss1d3;
 
-                SS2 ss2 = new SS2();
+                SS2 ss2 = new SS2(Array.Empty<B>());
                 ss2.s = new B[3];
                 ss2.s[0] = ss2b;
                 ss2.s[1] = ss2d1;
@@ -1673,8 +1673,7 @@ public class AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            PCDerived pcd = new PCDerived();
-            pcd.pi = 3;
+            PCDerived pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
             pcd.pbs = new PBase[] { pcd };
 
             PBase? r = testPrx.exchangePBase(pcd);
@@ -1693,8 +1692,7 @@ public class AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            CompactPCDerived pcd = new CompactPCDerived();
-            pcd.pi = 3;
+            CompactPCDerived pcd = new CompactPCDerived(3, "", null, Array.Empty<PBase>());
             pcd.pbs = new PBase[] { pcd };
 
             PBase? r = testPrx.exchangePBase(pcd);
@@ -1713,8 +1711,8 @@ public class AllTests
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
             //
-            PCDerived3 pcd = new PCDerived3();
-            pcd.pi = 3;
+            PCDerived3 pcd = new PCDerived3(3, "", null, Array.Empty<PBase>(), 0, null);
+
             //
             // Sending more than 254 objects exercises the encoding for object ids.
             //
@@ -1722,10 +1720,8 @@ public class AllTests
             int i;
             for (i = 0; i < 300; ++i)
             {
-                PCDerived2 p2 = new PCDerived2();
-                p2.pi = i;
+                PCDerived2 p2 = new PCDerived2(i, "", null, Array.Empty<PBase>(), i);
                 p2.pbs = new PBase?[] { null }; // Nil reference. This slice should not have an indirection table.
-                p2.pcd2 = i;
                 pcd.pbs[i] = p2;
             }
             pcd.pcd2 = pcd.pi;
@@ -1807,8 +1803,7 @@ public class AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            PCDerived pcd = new PCDerived();
-            pcd.pi = 3;
+            PCDerived pcd = new PCDerived(3, "", null, Array.Empty<PBase>());
             pcd.pbs = new PBase[] { pcd };
 
             PBase? r = testPrx.exchangePBaseAsync(pcd).Result;
@@ -1823,8 +1818,7 @@ public class AllTests
             // Server only knows the intermediate type Preserved. The object will be sliced to
             // Preserved for the 1.0 encoding; otherwise it should be returned intact.
             //
-            var pcd = new CompactPCDerived();
-            pcd.pi = 3;
+            var pcd = new CompactPCDerived(3, "", null, Array.Empty<PBase>());
             pcd.pbs = new PBase[] { pcd };
 
             PBase? r = testPrx.exchangePBaseAsync(pcd).Result;
@@ -1839,18 +1833,16 @@ public class AllTests
             // Send an object that will have multiple preserved slices in the server.
             // The object will be sliced to Preserved for the 1.0 encoding.
             //
-            var pcd = new PCDerived3();
-            pcd.pi = 3;
+            var pcd = new PCDerived3(3, "", null, Array.Empty<PBase>(), 0, null);
+
             //
             // Sending more than 254 objects exercises the encoding for object ids.
             //
             pcd.pbs = new PBase[300];
             for (int i = 0; i < 300; ++i)
             {
-                var p2 = new PCDerived2();
-                p2.pi = i;
+                var p2 = new PCDerived2(i, "", null, Array.Empty<PBase>(), i);
                 p2.pbs = new PBase?[] { null }; // Nil reference. This slice should not have an indirection table.
-                p2.pcd2 = i;
                 pcd.pbs[i] = p2;
             }
             pcd.pcd2 = pcd.pi;

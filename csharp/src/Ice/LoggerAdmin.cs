@@ -32,7 +32,7 @@ namespace IceInternal
                 {
                     if (_destroyed)
                     {
-                        throw new ObjectNotExistException();
+                        throw new ObjectNotExistException(current);
                     }
 
                     _sendLogCommunicator =

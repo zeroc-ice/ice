@@ -37,7 +37,7 @@ public sealed class Metrics : IMetrics
 
     public void opWithUserException(Ice.Current current) => throw new UserEx();
 
-    public void opWithRequestFailedException(Ice.Current current) => throw new Ice.ObjectNotExistException();
+    public void opWithRequestFailedException(Ice.Current current) => throw new Ice.ObjectNotExistException(current);
 
     public void opWithLocalException(Ice.Current current) => throw new Ice.InvalidConfigurationException("fake");
 

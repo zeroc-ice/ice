@@ -44,18 +44,12 @@ public sealed class TestIntf : ITestIntf
     public SBase SBSUnknownDerivedAsSBase(Ice.Current current)
         => new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
 
-    public SBase SBSUnknownDerivedAsSBaseCompact(Ice.Current current)
-    {
-        var sbsud = new SBSUnknownDerived();
-        sbsud.sb = "SBSUnknownDerived.sb";
-        sbsud.sbsud = "SBSUnknownDerived.sbsud";
-        return sbsud;
-    }
+    public SBase SBSUnknownDerivedAsSBaseCompact(Ice.Current current) =>
+        new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
 
     public Ice.AnyClass SUnknownAsObject(Ice.Current current)
     {
-        var su = new SUnknown();
-        su.su = "SUnknown.su";
+        var su = new SUnknown("SUnknown.su", null);
         su.cycle = su;
         return su;
     }
@@ -247,16 +241,8 @@ public sealed class TestIntf : ITestIntf
 
     public PBase? exchangePBase(PBase? pb, Ice.Current current) => pb;
 
-    public Preserved PBSUnknownAsPreserved(Ice.Current current)
-    {
-        var r = new PSUnknown();
-        r.pi = 5;
-        r.ps = "preserved";
-        r.psu = "unknown";
-        r.graph = null;
-        r.cl = new MyClass(15);
-        return r;
-    }
+    public Preserved PBSUnknownAsPreserved(Ice.Current current) =>
+        new PSUnknown(5, "preserved", "unknown", null, new MyClass(15));
 
     public void checkPBSUnknown(Preserved? p, Ice.Current current)
     {
@@ -273,14 +259,12 @@ public sealed class TestIntf : ITestIntf
     public ValueTask<Preserved?>
     PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
     {
-        var r = new PSUnknown();
-        r.pi = 5;
-        r.ps = "preserved";
-        r.psu = "unknown";
-        r.graph = new PNode();
-        r.graph.next = new PNode();
-        r.graph.next.next = new PNode();
-        r.graph.next.next.next = r.graph;
+        var graph = new PNode();
+        graph.next = new PNode();
+        graph.next.next = new PNode();
+        graph.next.next.next = graph;
+
+        var r = new PSUnknown(5, "preserved", "unknown", graph, null);
         return new ValueTask<Preserved?>(r);
     }
 
@@ -299,9 +283,7 @@ public sealed class TestIntf : ITestIntf
     public ValueTask<Preserved?>
     PBSUnknown2AsPreservedWithGraphAsync(Ice.Current current)
     {
-        var r = new PSUnknown2();
-        r.pi = 5;
-        r.ps = "preserved";
+        var r = new PSUnknown2(5, "preserved", null);
         r.pb = r;
         return new ValueTask<Preserved?>(r);
     }
@@ -319,44 +301,33 @@ public sealed class TestIntf : ITestIntf
 
     public void throwBaseAsBase(Ice.Current current)
     {
-        var be = new BaseException();
-        be.sbe = "sbe";
-        be.pb = new B();
-        be.pb.sb = "sb";
-        be.pb.pb = be.pb;
-        throw be;
+        var b = new B("sb", null);
+        b.pb = b;
+        throw new BaseException("sbe", b);
     }
 
     public void throwDerivedAsBase(Ice.Current current)
     {
-        var de = new DerivedException();
-        de.sbe = "sbe";
-        de.pb = new B();
-        de.pb.sb = "sb1";
-        de.pb.pb = de.pb;
-        de.sde = "sde1";
-        de.pd1 = new D1();
-        de.pd1.sb = "sb2";
-        de.pd1.pb = de.pd1;
-        de.pd1.sd1 = "sd2";
-        de.pd1.pd1 = de.pd1;
-        throw de;
+        var b = new B("sb1", null);
+        b.pb = b;
+
+        var d = new D1("sb2", null, "sd2", null);
+        d.pb = d;
+        d.pd1 = d;
+
+        throw new DerivedException("sbe", b, "sde1", d);
     }
 
     public void throwDerivedAsDerived(Ice.Current current)
     {
-        var de = new DerivedException();
-        de.sbe = "sbe";
-        de.pb = new B();
-        de.pb.sb = "sb1";
-        de.pb.pb = de.pb;
-        de.sde = "sde1";
-        de.pd1 = new D1();
-        de.pd1.sb = "sb2";
-        de.pd1.pb = de.pd1;
-        de.pd1.sd1 = "sd2";
-        de.pd1.pd1 = de.pd1;
-        throw de;
+        var b = new B("sb1", null);
+        b.pb = b;
+
+        var d = new D1("sb2", null, "sd2", null);
+        d.pb = d;
+        d.pd1 = d;
+
+        throw new DerivedException("sbe", b, "sde1", d);
     }
 
     public void throwUnknownDerivedAsBase(Ice.Current current)
@@ -367,21 +338,14 @@ public sealed class TestIntf : ITestIntf
         d2.sd2 = "sd2 d2";
         d2.pd2 = d2;
 
-        var ude = new UnknownDerivedException();
-        ude.sbe = "sbe";
-        ude.pb = d2;
-        ude.sude = "sude";
-        ude.pd2 = d2;
-        throw ude;
+        throw new UnknownDerivedException("sbe", d2, "sude", d2);
     }
 
     public ValueTask
     throwPreservedExceptionAsync(Ice.Current current)
     {
         var ue = new PSUnknownException();
-        ue.p = new PSUnknown2();
-        ue.p.pi = 5;
-        ue.p.ps = "preserved";
+        ue.p = new PSUnknown2(5, "preserved", null);
         ue.p.pb = ue.p;
         throw ue;
     }

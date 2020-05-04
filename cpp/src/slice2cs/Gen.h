@@ -36,8 +36,6 @@ protected:
     void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&,
                                   const std::string& stream = "istr");
 
-    virtual void writeMarshaling(const ClassDefPtr&);
-
     void emitCommonAttributes(); // GeneratedCode and more if needed
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
     void emitSerializableAttribute();
@@ -51,7 +49,7 @@ protected:
     // Generate assignment statements for those data members that have default values.
     //
     bool requiresDataMemberInitializers(const DataMemberList&);
-    void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int = 0);
+    void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int, bool);
 
     void writeProxyDocComment(const ClassDefPtr&, const std::string&);
     void writeServantDocComment(const ClassDefPtr&, const std::string&);
@@ -99,30 +97,6 @@ private:
         virtual bool visitUnitStart(const UnitPtr&);
     };
 
-    class CompactIdVisitor : public CsVisitor
-    {
-    public:
-
-        CompactIdVisitor(IceUtilInternal::Output&);
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
-    class TypeIdVisitor : public CsVisitor
-    {
-    public:
-
-        TypeIdVisitor(IceUtilInternal::Output&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-
-    private:
-        void generateHelperClass(const ContainedPtr&);
-    };
-
     class TypesVisitor : public CsVisitor
     {
     public:
@@ -141,6 +115,10 @@ private:
         virtual void visitDataMember(const DataMemberPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
+
+    private:
+
+        void writeMarshaling(const ClassDefPtr&);
     };
 
     class ProxyVisitor : public CsVisitor
@@ -188,6 +166,36 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitOperation(const OperationPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
+    };
+
+    class ClassFactoryVisitor : public CsVisitor
+    {
+    public:
+
+        ClassFactoryVisitor(IceUtilInternal::Output&);
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class CompactIdVisitor : public CsVisitor
+    {
+    public:
+
+        CompactIdVisitor(IceUtilInternal::Output&);
+        virtual bool visitUnitStart(const UnitPtr&);
+        virtual void visitUnitEnd(const UnitPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class RemoteExceptionFactoryVisitor : public CsVisitor
+    {
+    public:
+
+        RemoteExceptionFactoryVisitor(IceUtilInternal::Output&);
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
     };
 };
 

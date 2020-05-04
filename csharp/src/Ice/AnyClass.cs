@@ -18,11 +18,12 @@ namespace Ice
             get => null;
             set => Debug.Assert(false);
         }
-        internal SlicedData? SlicedData => IceSlicedData;
 
-        // See InputStream.
-        protected abstract void IceRead(InputStream istr, bool firstSlice);
-        internal void Read(InputStream istr) => IceRead(istr, true);
+        internal SlicedData? SlicedData
+        {
+            get => IceSlicedData;
+            set => IceSlicedData = value;
+        }
 
         // See OutputStream.
         protected abstract void IceWrite(OutputStream ostr, bool firstSlice);
@@ -31,11 +32,9 @@ namespace Ice
 
     public static class AnyClassExtensions
     {
-        /// <summary>
-        /// During unmarshaling, Ice can slice off derived slices that it does not know how to read, and it can
-        /// optionally preserve those "unknown" slices. See the Slice preserve metadata directive and the
-        /// class UnknownSlicedClass.
-        /// </summary>
+        /// <summary>During unmarshaling, Ice can slice off derived slices that it does not know how to read, and it can
+        /// optionally preserve those "unknown" slices. See the Slice preserve metadata directive and class
+        /// <see cref="UnknownSlicedClass"/>.</summary>
         /// <returns>A SlicedData value that provides the list of sliced-off slices.</returns>
         public static SlicedData? GetSlicedData(this AnyClass obj) => obj.SlicedData;
     }
