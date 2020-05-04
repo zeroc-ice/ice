@@ -513,7 +513,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
 
 void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
-    bool suppressCompilerWarning)
+    bool preUnmarshal)
 {
     // This helper function is called only for class/exception data members.
 
@@ -522,17 +522,14 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
         TypePtr type = p->type();
         string lhs = "this." + fixId(dataMemberName(p), baseTypes);
 
-        if (p->defaultValueType())
+        if (p->defaultValueType() && (!preUnmarshal || p->tagged()))
         {
             _out << nl << lhs << " = ";
             writeConstantValue(type, p->defaultValueType(), p->defaultValue(), ns);
             _out << ';';
         }
-        else if (!p->tagged() && suppressCompilerWarning)
+        else if (!p->tagged() && preUnmarshal)
         {
-            // These initializers are used only for non-public constructors that right after initialization read these
-            // fields from an InputStream.
-
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
             SequencePtr seq = SequencePtr::dynamicCast(type);
             DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -1228,7 +1225,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sp << nl << "partial void Initialize();";
     }
 
-    bool hasPublicParameterlessCtor = true;
     if (allDataMembers.empty())
     {
         // There is always at least another constructor, so we need to generate the parameterless constructor.
@@ -1288,7 +1284,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 allMandatoryDataMembers.push_back(member);
             }
         }
-        hasPublicParameterlessCtor = allMandatoryDataMembers.empty();
 
         if (allMandatoryDataMembers.size() < allDataMembers.size()) // else, it's identical to the first ctor.
         {
@@ -1340,14 +1335,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // protected internal constructor used for unmarshaling (always generated).
     _out << sp;
     _out << nl << "protected internal " << name << "(global::Ice.InputStream istr, bool mostDerived)";
-    if (hasPublicParameterlessCtor)
-    {
-        // We call this() to get the field initialization (of the entire class hierarchy) + the call to Initialize.
-        _out.inc();
-        _out << nl << ": this()";
-        _out.dec();
-    }
-    else if (hasBaseClass)
+    if (hasBaseClass)
     {
         // We call the base class constructor to initialize the base class fields.
         _out.inc();
@@ -1355,15 +1343,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out.dec();
     }
     _out << sb;
-    if (!hasPublicParameterlessCtor) // i.e. we did not call this()
-    {
-        // We perform the initialization of defaulted members (and call Initialize) in this constructor.
-        writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
-        if(partialInitialize)
-        {
-            _out << nl << "Initialize();";
-        }
-    }
+
+    // This initialization is only for tagged data members; for other data members, we are about to read them all.
+    writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
     _out << nl << "if (mostDerived)";
     _out << sb;
     _out << nl << "IceRead(istr, true);";
@@ -1476,9 +1458,14 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
         writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
     }
     _out << nl << "iceP_istr.IceEndSlice();";
-    if(base)
+    if (base)
     {
         _out << nl << "base.IceRead(iceP_istr, false);";
+    }
+    // This slice and its base slices (if any) are now fully initialized.
+    if (!hasDataMemberWithName(p->allDataMembers(), "Initialize"))
+    {
+        _out << nl << "Initialize();";
     }
     _out << eb;
 }
@@ -1645,14 +1632,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     // protected internal constructor used for unmarshaling (always generated).
     _out << sp;
     _out << nl << "protected internal " << name << "(global::Ice.InputStream istr, bool mostDerived)";
-    if (hasPublicParameterlessCtor)
-    {
-        // We call this() to get the field initialization (of the entire hierarchy)
-        _out.inc();
-        _out << nl << ": this()";
-        _out.dec();
-    }
-    else if (p->base())
+    if (p->base())
     {
         // We call the base class to initialize the base class' fields.
         _out.inc();
@@ -1660,11 +1640,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out.dec();
     }
     _out << sb;
-    if (!hasPublicParameterlessCtor) // i.e. we did not call this()
-    {
-        // We perform the initialization of defaulted members in this constructor.
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
-    }
+    // This initialization is only for tagged data members with default values and to suppress warnings.
+    writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
     _out << nl << "if (mostDerived)";
     _out << sb;
     _out << nl << "IceRead(istr, true);";
