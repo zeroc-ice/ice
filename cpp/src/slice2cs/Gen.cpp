@@ -512,7 +512,8 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
+    bool suppressCompilerWarning)
 {
     // This helper function is called only for class/exception data members.
 
@@ -527,7 +528,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
             writeConstantValue(type, p->defaultValueType(), p->defaultValue(), ns);
             _out << ';';
         }
-        else if (!p->tagged())
+        else if (!p->tagged() && suppressCompilerWarning)
         {
             // These initializers are used only for non-public constructors that right after initialization read these
             // fields from an InputStream.
@@ -1228,16 +1229,17 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     bool hasPublicParameterlessCtor = true;
-    if(allDataMembers.empty())
+    if (allDataMembers.empty())
     {
-        if(partialInitialize)
+        // There is always at least another constructor, so we need to generate the parameterless constructor.
+        _out << sp;
+        _out << nl << "public " << name << spar << epar;
+        _out << sb;
+        if (partialInitialize)
         {
-            _out << sp;
-            _out << nl << "public " << name << spar << epar;
-            _out << sb;
             _out << nl << "Initialize();";
-            _out << eb;
         }
+        _out << eb;
     }
     else
     {
@@ -1252,51 +1254,82 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                                              " " + fixId(i->name());
                                      })
              << epar;
-        if(hasBaseClass && allDataMembers.size() != dataMembers.size())
+        if (hasBaseClass && allDataMembers.size() != dataMembers.size())
         {
-            _out << " : base" << spar;
+            _out.inc();
+            _out << nl << ": base" << spar;
             vector<string> baseParamNames;
-            for(const auto& d : bases.front()->allDataMembers())
+            for (const auto& d : bases.front()->allDataMembers())
             {
                 baseParamNames.push_back(fixId(d->name()));
             }
             _out << baseParamNames << epar;
-        }
+            _out.dec();
+        } // else we call implicitly the parameterless constructor of the base class (if there is a base class).
+
         _out << sb;
-        for(const auto& d : dataMembers)
+        for (const auto& d: dataMembers)
         {
             _out << nl << "this." << fixId(dataMemberName(d), Slice::ObjectType) << " = "
                  << fixId(d->name(), Slice::ObjectType) << ";";
         }
-        if(partialInitialize)
+        if (partialInitialize)
         {
             _out << nl << "Initialize();";
         }
         _out << eb;
 
-        // public parameterless constructor, which does not get generated all the time.
-        // When not generating a public parameterless constructor, we don't generate a protected or internal
-        // parameterless constructor. This way, the application can define its own parameterless constructor in a
-        // partial class. See also the unmarshaling constructor below.
+        // Second public constructor for all data members minus those with a default initializer. Can be parameterless.
+        DataMemberList allMandatoryDataMembers;
         for (const auto& member: allDataMembers)
         {
-            if (hasPublicParameterlessCtor)
+            if (!isDefaultInitialized(member, true))
             {
-                hasPublicParameterlessCtor = isDefaultInitialized(member, true);
-            }
-            else
-            {
-                break;
+                allMandatoryDataMembers.push_back(member);
             }
         }
+        hasPublicParameterlessCtor = allMandatoryDataMembers.empty();
 
-        if (hasPublicParameterlessCtor)
+        if (allMandatoryDataMembers.size() < allDataMembers.size()) // else, it's identical to the first ctor.
         {
             _out << sp;
-            _out << nl << "public " << name << spar << epar;
+            _out << nl << "public " << name
+                << spar
+                << mapfn<DataMemberPtr>(allMandatoryDataMembers,
+                                       [&ns](const auto &i) {
+                                            return typeToString(i->type(), ns, i->tagged() || isNullable(i->type())) +
+                                                 " " + fixId(i->name());
+                                       })
+                << epar;
+            if (hasBaseClass)
+            {
+                vector<string> baseParamNames;
+                for (const auto& d: bases.front()->allDataMembers())
+                {
+                    if (!isDefaultInitialized(d, true))
+                    {
+                        baseParamNames.push_back(fixId(d->name()));
+                    }
+                }
+                if (!baseParamNames.empty())
+                {
+                    _out.inc();
+                    _out << nl << ": base" << spar << baseParamNames << epar;
+                    _out.dec();
+                }
+                // else we call implicitly the parameterless constructor of the base class.
+            }
             _out << sb;
-            writeDataMemberInitializers(dataMembers, ns, ObjectType);
-            if(partialInitialize)
+            for (const auto& d : dataMembers)
+            {
+                if (!isDefaultInitialized(d, true))
+                {
+                    _out << nl << "this." << fixId(dataMemberName(d), Slice::ObjectType) << " = "
+                         << fixId(d->name(), Slice::ObjectType) << ";";
+                }
+            }
+            writeDataMemberInitializers(dataMembers, ns, ObjectType, false);
+            if (partialInitialize)
             {
                 _out << nl << "Initialize();";
             }
@@ -1316,7 +1349,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     else if (hasBaseClass)
     {
-        // We call the base class to initialize the base class' fields.
+        // We call the base class constructor to initialize the base class fields.
         _out.inc();
         _out << nl << ": base(istr, mostDerived: false)";
         _out.dec();
@@ -1325,7 +1358,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if (!hasPublicParameterlessCtor) // i.e. we did not call this()
     {
         // We perform the initialization of defaulted members (and call Initialize) in this constructor.
-        writeDataMemberInitializers(dataMembers, ns, ObjectType);
+        writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
         if(partialInitialize)
         {
             _out << nl << "Initialize();";
@@ -1567,7 +1600,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType);
+        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, false);
         _out << eb;
     }
 
@@ -1630,7 +1663,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if (!hasPublicParameterlessCtor) // i.e. we did not call this()
     {
         // We perform the initialization of defaulted members in this constructor.
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType);
+        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
     }
     _out << nl << "if (mostDerived)";
     _out << sb;

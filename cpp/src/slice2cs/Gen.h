@@ -49,7 +49,7 @@ protected:
     // Generate assignment statements for those data members that have default values.
     //
     bool requiresDataMemberInitializers(const DataMemberList&);
-    void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int = 0);
+    void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int, bool);
 
     void writeProxyDocComment(const ClassDefPtr&, const std::string&);
     void writeServantDocComment(const ClassDefPtr&, const std::string&);

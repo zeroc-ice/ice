@@ -15,11 +15,8 @@ namespace IceMX
     public partial class InvocationMetrics
     {
         public InvocationMetrics()
+            : this(remotes: Array.Empty<Metrics>(), collocated: Array.Empty<Metrics>())
         {
-            Retry = 0;
-            UserException = 0;
-            Remotes = Array.Empty<Metrics>();
-            Collocated = Array.Empty<Metrics>();
         }
     }
 }

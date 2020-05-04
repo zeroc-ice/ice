@@ -14,6 +14,14 @@ module Test
 class IdentityWrapper
 {
     Ice::Identity myId;
+    string s = "";
+    int n;
+}
+
+class DerivedIdentityWrapper : IdentityWrapper
+{
+    string s2;
+    int n2;
 }
 
 struct S
