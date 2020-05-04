@@ -52,8 +52,8 @@ namespace Ice
     [Serializable]
     public class CommunicatorDestroyedException : ObjectDisposedException
     {
-        public CommunicatorDestroyedException() :
-            base("")
+        public CommunicatorDestroyedException()
+            : base("")
         {
         }
 
