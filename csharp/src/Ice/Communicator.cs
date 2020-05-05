@@ -12,7 +12,6 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Ice
@@ -589,7 +588,6 @@ namespace Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
-                _endpointFactories = new List<IEndpointFactory>();
                 AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, EndpointType.TCP, "tcp", false)));
                 AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, EndpointType.UDP, "udp", false)));
                 AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
@@ -928,7 +926,7 @@ namespace Ice
             // connections and wait for the connections to be finished.
             //
             Shutdown();
-            _outgoingConnectionFactory.Destroy();
+            _outgoingConnectionFactory?.Destroy();
 
             //
             // First wait for shutdown to finish.
@@ -937,14 +935,11 @@ namespace Ice
 
             DestroyAllObjectAdapters();
 
-            _outgoingConnectionFactory.WaitUntilFinished();
+            _outgoingConnectionFactory?.WaitUntilFinished();
 
             DestroyRetryQueue(); // Must be called before destroying thread pools.
 
-            if (Observer != null)
-            {
-                Observer.SetObserverUpdater(null);
-            }
+            Observer?.SetObserverUpdater(null);
 
             if (Logger is ILoggerAdminLogger)
             {
@@ -956,62 +951,52 @@ namespace Ice
             // all the connections are finished (the connections destruction
             // can require invoking callbacks with the thread pools).
             //
-            if (_serverThreadPool != null)
-            {
-                _serverThreadPool.Destroy();
-            }
-            _clientThreadPool.Destroy();
+            _serverThreadPool?.Destroy();
+            _clientThreadPool?.Destroy();
+            _asyncIOThread?.Destroy();
 
-            if (_asyncIOThread != null)
+            if (_endpointHostResolverThread != null)
             {
-                _asyncIOThread.Destroy();
-            }
-
-            lock (_endpointHostResolverThread)
-            {
-                Debug.Assert(!_endpointHostResolverDestroyed);
-                _endpointHostResolverDestroyed = true;
-                Monitor.Pulse(_endpointHostResolverThread);
+                lock (_endpointHostResolverThread)
+                {
+                    Debug.Assert(!_endpointHostResolverDestroyed);
+                    _endpointHostResolverDestroyed = true;
+                    Monitor.Pulse(_endpointHostResolverThread);
+                }
             }
 
             //
             // Wait for all the threads to be finished.
             //
-            _timer.Destroy();
-            _clientThreadPool.JoinWithAllThreads();
-            if (_serverThreadPool != null)
-            {
-                _serverThreadPool.JoinWithAllThreads();
-            }
-            if (_asyncIOThread != null)
-            {
-                _asyncIOThread.JoinWithThread();
-            }
+            _timer?.Destroy();
+            _clientThreadPool?.JoinWithAllThreads();
+            _serverThreadPool?.JoinWithAllThreads();
+            _asyncIOThread?.JoinWithThread();
 
-            _endpointHostResolverThread.Join();
+            _endpointHostResolverThread?.Join();
 
             lock (_routerInfoTable)
             {
-                foreach (RouterInfo i in _routerInfoTable.Values)
+                foreach (RouterInfo routerInfo in _routerInfoTable.Values)
                 {
-                    i.Destroy();
+                    routerInfo.Destroy();
                 }
                 _routerInfoTable.Clear();
             }
 
             lock (_locatorInfoMap)
             {
-                foreach (LocatorInfo info in _locatorInfoMap.Values)
+                foreach (LocatorInfo locatorInfo in _locatorInfoMap.Values)
                 {
-                    info.Destroy();
+                    locatorInfo.Destroy();
                 }
                 _locatorInfoMap.Clear();
                 _locatorTableMap.Clear();
             }
 
-            foreach (IEndpointFactory f in _endpointFactories)
+            foreach (IEndpointFactory endpointFactory in _endpointFactories)
             {
-                f.Destroy();
+                endpointFactory.Destroy();
             }
             _endpointFactories.Clear();
 
