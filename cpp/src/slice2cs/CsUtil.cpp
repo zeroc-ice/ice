@@ -1065,6 +1065,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                                              const string& scope,
                                              const string& param,
                                              int tag,
+                                             const DataMemberPtr& dataMember,
                                              const string& customStream)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1072,48 +1073,49 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
-    const string stream = customStream.empty() ? "istr" : customStream;
+    bool hasDefaultValue = dataMember && dataMember->defaultValueType();
 
     out << param << " = ";
 
-    if(isClassType(type))
+    const string stream = customStream.empty() ? "istr" : customStream;
+
+    if (isClassType(type))
     {
-        out << stream << ".ReadTaggedClass<" << typeToString(type, scope) << ">(" << tag << ");";
+        out << stream << ".ReadTaggedClass<" << typeToString(type, scope) << ">(" << tag << ")";
     }
-    else if(isProxyType(type))
+    else if (isProxyType(type))
     {
         out << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope)
-            << ".Factory);";
+            << ".Factory)";
     }
-    else if(builtin)
+    else if (builtin)
     {
         out << stream << ".ReadTagged" << builtinSuffixTable[builtin->kind()] << "(" << tag
-            << ");";
+            << ")";
     }
-    else if(st)
+    else if (st)
     {
         out << stream << ".ReadTagged"
             << (st->isVariableLength() ? "Variable" : "Fixed") << "SizeStruct(" << tag << ", "
-            << inputStreamReader(st, scope) << ");";
+            << inputStreamReader(st, scope) << ")";
     }
-    else if(en)
+    else if (en)
     {
         // We must use the reader to check the enum.
-        out << stream << ".ReadTaggedEnum(" << tag << ", "
-            << inputStreamReader(en, scope) << ");";
+        out << stream << ".ReadTaggedEnum(" << tag << ", " << inputStreamReader(en, scope) << ")";
     }
     else if (seq)
     {
+        assert(!hasDefaultValue); // there is currently no way to specify a default value for a sequence
         const TypePtr elementType = seq->type();
         if (isMappedToReadOnlyMemory(seq))
         {
             out << stream << ".ReadTaggedFixedSizeNumericArray<" <<
-                typeToString(elementType, scope) << ">(" << tag << ");";
+                typeToString(elementType, scope) << ">(" << tag << ")";
         }
         else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
-            out << stream << ".ReadTaggedSerializable(" << tag << ") as "
-                << typeToString(seq, scope) << ";";
+            out << stream << ".ReadTaggedSerializable(" << tag << ") as " << typeToString(seq, scope);
         }
         else if (seq->hasMetaDataWithPrefix("cs:generic:"))
         {
@@ -1122,14 +1124,14 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                 << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
                 << elementType->minWireSize() << ", " << inputStreamReader(elementType, scope)
                 << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope) << "> "
-                << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)" << " : null;";
+                << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)" << " : null";
         }
         else
         {
             out << stream << ".ReadTagged"
                 << (elementType->isVariableLength() ? "Variable" : "Fixed") << "SizeElementArray(" << tag << ", "
                 << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
-                << elementType->minWireSize() <<  ", " << inputStreamReader(elementType, scope) << ");";
+                << elementType->minWireSize() <<  ", " << inputStreamReader(elementType, scope) << ")";
         }
     }
     else
@@ -1145,8 +1147,15 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         out << stream << ".ReadTagged" << (fixedSize ? "Fixed" : "Variable") << "SizeEntry"
             << (sorted ? "Sorted" : "") << "Dictionary(" << tag << ", "
             << (fixedSize ? "entrySize: " : "minEntrySize: ") << keyType->minWireSize() + valueType->minWireSize()
-            << ", " << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ");";
+            << ", " << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ")";
     }
+
+    if (hasDefaultValue)
+    {
+        out << " ?? ";
+        writeConstantValue(out, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue(), scope);
+    }
+    out << ";";
 }
 
 string
@@ -1229,6 +1238,59 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         out << ")";
     }
     return out.str();
+}
+
+void
+Slice::CsGenerator::writeConstantValue(Output &out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+    const string& value, const string& ns)
+{
+    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    if (constant)
+    {
+        out << getUnqualified(constant, ns, "Constants.");
+    }
+    else
+    {
+        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        if (bp)
+        {
+            if (bp->kind() == Builtin::KindString)
+            {
+                out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
+            }
+            else if (bp->kind() == Builtin::KindUShort || bp->kind() == Builtin::KindUInt ||
+                     bp->kind() == Builtin::KindVarUInt)
+            {
+                out << value << "U";
+            }
+            else if (bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindVarLong)
+            {
+                out << value << "L";
+            }
+            else if (bp->kind() == Builtin::KindULong || bp->kind() == Builtin::KindVarULong)
+            {
+                out << value << "UL";
+            }
+            else if (bp->kind() == Builtin::KindFloat)
+            {
+                out << value << "F";
+            }
+            else
+            {
+                out << value;
+            }
+        }
+        else if (EnumPtr::dynamicCast(type))
+        {
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            assert(lte);
+            out << fixId(lte->scoped());
+        }
+        else
+        {
+            out << value;
+        }
+    }
 }
 
 void

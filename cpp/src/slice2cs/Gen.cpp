@@ -220,8 +220,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
     for(const auto& param : taggedParams)
     {
         _out << nl << param.typeStr << " ";
-        writeTaggedUnmarshalCode(_out, param.type, ns, param.name, param.tag,
-                                   stream);
+        writeTaggedUnmarshalCode(_out, param.type, ns, param.name, param.tag, nullptr, stream);
     }
 }
 
@@ -245,10 +244,10 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
                                            const string& customStream)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
-    if(member->tagged())
+    if (member->tagged())
     {
         _out << nl;
-        writeTaggedUnmarshalCode(_out, member->type(), ns, name, member->tag(), stream);
+        writeTaggedUnmarshalCode(_out, member->type(), ns, name, member->tag(), member, stream);
     }
     else
     {
@@ -458,89 +457,30 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 }
 
 void
-Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value,
-    const string& ns)
-{
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
-    if (constant)
-    {
-        _out << getUnqualified(constant, ns, "Constants.");
-    }
-    else
-    {
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-        if(bp)
-        {
-            if(bp->kind() == Builtin::KindString)
-            {
-                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
-            }
-            else if(bp->kind() == Builtin::KindUShort || bp->kind() == Builtin::KindUInt ||
-                    bp->kind() == Builtin::KindVarUInt)
-            {
-                _out << value << "U";
-            }
-            else if(bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindVarLong)
-            {
-                _out << value << "L";
-            }
-            else if(bp->kind() == Builtin::KindULong || bp->kind() == Builtin::KindVarULong)
-            {
-                _out << value << "UL";
-            }
-            else if(bp->kind() == Builtin::KindFloat)
-            {
-                _out << value << "F";
-            }
-            else
-            {
-                _out << value;
-            }
-
-        }
-        else if(EnumPtr::dynamicCast(type))
-        {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
-            assert(lte);
-            _out << fixId(lte->scoped());
-        }
-        else
-        {
-            _out << value;
-        }
-    }
-}
-
-void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
-    bool suppressCompilerWarning)
+    bool preUnmarshal)
 {
     // This helper function is called only for class/exception data members.
 
     for (const auto& p: members)
     {
-        TypePtr type = p->type();
-        string lhs = "this." + fixId(dataMemberName(p), baseTypes);
-
-        if (p->defaultValueType())
+        if (preUnmarshal)
         {
-            _out << nl << lhs << " = ";
-            writeConstantValue(type, p->defaultValueType(), p->defaultValue(), ns);
-            _out << ';';
-        }
-        else if (!p->tagged() && suppressCompilerWarning)
-        {
-            // These initializers are used only for non-public constructors that right after initialization read these
-            // fields from an InputStream.
-
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-            SequencePtr seq = SequencePtr::dynamicCast(type);
-            DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+            SequencePtr seq = SequencePtr::dynamicCast(p->type());
+            DictionaryPtr dict = DictionaryPtr::dynamicCast(p->type());
 
             if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
             {
-                _out << nl << lhs << " = null!; // suppress compiler warning";
+                // This is to suppress compiler warnings for non-nullable fields.
+                _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = null!;";
             }
+        }
+        else if (p->defaultValueType())
+        {
+            _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = ";
+            writeConstantValue(_out, p->type(), p->defaultValueType(), p->defaultValue(), ns);
+            _out << ";";
         }
     }
 }
@@ -1158,7 +1098,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
             string ns = getNamespace(q);
             emitCustomAttributes(q);
             _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
-            writeConstantValue(q->type(), q->valueType(), q->value(), ns);
+            writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
             _out << ";";
         }
         _out << eb;
@@ -1231,7 +1171,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sp << nl << "partial void Initialize();";
     }
 
-    bool hasPublicParameterlessCtor = true;
     if (allDataMembers.empty())
     {
         // There is always at least another constructor, so we need to generate the parameterless constructor.
@@ -1291,7 +1230,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 allMandatoryDataMembers.push_back(member);
             }
         }
-        hasPublicParameterlessCtor = allMandatoryDataMembers.empty();
 
         if (allMandatoryDataMembers.size() < allDataMembers.size()) // else, it's identical to the first ctor.
         {
@@ -1343,14 +1281,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     // protected internal constructor used for unmarshaling (always generated).
     _out << sp;
     _out << nl << "protected internal " << name << "(global::Ice.InputStream istr, bool mostDerived)";
-    if (hasPublicParameterlessCtor)
-    {
-        // We call this() to get the field initialization (of the entire class hierarchy) + the call to Initialize.
-        _out.inc();
-        _out << nl << ": this()";
-        _out.dec();
-    }
-    else if (hasBaseClass)
+    if (hasBaseClass)
     {
         // We call the base class constructor to initialize the base class fields.
         _out.inc();
@@ -1358,15 +1289,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out.dec();
     }
     _out << sb;
-    if (!hasPublicParameterlessCtor) // i.e. we did not call this()
-    {
-        // We perform the initialization of defaulted members (and call Initialize) in this constructor.
-        writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
-        if(partialInitialize)
-        {
-            _out << nl << "Initialize();";
-        }
-    }
+
+    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
+    writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
     _out << nl << "if (mostDerived)";
     _out << sb;
     _out << nl << "IceRead(istr, true);";
@@ -1479,9 +1404,14 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
         writeUnmarshalDataMember(m, fixId(dataMemberName(m)), ns, "iceP_istr");
     }
     _out << nl << "iceP_istr.IceEndSlice();";
-    if(base)
+    if (base)
     {
         _out << nl << "base.IceRead(iceP_istr, false);";
+    }
+    // This slice and its base slices (if any) are now fully initialized.
+    if (!hasDataMemberWithName(p->allDataMembers(), "Initialize"))
+    {
+        _out << nl << "Initialize();";
     }
     _out << eb;
 }
@@ -1648,14 +1578,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     // protected internal constructor used for unmarshaling (always generated).
     _out << sp;
     _out << nl << "protected internal " << name << "(global::Ice.InputStream istr, bool mostDerived)";
-    if (hasPublicParameterlessCtor)
-    {
-        // We call this() to get the field initialization (of the entire hierarchy)
-        _out.inc();
-        _out << nl << ": this()";
-        _out.dec();
-    }
-    else if (p->base())
+    if (p->base())
     {
         // We call the base class to initialize the base class' fields.
         _out.inc();
@@ -1663,11 +1586,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out.dec();
     }
     _out << sb;
-    if (!hasPublicParameterlessCtor) // i.e. we did not call this()
-    {
-        // We perform the initialization of defaulted members in this constructor.
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
-    }
+    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
+    writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
     _out << nl << "if (mostDerived)";
     _out << sb;
     _out << nl << "IceRead(istr, true);";
