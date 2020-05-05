@@ -802,14 +802,17 @@ void writeDocCommentLines(IceUtilInternal::Output& out,
                           const string& name = "",
                           const string& value = "")
 {
-    out << nl << "/// <" << tag;
-    if(!name.empty())
+    if (!lines.empty())
     {
-        out << " " << name << "=\"" << value << "\"";
+        out << nl << "/// <" << tag;
+        if (!name.empty())
+        {
+            out << " " << name << "=\"" << value << "\"";
+        }
+        out << ">";
+        writeDocCommentLines(out, lines);
+        out << "</" << tag << ">";
     }
-    out << ">";
-    writeDocCommentLines(out, lines);
-    out << "</" << tag << ">";
 }
 
 void
