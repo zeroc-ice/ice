@@ -268,10 +268,18 @@ class PluginI implements Plugin
 
         public synchronized void foundLocator(com.zeroc.Ice.LocatorPrx locator)
         {
-            if(locator == null ||
-               (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName)))
+            if (locator == null)
             {
-                if(_traceLevel > 2)
+                if (_traceLevel > 2)
+                {
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", "ignoring locator reply: (null locator)");
+                }
+                return;
+            }
+
+            if (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName))
+            {
+                if (_traceLevel > 2)
                 {
                     StringBuffer s = new StringBuffer("ignoring locator reply: instance name doesn't match\n");
                     s.append("expected = ").append(_instanceName);
