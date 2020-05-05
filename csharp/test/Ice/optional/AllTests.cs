@@ -514,13 +514,13 @@ namespace Ice.optional
                 var wd = (WD?)initial.pingPong(new WD());
                 TestHelper.Assert(wd != null);
                 TestHelper.Assert(wd.a == 5);
-                TestHelper.Assert(wd.s!.Equals("test"));
+                TestHelper.Assert(wd.s! == "test");
                 wd.a = null;
                 wd.s = null;
                 wd = (WD?)initial.pingPong(wd);
                 TestHelper.Assert(wd != null);
-                TestHelper.Assert(wd.a == null);
-                TestHelper.Assert(wd.s == null);
+                TestHelper.Assert(wd.a == 5);
+                TestHelper.Assert(wd.s! == "test");
             }
             output.WriteLine("ok");
 
@@ -723,7 +723,7 @@ namespace Ice.optional
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloat", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, float? p1) =>  ostr.WriteTaggedFloat(2, p1));
+                    (OutputStream ostr, float? p1) => ostr.WriteTaggedFloat(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
@@ -1640,7 +1640,7 @@ namespace Ice.optional
                 }
                 catch (OptionalException ex)
                 {
-                    TestHelper.Assert(ex.a == null);
+                    TestHelper.Assert(ex.a == 5);
                     TestHelper.Assert(ex.b == null);
                     TestHelper.Assert(ex.o == null);
                 }
@@ -1668,10 +1668,10 @@ namespace Ice.optional
                 }
                 catch (DerivedException ex)
                 {
-                    TestHelper.Assert(ex.a == null);
+                    TestHelper.Assert(ex.a == 5);
                     TestHelper.Assert(ex.b == null);
                     TestHelper.Assert(ex.o == null);
-                    TestHelper.Assert(ex.ss == null);
+                    TestHelper.Assert(ex.ss == "test");
                     TestHelper.Assert(ex.o2 == null);
                 }
 
@@ -1700,7 +1700,7 @@ namespace Ice.optional
                 }
                 catch (RequiredException ex)
                 {
-                    TestHelper.Assert(ex.a == null);
+                    TestHelper.Assert(ex.a == 5);
                     TestHelper.Assert(ex.b == null);
                     TestHelper.Assert(ex.o == null);
                     TestHelper.Assert(ex.ss == "test");

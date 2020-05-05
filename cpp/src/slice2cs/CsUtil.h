@@ -129,10 +129,13 @@ protected:
     void writeTaggedMarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, const std::string&,
                                 const std::string&, int, const std::string& = "ostr");
     void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
-                                    int, const std::string& = "istr");
+                                    int, const DataMemberPtr&, const std::string& = "istr");
 
     std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
     std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);
+
+    void writeConstantValue(::IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
+        const std::string& ns);
 
 private:
 

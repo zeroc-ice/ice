@@ -220,8 +220,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
     for(const auto& param : taggedParams)
     {
         _out << nl << param.typeStr << " ";
-        writeTaggedUnmarshalCode(_out, param.type, ns, param.name, param.tag,
-                                   stream);
+        writeTaggedUnmarshalCode(_out, param.type, ns, param.name, param.tag, nullptr, stream);
     }
 }
 
@@ -245,10 +244,10 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
                                            const string& customStream)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
-    if(member->tagged())
+    if (member->tagged())
     {
         _out << nl;
-        writeTaggedUnmarshalCode(_out, member->type(), ns, name, member->tag(), stream);
+        writeTaggedUnmarshalCode(_out, member->type(), ns, name, member->tag(), member, stream);
     }
     else
     {
@@ -458,60 +457,6 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 }
 
 void
-Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value,
-    const string& ns)
-{
-    ConstPtr constant = ConstPtr::dynamicCast(valueType);
-    if (constant)
-    {
-        _out << getUnqualified(constant, ns, "Constants.");
-    }
-    else
-    {
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-        if(bp)
-        {
-            if(bp->kind() == Builtin::KindString)
-            {
-                _out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
-            }
-            else if(bp->kind() == Builtin::KindUShort || bp->kind() == Builtin::KindUInt ||
-                    bp->kind() == Builtin::KindVarUInt)
-            {
-                _out << value << "U";
-            }
-            else if(bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindVarLong)
-            {
-                _out << value << "L";
-            }
-            else if(bp->kind() == Builtin::KindULong || bp->kind() == Builtin::KindVarULong)
-            {
-                _out << value << "UL";
-            }
-            else if(bp->kind() == Builtin::KindFloat)
-            {
-                _out << value << "F";
-            }
-            else
-            {
-                _out << value;
-            }
-
-        }
-        else if(EnumPtr::dynamicCast(type))
-        {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
-            assert(lte);
-            _out << fixId(lte->scoped());
-        }
-        else
-        {
-            _out << value;
-        }
-    }
-}
-
-void
 Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
     bool preUnmarshal)
 {
@@ -519,25 +464,23 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
 
     for (const auto& p: members)
     {
-        TypePtr type = p->type();
-        string lhs = "this." + fixId(dataMemberName(p), baseTypes);
-
-        if (p->defaultValueType() && (!preUnmarshal || p->tagged()))
-        {
-            _out << nl << lhs << " = ";
-            writeConstantValue(type, p->defaultValueType(), p->defaultValue(), ns);
-            _out << ';';
-        }
-        else if (!p->tagged() && preUnmarshal)
+        if (preUnmarshal)
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-            SequencePtr seq = SequencePtr::dynamicCast(type);
-            DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+            SequencePtr seq = SequencePtr::dynamicCast(p->type());
+            DictionaryPtr dict = DictionaryPtr::dynamicCast(p->type());
 
             if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
             {
-                _out << nl << lhs << " = null!; // suppress compiler warning";
+                _out << nl << "this." << fixId(dataMemberName(p), baseTypes)
+                    << " = null!; // suppress compiler warning";
             }
+        }
+        else if (p->defaultValueType())
+        {
+            _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = ";
+            writeConstantValue(_out, p->type(), p->defaultValueType(), p->defaultValue(), ns);
+            _out << ";";
         }
     }
 }
@@ -1152,7 +1095,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
             string ns = getNamespace(q);
             emitCustomAttributes(q);
             _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
-            writeConstantValue(q->type(), q->valueType(), q->value(), ns);
+            writeConstantValue(_out, q->type(), q->valueType(), q->value(), ns);
             _out << ";";
         }
         _out << eb;

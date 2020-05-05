@@ -43,8 +43,6 @@ protected:
 
     std::string writeValue(const TypePtr&, const std::string&);
 
-    void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&, const std::string& ns);
-
     //
     // Generate assignment statements for those data members that have default values.
     //
