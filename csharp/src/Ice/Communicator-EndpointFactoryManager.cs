@@ -12,7 +12,7 @@ namespace Ice
 {
     public sealed partial class Communicator
     {
-        private readonly List<IEndpointFactory> _endpointFactories;
+        private readonly List<IEndpointFactory> _endpointFactories = new List<IEndpointFactory>();
 
         public void AddEndpointFactory(IEndpointFactory factory)
         {
