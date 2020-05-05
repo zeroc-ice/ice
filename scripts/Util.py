@@ -1783,7 +1783,6 @@ class Result:
         self._start = self._stdout.tell()
 
     def failed(self, current, exception):
-        print(exception)
         key = self.getKey(current)
         self._testCaseDuration = time.time() - self._testCaseDuration;
         self.writeln("\ntest in {0} failed:\n{1}".format(self.testsuite, exception))
