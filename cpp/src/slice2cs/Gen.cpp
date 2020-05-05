@@ -472,8 +472,8 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, con
 
             if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
             {
-                _out << nl << "this." << fixId(dataMemberName(p), baseTypes)
-                    << " = null!; // suppress compiler warning";
+                // This is to suppress compiler warnings for non-nullable fields.
+                _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = null!;";
             }
         }
         else if (p->defaultValueType())
@@ -1287,7 +1287,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     _out << sb;
 
-    // This initialization is only for tagged data members; for other data members, we are about to read them all.
+    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
     writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
     _out << nl << "if (mostDerived)";
     _out << sb;
@@ -1583,7 +1583,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out.dec();
     }
     _out << sb;
-    // This initialization is only for tagged data members with default values and to suppress warnings.
+    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
     writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
     _out << nl << "if (mostDerived)";
     _out << sb;
