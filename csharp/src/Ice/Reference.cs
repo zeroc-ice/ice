@@ -52,7 +52,7 @@ namespace Ice
         internal RouterInfo? RouterInfo { get; }
         internal ThreadPool ThreadPool => IsFixed ? _fixedConnection!.ThreadPool : Communicator.ClientThreadPool();
 
-        private static readonly Random _rand = new Random(unchecked((int)DateTime.Now.Ticks));
+        private static readonly Random _rand = new Random();
         private readonly Connection? _fixedConnection;
         private int _hashCode = 0;
         private IRequestHandler? _requestHandler; // readonly when IsFixed is true
@@ -1564,31 +1564,13 @@ namespace Ice
             if (EndpointSelection == EndpointSelectionType.Random)
             {
                 // Shuffle the filtered endpoints using _rand
-                Endpoint[] array = filteredEndpoints.ToArray();
-                lock (_rand)
-                {
-                    for (int i = 0; i < array.Length - 1; ++i)
+                filteredEndpoints = filteredEndpoints.OrderBy(endpoint =>
                     {
-                        int r = _rand.Next(array.Length - i) + i;
-                        Debug.Assert(r >= i && r < array.Length);
-                        if (r != i)
+                        lock (_rand)
                         {
-                            Endpoint tmp = array[i];
-                            array[i] = array[r];
-                            array[r] = tmp;
+                            return _rand.Next();
                         }
-                    }
-                }
-
-                if (!PreferNonSecure)
-                {
-                    // We're done
-                    return array;
-                }
-                else
-                {
-                    filteredEndpoints = array;
-                }
+                    });
             }
 
             if (PreferNonSecure)

@@ -2,14 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+
+using Ice;
 
 namespace IceDiscovery
 {
     internal class LocatorRegistry : ILocatorRegistry
     {
+        private static readonly Random _rand = new Random();
+
         public
         LocatorRegistry(Communicator com) =>
             _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
@@ -108,8 +113,15 @@ namespace IceDiscovery
                 {
                     return null;
                 }
-                //adapterIds.Suffle();
-                return prx.Clone(adapterId: adapterIds[0]);
+
+                string adapterId = adapterIds.OrderBy(id =>
+                    {
+                        lock (_rand)
+                        {
+                            return _rand.Next();
+                        }
+                    }).First();
+                return prx.Clone(adapterId: adapterId);
             }
         }
 
@@ -156,7 +168,7 @@ namespace IceDiscovery
         private readonly IObjectPrx _wellKnownProxy;
         private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
         private readonly Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
-    };
+    }
 
     internal class Locator : ILocator
     {
@@ -176,5 +188,5 @@ namespace IceDiscovery
 
         private readonly Lookup _lookup;
         private readonly ILocatorRegistryPrx _registry;
-    };
+    }
 }
