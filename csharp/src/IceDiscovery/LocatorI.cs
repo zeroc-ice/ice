@@ -114,7 +114,7 @@ namespace IceDiscovery
                 {
                     return null;
                 }
-                //adapterIds.Suffle();
+                IceUtilInternal.Collections.Shuffle(ref adapterIds);
                 return prx.ice_adapterId(adapterIds[0]);
             }
         }
