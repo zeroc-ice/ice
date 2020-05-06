@@ -572,7 +572,6 @@ namespace Ice
 
             if (s[beg] == ':')
             {
-                var unknownEndpoints = new List<string>();
                 end = beg;
 
                 while (end < s.Length && s[end] == ':')
@@ -623,35 +622,10 @@ namespace Ice
                     }
 
                     string es = s[beg..end];
-                    Endpoint? endp = communicator.CreateEndpoint(es, false);
-                    if (endp != null)
-                    {
-                        endpoints.Add(endp);
-                    }
-                    else
-                    {
-                        unknownEndpoints.Add(es);
-                    }
+                    endpoints.Add(Endpoint.Parse(es, communicator, false));
                 }
 
-                if (endpoints.Count == 0)
-                {
-                    Debug.Assert(unknownEndpoints.Count > 0);
-                    throw new FormatException($"invalid endpoint `{unknownEndpoints[0]}' in `{s}'");
-                }
-                else if (unknownEndpoints.Count != 0 && (communicator.GetPropertyAsBool("Ice.Warn.Endpoints") ?? true))
-                {
-                    var msg = new StringBuilder("Proxy contains unknown endpoints:");
-                    int sz = unknownEndpoints.Count;
-                    for (int idx = 0; idx < sz; ++idx)
-                    {
-                        msg.Append(" `");
-                        msg.Append(unknownEndpoints[idx]);
-                        msg.Append("'");
-                    }
-                    communicator.Logger.Warning(msg.ToString());
-                }
-
+                Debug.Assert(endpoints.Count > 0);
                 return Create(adapterId: "", communicator, encoding, endpoints, facet, identity, invocationMode,
                     propertyPrefix, protocol);
             }

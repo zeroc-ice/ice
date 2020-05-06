@@ -211,6 +211,12 @@ namespace Ice
         private int _state;
         private readonly IceInternal.Timer _timer;
 
+        private readonly IDictionary<string, IEndpointFactory> _transportToEndpointFactory =
+            new ConcurrentDictionary<string, IEndpointFactory>();
+
+        private readonly IDictionary<EndpointType, IEndpointFactory> _typeToEndpointFactory =
+            new ConcurrentDictionary<EndpointType, IEndpointFactory>();
+
         public Communicator(Dictionary<string, string>? properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
@@ -588,10 +594,14 @@ namespace Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
-                AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, EndpointType.TCP, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, EndpointType.UDP, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
+                AddEndpointFactory(new TcpEndpointFactory(
+                    new TransportInstance(this, EndpointType.TCP, "tcp", false)));
+                AddEndpointFactory(new UdpEndpointFactory(
+                    new TransportInstance(this, EndpointType.UDP, "udp", false)));
+                AddEndpointFactory(new WSEndpointFactory(
+                    new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
+                AddEndpointFactory(new WSEndpointFactory(
+                    new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -610,9 +620,9 @@ namespace Ice
                 // Initialize the endpoint factories once all the plugins are loaded. This gives
                 // the opportunity for the endpoint factories to find underlying factories.
                 //
-                foreach (IEndpointFactory f in _endpointFactories)
+                foreach ((EndpointType _, IEndpointFactory factory) in _typeToEndpointFactory)
                 {
-                    f.Initialize();
+                    factory.Initialize();
                 }
 
                 //
@@ -994,11 +1004,12 @@ namespace Ice
                 _locatorTableMap.Clear();
             }
 
-            foreach (IEndpointFactory endpointFactory in _endpointFactories)
+            foreach ((EndpointType _, IEndpointFactory factory) in _typeToEndpointFactory)
             {
-                endpointFactory.Destroy();
+                factory.Destroy();
             }
-            _endpointFactories.Clear();
+            _typeToEndpointFactory.Clear();
+            _transportToEndpointFactory.Clear();
 
             if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
             {
@@ -1229,6 +1240,14 @@ namespace Ice
             }
         }
 
+        // Registers an endpoint factory.
+        // TODO: make public and add Ice prefix when removing ITransportPluginFacade.
+        internal void AddEndpointFactory(IEndpointFactory factory)
+        {
+            _typeToEndpointFactory.Add(factory.Type(), factory);
+            _transportToEndpointFactory.Add(factory.Transport(), factory);
+        }
+
         internal AsyncIOThread AsyncIOThread()
         {
             lock (this)
@@ -1380,6 +1399,14 @@ namespace Ice
                 return _clientThreadPool;
             }
         }
+
+        // Finds an endpoint factory previously registered using AddEndpointFactory.
+        internal IEndpointFactory? FindEndpointFactory(string transport) =>
+            _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
+
+         // Finds an endpoint factory previously registered using AddEndpointFactory.
+         internal IEndpointFactory? FindEndpointFactory(EndpointType type) =>
+            _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
 
         internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
         {

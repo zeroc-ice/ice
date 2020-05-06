@@ -711,7 +711,7 @@ namespace Ice
             (Encoding encoding, int size) = ReadEncapsulationHeader();
 
             Endpoint endpoint;
-            if (encoding.IsSupported && Communicator.GetEndpointFactory(type) is IEndpointFactory factory)
+            if (encoding.IsSupported && Communicator.FindEndpointFactory(type) is IEndpointFactory factory)
             {
                 Encoding oldEncoding = Encoding;
                 ArraySegment<byte> oldBuffer = _buffer;
