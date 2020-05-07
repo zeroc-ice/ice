@@ -66,7 +66,7 @@ namespace Ice
 
                 if (_ref.Communicator.TraceLevels.Location >= 1)
                 {
-                    locatorInfo.GetEndpointsTrace(_ref, endpoints, false);
+                    GetEndpointsTrace(_ref, endpoints, false);
                 }
                 if (_callback != null)
                 {
@@ -461,7 +461,7 @@ namespace Ice
             r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCat, s.ToString());
         }
 
-        private void GetEndpointsTrace(Reference reference, IReadOnlyList<Endpoint>? endpoints, bool cached)
+        private static void GetEndpointsTrace(Reference reference, IReadOnlyList<Endpoint>? endpoints, bool cached)
         {
             if (endpoints != null && endpoints.Count > 0)
             {

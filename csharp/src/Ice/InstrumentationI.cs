@@ -701,7 +701,7 @@ namespace IceInternal
 
         public int GetRequestId() => _requestId;
 
-        public string GetParent() => "Communicator";
+        public static string GetParent() => "Communicator";
 
         private readonly int _size;
         private readonly int _requestId;
