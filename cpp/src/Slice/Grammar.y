@@ -224,6 +224,13 @@ local_metadata
 {
     $$ = $2;
 }
+| local_metadata ICE_LOCAL_METADATA_OPEN string_list ICE_LOCAL_METADATA_CLOSE
+{
+    StringListTokPtr metadata1 = StringListTokPtr::dynamicCast($1);
+    StringListTokPtr metadata2 = StringListTokPtr::dynamicCast($3);
+    metadata1->v.merge(metadata2->v);
+    $$ = metadata1;
+}
 | %empty
 {
     $$ = new StringListTok;

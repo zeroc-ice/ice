@@ -2120,7 +2120,7 @@ YY_RULE_SETUP
 #line 476 "src/Slice/Scanner.l"
 {
     BEGIN(METADATA);
-    yyless(1);
+    yyless(0);
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK

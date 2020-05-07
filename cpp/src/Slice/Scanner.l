@@ -474,7 +474,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches the end of unquoted metadata, and places the ']' back into the stream. */
 <UNQUOTED_METADATA>"]" {
     BEGIN(METADATA);
-    yyless(1);
+    yyless(0);
     return ICE_STRING_LITERAL;
 }
 
