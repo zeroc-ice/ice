@@ -311,7 +311,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 else
                 {
                     warning(InvalidMetaData, "", "", string("invalid category `") + s +
-                            "' in global metadata suppress-warning");
+                            "' in file metadata suppress-warning");
                 }
             }
         }
@@ -2578,16 +2578,16 @@ Slice::Container::mergeModules()
             }
 
             //
-            // Compare the global metadata of the two modules being merged.
+            // Compare the file metadata of the two modules being merged.
             //
             DefinitionContextPtr dc2 = mod2->definitionContext();
             assert(dc2);
             StringList metaData2 = dc2->getMetaData();
             metaData2.sort();
             metaData2.unique();
-            if(!checkGlobalMetaData(metaData1, metaData2))
+            if(!checkFileMetaData(metaData1, metaData2))
             {
-                unit()->warning(All, "global metadata mismatch for module `" + mod1->name() + "' in files " +
+                unit()->warning(All, "file metadata mismatch for module `" + mod1->name() + "' in files " +
                                 dc1->filename() + " and " + dc2->filename());
             }
 
@@ -2901,10 +2901,10 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
 }
 
 bool
-Slice::Container::checkGlobalMetaData(const StringList& m1, const StringList& m2)
+Slice::Container::checkFileMetaData(const StringList& m1, const StringList& m2)
 {
     //
-    // Not all global metadata mismatches represent actual problems. We are only concerned about
+    // Not all file metadata mismatches represent actual problems. We are only concerned about
     // the prefixes listed below (also see bug 2766).
     //
     static const char* prefixes[] =
@@ -6047,9 +6047,9 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 
 UnitPtr
 Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                        const StringList& defaultGlobalMetadata)
+                        const StringList& defaultFileMetadata)
 {
-    return new Unit(ignRedefs, all, allowIcePrefix, allowUnderscore, defaultGlobalMetadata);
+    return new Unit(ignRedefs, all, allowIcePrefix, allowUnderscore, defaultFileMetadata);
 }
 
 bool
@@ -6247,12 +6247,12 @@ Slice::Unit::currentIncludeLevel() const
 }
 
 void
-Slice::Unit::addGlobalMetaData(const StringList& metaData)
+Slice::Unit::addFileMetaData(const StringList& metaData)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
     //
-    // Append the global metadata to any existing metadata (e.g., default global metadata).
+    // Append the file metadata to any existing metadata (e.g., default file metadata).
     //
     StringList l = dc->getMetaData();
     copy(metaData.begin(), metaData.end(), back_inserter(l));
@@ -6313,7 +6313,7 @@ Slice::Unit::currentDefinitionContext() const
 void
 Slice::Unit::pushDefinitionContext()
 {
-    _definitionContextStack.push(new DefinitionContext(_currentIncludeLevel, _defaultGlobalMetaData));
+    _definitionContextStack.push(new DefinitionContext(_currentIncludeLevel, _defaultFileMetaData));
 }
 
 void
@@ -6623,14 +6623,14 @@ Slice::Unit::getTopLevelModules(const string& file) const
 }
 
 Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                  const StringList& defaultGlobalMetadata) :
+                  const StringList& defaultFileMetadata) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
     _allowIcePrefix(allowIcePrefix),
     _allowUnderscore(allowUnderscore),
-    _defaultGlobalMetaData(defaultGlobalMetadata),
+    _defaultFileMetaData(defaultFileMetadata),
     _errors(0),
     _currentIncludeLevel(0)
 

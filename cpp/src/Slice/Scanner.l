@@ -407,7 +407,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 "[" {
     yy_push_state(METADATA);
-    return ICE_METADATA_OPEN;
+    return ICE_LOCAL_METADATA_OPEN;
 }
 
 "[[" {
@@ -416,11 +416,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
     if(yy_top_state() == PRE_SLICE)
     {
-        return ICE_GLOBAL_METADATA_OPEN;
+        return ICE_FILE_METADATA_OPEN;
     }
     else
     {
-        return ICE_GLOBAL_METADATA_IGNORE;
+        return ICE_FILE_METADATA_IGNORE;
     }
 }
 
@@ -446,12 +446,12 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 <METADATA>"]" {
     yy_pop_state();
-    return ICE_METADATA_CLOSE;
+    return ICE_LOCAL_METADATA_CLOSE;
 }
 
 <METADATA>"]]" {
     yy_pop_state();
-    return ICE_GLOBAL_METADATA_CLOSE;
+    return ICE_FILE_METADATA_CLOSE;
 }
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
@@ -613,7 +613,7 @@ int checkIdentifier(const string& id)
     {
         DefinitionContextPtr dc = unit->currentDefinitionContext();
         assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' global metadata
+        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
         {
             unit->error("illegal underscore in identifier `" + name + "'");
         }
