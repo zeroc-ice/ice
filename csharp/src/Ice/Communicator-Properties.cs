@@ -208,7 +208,7 @@ namespace Ice
         internal void CheckForUnknownProperties(string prefix)
         {
             // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
-            foreach (string name in IceInternal.PropertyNames.clPropNames)
+            foreach (string name in PropertyNames.ClassPropertyNames)
             {
                 if (prefix.StartsWith(string.Format("{0}.", name), StringComparison.Ordinal))
                 {
@@ -294,7 +294,7 @@ namespace Ice
             if (dotPos != -1)
             {
                 string prefix = name.Substring(0, dotPos);
-                foreach (IceInternal.Property[] validProps in IceInternal.PropertyNames.validProps)
+                foreach (Property[] validProps in PropertyNames.ValidProperties)
                 {
                     string pattern = validProps[0].Pattern();
                     dotPos = pattern.IndexOf('.');
@@ -308,7 +308,7 @@ namespace Ice
                     }
 
                     bool found = false;
-                    foreach (IceInternal.Property prop in validProps)
+                    foreach (Property prop in validProps)
                     {
                         var r = new Regex(prop.Pattern());
                         Match m = r.Match(name);
@@ -360,7 +360,7 @@ namespace Ice
         /// <param name="args">The command-line args.</param>
         public static void ParseIceArgs(this Dictionary<string, string> into, ref string[] args)
         {
-            foreach (string name in IceInternal.PropertyNames.clPropNames)
+            foreach (string name in PropertyNames.ClassPropertyNames)
             {
                 into.ParseArgs(ref args, name);
             }

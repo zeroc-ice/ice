@@ -1215,7 +1215,7 @@ namespace Ice
             // Do not create unknown properties list if Ice prefix, i.e. Ice, Glacier2, etc.
             bool addUnknown = true;
             string prefix = Name + ".";
-            foreach (string propertyName in PropertyNames.clPropNames)
+            foreach (string propertyName in PropertyNames.ClassPropertyNames)
             {
                 if (prefix.StartsWith(string.Format("{0}.", propertyName), StringComparison.Ordinal))
                 {

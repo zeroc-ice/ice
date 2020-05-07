@@ -684,7 +684,7 @@ namespace Ice
         /// <returns>The reference read from the stream (can be null).</returns>
         internal static Reference? Read(InputStream istr)
         {
-            Identity identity = new Identity(istr);
+            var identity = new Identity(istr);
             if (identity.Name.Length == 0)
             {
                 return null;
@@ -1595,7 +1595,7 @@ namespace Ice
         }
 
         // TODO: refactor this class
-        private sealed class RouterEndpointsCallback : RouterInfo.GetClientEndpointsCallback
+        private sealed class RouterEndpointsCallback : RouterInfo.IGetClientEndpointsCallback
         {
             internal RouterEndpointsCallback(Reference ir, IGetConnectionCallback cb)
             {
@@ -1604,7 +1604,7 @@ namespace Ice
                 _cb = cb;
             }
 
-            public void setEndpoints(IReadOnlyList<Endpoint> endpts)
+            public void SetEndpoints(IReadOnlyList<Endpoint> endpts)
             {
                 if (endpts.Count > 0)
                 {
@@ -1616,7 +1616,7 @@ namespace Ice
                 }
             }
 
-            public void setException(System.Exception ex) => _cb.SetException(ex);
+            public void SetException(System.Exception ex) => _cb.SetException(ex);
 
             private readonly Reference _ir;
             private readonly IGetConnectionCallback _cb;

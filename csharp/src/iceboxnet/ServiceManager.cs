@@ -79,7 +79,7 @@ namespace IceBox
                 Debug.Assert(info.Service != null);
                 Communicator? communicator = info.Communicator ?? _sharedCommunicator;
                 Debug.Assert(communicator != null);
-                info.Service.start(info.Name, communicator, info.Args);
+                info.Service.Start(info.Name, communicator, info.Args);
                 started = true;
             }
             catch (Exception ex)
@@ -127,7 +127,7 @@ namespace IceBox
             try
             {
                 Debug.Assert(info.Service != null);
-                info.Service.stop();
+                info.Service.Stop();
                 stopped = true;
             }
             catch (Exception ex)
@@ -490,7 +490,7 @@ namespace IceBox
                         throw new LoadException($"IceBox.ServiceManager: unable to load service `{entryPoint}'", ex);
                     }
                     Debug.Assert(info.Service != null);
-                    info.Service.start(service, communicator, info.Args);
+                    info.Service.Start(service, communicator, info.Args);
                     info.Status = ServiceStatus.Started;
                     _services.Add(info);
                 }
@@ -526,7 +526,7 @@ namespace IceBox
                         try
                         {
                             Debug.Assert(info.Service != null);
-                            info.Service.stop();
+                            info.Service.Stop();
                             stoppedServices.Add(info.Name);
                         }
                         catch (Exception ex)

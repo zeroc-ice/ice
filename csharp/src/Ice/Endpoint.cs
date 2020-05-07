@@ -23,8 +23,10 @@ namespace Ice
         WSS = 5,
         BT = 6,
         BTS = 7,
+#pragma warning disable SA1300 // Element should begin with upper-case letter
         iAP = 8,
         iAPS = 9
+#pragma warning restore SA1300 // Element should begin with upper-case letter
     }
 
     public interface IEndpointConnectors

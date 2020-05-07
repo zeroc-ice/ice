@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace IceInternal
 {
-    public class ConnectRequestHandler : IRequestHandler, Reference.IGetConnectionCallback, RouterInfo.AddProxyCallback
+    public class ConnectRequestHandler : IRequestHandler, Reference.IGetConnectionCallback, RouterInfo.IAddProxyCallback
     {
         public IRequestHandler Connect(Reference reference)
         {
@@ -177,7 +177,7 @@ namespace IceInternal
         // The proxy was added to the router info, we're now ready to send the
         // queued requests.
         //
-        public void addedProxy() => FlushRequests();
+        public void AddedProxy() => FlushRequests();
 
         public ConnectRequestHandler(Reference reference)
         {

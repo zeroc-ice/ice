@@ -3,7 +3,6 @@
 //
 
 using IceBox;
-using Test;
 
 public class TestService : IService
 {
@@ -11,15 +10,10 @@ public class TestService : IService
     {
         var facet = new TestFacet();
 
-        //
         // Install a custom admin facet.
-        //
         serviceManagerCommunicator.AddAdminFacet("TestFacet", facet);
 
-        //
-        // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
-        // Set the callback on the admin facet.
-        //
+        // The TestFacetI servant also implements PropertiesAdminUpdateCallback. Set the callback on the admin facet.
         Ice.IObject? propFacet = serviceManagerCommunicator.FindAdminFacet("IceBox.Service.TestService.Properties");
         if (propFacet is Ice.IPropertiesAdmin admin)
         {
@@ -27,13 +21,11 @@ public class TestService : IService
         }
     }
 
-    public void
-    start(string name, Ice.Communicator communicator, string[] args)
+    public void Start(string name, Ice.Communicator communicator, string[] args)
     {
     }
 
-    public void
-    stop()
+    public void Stop()
     {
     }
 }

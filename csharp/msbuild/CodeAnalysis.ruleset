@@ -20,7 +20,6 @@
       <Rule Id="CA1716" Action="None" /> <!-- TODO disable on generated code - Identifiers should not match keywords -->
       <Rule Id="CA1720" Action="None" /> <!-- Identifiers should not contain type names -->
       <Rule Id="CA1724" Action="None" /> <!-- TODO review - Type names should not match namespaces -->
-
       <Rule Id="CA1815" Action="None" /> <!-- TODO enable - Override equals and operator equals on value types -->
       <Rule Id="CA2000" Action="None" /> <!-- TODO review - Dispose objects before losing scope -->
       <Rule Id="CA2007" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Consider calling ConfigureAwait on the awaited task -->
@@ -51,11 +50,7 @@
       <Rule Id="SA1204" Action="None" /> <!-- Static members should appear before non-static members -->
       <Rule Id="SA1208" Action="None" /> <!-- TODO enable - System using directives must be placed before other using directives -->
       <Rule Id="SA1214" Action="None" /> <!-- Readonly fields should appear before non-readonly fields -->
-      <Rule Id="SA1300" Action="None" /> <!-- TODO enable - Element 'serverPrivateExceptionAsync' should begin with an uppercase letter -->
-      <Rule Id="SA1302" Action="None" /> <!-- TODO enable - Interface names should begin with I -->
-      <Rule Id="SA1303" Action="None" /> <!-- TODO const field names must begin with upper case letter -->
       <Rule Id="SA1306" Action="None" /> <!-- Field names must begin with lower case letter -->
-      <Rule Id="SA1307" Action="None" /> <!-- TODO enable - Accessible fields must begin with upper case letter -->
       <Rule Id="SA1309" Action="None" /> <!-- Field names must not begin with underscore -->
       <Rule Id="SA1310" Action="None" /> <!-- Field should not contain an underscore -->
       <Rule Id="SA1314" Action="None" /> <!-- TODO enable - Type parameter names should begin with T -->

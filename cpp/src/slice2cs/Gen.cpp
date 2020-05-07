@@ -933,6 +933,12 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << nl << "#nullable enable";
+    // Disable some analyzer warnigs that are not convenient for the generated code
+    _out << nl << "#pragma warning disable SA1300 // Element must begin with upper case letter";
+    _out << nl << "#pragma warning disable SA1306 // Field names must begin with lower case letter";
+    _out << nl << "#pragma warning disable SA1309 // Field names must not begin with underscore";
+    _out << nl << "#pragma warning disable SA1312 // Variable names must begin with lower case letter";
+    _out << nl << "#pragma warning disable SA1313 // Parameter names must begin with lower case letter";
 
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
     if(impl)
