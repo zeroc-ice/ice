@@ -86,7 +86,7 @@ dictionary<string, DoubleS> StringDoubleSD;
 dictionary<string, StringS> StringStringSD;
 dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
-["amd"] interface MyClass
+[amd] interface MyClass
 {
     void shutdown();
 
@@ -228,7 +228,7 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
     idempotent void opIdempotent();
 
-    ["nonmutating"] idempotent void opNonmutating();
+    [nonmutating] idempotent void opNonmutating();
 
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);
@@ -245,14 +245,14 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
     StringS opStringLiterals();
     StringS opWStringLiterals();
 
-    ["marshaled-result"] Structure opMStruct1();
-    ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+    [marshaled-result] Structure opMStruct1();
+    [marshaled-result] Structure opMStruct2(Structure p1, out Structure p2);
 
-    ["marshaled-result"] StringS opMSeq1();
-    ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+    [marshaled-result] StringS opMSeq1();
+    [marshaled-result] StringS opMSeq2(StringS p1, out StringS p2);
 
-    ["marshaled-result"] StringStringD opMDict1();
-    ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+    [marshaled-result] StringStringD opMDict1();
+    [marshaled-result] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
 }
 
 struct MyStruct1

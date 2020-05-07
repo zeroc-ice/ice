@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.hash"]]
+[[java:package:test.Ice.hash]]
 module Test
 {
 

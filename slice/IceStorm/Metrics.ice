@@ -4,18 +4,18 @@
 
 #pragma once
 
-[["cpp:dll-export:ICESTORM_API"]]
-[["cpp:doxygen:include:IceStorm/IceStorm.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceStorm/Config.h"]]
+[[cpp:dll-export:ICESTORM_API]]
+[[cpp:doxygen:include:IceStorm/IceStorm.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceStorm/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["python:pkgdir:IceStorm"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[python:pkgdir:IceStorm]]
 
 #include <Ice/Metrics.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 ["js:module:ice", "swift:module:IceStorm:MX"]
 module IceMX

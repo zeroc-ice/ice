@@ -4,22 +4,22 @@
 
 #pragma once
 
-[["cpp:dll-export:GLACIER2_API"]]
-[["cpp:doxygen:include:Glacier2/Glacier2.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:Glacier2/Config.h"]]
+[[cpp:dll-export:GLACIER2_API]]
+[[cpp:doxygen:include:Glacier2/Glacier2.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:Glacier2/Config.h]]
 
-[["normalize-case"]]
+[[normalize-case]]
 
-[["js:module:ice"]]
+[[js:module:ice]]
 
-[["python:pkgdir:Glacier2"]]
+[[python:pkgdir:Glacier2]]
 
 #include <Ice/Router.ice>
 #include <Glacier2/Session.ice>
 #include <Glacier2/PermissionsVerifier.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 /// Glacier2 is a firewall solution for Ice. Glacier2 authenticates
 /// and filters client requests and allows callbacks to the client in a
@@ -111,7 +111,7 @@ module Glacier2
         ///
         /// @throws SessionNotExistException Raised if no session exists
         /// for the calling client.
-        ["amd"] void refreshSession()
+        [amd] void refreshSession()
             throws SessionNotExistException;
 
         /// Destroy the calling client's session with this router.

@@ -22,7 +22,7 @@ interface CallbackReceiver
     void callbackEx()
         throws CallbackException;
 
-    ["amd"] int concurrentCallback(int number);
+    [amd] int concurrentCallback(int number);
 
     void waitCallback();
 
@@ -31,16 +31,16 @@ interface CallbackReceiver
 
 interface Callback
 {
-    ["amd"] void initiateCallback(CallbackReceiver* proxy);
+    [amd] void initiateCallback(CallbackReceiver* proxy);
 
-    ["amd"] void initiateCallbackEx(CallbackReceiver* proxy)
+    [amd] void initiateCallbackEx(CallbackReceiver* proxy)
         throws CallbackException;
 
-    ["amd"] int initiateConcurrentCallback(int number, CallbackReceiver* proxy);
+    [amd] int initiateConcurrentCallback(int number, CallbackReceiver* proxy);
 
-    ["amd"] void initiateWaitCallback(CallbackReceiver* proxy);
+    [amd] void initiateWaitCallback(CallbackReceiver* proxy);
 
-    ["amd"] void initiateCallbackWithPayload(CallbackReceiver* proxy);
+    [amd] void initiateCallbackWithPayload(CallbackReceiver* proxy);
 
     void shutdown();
 }

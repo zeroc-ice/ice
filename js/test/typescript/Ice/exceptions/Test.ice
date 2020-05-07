@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["js:es6-module"]]
+[[js:es6-module]]
 
 module Test
 {

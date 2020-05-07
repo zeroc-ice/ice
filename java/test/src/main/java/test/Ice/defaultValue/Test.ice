@@ -4,9 +4,9 @@
 
 #pragma once
 
-[["java:package:test.Ice.defaultValue"]]
+[[java:package:test.Ice.defaultValue]]
 
-[["suppress-warning:deprecated"]] // For enumerator references
+[[suppress-warning:deprecated]] // For enumerator references
 
 module Test
 {

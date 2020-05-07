@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["swift:class-resolver-prefix:IceServantLocatorAMD"]]
+[[swift:class-resolver-prefix:IceServantLocatorAMD]]
 
 module Test
 {
@@ -17,7 +17,7 @@ exception TestImpossibleException
 {
 }
 
-["amd"] interface TestIntf
+[amd] interface TestIntf
 {
     void requestFailedException();
     void unknownUserException();
@@ -37,7 +37,7 @@ exception TestImpossibleException
     void shutdown();
 }
 
-["amd"] interface TestActivation
+[amd] interface TestActivation
 {
     void activateServantLocator(bool activate);
 }

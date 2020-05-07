@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["js:es6-module"]]
+[[js:es6-module]]
 
 #pragma once
 

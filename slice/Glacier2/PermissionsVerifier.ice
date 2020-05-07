@@ -4,26 +4,26 @@
 
 #pragma once
 
-[["cpp:dll-export:GLACIER2_API"]]
-[["cpp:doxygen:include:Glacier2/Glacier2.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:Glacier2/Config.h"]]
+[[cpp:dll-export:GLACIER2_API]]
+[[cpp:doxygen:include:Glacier2/Glacier2.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:Glacier2/Config.h]]
 
-[["normalize-case"]]
+[[normalize-case]]
 
-[["js:module:ice"]]
+[[js:module:ice]]
 
-[["python:pkgdir:Glacier2"]]
+[[python:pkgdir:Glacier2]]
 
 #include <Glacier2/SSLInfo.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module Glacier2
 {
     /// This exception is raised if a client is denied the ability to create
     /// a session with the router.
-    ["preserve-slice"]
+    [preserve-slice]
     exception PermissionDeniedException
     {
         /// The reason why permission was denied.

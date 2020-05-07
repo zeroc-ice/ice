@@ -3,9 +3,9 @@
 //
 
 #pragma once
-[["normalize-case"]]
+[[normalize-case]]
 
-["cs:namespace:Ice.DefaultServant"]
+[cs:namespace:Ice.DefaultServant]
 module Test
 {
     interface MyObject

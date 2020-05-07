@@ -6,7 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[["suppress-warning:deprecated"]] // For classes with operations
+[[suppress-warning:deprecated]] // For classes with operations
 
 module Test
 {
@@ -40,7 +40,7 @@ sequence<long> LongS;
 sequence<float> FloatS;
 sequence<double> DoubleS;
 sequence<string> StringS;
-sequence<["cpp:type:wstring"] string> WStringS;
+sequence<[cpp:type:wstring] string> WStringS;
 sequence<MyEnum> MyEnumS;
 sequence<MyClass*> MyClassS;
 
@@ -232,7 +232,7 @@ interface MyClass
 
     idempotent void opIdempotent();
 
-    ["nonmutating"] idempotent void opNonmutating();
+    [nonmutating] idempotent void opNonmutating();
 
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);
@@ -249,14 +249,14 @@ interface MyClass
     StringS opStringLiterals();
     WStringS opWStringLiterals();
 
-    ["marshaled-result"] Structure opMStruct1();
-    ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+    [marshaled-result] Structure opMStruct1();
+    [marshaled-result] Structure opMStruct2(Structure p1, out Structure p2);
 
-    ["marshaled-result"] StringS opMSeq1();
-    ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+    [marshaled-result] StringS opMSeq1();
+    [marshaled-result] StringS opMSeq2(StringS p1, out StringS p2);
 
-    ["marshaled-result"] StringStringD opMDict1();
-    ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+    [marshaled-result] StringStringD opMDict1();
+    [marshaled-result] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
 }
 
 struct MyStruct1

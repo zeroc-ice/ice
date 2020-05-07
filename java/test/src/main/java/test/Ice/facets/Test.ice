@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.facets"]]
+[[java:package:test.Ice.facets]]
 module Test
 {
 

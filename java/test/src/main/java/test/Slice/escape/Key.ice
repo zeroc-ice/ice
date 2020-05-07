@@ -20,7 +20,7 @@ struct break
 
 interface catch
 {
-    ["amd"] void checkedCast(int clone, out int continue);
+    [amd] void checkedCast(int clone, out int continue);
 }
 
 interface default

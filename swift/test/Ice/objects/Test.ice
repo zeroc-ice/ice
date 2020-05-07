@@ -66,7 +66,7 @@ class D
     bool postUnmarshalInvoked;
 }
 
-["protected"] class E
+[protected] class E
 {
     int i;
     string s;
@@ -74,7 +74,7 @@ class D
 
 class F
 {
-    ["protected"] E e1;
+    [protected] E e1;
     E e2;
 }
 
@@ -222,7 +222,7 @@ interface Initial
     void setRecursive(Recursive p);
     bool supportsClassGraphDepthMax();
 
-    ["marshaled-result"] B getMB();
+    [marshaled-result] B getMB();
     ["amd", "marshaled-result"] B getAMDMB();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);

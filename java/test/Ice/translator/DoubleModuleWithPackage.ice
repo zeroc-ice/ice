@@ -4,7 +4,7 @@
 
 // dmwp = double module with package
 
-[["java:package:dmwp"]]
+[[java:package:dmwp]]
 
 module M1
 {

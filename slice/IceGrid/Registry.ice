@@ -4,23 +4,23 @@
 
 #pragma once
 
-[["cpp:dll-export:ICEGRID_API"]]
-[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceGrid/Config.h"]]
+[[cpp:dll-export:ICEGRID_API]]
+[[cpp:doxygen:include:IceGrid/IceGrid.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceGrid/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceGrid"]]
+[[python:pkgdir:IceGrid]]
 
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <Ice/Locator.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module IceGrid
 {
@@ -86,7 +86,7 @@ module IceGrid
         ///
         /// @return The proxies of each object replica or an empty sequence,
         /// if the given proxy is not from a replica group.
-        ["cpp:const"] idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
+        [cpp:const] idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
     }
 
     /// The IceGrid registry allows clients create sessions
@@ -175,12 +175,12 @@ module IceGrid
         /// registry.
         ///
         /// @return The proxy of the registry object.
-        ["cpp:const"] idempotent Registry* getLocalRegistry();
+        [cpp:const] idempotent Registry* getLocalRegistry();
 
         /// Get the proxy of the query object hosted by this IceGrid
         /// registry.
         ///
         /// @return The proxy of the query object.
-        ["cpp:const"] idempotent Query* getLocalQuery();
+        [cpp:const] idempotent Query* getLocalQuery();
     }
 }

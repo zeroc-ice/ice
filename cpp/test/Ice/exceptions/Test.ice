@@ -40,7 +40,7 @@ exception E
     string data;
 }
 
-["cpp:ice_print"]
+[cpp:ice_print]
 exception F
 {
     string data;

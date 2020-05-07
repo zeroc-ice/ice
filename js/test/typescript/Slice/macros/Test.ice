@@ -20,7 +20,7 @@
 #   define NODEFAULT(X) /**/
 #endif
 
-[["js:es6-module"]]
+[[js:es6-module]]
 
 module Test
 {

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.defaultServant"]]
+[[java:package:test.Ice.defaultServant]]
 module Test
 {
 

@@ -44,7 +44,7 @@ module IceGrid
         string icepatch;
 
         /// The source directories.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
+        [java:type:java.util.LinkedList<String>] Ice::StringSeq directories;
     }
 
     dictionary<string, PropertyDescriptorSeq> PropertyDescriptorSeqDict;
@@ -133,7 +133,7 @@ module IceGrid
         /// adapter once it's active. If this adapter can be activated on
         /// demand, this will return 0 if the adapter is inactive or the
         /// adapter direct proxy it's active.
-        ["amd"] Object* activate();
+        [amd] Object* activate();
 
         /// Get the adapter direct proxy. The adapter direct proxy is a
         /// proxy created with the object adapter. The proxy contains the
@@ -170,24 +170,24 @@ module IceGrid
     {
         /// Count the number of given lines from the end of the file and
         /// return the file offset.
-        ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines)
+        [cpp:const] idempotent long getOffsetFromEnd(string filename, int lines)
             throws FileNotAvailableException;
 
         /// Read lines (or size bytes) at the specified position from the given file.
-        ["cpp:const"] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
+        [cpp:const] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
             throws FileNotAvailableException;
     }
 
     interface Server : FileReader
     {
         /// Start the server.
-        ["amd"] void start()
+        [amd] void start()
             throws ServerStartException;
 
         /// Stop the server. This methods returns only when the server is
         /// deactivated. If the server doesn't stop after a configurable
         /// amount of time, it will be killed.
-        ["amd"] void stop()
+        [amd] void stop()
             throws ServerStopException;
 
         /// Check if the given server can be loaded on this node.
@@ -225,7 +225,7 @@ module IceGrid
         ["nonmutating", "cpp:const"] idempotent int getPid();
 
         /// Set the process proxy.
-        ["amd"] void setProcess(Ice::Process* proc);
+        [amd] void setProcess(Ice::Process* proc);
     }
 
     interface InternalRegistry;
@@ -250,7 +250,7 @@ module IceGrid
         /// Load the given server. If the server resources weren't already
         /// created (database environment directories, property files, etc),
         /// they will be created.
-        ["amd"] idempotent Server* loadServer(InternalServerDescriptor svr,
+        [amd] idempotent Server* loadServer(InternalServerDescriptor svr,
                                                     string replicaName,
                                                     out AdapterPrxDict adapters,
                                                     out int actTimeout,
@@ -262,7 +262,7 @@ module IceGrid
         /// (database environment directories, property files, etc), they
         /// will be created. If the server can't be updated without a
         /// restart, a DeploymentException is raised.
-        ["amd"] idempotent Server* loadServerWithoutRestart(InternalServerDescriptor svr,
+        [amd] idempotent Server* loadServerWithoutRestart(InternalServerDescriptor svr,
                                                             string replicaName,
                                                             out AdapterPrxDict adapters,
                                                             out int actTimeout,
@@ -270,11 +270,11 @@ module IceGrid
             throws DeploymentException;
 
         /// Destroy the given server.
-        ["amd"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
+        [amd] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
             throws DeploymentException;
 
         /// Destroy the server if it's not active.
-        ["amd"] idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
+        [amd] idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
             throws DeploymentException;
 
         /// Establish a session to the given replica, this method only
@@ -367,7 +367,7 @@ module IceGrid
         void keepAlive();
 
         /// Return the replica session timeout.
-        ["cpp:const"] idempotent int getTimeout();
+        [cpp:const] idempotent int getTimeout();
 
         /// Set the database observer. Once the observer is subscribed, it
         /// will receive the database and database updates.
@@ -477,18 +477,18 @@ module IceGrid
         void registerWithReplica(InternalRegistry* prx);
 
         /// Return the proxies of all the nodes known by this registry.
-        ["cpp:const"] idempotent NodePrxSeq getNodes();
+        [cpp:const] idempotent NodePrxSeq getNodes();
 
         /// Return the proxies of all the registry replicas known by this
         /// registry.
-        ["cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
+        [cpp:const] idempotent InternalRegistryPrxSeq getReplicas();
 
         /// Return applications, adapters, objects from this replica.
-        ["cpp:const"] idempotent ApplicationInfoSeq getApplications(out long serial);
-        ["cpp:const"] idempotent AdapterInfoSeq getAdapters(out long serial);
-        ["cpp:const"] idempotent ObjectInfoSeq getObjects(out long serial);
+        [cpp:const] idempotent ApplicationInfoSeq getApplications(out long serial);
+        [cpp:const] idempotent AdapterInfoSeq getAdapters(out long serial);
+        [cpp:const] idempotent ObjectInfoSeq getObjects(out long serial);
 
         /// Shutdown this registry.
-        ["cpp:const"] idempotent void shutdown();
+        [cpp:const] idempotent void shutdown();
     }
 }

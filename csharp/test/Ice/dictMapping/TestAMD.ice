@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.dictMapping.AMD"]
+[cs:namespace:Ice.dictMapping.AMD]
 module Test
 {
 
@@ -14,10 +14,10 @@ dictionary<string, NV> NDV;
 dictionary<string, NR> NDR;
 
 sequence<int> AIS;
-["clr:generic:List"] sequence<int> GIS;
+[clr:generic:List] sequence<int> GIS;
 
 sequence<string> ASS;
-["clr:generic:List"] sequence<string> GSS;
+[clr:generic:List] sequence<string> GSS;
 
 dictionary<string, AIS> NDAIS;
 dictionary<string, GIS> NDGIS;
@@ -25,7 +25,7 @@ dictionary<string, GIS> NDGIS;
 dictionary<string, ASS> NDASS;
 dictionary<string, GSS> NDGSS;
 
-["amd"] interface MyClass
+[amd] interface MyClass
 {
     void shutdown();
 

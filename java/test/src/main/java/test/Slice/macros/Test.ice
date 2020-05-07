@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Slice.macros"]]
+[[java:package:test.Slice.macros]]
 
 //
 // This macro sets the default value only when compiling with slice2java.

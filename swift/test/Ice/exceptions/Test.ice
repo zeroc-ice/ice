@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["swift:class-resolver-prefix:IceExceptions"]]
+[[swift:class-resolver-prefix:IceExceptions]]
 
 module Test
 {
@@ -42,7 +42,7 @@ exception E
     string data;
 }
 
-["cpp:ice_print"]
+[cpp:ice_print]
 exception F
 {
     string data;

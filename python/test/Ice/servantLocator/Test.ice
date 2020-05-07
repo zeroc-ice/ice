@@ -43,7 +43,7 @@ interface TestActivation
 
 local class Cookie
 {
-    ["cpp:const"] string message();
+    [cpp:const] string message();
 }
 
 }

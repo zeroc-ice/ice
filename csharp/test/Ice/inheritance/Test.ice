@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.inheritance"]
+[cs:namespace:Ice.inheritance]
 module Test
 {
 

@@ -70,7 +70,7 @@ class PBase
 
 sequence<PBase> PBaseSeq;
 
-["preserve-slice"]
+[preserve-slice]
 class Preserved : PBase
 {
     string ps;
@@ -81,7 +81,7 @@ class PDerived : Preserved
     PBase pb;
 }
 
-["preserve-slice"]
+[preserve-slice]
 class PNode
 {
     PNode next;
@@ -101,7 +101,7 @@ interface TestIntf
 
     SBase SBSUnknownDerivedAsSBase();
 
-    ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
+    [format:compact] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
     void checkSUnknown(Object o);
@@ -150,7 +150,7 @@ interface TestIntf
 }
 
 // Used to test Ice.Default.SlicedFormat property
-["amd"]
+[amd]
 interface TestIntf2
 {
     SBase SBSUnknownDerivedAsSBase();

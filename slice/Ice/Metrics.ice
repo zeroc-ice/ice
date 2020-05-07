@@ -4,21 +4,21 @@
 
 #pragma once
 
-[["cpp:dll-export:ICE_API"]]
-[["cpp:doxygen:include:Ice/Ice.h"]]
-[["cpp:header-ext:h"]]
+[[cpp:dll-export:ICE_API]]
+[[cpp:doxygen:include:Ice/Ice.h]]
+[[cpp:header-ext:h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:Ice"]]
+[[python:pkgdir:Ice]]
 
 #include <Ice/BuiltinSequences.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
-["swift:module:Ice:MX"]
+[swift:module:Ice:MX]
 
 /// The Ice Management eXtension facility. It provides the
 /// {@link IceMX#MetricsAdmin} interface for management clients to
@@ -86,7 +86,7 @@ module IceMX
     /// remote administrative clients to access metrics of an application
     /// that enabled the Ice administrative facility and configured some
     /// metrics views.
-    ["format:sliced"]
+    [format:sliced]
     interface MetricsAdmin
     {
         /// Get the names of enabled and disabled metrics.

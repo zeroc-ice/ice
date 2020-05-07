@@ -4,22 +4,22 @@
 
 #pragma once
 
-[["cpp:dll-export:ICESTORM_API"]]
-[["cpp:doxygen:include:IceStorm/IceStorm.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceStorm/Config.h"]]
+[[cpp:dll-export:ICESTORM_API]]
+[[cpp:doxygen:include:IceStorm/IceStorm.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceStorm/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceStorm"]]
+[[python:pkgdir:IceStorm]]
 
 #include <Ice/Identity.ice>
 
 #include <IceStorm/Metrics.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 /// A messaging service with support for federation. In contrast to
 /// most other messaging or event services, IceStorm supports typed

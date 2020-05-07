@@ -4,20 +4,20 @@
 
 #pragma once
 
-[["cpp:dll-export:ICEBOX_API"]]
-[["cpp:doxygen:include:IceBox/IceBox.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceBox/Config.h"]]
+[[cpp:dll-export:ICEBOX_API]]
+[[cpp:doxygen:include:IceBox/IceBox.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceBox/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceBox"]]
+[[python:pkgdir:IceBox]]
 
 #include <Ice/BuiltinSequences.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 /// IceBox is an application server for Ice applications. IceBox can load IceBox services packaged as DLLs, .NET
 /// assemblies, Java classes and similar.

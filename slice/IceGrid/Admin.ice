@@ -4,16 +4,16 @@
 
 #pragma once
 
-[["cpp:dll-export:ICEGRID_API"]]
-[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceGrid/Config.h"]]
+[[cpp:dll-export:ICEGRID_API]]
+[[cpp:doxygen:include:IceGrid/IceGrid.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceGrid/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceGrid"]]
+[[python:pkgdir:IceGrid]]
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -21,7 +21,7 @@
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module IceGrid
 {
@@ -193,7 +193,7 @@ module IceGrid
     }
 
     /// A sequence of {@link ApplicationInfo} structures.
-    ["java:type:java.util.LinkedList<ApplicationInfo>"] sequence<ApplicationInfo> ApplicationInfoSeq;
+    [java:type:java.util.LinkedList<ApplicationInfo>] sequence<ApplicationInfo> ApplicationInfoSeq;
 
     /// Information about updates to an IceGrid application.
     struct ApplicationUpdateInfo
@@ -416,7 +416,7 @@ module IceGrid
         /// and the returned category as category.
         ///
         /// @return The category for server admin objects.
-        ["cpp:const"]
+        [cpp:const]
         idempotent string getServerAdminCategory();
 
         /// Get a proxy to the server's admin object.
@@ -432,7 +432,7 @@ module IceGrid
         ///
         /// @throws DeploymentException Raised if the server couldn't be
         /// deployed on the node.
-        ["cpp:const"]
+        [cpp:const]
         idempotent Object* getServerAdmin(string id)
             throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
@@ -487,7 +487,7 @@ module IceGrid
         ///
         /// @throws DeploymentException Raised if the server couldn't be
         /// deployed on the node.
-        ["amd"] void startServer(string id)
+        [amd] void startServer(string id)
             throws ServerNotExistException, ServerStartException, NodeUnreachableException, DeploymentException;
 
         /// Stop a server.
@@ -505,7 +505,7 @@ module IceGrid
         ///
         /// @throws DeploymentException Raised if the server couldn't be
         /// deployed on the node.
-        ["amd"] void stopServer(string id)
+        [amd] void stopServer(string id)
             throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
 
         /// Send signal to a server.
@@ -702,7 +702,7 @@ module IceGrid
         ///
         /// @throws NodeUnreachableException Raised if the node could not be
         /// reached.
-        ["cpp:const"] idempotent Object* getNodeAdmin(string name)
+        [cpp:const] idempotent Object* getNodeAdmin(string name)
             throws NodeNotExistException, NodeUnreachableException;
 
         /// Get the number of physical processor sockets for the machine
@@ -761,7 +761,7 @@ module IceGrid
         /// @return true if the registry ping succeeded, false otherwise.
         ///
         /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        ["cpp:const"] idempotent bool pingRegistry(string name)
+        [cpp:const] idempotent bool pingRegistry(string name)
             throws RegistryNotExistException;
 
         /// Get the registry information for the registry with the given name.
@@ -774,7 +774,7 @@ module IceGrid
         ///
         /// @throws RegistryUnreachableException Raised if the registry could not be
         /// reached.
-        ["cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
+        [cpp:const] idempotent RegistryInfo getRegistryInfo(string name)
             throws RegistryNotExistException, RegistryUnreachableException;
 
         /// Get a proxy to the IceGrid registry's admin object.
@@ -784,7 +784,7 @@ module IceGrid
         /// @return A proxy to the IceGrid registry's admin object
         ///
         /// @throws RegistryNotExistException Raised if the registry doesn't exist.
-        ["cpp:const"] idempotent Object* getRegistryAdmin(string name)
+        [cpp:const] idempotent Object* getRegistryAdmin(string name)
             throws RegistryNotExistException;
 
         /// Shutdown an IceGrid registry.
@@ -801,7 +801,7 @@ module IceGrid
         /// Get all the IceGrid registries currently registered.
         ///
         /// @return The registry names.
-        ["cpp:const"] idempotent Ice::StringSeq getAllRegistryNames();
+        [cpp:const] idempotent Ice::StringSeq getAllRegistryNames();
 
         /// Shut down the IceGrid registry.
         void shutdown();
@@ -850,7 +850,7 @@ module IceGrid
     }
 
     /// A sequence of server dynamic information structures.
-    ["java:type:java.util.LinkedList<ServerDynamicInfo>"] sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
+    [java:type:java.util.LinkedList<ServerDynamicInfo>] sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
 
     /// Dynamic information about the state of an adapter.
     struct AdapterDynamicInfo
@@ -863,7 +863,7 @@ module IceGrid
     }
 
     /// A sequence of adapter dynamic information structures.
-    ["java:type:java.util.LinkedList<AdapterDynamicInfo>"] sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
+    [java:type:java.util.LinkedList<AdapterDynamicInfo>] sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
 
     /// Dynamic information about the state of a node.
     struct NodeDynamicInfo
@@ -1071,7 +1071,7 @@ module IceGrid
         ///
         /// @return A template proxy. The returned proxy is null when the Admin
         /// session was established using Glacier2.
-        ["cpp:const"] idempotent Object* getAdminCallbackTemplate();
+        [cpp:const] idempotent Object* getAdminCallbackTemplate();
 
         /// Set the observer proxies that receive
         /// notifications when the state of the registry
@@ -1135,7 +1135,7 @@ module IceGrid
         /// Get the name of the registry replica hosting this session.
         ///
         /// @return The replica name of the registry.
-        ["cpp:const"] idempotent string getReplicaName();
+        [cpp:const] idempotent string getReplicaName();
 
         /// Open the given server log file for reading. The file can be
         /// read with the returned file iterator.

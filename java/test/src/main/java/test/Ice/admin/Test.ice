@@ -7,7 +7,7 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
-[["java:package:test.Ice.admin"]]
+[[java:package:test.Ice.admin]]
 module Test
 {
 

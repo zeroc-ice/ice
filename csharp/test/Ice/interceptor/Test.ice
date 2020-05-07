@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.interceptor"]
+[cs:namespace:Ice.interceptor]
 module Test
 {
 
@@ -42,21 +42,21 @@ interface MyObject
     //
     // Simple add
     //
-    ["amd"] int amdAdd(int x, int y);
+    [amd] int amdAdd(int x, int y);
 
     //
     // Will throw RetryException until current.Context["retry"] is "no"
     //
-    ["amd"] int amdAddWithRetry(int x, int y);
+    [amd] int amdAddWithRetry(int x, int y);
 
     //
     // Throws remote exception
     //
-    ["amd"] int amdBadAdd(int x, int y);
+    [amd] int amdBadAdd(int x, int y);
 
     //
     // Throws ONE
     //
-    ["amd"] int amdNotExistAdd(int x, int y);
+    [amd] int amdNotExistAdd(int x, int y);
 }
 }
