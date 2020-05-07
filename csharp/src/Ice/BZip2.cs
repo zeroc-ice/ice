@@ -58,6 +58,7 @@ namespace Ice
 
         private enum BzStatus
         {
+            Ok = 0,
             RunOk = 1,
             FinishOk = 3,
             StreamEnd = 4,
@@ -124,15 +125,19 @@ namespace Ice
             var bzStream = new BZStream(compressedHandle.AddrOfPinnedObject(), (uint)compressed.Length);
 
             ArraySegment<byte> headerSegment = data[0];
+            BzStatus rc;
             try
             {
-                BZ2_bzCompressInit(ref bzStream, compressionLevel, 0, 0);
+                rc = (BzStatus)BZ2_bzCompressInit(ref bzStream, compressionLevel, 0, 0);
+                if (rc != BzStatus.Ok)
+                {
+                    throw new TransportException($"bzip2 compression failed: {rc}");
+                }
 
                 // Slice the first segment to skip the header, the header is never compressed
                 Debug.Assert(headerSegment.Offset == 0);
                 data[0] = headerSegment.Slice(headerSize);
-
-                BzStatus rc = BzStatus.RunOk;
+                rc = BzStatus.RunOk;
                 for (int i = 0; rc == BzStatus.RunOk && i < data.Count; i++)
                 {
                     ArraySegment<byte> segment = data[i];
@@ -204,7 +209,8 @@ namespace Ice
             {
                 // Restore the first segment that was Sliced above to skip the header
                 data[0] = headerSegment;
-                BZ2_bzCompressEnd(ref bzStream);
+                rc = (BzStatus)BZ2_bzCompressEnd(ref bzStream);
+                Debug.Assert(rc == BzStatus.Ok);
                 compressedHandle.Free();
             }
         }
@@ -233,13 +239,18 @@ namespace Ice
             var bzStream = new BZStream(decompressedHandle.AddrOfPinnedObject() + headerSize,
                 (uint)(decompressedSize - headerSize));
 
+            BzStatus rc;
             try
             {
-                BZ2_bzDecompressInit(ref bzStream, 0, 0);
+                rc = (BzStatus) BZ2_bzDecompressInit(ref bzStream, 0, 0);
+                if (rc != BzStatus.Ok)
+                {
+                    throw new TransportException($"bzip2 decompression failed: {rc}");
+                }
 
                 bzStream.NextIn = compressedHandle.AddrOfPinnedObject() + compressed.Offset + headerSize + 4;
                 bzStream.AvailIn = (uint)(compressed.Count - headerSize - 4);
-                var rc = (BzStatus)BZ2_bzDecompress(ref bzStream);
+                rc = (BzStatus)BZ2_bzDecompress(ref bzStream);
                 if (rc != BzStatus.StreamEnd)
                 {
                     throw new TransportException($"bzip2 decompression failed: {rc}");
@@ -247,7 +258,8 @@ namespace Ice
             }
             finally
             {
-                BZ2_bzDecompressEnd(ref bzStream);
+                rc = (BzStatus)BZ2_bzDecompressEnd(ref bzStream);
+                Debug.Assert(rc == BzStatus.Ok);
                 decompressedHandle.Free();
                 compressedHandle.Free();
             }
