@@ -13,8 +13,6 @@ namespace IceDiscovery
 {
     internal class LocatorRegistry : ILocatorRegistry
     {
-        private static readonly Random _rand = new Random();
-
         public
         LocatorRegistry(Communicator com) =>
             _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
@@ -114,14 +112,7 @@ namespace IceDiscovery
                     return null;
                 }
 
-                string adapterId = adapterIds.OrderBy(id =>
-                    {
-                        lock (_rand)
-                        {
-                            return _rand.Next();
-                        }
-                    }).First();
-                return prx.Clone(adapterId: adapterId);
+                return prx.Clone(adapterId: adapterIds.Shuffle().First());
             }
         }
 
