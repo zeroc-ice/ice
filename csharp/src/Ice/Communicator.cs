@@ -616,11 +616,9 @@ namespace Ice
                 Debug.Assert(_serverThreadPool == null);
                 LoadPlugins(ref args);
 
-                //
-                // Initialize the endpoint factories once all the plugins are loaded. This gives
-                // the opportunity for the endpoint factories to find underlying factories.
-                //
-                foreach ((EndpointType _, IEndpointFactory factory) in _typeToEndpointFactory)
+                // Initialize the endpoint factories once all the plugins are loaded. This gives the opportunity for the
+                // endpoint factories to find underlying factories.
+                foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
                 {
                     factory.Initialize();
                 }
@@ -1004,7 +1002,7 @@ namespace Ice
                 _locatorTableMap.Clear();
             }
 
-            foreach ((EndpointType _, IEndpointFactory factory) in _typeToEndpointFactory)
+            foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
             {
                 factory.Destroy();
             }
