@@ -2849,6 +2849,7 @@ class BrowserProcessController(RemoteProcessController):
             raise ex
 
     def destroy(self, driver):
+        RemoteProcessController.destroy(self, driver)
         if self.httpServer:
             self.httpServer.terminate()
             self.httpServer = None
