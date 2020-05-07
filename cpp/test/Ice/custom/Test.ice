@@ -131,7 +131,7 @@ interface TestIntf
     ["cpp:array"] VariableList opVariableArray(["cpp:array"] VariableList inSeq, out ["cpp:array"] VariableList outSeq);
 
     ["cpp:type:std::deque<bool>"] BoolSeq
-    opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
+    opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"] BoolSeq outSeq);
 
     BoolList opBoolList(BoolList inSeq, out BoolList outSeq);
 

@@ -61,7 +61,7 @@ module Test
             ["python:memoryview:Custom.myNumPyMatrix3x3"] FloatSeq1 opFloatMatrix();
             ["python:memoryview:Custom.myNumPyMatrix3x3"] DoubleSeq1 opDoubleMatrix();
 
-            ["python:memoryview:Custom.myBogusNumpyArrayType"]BoolSeq1 opBogusNumpyArrayType();
+            ["python:memoryview:Custom.myBogusNumpyArrayType"] BoolSeq1 opBogusNumpyArrayType();
 
             D opD(D d);
 

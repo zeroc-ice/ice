@@ -72,11 +72,11 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
 ["java:type:java.util.ArrayList<java.util.Map<Byte,Boolean>>"] sequence<ByteBoolD> ByteBoolDS;
 ["java:type:java.util.ArrayList<java.util.Map<Short,Integer>>"] sequence<ShortIntD> ShortIntDS;
-["java:type:java.util.ArrayList<java.util.Map<Long,Float>>"]sequence<LongFloatD> LongFloatDS;
-["java:type:java.util.ArrayList<java.util.Map<String,String>>"]sequence<StringStringD> StringStringDS;
-["java:type:java.util.ArrayList<java.util.Map<String,MyEnum>>"]sequence<StringMyEnumD> StringMyEnumDS;
-["java:type:java.util.ArrayList<java.util.Map<MyEnum,String>>"]sequence<MyEnumStringD> MyEnumStringDS;
-["java:type:java.util.ArrayList<java.util.Map<MyStruct,MyEnum>>"]sequence<MyStructMyEnumD> MyStructMyEnumDS;
+["java:type:java.util.ArrayList<java.util.Map<Long,Float>>"] sequence<LongFloatD> LongFloatDS;
+["java:type:java.util.ArrayList<java.util.Map<String,String>>"] sequence<StringStringD> StringStringDS;
+["java:type:java.util.ArrayList<java.util.Map<String,MyEnum>>"] sequence<StringMyEnumD> StringMyEnumDS;
+["java:type:java.util.ArrayList<java.util.Map<MyEnum,String>>"] sequence<MyEnumStringD> MyEnumStringDS;
+["java:type:java.util.ArrayList<java.util.Map<MyStruct,MyEnum>>"] sequence<MyStructMyEnumD> MyStructMyEnumDS;
 
 dictionary<byte, ByteS> ByteByteSD;
 dictionary<bool, BoolS> BoolBoolSD;
