@@ -1095,13 +1095,7 @@ namespace Ice
                 }
 
                 string s = endpts[beg..end];
-                Endpoint? endp = Communicator.CreateEndpoint(s, oaEndpoints);
-                if (endp == null)
-                {
-                    throw new FormatException($"invalid object adapter endpoint `{s}'");
-                }
-                endpoints.Add(endp);
-
+                endpoints.Add(Endpoint.Parse(s, Communicator, oaEndpoints));
                 ++end;
             }
 

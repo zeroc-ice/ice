@@ -36,7 +36,7 @@ namespace IceInternal
         public int MessageSizeMax => Communicator.MessageSizeMax;
         public INetworkProxy? NetworkProxy => Communicator.NetworkProxy;
 
-        public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.GetEndpointFactory(type);
+        public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.FindEndpointFactory(type);
         public void Resolve(string host, int port, Ice.EndpointSelectionType type, IPEndpoint endpt,
                             IEndpointConnectors callback) =>
             Communicator.Resolve(host, port, type, endpt, callback);
