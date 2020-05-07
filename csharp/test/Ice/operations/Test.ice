@@ -6,8 +6,8 @@
 
 #include <Ice/Context.ice>
 
-[["cs:typeid-namespace:Ice.operations.TypeId",
-  "suppress-warning:deprecated"]] // For classes with operations
+[[cs:typeid-namespace:Ice.operations.TypeId]]
+[[suppress-warning:deprecated]] // For classes with operations
 
 [cs:namespace:Ice.operations]
 module Test

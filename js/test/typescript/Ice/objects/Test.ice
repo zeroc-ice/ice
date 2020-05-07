@@ -4,8 +4,8 @@
 
 #pragma once
 
-[["suppress-warning:deprecated", // For classes with operations
-  "js:es6-module"]]
+[[suppress-warning:deprecated]] // For classes with operations
+[[js:es6-module]]
 
 module Test
 {
@@ -222,7 +222,7 @@ interface Initial
     bool supportsClassGraphDepthMax();
 
     [marshaled-result] B getMB();
-    ["amd", "marshaled-result"] B getAMDMB();
+    [amd] [marshaled-result] B getAMDMB();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 

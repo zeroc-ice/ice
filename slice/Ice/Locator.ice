@@ -70,7 +70,7 @@ module Ice
         ///
         /// @throws ObjectNotFoundException Raised if the object cannot
         /// be found.
-        ["amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Identity id)
+        [amd] [nonmutating] [cpp:const] idempotent Object* findObjectById(Identity id)
             throws ObjectNotFoundException;
 
         /// Find an adapter by id and return a proxy that contains
@@ -82,13 +82,13 @@ module Ice
         ///
         /// @throws AdapterNotFoundException Raised if the adapter cannot be
         /// found.
-        ["amd", "nonmutating", "cpp:const"] idempotent Object* findAdapterById(string id)
+        [amd] [nonmutating] [cpp:const] idempotent Object* findAdapterById(string id)
             throws AdapterNotFoundException;
 
         /// Get the locator registry.
         ///
         /// @return The locator registry.
-        ["nonmutating", "cpp:const"] idempotent LocatorRegistry* getRegistry();
+        [nonmutating] [cpp:const] idempotent LocatorRegistry* getRegistry();
     }
 
     /// The Ice locator registry interface. This interface is used by

@@ -4,7 +4,9 @@
 
 #pragma once
 
-[["cs:typeid-namespace:Ice.optional.TypeId", "suppress-warning:deprecated"]]
+[[cs:typeid-namespace:Ice.optional.TypeId]]
+[[suppress-warning:deprecated]]
+
 [cs:namespace:Ice.optional]
 module Test
 {

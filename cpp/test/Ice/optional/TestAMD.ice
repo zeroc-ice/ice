@@ -4,7 +4,10 @@
 
 #pragma once
 
-[["cpp:include:list", "cpp:include:CustomMap.h", "cpp:include:StringView.h", "suppress-warning:deprecated"]]
+[[cpp:include:list]]
+[[cpp:include:CustomMap.h]]
+[[cpp:include:StringView.h]]
+[[suppress-warning:deprecated]]
 
 module Test
 {
@@ -292,10 +295,10 @@ interface Initial
 
     tag(1) IntOneOptionalDict opIntOneOptionalDict(tag(2) IntOneOptionalDict p1, out tag(3) IntOneOptionalDict p3);
 
-    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] tag(1) IntStringDict
+    [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] tag(1) IntStringDict
     opCustomIntStringDict(
-        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] tag(2) IntStringDict p1,
-        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] tag(3) IntStringDict p3);
+        [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] tag(2) IntStringDict p1,
+        out [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] tag(3) IntStringDict p3);
 
     void opClassAndUnknownOptional(A p);
 

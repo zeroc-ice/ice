@@ -6,7 +6,9 @@
 
 #include <Ice/Identity.ice>
 
-[["cs:typeid-namespace:Ice.objects.TypeId", "suppress-warning:deprecated"]] // For classes with operations
+[[cs:typeid-namespace:Ice.objects.TypeId]]
+[[suppress-warning:deprecated]] // For classes with operations
+
 [cs:namespace:Ice.objects]
 module Test
 {
@@ -192,7 +194,7 @@ interface Initial
     bool supportsClassGraphDepthMax();
 
     [marshaled-result] B getMB();
-    ["amd", "marshaled-result"] B getAMDMB();
+    [amd] [marshaled-result] B getAMDMB();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 

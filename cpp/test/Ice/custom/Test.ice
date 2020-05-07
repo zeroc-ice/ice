@@ -4,8 +4,12 @@
 
 #pragma once
 
-[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h",
-  "cpp:include:CustomBuffer.h", "cpp:include:StringView.h"]]
+[[cpp:include:deque]]
+[[cpp:include:list]]
+[[cpp:include:MyByteSeq.h]]
+[[cpp:include:CustomMap.h]]
+[[cpp:include:CustomBuffer.h]]
+[[cpp:include:StringView.h]]
 
 module Test
 {
@@ -201,10 +205,10 @@ interface TestIntf
     opVarDict([cpp:type:::Test::CustomMap<std::string, ::Ice::Int>] StringIntDict idict,
               out [cpp:type:::Test::CustomMap<std::string, ::Ice::Int>] StringIntDict odict);
 
-    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict
+    [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] IntStringDict
     opCustomIntStringDict(
-        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict idict,
-        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict odict);
+        [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] IntStringDict idict,
+        out [cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>] [cpp:type:::Test::CustomMap< ::Ice::Int, std::string>] IntStringDict odict);
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 

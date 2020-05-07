@@ -55,7 +55,7 @@ interface Relay
     void clientPrivateException();
 }
 
-["amd", "format:sliced"]
+[amd] [format:sliced]
 interface TestIntf
 {
     void baseAsBase() throws Base;

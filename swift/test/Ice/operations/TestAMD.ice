@@ -6,8 +6,8 @@
 
 #include <Ice/Context.ice>
 
-[["swift:class-resolver-prefix:IceOperationsAMD",
-  "suppress-warning:deprecated"]] // For classes with operations
+[[swift:class-resolver-prefix:IceOperationsAMD]]
+[[suppress-warning:deprecated]] // For classes with operations
 
 module Test
 {
@@ -274,7 +274,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-["amd", "cs:tie"] interface MyDerivedClass : MyClass
+[amd] [cs:tie] interface MyDerivedClass : MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);

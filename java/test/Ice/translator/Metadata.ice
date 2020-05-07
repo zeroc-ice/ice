@@ -88,24 +88,24 @@ module MetadataTest
         opStringMap2([java:type:java.util.IdentityHashMap<String, String>] StringMap inArg,
                      out [java:type:java.util.IdentityHashMap<String, String>] StringMap outArg);
 
-        ["amd", "java:type:java.util.LinkedList<Integer>"] IntSeq
+        [amd] [java:type:java.util.LinkedList<Integer>] IntSeq
         opIntSeq2AMD([java:type:java.util.ArrayList<Integer>] IntSeq inArg,
                      out [java:type:Test.CustomList<Integer>] IntSeq outArg);
 
-        ["amd", "java:type:java.util.ArrayList<Integer>"] IntList
+        [amd] [java:type:java.util.ArrayList<Integer>] IntList
         opIntList2AMD([java:type:java.util.ArrayList<Integer>] IntList inArg,
                       out [java:type:Test.CustomList<Integer>] IntList outArg);
 
-        ["amd", "java:type:java.util.LinkedList<Ice.Object>"] ObjectSeq
+        [amd] [java:type:java.util.LinkedList<Ice.Object>] ObjectSeq
         opObjectSeq2AMD([java:type:java.util.ArrayList<Ice.Object>] ObjectSeq inArg,
                      out [java:type:Test.CustomList<Ice.Object>] ObjectSeq outArg);
 
-        ["amd", "java:type:java.util.ArrayList<Ice.Object>"] ObjectList
+        [amd] [java:type:java.util.ArrayList<Ice.Object>] ObjectList
         opObjectList2AMD([java:type:java.util.ArrayList<Ice.Object>] ObjectList inArg,
                       out [java:type:Test.CustomList<Ice.Object>] ObjectList outArg);
     }
 
-    ["protected", "java:getset"] class C2
+    [protected] [java:getset] class C2
     {
         IntSeq intSeqMember;
         [java:type:java.util.ArrayList<Integer>] IntSeq modifiedIntSeqMember;
@@ -114,6 +114,6 @@ module MetadataTest
     class C3
     {
         [protected] IntSeq intSeqMember;
-        ["protected", "java:type:java.util.ArrayList<Integer>"] IntSeq modifiedIntSeqMember;
+        [protected] [java:type:java.util.ArrayList<Integer>] IntSeq modifiedIntSeqMember;
     }
 }

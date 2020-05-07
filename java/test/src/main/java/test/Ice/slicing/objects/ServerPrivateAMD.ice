@@ -98,7 +98,7 @@ exception PreservedException
 {
 }
 
-["amd", "format:sliced"]
+[amd] [format:sliced]
 interface TestIntf
 {
     Object SBaseAsObject();

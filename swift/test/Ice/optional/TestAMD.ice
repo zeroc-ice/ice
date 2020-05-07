@@ -4,8 +4,8 @@
 
 #pragma once
 
-[["swift:class-resolver-prefix:IceOptionalAMD",
-  "suppress-warning:deprecated"]]
+[[swift:class-resolver-prefix:IceOptionalAMD]]
+[[suppress-warning:deprecated]]
 
 module Test
 {

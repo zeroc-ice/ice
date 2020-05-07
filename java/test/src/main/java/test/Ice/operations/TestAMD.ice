@@ -6,8 +6,8 @@
 
 #include <Ice/Context.ice>
 
-[["java:package:test.Ice.operations.AMD",
-  "suppress-warning:deprecated"]] // For classes with operations
+[[java:package:test.Ice.operations.AMD]]
+[[suppress-warning:deprecated]] // For classes with operations
 module Test
 {
 

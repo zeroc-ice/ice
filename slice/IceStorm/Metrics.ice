@@ -17,7 +17,8 @@
 
 [[java:package:com.zeroc]]
 
-["js:module:ice", "swift:module:IceStorm:MX"]
+[js:module:ice]
+[swift:module:IceStorm:MX]
 module IceMX
 {
     /// Provides information on IceStorm topics.
