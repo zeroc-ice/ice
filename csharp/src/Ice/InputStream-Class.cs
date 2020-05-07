@@ -136,7 +136,8 @@ namespace Ice
                 {
                     remoteEx = new RemoteException(GetSlicedData()!.Value);
                 }
-            } while (remoteEx == null);
+            }
+            while (remoteEx == null);
 
             Pop(null);
             return remoteEx;
@@ -334,7 +335,8 @@ namespace Ice
                 {
                     instance = new UnknownSlicedClass(this);
                 }
-            } while (instance == null);
+            }
+            while (instance == null);
 
             Pop(previousCurrent);
             --_classGraphDepth;
@@ -501,7 +503,8 @@ namespace Ice
                         {
                             SkipIndirectionTable();
                         }
-                    } while ((sliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) == 0);
+                    }
+                    while ((sliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) == 0);
                     _classGraphDepth--;
                 }
             }
@@ -624,6 +627,10 @@ namespace Ice
             internal int? PosAfterIndirectionTable;
         }
 
-        private enum InstanceType { Class, Exception }
+        private enum InstanceType
+        {
+            Class,
+            Exception
+        }
     }
 }

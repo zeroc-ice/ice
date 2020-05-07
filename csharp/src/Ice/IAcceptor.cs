@@ -17,5 +17,4 @@ namespace IceInternal
         string ToString();
         string ToDetailedString();
     }
-
 }

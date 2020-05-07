@@ -1062,7 +1062,6 @@ namespace Ice
             {
                 msg.FinishIOScope(ref current);
             }
-
         }
 
         private void Dispatch(IStartCallback? startCB, Queue<OutgoingMessage>? sentCBs, MessageInfo info)
@@ -2723,7 +2722,8 @@ namespace Ice
         private CloseCallback? _closeCallback;
         private HeartbeatCallback? _heartbeatCallback;
 
-        private static readonly ConnectionState[] _connectionStateMap = new ConnectionState[] {
+        private static readonly ConnectionState[] _connectionStateMap = new ConnectionState[]
+        {
             ConnectionState.ConnectionStateValidating,   // StateNotInitialized
             ConnectionState.ConnectionStateValidating,   // StateNotValidated
             ConnectionState.ConnectionStateActive,       // StateActive

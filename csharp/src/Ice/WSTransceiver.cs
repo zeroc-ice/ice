@@ -13,7 +13,6 @@ using System.Text;
 
 namespace IceInternal
 {
-
     // TODO: refactor and eliminate these exceptions
     public sealed class WSProtocolException : Exception
     {
@@ -520,7 +519,6 @@ namespace IceInternal
             }
             else
             {
-
                 return true;
             }
         }

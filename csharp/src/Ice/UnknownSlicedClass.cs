@@ -24,7 +24,9 @@ namespace Ice
 
         protected override SlicedData? IceSlicedData { get; set; }
 
-        protected override void IceWrite(OutputStream ostr, bool _) => ostr.WriteSlicedData(IceSlicedData!.Value);
+        protected override void IceWrite(OutputStream ostr, bool firstSlice) =>
+            ostr.WriteSlicedData(IceSlicedData!.Value);
+
         internal UnknownSlicedClass(InputStream istr) => istr.FirstSliceInit(this, setSlicedData: true);
     }
 }

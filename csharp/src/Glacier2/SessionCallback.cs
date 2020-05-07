@@ -42,5 +42,4 @@ namespace Glacier2
         /// <param name="ex">The exception.</param>
         void connectFailed(SessionHelper session, Exception ex);
     }
-
 }

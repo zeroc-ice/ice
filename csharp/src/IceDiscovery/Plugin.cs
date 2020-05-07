@@ -2,8 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
 using System;
+using System.Collections.Generic;
+
+using Ice;
 
 namespace IceDiscovery
 {
@@ -36,15 +38,22 @@ namespace IceDiscovery
 
             if (_communicator.GetProperty("IceDiscovery.Multicast.Endpoints") == null)
             {
-                _communicator.SetProperty("IceDiscovery.Multicast.Endpoints", intf.Length > 0 ?
-                    $"udp -h \"{address}\" -p {port} --interface \"{intf}\"" : $"udp -h \"{address}\" -p {port}");
+                if (intf.Length > 0)
+                {
+                    _communicator.SetProperty("IceDiscovery.Multicast.Endpoints",
+                                              $"udp -h \"{address}\" -p {port} --interface \"{intf}\"");
+                }
+                else
+                {
+                    _communicator.SetProperty("IceDiscovery.Multicast.Endpoints", $"udp -h \"{address}\" -p {port}");
+                }
             }
 
             string lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
                 int ipVersion = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-                System.Collections.Generic.List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, ipVersion);
+                List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, ipVersion);
                 foreach (string p in interfaces)
                 {
                     if (p != interfaces[0])
@@ -133,8 +142,9 @@ namespace IceDiscovery
         private ILocatorPrx? _defaultLocator;
     }
 
-    public class Util
+    public static class Util
     {
+        // TODO replace with static Register method in the factory class
         public static void
         RegisterIceDiscovery(bool loadOnInitialize) =>
             Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);

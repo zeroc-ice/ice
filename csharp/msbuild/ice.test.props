@@ -12,6 +12,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <WarningLevel>4</WarningLevel>
     <ErrorReport>prompt</ErrorReport>
+    <TestProject>true</TestProject>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

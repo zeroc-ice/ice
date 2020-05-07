@@ -222,15 +222,15 @@ namespace Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
                             Action? threadStop = null,
-                            string[]? typeIdNamespaces = null) :
-            this(ref _emptyArgs,
-                 null,
-                 properties,
-                 logger,
-                 observer,
-                 threadStart,
-                 threadStop,
-                 typeIdNamespaces)
+                            string[]? typeIdNamespaces = null)
+            : this(ref _emptyArgs,
+                   null,
+                   properties,
+                   logger,
+                   observer,
+                   threadStart,
+                   threadStop,
+                   typeIdNamespaces)
         {
         }
 
@@ -240,15 +240,15 @@ namespace Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
                             Action? threadStop = null,
-                            string[]? typeIdNamespaces = null) :
-            this(ref args,
-                 null,
-                 properties,
-                 logger,
-                 observer,
-                 threadStart,
-                 threadStop,
-                 typeIdNamespaces)
+                            string[]? typeIdNamespaces = null)
+            : this(ref args,
+                   null,
+                   properties,
+                   logger,
+                   observer,
+                   threadStart,
+                   threadStop,
+                   typeIdNamespaces)
         {
         }
 
@@ -258,15 +258,15 @@ namespace Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             Action? threadStart = null,
                             Action? threadStop = null,
-                            string[]? typeIdNamespaces = null) :
-            this(ref _emptyArgs,
-                 appSettings,
-                 properties,
-                 logger,
-                 observer,
-                 threadStart,
-                 threadStop,
-                 typeIdNamespaces)
+                            string[]? typeIdNamespaces = null)
+            : this(ref _emptyArgs,
+                   appSettings,
+                   properties,
+                   logger,
+                   observer,
+                   threadStart,
+                   threadStop,
+                   typeIdNamespaces)
         {
         }
 
@@ -410,7 +410,7 @@ namespace Ice
                     DefaultEncoding = Encoding.Latest;
                 }
 
-                var endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
+                string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 DefaultEndpointSelection = endpointSelection switch
                 {
                     "Random" => EndpointSelectionType.Random,
@@ -1033,16 +1033,16 @@ namespace Ice
                 plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
             }
             plugins.Reverse();
-            foreach ((string Name, IPlugin Plugin) in plugins)
+            foreach ((string name, IPlugin plugin) in plugins)
             {
                 try
                 {
-                    Plugin.Destroy();
+                    plugin.Destroy();
                 }
                 catch (Exception ex)
                 {
                     Util.GetProcessLogger().Warning(
-                        $"unexpected exception raised by plug-in `{Name}' destruction:\n{ex}");
+                        $"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
                 }
             }
 
@@ -1403,7 +1403,7 @@ namespace Ice
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
          // Finds an endpoint factory previously registered using AddEndpointFactory.
-         internal IEndpointFactory? FindEndpointFactory(EndpointType type) =>
+        internal IEndpointFactory? FindEndpointFactory(EndpointType type) =>
             _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
 
         internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)

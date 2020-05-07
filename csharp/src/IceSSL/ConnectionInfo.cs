@@ -20,7 +20,8 @@ namespace IceSSL
                               string connectionId,
                               string cipher,
                               X509Certificate2[] certs,
-                              bool verified) : base(underlying, incoming, adapterName, connectionId)
+                              bool verified)
+            : base(underlying, incoming, adapterName, connectionId)
         {
             Cipher = cipher;
             Certs = certs;

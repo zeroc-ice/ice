@@ -523,7 +523,6 @@ namespace IceInternal
 
         public static void DoListen(Socket socket, int backlog)
         {
-
         repeatListen:
 
             try
@@ -632,7 +631,7 @@ namespace IceInternal
             try
             {
                 return fd.BeginConnect(addr,
-                                       delegate (IAsyncResult result)
+                                       result =>
                                        {
                                            if (!result.CompletedSynchronously)
                                            {

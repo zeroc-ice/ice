@@ -47,8 +47,8 @@ namespace Ice
         }
 
         public IPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
-                                string localAddress, int localPort, string remoteAddress, int remotePort) :
-            base(underlying, incoming, adapterName, connectionId)
+                                string localAddress, int localPort, string remoteAddress, int remotePort)
+            : base(underlying, incoming, adapterName, connectionId)
         {
             LocalAddress = localAddress;
             LocalPort = localPort;
@@ -71,8 +71,8 @@ namespace Ice
 
         public TCPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
                                  string localAddress, int localPort, string remoteAddress, int remotePort, int rcvSize,
-                                 int sndSize) :
-            base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+                                 int sndSize)
+            : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
         {
             RcvSize = rcvSize;
             SndSize = sndSize;
@@ -97,8 +97,8 @@ namespace Ice
 
         public UDPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
                                  string localAddress, int localPort, string remoteAddress, int remotePort,
-                                 string mcastAddress, int mcastPort, int rcvSize, int sndSize) :
-            base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+                                 string mcastAddress, int mcastPort, int rcvSize, int sndSize)
+            : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
         {
             McastAddress = mcastAddress;
             McastPort = mcastPort;
@@ -117,6 +117,7 @@ namespace Ice
         }
 
         public WSConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
-            Dictionary<string, string> headers) : base(underlying, incoming, adapterName, connectionId) => Headers = headers;
+                                Dictionary<string, string> headers)
+            : base(underlying, incoming, adapterName, connectionId) => Headers = headers;
     }
 }

@@ -263,7 +263,7 @@ namespace Ice
         public T[] ReadFixedSizeNumericArray<T>() where T : struct
         {
             int elementSize = Unsafe.SizeOf<T>();
-            T[] value = new T[ReadAndCheckSeqSize(elementSize)];
+            var value = new T[ReadAndCheckSeqSize(elementSize)];
             int byteCount = elementSize * value.Length;
             _buffer.AsSpan(_pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
             _pos += byteCount;
@@ -698,7 +698,7 @@ namespace Ice
         /// <returns>The encapsulation header read from the stream.</returns>
         internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
-            var result = ReadEncapsulationHeader(_buffer.Slice(_pos), Encoding);
+            (Encoding Encoding, int Size) result = ReadEncapsulationHeader(_buffer.Slice(_pos), Encoding);
             _pos += 6;
             return result;
         }

@@ -10,7 +10,6 @@ using Ice;
 
 namespace Glacier2
 {
-
     /// <summary>
     /// A helper class for using Glacier2 with GUI applications.
     /// </summary>
@@ -476,5 +475,4 @@ namespace Glacier2
         private bool _destroy = false;
         private readonly object _mutex = new object();
     }
-
 }

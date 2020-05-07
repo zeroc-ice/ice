@@ -3,13 +3,12 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Glacier2
 {
-
     /// <summary>
     /// A helper class for using Glacier2 with GUI applications.
     ///
@@ -366,5 +365,4 @@ namespace Glacier2
         private static int GLACIER2_SSL_PORT = 4064;
         private static int GLACIER2_TCP_PORT = 4063;
     }
-
 }

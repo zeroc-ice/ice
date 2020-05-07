@@ -156,7 +156,7 @@ namespace IceDiscovery
         private readonly IObjectPrx _wellKnownProxy;
         private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
         private readonly Dictionary<string, HashSet<string>> _replicaGroups = new Dictionary<string, HashSet<string>>();
-    };
+    }
 
     internal class Locator : ILocator
     {
@@ -176,5 +176,5 @@ namespace IceDiscovery
 
         private readonly Lookup _lookup;
         private readonly ILocatorRegistryPrx _registry;
-    };
+    }
 }

@@ -9,7 +9,7 @@ using System.Globalization;
 
 namespace IceInternal
 {
-    internal sealed class TraceUtil
+    internal static class TraceUtil
     {
         internal static void TraceSend(Communicator communicator,
             byte[] buffer, ILogger logger, TraceLevels tl)

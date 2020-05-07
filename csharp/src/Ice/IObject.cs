@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Ice
 {
-    ///<summary>The base interface for all servants.</summary>
+    /// <summary>The base interface for all servants.</summary>
     public interface IObject
     {
         /// <summary>Dispatches a request on this servant.</summary>
@@ -48,7 +48,7 @@ namespace Ice
         /// <summary>Returns the Slice type IDs of the interfaces supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>
         /// <returns>The Slice type IDs of the interfaces supported by this object, in alphabetical order.</returns>
-        public IEnumerable<string> IceIds(Current current) => new string[]{ "::Ice::Object" };
+        public IEnumerable<string> IceIds(Current current) => new string[] { "::Ice::Object" };
 
         /// <summary>Returns the Slice type ID of the most-derived interface supported by this object.</summary>
         /// <param name="current">The Current object for the dispatch.</param>

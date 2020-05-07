@@ -174,7 +174,7 @@ namespace Ice
             if (writeVoidReturnValue)
             {
                 Encoding.CheckSupported();
-                Data.Add(Ice1Definitions.EmptyResponsePayload);;
+                Data.Add(Ice1Definitions.EmptyResponsePayload);
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }

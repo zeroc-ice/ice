@@ -8,7 +8,6 @@ using System.Text;
 
 namespace IceUtilInternal
 {
-
     public sealed class StringUtil
     {
         //

@@ -307,5 +307,4 @@ namespace Ice
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
         private protected abstract IPEndpoint CreateEndpoint(string host, int port, string connectionId);
     }
-
 }

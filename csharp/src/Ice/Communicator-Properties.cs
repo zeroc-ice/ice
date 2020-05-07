@@ -3,11 +3,11 @@
 //
 
 using System;
-using System.Linq;
-using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Ice
@@ -389,10 +389,10 @@ namespace Ice
             {
                 if (arg.StartsWith(prefix, StringComparison.Ordinal))
                 {
-                    (string Name, string Value) = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
-                    if (Name.Length > 0)
+                    (string name, string value) = ParseLine((arg.IndexOf('=') == -1 ? $"{arg}=1" : arg).Substring(2));
+                    if (name.Length > 0)
                     {
-                        parsedArgs[Name] = Value;
+                        parsedArgs[name] = value;
                         continue;
                     }
                 }
@@ -425,15 +425,19 @@ namespace Ice
             string? line;
             while ((line = input.ReadLine()) != null)
             {
-                (string Name, string Value) = ParseLine(line);
-                if (Name.Length > 0)
+                (string name, string value) = ParseLine(line);
+                if (name.Length > 0)
                 {
-                    into[Name] = Value;
+                    into[name] = value;
                 }
             }
         }
 
-        internal enum ParseState : byte { Key, Value }
+        internal enum ParseState : byte
+        {
+            Key,
+            Value
+        }
 
         private static (string Name, string Value) ParseLine(string line)
         {

@@ -158,7 +158,6 @@ namespace Ice
 
                 try
                 {
-
                     INetworkProxy? networkProxy = NetworkProxy;
                     int ipVersion = IPVersion;
                     if (networkProxy != null)

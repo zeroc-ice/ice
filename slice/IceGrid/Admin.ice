@@ -694,9 +694,9 @@ module IceGrid
 
         /// Get a proxy to the IceGrid node's admin object.
         ///
-        /// @param name The IceGrid node name
+        /// @param name The IceGrid node name.
         ///
-        /// @return A proxy to the IceGrid node's admin object
+        /// @return A proxy to the IceGrid node's admin object.
         ///
         /// @throws NodeNotExistException Raised if the node doesn't exist.
         ///

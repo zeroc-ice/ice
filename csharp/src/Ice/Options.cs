@@ -11,12 +11,18 @@ namespace IceUtilInternal
 {
     public sealed class Options
     {
-        public enum State { Normal, DoubleQuote, SingleQuote, ANSIQuote };
+        public enum State
+        {
+            Normal,
+            DoubleQuote,
+            SingleQuote,
+            ANSIQuote
+        }
 
         public static string[]
         Split(string line)
         {
-            string IFS = " \t\n";
+            string inputFieldSeparator = " \t\n";
 
             string l = line.Trim();
             if (l.Length == 0)
@@ -88,8 +94,8 @@ namespace IceUtilInternal
                                     {
                                         if (i < l.Length - 1 && l[i + 1] == '\'')
                                         {
-                                            state = State.ANSIQuote; // Bash uses $'<text>' to allow ANSI escape sequences
-                                                                     // within <text>.
+                                            // Bash uses $'<text>' to allow ANSI escape sequences within <text>
+                                            state = State.ANSIQuote;
                                             ++i;
                                         }
                                         else
@@ -100,7 +106,7 @@ namespace IceUtilInternal
                                     }
                                 default:
                                     {
-                                        if (IFS.IndexOf(l[i]) != -1)
+                                        if (inputFieldSeparator.IndexOf(l[i]) != -1)
                                         {
                                             vec.Add(arg);
                                             arg = "";
@@ -108,7 +114,7 @@ namespace IceUtilInternal
                                             //
                                             // Move to start of next argument.
                                             //
-                                            while (++i < l.Length && IFS.IndexOf(l[i]) != -1)
+                                            while (++i < l.Length && inputFieldSeparator.IndexOf(l[i]) != -1)
                                             {
                                                 ;
                                             }
@@ -306,9 +312,9 @@ namespace IceUtilInternal
                                             case 'c':
                                                 {
                                                     c = l[++i];
-                                                    if ((char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' && char.ToUpper(c, CultureInfo.InvariantCulture) <= 'Z') ||
-                                                       c == '@' ||
-                                                       (c >= '[' && c <= '_'))
+                                                    if ((char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' &&
+                                                         char.ToUpper(c, CultureInfo.InvariantCulture) <= 'Z') ||
+                                                        c == '@' || (c >= '[' && c <= '_'))
                                                     {
                                                         arg += (char)(char.ToUpper(c, CultureInfo.InvariantCulture) - '@');
                                                     }

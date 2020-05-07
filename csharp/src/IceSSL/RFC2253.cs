@@ -17,35 +17,35 @@ namespace IceSSL
     {
         internal struct RDNPair
         {
-            internal string key;
-            internal string value;
+            internal string Key;
+            internal string Value;
         }
 
         internal class RDNEntry
         {
-            internal List<RDNPair> rdn = new List<RDNPair>();
-            internal bool negate = false;
+            internal List<RDNPair> Rdn = new List<RDNPair>();
+            internal bool Negate = false;
         }
 
-        internal static List<RDNEntry> parse(string data)
+        internal static List<RDNEntry> Parse(string data)
         {
-            List<RDNEntry> results = new List<RDNEntry>();
-            RDNEntry current = new RDNEntry();
+            var results = new List<RDNEntry>();
+            var current = new RDNEntry();
             int pos = 0;
             while (pos < data.Length)
             {
-                eatWhite(data, ref pos);
+                EatWhite(data, ref pos);
                 if (pos < data.Length && data[pos] == '!')
                 {
-                    if (current.rdn.Count > 0)
+                    if (current.Rdn.Count > 0)
                     {
                         throw new FormatException("negation symbol '!' must appear at start of list");
                     }
                     ++pos;
-                    current.negate = true;
+                    current.Negate = true;
                 }
-                current.rdn.Add(parseNameComponent(data, ref pos));
-                eatWhite(data, ref pos);
+                current.Rdn.Add(ParseNameComponent(data, ref pos));
+                EatWhite(data, ref pos);
                 if (pos < data.Length && data[pos] == ',')
                 {
                     ++pos;
@@ -61,7 +61,7 @@ namespace IceSSL
                     throw new FormatException("expected ',' or ';' at `" + data.Substring(pos) + "'");
                 }
             }
-            if (current.rdn.Count > 0)
+            if (current.Rdn.Count > 0)
             {
                 results.Add(current);
             }
@@ -69,14 +69,14 @@ namespace IceSSL
             return results;
         }
 
-        internal static List<RDNPair> parseStrict(string data)
+        internal static List<RDNPair> ParseStrict(string data)
         {
-            List<RDNPair> results = new List<RDNPair>();
+            var results = new List<RDNPair>();
             int pos = 0;
             while (pos < data.Length)
             {
-                results.Add(parseNameComponent(data, ref pos));
-                eatWhite(data, ref pos);
+                results.Add(ParseNameComponent(data, ref pos));
+                EatWhite(data, ref pos);
                 if (pos < data.Length && (data[pos] == ',' || data[pos] == ';'))
                 {
                     ++pos;
@@ -89,7 +89,7 @@ namespace IceSSL
             return results;
         }
 
-        public static string unescape(string data)
+        public static string Unescape(string data)
         {
             if (data.Length == 0)
             {
@@ -98,26 +98,26 @@ namespace IceSSL
 
             if (data[0] == '"')
             {
-                if (data[data.Length - 1] != '"')
+                if (data[^1] != '"')
                 {
                     throw new FormatException("unescape: missing \"");
                 }
                 //
                 // Return the string without quotes.
                 //
-                return data.Substring(1, data.Length - 2);
+                return data[1..^1];
             }
 
             //
             // Unescape the entire string.
             //
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             if (data[0] == '#')
             {
                 int pos = 1;
                 while (pos < data.Length)
                 {
-                    result.Append(unescapeHex(data, pos));
+                    result.Append(UnescapeHex(data, pos));
                     pos += 2;
                 }
             }
@@ -138,14 +138,14 @@ namespace IceSSL
                         {
                             throw new FormatException("unescape: invalid escape sequence");
                         }
-                        if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
+                        if (Special.IndexOf(data[pos]) != -1 || data[pos] != '\\' || data[pos] != '"')
                         {
                             result.Append(data[pos]);
                             ++pos;
                         }
                         else
                         {
-                            result.Append(unescapeHex(data, pos));
+                            result.Append(UnescapeHex(data, pos));
                             pos += 2;
                         }
                     }
@@ -154,7 +154,7 @@ namespace IceSSL
             return result.ToString();
         }
 
-        private static int hexToInt(char v)
+        private static int HexToInt(char v)
         {
             if (v >= '0' && v <= '9')
             {
@@ -171,22 +171,22 @@ namespace IceSSL
             throw new FormatException("unescape: invalid hex pair");
         }
 
-        private static char unescapeHex(string data, int pos)
+        private static char UnescapeHex(string data, int pos)
         {
             Debug.Assert(pos < data.Length);
             if (pos + 2 >= data.Length)
             {
                 throw new FormatException("unescape: invalid hex pair");
             }
-            return (char)(hexToInt(data[pos]) * 16 + hexToInt(data[pos + 1]));
+            return (char)((HexToInt(data[pos]) * 16) + HexToInt(data[pos + 1]));
         }
 
-        private static RDNPair parseNameComponent(string data, ref int pos)
+        private static RDNPair ParseNameComponent(string data, ref int pos)
         {
-            RDNPair result = parseAttributeTypeAndValue(data, ref pos);
+            RDNPair result = ParseAttributeTypeAndValue(data, ref pos);
             while (pos < data.Length)
             {
-                eatWhite(data, ref pos);
+                EatWhite(data, ref pos);
                 if (pos < data.Length && data[pos] == '+')
                 {
                     ++pos;
@@ -195,20 +195,20 @@ namespace IceSSL
                 {
                     break;
                 }
-                RDNPair p = parseAttributeTypeAndValue(data, ref pos);
-                result.value += "+";
-                result.value += p.key;
-                result.value += '=';
-                result.value += p.value;
+                RDNPair p = ParseAttributeTypeAndValue(data, ref pos);
+                result.Value += "+";
+                result.Value += p.Key;
+                result.Value += '=';
+                result.Value += p.Value;
             }
             return result;
         }
 
-        private static RDNPair parseAttributeTypeAndValue(string data, ref int pos)
+        private static RDNPair ParseAttributeTypeAndValue(string data, ref int pos)
         {
-            RDNPair p = new RDNPair();
-            p.key = parseAttributeType(data, ref pos);
-            eatWhite(data, ref pos);
+            var p = new RDNPair();
+            p.Key = ParseAttributeType(data, ref pos);
+            EatWhite(data, ref pos);
             if (pos >= data.Length)
             {
                 throw new FormatException("invalid attribute type/value pair (unexpected end of data)");
@@ -219,13 +219,13 @@ namespace IceSSL
                                          data.Substring(pos));
             }
             ++pos;
-            p.value = parseAttributeValue(data, ref pos);
+            p.Value = ParseAttributeValue(data, ref pos);
             return p;
         }
 
-        private static string parseAttributeType(string data, ref int pos)
+        private static string ParseAttributeType(string data, ref int pos)
         {
-            eatWhite(data, ref pos);
+            EatWhite(data, ref pos);
             if (pos >= data.Length)
             {
                 throw new FormatException("invalid attribute type (expected end of data)");
@@ -313,9 +313,9 @@ namespace IceSSL
             return result;
         }
 
-        private static string parseAttributeValue(string data, ref int pos)
+        private static string ParseAttributeValue(string data, ref int pos)
         {
-            eatWhite(data, ref pos);
+            EatWhite(data, ref pos);
             if (pos >= data.Length)
             {
                 return "";
@@ -325,14 +325,14 @@ namespace IceSSL
             // RFC 2253
             // # hexstring
             //
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             if (data[pos] == '#')
             {
                 result.Append(data[pos]);
                 ++pos;
                 while (true)
                 {
-                    string h = parseHexPair(data, ref pos, true);
+                    string h = ParseHexPair(data, ref pos, true);
                     if (h.Length == 0)
                     {
                         break;
@@ -371,7 +371,7 @@ namespace IceSSL
                     // pair '\'
                     else
                     {
-                        result.Append(parsePair(data, ref pos));
+                        result.Append(ParsePair(data, ref pos));
                     }
                 }
             }
@@ -386,9 +386,9 @@ namespace IceSSL
                 {
                     if (data[pos] == '\\')
                     {
-                        result.Append(parsePair(data, ref pos));
+                        result.Append(ParsePair(data, ref pos));
                     }
-                    else if (special.IndexOf(data[pos]) == -1 && data[pos] != '"')
+                    else if (Special.IndexOf(data[pos]) == -1 && data[pos] != '"')
                     {
                         result.Append(data[pos]);
                         ++pos;
@@ -406,7 +406,7 @@ namespace IceSSL
         // RFC2253:
         // pair       = "\" ( special | "\" | QUOTATION | hexpair )
         //
-        private static string parsePair(string data, ref int pos)
+        private static string ParsePair(string data, ref int pos)
         {
             string result = "";
 
@@ -419,29 +419,29 @@ namespace IceSSL
                 throw new FormatException("invalid escape format (unexpected end of data)");
             }
 
-            if (special.IndexOf(data[pos]) != -1 || data[pos] != '\\' ||
+            if (Special.IndexOf(data[pos]) != -1 || data[pos] != '\\' ||
                data[pos] != '"')
             {
                 result += data[pos];
                 ++pos;
                 return result;
             }
-            return parseHexPair(data, ref pos, false);
+            return ParseHexPair(data, ref pos, false);
         }
 
         //
         // RFC 2253
         // hexpair    = hexchar hexchar
         //
-        private static string parseHexPair(string data, ref int pos, bool allowEmpty)
+        private static string ParseHexPair(string data, ref int pos, bool allowEmpty)
         {
             string result = "";
-            if (pos < data.Length && hexvalid.IndexOf(data[pos]) != -1)
+            if (pos < data.Length && Hexvalid.IndexOf(data[pos]) != -1)
             {
                 result += data[pos];
                 ++pos;
             }
-            if (pos < data.Length && hexvalid.IndexOf(data[pos]) != -1)
+            if (pos < data.Length && Hexvalid.IndexOf(data[pos]) != -1)
             {
                 result += data[pos];
                 ++pos;
@@ -465,7 +465,7 @@ namespace IceSSL
         // and '+', between attributeType and '=', and between '=' and
         // attributeValue.  These space characters are ignored when parsing.
         //
-        private static void eatWhite(string data, ref int pos)
+        private static void EatWhite(string data, ref int pos)
         {
             while (pos < data.Length && data[pos] == ' ')
             {
@@ -473,7 +473,7 @@ namespace IceSSL
             }
         }
 
-        private const string special = ",=+<>#;";
-        private const string hexvalid = "0123456789abcdefABCDEF";
+        private const string Special = ",=+<>#;";
+        private const string Hexvalid = "0123456789abcdefABCDEF";
     }
 }

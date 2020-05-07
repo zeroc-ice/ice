@@ -320,5 +320,4 @@ namespace Ice
 
         private readonly Dictionary<IRouterPrx, RouterInfo> _routerInfoTable = new Dictionary<IRouterPrx, RouterInfo>();
     }
-
 }

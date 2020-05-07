@@ -38,5 +38,4 @@ namespace IceInternal
         public readonly int ThreadPool;
         public readonly string ThreadPoolCat;
     }
-
 }

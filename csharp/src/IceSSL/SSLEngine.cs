@@ -421,7 +421,6 @@ namespace IceSSL
                 }
 
                 throw new Ice.SecurityException($"IceSSL: {msg}");
-
             }
 
             if (_verifier != null && !_verifier.Verify(info))
@@ -753,10 +752,11 @@ namespace IceSSL
                         if (findType == X509FindType.FindBySubjectDistinguishedName ||
                            findType == X509FindType.FindByIssuerDistinguishedName)
                         {
-                            X500DistinguishedNameFlags[] flags = {
-                                X500DistinguishedNameFlags.None,
-                                X500DistinguishedNameFlags.Reversed,
-                            };
+                            X500DistinguishedNameFlags[] flags =
+                                {
+                                    X500DistinguishedNameFlags.None,
+                                    X500DistinguishedNameFlags.Reversed,
+                                };
                             var dn = new X500DistinguishedName(arg);
                             X509Certificate2Collection r = result;
                             for (int i = 0; i < flags.Length; ++i)

@@ -1264,12 +1264,12 @@ namespace Ice
             internal readonly Identity Identity;
             internal readonly string Facet;
 
-            public bool Equals (IdentityPlusFacet other)
-                => Identity.Equals(other.Identity) && Facet.Equals(other.Facet);
+            public bool Equals(IdentityPlusFacet other) =>
+                Identity.Equals(other.Identity) && Facet.Equals(other.Facet);
 
             // Since facet is often empty, we don't want the empty facet to contribute to the hash value.
-            public override int GetHashCode()
-                => Facet.Length == 0 ? Identity.GetHashCode() : HashCode.Combine(Identity, Facet);
+            public override int GetHashCode() =>
+                Facet.Length == 0 ? Identity.GetHashCode() : HashCode.Combine(Identity, Facet);
 
             internal IdentityPlusFacet(Identity identity, string facet)
             {
@@ -1283,11 +1283,11 @@ namespace Ice
             internal readonly string Category;
             internal readonly string Facet;
 
-            public bool Equals (CategoryPlusFacet other)
-                => Category.Equals(other.Category) && Facet.Equals(other.Facet);
+            public bool Equals(CategoryPlusFacet other) =>
+                Category.Equals(other.Category) && Facet.Equals(other.Facet);
 
-            public override int GetHashCode()
-                => Facet.Length == 0 ? Category.GetHashCode() : HashCode.Combine(Category, Facet);
+            public override int GetHashCode() =>
+                Facet.Length == 0 ? Category.GetHashCode() : HashCode.Combine(Category, Facet);
 
             internal CategoryPlusFacet(string category, string facet)
             {

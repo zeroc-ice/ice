@@ -805,9 +805,9 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
 
         if(async)
         {
-            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-                 << "\">Sent progress provider.</param>";
             _out << nl << "/// <param name=\"" << getEscapedParamName(p, "progress")
+                 << "\">Sent progress provider.</param>";
+            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
                  << "\">A cancellation token that receives the cancellation requests.</param>";
         }
     }
@@ -1975,7 +1975,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "throw new Ice.InvalidDataException($\"invalid enumerator value `{value}' for "
         << fixId(p->scoped()) << "\");";
     _out << eb;
-    _out << nl << "return (" << name << ") value;";
+    _out << nl << "return (" << name << ")value;";
     _out << eb;
 
     _out << sp;
@@ -2428,8 +2428,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
     // Write the static outgoing request instance
     _out << sp;
-
     _out << nl << "private static " << requestT << "? " << requestObject << ";";
+
+    _out << sp;
     _out << nl << "private static " << requestT << " " << requestProperty << " =>";
     _out.inc();
     _out << nl << requestObject << " ?\?= new " << requestT << "(";
@@ -2612,7 +2613,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << "string global::Ice.IObject.IceId(global::Ice.Current current) => _iceTypeId;";
-    _out << nl  << "global::System.Collections.Generic.IEnumerable<string> "
+    _out << sp;
+    _out << nl << "global::System.Collections.Generic.IEnumerable<string> "
         << "global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;
