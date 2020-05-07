@@ -534,7 +534,7 @@ namespace IceSSL
             return false;
         }
 
-        private SslProtocols ParseProtocols(string[] arr)
+        private static SslProtocols ParseProtocols(string[] arr)
         {
             SslProtocols result = SslProtocols.None;
 

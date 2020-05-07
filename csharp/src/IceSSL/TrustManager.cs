@@ -205,7 +205,7 @@ namespace IceSSL
             return false;
         }
 
-        private bool Match(List<List<RFC2253.RDNPair>> matchSet, List<RFC2253.RDNPair> subject)
+        private static bool Match(List<List<RFC2253.RDNPair>> matchSet, List<RFC2253.RDNPair> subject)
         {
             foreach (List<RFC2253.RDNPair> item in matchSet)
             {
@@ -217,7 +217,7 @@ namespace IceSSL
             return false;
         }
 
-        private bool MatchRDNs(List<RFC2253.RDNPair> match, List<RFC2253.RDNPair> subject)
+        private static bool MatchRDNs(List<RFC2253.RDNPair> match, List<RFC2253.RDNPair> subject)
         {
             foreach (RFC2253.RDNPair matchRDN in match)
             {
