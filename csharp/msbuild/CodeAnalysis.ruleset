@@ -18,6 +18,7 @@
       <Rule Id="CA1712" Action="None" /> <!-- TODO disable on generated code -  Do not prefix enum values with the name of the enum type 'ThreadState'. -->
       <Rule Id="CA1715" Action="None" /> <!-- TODO enable - Prefix generic type parameter with 'T' -->
       <Rule Id="CA1716" Action="None" /> <!-- TODO disable on generated code - Identifiers should not match keywords -->
+      <Rule Id="CA1717" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Only FlagsAttribute enums should have plural names -->
       <Rule Id="CA1720" Action="None" /> <!-- Identifiers should not contain type names -->
       <Rule Id="CA1724" Action="None" /> <!-- TODO review - Type names should not match namespaces -->
       <Rule Id="CA1815" Action="None" /> <!-- TODO enable - Override equals and operator equals on value types -->
@@ -26,6 +27,13 @@
       <Rule Id="CA2208" Action="None" /> <!-- Instantiate argument exceptions correctly -->
       <Rule Id="CA2211" Action="None" /> <!-- Non-constant fields should not be visible -->
       <Rule Id="CA2227" Action="None" /> <!-- Collection properties should be read only -->
+
+      <!-- TODO temporary disable for test projects -->
+      <Rule Id="CA1052" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Type is a static holder type but is neither static nor NotInheritable -->
+      <Rule Id="CA1806" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- new instance which is never used -->
+      <Rule Id="CA1812" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- internal class that is apparently never instantiated. -->
+      <Rule Id="CA1819" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Properties should not return arrays -->
+      <Rule Id="CA1822" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Member CreateTestProperties does not access instance data and can be marked as static -->
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
       <Rule Id="SA1003" Action="None" /> <!-- TODO enable - Operator ':' should not appear at the end of a line -->
@@ -43,6 +51,7 @@
       <Rule Id="SA1127" Action="None" /> <!-- Generic type constraints should be on their own line -->
       <Rule Id="SA1128" Action="None" /> <!-- TODO enable - Put constructor initializers on their own line -->
       <Rule Id="SA1129" Action="None" /> <!-- Do not use default value type constructor -->
+      <Rule Id="SA1131" Action="None" /> <!-- Constant values should appear on the right-hand side of comparisons -->
       <Rule Id="SA1200" Action="None" /> <!-- Using directive should appear within a namespace declaration -->
       <Rule Id="SA1201" Action="None" /> <!-- Elements must appear in the correct order -->
       <Rule Id="SA1202" Action="None" /> <!-- TODO enable - 'internal' members should come before 'private' members -->
@@ -78,5 +87,28 @@
       <Rule Id="SA1633" Action="None" /> <!-- TODO configure the header and enable - The file header XML is invalid -->
       <Rule Id="SA1642" Action="None" /> <!-- TODO review -  Constructor summary documentation should begin with standard text -->
       <Rule Id="SA1649" Action="None" /> <!-- File name should match first type name -->
+
+      <!-- TODO temporary disable for test projects -->
+      <Rule Id="SA0001" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- XML comment analysis is disabled due to project configuration -->
+      <Rule Id="SA1002" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Semicolons should not be preceded by a space -->
+      <Rule Id="SA1012" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Opening brace should be preceded by a space -->
+      <Rule Id="SA1015" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Closing generic bracket should not be preceded by a space -->
+      <Rule Id="SA1107" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Code should not contain multiple statements on one line -->
+      <Rule Id="SA1119" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Statement should not use unnecessary parenthesis -->
+      <Rule Id="SA1137" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Elements should have the same indentation -->
+      <Rule Id="SA1139" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Use literal suffix notation instead of casting -->
+      <Rule Id="SA1210" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Using directives should be ordered alphabetically by the namespaces -->
+      <Rule Id="SA1300" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Element should begin with an uppercase letter -->
+      <Rule Id="SA1303" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Const field names should begin with upper-case letter -->
+      <Rule Id="SA1307" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Field names should begin with upper-case letter -->
+      <Rule Id="SA1312" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Variable should begin with lower-case letter -->
+      <Rule Id="SA1313" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Parameter should begin with lower-case letter -->
+      <Rule Id="SA1407" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Arithmetic expressions should declare precedence -->
+      <Rule Id="SA1408" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Conditional expressions should declare precedence -->
+      <Rule Id="SA1500" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Braces for multi-line statements should not share line -->
+      <Rule Id="SA1501" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Statement should not be on a single line -->
+      <Rule Id="SA1503" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- Braces should not be omitted -->
+      <Rule Id="SA1505" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- An opening brace should not be followed by a blank line -->
+      <Rule Id="SA1508" Action="None" Condition="'$(TestProject)' == 'true'" /> <!-- A closing brace should not be preceded by a blank line -->
   </Rules>
 </RuleSet>
