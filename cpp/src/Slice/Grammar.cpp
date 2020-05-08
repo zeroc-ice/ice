@@ -2093,8 +2093,8 @@ yyreduce:
 {
     StringListTokPtr metadata1 = StringListTokPtr::dynamicCast(yyvsp[-3]);
     StringListTokPtr metadata2 = StringListTokPtr::dynamicCast(yyvsp[-1]);
-    metadata1->v.merge(metadata2->v);
-    yyval = metadata1;
+    metadata2->v.merge(metadata1->v);
+    yyval = metadata2;
 }
 #line 2100 "src/Slice/Grammar.cpp"
     break;
