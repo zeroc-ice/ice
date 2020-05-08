@@ -33,7 +33,6 @@ public class Client : TestHelper
             catch (Glacier2.PermissionDeniedException)
             {
                 Console.Out.WriteLine("ok");
-
             }
             catch (Exception)
             {
