@@ -118,7 +118,7 @@ oct                 [0-7]
 dec                 [0-9]
 hex                 [0-9a-fA-F]
 bom                 "\357\273\277"
-whitespace          ([[:space:]]{-}[\n])+
+whitespace          ([[:space:]]{-}[\n])
 preprocessor_prefix [[:blank:]]*#[[:blank:]]*
 preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
@@ -454,7 +454,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches the start of unquoted metadata and switches the scanner into UNQUOTED_METADATA mode. */
-<METADATA>[^[:space:]\[\]\"]+ {
+<METADATA>[^[:space:]\[\]\"] {
     BEGIN(UNQUOTED_METADATA);
     startLocation(yylloc);
 
@@ -465,7 +465,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches unquoted text in UNQUOTED_METADATA mode. */
-<UNQUOTED_METADATA>({whitespace}[^[:space:]\[\]\"]+)+ {
+<UNQUOTED_METADATA>({whitespace}*[^[:space:]\[\]]+)+ {
     StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -537,7 +537,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* ========== Whitespace ========== */
 
   /* Matches and consumes any whitespace, except for newlines. */
-<*>{whitespace} {}
+<*>{whitespace}+ {}
 
   /* Matches and consumes newlines, but only when the scanner isn't in a sub-scanner. */
 \n+ {
