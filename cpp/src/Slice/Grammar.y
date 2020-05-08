@@ -228,8 +228,8 @@ local_metadata
 {
     StringListTokPtr metadata1 = StringListTokPtr::dynamicCast($1);
     StringListTokPtr metadata2 = StringListTokPtr::dynamicCast($3);
-    metadata2->v.merge(metadata1->v);
-    $$ = metadata2;
+    metadata1->v.splice(metadata1->v.end(), metadata2->v);
+    $$ = metadata1;
 }
 | %empty
 {
