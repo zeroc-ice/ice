@@ -57,7 +57,7 @@ namespace IceDiscovery
 
         public abstract void Finished(IObjectPrx? proxy);
 
-        protected abstract void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply);
+        protected abstract Task InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply);
 
         private readonly string _requestId;
 
@@ -127,20 +127,16 @@ namespace IceDiscovery
 
         public void RunTimerTask() => Lookup.AdapterRequestTimedOut(this);
 
-        protected override void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
+        protected override async Task InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
-            lookup.FindAdapterByIdAsync(domainId, Id, lookupReply).ContinueWith(task =>
+            try
             {
-                try
-                {
-                    task.Wait();
-                }
-                catch (AggregateException ex)
-                {
-                    Debug.Assert(ex.InnerException != null);
-                    Lookup.AdapterRequestException(this, ex.InnerException);
-                }
-            }, lookup.Scheduler);
+                await lookup.FindAdapterByIdAsync(domainId, Id, lookupReply).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Lookup.AdapterRequestException(this, ex);
+            }
         }
 
         private void SendResponse(IObjectPrx? proxy)
@@ -182,20 +178,16 @@ namespace IceDiscovery
 
         public void RunTimerTask() => Lookup.ObjectRequestTimedOut(this);
 
-        protected override void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
+        protected override async Task InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
-            lookup.FindObjectByIdAsync(domainId, Id, lookupReply).ContinueWith(task =>
+            try
             {
-                try
-                {
-                    task.Wait();
-                }
-                catch (AggregateException ex)
-                {
-                    Debug.Assert(ex.InnerException != null);
-                    Lookup.ObjectRequestException(this, ex.InnerException);
-                }
-            }, lookup.Scheduler);
+                await lookup.FindObjectByIdAsync(domainId, Id, lookupReply).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Lookup.ObjectRequestException(this, ex);
+            }
         }
     }
 
