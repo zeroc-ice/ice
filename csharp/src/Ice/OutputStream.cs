@@ -249,6 +249,13 @@ namespace Ice
             {
                 WriteSize(0);
             }
+            else if (v.Length <= 100)
+            {
+                Span<byte> data = stackalloc byte[_utf8.GetMaxByteCount(v.Length)];
+                int written = _utf8.GetBytes(v, data);
+                WriteSize(written);
+                WriteByteSpan(data.Slice(0, written));
+            }
             else
             {
                 byte[] data = _utf8.GetBytes(v);
