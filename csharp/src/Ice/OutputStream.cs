@@ -251,7 +251,7 @@ namespace Ice
             }
             else if (v.Length <= 100)
             {
-                Span<byte> data = stackalloc byte[v.Length * 4]; // there is at most 4 UTF-8 bytes per codepoint.
+                Span<byte> data = stackalloc byte[_utf8.GetMaxByteCount(v.Length)];
                 int written = _utf8.GetBytes(v, data);
                 WriteSize(written);
                 WriteByteSpan(data.Slice(0, written));
