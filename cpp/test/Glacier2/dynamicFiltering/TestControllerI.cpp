@@ -70,13 +70,16 @@ TestControllerI::step(shared_ptr<Glacier2::SessionPrx> currentSession, TestToken
 
             bool found = false;
             SessionTuple session;
-            for(const auto& p : _sessions)
             {
-                if(targetEqualTo(p.session, currentSession))
+                lock_guard<mutex> sync(_mutex);
+                for(const auto& p : _sessions)
                 {
-                    session = p;
-                    found = true;
-                    break;
+                    if(targetEqualTo(p.session, currentSession))
+                    {
+                        session = p;
+                        found = true;
+                        break;
+                    }
                 }
             }
 
@@ -160,12 +163,14 @@ TestControllerI::shutdown(const Ice::Current& current)
 void
 TestControllerI::addSession(SessionTuple&& s)
 {
+    lock_guard<mutex> sync(_mutex);
     _sessions.emplace_back(move(s));
 }
 
 void
 TestControllerI::notifyDestroy(const shared_ptr<Glacier2::SessionControlPrx>& control)
 {
+    lock_guard<mutex> sync(_mutex);
     for(auto i = _sessions.begin(); i != _sessions.end(); ++i)
     {
         if(targetEqualTo(i->sessionControl, control))
