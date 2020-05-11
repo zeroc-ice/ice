@@ -4,20 +4,20 @@
 
 #pragma once
 
-[["cpp:dll-export:ICE_API"]]
-[["cpp:doxygen:include:Ice/Ice.h"]]
-[["cpp:header-ext:h"]]
+[[cpp:dll-export:ICE_API]]
+[[cpp:doxygen:include:Ice/Ice.h]]
+[[cpp:header-ext:h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:Ice"]]
+[[python:pkgdir:Ice]]
 
 #include <Ice/Identity.ice>
 #include <Ice/Process.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module Ice
 {
@@ -70,7 +70,7 @@ module Ice
         ///
         /// @throws ObjectNotFoundException Raised if the object cannot
         /// be found.
-        ["amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Identity id)
+        [amd] [nonmutating] [cpp:const] idempotent Object* findObjectById(Identity id)
             throws ObjectNotFoundException;
 
         /// Find an adapter by id and return a proxy that contains
@@ -82,13 +82,13 @@ module Ice
         ///
         /// @throws AdapterNotFoundException Raised if the adapter cannot be
         /// found.
-        ["amd", "nonmutating", "cpp:const"] idempotent Object* findAdapterById(string id)
+        [amd] [nonmutating] [cpp:const] idempotent Object* findAdapterById(string id)
             throws AdapterNotFoundException;
 
         /// Get the locator registry.
         ///
         /// @return The locator registry.
-        ["nonmutating", "cpp:const"] idempotent LocatorRegistry* getRegistry();
+        [nonmutating] [cpp:const] idempotent LocatorRegistry* getRegistry();
     }
 
     /// The Ice locator registry interface. This interface is used by
@@ -115,7 +115,7 @@ module Ice
         ///
         /// @throws AdapterAlreadyActiveException Raised if an adapter with the same
         /// id is already active.
-        ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
+        [amd] idempotent void setAdapterDirectProxy(string id, Object* proxy)
             throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
         /// Set the adapter endpoints with the locator registry.
@@ -139,7 +139,7 @@ module Ice
         /// @throws InvalidReplicaGroupIdException Raised if the given
         /// replica group doesn't match the one registered with the
         /// locator registry for this object adapter.
-        ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
+        [amd] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
             throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
         /// Set the process proxy for a server.
@@ -150,7 +150,7 @@ module Ice
         ///
         /// @throws ServerNotFoundException Raised if the server cannot
         /// be found.
-        ["amd"] idempotent void setServerProcessProxy(string id, Process* proxy)
+        [amd] idempotent void setServerProcessProxy(string id, Process* proxy)
             throws ServerNotFoundException;
     }
 

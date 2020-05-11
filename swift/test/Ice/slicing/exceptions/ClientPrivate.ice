@@ -6,7 +6,7 @@
 
 #include <Test.ice>
 
-[["swift:class-resolver-prefix:IceSlicingExceptionsClient"]]
+[[swift:class-resolver-prefix:IceSlicingExceptionsClient]]
 
 module Test
 {

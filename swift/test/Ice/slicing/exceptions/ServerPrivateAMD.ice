@@ -6,7 +6,7 @@
 
 #include <TestAMD.ice>
 
-[["swift:class-resolver-prefix:IceSlicingExceptionsServerAMD"]]
+[[swift:class-resolver-prefix:IceSlicingExceptionsServerAMD]]
 
 module Test
 {

@@ -38,7 +38,7 @@ interface TestIntf
     bool waitForBatch(int count);
     void close(CloseMode mode);
     void sleep(int ms);
-    ["amd"] void startDispatch();
+    [amd] void startDispatch();
     void finishDispatch();
     void shutdown();
 

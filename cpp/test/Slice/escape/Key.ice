@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["underscore"]]
-[["suppress-warning:deprecated"]]
+[[underscore]]
+[[suppress-warning:deprecated]]
 
 module and
 {
@@ -25,7 +25,7 @@ struct delete
 
 interface break
 {
-    ["amd"] void case(int catch, out int try);
+    [amd] void case(int catch, out int try);
 }
 
 interface char

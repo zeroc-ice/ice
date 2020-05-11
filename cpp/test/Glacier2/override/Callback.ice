@@ -18,9 +18,9 @@ interface CallbackReceiver
 
 interface Callback
 {
-    ["amd"] void initiateCallback(CallbackReceiver* proxy, int token);
+    [amd] void initiateCallback(CallbackReceiver* proxy, int token);
 
-    ["amd"] void initiateCallbackWithPayload(CallbackReceiver* proxy);
+    [amd] void initiateCallbackWithPayload(CallbackReceiver* proxy);
 
     void shutdown();
 }

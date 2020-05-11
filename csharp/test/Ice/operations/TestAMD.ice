@@ -6,10 +6,10 @@
 
 #include <Ice/Context.ice>
 
-[["cs:typeid-namespace:Ice.operations.AMD.TypeId",
-  "suppress-warning:deprecated"]] // For classes with operations
+[[cs:typeid-namespace:Ice.operations.AMD.TypeId]]
+[[suppress-warning:deprecated]] // For classes with operations
 
-["cs:namespace:Ice.operations.AMD"]
+[cs:namespace:Ice.operations.AMD]
 module Test
 {
 
@@ -92,7 +92,7 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
 exception SomeException {}
 
-["amd"] interface MyClass
+[amd] interface MyClass
 {
     void shutdown();
 
@@ -238,7 +238,7 @@ exception SomeException {}
 
     void opOneway();
 
-    ["oneway"]
+    [oneway]
     void opOnewayMetadata();
 
     byte opByte1(byte opByte1);
@@ -256,14 +256,14 @@ exception SomeException {}
     StringS opStringLiterals();
     StringS opWStringLiterals();
 
-    ["marshaled-result"] Structure opMStruct1();
-    ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+    [marshaled-result] Structure opMStruct1();
+    [marshaled-result] Structure opMStruct2(Structure p1, out Structure p2);
 
-    ["marshaled-result"] StringS opMSeq1();
-    ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+    [marshaled-result] StringS opMSeq1();
+    [marshaled-result] StringS opMSeq2(StringS p1, out StringS p2);
 
-    ["marshaled-result"] StringStringD opMDict1();
-    ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+    [marshaled-result] StringStringD opMDict1();
+    [marshaled-result] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
 }
 
 struct MyStruct1
@@ -280,7 +280,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-["amd"] interface MyDerivedClass : MyClass
+[amd] interface MyDerivedClass : MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
@@ -361,7 +361,7 @@ const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194
 // Test proxy inheritance for class with operations
 // see: https://github.com/zeroc-ice/ice/issues/406
 //
-["cs:namespace:Ice.operations.AMD"]
+[cs:namespace:Ice.operations.AMD]
 module M
 {
     class A
@@ -370,12 +370,12 @@ module M
         // void opA();
     }
 
-    ["amd"] interface Intf
+    [amd] interface Intf
     {
         void opIntf();
     }
 
-    ["amd"] class B : A implements Intf
+    [amd] class B : A implements Intf
     {
         void opB();
     }

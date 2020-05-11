@@ -6,7 +6,7 @@
 
 #include <Ice/Identity.ice>
 
-["cs:namespace:Ice.udp"]
+[cs:namespace:Ice.udp]
 module Test
 {
 

@@ -54,7 +54,7 @@ class smwpTest4Class : M::smwpBaseClass implements M::smwpBaseInterface
                  out M::smwpClass o6)
         throws M::smwpException;
 
-    ["amd"]
+    [amd]
     M::smwpStruct
     smwpTest4Op3(M::smwpEnum i1,
                  M::smwpStruct i2,

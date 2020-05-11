@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.binding"]]
+[[java:package:test.Ice.binding]]
 module Test
 {
 

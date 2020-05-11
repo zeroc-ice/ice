@@ -4,13 +4,13 @@
 
 #pragma once
 
-[["java:package:test.Ice.seqMapping"]]
+[[java:package:test.Ice.seqMapping]]
 module Test
 {
 
-["java:serializable:test.Ice.seqMapping.Serialize.Small"] sequence<byte> SerialSmall;
-["java:serializable:test.Ice.seqMapping.Serialize.Large"] sequence<byte> SerialLarge;
-["java:serializable:test.Ice.seqMapping.Serialize.Struct"] sequence<byte> SerialStruct;
+[java:serializable:test.Ice.seqMapping.Serialize.Small] sequence<byte> SerialSmall;
+[java:serializable:test.Ice.seqMapping.Serialize.Large] sequence<byte> SerialLarge;
+[java:serializable:test.Ice.seqMapping.Serialize.Struct] sequence<byte> SerialStruct;
 
 interface MyClass
 {

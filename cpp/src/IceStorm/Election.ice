@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h"]]
+[[ice-prefix]]
+[[cpp:header-ext:h]]
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -216,7 +217,7 @@ module IceStormElection
         /// Determine if this node is a coordinator.
         ///
         /// @return True if the node is a coordinator, false otherwise.
-        ["cpp:const"] idempotent bool areYouCoordinator();
+        [cpp:const] idempotent bool areYouCoordinator();
 
         /// Determine if the node is a member of the given group with the
         /// given coordinator.
@@ -226,22 +227,22 @@ module IceStormElection
         /// @param j The group coordinator.
         ///
         /// @return True if the node is a member, false otherwise.
-        ["cpp:const"] idempotent bool areYouThere(string gn, int j);
+        [cpp:const] idempotent bool areYouThere(string gn, int j);
 
         /// Get the sync object for the replica hosted by this node.
         ///
         /// @return The sync object.
-        ["cpp:const"] idempotent Object* sync();
+        [cpp:const] idempotent Object* sync();
 
         /// Get the replication group information.
         ///
         /// @return The set of configured nodes and the associated
         /// priority.
-        ["cpp:const"] idempotent NodeInfoSeq nodes();
+        [cpp:const] idempotent NodeInfoSeq nodes();
 
         /// Get the query information for the given node.
         ///
         /// @return The query information.
-        ["cpp:const"] idempotent QueryInfo query();
+        [cpp:const] idempotent QueryInfo query();
     }
 }

@@ -6,7 +6,7 @@
 
 #include <DoubleModuleWithPackage.ice>
 
-[["java:package:dmwpTest10"]]
+[[java:package:dmwpTest10]]
 
 module M1
 {
@@ -58,7 +58,7 @@ class dmwpTest10Class : dmwpBaseClass implements dmwpBaseInterface
                   out dmwpClass o6)
         throws dmwpException;
 
-    ["amd"]
+    [amd]
     dmwpStruct
     dmwpTest10Op3(dmwpEnum i1,
                   dmwpStruct i2,

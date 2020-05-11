@@ -9,9 +9,9 @@
 //
 // Suppress invalid metadata warnings
 //
-[["suppress-warning:invalid-metadata, deprecated"]]
+[[suppress-warning:invalid-metadata, deprecated]]
 
-[["swift:class-resolver-prefix:IceStrem"]]
+[[swift:class-resolver-prefix:IceStrem]]
 module Test
 {
 
@@ -127,7 +127,7 @@ module Sub
 }
 }
 
-["swift:module:Test:Test2"]
+[swift:module:Test:Test2]
 module Test2
 {
 module Sub2

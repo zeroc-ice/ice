@@ -54,7 +54,7 @@ class smwpTest5Class : smwpBaseClass implements smwpBaseInterface
                  out smwpClass o6)
         throws smwpException;
 
-    ["amd"]
+    [amd]
     smwpStruct
     smwpTest5Op3(smwpEnum i1,
                  smwpStruct i2,

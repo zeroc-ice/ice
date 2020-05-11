@@ -18,8 +18,8 @@ interface Callback
 
 interface MyClass
 {
-    ["amd"] void callCallback();
-    ["amd"] int getCallbackCount();
+    [amd] void callCallback();
+    [amd] int getCallbackCount();
 
     void incCounter(int expected);
     void waitCounter(int value);
@@ -32,7 +32,7 @@ interface MyClass
     int getDatagramCount();
 
     void callDatagramCallback();
-    ["amd"] int getCallbackDatagramCount();
+    [amd] int getCallbackDatagramCount();
 
     int getHeartbeatCount();
     void enableHeartbeats();

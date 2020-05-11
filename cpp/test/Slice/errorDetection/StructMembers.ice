@@ -16,7 +16,7 @@ struct s2
 
 struct s4
 {
-    [ "Hi" ] long l;    // One member with metadata, OK
+    [Hi] long l;    // One member with metadata, OK
 }
 
 struct s5               // Two members, OK
@@ -27,24 +27,24 @@ struct s5               // Two members, OK
 
 struct s6
 {                       // Two members with metadata, OK
-    [ "Hi" ]    long l;
+    [Hi]    long l;
                 byte b;
 }
 
 struct s7               // Two members with metadata, OK
 {
-    [ "Hi" ]    long l;
-    [ "there" ] byte b;
+    [Hi]    long l;
+    [there] byte b;
 }
 
 struct s8
 {
-    [ "hi" ] long ;     // Missing data member name
+    [hi] long ;     // Missing data member name
 }
 
 struct s9
 {
-    [ "there" ] long    // Missing data member name
+    [there] long    // Missing data member name
 }
 
 struct s10

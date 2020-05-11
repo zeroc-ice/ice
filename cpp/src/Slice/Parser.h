@@ -551,7 +551,7 @@ protected:
     Container(const UnitPtr&);
 
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool);
-    bool checkGlobalMetaData(const StringList&, const StringList&);
+    bool checkFileMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
     EnumeratorPtr validateEnumerator(const std::string&);
 
@@ -1102,7 +1102,7 @@ public:
     int setCurrentFile(const std::string&, int);
     int currentIncludeLevel() const;
 
-    void addGlobalMetaData(const StringList&);
+    void addFileMetaData(const StringList&);
 
     void error(const std::string&); // Not const because error count is increased
     void warning(WarningCategory, const std::string&) const;
@@ -1160,7 +1160,7 @@ private:
     bool _all;
     bool _allowIcePrefix;
     bool _allowUnderscore;
-    StringList _defaultGlobalMetaData;
+    StringList _defaultFileMetaData;
     int _errors;
     std::string _currentComment;
     int _currentIncludeLevel;

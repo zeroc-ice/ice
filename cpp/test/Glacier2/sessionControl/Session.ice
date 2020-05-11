@@ -11,7 +11,7 @@ module Test
 
 interface Session : Glacier2::Session
 {
-    ["amd"] void destroyFromClient();
+    [amd] void destroyFromClient();
 
     void shutdown();
 }

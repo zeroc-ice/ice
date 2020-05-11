@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cpp:type:wstring"] module Test1
+[cpp:type:wstring] module Test1
 {
 
 sequence<string> WstringSeq;
@@ -36,21 +36,21 @@ interface WstringClass
 module Test2
 {
 
-sequence<["cpp:type:wstring"] string> WstringSeq;
+sequence<[cpp:type:wstring] string> WstringSeq;
 
-dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStringDict;
+dictionary<[cpp:type:wstring] string, [cpp:type:wstring] string> WstringWStringDict;
 
-["cpp:type:wstring"] struct WstringStruct
+[cpp:type:wstring] struct WstringStruct
 {
     string s;
 }
 
-["cpp:type:wstring"] exception WstringException
+[cpp:type:wstring] exception WstringException
 {
     string reason;
 }
 
-["cpp:type:wstring"] interface WstringClass
+[cpp:type:wstring] interface WstringClass
 {
     string opString(string s1, out string s2);
 

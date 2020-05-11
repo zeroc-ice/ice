@@ -7,7 +7,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-[["java:package:test.Ice.ami"]]
+[[java:package:test.Ice.ami]]
 module Test
 {
 
@@ -39,7 +39,7 @@ interface TestIntf
     bool waitForBatch(int count);
     void close(CloseMode mode);
     void sleep(int ms);
-    ["amd"] void startDispatch();
+    [amd] void startDispatch();
     void finishDispatch();
     void shutdown();
 

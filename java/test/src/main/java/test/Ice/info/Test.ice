@@ -6,7 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[["java:package:test.Ice.info"]]
+[[java:package:test.Ice.info]]
 module Test
 {
 

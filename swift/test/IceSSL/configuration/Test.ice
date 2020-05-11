@@ -4,7 +4,7 @@
 
 #pragma once
 
-["swift:module:Test:SSL"]
+[swift:module:Test:SSL]
 
 module Test
 {

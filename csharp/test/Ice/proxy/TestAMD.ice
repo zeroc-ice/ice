@@ -6,18 +6,18 @@
 
 #include <Ice/Context.ice>
 
-["cs:namespace:Ice.proxy.AMD"]
+[cs:namespace:Ice.proxy.AMD]
 module Test
 {
 
-["amd"] interface MyClass
+[amd] interface MyClass
 {
     void shutdown();
 
     Ice::Context getContext();
 }
 
-["amd"] interface MyDerivedClass : MyClass
+[amd] interface MyDerivedClass : MyClass
 {
     Object* echo(Object* obj);
 }
