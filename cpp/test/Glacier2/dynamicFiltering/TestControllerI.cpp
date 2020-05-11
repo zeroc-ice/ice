@@ -70,15 +70,17 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 
             bool found = false;
             SessionTuple session;
-            for(vector<SessionTuple>::const_iterator i = _sessions.begin(); i != _sessions.end() && !found; ++i)
             {
-                if(i->session == currentSession)
+                IceUtil::Mutex::Lock sync(_mutex);
+                for(vector<SessionTuple>::const_iterator i = _sessions.begin(); i != _sessions.end() && !found; ++i)
                 {
-                    session = *i;
-                    found = true;
+                    if(i->session == currentSession)
+                    {
+                        session = *i;
+                        found = true;
+                    }
                 }
             }
-
             assert(found);
 
             //
@@ -159,13 +161,15 @@ TestControllerI::shutdown(const Ice::Current& current)
 void
 TestControllerI::addSession(const SessionTuple& s)
 {
+    IceUtil::Mutex::Lock sync(_mutex);
     _sessions.push_back(s);
 }
 
 void
 TestControllerI::notifyDestroy(const Glacier2::SessionControlPrx& control)
 {
-    for(vector<SessionTuple>::iterator i = _sessions.begin(); i != _sessions.end(); ++i)
+    IceUtil::Mutex::Lock sync(_mutex);
+    for (vector<SessionTuple>::iterator i = _sessions.begin(); i != _sessions.end(); ++i)
     {
         if(i->sessionControl == control)
         {

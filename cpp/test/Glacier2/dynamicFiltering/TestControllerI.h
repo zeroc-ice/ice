@@ -86,6 +86,8 @@ public:
     void notifyDestroy(const Glacier2::SessionControlPrx&);
 
 private:
+
+    IceUtil::Mutex _mutex;
     std::vector<SessionTuple> _sessions;
     std::vector<TestConfiguration> _configurations;
 
