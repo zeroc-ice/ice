@@ -5,7 +5,8 @@
 #ifndef SLICE_GRAMMAR_UTIL_H
 #define SLICE_GRAMMAR_UTIL_H
 
-#include <Slice/Parser.h>
+#include "Slice/Parser.h"
+#include "Slice/Util.h"
 
 #include <memory>
 
