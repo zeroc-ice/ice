@@ -39,3 +39,7 @@ const long iCEaxe = 0;
 
 module Ice {}
 module IceFoo {}
+
+module all::good::here {}
+module an::iceberg::ahead {}
+module aPtr::okay::bPrx::fine::cHelper {}

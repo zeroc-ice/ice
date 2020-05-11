@@ -17,3 +17,7 @@ Reserved.ice:36: illegal identifier `ICEpick': `ICE' prefix is reserved
 Reserved.ice:37: illegal identifier `iCEaxe': `iCE' prefix is reserved
 Reserved.ice:40: illegal identifier `Ice': `Ice' prefix is reserved
 Reserved.ice:41: illegal identifier `IceFoo': `Ice' prefix is reserved
+Reserved.ice:44: illegal identifier `iceberg': `ice' prefix is reserved
+Reserved.ice:45: illegal identifier `aPtr': `Ptr' suffix is reserved
+Reserved.ice:45: illegal identifier `bPrx': `Prx' suffix is reserved
+Reserved.ice:45: illegal identifier `cHelper': `Helper' suffix is reserved
