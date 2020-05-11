@@ -12,7 +12,7 @@ namespace Ice
     [System.Serializable]
     public readonly struct Encoding : System.IEquatable<Encoding>
     {
-        // The encodings known to the Ice runtime. Don't reference them from other static variables!
+        // The encodings known to the Ice runtime.
 
         /// <summary>Version 1.0 of the Ice encoding, supported by Ice 1.0 to Ice 3.7.</summary>
         public static readonly Encoding V1_0 = new Encoding(1, 0);
@@ -24,7 +24,7 @@ namespace Ice
         public static readonly Encoding V2_0 = new Encoding(2, 0);
 
         /// <summary>The most recent version of the Ice encoding.</summary>
-        public static readonly Encoding Latest = new Encoding(1, 1); // for now, will upgrade to 2.0
+        public static readonly Encoding Latest = V2_0;
 
         /// <summary>The major version number of this version of the Ice encoding.</summary>
         public readonly byte Major;
@@ -32,7 +32,7 @@ namespace Ice
         /// <summary>The minor version number of this version of the Ice encoding.</summary>
         public readonly byte Minor;
 
-        internal bool IsSupported => this == V1_1; // TODO: add 2.0
+        internal bool IsSupported => this == V1_1 || this == V2_0;
 
         /// <summary>Parses a string into an Encoding.</summary>
         /// <param name="str">The string to parse.</param>

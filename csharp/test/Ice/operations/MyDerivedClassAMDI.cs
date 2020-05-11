@@ -240,6 +240,23 @@ namespace Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
+        public ValueTask<(IReadOnlyDictionary<ulong, float>, IReadOnlyDictionary<ulong, float>)>
+        opULongFloatDAsync(Dictionary<ulong, float> p1, Dictionary<ulong, float> p2, Current current)
+        {
+            var p3 = p1;
+            var r = new Dictionary<ulong, float>();
+            foreach (KeyValuePair<ulong, float> e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (KeyValuePair<ulong, float> e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+
+            return ToReturnValue(r, p3);
+        }
+
         public ValueTask<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>
         opMyClassAsync(Test.IMyClassPrx? p1, Current current)
         {
@@ -268,8 +285,33 @@ namespace Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(long, short, int, long)>
-        opShortIntLongAsync(short p1, int p2, long p3, Current current) => MakeValueTask((p3, p1, p2, p3));
+        public ValueTask<(IReadOnlyDictionary<ushort, uint>, IReadOnlyDictionary<ushort, uint>)>
+        opUShortUIntDAsync(Dictionary<ushort, uint> p1, Dictionary<ushort, uint> p2, Current current)
+        {
+            var p3 = p1;
+            var r = new Dictionary<ushort, uint>();
+            foreach (KeyValuePair<ushort, uint> e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (KeyValuePair<ushort, uint> e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return ToReturnValue(r, p3);
+        }
+
+        public ValueTask<(long, short, int, long)> opShortIntLongAsync(short p1, int p2, long p3, Current current) =>
+            MakeValueTask((p3, p1, p2, p3));
+
+        public ValueTask<(ulong, ushort, uint, ulong)> opUShortUIntULongAsync(
+            ushort p1, uint p2, ulong p3, Current current) =>
+            MakeValueTask((p3, p1, p2, p3));
+
+        public ValueTask<int> opVarIntAsync(int v, Current current) => MakeValueTask(v);
+        public ValueTask<uint> opVarUIntAsync(uint v, Current current) => MakeValueTask(v);
+        public ValueTask<long> opVarLongAsync(long v, Current current) => MakeValueTask(v);
+        public ValueTask<ulong> opVarULongAsync(ulong v, Current current) => MakeValueTask(v);
 
         public ValueTask<(ReadOnlyMemory<long>, ReadOnlyMemory<short>, ReadOnlyMemory<int>, ReadOnlyMemory<long>)>
         opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Current current)
@@ -285,6 +327,54 @@ namespace Ice.operations.AMD
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
             return MakeValueTask(((ReadOnlyMemory<long>)p3, (ReadOnlyMemory<short>)p4, (ReadOnlyMemory<int>)p5,
                 (ReadOnlyMemory<long>)p6));
+        }
+
+        public ValueTask<(ReadOnlyMemory<ulong>, ReadOnlyMemory<ushort>, ReadOnlyMemory<uint>, ReadOnlyMemory<ulong>)>
+        opUShortUIntULongSAsync(ushort[] p1, uint[] p2, ulong[] p3, Current current)
+        {
+            var p4 = p1;
+            var p5 = new uint[p2.Length];
+            for (int i = 0; i < p2.Length; i++)
+            {
+                p5[i] = p2[p2.Length - (i + 1)];
+            }
+            var p6 = new ulong[p3.Length + p3.Length];
+            Array.Copy(p3, p6, p3.Length);
+            Array.Copy(p3, 0, p6, p3.Length, p3.Length);
+            return MakeValueTask(((ReadOnlyMemory<ulong>)p3, (ReadOnlyMemory<ushort>)p4, (ReadOnlyMemory<uint>)p5,
+                (ReadOnlyMemory<ulong>)p6));
+        }
+
+        public ValueTask<(IEnumerable<long>, IEnumerable<int>, IEnumerable<long>)>
+        opVarIntVarLongSAsync(int[] p1, long[] p2, Current current)
+        {
+            var p4 = new int[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                p4[i] = p1[p1.Length - (i + 1)];
+            }
+
+            var p5 = new long[p2.Length + p2.Length];
+            Array.Copy(p2, p5, p2.Length);
+            Array.Copy(p2, 0, p5, p2.Length, p2.Length);
+
+            return MakeValueTask(((IEnumerable<long>)p2, (IEnumerable<int>)p4, (IEnumerable<long>)p5));
+        }
+
+        public ValueTask<(IEnumerable<ulong>, IEnumerable<uint>, IEnumerable<ulong>)>
+        opVarUIntVarULongSAsync(uint[] p1, ulong[] p2, Current current)
+        {
+            var p4 = new uint[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                p4[i] = p1[p1.Length - (i + 1)];
+            }
+
+            var p5 = new ulong[p2.Length + p2.Length];
+            Array.Copy(p2, p5, p2.Length);
+            Array.Copy(p2, 0, p5, p2.Length, p2.Length);
+
+            return MakeValueTask(((IEnumerable<ulong>)p2, (IEnumerable<uint>)p4, (IEnumerable<ulong>)p5));
         }
 
         public ValueTask<(IEnumerable<long[]>, IEnumerable<short[]>, IEnumerable<int[]>, IEnumerable<long[]>)>
@@ -303,6 +393,24 @@ namespace Ice.operations.AMD
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
             return MakeValueTask((p3 as IEnumerable<long[]>, p4 as IEnumerable<short[]>, p5 as IEnumerable<int[]>,
                 p6 as IEnumerable<long[]>));
+        }
+
+        public ValueTask<(IEnumerable<ulong[]>, IEnumerable<ushort[]>, IEnumerable<uint[]>, IEnumerable<ulong[]>)>
+        opUShortUIntULongSSAsync(ushort[][] p1, uint[][] p2, ulong[][] p3, Current current)
+        {
+            var p4 = p1;
+
+            var p5 = new uint[p2.Length][];
+            for (int i = 0; i < p2.Length; i++)
+            {
+                p5[i] = p2[p2.Length - (i + 1)];
+            }
+
+            var p6 = new ulong[p3.Length + p3.Length][];
+            Array.Copy(p3, p6, p3.Length);
+            Array.Copy(p3, 0, p6, p3.Length, p3.Length);
+            return MakeValueTask((p3 as IEnumerable<ulong[]>, p4 as IEnumerable<ushort[]>, p5 as IEnumerable<uint[]>,
+                p6 as IEnumerable<ulong[]>));
         }
 
         public ValueTask<(string, string)>
@@ -387,6 +495,21 @@ namespace Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
+        public ValueTask<(IEnumerable<Dictionary<ushort, uint>>, IEnumerable<Dictionary<ushort, uint>>)>
+        opUShortUIntDSAsync(Dictionary<ushort, uint>[] p1, Dictionary<ushort, uint>[] p2, Current current)
+        {
+            var p3 = new Dictionary<ushort, uint>[p1.Length + p2.Length];
+            Array.Copy(p2, p3, p2.Length);
+            Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+            var r = new Dictionary<ushort, uint>[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                r[i] = p1[p1.Length - (i + 1)];
+            }
+            return ToReturnValue(r, p3);
+        }
+
         public ValueTask<(IEnumerable<Dictionary<long, float>>, IEnumerable<Dictionary<long, float>>)>
         opLongFloatDSAsync(Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
         {
@@ -395,6 +518,21 @@ namespace Ice.operations.AMD
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
             var r = new Dictionary<long, float>[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                r[i] = p1[p1.Length - (i + 1)];
+            }
+            return ToReturnValue(r, p3);
+        }
+
+        public ValueTask<(IEnumerable<Dictionary<ulong, float>>, IEnumerable<Dictionary<ulong, float>>)>
+        opULongFloatDSAsync(Dictionary<ulong, float>[] p1, Dictionary<ulong, float>[] p2, Current current)
+        {
+            var p3 = new Dictionary<ulong, float>[p1.Length + p2.Length];
+            Array.Copy(p2, p3, p2.Length);
+            Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+            var r = new Dictionary<ulong, float>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -512,6 +650,22 @@ namespace Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
+        public ValueTask<(IReadOnlyDictionary<ushort, ushort[]>, IReadOnlyDictionary<ushort, ushort[]>)>
+        opUShortUShortSDAsync(Dictionary<ushort, ushort[]> p1, Dictionary<ushort, ushort[]> p2, Current current)
+        {
+            var p3 = p2;
+            var r = new Dictionary<ushort, ushort[]>();
+            foreach (var e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (var e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return ToReturnValue(r, p3);
+        }
+
         public ValueTask<(IReadOnlyDictionary<int, int[]>, IReadOnlyDictionary<int, int[]>)>
         opIntIntSDAsync(Dictionary<int, int[]> p1, Dictionary<int, int[]> p2, Current current)
         {
@@ -528,11 +682,43 @@ namespace Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
+        public ValueTask<(IReadOnlyDictionary<uint, uint[]>, IReadOnlyDictionary<uint, uint[]>)>
+        opUIntUIntSDAsync(Dictionary<uint, uint[]> p1, Dictionary<uint, uint[]> p2, Current current)
+        {
+            var p3 = p2;
+            var r = new Dictionary<uint, uint[]>();
+            foreach (var e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (var e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return ToReturnValue(r, p3);
+        }
+
         public ValueTask<(IReadOnlyDictionary<long, long[]>, IReadOnlyDictionary<long, long[]>)>
         opLongLongSDAsync(Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
         {
             var p3 = p2;
             var r = new Dictionary<long, long[]>();
+            foreach (var e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (var e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return ToReturnValue(r, p3);
+        }
+
+        public ValueTask<(IReadOnlyDictionary<ulong, ulong[]>, IReadOnlyDictionary<ulong, ulong[]>)>
+        opULongULongSDAsync(Dictionary<ulong, ulong[]> p1, Dictionary<ulong, ulong[]> p2, Current current)
+        {
+            var p3 = p2;
+            var r = new Dictionary<ulong, ulong[]>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
@@ -745,14 +931,13 @@ namespace Ice.operations.AMD
         public ValueTask<byte>
         opByte1Async(byte value, Current current) => MakeValueTask(value);
 
-        public ValueTask<short>
-        opShort1Async(short value, Current current) => MakeValueTask(value);
+        public ValueTask<short> opShort1Async(short value, Current current) => MakeValueTask(value);
+        public ValueTask<int> opInt1Async(int value, Current current) => MakeValueTask(value);
+        public ValueTask<long> opLong1Async(long value, Current current) => MakeValueTask(value);
 
-        public ValueTask<int>
-        opInt1Async(int value, Current current) => MakeValueTask(value);
-
-        public ValueTask<long>
-        opLong1Async(long value, Current current) => MakeValueTask(value);
+        public ValueTask<ushort> opUShort1Async(ushort value, Current current) => MakeValueTask(value);
+        public ValueTask<uint> opUInt1Async(uint value, Current current) => MakeValueTask(value);
+        public ValueTask<ulong> opULong1Async(ulong value, Current current) => MakeValueTask(value);
 
         public ValueTask<float>
         opFloat1Async(float value, Current current) => MakeValueTask(value);

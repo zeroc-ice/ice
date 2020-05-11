@@ -120,6 +120,15 @@ namespace Ice.operations
                 called();
             }
 
+            public void opUShortUIntULong(ulong r, ushort s, uint i, ulong l)
+            {
+                TestHelper.Assert(s == 10);
+                TestHelper.Assert(i == 11);
+                TestHelper.Assert(l == 12);
+                TestHelper.Assert(r == 12);
+                called();
+            }
+
             public void opFloatDouble(double r, float f, double d)
             {
                 TestHelper.Assert(f == 3.14f);
@@ -971,6 +980,12 @@ namespace Ice.operations
                 var cb = new Callback();
                 var ret = p.opShortIntLongAsync(10, 11, 12).Result;
                 cb.opShortIntLong(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
+            }
+
+            {
+                var cb = new Callback();
+                var ret = p.opUShortUIntULongAsync(10, 11, 12).Result;
+                cb.opUShortUIntULong(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {

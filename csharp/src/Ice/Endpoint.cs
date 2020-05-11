@@ -214,7 +214,7 @@ namespace Ice
                     // unmarshal it from this buffer.
                     var bufferList = new List<ArraySegment<byte>>
                     {
-                        // 8 = size of short + size of encapsulation header
+                        // 8 = size of short + size of encapsulation header with 1.1 encoding
                         new byte[8 + opaqueEndpoint.Bytes.Length]
                     };
 
@@ -224,7 +224,7 @@ namespace Ice
                     Debug.Assert(bufferList.Count == 1);
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);
 
-                    return new InputStream(communicator, bufferList[0]).ReadEndpoint();
+                    return new InputStream(communicator, Ice1Definitions.Encoding, bufferList[0]).ReadEndpoint();
                 }
                 else
                 {
