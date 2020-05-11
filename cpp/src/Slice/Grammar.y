@@ -395,6 +395,62 @@ module_def
         $$ = 0;
     }
 }
+| ICE_MODULE ICE_SCOPED_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+
+    // Split the 'scoped identifier' into separate module names.
+    vector<string> modules;
+    size_t startPos = 0;
+    size_t endPos;
+    while((endPos = ident->v.find("::", startPos)) != string::npos)
+    {
+        modules.push_back(ident->v.substr(startPos, (endPos - startPos)));
+        startPos = endPos + 2;
+    }
+    modules.push_back(ident->v.substr(startPos));
+
+    // Create the nested modules.
+    for(size_t i = 0; i < modules.size(); i++)
+    {
+        ModulePtr module = cont->createModule(modules[i]);
+        if(module)
+        {
+            cont->checkIntroduced(ident->v, module);
+            unit->pushContainer(module);
+            $$ = cont = module;
+        }
+        else
+        {
+            // If an error occurs creating one of the modules, back up the entire chain.
+            for(; i > 0; i--)
+            {
+                unit->popContainer();
+            }
+            $$ = 0;
+            break;
+        }
+    }
+}
+'{' definitions '}'
+{
+    if($3)
+    {
+        StringTokPtr ident = StringTokPtr::dynamicCast($2);
+        size_t startPos = 0;
+        while((startPos = ident->v.find("::", startPos + 2)) != string::npos)
+        {
+            unit->popContainer();
+        }
+        unit->popContainer();
+        $$ = $3;
+    }
+    else
+    {
+        $$ = 0;
+    }
+}
 ;
 
 // ----------------------------------------------------------------------
