@@ -7,7 +7,7 @@
 //
 // Suppress invalid metadata warnings
 //
-[["suppress-warning:invalid-metadata, deprecated"]]
+[[suppress-warning:invalid-metadata, deprecated]]
 
 #include <Ice/BuiltinSequences.ice>
 

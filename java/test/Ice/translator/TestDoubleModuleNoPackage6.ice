@@ -56,7 +56,7 @@ class dmnpTest6Class : dmnpBaseClass implements dmnpBaseInterface
                  out dmnpClass o6)
         throws dmnpException;
 
-    ["amd"]
+    [amd]
     dmnpStruct
     dmnpTest6Op3(dmnpEnum i1,
                  dmnpStruct i2,

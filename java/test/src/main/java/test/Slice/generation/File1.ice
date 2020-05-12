@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Slice.generation"]]
+[[java:package:test.Slice.generation]]
 
 module Test
 {
@@ -16,7 +16,7 @@ interface Interface1
 
 }
 
-["java:package:test.Slice.generation.modpkg"]
+[java:package:test.Slice.generation.modpkg]
 module Test2
 {
 

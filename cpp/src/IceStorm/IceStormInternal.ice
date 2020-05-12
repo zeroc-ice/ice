@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h"]]
+[[ice-prefix]]
+[[cpp:header-ext:h]]
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>
@@ -13,7 +14,7 @@
 #include <Ice/Context.ice>
 #include <Ice/OperationMode.ice>
 
-[["cpp:include:deque"]]
+[[cpp:include:deque]]
 
 module IceStorm
 {
@@ -31,7 +32,7 @@ module IceStorm
     }
 
     /// A sequence of EventData.
-    ["cpp:type:std::deque<IceStorm::EventData>"] sequence<EventData> EventDataSeq;
+    [cpp:type:std::deque<IceStorm::EventData>] sequence<EventData> EventDataSeq;
 
     /// The TopicLink interface. This is used to forward events between
     /// federated Topic instances.
@@ -77,6 +78,6 @@ module IceStorm
         ///
         /// @return The replica proxy, or null if this instance is not
         /// replicated.
-        ["cpp:const"] idempotent IceStormElection::Node* getReplicaNode();
+        [cpp:const] idempotent IceStormElection::Node* getReplicaNode();
     }
 }

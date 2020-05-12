@@ -4,19 +4,19 @@
 
 #pragma once
 
-[["cpp:dll-export:ICE_API"]]
-[["cpp:doxygen:include:Ice/Ice.h"]]
-[["cpp:header-ext:h"]]
+[[cpp:dll-export:ICE_API]]
+[[cpp:doxygen:include:Ice/Ice.h]]
+[[cpp:header-ext:h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:Ice"]]
+[[python:pkgdir:Ice]]
 
 #include <Ice/BuiltinSequences.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module Ice
 {
@@ -38,13 +38,13 @@ module Ice
         /// set.
         ///
         /// @return The router's client proxy.
-        ["nonmutating", "cpp:const"] idempotent Object* getClientProxy(out tag(1) bool hasRoutingTable);
+        [nonmutating] [cpp:const] idempotent Object* getClientProxy(out tag(1) bool hasRoutingTable);
 
         /// Get the router's server proxy, i.e., the proxy to use for
         /// forwarding requests from the server to the router.
         ///
         /// @return The router's server proxy.
-        ["nonmutating", "cpp:const"] idempotent Object* getServerProxy();
+        [nonmutating] [cpp:const] idempotent Object* getServerProxy();
 
         /// Add new proxy information to the router's routing table.
         ///

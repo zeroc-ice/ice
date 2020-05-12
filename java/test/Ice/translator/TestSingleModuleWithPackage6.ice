@@ -6,7 +6,7 @@
 
 #include <SingleModuleWithPackage.ice>
 
-[["java:package:smwpTest6"]]
+[[java:package:smwpTest6]]
 
 module T1
 {
@@ -56,7 +56,7 @@ class smwpTest6Class : M::smwpBaseClass implements M::smwpBaseInterface
                  out M::smwpClass o6)
         throws M::smwpException;
 
-    ["amd"]
+    [amd]
     M::smwpStruct
     smwpTest6Op3(M::smwpEnum i1,
                  M::smwpStruct i2,

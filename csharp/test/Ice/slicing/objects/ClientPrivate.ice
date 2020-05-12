@@ -20,7 +20,7 @@ class D3 : B
     B pd3;
 }
 
-["preserve-slice"]
+[preserve-slice]
 class PCUnknown : PBase
 {
     string pu = "";

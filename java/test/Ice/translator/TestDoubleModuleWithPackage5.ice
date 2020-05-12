@@ -54,7 +54,7 @@ class dmwpTest5Class : ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInte
                  out ::M1::M2::dmwpClass o6)
         throws ::M1::M2::dmwpException;
 
-    ["amd"]
+    [amd]
     ::M1::M2::dmwpStruct
     dmwpTest5Op3(::M1::M2::dmwpEnum i1,
                  ::M1::M2::dmwpStruct i2,

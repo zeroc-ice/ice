@@ -4,24 +4,24 @@
 
 #pragma once
 
-[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceGrid/Config.h"]]
+[[cpp:doxygen:include:IceGrid/IceGrid.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceGrid/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceGrid"]]
+[[python:pkgdir:IceGrid]]
 
 #ifndef ICE_BUILDING_ICEGRIDDB
-[["cpp:dll-export:ICEGRID_API"]]
+[[cpp:dll-export:ICEGRID_API]]
 #endif
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module IceGrid
 {
@@ -39,7 +39,7 @@ module IceGrid
     }
 
     /// A sequence of property descriptors.
-    ["java:type:java.util.LinkedList<PropertyDescriptor>"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
+    [java:type:java.util.LinkedList<PropertyDescriptor>] sequence<PropertyDescriptor> PropertyDescriptorSeq;
 
     /// A property set descriptor.
     struct PropertySetDescriptor
@@ -70,7 +70,7 @@ module IceGrid
     }
 
     /// A sequence of object descriptors.
-    ["java:type:java.util.LinkedList<ObjectDescriptor>"] sequence<ObjectDescriptor> ObjectDescriptorSeq;
+    [java:type:java.util.LinkedList<ObjectDescriptor>] sequence<ObjectDescriptor> ObjectDescriptorSeq;
 
     /// An Ice object adapter descriptor.
     struct AdapterDescriptor
@@ -109,7 +109,7 @@ module IceGrid
     }
 
     /// A sequence of adapter descriptors.
-    ["java:type:java.util.LinkedList<AdapterDescriptor>"] sequence<AdapterDescriptor> AdapterDescriptorSeq;
+    [java:type:java.util.LinkedList<AdapterDescriptor>] sequence<AdapterDescriptor> AdapterDescriptorSeq;
 
     /// A communicator descriptor.
     class CommunicatorDescriptor
@@ -147,10 +147,10 @@ module IceGrid
         string pwd;
 
         /// The command line options to pass to the server executable.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq options;
+        [java:type:java.util.LinkedList<String>] Ice::StringSeq options;
 
         /// The server environment variables.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq envs;
+        [java:type:java.util.LinkedList<String>] Ice::StringSeq envs;
 
         /// The server activation mode (possible values are "on-demand" or
         /// "manual").
@@ -172,7 +172,7 @@ module IceGrid
     }
 
     /// A sequence of server descriptors.
-    ["java:type:java.util.LinkedList<ServerDescriptor>"] sequence<ServerDescriptor> ServerDescriptorSeq;
+    [java:type:java.util.LinkedList<ServerDescriptor>] sequence<ServerDescriptor> ServerDescriptorSeq;
 
     /// An IceBox service descriptor.
     class ServiceDescriptor : CommunicatorDescriptor
@@ -185,7 +185,7 @@ module IceGrid
     }
 
     /// A sequence of service descriptors.
-    ["java:type:java.util.LinkedList<ServiceDescriptor>"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
+    [java:type:java.util.LinkedList<ServiceDescriptor>] sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
     /// A server template instance descriptor.
     struct ServerInstanceDescriptor
@@ -205,7 +205,7 @@ module IceGrid
     }
 
     /// A sequence of server instance descriptors.
-    ["java:type:java.util.LinkedList<ServerInstanceDescriptor>"]
+    [java:type:java.util.LinkedList<ServerInstanceDescriptor>]
     sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
 
     /// A template descriptor for server or service templates.
@@ -215,7 +215,7 @@ module IceGrid
         CommunicatorDescriptor descriptor;
 
         /// The parameters required to instantiate the template.
-        ["java:type:java.util.LinkedList<String>"] Ice::StringSeq parameters;
+        [java:type:java.util.LinkedList<String>] Ice::StringSeq parameters;
 
         /// The parameters default values.
         StringStringDict parameterDefaults;
@@ -242,7 +242,7 @@ module IceGrid
     }
 
     /// A sequence of service instance descriptors.
-    ["java:type:java.util.LinkedList<ServiceInstanceDescriptor>"]
+    [java:type:java.util.LinkedList<ServiceInstanceDescriptor>]
     sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
     /// An IceBox server descriptor.
@@ -256,7 +256,7 @@ module IceGrid
     struct NodeDescriptor
     {
         /// The variables defined for the node.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        [java:type:java.util.TreeMap<String, String>] StringStringDict variables;
 
         /// The server instances.
         ServerInstanceDescriptorSeq serverInstances;
@@ -333,7 +333,7 @@ module IceGrid
     }
 
     /// A sequence of replica groups.
-    ["java:type:java.util.LinkedList<ReplicaGroupDescriptor>"] sequence<ReplicaGroupDescriptor> ReplicaGroupDescriptorSeq;
+    [java:type:java.util.LinkedList<ReplicaGroupDescriptor>] sequence<ReplicaGroupDescriptor> ReplicaGroupDescriptorSeq;
 
     /// An application descriptor.
     struct ApplicationDescriptor
@@ -342,7 +342,7 @@ module IceGrid
         string name;
 
         /// The variables defined in the application descriptor.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        [java:type:java.util.TreeMap<String, String>] StringStringDict variables;
 
         /// The replica groups.
         ReplicaGroupDescriptorSeq replicaGroups;
@@ -364,7 +364,7 @@ module IceGrid
     }
 
     /// A sequence of application descriptors.
-    ["java:type:java.util.LinkedList<ApplicationDescriptor>"] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
+    [java:type:java.util.LinkedList<ApplicationDescriptor>] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
 
     /// A "boxed" string.
     class BoxedString
@@ -384,7 +384,7 @@ module IceGrid
         BoxedString description;
 
         /// The variables to update.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        [java:type:java.util.TreeMap<String, String>] StringStringDict variables;
 
         /// The variables to remove.
         Ice::StringSeq removeVariables;
@@ -410,7 +410,7 @@ module IceGrid
     }
 
     /// A sequence of node update descriptors.
-    ["java:type:java.util.LinkedList<NodeUpdateDescriptor>"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
+    [java:type:java.util.LinkedList<NodeUpdateDescriptor>] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
     /// An application update descriptor to describe the updates to apply
     /// to a deployed application.
@@ -424,7 +424,7 @@ module IceGrid
         BoxedString description;
 
         /// The variables to update.
-        ["java:type:java.util.TreeMap<String, String>"] StringStringDict variables;
+        [java:type:java.util.TreeMap<String, String>] StringStringDict variables;
 
         /// The variables to remove.
         Ice::StringSeq removeVariables;

@@ -7,7 +7,8 @@
 //
 // Suppress invalid metadata warnings
 //
-[["suppress-warning:invalid-metadata, deprecated", "js:es6-module"]]
+[[suppress-warning:invalid-metadata, deprecated]]
+[[js:es6-module]]
 
 #include <Ice/BuiltinSequences.ice>
 

@@ -7,7 +7,7 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
-["cs:namespace:Ice.admin"]
+[cs:namespace:Ice.admin]
 module Test
 {
 

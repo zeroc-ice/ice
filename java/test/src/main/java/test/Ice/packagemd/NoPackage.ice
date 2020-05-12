@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.packagemd"]]
+[[java:package:test.Ice.packagemd]]
 module Test1
 {
 class C1

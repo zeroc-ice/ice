@@ -15,20 +15,20 @@ sequence<byte> ByteSeq;
 
 interface Metrics
 {
-    ["amd"] void op();
+    [amd] void op();
 
-    ["amd"] idempotent void fail();
+    [amd] idempotent void fail();
 
-    ["amd"] void opWithUserException()
+    [amd] void opWithUserException()
         throws UserEx;
 
-    ["amd"] void opWithRequestFailedException();
+    [amd] void opWithRequestFailedException();
 
-    ["amd"] void opWithLocalException();
+    [amd] void opWithLocalException();
 
-    ["amd"] void opWithUnknownException();
+    [amd] void opWithUnknownException();
 
-    ["amd"] void opByteS(ByteSeq bs);
+    [amd] void opByteS(ByteSeq bs);
 
     Object* getAdmin();
 

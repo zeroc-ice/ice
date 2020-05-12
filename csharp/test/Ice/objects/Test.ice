@@ -6,8 +6,10 @@
 
 #include <Ice/Identity.ice>
 
-[["cs:typeid-namespace:Ice.objects.TypeId", "suppress-warning:deprecated"]] // For classes with operations
-["cs:namespace:Ice.objects"]
+[[cs:typeid-namespace:Ice.objects.TypeId]]
+[[suppress-warning:deprecated]] // For classes with operations
+
+[cs:namespace:Ice.objects]
 module Test
 {
 
@@ -191,8 +193,8 @@ interface Initial
     void setRecursive(Recursive p);
     bool supportsClassGraphDepthMax();
 
-    ["marshaled-result"] B getMB();
-    ["amd", "marshaled-result"] B getAMDMB();
+    [marshaled-result] B getMB();
+    [amd] [marshaled-result] B getAMDMB();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 

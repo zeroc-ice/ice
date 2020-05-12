@@ -15,7 +15,7 @@ exception TestImpossibleException
 {
 }
 
-["amd"] interface TestIntf
+[amd] interface TestIntf
 {
     void requestFailedException();
     void unknownUserException();

@@ -4,22 +4,22 @@
 
 #pragma once
 
-[["cpp:dll-export:ICESTORM_API"]]
-[["cpp:doxygen:include:IceStorm/IceStorm.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceStorm/Config.h"]]
+[[cpp:dll-export:ICESTORM_API]]
+[[cpp:doxygen:include:IceStorm/IceStorm.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceStorm/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceStorm"]]
+[[python:pkgdir:IceStorm]]
 
 #include <Ice/Identity.ice>
 
 #include <IceStorm/Metrics.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 /// A messaging service with support for federation. In contrast to
 /// most other messaging or event services, IceStorm supports typed
@@ -99,7 +99,7 @@ module IceStorm
         /// @return The name of the topic.
         ///
         /// @see TopicManager#create
-        ["nonmutating", "cpp:const"] idempotent string getName();
+        [nonmutating] [cpp:const] idempotent string getName();
 
         /// Get a proxy to a publisher object for this topic. To publish
         /// data to a topic, the publisher calls getPublisher and then
@@ -108,7 +108,7 @@ module IceStorm
         /// may return a replicated proxy.
         ///
         /// @return A proxy to publish data on this topic.
-        ["nonmutating", "cpp:const"] idempotent Object* getPublisher();
+        [nonmutating] [cpp:const] idempotent Object* getPublisher();
 
         /// Get a non-replicated proxy to a publisher object for this
         /// topic. To publish data to a topic, the publisher calls
@@ -116,7 +116,7 @@ module IceStorm
         /// cast must be used on this proxy.
         ///
         /// @return A proxy to publish data on this topic.
-        ["nonmutating", "cpp:const"] idempotent Object* getNonReplicatedPublisher();
+        [nonmutating] [cpp:const] idempotent Object* getNonReplicatedPublisher();
 
         /// Subscribe with the given <code>qos</code> to this topic.  A
         /// per-subscriber publisher object is returned.
@@ -168,12 +168,12 @@ module IceStorm
         /// Retrieve information on the current links.
         ///
         /// @return A sequence of LinkInfo objects.
-        ["nonmutating", "cpp:const"] idempotent LinkInfoSeq getLinkInfoSeq();
+        [nonmutating] [cpp:const] idempotent LinkInfoSeq getLinkInfoSeq();
 
         /// Retrieve the list of subscribers for this topic.
         ///
         /// @return The sequence of Ice identities for the subscriber objects.
-        ["nonmutating", "cpp:const"] Ice::IdentitySeq getSubscribers();
+        [nonmutating] [cpp:const] Ice::IdentitySeq getSubscribers();
 
         /// Destroy the topic.
         void destroy();

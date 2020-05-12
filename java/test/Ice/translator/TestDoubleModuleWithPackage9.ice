@@ -56,7 +56,7 @@ class dmwpTest9Class : dmwpBaseClass implements dmwpBaseInterface
                  out dmwpClass o6)
         throws dmwpException;
 
-    ["amd"]
+    [amd]
     dmwpStruct
     dmwpTest9Op3(dmwpEnum i1,
                  dmwpStruct i2,

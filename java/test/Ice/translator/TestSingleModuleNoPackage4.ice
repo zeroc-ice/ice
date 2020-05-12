@@ -54,7 +54,7 @@ class smnpTest4Class : smnpBaseClass implements smnpBaseInterface
                  out smnpClass o6)
         throws smnpException;
 
-    ["amd"]
+    [amd]
     smnpStruct
     smnpTest4Op3(smnpEnum i1,
                  smnpStruct i2,

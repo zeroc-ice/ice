@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["python:package:testpkg"]]
+[[python:package:testpkg]]
 module Test2
 {
 class C1
@@ -28,7 +28,7 @@ exception E2 extends E1
 }
 }
 
-["python:package:modpkg"]
+[python:package:modpkg]
 module Test3
 {
 class C1

@@ -46,6 +46,7 @@ extern int slice_debug;
 /* "%code requires" blocks.  */
 #line 12 "src/Slice/Grammar.y"
 
+
 // Define a custom location type for storing the location (and filename) of tokens.
 #define YYLTYPE Slice::TokenContext
 
@@ -59,6 +60,7 @@ extern int slice_debug;
 
 // Newer bison versions allow to disable stack resizing by defining yyoverflow.
 #define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
+
 
 #line 66 "src/Slice/Grammar.hpp"
 
@@ -108,11 +110,11 @@ extern int slice_debug;
     ICE_FLOATING_POINT_LITERAL = 296,
     ICE_IDENTIFIER = 297,
     ICE_SCOPED_IDENTIFIER = 298,
-    ICE_METADATA_OPEN = 299,
-    ICE_METADATA_CLOSE = 300,
-    ICE_GLOBAL_METADATA_OPEN = 301,
-    ICE_GLOBAL_METADATA_IGNORE = 302,
-    ICE_GLOBAL_METADATA_CLOSE = 303,
+    ICE_LOCAL_METADATA_OPEN = 299,
+    ICE_LOCAL_METADATA_CLOSE = 300,
+    ICE_FILE_METADATA_OPEN = 301,
+    ICE_FILE_METADATA_IGNORE = 302,
+    ICE_FILE_METADATA_CLOSE = 303,
     ICE_IDENT_OPEN = 304,
     ICE_KEYWORD_OPEN = 305,
     ICE_TAG_OPEN = 306,
@@ -141,6 +143,8 @@ struct YYLTYPE
 # define YYLTYPE_IS_DECLARED 1
 # define YYLTYPE_IS_TRIVIAL 1
 #endif
+
+
 
 int slice_parse (void);
 

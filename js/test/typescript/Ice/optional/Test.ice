@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["suppress-warning:deprecated", "js:es6-module"]]
+[[suppress-warning:deprecated]]
+[[js:es6-module]]
 
 module Test
 {
@@ -112,7 +113,7 @@ class A
     tag(500) int mc;
 }
 
-["preserve-slice"]
+[preserve-slice]
 class B : A
 {
     int requiredB;
@@ -154,7 +155,7 @@ exception RequiredException : OptionalException
 class OptionalWithCustom
 {
     tag(1) SmallStructList l;
-    ["protected"] tag(2) SmallStructList lp;
+    [protected] tag(2) SmallStructList lp;
     tag(3) ClassVarStruct s;
 }
 
@@ -282,20 +283,20 @@ interface Initial
 
     void opVoid();
 
-    ["marshaled-result"] tag(1) SmallStruct opMStruct1();
-    ["marshaled-result"] tag(1) SmallStruct opMStruct2(tag(2) SmallStruct p1,
+    [marshaled-result] tag(1) SmallStruct opMStruct1();
+    [marshaled-result] tag(1) SmallStruct opMStruct2(tag(2) SmallStruct p1,
                                                             out tag(3)SmallStruct p2);
 
-    ["marshaled-result"] tag(1) StringSeq opMSeq1();
-    ["marshaled-result"] tag(1) StringSeq opMSeq2(tag(2) StringSeq p1,
+    [marshaled-result] tag(1) StringSeq opMSeq1();
+    [marshaled-result] tag(1) StringSeq opMSeq2(tag(2) StringSeq p1,
                                                        out tag(3) StringSeq p2);
 
-    ["marshaled-result"] tag(1) StringIntDict opMDict1();
-    ["marshaled-result"] tag(1) StringIntDict opMDict2(tag(2) StringIntDict p1,
+    [marshaled-result] tag(1) StringIntDict opMDict1();
+    [marshaled-result] tag(1) StringIntDict opMDict2(tag(2) StringIntDict p1,
                                                             out tag(3) StringIntDict p2);
 
-    ["marshaled-result"] tag(1) G opMG1();
-    ["marshaled-result"] tag(1) G opMG2(tag(2) G p1, out tag(3) G p2);
+    [marshaled-result] tag(1) G opMG1();
+    [marshaled-result] tag(1) G opMG2(tag(2) G p1, out tag(3) G p2);
 
     bool supportsRequiredParams();
 

@@ -4,21 +4,21 @@
 
 #pragma once
 
-[["cpp:dll-export:ICEGRID_API"]]
-[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceGrid/Config.h"]]
+[[cpp:dll-export:ICEGRID_API]]
+[[cpp:doxygen:include:IceGrid/IceGrid.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceGrid/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceGrid"]]
+[[python:pkgdir:IceGrid]]
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module IceGrid
 {
@@ -52,7 +52,7 @@ module IceGrid
         ///
         /// @see #setAllocationTimeout
         /// @see #releaseObject
-        ["amd"] Object* allocateObjectById(Ice::Identity id)
+        [amd] Object* allocateObjectById(Ice::Identity id)
             throws ObjectNotRegisteredException, AllocationException;
 
         /// Allocate an object with the given type. Depending on the
@@ -67,7 +67,7 @@ module IceGrid
         ///
         /// @see #setAllocationTimeout
         /// @see #releaseObject
-        ["amd"] Object* allocateObjectByType(string type)
+        [amd] Object* allocateObjectByType(string type)
             throws AllocationException;
 
         /// Release an object that was allocated using <code>allocateObjectById</code> or

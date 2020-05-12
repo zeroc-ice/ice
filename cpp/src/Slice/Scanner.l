@@ -108,6 +108,8 @@ void yynoreturn fatalError(const char* msg);
 %s SLICE
 %x PREPROCESS
 %x METADATA
+%x QUOTED_METADATA
+%x UNQUOTED_METADATA
 %x STRING_LITERAL
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
@@ -116,7 +118,7 @@ oct                 [0-7]
 dec                 [0-9]
 hex                 [0-9a-fA-F]
 bom                 "\357\273\277"
-whitespace          ([[:space:]]{-}[\n])+
+whitespace          ([[:space:]]{-}[\n])
 preprocessor_prefix [[:blank:]]*#[[:blank:]]*
 preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
@@ -407,7 +409,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 "[" {
     yy_push_state(METADATA);
-    return ICE_METADATA_OPEN;
+    return ICE_LOCAL_METADATA_OPEN;
 }
 
 "[[" {
@@ -416,16 +418,18 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
     if(yy_top_state() == PRE_SLICE)
     {
-        return ICE_GLOBAL_METADATA_OPEN;
+        return ICE_FILE_METADATA_OPEN;
     }
     else
     {
-        return ICE_GLOBAL_METADATA_IGNORE;
+        return ICE_FILE_METADATA_IGNORE;
     }
 }
 
-  /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
-<METADATA>"\"" {
+  /* Matches the start of a metadata string, ensures the scanner is in QUOTED_METADATA mode,
+   * then starts scanning a string literal. */
+<METADATA,QUOTED_METADATA>"\"" {
+    BEGIN(QUOTED_METADATA);
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
@@ -435,27 +439,52 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches commas between string literals in quoted metadata and forwards them to the parser. */
-<METADATA>"," {
+<QUOTED_METADATA>"," {
     return yytext[0];
 }
 
+<METADATA,QUOTED_METADATA>"]" {
+    yy_pop_state();
+    return ICE_LOCAL_METADATA_CLOSE;
+}
+
+<METADATA,QUOTED_METADATA>"]]" {
+    yy_pop_state();
+    return ICE_FILE_METADATA_CLOSE;
+}
+
+  /* Matches the start of unquoted metadata and switches the scanner into UNQUOTED_METADATA mode. */
+<METADATA>[^[:space:]\[\]\"] {
+    BEGIN(UNQUOTED_METADATA);
+    startLocation(yylloc);
+
+    StringTokPtr str = new StringTok;
+    str->literal = yytext;
+    str->v = yytext;
+    *yylval = str;
+}
+
+  /* Matches unquoted text in UNQUOTED_METADATA mode. */
+<UNQUOTED_METADATA>({whitespace}*[^[:space:]\[\]]+)+ {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += yytext;
+}
+
+  /* Matches the end of unquoted metadata, and places the ']' back into the stream. */
+<UNQUOTED_METADATA>"]" {
+    BEGIN(METADATA);
+    yyless(0);
+    return ICE_STRING_LITERAL;
+}
+
   /* Matches and consumes newlines in between metadata after incrementing the line count. */
-<METADATA>\n+ {
+<METADATA,QUOTED_METADATA,UNQUOTED_METADATA>\n+ {
     nextLine(yyleng);
 }
 
-<METADATA>"]" {
-    yy_pop_state();
-    return ICE_METADATA_CLOSE;
-}
-
-<METADATA>"]]" {
-    yy_pop_state();
-    return ICE_GLOBAL_METADATA_CLOSE;
-}
-
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
-<METADATA>[^[:space:]] {
+<METADATA,QUOTED_METADATA,UNQUOTED_METADATA>[^[:space:]] {
     unit->error("invalid character between metadata");
 }
 
@@ -613,7 +642,7 @@ int checkIdentifier(const string& id)
     {
         DefinitionContextPtr dc = unit->currentDefinitionContext();
         assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' global metadata
+        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
         {
             unit->error("illegal underscore in identifier `" + name + "'");
         }

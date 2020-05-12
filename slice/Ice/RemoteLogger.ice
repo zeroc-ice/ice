@@ -6,18 +6,18 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cpp:dll-export:ICE_API"]]
-[["cpp:doxygen:include:Ice/Ice.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:list"]]
+[[cpp:dll-export:ICE_API]]
+[[cpp:doxygen:include:Ice/Ice.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:list]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:Ice"]]
+[[python:pkgdir:Ice]]
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module Ice
 {
@@ -59,7 +59,7 @@ module Ice
     }
 
     /// A sequence of {@link LogMessage}.
-    ["cpp:type:std::list<LogMessage>"]
+    [cpp:type:std::list<LogMessage>]
     sequence<LogMessage> LogMessageSeq;
 
     /// The Ice remote logger interface. An application can implement a

@@ -7,7 +7,7 @@
 #include <Namespace.ice>
 #include <NoNamespace.ice>
 
-["cs:namespace:Ice.namespacemd"]
+[cs:namespace:Ice.namespacemd]
 module Test
 {
 

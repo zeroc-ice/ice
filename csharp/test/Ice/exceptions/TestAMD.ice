@@ -6,9 +6,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cs:typeid-namespace:Ice.exceptions.AMD.TypeId"]]
+[[cs:typeid-namespace:Ice.exceptions.AMD.TypeId]]
 
-["cs:namespace:Ice.exceptions.AMD"]
+[cs:namespace:Ice.exceptions.AMD]
 module Test
 {
 
@@ -38,7 +38,7 @@ exception D
     int dMem;
 }
 
-["amd"] interface Thrower
+[amd] interface Thrower
 {
     void shutdown();
     bool supportsAssertException();
@@ -66,7 +66,7 @@ exception D
     void throwAConvertedToUnhandled();
 }
 
-["amd"] interface WrongOperation
+[amd] interface WrongOperation
 {
     void noSuchOperation();
 }

@@ -6,7 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[["suppress-warning:deprecated"]]
+[[suppress-warning:deprecated]]
 
 module Test
 {

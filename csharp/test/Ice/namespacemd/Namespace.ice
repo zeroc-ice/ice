@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.namespacemd"]
+[cs:namespace:Ice.namespacemd]
 module WithNamespace
 {
 class C1

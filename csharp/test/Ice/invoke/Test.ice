@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.invoke"]
+[cs:namespace:Ice.invoke]
 module Test
 {
 

@@ -4,18 +4,18 @@
 
 #pragma once
 
-[["cpp:doxygen:include:IceDiscovery/IceDiscovery.h"]]
-[["cpp:header-ext:h"]]
+[[cpp:doxygen:include:IceDiscovery/IceDiscovery.h]]
+[[cpp:header-ext:h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceDiscovery"]]
+[[python:pkgdir:IceDiscovery]]
 
 #include <Ice/Identity.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module IceDiscovery
 {

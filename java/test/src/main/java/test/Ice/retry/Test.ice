@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.retry"]]
+[[java:package:test.Ice.retry]]
 module Test
 {
 

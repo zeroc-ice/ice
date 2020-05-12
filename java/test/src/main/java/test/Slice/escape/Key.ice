@@ -4,7 +4,9 @@
 
 #pragma once
 
-[["java:package:test.Slice.escape", "suppress-warning:deprecated"]]
+[[java:package:test.Slice.escape]]
+[[suppress-warning:deprecated]]
+
 module abstract
 {
 
@@ -20,7 +22,7 @@ struct break
 
 interface catch
 {
-    ["amd"] void checkedCast(int clone, out int continue);
+    [amd] void checkedCast(int clone, out int continue);
 }
 
 interface default
