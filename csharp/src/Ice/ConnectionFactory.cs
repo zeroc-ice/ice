@@ -5,6 +5,8 @@
 using Ice;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Linq;
 
 namespace IceInternal
@@ -217,7 +219,7 @@ namespace IceInternal
                         {
                             if (connection.Endpoint == endpoint)
                             {
-                                connection.SetAdapter(adapter);
+                                connection.Adapter = adapter;
                             }
                         }
                     }
@@ -238,10 +240,7 @@ namespace IceInternal
                 {
                     foreach (Connection connection in connectionList)
                     {
-                        if (connection.GetAdapter() == adapter)
-                        {
-                            connection.SetAdapter(null);
-                        }
+                        connection.ClearAdapter(adapter);
                     }
                 }
             }
@@ -440,7 +439,8 @@ namespace IceInternal
             //
             if (cb != null)
             {
-                cb.NextConnector();
+                // TODO: refactor connection establishement to use await/async
+                _ = cb.NextConnectorAsync();
             }
 
             compress = false; // Satisfy the compiler
@@ -712,7 +712,7 @@ namespace IceInternal
             public Endpoint Endpoint;
         }
 
-        private class ConnectCallback : Connection.IStartCallback, IEndpointConnectors
+        private class ConnectCallback : IEndpointConnectors
         {
             internal ConnectCallback(OutgoingConnectionFactory f, IReadOnlyList<Endpoint> endpoints, bool more,
                                      ICreateConnectionCallback cb, Ice.EndpointSelectionType selType)
@@ -728,27 +728,6 @@ namespace IceInternal
                 _hasMore = more;
                 _callback = cb;
                 _selType = selType;
-            }
-
-            //
-            // Methods from ConnectionI.StartCallback
-            //
-            public void ConnectionStartCompleted(Connection connection)
-            {
-                if (_observer != null)
-                {
-                    _observer.Detach();
-                }
-                Debug.Assert(_current != null);
-                _factory.FinishGetConnection(_connectors, _current, connection, this);
-            }
-
-            public void ConnectionStartFailed(Connection connection, System.Exception ex)
-            {
-                if (ConnectionStartFailedImpl(ex))
-                {
-                    NextConnector();
-                }
             }
 
             //
@@ -774,7 +753,6 @@ namespace IceInternal
                     // We now have all the connectors for the given endpoints. We can try to obtain the
                     // connection.
                     //
-                    _iter = 0;
                     GetConnection();
                 }
             }
@@ -792,7 +770,6 @@ namespace IceInternal
                     // We now have all the connectors for the given endpoints. We can try to obtain the
                     // connection.
                     //
-                    _iter = 0;
                     GetConnection();
                 }
                 else
@@ -902,20 +879,19 @@ namespace IceInternal
                 }
             }
 
-            internal void NextConnector()
+            internal async ValueTask NextConnectorAsync()
             {
-                while (true)
+                System.Exception? lastException = null;
+                for (int i = 0; i < _connectors.Count; ++i)
                 {
+                    var connector = _connectors[i];
                     try
                     {
-                        Debug.Assert(_iter < _connectors.Count);
-                        _current = _connectors[_iter++];
-
                         Ice.Instrumentation.ICommunicatorObserver? obsv = _factory._communicator.Observer;
                         if (obsv != null)
                         {
-                            _observer = obsv.GetConnectionEstablishmentObserver(_current.Endpoint,
-                                                                                _current.Connector.ToString()!);
+                            _observer = obsv.GetConnectionEstablishmentObserver(connector.Endpoint,
+                                                                                connector.Connector.ToString()!);
                             if (_observer != null)
                             {
                                 _observer.Attach();
@@ -925,53 +901,47 @@ namespace IceInternal
                         if (_factory._communicator.TraceLevels.Network >= 2)
                         {
                             _factory._communicator.Logger.Trace(_factory._communicator.TraceLevels.NetworkCat,
-                                $"trying to establish {_current.Endpoint.Name} connection to " +
-                                $"{_current.Connector}");
+                                $"trying to establish {connector.Endpoint.Name} connection to " +
+                                $"{connector.Connector}");
                         }
 
-                        Connection connection = _factory.CreateConnection(_current.Connector.Connect(), _current);
-                        connection.Start(this);
+                        // TODO: Connection establishement code needs to be re-factored to use async/await
+                        Connection connection = _factory.CreateConnection(connector.Connector.Connect(), connector);
+                        await connection.StartAsync().ConfigureAwait(false);
+
+                        if (_observer != null)
+                        {
+                            _observer.Detach();
+                        }
+
+                        _factory.FinishGetConnection(_connectors, connector, connection, this);
+                        return;
+                    }
+                    catch (Ice.CommunicatorDestroyedException ex)
+                    {
+                        lastException = ex;
+                        break; // No need to continue
                     }
                     catch (System.Exception ex)
                     {
                         if (_factory._communicator.TraceLevels.Network >= 2)
                         {
-                            Debug.Assert(_current != null);
+                            Debug.Assert(connector != null);
                             _factory._communicator.Logger.Trace(_factory._communicator.TraceLevels.NetworkCat,
-                                $"failed to establish {_current.Endpoint.Name} connection to " +
-                                $"{_current.Connector}\n{ex}");
+                                $"failed to establish {connector.Endpoint.Name} connection to " +
+                                $"{connector.Connector}\n{ex}");
                         }
-
-                        if (ConnectionStartFailedImpl(ex))
+                        if (_observer != null)
                         {
-                            continue;
+                            _observer.Failed(ex.GetType().FullName ?? "System.Exception");
+                            _observer.Detach();
                         }
+                        _factory.HandleConnectionException(ex, _hasMore || (i + 1) < _connectors.Count);
+                        lastException = ex;
                     }
-                    break;
                 }
-            }
 
-            private bool ConnectionStartFailedImpl(System.Exception ex)
-            {
-                if (_observer != null)
-                {
-                    _observer.Failed(ex.GetType().FullName ?? "System.Exception");
-                    _observer.Detach();
-                }
-                _factory.HandleConnectionException(ex, _hasMore || _iter < _connectors.Count);
-                if (ex is Ice.CommunicatorDestroyedException) // No need to continue.
-                {
-                    _factory.FinishGetConnection(_connectors, ex, this);
-                }
-                else if (_iter < _connectors.Count) // Try the next connector.
-                {
-                    return true;
-                }
-                else
-                {
-                    _factory.FinishGetConnection(_connectors, ex, this);
-                }
-                return false;
+                _factory.FinishGetConnection(_connectors, lastException!, this);
             }
 
             private readonly OutgoingConnectionFactory _factory;
@@ -983,8 +953,6 @@ namespace IceInternal
             private bool _hasMoreEndpoints;
             private Endpoint? _currentEndpoint;
             private readonly List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
-            private int _iter;
-            private ConnectorInfo? _current;
             private Ice.Instrumentation.IObserver? _observer;
         }
 
@@ -1001,13 +969,112 @@ namespace IceInternal
         private int _pendingConnectCount;
     }
 
-    public sealed class IncomingConnectionFactory : EventHandler
+    internal sealed class IncomingConnectionFactory
     {
+        private readonly IAcceptor? _acceptor;
+        private readonly ObjectAdapter _adapter;
+        private readonly Communicator _communicator;
+        private readonly HashSet<Connection> _connections = new HashSet<Connection>();
+        private readonly Endpoint _endpoint;
+        private readonly FactoryACMMonitor _monitor;
+        private readonly Endpoint? _publishedEndpoint;
+        private bool _destroyed;
+        private readonly ITransceiver? _transceiver;
+        private readonly bool _warn;
+
+        public IncomingConnectionFactory(Ice.ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish,
+                                         ACMConfig acmConfig)
+        {
+            _communicator = adapter.Communicator;
+            _endpoint = endpoint;
+            _publishedEndpoint = publish;
+            _adapter = adapter;
+            _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
+            _monitor = new FactoryACMMonitor(_communicator, acmConfig);
+
+            if (_communicator.OverrideTimeout != null)
+            {
+                _endpoint = _endpoint.NewTimeout(_communicator.OverrideTimeout.Value);
+            }
+
+            if (_communicator.OverrideCompress != null)
+            {
+                _endpoint = _endpoint.NewCompressionFlag(_communicator.OverrideCompress.Value);
+            }
+
+            try
+            {
+                _transceiver = _endpoint.GetTransceiver();
+                if (_transceiver != null)
+                {
+                    if (_communicator.TraceLevels.Network >= 2)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            $"attempting to bind to {_endpoint.Name} socket\n{_transceiver}");
+                    }
+                    _endpoint = _transceiver.Bind();
+
+                    var connection = new Connection(_communicator, null, _transceiver, null, _endpoint, _adapter);
+                    _ = connection.StartAsync();
+                    _connections.Add(connection);
+                }
+                else
+                {
+                    _acceptor = _endpoint.GetAcceptor(_adapter!.Name);
+
+                    if (_communicator.TraceLevels.Network >= 2)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            $"attempting to bind to {_endpoint.Name} socket {_acceptor}");
+                    }
+                    _endpoint = _acceptor!.Listen();
+
+                    if (_communicator.TraceLevels.Network >= 1)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            $"listening for {_endpoint.Name} connections\n{_acceptor!.ToDetailedString()}");
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                //
+                // Clean up.
+                //
+                try
+                {
+                    _transceiver?.Close();
+                    _acceptor?.Close();
+                }
+                catch (System.Exception)
+                {
+                    // Ignore
+                }
+
+                _monitor.Destroy();
+                _connections.Clear();
+
+                throw;
+            }
+        }
+
         public void Activate()
         {
             lock (this)
             {
-                SetState(State.Active);
+                Debug.Assert(!_destroyed);
+                if (_acceptor != null)
+                {
+                    if (_communicator.TraceLevels.Network >= 1)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            $"accepting {_endpoint.Name} connections at {_acceptor}");
+                    }
+
+                    // Start the asynchronous operation from the thread pool to prevent eventually accepting
+                    // synchronously new connections from this thread.
+                    Task.Run(AcceptAsync);
+                }
             }
         }
 
@@ -1015,7 +1082,60 @@ namespace IceInternal
         {
             lock (this)
             {
-                SetState(State.Closed);
+                Debug.Assert(!_destroyed);
+                if (_acceptor != null)
+                {
+                    if (_communicator.TraceLevels.Network >= 1)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            $"stopping to accept {_endpoint.Name} connections at {_acceptor}");
+                    }
+
+                    _acceptor!.Close();
+                }
+
+                foreach (Connection connection in _connections)
+                {
+                    connection.Destroy(new ObjectAdapterDeactivatedException(_adapter.Name));
+                }
+
+                _destroyed = true;
+                System.Threading.Monitor.PulseAll(this);
+            }
+        }
+
+        public Endpoint Endpoint()
+        {
+            if (_publishedEndpoint != null)
+            {
+                return _publishedEndpoint;
+            }
+            lock (this)
+            {
+                return _endpoint;
+            }
+        }
+        public bool IsLocal(Endpoint endpoint)
+        {
+            if (_publishedEndpoint != null && endpoint.Equivalent(_publishedEndpoint))
+            {
+                return true;
+            }
+            lock (this)
+            {
+                return endpoint.Equivalent(_endpoint);
+            }
+        }
+
+        public override string ToString()
+        {
+            if (_transceiver != null)
+            {
+                return _transceiver.ToString()!;
+            }
+            else
+            {
+                return _acceptor!.ToString();
             }
         }
 
@@ -1036,7 +1156,7 @@ namespace IceInternal
             {
                 // First we wait until the factory is destroyed. If we are using
                 // an acceptor, we also wait for it to be closed.
-                while (_state != State.Finished)
+                while (!_destroyed)
                 {
                     System.Threading.Monitor.Wait(this);
                 }
@@ -1065,97 +1185,46 @@ namespace IceInternal
             _monitor.Destroy();
         }
 
-        public bool IsLocal(Endpoint endpoint)
+        private async ValueTask AcceptAsync()
         {
-            if (_publishedEndpoint != null && endpoint.Equivalent(_publishedEndpoint))
+            while (true)
             {
-                return true;
-            }
-            lock (this)
-            {
-                return endpoint.Equivalent(_endpoint);
-            }
-        }
-
-        public Endpoint Endpoint()
-        {
-            if (_publishedEndpoint != null)
-            {
-                return _publishedEndpoint;
-            }
-            lock (this)
-            {
-                return _endpoint;
-            }
-        }
-
-        public ICollection<Connection> Connections()
-        {
-            lock (this)
-            {
-                var connections = new List<Connection>();
-
-                // Only copy connections which have not been destroyed.
-                foreach (Connection connection in _connections)
-                {
-                    if (connection.Active)
-                    {
-                        connections.Add(connection);
-                    }
-                }
-
-                return connections;
-            }
-        }
-
-        // Operations from EventHandler.
-
-        public override bool StartAsync(int operation, AsyncCallback callback, ref bool completedSynchronously)
-        {
-            if (_state >= State.Closed)
-            {
-                return false;
-            }
-
-            try
-            {
-                completedSynchronously = _acceptor!.StartAccept(callback, this);
-            }
-            catch (System.Exception ex)
-            {
-                _acceptorException = ex;
-                completedSynchronously = true;
-            }
-            return true;
-        }
-
-        public override bool FinishAsync(int unused)
-        {
-            Debug.Assert(_adapter != null);
-            if (_acceptorException == null)
-            {
-                _acceptor!.FinishAccept();
-            }
-            return _state < State.Closed;
-        }
-
-        public override void Message(ref ThreadPoolCurrent current)
-        {
-            Connection? connection = null;
-
-            var msg = new ThreadPoolMessage(this);
-
-            lock (this)
-            {
-                if (!msg.StartIOScope(ref current))
-                {
-                    return;
-                }
-
+                ITransceiver transceiver;
                 try
                 {
-                    if (_state >= State.Closed)
+                    transceiver = await _acceptor!.AcceptAsync().ConfigureAwait(false);
+                }
+                catch (System.Exception ex)
+                {
+                    // If Accept failed because the acceptor has been closed, just return, we're done. Otherwise
+                    // we print an error and wait for one second to avoid running in a tight loop in case the
+                    // failures occurs immediately again. Failures here are unexpected and could be considered
+                    // fatal.
+                    lock (this)
                     {
+                        if (_destroyed)
+                        {
+                            return;
+                        }
+                    }
+                    _communicator.Logger.Error($"failed to accept connection:\n{ex}\n{_acceptor}");
+                    await Task.Delay(1000).ConfigureAwait(false); // Retry in 1 second
+                    continue;
+                }
+
+                Connection connection;
+                lock (this)
+                {
+                    Debug.Assert(transceiver != null);
+                    if (_destroyed)
+                    {
+                        try
+                        {
+                            transceiver.Close();
+                        }
+                        catch (System.Exception)
+                        {
+                        }
                         return;
                     }
 
@@ -1165,33 +1234,11 @@ namespace IceInternal
                         _connections.Remove(c);
                     }
 
-                    // Now accept a new connection.
-                    ITransceiver transceiver;
-                    try
+                    if (_communicator.TraceLevels.Network >= 2)
                     {
-                        if (_acceptorException != null)
-                        {
-                            throw _acceptorException;
-                        }
-
-                        transceiver = _acceptor!.Accept();
-
-                        if (_communicator.TraceLevels.Network >= 2)
-                        {
-                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                $"trying to accept {_endpoint.Name} connection\n{transceiver}");
-                        }
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            $"trying to accept {_endpoint.Name} connection\n{transceiver}");
                     }
-                    catch (System.Exception ex)
-                    {
-                        _communicator.Logger.Error($"can't accept more connections:\n{ex}\n{_acceptor}");
-                        _acceptorException = null;
-
-                        // Ignore socket exceptions.
-                        return;
-                    }
-
-                    Debug.Assert(transceiver != null);
 
                     try
                     {
@@ -1212,214 +1259,33 @@ namespace IceInternal
                         {
                             _communicator.Logger.Warning($"connection exception:\n{ex}\n{_acceptor}");
                         }
-                        return;
+                        continue;
                     }
 
                     _connections.Add(connection);
                 }
-                finally
-                {
-                    msg.FinishIOScope(ref current);
-                }
-            }
 
-            Debug.Assert(connection != null);
-            connection.Start(null);
-        }
-
-        public override void Finished(ref ThreadPoolCurrent current)
-        {
-            lock (this)
-            {
-                Debug.Assert(_state == State.Closed);
-                SetState(State.Finished);
-            }
-        }
-
-        public override string ToString()
-        {
-            if (_transceiver != null)
-            {
-                return _transceiver.ToString()!;
-            }
-            else
-            {
-                return _acceptor!.ToString();
-            }
-        }
-
-        public IncomingConnectionFactory(Ice.ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish,
-                                         ACMConfig acmConfig)
-        {
-            _communicator = adapter.Communicator;
-            _endpoint = endpoint;
-            _publishedEndpoint = publish;
-            _adapter = adapter;
-            _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-            _state = State.Uninitialized;
-            _monitor = new FactoryACMMonitor(_communicator, acmConfig);
-
-            if (_communicator.OverrideTimeout != null)
-            {
-                _endpoint = _endpoint.NewTimeout(_communicator.OverrideTimeout.Value);
-            }
-
-            if (_communicator.OverrideCompress != null)
-            {
-                _endpoint = _endpoint.NewCompressionFlag(_communicator.OverrideCompress.Value);
-            }
-
-            try
-            {
-                _transceiver = _endpoint.GetTransceiver();
-                if (_transceiver != null)
-                {
-                    if (_communicator.TraceLevels.Network >= 2)
-                    {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"attempting to bind to {_endpoint.Name} socket\n{_transceiver}");
-                    }
-                    _endpoint = _transceiver.Bind();
-
-                    var connection = new Connection(_communicator, null, _transceiver, null, _endpoint, _adapter);
-                    connection.StartAndWait();
-                    _connections.Add(connection);
-                }
-                else
-                {
-                    _acceptor = _endpoint.GetAcceptor(_adapter!.Name);
-
-                    if (_communicator.TraceLevels.Network >= 2)
-                    {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"attempting to bind to {_endpoint.Name} socket {_acceptor}");
-                    }
-                    _endpoint = _acceptor!.Listen();
-
-                    if (_communicator.TraceLevels.Network >= 1)
-                    {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"listening for {_endpoint.Name} connections\n{_acceptor!.ToDetailedString()}");
-                    }
-
-                    _adapter.ThreadPool.Initialize(this);
-                }
-            }
-            catch (System.Exception)
-            {
-                //
-                // Clean up.
-                //
+                Debug.Assert(connection != null);
                 try
                 {
-                    _transceiver?.Close();
-                    _acceptor?.Close();
+                    // We don't wait for the connection to be activated. This could take a while for some tranports
+                    // such as TLS based transports where the handshake requires few round trips between the client
+                    // and server.
+                    _ = connection.StartAsync();
                 }
-                catch (System.Exception)
+                catch (ObjectAdapterDeactivatedException)
                 {
                     // Ignore
                 }
-
-                _monitor.Destroy();
-                _connections.Clear();
-
-                throw;
+                catch (System.Exception ex)
+                {
+                    if (_communicator.TraceLevels.Network >= 2)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            $"failed to accept {_endpoint.Name} connection\n{connection}\n{ex}");
+                    }
+                }
             }
         }
-
-        private void SetState(State state)
-        {
-            // Don't switch twice.
-            if (_state == state)
-            {
-                return;
-            }
-
-            switch (state)
-            {
-                case State.Active:
-                    {
-                        Debug.Assert(_state == State.Uninitialized);
-
-                        if (_acceptor != null)
-                        {
-                            if (_communicator.TraceLevels.Network >= 1)
-                            {
-                                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                    $"accepting {_endpoint.Name} connections at {_acceptor}");
-                            }
-                            _adapter!.ThreadPool.Register(this, SocketOperation.Read);
-                        }
-                        break;
-                    }
-
-                case State.Closed:
-                    {
-                        if (_acceptor != null)
-                        {
-                            if (_state == State.Active && _communicator.TraceLevels.Network >= 1)
-                            {
-                                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                    $"stopping to accept {_endpoint.Name} connections at {_acceptor}");
-                            }
-
-                            _acceptor!.Close();
-
-                            // Unregister the factory from the thread pool and wait for Finished to be
-                            // called. Wait for Finished to be called is necessary for orderely shutdown
-                            // of the communicator.
-                            _adapter!.ThreadPool.Finish(this);
-                        }
-                        else
-                        {
-                            // The factory is not registered with the thread pool, no need to wait for
-                            // Finished to be called.
-                            state = State.Finished;
-                        }
-
-                        foreach (Connection connection in _connections)
-                        {
-                            connection.Destroy(new ObjectAdapterDeactivatedException(_adapter!.Name));
-                        }
-                        break;
-                    }
-
-                case State.Finished:
-                    {
-                        Debug.Assert(_state == State.Closed);
-                        break;
-                    }
-            }
-
-            _state = state;
-            System.Threading.Monitor.PulseAll(this);
-        }
-
-        private enum State
-        {
-            // The factory is not activated yet.
-            Uninitialized,
-
-            // The factory is active, it can accept new connections.
-            Active,
-
-            // The factory is closed and waiting to be unregistered from the thread pool.
-            Closed,
-
-            // The factory is unregistered from the thread pool.
-            Finished
-        }
-
-        private readonly IAcceptor? _acceptor;
-        private System.Exception? _acceptorException;
-        private readonly ObjectAdapter? _adapter;
-        private readonly Communicator _communicator;
-        private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private readonly Endpoint _endpoint;
-        private readonly FactoryACMMonitor _monitor;
-        private readonly Endpoint? _publishedEndpoint;
-        private State _state;
-        private readonly ITransceiver? _transceiver;
-        private readonly bool _warn;
     }
 }

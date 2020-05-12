@@ -393,7 +393,7 @@ namespace Ice.admin
                 // Now, test RemoteLogger
                 //
                 ObjectAdapter adapter =
-                    communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
+                    communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost", true);
 
                 var remoteLogger = new RemoteLogger();
 

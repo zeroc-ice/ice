@@ -6,6 +6,7 @@ using Ice;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace IceInternal
 {
@@ -31,7 +32,7 @@ namespace IceInternal
         public IRequestHandler? Update(IRequestHandler? previousHandler, IRequestHandler? newHandler) =>
             previousHandler == this ? newHandler : this;
 
-        public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
+        public void SendAsyncRequest(ProxyOutgoingAsyncBase outAsync)
         {
             lock (this)
             {
@@ -43,11 +44,11 @@ namespace IceInternal
                 if (!Initialized())
                 {
                     _requests.AddLast(outAsync);
-                    return OutgoingAsyncBase.AsyncStatusQueued;
+                    return;
                 }
             }
             Debug.Assert(_connection != null);
-            return outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway);
+            outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway);
         }
 
         public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex)
@@ -69,7 +70,7 @@ namespace IceInternal
                             _requests.Remove(p);
                             if (outAsync.Exception(ex))
                             {
-                                outAsync.InvokeExceptionAsync();
+                                Task.Run(outAsync.InvokeException);
                             }
                             return;
                         }
@@ -158,7 +159,7 @@ namespace IceInternal
             {
                 if (outAsync.Exception(_exception))
                 {
-                    outAsync.InvokeExceptionAsync();
+                    Task.Run(outAsync.InvokeException);
                 }
             }
             _requests.Clear();
@@ -242,10 +243,7 @@ namespace IceInternal
             {
                 try
                 {
-                    if ((outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway) & OutgoingAsyncBase.AsyncStatusInvokeSentCallback) != 0)
-                    {
-                        outAsync.InvokeSentAsync();
-                    }
+                    outAsync.InvokeRemote(_connection, _compress, !outAsync.IsOneway);
                 }
                 catch (RetryException ex)
                 {
@@ -261,7 +259,7 @@ namespace IceInternal
                     exception = ex;
                     if (outAsync.Exception(ex))
                     {
-                        outAsync.InvokeExceptionAsync();
+                        Task.Run(outAsync.InvokeException);
                     }
                 }
             }

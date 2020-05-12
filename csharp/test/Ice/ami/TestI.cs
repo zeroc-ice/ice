@@ -53,17 +53,12 @@ namespace Ice.ami
         public async ValueTask<int> opWithResultAsyncDispatchAsync(Current current)
         {
             await Task.Delay(10);
-            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
-            int r = await Self(current).opWithResultAsync();
-            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
-            return r;
+            return await Self(current).opWithResultAsync();
         }
 
         public async ValueTask opWithUEAsyncDispatchAsync(Current current)
         {
-            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
             await Task.Delay(10);
-            TestHelper.Assert(Thread.CurrentThread.Name!.Contains("Ice.ThreadPool.Server"));
             try
             {
                 await Self(current).opWithUEAsync();
@@ -73,21 +68,6 @@ namespace Ice.ami
                 ex.ConvertToUnhandled = false;
                 throw;
             }
-        }
-
-        public void pingBiDir(Test.IPingReplyPrx? reply, Current current)
-        {
-            TestHelper.Assert(reply != null);
-            reply = reply.Clone(fixedConnection: current.Connection);
-            Thread dispatchThread = Thread.CurrentThread;
-            reply.replyAsync().ContinueWith(
-                (t) =>
-                {
-                    Thread callbackThread = Thread.CurrentThread;
-                    TestHelper.Assert(dispatchThread != callbackThread);
-                    TestHelper.Assert(callbackThread.Name!.Contains("Ice.ThreadPool.Server"));
-                },
-                reply.Scheduler).Wait();
         }
 
         private Test.ITestIntfPrx Self(Current current) =>

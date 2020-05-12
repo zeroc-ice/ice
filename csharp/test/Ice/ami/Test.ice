@@ -22,11 +22,6 @@ enum CloseMode
     GracefullyWithWait
 }
 
-interface PingReply
-{
-    void reply();
-}
-
 interface TestIntf
 {
     void op();
@@ -47,8 +42,6 @@ interface TestIntf
     ["amd"] int opWithResultAsyncDispatch();
     ["amd"] void opWithUEAsyncDispatch()
         throws TestIntfException;
-
-    void pingBiDir(PingReply* reply);
 }
 
 module Outer

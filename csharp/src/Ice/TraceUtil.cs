@@ -11,53 +11,45 @@ namespace IceInternal
 {
     internal static class TraceUtil
     {
-        internal static void TraceSend(Communicator communicator,
-            byte[] buffer, ILogger logger, TraceLevels tl)
+        internal static void TraceSend(Communicator communicator, IList<System.ArraySegment<byte>> buffer)
         {
-            if (tl.Protocol >= 1)
+            if (communicator.TraceLevels.Protocol >= 1)
             {
-                var iss = new InputStream(communicator, buffer);
-                iss.Pos = 0;
+                var iss = new InputStream(communicator, buffer.GetSegment(0, buffer.GetByteCount()).Array!);
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
                 Ice1Definitions.MessageType type = PrintMessage(s, iss);
 
-                logger.Trace(tl.ProtocolCat, "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat,
+                    "sending " + GetMessageTypeAsString(type) + " " + s.ToString());
             }
         }
 
-        internal static void TraceRecv(Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void TraceRecv(Communicator communicator, System.ArraySegment<byte> buffer)
         {
-            if (tl.Protocol >= 1)
+            if (communicator.TraceLevels.Protocol >= 1)
             {
-                int p = str.Pos;
-                str.Pos = 0;
+                var iss = new InputStream(communicator, buffer);
 
-                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-                {
-                    Ice1Definitions.MessageType type = PrintMessage(s, str);
+                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
+                Ice1Definitions.MessageType type = PrintMessage(s, iss);
 
-                    logger.Trace(tl.ProtocolCat, "received " + GetMessageTypeAsString(type) + " " + s.ToString());
-                }
-                str.Pos = p;
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat,
+                    "received " + GetMessageTypeAsString(type) + " " + s.ToString());
             }
         }
 
-        internal static void Trace(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void Trace(string heading, Communicator communicator, System.ArraySegment<byte> buffer)
         {
-            if (tl.Protocol >= 1)
+            if (communicator.TraceLevels.Protocol >= 1)
             {
-                int p = str.Pos;
-                str.Pos = 0;
+                var iss = new InputStream(communicator, buffer);
 
-                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-                {
-                    s.Write(heading);
-                    PrintMessage(s, str);
+                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
+                s.Write(heading);
+                PrintMessage(s, iss);
 
-                    logger.Trace(tl.ProtocolCat, s.ToString());
-                }
-                str.Pos = p;
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
             }
         }
 

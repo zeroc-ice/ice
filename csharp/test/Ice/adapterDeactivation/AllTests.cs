@@ -104,17 +104,11 @@ namespace Ice
                     output.Write("testing object adapter with bi-dir connection... ");
                     output.Flush();
                     var adapter = communicator.CreateObjectAdapter();
-                    obj.GetConnection().SetAdapter(adapter);
-                    obj.GetConnection().SetAdapter(null);
+                    obj.GetConnection().Adapter = adapter;
+                    obj.GetConnection().Adapter = null;
                     adapter.Deactivate();
-                    try
-                    {
-                        obj.GetConnection().SetAdapter(adapter);
-                        TestHelper.Assert(false);
-                    }
-                    catch (ObjectAdapterDeactivatedException)
-                    {
-                    }
+                    // Setting a deactivated adapter on a connection no longer raise ObjectAdapterDeactivatedException
+                    obj.GetConnection().Adapter = adapter;
                     output.WriteLine("ok");
                 }
 
