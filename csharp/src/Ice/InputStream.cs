@@ -337,8 +337,8 @@ namespace Ice
         public ulong ReadVarULong() => OldEncoding ? ReadULong() :
             (_buffer[_pos] & 0x03) switch
             {
-                0 => (uint)ReadByte() >> 2,
-                1 => (uint)ReadUShort() >> 2,
+                0 => (uint)ReadByte() >> 2,   // cast to uint to use operator >> for uint instead of int, which is
+                1 => (uint)ReadUShort() >> 2, // later implicitly converted to ulong
                 2 => ReadUInt() >> 2,
                 _ => ReadULong() >> 2
             };

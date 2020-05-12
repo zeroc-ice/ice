@@ -329,7 +329,7 @@ namespace Ice
         public void WriteUInt(uint v) => WriteFixedSizeNumeric(v);
 
         /// <summary>Writes a ulong to the stream.</summary>
-        /// <param name="v">The long to write to the stream.</param>
+        /// <param name="v">The ulong to write to the stream.</param>
         public void WriteULong(ulong v) => WriteFixedSizeNumeric(v);
 
         /// <summary>Writes a ushort to the stream.</summary>
@@ -340,9 +340,9 @@ namespace Ice
         /// <param name="v">The int to write to the stream.</param>
         public void WriteVarInt(int v) => WriteVarLong(v);
 
-        /// <summary>Writes a long to stream, using Ice's variable-length encoding, with the minimum number of bytes
-        /// required by the encoding.</summary>
-        /// <param name="v">The long to write to the stream. It must be in the range [2^61..2^61 - 1].</param>
+        /// <summary>Writes a long to stream, using Ice's variable-length integer encoding, with the minimum number of
+        /// bytes required by the encoding.</summary>
+        /// <param name="v">The long to write to the stream. It must be in the range [-2^61..2^61 - 1].</param>
         public void WriteVarLong(long v)
         {
             if (v < EncodingDefinitions.VarLongMinValue || v > EncodingDefinitions.VarLongMaxValue)

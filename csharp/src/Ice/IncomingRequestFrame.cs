@@ -34,7 +34,7 @@ namespace Ice
         internal ArraySegment<byte> Data { get; }
         private readonly Communicator _communicator;
 
-        /// <summary>Creates a new OutgoingRequestFrame.</summary>
+        /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="data">The frame data as an array segment.</param>
         public IncomingRequestFrame(Communicator communicator, ArraySegment<byte> data)
