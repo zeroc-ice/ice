@@ -10,24 +10,17 @@
 #include <Demo/Circle.ice>
 #include <Glacier2/Session.ice>
 
-module Demo
+module Demo::gx
 {
+    interface Canvas
+    {
+        void paintSquare(Square square);
+        void paintCircle(Circle circle);
 
-module gx
-{
+    }
 
-interface Canvas
-{
-    void paintSquare(Square square);
-    void paintCircle(Circle circle);
-
-}
-
-interface Session : Glacier2::Session
-{
-    void destroySession();
-}
-
-}
-
+    interface Session : Glacier2::Session
+    {
+        void destroySession();
+    }
 }

@@ -6,9 +6,7 @@
 
 #include <SingleModuleNoPackage.ice>
 
-module T1
-{
-module T2
+module T1::T2
 {
 
 const M::smnpEnum smnpTest6Constant = M::smnpE1;
@@ -73,5 +71,4 @@ class smnpTest6Class : M::smnpBaseClass implements M::smnpBaseInterface
         throws M::smnpException;
 }
 
-}
 }

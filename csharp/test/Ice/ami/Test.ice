@@ -51,19 +51,12 @@ interface TestIntf
     void pingBiDir(PingReply* reply);
 }
 
-module Outer
+module Outer::Inner
 {
-
-module Inner
-{
-
-interface TestIntf
-{
-    int op(int i, out int j);
-}
-
-}
-
+    interface TestIntf
+    {
+        int op(int i, out int j);
+    }
 }
 
 }

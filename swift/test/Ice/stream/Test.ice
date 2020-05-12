@@ -128,9 +128,7 @@ module Sub
 }
 
 [swift:module:Test:Test2]
-module Test2
-{
-module Sub2
+module Test2::Sub2
 {
     enum NestedEnum2
     {
@@ -156,5 +154,4 @@ module Sub2
     {
         string str;
     }
-}
 }

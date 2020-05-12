@@ -6,9 +6,7 @@
 
 #include <DoubleModuleNoPackage.ice>
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 const dmnpEnum dmnpTest6Constant = dmnpE1;
@@ -73,5 +71,4 @@ class dmnpTest6Class : dmnpBaseClass implements dmnpBaseInterface
         throws dmnpException;
 }
 
-}
 }
