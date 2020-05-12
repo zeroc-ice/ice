@@ -336,7 +336,7 @@ namespace Ice
         /// <param name="v">The ushort to write to the stream.</param>
         public void WriteUShort(ushort v) => WriteFixedSizeNumeric(v);
 
-        /// <summary>Writes an int to stream, using Ice's variable-length encoding.</summary>
+        /// <summary>Writes an int to stream, using Ice's variable-length integer encoding.</summary>
         /// <param name="v">The int to write to the stream.</param>
         public void WriteVarInt(int v) => WriteVarLong(v);
 
@@ -372,12 +372,12 @@ namespace Ice
             }
         }
 
-        /// <summary>Writes a uint to stream, using Ice's variable-length encoding.</summary>
+        /// <summary>Writes a uint to stream, using Ice's variable-length integer encoding.</summary>
         /// <param name="v">The uint to write to the stream.</param>
         public void WriteVarUInt(uint v) => WriteVarULong(v);
 
-        /// <summary>Writes a ulong to stream, using Ice's variable-length encoding, with the minimum number of bytes
-        /// required by the encoding.</summary>
+        /// <summary>Writes a ulong to stream, using Ice's variable-length integer encoding, with the minimum number of
+        /// bytes required by the encoding.</summary>
         /// <param name="v">The ulong to write to the stream. It must be in the range [0..2^62 - 1].</param>
         public void WriteVarULong(ulong v)
         {
