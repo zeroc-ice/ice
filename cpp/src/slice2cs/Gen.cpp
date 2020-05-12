@@ -876,30 +876,46 @@ Slice::CsVisitor::writeParamDocComment(const OperationPtr& p, const CommentInfo&
 }
 
 void
-Slice::CsVisitor::moduleStart(const ModulePtr& p)
+Slice::CsVisitor::openNamespace(const ModulePtr& p)
 {
-    if(!ContainedPtr::dynamicCast(p->container()))
+    string prefix;
+    if (_namespaceStack.empty())
     {
-        string ns = getNamespacePrefix(p);
-        if(!ns.empty())
-        {
-            _out << sp;
-            _out << nl << "namespace " << ns;
-            _out << sb;
-        }
+        // If it's a top-level module, check if it's itself enclosed in a namespace.
+        prefix = getNamespacePrefix(p);
+    }
+    else
+    {
+        prefix = _namespaceStack.top();
+    }
+    if (!prefix.empty())
+    {
+        prefix += ".";
+    }
+
+    if (p->hasOnlySubModules())
+    {
+        _namespaceStack.push(prefix + fixId(p->name()));
+    }
+    else
+    {
+        _out << sp;
+        emitCustomAttributes(p);
+        _out << nl << "namespace " << prefix << fixId(p->name());
+        _out << sb;
+
+        _namespaceStack.push("");
     }
 }
 
 void
-Slice::CsVisitor::moduleEnd(const ModulePtr& p)
+Slice::CsVisitor::closeNamespace()
 {
-    if(!ContainedPtr::dynamicCast(p->container()))
+    if (_namespaceStack.top().empty())
     {
-        if(!getNamespacePrefix(p).empty())
-        {
-            _out << eb;
-        }
+        _out << eb;
     }
+    _namespaceStack.pop();
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool impl) :
@@ -933,7 +949,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << nl << "#nullable enable";
-    // Disable some analyzer warnigs that are not convenient for the generated code
+    // Disable some analyzer warnings in the generated code
     _out << nl << "#pragma warning disable SA1300 // Element must begin with upper case letter";
     _out << nl << "#pragma warning disable SA1306 // Field names must begin with lower case letter";
     _out << nl << "#pragma warning disable SA1309 // Field names must not begin with underscore";
@@ -1073,12 +1089,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
         return false; // avoid empty namespace
     }
 
-    moduleStart(p);
-    string name = fixId(p->name());
-    _out << sp;
-    emitCustomAttributes(p);
-    _out << nl << "namespace " << name;
-    _out << sb;
+    openNamespace(p);
 
     // Write constants if there are any
     if (!p->consts().empty())
@@ -1100,7 +1111,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 
             // TODO: doc comments
 
-            name = fixId(q->name());
+            string name = fixId(q->name());
             string ns = getNamespace(q);
             emitCustomAttributes(q);
             _out << nl << "public const " << typeToString(q->type(), ns) << " " << name << " = ";
@@ -1113,10 +1124,9 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 {
-    _out << eb;
-    moduleEnd(p);
+    closeNamespace();
 }
 
 bool
@@ -2127,18 +2137,14 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
     {
         return false;
     }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
+    openNamespace(p);
     return true;
 }
 
 void
-Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 {
-    _out << eb;
-    moduleEnd(p);
+    closeNamespace();
 }
 
 bool
@@ -2550,22 +2556,19 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out)
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasInterfaceDefs())
+    if (!p->hasInterfaceDefs())
     {
         return false;
     }
 
-    moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
+    openNamespace(p);
     return true;
 }
 
 void
-Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr&)
 {
-    _out << eb;
-    moduleEnd(p);
+    closeNamespace();
 }
 
 bool
@@ -2949,18 +2952,14 @@ Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
         return false;
     }
 
-    moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
-
+    openNamespace(p);
     return true;
 }
 
 void
-Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr&)
 {
-    _out << eb;
-    moduleEnd(p);
+    closeNamespace();
 }
 
 bool
