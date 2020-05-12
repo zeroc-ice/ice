@@ -7,7 +7,6 @@
 #include <IceUtil/StringUtil.h>
 #include <Slice/Parser.h>
 #include <Slice/GrammarUtil.h>
-#include <Slice/Util.h>
 #include <cstring>
 #include <iterator>
 
@@ -2778,11 +2777,12 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 bool
 Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
 {
-    ModulePtr module = ModulePtr::dynamicCast(this);
+    checkIdentifier(newName);
 
     //
     // Check whether the enclosing module has the same name.
     //
+    ModulePtr module = ModulePtr::dynamicCast(this);
     if(module)
     {
         if(newName == module->name())

@@ -8,9 +8,7 @@
 
 [[java:package:dmwpTest10]]
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 const dmwpEnum dmwpTest10Constant = dmwpE1;
@@ -75,5 +73,4 @@ class dmwpTest10Class : dmwpBaseClass implements dmwpBaseInterface
         throws dmwpException;
 }
 
-}
 }

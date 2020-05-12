@@ -8,20 +8,13 @@
 
 #include <Demo/Point.ice>
 
-module Demo
+module Demo::gx
 {
-
-module gx
-{
-
-struct Square
-{
-    Point p1;
-    Point p2;
-    Point p3;
-    Point p4;
-}
-
-}
-
+    struct Square
+    {
+        Point p1;
+        Point p2;
+        Point p3;
+        Point p4;
+    }
 }

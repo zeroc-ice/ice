@@ -6,9 +6,7 @@
 
 #include <DoubleModuleWithPackage.ice>
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 const dmwpEnum dmwpTest9Constant = dmwpE1;
@@ -73,5 +71,4 @@ class dmwpTest9Class : dmwpBaseClass implements dmwpBaseInterface
         throws dmwpException;
 }
 
-}
 }
