@@ -609,8 +609,8 @@ bool
 Slice::isMappedToReadOnlyMemory(const SequencePtr& seq)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-    return builtin && builtin->isNumericTypeOrBool() && !seq->hasMetaDataWithPrefix("cs:serializable") &&
-        !seq->hasMetaDataWithPrefix("cs:generic");
+    return builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength() &&
+        !seq->hasMetaDataWithPrefix("cs:serializable") && !seq->hasMetaDataWithPrefix("cs:generic");
 }
 
 Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,

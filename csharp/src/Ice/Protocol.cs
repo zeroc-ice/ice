@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Globalization;
 
 namespace Ice
@@ -18,8 +19,19 @@ namespace Ice
         Ice2 = 2
     }
 
-    internal static class ProtocolExtensions
+    public static class ProtocolExtensions
     {
+        /// <summary>Returns the Ice encoding that this protocol uses for its headers.</summary>
+        /// <param name="protocol">The protocol.</param>
+        public static Encoding GetEncoding(this Protocol protocol) =>
+            protocol switch
+            {
+                Protocol.Ice1 => Encoding.V1_1,
+                Protocol.Ice2 => Encoding.V2_0,
+                _ => throw new NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
+                    }' is not supported by this Ice runtime ({Util.StringVersion()})")
+            };
+
         /// <summary>Checks if this protocol is supported by the Ice runtime. If not supported, throws
         /// NotSupportedException.</summary>
         /// <param name="protocol">The protocol.</param>
@@ -28,7 +40,7 @@ namespace Ice
             // For now, we support only ice1
             if (protocol != Protocol.Ice1)
             {
-                throw new System.NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
+                throw new NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
                     }' is not supported by this Ice runtime ({Util.StringVersion()})");
             }
         }

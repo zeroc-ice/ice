@@ -154,6 +154,92 @@ namespace Ice.operations
                 TestHelper.Assert(r == long.MaxValue);
             }
 
+             {
+                ushort s;
+                uint i;
+                ulong l;
+                ulong r;
+
+                (r, s, i, l) = p.opUShortUIntULong(10, 11, 12UL);
+                TestHelper.Assert(s == 10);
+                TestHelper.Assert(i == 11);
+                TestHelper.Assert(l == 12);
+                TestHelper.Assert(r == 12UL);
+
+                (r, s, i, l) = p.opUShortUIntULong(ushort.MinValue, uint.MinValue, ulong.MinValue);
+                TestHelper.Assert(s == ushort.MinValue);
+                TestHelper.Assert(i == uint.MinValue);
+                TestHelper.Assert(l == ulong.MinValue);
+                TestHelper.Assert(r == ulong.MinValue);
+
+                (r, s, i, l) = p.opUShortUIntULong(ushort.MaxValue, uint.MaxValue, ulong.MaxValue);
+                TestHelper.Assert(s == ushort.MaxValue);
+                TestHelper.Assert(i == uint.MaxValue);
+                TestHelper.Assert(l == ulong.MaxValue);
+                TestHelper.Assert(r == ulong.MaxValue);
+            }
+
+            {
+                TestHelper.Assert(p.opVarInt(0) == 0);
+                TestHelper.Assert(p.opVarInt(1) == 1);
+                TestHelper.Assert(p.opVarInt(-1) == -1);
+                TestHelper.Assert(p.opVarInt(5) == 5);
+                TestHelper.Assert(p.opVarInt(-5) == -5);
+                TestHelper.Assert(p.opVarInt(50) == 50);
+                TestHelper.Assert(p.opVarInt(-50) == -50);
+                TestHelper.Assert(p.opVarInt(500_000) == 500_000);
+                TestHelper.Assert(p.opVarInt(-500_000) == -500_000);
+                TestHelper.Assert(p.opVarInt(int.MaxValue) == int.MaxValue);
+                TestHelper.Assert(p.opVarInt(int.MinValue) == int.MinValue);
+
+                TestHelper.Assert(p.opVarLong(500_000) == 500_000);
+                TestHelper.Assert(p.opVarLong(-500_000) == -500_000);
+                TestHelper.Assert(p.opVarLong(2_305_843_009_213_693_951) == 2_305_843_009_213_693_951);
+                TestHelper.Assert(p.opVarLong(-2_305_843_009_213_693_952) == -2_305_843_009_213_693_952);
+
+                try
+                {
+                    p.opVarLong(long.MinValue);
+                    TestHelper.Assert(false);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // expected
+                }
+
+                try
+                {
+                    p.opVarLong(long.MaxValue);
+                    TestHelper.Assert(false);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // expected
+                }
+            }
+
+            {
+                TestHelper.Assert(p.opVarUInt(0) == 0);
+                TestHelper.Assert(p.opVarUInt(1) == 1);
+                TestHelper.Assert(p.opVarUInt(5) == 5);
+                TestHelper.Assert(p.opVarUInt(50) == 50);
+                TestHelper.Assert(p.opVarUInt(500_000) == 500_000);
+                TestHelper.Assert(p.opVarUInt(uint.MaxValue) == uint.MaxValue);
+
+                TestHelper.Assert(p.opVarULong(500_000) == 500_000);
+                TestHelper.Assert(p.opVarULong(4_611_686_018_427_387_903) == 4_611_686_018_427_387_903);
+
+                try
+                {
+                    p.opVarULong(ulong.MaxValue);
+                    TestHelper.Assert(false);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    // expected
+                }
+            }
+
             {
                 float f;
                 double d;
@@ -339,6 +425,93 @@ namespace Ice.operations
             }
 
             {
+                ushort[] ssi = new ushort[] { 1, 2, 3 };
+                uint[] isi = new uint[] { 5, 6, 7, 8 };
+                ulong[] lsi = new ulong[] { 10, 30, 20 };
+
+                ushort[] sso;
+                uint[] iso;
+                ulong[] lso;
+                ulong[] rso;
+
+                (rso, sso, iso, lso) = p.opUShortUIntULongS(ssi, isi, lsi);
+                TestHelper.Assert(sso.Length == 3);
+                TestHelper.Assert(sso[0] == 1);
+                TestHelper.Assert(sso[1] == 2);
+                TestHelper.Assert(sso[2] == 3);
+                TestHelper.Assert(iso.Length == 4);
+                TestHelper.Assert(iso[0] == 8);
+                TestHelper.Assert(iso[1] == 7);
+                TestHelper.Assert(iso[2] == 6);
+                TestHelper.Assert(iso[3] == 5);
+                TestHelper.Assert(lso.Length == 6);
+                TestHelper.Assert(lso[0] == 10);
+                TestHelper.Assert(lso[1] == 30);
+                TestHelper.Assert(lso[2] == 20);
+                TestHelper.Assert(lso[3] == 10);
+                TestHelper.Assert(lso[4] == 30);
+                TestHelper.Assert(lso[5] == 20);
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(rso[0] == 10);
+                TestHelper.Assert(rso[1] == 30);
+                TestHelper.Assert(rso[2] == 20);
+            }
+
+            {
+                int[] isi = new int[] { 5, 6, 7, 8 };
+                long[] lsi = new long[] { 1_000, 3_000_000_000_000, -200_000 };
+
+                int[] iso;
+                long[] lso;
+                long[] rso;
+
+                (rso, iso, lso) = p.opVarIntVarLongS(isi, lsi);
+                TestHelper.Assert(iso.Length == 4);
+                TestHelper.Assert(iso[0] == 8);
+                TestHelper.Assert(iso[1] == 7);
+                TestHelper.Assert(iso[2] == 6);
+                TestHelper.Assert(iso[3] == 5);
+                TestHelper.Assert(lso.Length == 6);
+                TestHelper.Assert(lso[0] == 1_000);
+                TestHelper.Assert(lso[1] == 3_000_000_000_000);
+                TestHelper.Assert(lso[2] == -200_000);
+                TestHelper.Assert(lso[3] == 1_000);
+                TestHelper.Assert(lso[4] == 3_000_000_000_000);
+                TestHelper.Assert(lso[5] == -200_000);
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(rso[0] == 1_000);
+                TestHelper.Assert(rso[1] == 3_000_000_000_000);
+                TestHelper.Assert(rso[2] == -200_000);
+            }
+
+            {
+                uint[] isi = new uint[] { 5, 6, 7, 8 };
+                ulong[] lsi = new ulong[] { 1_000, 3_000_000_000_000, 200_000 };
+
+                uint[] iso;
+                ulong[] lso;
+                ulong[] rso;
+
+                (rso, iso, lso) = p.opVarUIntVarULongS(isi, lsi);
+                TestHelper.Assert(iso.Length == 4);
+                TestHelper.Assert(iso[0] == 8);
+                TestHelper.Assert(iso[1] == 7);
+                TestHelper.Assert(iso[2] == 6);
+                TestHelper.Assert(iso[3] == 5);
+                TestHelper.Assert(lso.Length == 6);
+                TestHelper.Assert(lso[0] == 1_000);
+                TestHelper.Assert(lso[1] == 3_000_000_000_000);
+                TestHelper.Assert(lso[2] == 200_000);
+                TestHelper.Assert(lso[3] == 1_000);
+                TestHelper.Assert(lso[4] == 3_000_000_000_000);
+                TestHelper.Assert(lso[5] == 200_000);
+                TestHelper.Assert(rso.Length == 3);
+                TestHelper.Assert(rso[0] == 1_000);
+                TestHelper.Assert(rso[1] == 3_000_000_000_000);
+                TestHelper.Assert(rso[2] == 200_000);
+            }
+
+            {
                 float[] fsi = new float[] { 3.14f, 1.11f };
                 double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
 
@@ -469,6 +642,52 @@ namespace Ice.operations
                 long[][] rso;
 
                 (rso, sso, iso, lso) = p.opShortIntLongSS(ssi, isi, lsi);
+                TestHelper.Assert(rso.Length == 1);
+                TestHelper.Assert(rso[0].Length == 2);
+                TestHelper.Assert(rso[0][0] == 496);
+                TestHelper.Assert(rso[0][1] == 1729);
+                TestHelper.Assert(sso.Length == 3);
+                TestHelper.Assert(sso[0].Length == 3);
+                TestHelper.Assert(sso[0][0] == 1);
+                TestHelper.Assert(sso[0][1] == 2);
+                TestHelper.Assert(sso[0][2] == 5);
+                TestHelper.Assert(sso[1].Length == 1);
+                TestHelper.Assert(sso[1][0] == 13);
+                TestHelper.Assert(sso[2].Length == 0);
+                TestHelper.Assert(iso.Length == 2);
+                TestHelper.Assert(iso[0].Length == 1);
+                TestHelper.Assert(iso[0][0] == 42);
+                TestHelper.Assert(iso[1].Length == 2);
+                TestHelper.Assert(iso[1][0] == 24);
+                TestHelper.Assert(iso[1][1] == 98);
+                TestHelper.Assert(lso.Length == 2);
+                TestHelper.Assert(lso[0].Length == 2);
+                TestHelper.Assert(lso[0][0] == 496);
+                TestHelper.Assert(lso[0][1] == 1729);
+                TestHelper.Assert(lso[1].Length == 2);
+                TestHelper.Assert(lso[1][0] == 496);
+                TestHelper.Assert(lso[1][1] == 1729);
+            }
+
+            {
+                ushort[] s11 = new ushort[] { 1, 2, 5 };
+                ushort[] s12 = new ushort[] { 13 };
+                ushort[] s13 = new ushort[] { };
+                ushort[][] ssi = new ushort[][] { s11, s12, s13 };
+
+                uint[] i11 = new uint[] { 24, 98 };
+                uint[] i12 = new uint[] { 42 };
+                uint[][] isi = new uint[][] { i11, i12 };
+
+                ulong[] l11 = new ulong[] { 496, 1729 };
+                ulong[][] lsi = new ulong[][] { l11 };
+
+                ushort[][] sso;
+                uint[][] iso;
+                ulong[][] lso;
+                ulong[][] rso;
+
+                (rso, sso, iso, lso) = p.opUShortUIntULongSS(ssi, isi, lsi);
                 TestHelper.Assert(rso.Length == 1);
                 TestHelper.Assert(rso[0].Length == 2);
                 TestHelper.Assert(rso[0][0] == 496);
@@ -656,6 +875,25 @@ namespace Ice.operations
             }
 
             {
+                Dictionary<ushort, uint> di1 = new Dictionary<ushort, uint>();
+                di1[110] = 1;
+                di1[1100] = 123123;
+                Dictionary<ushort, uint> di2 = new Dictionary<ushort, uint>();
+                di2[110] = 1;
+                di2[111] = 100;
+                di2[1101] = 0;
+
+                var (ro, _do) = p.opUShortUIntD(di1, di2);
+
+                TestHelper.Assert(_do.DictionaryEqual(di1));
+                TestHelper.Assert(ro.Count == 4);
+                TestHelper.Assert(ro[110] == 1);
+                TestHelper.Assert(ro[111] == 100);
+                TestHelper.Assert(ro[1100] == 123123);
+                TestHelper.Assert(ro[1101] == 0);
+            }
+
+            {
                 Dictionary<long, float> di1 = new Dictionary<long, float>();
                 di1[999999110L] = -1.1f;
                 di1[999999111L] = 123123.2f;
@@ -837,6 +1075,47 @@ namespace Ice.operations
             }
 
             {
+                Dictionary<ushort, uint>[] dsi1 = new Dictionary<ushort, uint>[2];
+                Dictionary<ushort, uint>[] dsi2 = new Dictionary<ushort, uint>[1];
+
+                Dictionary<ushort, uint> di1 = new Dictionary<ushort, uint>();
+                di1[110] = 1;
+                di1[1100] = 123123;
+                Dictionary<ushort, uint> di2 = new Dictionary<ushort, uint>();
+                di2[110] = 1;
+                di2[111] = 100;
+                di2[1101] = 0;
+                Dictionary<ushort, uint> di3 = new Dictionary<ushort, uint>();
+                di3[100] = 1001;
+
+                dsi1[0] = di1;
+                dsi1[1] = di2;
+                dsi2[0] = di3;
+
+                var (ro, _do) = p.opUShortUIntDS(dsi1, dsi2);
+
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0][110] == 1);
+                TestHelper.Assert(ro[0][111] == 100);
+                TestHelper.Assert(ro[0][1101] == 0);
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1][110] == 1);
+                TestHelper.Assert(ro[1][1100] == 123123);
+
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0][100] == 1001);
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1][110] == 1);
+                TestHelper.Assert(_do[1][1100] == 123123);
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2][110] == 1);
+                TestHelper.Assert(_do[2][111] == 100);
+                TestHelper.Assert(_do[2][1101] == 0);
+            }
+
+            {
                 Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
                 Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
 
@@ -875,7 +1154,47 @@ namespace Ice.operations
                 TestHelper.Assert(_do[2][999999110L] == -1.1f);
                 TestHelper.Assert(_do[2][999999120L] == -100.4f);
                 TestHelper.Assert(_do[2][999999130L] == 0.5f);
+            }
 
+            {
+                Dictionary<ulong, float>[] dsi1 = new Dictionary<ulong, float>[2];
+                Dictionary<ulong, float>[] dsi2 = new Dictionary<ulong, float>[1];
+
+                Dictionary<ulong, float> di1 = new Dictionary<ulong, float>();
+                di1[999999110L] = -1.1f;
+                di1[999999111L] = 123123.2f;
+                Dictionary<ulong, float> di2 = new Dictionary<ulong, float>();
+                di2[999999110L] = -1.1f;
+                di2[999999120L] = -100.4f;
+                di2[999999130L] = 0.5f;
+                Dictionary<ulong, float> di3 = new Dictionary<ulong, float>();
+                di3[999999140L] = 3.14f;
+
+                dsi1[0] = di1;
+                dsi1[1] = di2;
+                dsi2[0] = di3;
+
+                var (ro, _do) = p.opULongFloatDS(dsi1, dsi2);
+
+                TestHelper.Assert(ro.Length == 2);
+                TestHelper.Assert(ro[0].Count == 3);
+                TestHelper.Assert(ro[0][999999110L] == -1.1f);
+                TestHelper.Assert(ro[0][999999120L] == -100.4f);
+                TestHelper.Assert(ro[0][999999130L] == 0.5f);
+                TestHelper.Assert(ro[1].Count == 2);
+                TestHelper.Assert(ro[1][999999110L] == -1.1f);
+                TestHelper.Assert(ro[1][999999111L] == 123123.2f);
+
+                TestHelper.Assert(_do.Length == 3);
+                TestHelper.Assert(_do[0].Count == 1);
+                TestHelper.Assert(_do[0][999999140L] == 3.14f);
+                TestHelper.Assert(_do[1].Count == 2);
+                TestHelper.Assert(_do[1][999999110L] == -1.1f);
+                TestHelper.Assert(_do[1][999999111L] == 123123.2f);
+                TestHelper.Assert(_do[2].Count == 3);
+                TestHelper.Assert(_do[2][999999110L] == -1.1f);
+                TestHelper.Assert(_do[2][999999120L] == -100.4f);
+                TestHelper.Assert(_do[2][999999130L] == 0.5f);
             }
 
             {
@@ -1132,6 +1451,38 @@ namespace Ice.operations
             }
 
             {
+                var sdi1 = new Dictionary<ushort, ushort[]>();
+                var sdi2 = new Dictionary<ushort, ushort[]>();
+
+                ushort[] si1 = new ushort[] { 1, 2, 3 };
+                ushort[] si2 = new ushort[] { 4, 5 };
+                ushort[] si3 = new ushort[] { 6, 7 };
+
+                sdi1[1] = si1;
+                sdi1[2] = si2;
+                sdi2[4] = si3;
+
+                var (ro, _do) = p.opUShortUShortSD(sdi1, sdi2);
+
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[4].Length == 2);
+                TestHelper.Assert(_do[4][0] == 6);
+                TestHelper.Assert(_do[4][1] == 7);
+
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[1].Length == 3);
+                TestHelper.Assert(ro[1][0] == 1);
+                TestHelper.Assert(ro[1][1] == 2);
+                TestHelper.Assert(ro[1][2] == 3);
+                TestHelper.Assert(ro[2].Length == 2);
+                TestHelper.Assert(ro[2][0] == 4);
+                TestHelper.Assert(ro[2][1] == 5);
+                TestHelper.Assert(ro[4].Length == 2);
+                TestHelper.Assert(ro[4][0] == 6);
+                TestHelper.Assert(ro[4][1] == 7);
+            }
+
+            {
                 var sdi1 = new Dictionary<int, int[]>();
                 var sdi2 = new Dictionary<int, int[]>();
 
@@ -1164,6 +1515,38 @@ namespace Ice.operations
             }
 
             {
+                var sdi1 = new Dictionary<uint, uint[]>();
+                var sdi2 = new Dictionary<uint, uint[]>();
+
+                uint[] si1 = new uint[] { 100, 200, 300 };
+                uint[] si2 = new uint[] { 400, 500 };
+                uint[] si3 = new uint[] { 600, 700 };
+
+                sdi1[100] = si1;
+                sdi1[200] = si2;
+                sdi2[400] = si3;
+
+                var (ro, _do) = p.opUIntUIntSD(sdi1, sdi2);
+
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[400].Length == 2);
+                TestHelper.Assert(_do[400][0] == 600);
+                TestHelper.Assert(_do[400][1] == 700);
+
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[100].Length == 3);
+                TestHelper.Assert(ro[100][0] == 100);
+                TestHelper.Assert(ro[100][1] == 200);
+                TestHelper.Assert(ro[100][2] == 300);
+                TestHelper.Assert(ro[200].Length == 2);
+                TestHelper.Assert(ro[200][0] == 400);
+                TestHelper.Assert(ro[200][1] == 500);
+                TestHelper.Assert(ro[400].Length == 2);
+                TestHelper.Assert(ro[400][0] == 600);
+                TestHelper.Assert(ro[400][1] == 700);
+            }
+
+            {
                 var sdi1 = new Dictionary<long, long[]>();
                 var sdi2 = new Dictionary<long, long[]>();
 
@@ -1176,6 +1559,37 @@ namespace Ice.operations
                 sdi2[999999992L] = si3;
 
                 var (ro, _do) = p.opLongLongSD(sdi1, sdi2);
+
+                TestHelper.Assert(_do.Count == 1);
+                TestHelper.Assert(_do[999999992L].Length == 2);
+                TestHelper.Assert(_do[999999992L][0] == 999999110L);
+                TestHelper.Assert(_do[999999992L][1] == 999999120L);
+                TestHelper.Assert(ro.Count == 3);
+                TestHelper.Assert(ro[999999990L].Length == 3);
+                TestHelper.Assert(ro[999999990L][0] == 999999110L);
+                TestHelper.Assert(ro[999999990L][1] == 999999111L);
+                TestHelper.Assert(ro[999999990L][2] == 999999110L);
+                TestHelper.Assert(ro[999999991L].Length == 2);
+                TestHelper.Assert(ro[999999991L][0] == 999999120L);
+                TestHelper.Assert(ro[999999991L][1] == 999999130L);
+                TestHelper.Assert(ro[999999992L].Length == 2);
+                TestHelper.Assert(ro[999999992L][0] == 999999110L);
+                TestHelper.Assert(ro[999999992L][1] == 999999120L);
+            }
+
+             {
+                var sdi1 = new Dictionary<ulong, ulong[]>();
+                var sdi2 = new Dictionary<ulong, ulong[]>();
+
+                var si1 = new ulong[] { 999999110L, 999999111L, 999999110L };
+                var si2 = new ulong[] { 999999120L, 999999130L };
+                ulong[] si3 = new ulong[] { 999999110L, 999999120L };
+
+                sdi1[999999990L] = si1;
+                sdi1[999999991L] = si2;
+                sdi2[999999992L] = si3;
+
+                var (ro, _do) = p.opULongULongSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[999999992L].Length == 2);
@@ -1428,8 +1842,11 @@ namespace Ice.operations
             {
                 TestHelper.Assert(p.opByte1(0xFF) == 0xFF);
                 TestHelper.Assert(p.opShort1(0x7FFF) == 0x7FFF);
+                TestHelper.Assert(p.opUShort1(ushort.MaxValue) == ushort.MaxValue);
                 TestHelper.Assert(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
+                TestHelper.Assert(p.opUInt1(uint.MaxValue) == uint.MaxValue);
                 TestHelper.Assert(p.opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
+                TestHelper.Assert(p.opULong1(ulong.MaxValue) == ulong.MaxValue);
                 TestHelper.Assert(p.opFloat1(1.0f) == 1.0f);
                 TestHelper.Assert(p.opDouble1(1.0d) == 1.0d);
                 TestHelper.Assert(p.opString1("opString1").Equals("opString1"));

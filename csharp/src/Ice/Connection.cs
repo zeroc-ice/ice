@@ -2195,7 +2195,8 @@ namespace Ice
                 {
                     case Ice1Definitions.MessageType.CloseConnectionMessage:
                         {
-                            TraceUtil.TraceRecv(new InputStream(_communicator, info.Data), _logger, _traceLevels);
+                            TraceUtil.TraceRecv(new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
+                                _logger, _traceLevels);
                             if (_endpoint.IsDatagram)
                             {
                                 if (_warn)
@@ -2226,12 +2227,13 @@ namespace Ice
                             {
                                 TraceUtil.Trace("received request during closing\n" +
                                                 "(ignored by server, client will retry)",
-                                                new InputStream(_communicator, info.Data),
+                                                new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
                                                 _logger, _traceLevels);
                             }
                             else
                             {
-                                TraceUtil.TraceRecv(new InputStream(_communicator, info.Data), _logger, _traceLevels);
+                                TraceUtil.TraceRecv(new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
+                                    _logger, _traceLevels);
                                 info.RequestId = InputStream.ReadInt(info.Data.AsSpan(Ice1Definitions.HeaderSize, 4));
                                 info.InvokeNum = 1;
                                 info.Adapter = _adapter;
@@ -2246,12 +2248,13 @@ namespace Ice
                             {
                                 TraceUtil.Trace("received batch request during closing\n" +
                                                 "(ignored by server, client will retry)",
-                                                new InputStream(_communicator, info.Data),
+                                                new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
                                                 _logger, _traceLevels);
                             }
                             else
                             {
-                                TraceUtil.TraceRecv(new InputStream(_communicator, info.Data), _logger, _traceLevels);
+                                TraceUtil.TraceRecv(new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
+                                    _logger, _traceLevels);
                                 info.InvokeNum = InputStream.ReadInt(info.Data.AsSpan(Ice1Definitions.HeaderSize, 4));
                                 if (info.InvokeNum < 0)
                                 {
@@ -2268,7 +2271,8 @@ namespace Ice
 
                     case Ice1Definitions.MessageType.ReplyMessage:
                         {
-                            TraceUtil.TraceRecv(new InputStream(_communicator, info.Data), _logger, _traceLevels);
+                            TraceUtil.TraceRecv(new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
+                                _logger, _traceLevels);
                             info.RequestId = InputStream.ReadInt(info.Data.AsSpan(Ice1Definitions.HeaderSize, 4));
                             if (_asyncRequests.TryGetValue(info.RequestId, out info.OutAsync))
                             {
@@ -2300,7 +2304,8 @@ namespace Ice
 
                     case Ice1Definitions.MessageType.ValidateConnectionMessage:
                         {
-                            TraceUtil.TraceRecv(new InputStream(_communicator, info.Data), _logger, _traceLevels);
+                            TraceUtil.TraceRecv(new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
+                                _logger, _traceLevels);
                             if (_heartbeatCallback != null)
                             {
                                 info.HeartbeatCallback = _heartbeatCallback;
@@ -2312,7 +2317,8 @@ namespace Ice
                     default:
                         {
                             TraceUtil.Trace("received unknown message\n(invalid, closing connection)",
-                                            new InputStream(_communicator, info.Data), _logger, _traceLevels);
+                                            new InputStream(_communicator, Ice1Definitions.Encoding, info.Data),
+                                                _logger, _traceLevels);
                             throw new InvalidDataException(
                                 $"received ice1 frame with unknown message type `{messageType}'");
                         }

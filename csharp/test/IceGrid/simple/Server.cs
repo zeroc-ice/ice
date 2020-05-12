@@ -13,6 +13,7 @@ public class Server : TestHelper
     {
         var properties = new Dictionary<string, string>();
         properties.ParseArgs(ref args, "TestAdapter");
+        properties.Add("Ice.Default.Encoding", "1.1");
 
         using var communicator = Initialize(ref args, properties);
         ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");

@@ -2040,22 +2040,23 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         _out << sb;
 
         _out << sp;
-        _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
+        _out << nl << "public static void Write(this global::Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
         _out.inc();
         _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
         _out.dec();
 
         _out << sp;
-        _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+        _out << nl << "public static readonly global::Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
 
         _out << sp;
-        _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) =>";
+        _out << nl << "public static " << seqS << " Read" << name << "(this global::Ice.InputStream istr) =>";
         _out.inc();
         _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
         _out.dec();
 
         _out << sp;
-        _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
+        _out << nl << "public static readonly global::Ice.InputStreamReader<" << seqS << "> IceReader = Read"
+            << name << ";";
 
         _out << eb;
     }
@@ -2076,7 +2077,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     emitCommonAttributes();
     _out << nl << "public static class " << name << "Helper";
     _out << sb;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) =>";
+    _out << nl << "public static void Write(this global::Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) =>";
     _out.inc();
     _out << nl << "ostr.WriteDictionary(dictionary";
     if (!StructPtr::dynamicCast(key))
@@ -2091,10 +2092,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
+    _out << nl << "public static readonly global::Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
 
     _out << sp;
-    _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) =>";
+    _out << nl << "public static " << dictS << " Read" << name << "(this global::Ice.InputStream istr) =>";
     _out.inc();
     if(generic == "SortedDictionary")
     {
@@ -2110,7 +2111,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
+    _out << nl << "public static readonly global::Ice.InputStreamReader<" << dictS << "> IceReader = Read"
+        << name << ";";
 
     _out << eb;
 }

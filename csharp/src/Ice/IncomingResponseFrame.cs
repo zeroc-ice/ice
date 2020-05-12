@@ -38,7 +38,7 @@ namespace Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                return InputStream.ReadEncapsulation(_communicator, Payload.Slice(1), reader);
+                return InputStream.ReadEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1), reader);
             }
             else
             {
@@ -52,7 +52,7 @@ namespace Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                InputStream.ReadEmptyEncapsulation(_communicator, Payload.Slice(1));
+                InputStream.ReadEmptyEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1));
             }
             else
             {
@@ -85,7 +85,7 @@ namespace Ice
             }
             else
             {
-                Encoding = Encoding.V1_1;
+                Encoding = Ice1Definitions.Encoding;
             }
         }
 
@@ -102,7 +102,8 @@ namespace Ice
             {
                 case ReplyStatus.UserException:
                 {
-                    return InputStream.ReadEncapsulation(_communicator, Payload.Slice(1), istr => istr.ReadException());
+                    return InputStream.ReadEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1),
+                        istr => istr.ReadException());
                 }
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.FacetNotExistException:
@@ -121,11 +122,11 @@ namespace Ice
         }
 
         internal UnhandledException ReadUnhandledException() =>
-            new UnhandledException(InputStream.ReadString(Payload.Slice(1), Encoding), Identity.Empty, "", "");
+            new UnhandledException(InputStream.ReadString(Encoding, Payload.Slice(1)), Identity.Empty, "", "");
 
         internal DispatchException ReadDispatchException()
         {
-            var istr = new InputStream(_communicator, Payload, 1);
+            var istr = new InputStream(_communicator, Ice1Definitions.Encoding, Payload, 1);
             var identity = new Identity(istr);
             string facet = istr.ReadFacet();
             string operation = istr.ReadString();
