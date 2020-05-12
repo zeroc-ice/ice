@@ -2394,8 +2394,8 @@ yyreduce:
         {
             unit->popContainer();
         }
+        yyval = unit->currentContainer();
         unit->popContainer();
-        yyval = yyvsp[-3];
     }
     else
     {

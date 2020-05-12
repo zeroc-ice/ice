@@ -443,8 +443,8 @@ module_def
         {
             unit->popContainer();
         }
+        $$ = unit->currentContainer();
         unit->popContainer();
-        $$ = $3;
     }
     else
     {
