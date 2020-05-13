@@ -132,7 +132,7 @@ namespace Ice
             OutputStream ostr;
             if (exception is DispatchException dispatchException)
             {
-                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 0));
+                ostr = new OutputStream(Ice1Definitions.Encoding, Data, new OutputStream.Position(0, 0));
                 if (dispatchException is PreExecutionException preExecutionException)
                 {
                     ReplyStatus replyStatus = preExecutionException switch

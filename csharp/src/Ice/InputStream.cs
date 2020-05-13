@@ -799,6 +799,7 @@ namespace Ice
 
         internal static string ReadString(Encoding encoding, ArraySegment<byte> buffer)
         {
+            Debug.Assert(encoding == Encoding.V1_1);
             int size = ReadSize(encoding, buffer);
             if (size == 0)
             {
@@ -886,18 +887,25 @@ namespace Ice
         /// <returns>The size read from the stream.</returns>
         internal int ReadSize()
         {
-            byte b = ReadByte();
-            if (b < 255)
+            if (OldEncoding)
             {
-                return b;
-            }
+                byte b = ReadByte();
+                if (b < 255)
+                {
+                    return b;
+                }
 
-            int size = ReadInt();
-            if (size < 0)
-            {
-                throw new InvalidDataException($"read invalid size: {size}");
+                int size = ReadInt();
+                if (size < 0)
+                {
+                    throw new InvalidDataException($"read invalid size: {size}");
+                }
+                return size;
             }
-            return size;
+            else
+            {
+                return (int)ReadVarUInt();
+            }
         }
 
         /// <summary>Skips over an encapsulation without reading it.</summary>
@@ -938,7 +946,7 @@ namespace Ice
 
         private static int ReadSize(Encoding encoding, ArraySegment<byte> buffer)
         {
-            Debug.Assert(encoding == Encoding.V1_1 || encoding == Encoding.V2_0); // to silence warning
+            Debug.Assert(encoding == Encoding.V1_1);
 
             byte b = buffer[0];
             if (b < 255)
@@ -1047,10 +1055,12 @@ namespace Ice
                     return false; // End of encapsulation also indicates end of tagged parameters.
                 }
 
+                int savedPos = _pos;
+
                 int v = ReadByte();
                 if (v == EncodingDefinitions.TaggedEndMarker)
                 {
-                    _pos--; // Rewind.
+                    _pos = savedPos; // rewind
                     return false;
                 }
 
@@ -1063,8 +1073,7 @@ namespace Ice
 
                 if (tag > requestedTag)
                 {
-                    int offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6); // Rewind
-                    _pos -= offset;
+                    _pos = savedPos; // rewind
                     return false; // No tagged parameter with the requested tag.
                 }
                 else if (tag < requestedTag)
@@ -1094,10 +1103,18 @@ namespace Ice
         /// <summary>Skips over a size value. Equivalent to ReadSize()</summary>
         private void SkipSize()
         {
-            byte b = ReadByte();
-            if (b == 255)
+            if (OldEncoding)
             {
-                Skip(4);
+                byte b = ReadByte();
+                if (b == 255)
+                {
+                    Skip(4);
+                }
+            }
+            else
+            {
+                byte b = _buffer[_pos];
+                Skip(1 << (b & 0x03));
             }
         }
 

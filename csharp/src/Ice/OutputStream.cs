@@ -1105,14 +1105,21 @@ namespace Ice
         /// <param name="v">The size to write.</param>
         internal void WriteSize(int v)
         {
-            if (v > 254)
+            if (OldEncoding)
             {
-                WriteByte(255);
-                WriteInt(v);
+                if (v > 254)
+                {
+                    WriteByte(255);
+                    WriteInt(v);
+                }
+                else
+                {
+                    WriteByte((byte)v);
+                }
             }
             else
             {
-                WriteByte((byte)v);
+                WriteVarUInt((uint)v);
             }
         }
 
@@ -1135,6 +1142,27 @@ namespace Ice
                 size += data[i].Count;
             }
             return size + end.Offset;
+        }
+
+        /// <summary>Writes a size into a span of bytes using a fixed number of bytes (currently always 4 bytes).
+        /// </summary>
+        /// <param name="size">The size to write.</param>
+        /// <param name="data">The destination byte buffer.</param>
+        private static void WriteFixedLengthSize(int size, ref Span<byte> data)
+        {
+            if (size < 0 || size > 1_073_741_823) // 2^30 -1
+            {
+                throw new ArgumentOutOfRangeException("size is out of range", nameof(size));
+            }
+            if (data.Length < 4)
+            {
+                throw new ArgumentException("target buffer is too small", nameof(data));
+            }
+
+            uint v = (uint)size;
+            v <<= 2;
+            v |= (uint)0x02;
+            MemoryMarshal.Write(data, ref v);
         }
 
         /// <summary>Returns the distance in bytes from start position to the current position.</summary>
@@ -1204,26 +1232,38 @@ namespace Ice
                 $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
             Span<byte> data = stackalloc byte[4];
             MemoryMarshal.Write(data, ref v);
-            RewriteSpan(data, pos);
+            RewriteByteSpan(data, pos);
         }
 
         private void RewriteSize(int size, Position pos)
         {
-            if (size < 255)
+            if (OldEncoding)
             {
-                ArraySegment<byte> segment = _segmentList[pos.Segment];
-                segment[pos.Offset] = (byte) size;
+                // With the 1.1 encoding, size is always variable-length, so RewriteSize requires that the initial
+                // placeholder has the correct length (1 or 5).
+                if (size < 255)
+                {
+                    ArraySegment<byte> segment = _segmentList[pos.Segment];
+                    segment[pos.Offset] = (byte)size;
+                }
+                else
+                {
+                    Span<byte> data = stackalloc byte[5];
+                    data[0] = 255;
+                    WriteInt(size, data.Slice(1, 4));
+                    RewriteByteSpan(data, pos);
+                }
             }
             else
             {
-                Span<byte> data = stackalloc byte[5];
-                data[0] = 255;
-                WriteInt(size, data.Slice(1, 4));
-                RewriteSpan(data, pos);
+                // With the 2.0 encoding, the size placeholder must be 4 bytes long.
+                Span<byte> data = stackalloc byte[4];
+                WriteFixedLengthSize(size, ref data);
+                RewriteByteSpan(data, pos);
             }
         }
 
-        private void RewriteSpan(Span<byte> data, Position pos)
+        private void RewriteByteSpan(Span<byte> data, Position pos)
         {
             ArraySegment<byte> segment = _segmentList[pos.Segment];
             int remaining = Math.Min(data.Length, segment.Count - pos.Offset);
@@ -1294,6 +1334,16 @@ namespace Ice
             WriteInt(size);
             WriteByte(encoding.Major);
             WriteByte(encoding.Minor);
+        }
+
+        /// <summary>Writes a size to the stream using a fixed number of bytes (currently always 4 bytes).</summary>
+        /// <param name="size">The size to write to the stream.</param>
+        private void WriteFixedLengthSize(int size)
+        {
+            Debug.Assert(!OldEncoding);
+            Span<byte> data = stackalloc byte[4];
+            WriteFixedLengthSize(size, ref data);
+            WriteByteSpan(data);
         }
 
         /// <summary>Writes a fixed-size numeric to the stream.</summary>
