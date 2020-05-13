@@ -9,9 +9,9 @@
 //
 // Suppress invalid metadata warnings
 //
-[["suppress-warning:invalid-metadata, deprecated"]]
+[[suppress-warning:invalid-metadata, deprecated]]
 
-[["swift:class-resolver-prefix:IceStrem"]]
+[[swift:class-resolver-prefix:IceStrem]]
 module Test
 {
 
@@ -127,10 +127,8 @@ module Sub
 }
 }
 
-["swift:module:Test:Test2"]
-module Test2
-{
-module Sub2
+[swift:module:Test:Test2]
+module Test2::Sub2
 {
     enum NestedEnum2
     {
@@ -156,5 +154,4 @@ module Sub2
     {
         string str;
     }
-}
 }

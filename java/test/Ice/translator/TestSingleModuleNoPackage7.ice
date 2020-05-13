@@ -6,9 +6,7 @@
 
 #include <SingleModuleNoPackage.ice>
 
-module M
-{
-module N
+module M::N
 {
 
 const smnpEnum smnpTest7Constant = smnpE1;
@@ -56,7 +54,7 @@ class smnpTest7Class : smnpBaseClass implements smnpBaseInterface
                  out smnpClass o6)
         throws smnpException;
 
-    ["amd"]
+    [amd]
     smnpStruct
     smnpTest7Op3(smnpEnum i1,
                  smnpStruct i2,
@@ -73,5 +71,4 @@ class smnpTest7Class : smnpBaseClass implements smnpBaseInterface
         throws smnpException;
 }
 
-}
 }

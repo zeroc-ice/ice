@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.enums"]]
+[[java:package:test.Ice.enums]]
 module Test
 {
 

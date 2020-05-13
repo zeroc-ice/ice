@@ -6,11 +6,9 @@
 
 #include <DoubleModuleWithPackage.ice>
 
-[["java:package:dmwp"]]
+[[java:package:dmwp]]
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 const dmwpEnum dmwpTest10Constant = dmwpE1;
@@ -58,7 +56,7 @@ class dmwpTest10Class : dmwpBaseClass implements dmwpBaseInterface
                   out dmwpClass o6)
         throws dmwpException;
 
-    ["amd"]
+    [amd]
     dmwpStruct
     dmwpTest10Op3(dmwpEnum i1,
                   dmwpStruct i2,
@@ -75,5 +73,4 @@ class dmwpTest10Class : dmwpBaseClass implements dmwpBaseInterface
         throws dmwpException;
 }
 
-}
 }

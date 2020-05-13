@@ -4,24 +4,24 @@
 
 #pragma once
 
-[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceGrid/Config.h"]]
+[[cpp:doxygen:include:IceGrid/IceGrid.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceGrid/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceGrid"]]
+[[python:pkgdir:IceGrid]]
 
 #ifndef ICE_BUILDING_ICEGRIDDB
-[["cpp:dll-export:ICEGRID_API"]]
+[[cpp:dll-export:ICEGRID_API]]
 #endif
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module IceGrid
 {

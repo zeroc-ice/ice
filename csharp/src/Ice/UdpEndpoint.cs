@@ -273,5 +273,4 @@ namespace Ice
 
         internal UdpEndpointFactory(TransportInstance instance) => _instance = instance;
     }
-
 }

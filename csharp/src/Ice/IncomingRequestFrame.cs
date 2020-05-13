@@ -34,14 +34,14 @@ namespace Ice
         internal ArraySegment<byte> Data { get; }
         private readonly Communicator _communicator;
 
-        /// <summary>Creates a new OutgoingRequestFrame.</summary>
+        /// <summary>Creates a new IncomingRequestFrame.</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="data">The frame data as an array segment.</param>
         public IncomingRequestFrame(Communicator communicator, ArraySegment<byte> data)
         {
             _communicator = communicator;
             Data = data;
-            var istr = new InputStream(communicator, data);
+            var istr = new InputStream(communicator, Ice1Definitions.Encoding, data);
 
             Identity = new Identity(istr);
             Facet = istr.ReadFacet();
@@ -66,7 +66,8 @@ namespace Ice
 
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload
         /// correspond to the empty parameter list.</summary>
-        public void ReadEmptyParamList() => InputStream.ReadEmptyEncapsulation(_communicator, Payload);
+        public void ReadEmptyParamList() =>
+            InputStream.ReadEmptyEncapsulation(_communicator, Ice1Definitions.Encoding, Payload);
 
         /// <summary>Reads the request frame parameter list.</summary>
         /// <param name="reader">An InputStreamReader delegate used to read the request frame
@@ -74,6 +75,6 @@ namespace Ice
         /// <returns>The request parameters, when the frame parameter list contains multiple parameters
         /// they must be return as a tuple.</returns>
         public T ReadParamList<T>(InputStreamReader<T> reader) =>
-            InputStream.ReadEncapsulation(_communicator, Payload, reader);
+            InputStream.ReadEncapsulation(_communicator, Ice1Definitions.Encoding, Payload, reader);
     }
 }

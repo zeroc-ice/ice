@@ -53,10 +53,10 @@ namespace Ice
             var initializedPlugins = new List<IPlugin>();
             try
             {
-                foreach ((string Name, IPlugin Plugin) in _plugins)
+                foreach ((string name, IPlugin plugin) in _plugins)
                 {
-                    Plugin.Initialize();
-                    initializedPlugins.Add(Plugin);
+                    plugin.Initialize();
+                    initializedPlugins.Add(plugin);
                 }
             }
             catch (System.Exception)
@@ -238,13 +238,10 @@ namespace Ice
                         LoadPlugin(name, val, ref cmdArgs);
                         plugins.Remove(key);
                         plugins.Remove($"Ice.Plugin.{name}");
-
                     }
                     else
                     {
-                        //
                         // Name is just a regular name that happens to contain a dot
-                        //
                         dotPos = -1;
                     }
                 }

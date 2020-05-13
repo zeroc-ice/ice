@@ -4,17 +4,17 @@
 
 #pragma once
 
-[["cpp:dll-export:GLACIER2_API"]]
-[["cpp:doxygen:include:Glacier2/Glacier2.h"]]
-[["cpp:header-ext:h"]]
+[[cpp:dll-export:GLACIER2_API]]
+[[cpp:doxygen:include:Glacier2/Glacier2.h]]
+[[cpp:header-ext:h]]
 
-[["normalize-case"]]
+[[normalize-case]]
 
-[["js:module:ice"]]
+[[js:module:ice]]
 
-[["python:pkgdir:Glacier2"]]
+[[python:pkgdir:Glacier2]]
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module Glacier2
 {

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["suppress-warning:deprecated"]]
+[[suppress-warning:deprecated]]
 
 module and
 {
@@ -18,7 +18,7 @@ module and
 
     interface del
     {
-        ["amd"] void elif(int else, out int except);
+        [amd] void elif(int else, out int except);
     }
 
     interface exec

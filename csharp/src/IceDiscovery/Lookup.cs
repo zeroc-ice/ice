@@ -57,7 +57,7 @@ namespace IceDiscovery
 
         public abstract void Finished(IObjectPrx? proxy);
 
-        protected abstract void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply);
+        protected abstract Task InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply);
 
         private readonly string _requestId;
 
@@ -68,11 +68,12 @@ namespace IceDiscovery
         protected List<TaskCompletionSource<IObjectPrx?>> Callbacks = new List<TaskCompletionSource<IObjectPrx?>>();
 
         protected T Id;
-    };
+    }
 
     internal class AdapterRequest : Request<string>, IceInternal.ITimerTask
     {
-        public AdapterRequest(Lookup lookup, string id, int retryCount) : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
+        public AdapterRequest(Lookup lookup, string id, int retryCount)
+            : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
 
         public override bool Retry() => _proxies.Count == 0 && --RetryCount >= 0;
 
@@ -126,20 +127,16 @@ namespace IceDiscovery
 
         public void RunTimerTask() => Lookup.AdapterRequestTimedOut(this);
 
-        protected override void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
+        protected override async Task InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
-            lookup.FindAdapterByIdAsync(domainId, Id, lookupReply).ContinueWith(task =>
+            try
             {
-                try
-                {
-                    task.Wait();
-                }
-                catch (AggregateException ex)
-                {
-                    Debug.Assert(ex.InnerException != null);
-                    Lookup.AdapterRequestException(this, ex.InnerException);
-                }
-            }, lookup.Scheduler);
+                await lookup.FindAdapterByIdAsync(domainId, Id, lookupReply).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Lookup.AdapterRequestException(this, ex);
+            }
         }
 
         private void SendResponse(IObjectPrx? proxy)
@@ -159,11 +156,12 @@ namespace IceDiscovery
         private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
         private readonly long _start;
         private long _latency;
-    };
+    }
 
     internal class ObjectRequest : Request<Identity>, IceInternal.ITimerTask
     {
-        public ObjectRequest(Lookup lookup, Identity id, int retryCount) : base(lookup, id, retryCount)
+        public ObjectRequest(Lookup lookup, Identity id, int retryCount)
+            : base(lookup, id, retryCount)
         {
         }
 
@@ -180,22 +178,18 @@ namespace IceDiscovery
 
         public void RunTimerTask() => Lookup.ObjectRequestTimedOut(this);
 
-        protected override void InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
+        protected override async Task InvokeWithLookup(string domainId, ILookupPrx lookup, ILookupReplyPrx lookupReply)
         {
-            lookup.FindObjectByIdAsync(domainId, Id, lookupReply).ContinueWith(task =>
+            try
             {
-                try
-                {
-                    task.Wait();
-                }
-                catch (AggregateException ex)
-                {
-                    Debug.Assert(ex.InnerException != null);
-                    Lookup.ObjectRequestException(this, ex.InnerException);
-                }
-            }, lookup.Scheduler);
+                await lookup.FindObjectByIdAsync(domainId, Id, lookupReply).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Lookup.ObjectRequestException(this, ex);
+            }
         }
-    };
+    }
 
     internal class Lookup : ILookup
     {
@@ -236,7 +230,7 @@ namespace IceDiscovery
 
                     if (q != null)
                     {
-                         single[0] = q;
+                        single[0] = q;
                         _lookups[key] = lookupReply.Clone(endpoints: single);
                     }
                 }
@@ -515,7 +509,7 @@ namespace IceDiscovery
         private bool _warnOnce = true;
         private readonly Dictionary<Identity, ObjectRequest> _objectRequests = new Dictionary<Identity, ObjectRequest>();
         private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
-    };
+    }
 
     internal class LookupReply : ILookupReply
     {
@@ -528,6 +522,5 @@ namespace IceDiscovery
             _lookup.FoundAdapter(adapterId, c.Identity.Name, proxy!, isReplicaGroup); // proxy cannot be null
 
         private readonly Lookup _lookup;
-    };
-
+    }
 }

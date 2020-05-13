@@ -16,5 +16,4 @@ namespace IceInternal
 
         EndpointType Type();
     }
-
 }

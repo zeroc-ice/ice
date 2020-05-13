@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.servantLocator.AMD"]]
+[[java:package:test.Ice.servantLocator.AMD]]
 module Test
 {
 
@@ -16,7 +16,7 @@ exception TestImpossibleException
 {
 }
 
-["amd"] interface TestIntf
+[amd] interface TestIntf
 {
     void requestFailedException();
     void unknownUserException();

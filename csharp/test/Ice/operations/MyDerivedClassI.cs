@@ -172,6 +172,21 @@ namespace Ice.operations
             return (r, p1);
         }
 
+        public (IReadOnlyDictionary<ulong, float>, IReadOnlyDictionary<ulong, float>) opULongFloatD(
+            Dictionary<ulong, float> p1, Dictionary<ulong, float> p2, Current current)
+        {
+            var r = new Dictionary<ulong, float>();
+            foreach (KeyValuePair<ulong, float> e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (KeyValuePair<ulong, float> e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return (r, p1);
+        }
+
         public (Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?) opMyClass(Test.IMyClassPrx? p1,
             Current current) =>
             (current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory),
@@ -195,10 +210,35 @@ namespace Ice.operations
             return (r, p1);
         }
 
+        public (IReadOnlyDictionary<ushort, uint>, IReadOnlyDictionary<ushort, uint>) opUShortUIntD(
+            Dictionary<ushort, uint> p1,
+            Dictionary<ushort, uint> p2,
+            Current current)
+        {
+            var r = new Dictionary<ushort, uint>();
+            foreach (KeyValuePair<ushort, uint> e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (KeyValuePair<ushort, uint> e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return (r, p1);
+        }
+
         public (long, short, int, long) opShortIntLong(short p1, int p2, long p3, Current current) => (p3, p1, p2, p3);
 
-        public (ReadOnlyMemory<long>, ReadOnlyMemory<short>, ReadOnlyMemory<int>, ReadOnlyMemory<long>) opShortIntLongS(
-            short[] p1, int[] p2, long[] p3, Current current)
+        public (ulong, ushort, uint, ulong) opUShortUIntULong(ushort p1, uint p2, ulong p3, Current current) =>
+            (p3, p1, p2, p3);
+
+        public int opVarInt(int v, Current current) => v;
+        public uint opVarUInt(uint v, Current current) => v;
+        public long opVarLong(long v, Current current) => v;
+        public ulong opVarULong(ulong v, Current current) => v;
+
+        public (ReadOnlyMemory<long>, ReadOnlyMemory<short>, ReadOnlyMemory<int>, ReadOnlyMemory<long>)
+        opShortIntLongS(short[] p1, int[] p2, long[] p3, Current current)
         {
             var p5 = new int[p2.Length];
             for (int i = 0; i < p2.Length; i++)
@@ -213,6 +253,54 @@ namespace Ice.operations
             return (p3, p1, p5, p6);
         }
 
+        public (ReadOnlyMemory<ulong>, ReadOnlyMemory<ushort>, ReadOnlyMemory<uint>, ReadOnlyMemory<ulong>)
+        opUShortUIntULongS(ushort[] p1, uint[] p2, ulong[] p3, Current current)
+        {
+            var p5 = new uint[p2.Length];
+            for (int i = 0; i < p2.Length; i++)
+            {
+                p5[i] = p2[p2.Length - (i + 1)];
+            }
+
+            var p6 = new ulong[p3.Length + p3.Length];
+            Array.Copy(p3, p6, p3.Length);
+            Array.Copy(p3, 0, p6, p3.Length, p3.Length);
+
+            return (p3, p1, p5, p6);
+        }
+
+        public (IEnumerable<long>, IEnumerable<int>, IEnumerable<long>)
+        opVarIntVarLongS(int[] p1, long[] p2, Current current)
+        {
+            var p4 = new int[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                p4[i] = p1[p1.Length - (i + 1)];
+            }
+
+            var p5 = new long[p2.Length + p2.Length];
+            Array.Copy(p2, p5, p2.Length);
+            Array.Copy(p2, 0, p5, p2.Length, p2.Length);
+
+            return (p2, p4, p5);
+        }
+
+        public (IEnumerable<ulong>, IEnumerable<uint>, IEnumerable<ulong>)
+        opVarUIntVarULongS(uint[] p1, ulong[] p2, Current current)
+        {
+            var p4 = new uint[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                p4[i] = p1[p1.Length - (i + 1)];
+            }
+
+            var p5 = new ulong[p2.Length + p2.Length];
+            Array.Copy(p2, p5, p2.Length);
+            Array.Copy(p2, 0, p5, p2.Length, p2.Length);
+
+            return (p2, p4, p5);
+        }
+
         public (IEnumerable<long[]>, IEnumerable<short[]>, IEnumerable<int[]>, IEnumerable<long[]>) opShortIntLongSS(
             short[][] p1, int[][] p2, long[][] p3, Current current)
         {
@@ -223,6 +311,22 @@ namespace Ice.operations
             }
 
             var p6 = new long[p3.Length + p3.Length][];
+            Array.Copy(p3, p6, p3.Length);
+            Array.Copy(p3, 0, p6, p3.Length, p3.Length);
+
+            return (p3, p1, p5, p6);
+        }
+
+        public (IEnumerable<ulong[]>, IEnumerable<ushort[]>, IEnumerable<uint[]>, IEnumerable<ulong[]>)
+        opUShortUIntULongSS(ushort[][] p1, uint[][] p2, ulong[][] p3, Current current)
+        {
+            var p5 = new uint[p2.Length][];
+            for (int i = 0; i < p2.Length; i++)
+            {
+                p5[i] = p2[p2.Length - (i + 1)];
+            }
+
+            var p6 = new ulong[p3.Length + p3.Length][];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
 
@@ -307,6 +411,21 @@ namespace Ice.operations
             return (r, p3);
         }
 
+        public (IEnumerable<Dictionary<ushort, uint>>, IEnumerable<Dictionary<ushort, uint>>) opUShortUIntDS(
+            Dictionary<ushort, uint>[] p1, Dictionary<ushort, uint>[] p2, Current current)
+        {
+            var p3 = new Dictionary<ushort, uint>[p1.Length + p2.Length];
+            Array.Copy(p2, p3, p2.Length);
+            Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+            var r = new Dictionary<ushort, uint>[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                r[i] = p1[p1.Length - (i + 1)];
+            }
+            return (r, p3);
+        }
+
         public (IEnumerable<Dictionary<long, float>>, IEnumerable<Dictionary<long, float>>) opLongFloatDS(
             Dictionary<long, float>[] p1, Dictionary<long, float>[] p2, Current current)
         {
@@ -315,6 +434,21 @@ namespace Ice.operations
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
             var r = new Dictionary<long, float>[p1.Length];
+            for (int i = 0; i < p1.Length; i++)
+            {
+                r[i] = p1[p1.Length - (i + 1)];
+            }
+            return (r, p3);
+        }
+
+        public (IEnumerable<Dictionary<ulong, float>>, IEnumerable<Dictionary<ulong, float>>) opULongFloatDS(
+            Dictionary<ulong, float>[] p1, Dictionary<ulong, float>[] p2, Current current)
+        {
+            var p3 = new Dictionary<ulong, float>[p1.Length + p2.Length];
+            Array.Copy(p2, p3, p2.Length);
+            Array.Copy(p1, 0, p3, p2.Length, p1.Length);
+
+            var r = new Dictionary<ulong, float>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -434,6 +568,21 @@ namespace Ice.operations
             return (r, p2);
         }
 
+        public (IReadOnlyDictionary<ushort, ushort[]>, IReadOnlyDictionary<ushort, ushort[]>) opUShortUShortSD(
+            Dictionary<ushort, ushort[]> p1, Dictionary<ushort, ushort[]> p2, Current current)
+        {
+            var r = new Dictionary<ushort, ushort[]>();
+            foreach (KeyValuePair<ushort, ushort[]> e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (KeyValuePair<ushort, ushort[]> e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return (r, p2);
+        }
+
         public (IReadOnlyDictionary<int, int[]>, IReadOnlyDictionary<int, int[]>) opIntIntSD(Dictionary<int, int[]> p1,
             Dictionary<int, int[]> p2,
             Current current)
@@ -450,6 +599,23 @@ namespace Ice.operations
             return (r, p2);
         }
 
+        public (IReadOnlyDictionary<uint, uint[]>, IReadOnlyDictionary<uint, uint[]>) opUIntUIntSD(
+            Dictionary<uint, uint[]> p1,
+            Dictionary<uint, uint[]> p2,
+            Current current)
+        {
+            var r = new Dictionary<uint, uint[]>();
+            foreach (KeyValuePair<uint, uint[]> e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (KeyValuePair<uint, uint[]> e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return (r, p2);
+        }
+
         public (IReadOnlyDictionary<long, long[]>, IReadOnlyDictionary<long, long[]>) opLongLongSD(
             Dictionary<long, long[]> p1, Dictionary<long, long[]> p2, Current current)
         {
@@ -459,6 +625,21 @@ namespace Ice.operations
                 r[e.Key] = e.Value;
             }
             foreach (KeyValuePair<long, long[]> e in p2)
+            {
+                r[e.Key] = e.Value;
+            }
+            return (r, p2);
+        }
+
+        public (IReadOnlyDictionary<ulong, ulong[]>, IReadOnlyDictionary<ulong, ulong[]>) opULongULongSD(
+            Dictionary<ulong, ulong[]> p1, Dictionary<ulong, ulong[]> p2, Current current)
+        {
+            var r = new Dictionary<ulong, ulong[]>();
+            foreach (KeyValuePair<ulong, ulong[]> e in p1)
+            {
+                r[e.Key] = e.Value;
+            }
+            foreach (KeyValuePair<ulong, ulong[]> e in p2)
             {
                 r[e.Key] = e.Value;
             }
@@ -652,10 +833,13 @@ namespace Ice.operations
         public byte opByte1(byte opByte1, Current current) => opByte1;
 
         public short opShort1(short opShort1, Current current) => opShort1;
+        public ushort opUShort1(ushort opUShort1, Current current) => opUShort1;
 
         public int opInt1(int opInt1, Current current) => opInt1;
+        public uint opUInt1(uint opUInt1, Current current) => opUInt1;
 
         public long opLong1(long opLong1, Current current) => opLong1;
+        public ulong opULong1(ulong opULong1, Current current) => opULong1;
 
         public float opFloat1(float opFloat1, Current current) => opFloat1;
 

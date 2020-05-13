@@ -35,7 +35,7 @@ namespace Slice
 map<string, int> keywordMap;
 
 int checkKeyword(string&);
-int checkIdentifier(const string&);
+int checkIsScoped(const string&);
 
 }
 
@@ -108,6 +108,8 @@ void yynoreturn fatalError(const char* msg);
 %s SLICE
 %x PREPROCESS
 %x METADATA
+%x QUOTED_METADATA
+%x UNQUOTED_METADATA
 %x STRING_LITERAL
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
@@ -116,7 +118,7 @@ oct                 [0-7]
 dec                 [0-9]
 hex                 [0-9a-fA-F]
 bom                 "\357\273\277"
-whitespace          ([[:space:]]{-}[\n])+
+whitespace          ([[:space:]]{-}[\n])
 preprocessor_prefix [[:blank:]]*#[[:blank:]]*
 preprocessor_lineno {preprocessor_prefix}(line[[:blank:]]+)?{dec}+
 identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
@@ -407,7 +409,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
 "[" {
     yy_push_state(METADATA);
-    return ICE_METADATA_OPEN;
+    return ICE_LOCAL_METADATA_OPEN;
 }
 
 "[[" {
@@ -416,16 +418,18 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     // We use a different token to indicate metadata that should be ignored (if it came after a slice definition).
     if(yy_top_state() == PRE_SLICE)
     {
-        return ICE_GLOBAL_METADATA_OPEN;
+        return ICE_FILE_METADATA_OPEN;
     }
     else
     {
-        return ICE_GLOBAL_METADATA_IGNORE;
+        return ICE_FILE_METADATA_IGNORE;
     }
 }
 
-  /* Matches the start of a metadata string, then switches the scanner into STRING_LITERAL mode. */
-<METADATA>"\"" {
+  /* Matches the start of a metadata string, ensures the scanner is in QUOTED_METADATA mode,
+   * then starts scanning a string literal. */
+<METADATA,QUOTED_METADATA>"\"" {
+    BEGIN(QUOTED_METADATA);
     yy_push_state(STRING_LITERAL);
     startLocation(yylloc);
 
@@ -435,27 +439,52 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches commas between string literals in quoted metadata and forwards them to the parser. */
-<METADATA>"," {
+<QUOTED_METADATA>"," {
     return yytext[0];
 }
 
+<METADATA,QUOTED_METADATA>"]" {
+    yy_pop_state();
+    return ICE_LOCAL_METADATA_CLOSE;
+}
+
+<METADATA,QUOTED_METADATA>"]]" {
+    yy_pop_state();
+    return ICE_FILE_METADATA_CLOSE;
+}
+
+  /* Matches the start of unquoted metadata and switches the scanner into UNQUOTED_METADATA mode. */
+<METADATA>[^[:space:]\[\]\"] {
+    BEGIN(UNQUOTED_METADATA);
+    startLocation(yylloc);
+
+    StringTokPtr str = new StringTok;
+    str->literal = yytext;
+    str->v = yytext;
+    *yylval = str;
+}
+
+  /* Matches unquoted text in UNQUOTED_METADATA mode. */
+<UNQUOTED_METADATA>({whitespace}*[^[:space:]\[\]]+)+ {
+    StringTokPtr str = StringTokPtr::dynamicCast(*yylval);
+    str->literal += yytext;
+    str->v += yytext;
+}
+
+  /* Matches the end of unquoted metadata, and places the ']' back into the stream. */
+<UNQUOTED_METADATA>"]" {
+    BEGIN(METADATA);
+    yyless(0);
+    return ICE_STRING_LITERAL;
+}
+
   /* Matches and consumes newlines in between metadata after incrementing the line count. */
-<METADATA>\n+ {
+<METADATA,QUOTED_METADATA,UNQUOTED_METADATA>\n+ {
     nextLine(yyleng);
 }
 
-<METADATA>"]" {
-    yy_pop_state();
-    return ICE_METADATA_CLOSE;
-}
-
-<METADATA>"]]" {
-    yy_pop_state();
-    return ICE_GLOBAL_METADATA_CLOSE;
-}
-
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
-<METADATA>[^[:space:]] {
+<METADATA,QUOTED_METADATA,UNQUOTED_METADATA>[^[:space:]] {
     unit->error("invalid character between metadata");
 }
 
@@ -468,7 +497,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     *yylval = ident;
     if(*yytext == '\\')
     {
-        if(checkIdentifier(ident->v) == ICE_SCOPED_IDENTIFIER)
+        if(checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
             unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         }
@@ -502,7 +531,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylval = ident;
-    return *yytext == '\\' ? checkIdentifier(ident->v) : checkKeyword(ident->v);
+    return *yytext == '\\' ? checkIsScoped(ident->v) : checkKeyword(ident->v);
 }
 
   /* ========== Whitespace ========== */
@@ -563,81 +592,13 @@ int checkKeyword(string& id)
         }
         return pos->second;
     }
-    return checkIdentifier(id);
+    return checkIsScoped(id);
 }
 
-// Checks an identifier for any illegal syntax and
-// determines whether it's scoped. If it is, this
-// returns a scoped identifier token; otherwise this
-// returns a normal identifier token.
-int checkIdentifier(const string& id)
+// Checks if an identifier is scoped or not, and returns the corresponding token.
+int checkIsScoped(const string& id)
 {
-    // check whether the identifier is scoped
-    size_t scopeIndex = id.rfind("::");
-    bool isScoped = scopeIndex != string::npos;
-    string name;
-    if(isScoped)
-    {
-        name = id.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
-    }
-    else
-    {
-        name = id;
-    }
-
-    // check the identifier for reserved suffixes
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
-    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
-    {
-        if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
-        {
-            unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-        }
-    }
-
-    // check the identifier for illegal underscores
-    size_t index = name.find('_');
-    if(index == 0)
-    {
-        unit->error("illegal leading underscore in identifier `" + name + "'");
-    }
-    else if(name.rfind('_') == (name.size() - 1))
-    {
-        unit->error("illegal trailing underscore in identifier `" + name + "'");
-    }
-    else if(name.find("__") != string::npos)
-    {
-        unit->error("illegal double underscore in identifier `" + name + "'");
-    }
-    else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
-    {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' global metadata
-        {
-            unit->error("illegal underscore in identifier `" + name + "'");
-        }
-    }
-
-    // Check the identifier for illegal ice prefixes
-    if(unit->currentIncludeLevel() == 0 && !unit->allowIcePrefix() && name.size() > 2)
-    {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no 'ice-prefix' metadata
-        {
-            string prefix3;
-            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-            if(prefix3 == "ice")
-            {
-                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-            }
-        }
-    }
-
-    return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
+    return id.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
 }
 
 }

@@ -91,7 +91,8 @@ namespace Ice
 
     public sealed class ConsoleLogger : Logger
     {
-        public ConsoleLogger(string prefix) : base(prefix)
+        public ConsoleLogger(string prefix)
+            : base(prefix)
         {
         }
 
@@ -102,8 +103,8 @@ namespace Ice
 
     public sealed class FileLogger : Logger
     {
-        public FileLogger(string prefix, string file) :
-            base(prefix)
+        public FileLogger(string prefix, string file)
+            : base(prefix)
         {
             _file = file;
             _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
@@ -162,7 +163,8 @@ namespace Ice
 
     public sealed class TraceLogger : Logger
     {
-        public TraceLogger(string prefix, bool console) : base(prefix)
+        public TraceLogger(string prefix, bool console)
+            : base(prefix)
         {
             _console = console;
             if (console && !System.Diagnostics.Trace.Listeners.Contains(_consoleListener))

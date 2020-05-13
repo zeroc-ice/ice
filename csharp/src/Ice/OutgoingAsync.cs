@@ -31,46 +31,11 @@ namespace IceInternal
 
         public virtual bool Exception(Exception ex) => ExceptionImpl(ex);
 
-        public virtual bool Response(ArraySegment<byte> data)
+        public virtual bool Response(IncomingResponseFrame responseFrame)
         {
             Debug.Assert(false); // Must be overridden by request that can handle responses
             return false;
         }
-
-        public void InvokeSentAsync()
-        {
-            //
-            // This is called when it's not safe to call the sent callback
-            // synchronously from this thread. Instead the exception callback
-            // is called asynchronously from the client thread pool.
-            //
-            try
-            {
-                Communicator.ClientThreadPool().Dispatch(InvokeSent);
-            }
-            catch (Ice.CommunicatorDestroyedException)
-            {
-            }
-        }
-
-        public void InvokeExceptionAsync()
-        {
-            //
-            // CommunicatorDestroyedCompleted is the only exception that can propagate directly
-            // from this method.
-            //
-            Communicator.ClientThreadPool().Dispatch(InvokeException);
-        }
-
-        public void InvokeResponseAsync()
-        {
-            //
-            // CommunicatorDestroyedCompleted is the only exception that can propagate directly
-            // from this method.
-            //
-            Communicator.ClientThreadPool().Dispatch(InvokeResponse);
-        }
-
         public void InvokeSent()
         {
             try
@@ -349,10 +314,6 @@ namespace IceInternal
         protected const int StateSent = 0x4;
         protected const int StateEndCalled = 0x8;
         protected const int StateCachedBuffers = 0x10;
-
-        public const int AsyncStatusQueued = 0;
-        public const int AsyncStatusSent = 1;
-        public const int AsyncStatusInvokeSentCallback = 2;
     }
 
     //
@@ -365,8 +326,8 @@ namespace IceInternal
     {
         public OutgoingRequestFrame RequestFrame { get; protected set; }
         public IncomingResponseFrame? ResponseFrame { get; protected set; }
-        public abstract int InvokeRemote(Connection connection, bool compress, bool response);
-        public abstract int InvokeCollocated(CollocatedRequestHandler handler);
+        public abstract void InvokeRemote(Connection connection, bool compress, bool response);
+        public abstract void InvokeCollocated(CollocatedRequestHandler handler);
 
         public override List<ArraySegment<byte>> GetRequestData(int requestId) =>
             Ice1Definitions.GetRequestData(RequestFrame, requestId);
@@ -424,7 +385,7 @@ namespace IceInternal
             {
                 if (Exception(ex))
                 {
-                    InvokeExceptionAsync();
+                    Task.Run(InvokeException);
                 }
             }
         }
@@ -435,7 +396,7 @@ namespace IceInternal
             Debug.Assert(ChildObserver == null);
             if (ExceptionImpl(ex))
             {
-                InvokeExceptionAsync();
+                Task.Run(InvokeException);
             }
             else if (ex is CommunicatorDestroyedException)
             {
@@ -483,25 +444,7 @@ namespace IceInternal
                     {
                         _sent = false;
                         Handler = Proxy.IceReference.GetRequestHandler();
-                        int status = Handler.SendAsyncRequest(this);
-                        if ((status & AsyncStatusSent) != 0)
-                        {
-                            if (userThread)
-                            {
-                                SentSynchronously = true;
-                                if ((status & AsyncStatusInvokeSentCallback) != 0)
-                                {
-                                    InvokeSent(); // Call the sent callback from the user thread.
-                                }
-                            }
-                            else
-                            {
-                                if ((status & AsyncStatusInvokeSentCallback) != 0)
-                                {
-                                    InvokeSentAsync(); // Call the sent callback from a client thread pool thread.
-                                }
-                            }
-                        }
+                        Handler.SendAsyncRequest(this);
                         return; // We're done!
                     }
                     catch (RetryException)
@@ -545,7 +488,7 @@ namespace IceInternal
                 }
                 else if (ExceptionImpl(ex)) // No retries, we're done
                 {
-                    InvokeExceptionAsync();
+                    Task.Run(InvokeException);
                 }
             }
         }
@@ -625,8 +568,8 @@ namespace IceInternal
     public class OutgoingAsync : ProxyOutgoingAsyncBase
     {
         public OutgoingAsync(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback,
-            OutgoingRequestFrame requestFrame, bool oneway = false) :
-            base(prx, completionCallback, requestFrame)
+            OutgoingRequestFrame requestFrame, bool oneway = false)
+            : base(prx, completionCallback, requestFrame)
         {
             Encoding = Proxy.Encoding;
             Synchronous = false;
@@ -634,12 +577,11 @@ namespace IceInternal
             IsIdempotent = requestFrame.IsIdempotent;
         }
 
-        public override bool Sent() => base.SentImpl(IsOneway); // done = true
+        public override bool Sent() => SentImpl(IsOneway); // done = true
 
-        public override bool Response(ArraySegment<byte> data)
+        public override bool Response(IncomingResponseFrame responseFrame)
         {
-            ResponseFrame = new IncomingResponseFrame(Communicator,
-                data.Slice(Ice1Definitions.HeaderSize + 4));
+            ResponseFrame = responseFrame;
             //
             // NOTE: this method is called from ConnectionI.parseMessage
             // with the connection locked. Therefore, it must not invoke
@@ -691,13 +633,13 @@ namespace IceInternal
             }
         }
 
-        public override int InvokeRemote(Connection connection, bool compress, bool response)
+        public override void InvokeRemote(Connection connection, bool compress, bool response)
         {
             CachedConnection = connection;
-            return connection.SendAsyncRequest(this, compress, response);
+            connection.SendAsyncRequest(this, compress, response);
         }
 
-        public override int InvokeCollocated(CollocatedRequestHandler handler)
+        public override void InvokeCollocated(CollocatedRequestHandler handler)
         {
             // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
             if (IsOneway || Proxy.IceReference.InvocationTimeout != -1)
@@ -705,7 +647,7 @@ namespace IceInternal
                 // Disable caching by marking the streams as cached!
                 State |= StateCachedBuffers;
             }
-            return handler.InvokeAsyncRequest(this, Synchronous);
+            handler.InvokeAsyncRequest(this, Synchronous);
         }
 
         public new void Abort(Exception ex)
@@ -787,23 +729,21 @@ namespace IceInternal
         public ProxyGetConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback)
             : base(prx, completionCallback, null!) => IsIdempotent = false;
 
-        public override int InvokeRemote(Connection connection, bool compress, bool response)
+        public override void InvokeRemote(Connection connection, bool compress, bool response)
         {
             CachedConnection = connection;
             if (ResponseImpl(false, true, true))
             {
-                InvokeResponseAsync();
+                InvokeResponse();
             }
-            return AsyncStatusSent;
         }
 
-        public override int InvokeCollocated(CollocatedRequestHandler handler)
+        public override void InvokeCollocated(CollocatedRequestHandler handler)
         {
             if (ResponseImpl(false, true, true))
             {
-                InvokeResponseAsync();
+                InvokeResponse();
             }
-            return AsyncStatusSent;
         }
 
         public Connection? GetConnection() => CachedConnection;

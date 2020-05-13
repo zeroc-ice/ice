@@ -4,7 +4,7 @@
 
 // smwp = single module with package
 
-[["java:package:smwp"]]
+[[java:package:smwp]]
 
 module M
 {

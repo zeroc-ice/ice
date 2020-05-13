@@ -6,8 +6,8 @@
 
 #include <Ice/Context.ice>
 
-[["swift:class-resolver-prefix:IceOperationsAMD",
-  "suppress-warning:deprecated"]] // For classes with operations
+[[swift:class-resolver-prefix:IceOperationsAMD]]
+[[suppress-warning:deprecated]] // For classes with operations
 
 module Test
 {
@@ -89,7 +89,7 @@ dictionary<string, DoubleS> StringDoubleSD;
 dictionary<string, StringS> StringStringSD;
 dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
-["amd"] interface MyClass
+[amd] interface MyClass
 {
     void shutdown();
 
@@ -233,7 +233,7 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
     idempotent void opIdempotent();
 
-    ["nonmutating"] idempotent void opNonmutating();
+    [nonmutating] idempotent void opNonmutating();
 
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);
@@ -250,14 +250,14 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
     StringS opStringLiterals();
     StringS opWStringLiterals();
 
-    ["marshaled-result"] Structure opMStruct1();
-    ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+    [marshaled-result] Structure opMStruct1();
+    [marshaled-result] Structure opMStruct2(Structure p1, out Structure p2);
 
-    ["marshaled-result"] StringS opMSeq1();
-    ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+    [marshaled-result] StringS opMSeq1();
+    [marshaled-result] StringS opMSeq2(StringS p1, out StringS p2);
 
-    ["marshaled-result"] StringStringD opMDict1();
-    ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+    [marshaled-result] StringStringD opMDict1();
+    [marshaled-result] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
 }
 
 struct MyStruct1
@@ -274,7 +274,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-["amd", "cs:tie"] interface MyDerivedClass : MyClass
+[amd] [cs:tie] interface MyDerivedClass : MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
@@ -355,7 +355,7 @@ const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194
 // Test proxy inheritance for class with operations
 // see: https://github.com/zeroc-ice/ice/issues/406
 //
-["swift:module:Test:M"]
+[swift:module:Test:M]
 module M
 {
     class A
@@ -364,12 +364,12 @@ module M
         // void opA();
     }
 
-    ["amd"] interface Intf
+    [amd] interface Intf
     {
         void opIntf();
     }
 
-    ["amd"] class B : A implements Intf
+    [amd] class B : A implements Intf
     {
         void opB();
     }

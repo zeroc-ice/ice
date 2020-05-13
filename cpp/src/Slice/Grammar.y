@@ -168,11 +168,11 @@ slice_error(const char* s)
 %token ICE_FLOATING_POINT_LITERAL
 %token ICE_IDENTIFIER
 %token ICE_SCOPED_IDENTIFIER
-%token ICE_METADATA_OPEN
-%token ICE_METADATA_CLOSE
-%token ICE_GLOBAL_METADATA_OPEN
-%token ICE_GLOBAL_METADATA_IGNORE
-%token ICE_GLOBAL_METADATA_CLOSE
+%token ICE_LOCAL_METADATA_OPEN
+%token ICE_LOCAL_METADATA_CLOSE
+%token ICE_FILE_METADATA_OPEN
+%token ICE_FILE_METADATA_IGNORE
+%token ICE_FILE_METADATA_CLOSE
 
 // Here 'OPEN' means these tokens end with an open parenthesis.
 %token ICE_IDENT_OPEN
@@ -204,25 +204,32 @@ opt_semicolon
 ;
 
 // ----------------------------------------------------------------------
-global_meta_data
+file_metadata
 // ----------------------------------------------------------------------
-: ICE_GLOBAL_METADATA_OPEN string_list ICE_GLOBAL_METADATA_CLOSE
+: ICE_FILE_METADATA_OPEN string_list ICE_FILE_METADATA_CLOSE
 {
     $$ = $2;
 }
-| ICE_GLOBAL_METADATA_IGNORE string_list ICE_GLOBAL_METADATA_CLOSE
+| ICE_FILE_METADATA_IGNORE string_list ICE_FILE_METADATA_CLOSE
 {
-    unit->error("global metadata must appear before any definitions");
+    unit->error("file metadata must appear before any definitions");
     $$ = $2; // Dummy
 }
 ;
 
 // ----------------------------------------------------------------------
-meta_data
+local_metadata
 // ----------------------------------------------------------------------
-: ICE_METADATA_OPEN string_list ICE_METADATA_CLOSE
+: ICE_LOCAL_METADATA_OPEN string_list ICE_LOCAL_METADATA_CLOSE
 {
     $$ = $2;
+}
+| local_metadata ICE_LOCAL_METADATA_OPEN string_list ICE_LOCAL_METADATA_CLOSE
+{
+    StringListTokPtr metadata1 = StringListTokPtr::dynamicCast($1);
+    StringListTokPtr metadata2 = StringListTokPtr::dynamicCast($3);
+    metadata1->v.splice(metadata1->v.end(), metadata2->v);
+    $$ = metadata1;
 }
 | %empty
 {
@@ -233,15 +240,15 @@ meta_data
 // ----------------------------------------------------------------------
 definitions
 // ----------------------------------------------------------------------
-: definitions global_meta_data
+: definitions file_metadata
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
     if(!metaData->v.empty())
     {
-        unit->addGlobalMetaData(metaData->v);
+        unit->addFileMetaData(metaData->v);
     }
 }
-| definitions meta_data definition
+| definitions local_metadata definition
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
     ContainedPtr contained = ContainedPtr::dynamicCast($3);
@@ -388,6 +395,62 @@ module_def
         $$ = 0;
     }
 }
+| ICE_MODULE ICE_SCOPED_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+
+    // Split the 'scoped identifier' into separate module names.
+    vector<string> modules;
+    size_t startPos = 0;
+    size_t endPos;
+    while((endPos = ident->v.find("::", startPos)) != string::npos)
+    {
+        modules.push_back(ident->v.substr(startPos, (endPos - startPos)));
+        startPos = endPos + 2;
+    }
+    modules.push_back(ident->v.substr(startPos));
+
+    // Create the nested modules.
+    for(size_t i = 0; i < modules.size(); i++)
+    {
+        ModulePtr module = cont->createModule(modules[i]);
+        if(module)
+        {
+            cont->checkIntroduced(ident->v, module);
+            unit->pushContainer(module);
+            $$ = cont = module;
+        }
+        else
+        {
+            // If an error occurs creating one of the modules, back up the entire chain.
+            for(; i > 0; i--)
+            {
+                unit->popContainer();
+            }
+            $$ = 0;
+            break;
+        }
+    }
+}
+'{' definitions '}'
+{
+    if($3)
+    {
+        StringTokPtr ident = StringTokPtr::dynamicCast($2);
+        size_t startPos = 0;
+        while((startPos = ident->v.find("::", startPos + 2)) != string::npos)
+        {
+            unit->popContainer();
+        }
+        $$ = unit->currentContainer();
+        unit->popContainer();
+    }
+    else
+    {
+        $$ = 0;
+    }
+}
 ;
 
 // ----------------------------------------------------------------------
@@ -461,7 +524,7 @@ exception_extends
 // ----------------------------------------------------------------------
 exception_exports
 // ----------------------------------------------------------------------
-: meta_data exception_export ';' exception_exports
+: local_metadata exception_export ';' exception_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
@@ -473,7 +536,7 @@ exception_exports
 | error ';' exception_exports
 {
 }
-| meta_data exception_export
+| local_metadata exception_export
 {
     unit->error("`;' missing after definition");
 }
@@ -489,6 +552,7 @@ type_id
 {
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    checkIdentifier(ident->v);
     TypeStringTokPtr typestring = new TypeStringTok;
     typestring->v = make_pair(type, ident->v);
     $$ = typestring;
@@ -840,7 +904,7 @@ struct_def
 // ----------------------------------------------------------------------
 struct_exports
 // ----------------------------------------------------------------------
-: meta_data struct_export ';' struct_exports
+: local_metadata struct_export ';' struct_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
@@ -852,7 +916,7 @@ struct_exports
 | error ';' struct_exports
 {
 }
-| meta_data struct_export
+| local_metadata struct_export
 {
     unit->error("`;' missing after definition");
 }
@@ -1130,7 +1194,7 @@ implements
 // ----------------------------------------------------------------------
 class_exports
 // ----------------------------------------------------------------------
-: meta_data class_export ';' class_exports
+: local_metadata class_export ';' class_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
@@ -1142,7 +1206,7 @@ class_exports
 | error ';' class_exports
 {
 }
-| meta_data class_export
+| local_metadata class_export
 {
     unit->error("`;' missing after definition");
 }
@@ -1683,7 +1747,7 @@ interface_extends
 // ----------------------------------------------------------------------
 interface_exports
 // ----------------------------------------------------------------------
-: meta_data interface_export ';' interface_exports
+: local_metadata interface_export ';' interface_exports
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
     ContainedPtr contained = ContainedPtr::dynamicCast($2);
@@ -1695,7 +1759,7 @@ interface_exports
 | error ';' interface_exports
 {
 }
-| meta_data interface_export
+| local_metadata interface_export
 {
     unit->error("`;' missing after definition");
 }
@@ -1755,7 +1819,7 @@ exception
 // ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
-: ICE_SEQUENCE '<' meta_data type '>' ICE_IDENTIFIER
+: ICE_SEQUENCE '<' local_metadata type '>' ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
@@ -1763,7 +1827,7 @@ sequence_def
     ContainerPtr cont = unit->currentContainer();
     $$ = cont->createSequence(ident->v, type, metaData->v);
 }
-| ICE_SEQUENCE '<' meta_data type '>' keyword
+| ICE_SEQUENCE '<' local_metadata type '>' keyword
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
@@ -1777,7 +1841,7 @@ sequence_def
 // ----------------------------------------------------------------------
 dictionary_def
 // ----------------------------------------------------------------------
-: ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' ICE_IDENTIFIER
+: ICE_DICTIONARY '<' local_metadata type ',' local_metadata type '>' ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($9);
     StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($3);
@@ -1787,7 +1851,7 @@ dictionary_def
     ContainerPtr cont = unit->currentContainer();
     $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
 }
-| ICE_DICTIONARY '<' meta_data type ',' meta_data type '>' keyword
+| ICE_DICTIONARY '<' local_metadata type ',' local_metadata type '>' keyword
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($9);
     StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast($3);
@@ -1992,7 +2056,7 @@ parameters
 : %empty
 {
 }
-| out_qualifier meta_data tagged_type_id
+| out_qualifier local_metadata tagged_type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
     TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast($3);
@@ -2008,7 +2072,7 @@ parameters
         }
     }
 }
-| parameters ',' out_qualifier meta_data tagged_type_id
+| parameters ',' out_qualifier local_metadata tagged_type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
     TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast($5);
@@ -2024,7 +2088,7 @@ parameters
         }
     }
 }
-| out_qualifier meta_data type keyword
+| out_qualifier local_metadata type keyword
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
     TypePtr type = TypePtr::dynamicCast($3);
@@ -2036,7 +2100,7 @@ parameters
         unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-| parameters ',' out_qualifier meta_data type keyword
+| parameters ',' out_qualifier local_metadata type keyword
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($5);
@@ -2048,7 +2112,7 @@ parameters
         unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-| out_qualifier meta_data type
+| out_qualifier local_metadata type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
     TypePtr type = TypePtr::dynamicCast($3);
@@ -2059,7 +2123,7 @@ parameters
         unit->error("missing parameter name");
     }
 }
-| parameters ',' out_qualifier meta_data type
+| parameters ',' out_qualifier local_metadata type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($5);
@@ -2332,7 +2396,7 @@ const_initializer
 // ----------------------------------------------------------------------
 const_def
 // ----------------------------------------------------------------------
-: ICE_CONST meta_data type ICE_IDENTIFIER '=' const_initializer
+: ICE_CONST local_metadata type ICE_IDENTIFIER '=' const_initializer
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
     TypePtr const_type = TypePtr::dynamicCast($3);
@@ -2341,7 +2405,7 @@ const_def
     $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
-| ICE_CONST meta_data type '=' const_initializer
+| ICE_CONST local_metadata type '=' const_initializer
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
     TypePtr const_type = TypePtr::dynamicCast($3);

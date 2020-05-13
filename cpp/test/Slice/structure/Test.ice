@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["cpp:include:list"]]
+[[cpp:include:list]]
 
 module Test
 {
 
 sequence<string> StringSeq;
-["cpp:type:std::list< ::Ice::Int>"] sequence<int> IntList;
+[cpp:type:std::list< ::Ice::Int>] sequence<int> IntList;
 dictionary<string, string> StringDict;
 
 class C

@@ -6,11 +6,9 @@
 
 #include <DoubleModuleNoPackage.ice>
 
-[["java:package:dmnpTest7"]]
+[[java:package:dmnpTest7]]
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 const dmnpEnum dmnpTest7Constant = dmnpE1;
@@ -58,7 +56,7 @@ class dmnpTest7Class : dmnpBaseClass implements dmnpBaseInterface
                  out dmnpClass o6)
         throws dmnpException;
 
-    ["amd"]
+    [amd]
     dmnpStruct
     dmnpTest7Op3(dmnpEnum i1,
                  dmnpStruct i2,
@@ -75,5 +73,4 @@ class dmnpTest7Class : dmnpBaseClass implements dmnpBaseInterface
         throws dmnpException;
 }
 
-}
 }

@@ -9,7 +9,6 @@ using System.Threading;
 
 namespace IceInternal
 {
-
     internal interface ILoggerAdminLogger : Ice.ILogger
     {
         Ice.ILoggerAdmin GetFacet();
@@ -172,7 +171,6 @@ namespace IceInternal
 
                                     Debug.Assert(ae.InnerException != null);
                                     _loggerAdmin.DeadRemoteLogger(p, _localLogger, ae.InnerException, "log");
-
                                 }
                             },
                             System.Threading.Tasks.TaskScheduler.Current);
@@ -212,5 +210,4 @@ namespace IceInternal
 
         private const string TraceCategory = "Admin.Logger";
     }
-
 }

@@ -73,6 +73,8 @@ public:
     void notifyDestroy(const std::shared_ptr<Glacier2::SessionControlPrx>&);
 
 private:
+
+    std::mutex _mutex;
     std::vector<SessionTuple> _sessions;
     std::vector<TestConfiguration> _configurations;
 

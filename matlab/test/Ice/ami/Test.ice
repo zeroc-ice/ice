@@ -38,7 +38,7 @@ interface TestIntf
     bool waitForBatch(int count);
     void close(CloseMode mode);
     void sleep(int ms);
-    ["amd"] void startDispatch();
+    [amd] void startDispatch();
     void finishDispatch();
     void shutdown();
 
@@ -61,19 +61,12 @@ interface TestIntfController
     void resumeAdapter();
 }
 
-module Outer
+module Outer::Inner
 {
-
-module Inner
-{
-
-interface TestIntf
-{
-    int op(int i, out int j);
-}
-
-}
-
+    interface TestIntf
+    {
+        int op(int i, out int j);
+    }
 }
 
 }

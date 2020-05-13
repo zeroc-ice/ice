@@ -48,7 +48,7 @@ namespace IceInternal
         //
         // Get an EndpointFactory.
         //
-        public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.GetEndpointFactory(type);
+        public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.FindEndpointFactory(type);
 
         //
         // Obtain the type for a name.

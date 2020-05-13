@@ -45,8 +45,8 @@ namespace IceInternal
                 {
                     if (_traceLevel > 0)
                     {
-                        _logger.Trace(TraceCategory, "rejecting `" + remoteLogger.ToString() +
-                                     "' with RemoteLoggerAlreadyAttachedException");
+                        _logger.Trace(TraceCategory, @$"rejecting `{remoteLogger.ToString()
+                            }' with RemoteLoggerAlreadyAttachedException");
                     }
 
                     throw new RemoteLoggerAlreadyAttachedException();
@@ -381,8 +381,9 @@ namespace IceInternal
         private static Communicator CreateSendLogCommunicator(Communicator communicator, ILogger logger)
         {
             var properties = communicator.GetProperties().Where(
-                p => p.Key == "Ice.Default.Locator" || p.Key == "Ice.Plugin.IceSSL" || p.Key.StartsWith("IceSSL.")
-            ).ToDictionary(p => p.Key, p => p.Value);
+                p => p.Key == "Ice.Default.Locator" ||
+                p.Key == "Ice.Plugin.IceSSL" ||
+                p.Key.StartsWith("IceSSL.")).ToDictionary(p => p.Key, p => p.Value);
 
             string[] args = communicator.GetPropertyAsList("Ice.Admin.Logger.Properties")?.Select(
                 v => v.StartsWith("--") ? v : $"--{v}").ToArray() ?? Array.Empty<string>();
@@ -432,5 +433,4 @@ namespace IceInternal
         private bool _destroyed = false;
         private const string TraceCategory = "Admin.Logger";
     }
-
 }

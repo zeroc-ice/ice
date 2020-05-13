@@ -4,17 +4,17 @@
 
 #pragma once
 
-[["cpp:dll-export:ICE_API"]]
-[["cpp:doxygen:include:Ice/Ice.h"]]
-[["cpp:header-ext:h"]]
+[[cpp:dll-export:ICE_API]]
+[[cpp:doxygen:include:Ice/Ice.h]]
+[[cpp:header-ext:h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:Ice"]]
+[[python:pkgdir:Ice]]
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module Ice
 {
@@ -24,7 +24,7 @@ module Ice
     ///
     /// @see ServantLocator
     /// @see ObjectAdapter#addServantLocator
-    ["cs:readonly"]
+    [cs:readonly]
     struct Identity
     {
         /// The name of the Ice object.

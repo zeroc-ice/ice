@@ -17,7 +17,6 @@ namespace Ice.location
             // communicator and object adapter).
             //
             Dictionary<string, string> properties = CreateTestProperties(ref args);
-            properties["Ice.ThreadPool.Server.Size"] = "2";
 
             using Communicator communicator = Initialize(properties);
             communicator.SetProperty("ServerManagerAdapter.Endpoints", GetTestEndpoint(0));

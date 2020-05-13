@@ -4,8 +4,8 @@
 
 #pragma once
 
-[["cs:typeid-namespace:Ice.scope.TypeId"]]
-["cs:namespace:Ice.scope"]
+[[cs:typeid-namespace:Ice.scope.TypeId]]
+[cs:namespace:Ice.scope]
 module Test
 {
     struct S
@@ -146,13 +146,7 @@ module Test
     }
 }
 
-module Inner
-{
-
-module Test
-{
-
-module Inner2
+module Inner::Test::Inner2
 {
     interface I
     {
@@ -166,8 +160,4 @@ module Inner2
 
         void shutdown();
     }
-}
-
-}
-
 }

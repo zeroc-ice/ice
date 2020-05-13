@@ -2,26 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["js:es6-module"]]
+[[js:es6-module]]
 
 #pragma once
 
 #include <Demo/Point.ice>
 
-module Demo
+module Demo::gx
 {
-
-module gx
-{
-
-struct Square
-{
-    Point p1;
-    Point p2;
-    Point p3;
-    Point p4;
-}
-
-}
-
+    struct Square
+    {
+        Point p1;
+        Point p2;
+        Point p3;
+        Point p4;
+    }
 }

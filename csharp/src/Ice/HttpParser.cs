@@ -11,23 +11,23 @@ namespace IceInternal
 {
     public sealed class WebSocketException : System.Exception
     {
-        internal WebSocketException() :
-            base("", null)
+        internal WebSocketException()
+            : base("", null)
         {
         }
 
-        internal WebSocketException(string message) :
-            base(message, null)
+        internal WebSocketException(string message)
+            : base(message, null)
         {
         }
 
-        internal WebSocketException(string message, System.Exception cause) :
-            base(message, cause)
+        internal WebSocketException(string message, System.Exception cause)
+            : base(message, cause)
         {
         }
 
-        internal WebSocketException(System.Exception cause) :
-            base("", cause)
+        internal WebSocketException(System.Exception cause)
+            : base("", cause)
         {
         }
     }
@@ -48,7 +48,7 @@ namespace IceInternal
             Unknown,
             Request,
             Response
-        };
+        }
 
         /// <summary>Check if the buffer contains a complete HTTP message, if the buffer contains
         /// a complete HTTP message it returns the end index of the HTTP message, otherwise
@@ -755,7 +755,7 @@ namespace IceInternal
             ResponseReason,
             ResponseLF,
             Complete
-        };
+        }
         private State _state;
     }
 }

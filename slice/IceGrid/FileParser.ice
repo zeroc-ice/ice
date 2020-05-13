@@ -4,20 +4,20 @@
 
 #pragma once
 
-[["cpp:dll-export:ICEGRID_API"]]
-[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
-[["cpp:header-ext:h"]]
-[["cpp:include:IceGrid/Config.h"]]
+[[cpp:dll-export:ICEGRID_API]]
+[[cpp:doxygen:include:IceGrid/IceGrid.h]]
+[[cpp:header-ext:h]]
+[[cpp:include:IceGrid/Config.h]]
 
-[["ice-prefix"]]
-[["normalize-case"]]
-[["js:module:ice"]]
+[[ice-prefix]]
+[[normalize-case]]
+[[js:module:ice]]
 
-[["python:pkgdir:IceGrid"]]
+[[python:pkgdir:IceGrid]]
 
 #include <IceGrid/Admin.ice>
 
-[["java:package:com.zeroc"]]
+[[java:package:com.zeroc]]
 
 module IceGrid
 {

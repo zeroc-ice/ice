@@ -7,9 +7,10 @@
 //
 // Suppress warnings
 //
-[["suppress-warning:invalid-metadata, deprecated", "cs:typeid-namespace:Ice.defaultValue.TypeId"]]
-["cs:namespace:Ice.defaultValue"]
+[[suppress-warning:invalid-metadata, deprecated]]
+[[cs:typeid-namespace:Ice.defaultValue.TypeId]]
 
+[cs:namespace:Ice.defaultValue]
 module Test
 {
 
@@ -105,7 +106,7 @@ exception DerivedEx : BaseEx
     Nested::Color nc3 = ConstNestedColor3;
 }
 
-["clr:property"]
+[clr:property]
 class ClassProperty
 {
     bool boolFalse = false;
@@ -130,7 +131,7 @@ class ClassProperty
 // Exceptions don't support "clr:property" metadata, but
 // we want to ensure that the generated code compiles.
 //
-["clr:property"]
+[clr:property]
 exception ExceptionProperty
 {
     bool boolFalse = false;

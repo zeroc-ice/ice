@@ -8,8 +8,7 @@ using System.Text;
 
 namespace IceUtilInternal
 {
-
-    public sealed class StringUtil
+    public static class StringUtil
     {
         //
         // Return the index of the first character in str to

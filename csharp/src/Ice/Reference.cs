@@ -50,8 +50,6 @@ namespace Ice
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
-        internal ThreadPool ThreadPool => IsFixed ? _fixedConnection!.ThreadPool : Communicator.ClientThreadPool();
-
         private readonly Connection? _fixedConnection;
         private int _hashCode = 0;
         private IRequestHandler? _requestHandler; // readonly when IsFixed is true
@@ -571,7 +569,6 @@ namespace Ice
 
             if (s[beg] == ':')
             {
-                var unknownEndpoints = new List<string>();
                 end = beg;
 
                 while (end < s.Length && s[end] == ':')
@@ -622,35 +619,10 @@ namespace Ice
                     }
 
                     string es = s[beg..end];
-                    Endpoint? endp = communicator.CreateEndpoint(es, false);
-                    if (endp != null)
-                    {
-                        endpoints.Add(endp);
-                    }
-                    else
-                    {
-                        unknownEndpoints.Add(es);
-                    }
+                    endpoints.Add(Endpoint.Parse(es, communicator, false));
                 }
 
-                if (endpoints.Count == 0)
-                {
-                    Debug.Assert(unknownEndpoints.Count > 0);
-                    throw new FormatException($"invalid endpoint `{unknownEndpoints[0]}' in `{s}'");
-                }
-                else if (unknownEndpoints.Count != 0 && (communicator.GetPropertyAsBool("Ice.Warn.Endpoints") ?? true))
-                {
-                    var msg = new StringBuilder("Proxy contains unknown endpoints:");
-                    int sz = unknownEndpoints.Count;
-                    for (int idx = 0; idx < sz; ++idx)
-                    {
-                        msg.Append(" `");
-                        msg.Append(unknownEndpoints[idx]);
-                        msg.Append("'");
-                    }
-                    communicator.Logger.Warning(msg.ToString());
-                }
-
+                Debug.Assert(endpoints.Count > 0);
                 return Create(adapterId: "", communicator, encoding, endpoints, facet, identity, invocationMode,
                     propertyPrefix, protocol);
             }
@@ -709,7 +681,7 @@ namespace Ice
         /// <returns>The reference read from the stream (can be null).</returns>
         internal static Reference? Read(InputStream istr)
         {
-            Identity identity = new Identity(istr);
+            var identity = new Identity(istr);
             if (identity.Name.Length == 0)
             {
                 return null;
@@ -1596,7 +1568,7 @@ namespace Ice
         }
 
         // TODO: refactor this class
-        private sealed class RouterEndpointsCallback : RouterInfo.GetClientEndpointsCallback
+        private sealed class RouterEndpointsCallback : RouterInfo.IGetClientEndpointsCallback
         {
             internal RouterEndpointsCallback(Reference ir, IGetConnectionCallback cb)
             {
@@ -1605,7 +1577,7 @@ namespace Ice
                 _cb = cb;
             }
 
-            public void setEndpoints(IReadOnlyList<Endpoint> endpts)
+            public void SetEndpoints(IReadOnlyList<Endpoint> endpts)
             {
                 if (endpts.Count > 0)
                 {
@@ -1617,7 +1589,7 @@ namespace Ice
                 }
             }
 
-            public void setException(System.Exception ex) => _cb.SetException(ex);
+            public void SetException(System.Exception ex) => _cb.SetException(ex);
 
             private readonly Reference _ir;
             private readonly IGetConnectionCallback _cb;
@@ -1731,7 +1703,7 @@ namespace Ice
                 //
                 if (_rr.RouterInfo != null && _rr.RouterInfo.Adapter != null)
                 {
-                    connection.SetAdapter(_rr.RouterInfo.Adapter);
+                    connection.Adapter = _rr.RouterInfo.Adapter;
                 }
                 _callback.SetConnection(connection, compress);
             }

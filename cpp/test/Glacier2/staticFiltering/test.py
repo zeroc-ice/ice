@@ -50,7 +50,7 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
                 clientConfig.write(proxy + '\n')
 
         with open(os.path.join(self.getTestSuite().getPath(), 'server.cfg'), 'w') as serverConfig:
-            if current.config.protocol != "ssl":
+            if current.config.transport != "ssl":
                 serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010\n")
 
         with open(os.path.join(self.getTestSuite().getPath(), "router.cfg"), "w") as routerConfig:

@@ -400,10 +400,6 @@ public class AllTests
                 view["Connection"][0]!.Current == 1 &&
                 view["Connection"][0]!.Total == 1);
         }
-        TestHelper.Assert(
-            view["Thread"].Length == 1 &&
-            view["Thread"][0]!.Current == 5 &&
-            view["Thread"][0]!.Total == 5);
         output.WriteLine("ok");
 
         output.Write("testing group by id...");
@@ -422,7 +418,6 @@ public class AllTests
         waitForCurrent(serverMetrics, "View", "Dispatch", 0);
 
         view = clientMetrics.GetMetricsView("View").ReturnValue;
-        TestHelper.Assert(view["Thread"].Length == 5);
         if (!collocated)
         {
             TestHelper.Assert(view["Connection"].Length == 2);
@@ -445,8 +440,6 @@ public class AllTests
         }
 
         view = serverMetrics.GetMetricsView("View").ReturnValue;
-        // With Ice for .NET, a new dispatching thread isn't necessarily created.
-        //TestHelper.Assert(view["Thread"].Length > 5);
         if (!collocated)
         {
             TestHelper.Assert(view["Connection"].Length == 2);
@@ -500,7 +493,6 @@ public class AllTests
 
             cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
             sm2 = getServerConnectionMetrics(serverMetrics, 50)!;
-
             TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 45); // 45 for IcePing request
             TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 25); // 25 bytes for IcePing response
             TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 45);
@@ -1033,16 +1025,16 @@ public class AllTests
         }
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -p ice1 -e 1.1 [op]", op,
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -p ice1 -e 2.0 [op]", op,
             output);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "facet", "", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, output);
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "2.0", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t -p ice1 -e 1.1:" + endpoint + " -t " + timeout, op, output);
+                      "metrics -t -p ice1 -e 2.0:" + endpoint + " -t " + timeout, op, output);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
@@ -1072,42 +1064,46 @@ public class AllTests
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
                       () => invokeOp(metricsOneway), output);
-
-        output.Write("testing metrics view enable/disable...");
-        output.Flush();
-
-        props["IceMX.Metrics.View.GroupBy"] = "none";
-        props["IceMX.Metrics.View.Disabled"] = "0";
-        updateProps(clientProps, serverProps, update, props, "Thread");
-        TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["Thread"].Length != 0);
-        var (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        TestHelper.Assert(names.Length == 1 && disabledViews.Length == 0);
-
-        props["IceMX.Metrics.View.Disabled"] = "1";
-        updateProps(clientProps, serverProps, update, props, "Thread");
-        TestHelper.Assert(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Thread"));
-        (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        TestHelper.Assert(names.Length == 0 && disabledViews.Length == 1);
-
-        clientMetrics.EnableMetricsView("View");
-        TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["Thread"].Length != 0);
-        (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        TestHelper.Assert(names.Length == 1 && disabledViews.Length == 0);
-
-        clientMetrics.DisableMetricsView("View");
-        TestHelper.Assert(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Thread"));
-        (names, disabledViews) = clientMetrics.GetMetricsViewNames();
-        TestHelper.Assert(names.Length == 0 && disabledViews.Length == 1);
-
-        try
-        {
-            clientMetrics.EnableMetricsView("UnknownView");
-        }
-        catch (IceMX.UnknownMetricsView)
-        {
-        }
-
         output.WriteLine("ok");
+
+        if (!collocated)
+        {
+            output.Write("testing metrics view enable/disable...");
+            output.Flush();
+
+            props["IceMX.Metrics.View.GroupBy"] = "none";
+            props["IceMX.Metrics.View.Disabled"] = "0";
+            updateProps(clientProps, serverProps, update, props, "Connection");
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["Connection"].Length != 0);
+            var (names, disabledViews) = clientMetrics.GetMetricsViewNames();
+            TestHelper.Assert(names.Length == 1 && disabledViews.Length == 0);
+
+            props["IceMX.Metrics.View.Disabled"] = "1";
+            updateProps(clientProps, serverProps, update, props, "Connection");
+            TestHelper.Assert(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Connection"));
+            (names, disabledViews) = clientMetrics.GetMetricsViewNames();
+            TestHelper.Assert(names.Length == 0 && disabledViews.Length == 1);
+
+            clientMetrics.EnableMetricsView("View");
+            TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["Connection"].Length != 0);
+            (names, disabledViews) = clientMetrics.GetMetricsViewNames();
+            TestHelper.Assert(names.Length == 1 && disabledViews.Length == 0);
+
+            clientMetrics.DisableMetricsView("View");
+            TestHelper.Assert(!clientMetrics.GetMetricsView("View").ReturnValue.ContainsKey("Connection"));
+            (names, disabledViews) = clientMetrics.GetMetricsViewNames();
+            TestHelper.Assert(names.Length == 0 && disabledViews.Length == 1);
+
+            try
+            {
+                clientMetrics.EnableMetricsView("UnknownView");
+            }
+            catch (IceMX.UnknownMetricsView)
+            {
+            }
+
+            output.WriteLine("ok");
+        }
 
         output.Write("testing instrumentation observer delegate... ");
         output.Flush();
@@ -1160,7 +1156,6 @@ public class AllTests
 
         if (!collocated)
         {
-            TestHelper.Assert(obsv.threadObserver!.states > 0);
             TestHelper.Assert(obsv.connectionObserver!.received > 0 && obsv.connectionObserver!.sent > 0);
             TestHelper.Assert(obsv.invocationObserver!.retriedCount > 0);
             TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.replySize > 0);

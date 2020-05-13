@@ -13,7 +13,6 @@ using System.Text;
 
 namespace IceInternal
 {
-
     // TODO: refactor and eliminate these exceptions
     public sealed class WSProtocolException : Exception
     {
@@ -348,6 +347,10 @@ namespace IceInternal
                     return _delegate.Write(_writeBuffer, ref _writeBufferOffset);
                 }
             }
+            else if (_state == StateClosed)
+            {
+                return SocketOperation.None;
+            }
 
             int socketOperation = SocketOperation.None;
             int size = buffer.GetByteCount();
@@ -520,7 +523,6 @@ namespace IceInternal
             }
             else
             {
-
                 return true;
             }
         }

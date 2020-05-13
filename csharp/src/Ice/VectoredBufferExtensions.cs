@@ -83,7 +83,6 @@ namespace Ice
         /// <returns>A segment with the requested size.</returns>
         public static ArraySegment<byte> GetSegment(this IList<ArraySegment<byte>> src, int srcOffset, int count)
         {
-
             Debug.Assert(src.GetByteCount() >= srcOffset + count,
                 @$"requested {count} bytes starting at offset {srcOffset
                     } but there is only {src.GetByteCount() - srcOffset} bytes remaining.");

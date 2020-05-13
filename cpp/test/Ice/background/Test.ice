@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cpp:dll-export:TEST_API"]]
+[[cpp:dll-export:TEST_API]]
 
 module Test
 {

@@ -13,7 +13,6 @@ namespace IceInternal
             RetryCat = "Retry";
             LocationCat = "Locator";
             SlicingCat = "Slicing";
-            ThreadPoolCat = "ThreadPool";
 
             string keyBase = "Ice.Trace.";
 
@@ -22,7 +21,6 @@ namespace IceInternal
             Retry = communicator.GetPropertyAsInt(keyBase + RetryCat) ?? 0;
             Location = communicator.GetPropertyAsInt(keyBase + LocationCat) ?? 0;
             Slicing = communicator.GetPropertyAsInt(keyBase + SlicingCat) ?? 0;
-            ThreadPool = communicator.GetPropertyAsInt(keyBase + ThreadPoolCat) ?? 0;
         }
 
         public readonly int Network;
@@ -35,8 +33,5 @@ namespace IceInternal
         public readonly string LocationCat;
         public readonly int Slicing;
         public readonly string SlicingCat;
-        public readonly int ThreadPool;
-        public readonly string ThreadPoolCat;
     }
-
 }

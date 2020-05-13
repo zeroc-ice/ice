@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.dictMapping"]
+[cs:namespace:Ice.dictMapping]
 module Test
 {
 
@@ -20,10 +20,10 @@ struct TEstNv
 }
 
 sequence<int> AIS;
-["clr:generic:List"] sequence<int> GIS;
+[clr:generic:List] sequence<int> GIS;
 
 sequence<string> ASS;
-["clr:generic:List"] sequence<string> GSS;
+[clr:generic:List] sequence<string> GSS;
 
 dictionary<string, AIS> NDAIS;
 dictionary<string, GIS> NDGIS;

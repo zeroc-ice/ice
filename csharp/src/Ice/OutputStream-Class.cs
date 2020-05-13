@@ -318,6 +318,10 @@ namespace Ice
             internal InstanceData(InstanceType instanceType) => InstanceType = instanceType;
         }
 
-        private enum InstanceType { Class, Exception }
+        private enum InstanceType
+        {
+            Class,
+            Exception
+        }
     }
 }

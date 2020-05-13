@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.acm"]]
+[[java:package:test.Ice.acm]]
 module Test
 {
 

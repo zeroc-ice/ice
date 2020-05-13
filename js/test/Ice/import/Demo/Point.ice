@@ -2,22 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[["js:es6-module"]]
+[[js:es6-module]]
 
 #pragma once
 
-module Demo
+module Demo::gx
 {
-
-module gx
-{
-
-struct Point
-{
-    int x;
-    int y;
-}
-
-}
-
+    struct Point
+    {
+        int x;
+        int y;
+    }
 }

@@ -4,8 +4,8 @@
 
 #pragma once
 
-[["swift:class-resolver-prefix:IceInheritance",
-  "suppress-warning:deprecated"]] // For classes with operations
+[[swift:class-resolver-prefix:IceInheritance]]
+[[suppress-warning:deprecated]] // For classes with operations
 
 module Test
 {

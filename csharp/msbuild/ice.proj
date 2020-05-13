@@ -117,12 +117,12 @@
         <RemoveDir Directories="zeroc.ice.net" />
 
         <!-- Build iceboxnet with netcoreapp2.1 target framework (default) -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp2.1;BaseIntermediateOutputPath=obj\netcoreapp2.1\"
                  Targets="Restore;Publish"/>
 
         <!-- Build iceboxnet with netcoreapp3.1 target framework -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=netcoreapp3.1;BaseIntermediateOutputPath=obj\netcoreapp3.1\"
                  Targets="Restore;Publish"
                  Condition="'$(VisualStudioVersion)' == '16.0'"/>
@@ -162,7 +162,7 @@
     <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU"
                  Targets="Publish"/>
         <MSBuild Projects="zeroc.ice.net.csproj" Targets="Restore;Pack"/>

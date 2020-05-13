@@ -805,9 +805,9 @@ Slice::CsVisitor::writeOperationDocComment(const OperationPtr& p, const string& 
 
         if(async)
         {
-            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
-                 << "\">Sent progress provider.</param>";
             _out << nl << "/// <param name=\"" << getEscapedParamName(p, "progress")
+                 << "\">Sent progress provider.</param>";
+            _out << nl << "/// <param name=\"" << getEscapedParamName(p, "cancel")
                  << "\">A cancellation token that receives the cancellation requests.</param>";
         }
     }
@@ -933,6 +933,12 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     printGeneratedHeader(_out, fileBase + ".ice");
 
     _out << nl << "#nullable enable";
+    // Disable some analyzer warnigs that are not convenient for the generated code
+    _out << nl << "#pragma warning disable SA1300 // Element must begin with upper case letter";
+    _out << nl << "#pragma warning disable SA1306 // Field names must begin with lower case letter";
+    _out << nl << "#pragma warning disable SA1309 // Field names must not begin with underscore";
+    _out << nl << "#pragma warning disable SA1312 // Variable names must begin with lower case letter";
+    _out << nl << "#pragma warning disable SA1313 // Parameter names must begin with lower case letter";
 
     _out << sp << nl << "#pragma warning disable 1591"; // See bug 3654
     if(impl)
@@ -1975,7 +1981,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "throw new Ice.InvalidDataException($\"invalid enumerator value `{value}' for "
         << fixId(p->scoped()) << "\");";
     _out << eb;
-    _out << nl << "return (" << name << ") value;";
+    _out << nl << "return (" << name << ")value;";
     _out << eb;
 
     _out << sp;
@@ -2034,22 +2040,23 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         _out << sb;
 
         _out << sp;
-        _out << nl << "public static void Write(this Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
+        _out << nl << "public static void Write(this global::Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
         _out.inc();
         _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
         _out.dec();
 
         _out << sp;
-        _out << nl << "public static readonly Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+        _out << nl << "public static readonly global::Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
 
         _out << sp;
-        _out << nl << "public static " << seqS << " Read" << name << "(this Ice.InputStream istr) =>";
+        _out << nl << "public static " << seqS << " Read" << name << "(this global::Ice.InputStream istr) =>";
         _out.inc();
         _out << nl << sequenceUnmarshalCode(p, scope, "istr") << ";";
         _out.dec();
 
         _out << sp;
-        _out << nl << "public static readonly Ice.InputStreamReader<" << seqS << "> IceReader = Read" << name << ";";
+        _out << nl << "public static readonly global::Ice.InputStreamReader<" << seqS << "> IceReader = Read"
+            << name << ";";
 
         _out << eb;
     }
@@ -2070,7 +2077,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     emitCommonAttributes();
     _out << nl << "public static class " << name << "Helper";
     _out << sb;
-    _out << nl << "public static void Write(this Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) =>";
+    _out << nl << "public static void Write(this global::Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) =>";
     _out.inc();
     _out << nl << "ostr.WriteDictionary(dictionary";
     if (!StructPtr::dynamicCast(key))
@@ -2085,10 +2092,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
+    _out << nl << "public static readonly global::Ice.OutputStreamWriter<" << readOnlyDictS << "> IceWriter = Write;";
 
     _out << sp;
-    _out << nl << "public static " << dictS << " Read" << name << "(this Ice.InputStream istr) =>";
+    _out << nl << "public static " << dictS << " Read" << name << "(this global::Ice.InputStream istr) =>";
     _out.inc();
     if(generic == "SortedDictionary")
     {
@@ -2104,7 +2111,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly Ice.InputStreamReader<" << dictS << "> IceReader = Read" << name << ";";
+    _out << nl << "public static readonly global::Ice.InputStreamReader<" << dictS << "> IceReader = Read"
+        << name << ";";
 
     _out << eb;
 }
@@ -2428,8 +2436,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
 
     // Write the static outgoing request instance
     _out << sp;
-
     _out << nl << "private static " << requestT << "? " << requestObject << ";";
+
+    _out << sp;
     _out << nl << "private static " << requestT << " " << requestProperty << " =>";
     _out.inc();
     _out << nl << requestObject << " ?\?= new " << requestT << "(";
@@ -2612,7 +2621,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
     _out << nl << "string global::Ice.IObject.IceId(global::Ice.Current current) => _iceTypeId;";
-    _out << nl  << "global::System.Collections.Generic.IEnumerable<string> "
+    _out << sp;
+    _out << nl << "global::System.Collections.Generic.IEnumerable<string> "
         << "global::Ice.IObject.IceIds(global::Ice.Current current) => _iceAllTypeIds;";
 
     _out << sp;

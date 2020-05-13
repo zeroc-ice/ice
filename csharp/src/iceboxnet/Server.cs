@@ -7,16 +7,38 @@ using System.Collections.Generic;
 
 namespace IceBox
 {
-    public class Server
+    public static class Server
     {
+        public static int Main(string[] args)
+        {
+            try
+            {
+                using var communicator = new Ice.Communicator(ref args, new Dictionary<string, string>()
+                                                              {
+                                                                  { "Ice.Admin.DelayCreation", "1" }
+                                                              });
+
+                Console.CancelKeyPress += (sender, eventArgs) =>
+                {
+                    eventArgs.Cancel = true;
+                    communicator.Shutdown();
+                };
+
+                return Run(communicator, args);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return 1;
+            }
+        }
+
         private static void Usage()
         {
             Console.Error.WriteLine("Usage: iceboxnet [options] --Ice.Config=<file>\n");
-            Console.Error.WriteLine(
-                "Options:\n" +
-                "-h, --help           Show this message.\n" +
-                "-v, --version        Display the Ice version."
-            );
+            Console.Error.WriteLine("Options:");
+            Console.Error.WriteLine("-h, --help           Show this message.");
+            Console.Error.WriteLine("-v, --version        Display the Ice version.");
         }
 
         private static int Run(Ice.Communicator communicator, string[] args)
@@ -54,29 +76,5 @@ namespace IceBox
             var serviceManagerImpl = new ServiceManager(communicator, args);
             return serviceManagerImpl.Run();
         }
-
-        public static int Main(string[] args)
-        {
-            try
-            {
-                using var communicator = new Ice.Communicator(ref args, new Dictionary<string, string>() {
-                    { "Ice.Admin.DelayCreation", "1" }
-                });
-
-                Console.CancelKeyPress += (sender, eventArgs) =>
-                {
-                    eventArgs.Cancel = true;
-                    communicator.Shutdown();
-                };
-
-                return Run(communicator, args);
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-                return 1;
-            }
-        }
     }
-
 }

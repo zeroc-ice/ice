@@ -233,14 +233,7 @@ public class AllTests
                     $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
                 var comm = new Communicator(properties);
                 TestHelper.Assert(comm.DefaultLocator != null);
-                try
-                {
-                    IObjectPrx.Parse("controller0@control0", comm).IcePing();
-                    TestHelper.Assert(false);
-                }
-                catch (NoEndpointException)
-                {
-                }
+                IObjectPrx.Parse("controller0@control0", comm).IcePing();
                 comm.Destroy();
             }
         }

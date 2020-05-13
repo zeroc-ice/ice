@@ -6,9 +6,7 @@
 
 #include <SingleModuleWithPackage.ice>
 
-module M
-{
-module N
+module M::N
 {
 
 const smwpEnum smwpTest10Constant = smwpE1;
@@ -56,7 +54,7 @@ class smwpTest10Class : smwpBaseClass implements smwpBaseInterface
                   out smwpClass o6)
         throws smwpException;
 
-    ["amd"]
+    [amd]
     smwpStruct
     smwpTest10Op3(smwpEnum i1,
                   smwpStruct i2,
@@ -73,5 +71,4 @@ class smwpTest10Class : smwpBaseClass implements smwpBaseInterface
         throws smwpException;
 }
 
-}
 }

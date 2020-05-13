@@ -6,9 +6,7 @@
 
 #include <DoubleModuleNoPackage.ice>
 
-module T1
-{
-module T2
+module T1::T2
 {
 
 const ::M1::M2::dmnpEnum dmnpTest5Constant = ::M1::M2::dmnpE1;
@@ -56,7 +54,7 @@ class dmnpTest5Class : ::M1::M2::dmnpBaseClass implements ::M1::M2::dmnpBaseInte
                  out ::M1::M2::dmnpClass o6)
         throws ::M1::M2::dmnpException;
 
-    ["amd"]
+    [amd]
     ::M1::M2::dmnpStruct
     dmnpTest5Op3(::M1::M2::dmnpEnum i1,
                  ::M1::M2::dmnpStruct i2,
@@ -73,5 +71,4 @@ class dmnpTest5Class : ::M1::M2::dmnpBaseClass implements ::M1::M2::dmnpBaseInte
         throws ::M1::M2::dmnpException;
 }
 
-}
 }

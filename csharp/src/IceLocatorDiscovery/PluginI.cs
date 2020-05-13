@@ -288,7 +288,6 @@ namespace IceLocatorDiscovery
                             "This is typically the case if multiple Ice locators with different " +
                             "instance names are deployed and the property `IceLocatorDiscovery.InstanceName'" +
                             "is not set.");
-
                     }
                     return;
                 }
@@ -411,7 +410,7 @@ namespace IceLocatorDiscovery
                                         Debug.Assert(ex.InnerException != null);
                                         Exception(ex.InnerException);
                                     }
-                                }, l.Key.Scheduler); // Send multicast request.
+                                }, TaskScheduler.Current); // Send multicast request.
                             }
                             _timer.Schedule(this, _timeout);
                         }
@@ -534,7 +533,7 @@ namespace IceLocatorDiscovery
                                     Debug.Assert(ex.InnerException != null);
                                     Exception(ex.InnerException);
                                 }
-                            }, l.Key.Scheduler); // Send multicast request.
+                            }, TaskScheduler.Current); // Send multicast request.
                         }
                         _timer.Schedule(this, _timeout);
                         return;
@@ -595,7 +594,7 @@ namespace IceLocatorDiscovery
         private bool _warnOnce = true;
         private readonly List<Request> _pendingRequests = new List<Request>();
         private long _nextRetry;
-    };
+    }
 
     internal class LookupReplyI : ILookupReply
     {
@@ -716,8 +715,9 @@ namespace IceLocatorDiscovery
         private ILocatorPrx? _defaultLocator;
     }
 
-    public class Util
+    public static class Util
     {
+        // TODO remove this a add static Register to the factory class
         public static void
         RegisterIceLocatorDiscovery(bool loadOnInitialize) =>
             Communicator.RegisterPluginFactory("IceLocatorDiscovery", new PluginFactory(), loadOnInitialize);

@@ -332,5 +332,4 @@ namespace IceInternal
         //
         private volatile Ice.Instrumentation.IThreadObserver? _observer;
     }
-
 }

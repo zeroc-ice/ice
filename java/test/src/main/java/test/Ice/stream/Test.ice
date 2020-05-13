@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["java:package:test.Ice.stream"]]
+[[java:package:test.Ice.stream]]
 module Test
 {
 
@@ -20,7 +20,7 @@ enum MyEnum
 class MyClass;
 interface MyInterface;
 
-["java:serializable:test.Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
+[java:serializable:test.Ice.stream.Serialize.Small] sequence<byte> SerialSmall;
 
 struct SmallStruct
 {

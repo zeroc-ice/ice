@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["swift:class-resolver-prefix:IceExceptionsAMD"]]
+[[swift:class-resolver-prefix:IceExceptionsAMD]]
 
 module Test
 {
@@ -42,7 +42,7 @@ exception E
     string data;
 }
 
-["cpp:ice_print"]
+[cpp:ice_print]
 exception F
 {
     string data;
@@ -56,7 +56,7 @@ module Mod
     }
 }
 
-["amd"] interface Thrower
+[amd] interface Thrower
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
@@ -91,7 +91,7 @@ module Mod
     void throwH();
 }
 
-["amd"] interface WrongOperation
+[amd] interface WrongOperation
 {
     void noSuchOperation();
 }

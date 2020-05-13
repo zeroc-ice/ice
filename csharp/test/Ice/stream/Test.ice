@@ -7,11 +7,12 @@
 //
 // Suppress invalid metadata warnings
 //
-[["cs:typeid-namespace:Ice.stream.TypeId", "suppress-warning:invalid-metadata, deprecated"]]
+[[cs:typeid-namespace:Ice.stream.TypeId]]
+[[suppress-warning:invalid-metadata, deprecated]]
 
 #include <Ice/BuiltinSequences.ice>
 
-["cs:namespace:Ice.stream"]
+[cs:namespace:Ice.stream]
 module Test
 {
 
@@ -67,35 +68,35 @@ dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyClass> StringMyClassD;
 
-["clr:generic:List"]
+[clr:generic:List]
 sequence<bool> BoolList;
-["clr:generic:List"]
+[clr:generic:List]
 sequence<byte> ByteList;
-["clr:generic:List"]
+[clr:generic:List]
 sequence<MyEnum> MyEnumList;
-["clr:generic:List"]
+[clr:generic:List]
 sequence<SmallStruct> SmallStructList;
-["clr:generic:List"]
+[clr:generic:List]
 sequence<MyClass> MyClassList;
-["clr:generic:List"]
+[clr:generic:List]
 sequence<MyInterface*> MyInterfaceProxyList;
 
-["clr:generic:LinkedList"]
+[clr:generic:LinkedList]
 sequence<short> ShortLinkedList;
-["clr:generic:LinkedList"]
+[clr:generic:LinkedList]
 sequence<int> IntLinkedList;
-["clr:generic:LinkedList"]
+[clr:generic:LinkedList]
 sequence<MyEnum> MyEnumLinkedList;
-["clr:generic:LinkedList"]
+[clr:generic:LinkedList]
 sequence<SmallStruct> SmallStructLinkedList;
 
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<long> LongStack;
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<float> FloatStack;
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<SmallStruct> SmallStructStack;
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<MyInterface*> MyInterfaceProxyStack;
 
 //
@@ -103,7 +104,7 @@ sequence<MyInterface*> MyInterfaceProxyStack;
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<Object> ObjectStack;
 
 //
@@ -111,25 +112,25 @@ sequence<Object> ObjectStack;
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<MyClass> MyClassStack;
 
-["clr:generic:Queue"]
+[clr:generic:Queue]
 sequence<double> DoubleQueue;
-["clr:generic:Queue"]
+[clr:generic:Queue]
 sequence<string> StringQueue;
-["clr:generic:Queue"]
+[clr:generic:Queue]
 sequence<SmallStruct> SmallStructQueue;
 
-["clr:generic:List"]
+[clr:generic:List]
 sequence<Ice::StringSeq> StringSList;
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<Ice::StringSeq> StringSStack;
 
-["clr:generic:SortedDictionary"]
+[clr:generic:SortedDictionary]
 dictionary<string, string> SortedStringStringD;
 
-["clr:serializable:Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
+[clr:serializable:Ice.stream.Serialize.Small] sequence<byte> SerialSmall;
 
 class MyClass
 {

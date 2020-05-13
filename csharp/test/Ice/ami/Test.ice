@@ -7,7 +7,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-["cs:namespace:Ice.ami"]
+[cs:namespace:Ice.ami]
 module Test
 {
 
@@ -22,11 +22,6 @@ enum CloseMode
     GracefullyWithWait
 }
 
-interface PingReply
-{
-    void reply();
-}
-
 interface TestIntf
 {
     void op();
@@ -36,34 +31,25 @@ interface TestIntf
         throws TestIntfException;
     void close(CloseMode mode);
     void sleep(int ms);
-    ["amd"] void startDispatch();
+    [amd] void startDispatch();
     void finishDispatch();
     void shutdown();
 
     bool supportsAMD();
     bool supportsFunctionalTests();
 
-    ["amd"] void opAsyncDispatch();
-    ["amd"] int opWithResultAsyncDispatch();
-    ["amd"] void opWithUEAsyncDispatch()
+    [amd] void opAsyncDispatch();
+    [amd] int opWithResultAsyncDispatch();
+    [amd] void opWithUEAsyncDispatch()
         throws TestIntfException;
-
-    void pingBiDir(PingReply* reply);
 }
 
-module Outer
+module Outer::Inner
 {
-
-module Inner
-{
-
-interface TestIntf
-{
-    int op(int i, out int j);
-}
-
-}
-
+    interface TestIntf
+    {
+        int op(int i, out int j);
+    }
 }
 
 }

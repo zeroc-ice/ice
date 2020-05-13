@@ -12,8 +12,8 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -144,10 +144,6 @@ namespace Ice
 
         public Instrumentation.ICommunicatorObserver? Observer { get; }
 
-        public Action? ThreadStart { get; private set; }
-
-        public Action? ThreadStop { get; private set; }
-
         public ToStringMode ToStringMode { get; }
 
         internal int ClassGraphDepthMax { get; }
@@ -185,11 +181,9 @@ namespace Ice
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
         private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
         private Identity? _adminIdentity;
-        private AsyncIOThread? _asyncIOThread;
         private readonly ConcurrentDictionary<string, IClassFactory?> _classFactoryCache =
             new ConcurrentDictionary<string, IClassFactory?>();
         private readonly string[] _classFactoryNamespaces;
-        private readonly IceInternal.ThreadPool _clientThreadPool;
         private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
             new ConcurrentDictionary<int, IClassFactory?>();
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
@@ -206,26 +200,27 @@ namespace Ice
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
         private readonly string[] _remoteExceptionFactoryNamespaces;
         private readonly int[] _retryIntervals;
-        private IceInternal.ThreadPool? _serverThreadPool;
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
         private int _state;
         private readonly IceInternal.Timer _timer;
 
+        private readonly IDictionary<string, IEndpointFactory> _transportToEndpointFactory =
+            new ConcurrentDictionary<string, IEndpointFactory>();
+
+        private readonly IDictionary<EndpointType, IEndpointFactory> _typeToEndpointFactory =
+            new ConcurrentDictionary<EndpointType, IEndpointFactory>();
+
         public Communicator(Dictionary<string, string>? properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            Action? threadStart = null,
-                            Action? threadStop = null,
-                            string[]? typeIdNamespaces = null) :
-            this(ref _emptyArgs,
-                 null,
-                 properties,
-                 logger,
-                 observer,
-                 threadStart,
-                 threadStop,
-                 typeIdNamespaces)
+                            string[]? typeIdNamespaces = null)
+            : this(ref _emptyArgs,
+                   null,
+                   properties,
+                   logger,
+                   observer,
+                   typeIdNamespaces)
         {
         }
 
@@ -233,17 +228,13 @@ namespace Ice
                             Dictionary<string, string>? properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            Action? threadStart = null,
-                            Action? threadStop = null,
-                            string[]? typeIdNamespaces = null) :
-            this(ref args,
-                 null,
-                 properties,
-                 logger,
-                 observer,
-                 threadStart,
-                 threadStop,
-                 typeIdNamespaces)
+                            string[]? typeIdNamespaces = null)
+            : this(ref args,
+                   null,
+                   properties,
+                   logger,
+                   observer,
+                   typeIdNamespaces)
         {
         }
 
@@ -251,17 +242,13 @@ namespace Ice
                             Dictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            Action? threadStart = null,
-                            Action? threadStop = null,
-                            string[]? typeIdNamespaces = null) :
-            this(ref _emptyArgs,
-                 appSettings,
-                 properties,
-                 logger,
-                 observer,
-                 threadStart,
-                 threadStop,
-                 typeIdNamespaces)
+                            string[]? typeIdNamespaces = null)
+            : this(ref _emptyArgs,
+                   appSettings,
+                   properties,
+                   logger,
+                   observer,
+                   typeIdNamespaces)
         {
         }
 
@@ -270,15 +257,11 @@ namespace Ice
                             Dictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            Action? threadStart = null,
-                            Action? threadStop = null,
                             string[]? typeIdNamespaces = null)
         {
             _state = StateActive;
             Logger = logger ?? Util.GetProcessLogger();
             Observer = observer;
-            ThreadStart = threadStart;
-            ThreadStop = threadStop;
 
             _classFactoryNamespaces = new string[] { "Ice.ClassFactory" };
             _remoteExceptionFactoryNamespaces = new string[] { "Ice.RemoteExceptionFactory" };
@@ -405,7 +388,7 @@ namespace Ice
                     DefaultEncoding = Encoding.Latest;
                 }
 
-                var endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
+                string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
                 DefaultEndpointSelection = endpointSelection switch
                 {
                     "Random" => EndpointSelectionType.Random,
@@ -589,11 +572,14 @@ namespace Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
-                _endpointFactories = new List<IEndpointFactory>();
-                AddEndpointFactory(new TcpEndpointFactory(new TransportInstance(this, EndpointType.TCP, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(new TransportInstance(this, EndpointType.UDP, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
-                AddEndpointFactory(new WSEndpointFactory(new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
+                AddEndpointFactory(new TcpEndpointFactory(
+                    new TransportInstance(this, EndpointType.TCP, "tcp", false)));
+                AddEndpointFactory(new UdpEndpointFactory(
+                    new TransportInstance(this, EndpointType.UDP, "udp", false)));
+                AddEndpointFactory(new WSEndpointFactory(
+                    new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
+                AddEndpointFactory(new WSEndpointFactory(
+                    new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -605,16 +591,13 @@ namespace Ice
                 //
                 // Load plug-ins.
                 //
-                Debug.Assert(_serverThreadPool == null);
                 LoadPlugins(ref args);
 
-                //
-                // Initialize the endpoint factories once all the plugins are loaded. This gives
-                // the opportunity for the endpoint factories to find underlying factories.
-                //
-                foreach (IEndpointFactory f in _endpointFactories)
+                // Initialize the endpoint factories once all the plugins are loaded. This gives the opportunity for the
+                // endpoint factories to find underlying factories.
+                foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
                 {
-                    f.Initialize();
+                    factory.Initialize();
                 }
 
                 //
@@ -721,7 +704,6 @@ namespace Ice
                     Logger.Error($"cannot create thread for endpoint host resolver:\n{ex}");
                     throw;
                 }
-                _clientThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
                 // The default router/locator may have been set during the loading of plugins.
                 // Therefore we only set it if it hasn't already been set.
@@ -755,10 +737,6 @@ namespace Ice
                         _printProcessIdDone = true;
                     }
                 }
-
-                //
-                // Server thread pool initialization is lazy in serverThreadPool().
-                //
 
                 //
                 // An application can set Ice.InitPlugins=0 if it wants to postpone
@@ -928,7 +906,7 @@ namespace Ice
             // connections and wait for the connections to be finished.
             //
             Shutdown();
-            _outgoingConnectionFactory.Destroy();
+            _outgoingConnectionFactory?.Destroy();
 
             //
             // First wait for shutdown to finish.
@@ -937,83 +915,59 @@ namespace Ice
 
             DestroyAllObjectAdapters();
 
-            _outgoingConnectionFactory.WaitUntilFinished();
+            _outgoingConnectionFactory?.WaitUntilFinished();
 
             DestroyRetryQueue(); // Must be called before destroying thread pools.
 
-            if (Observer != null)
-            {
-                Observer.SetObserverUpdater(null);
-            }
+            Observer?.SetObserverUpdater(null);
 
             if (Logger is ILoggerAdminLogger)
             {
                 ((ILoggerAdminLogger)Logger).Destroy();
             }
 
-            //
-            // Now, destroy the thread pools. This must be done *only* after
-            // all the connections are finished (the connections destruction
-            // can require invoking callbacks with the thread pools).
-            //
-            if (_serverThreadPool != null)
+            if (_endpointHostResolverThread != null)
             {
-                _serverThreadPool.Destroy();
-            }
-            _clientThreadPool.Destroy();
-
-            if (_asyncIOThread != null)
-            {
-                _asyncIOThread.Destroy();
-            }
-
-            lock (_endpointHostResolverThread)
-            {
-                Debug.Assert(!_endpointHostResolverDestroyed);
-                _endpointHostResolverDestroyed = true;
-                Monitor.Pulse(_endpointHostResolverThread);
+                lock (_endpointHostResolverThread)
+                {
+                    Debug.Assert(!_endpointHostResolverDestroyed);
+                    _endpointHostResolverDestroyed = true;
+                    Monitor.Pulse(_endpointHostResolverThread);
+                }
             }
 
             //
             // Wait for all the threads to be finished.
             //
-            _timer.Destroy();
-            _clientThreadPool.JoinWithAllThreads();
-            if (_serverThreadPool != null)
-            {
-                _serverThreadPool.JoinWithAllThreads();
-            }
-            if (_asyncIOThread != null)
-            {
-                _asyncIOThread.JoinWithThread();
-            }
+            _timer?.Destroy();
 
-            _endpointHostResolverThread.Join();
+            _endpointHostResolverThread?.Join();
 
             lock (_routerInfoTable)
             {
-                foreach (RouterInfo i in _routerInfoTable.Values)
+                foreach (RouterInfo routerInfo in _routerInfoTable.Values)
                 {
-                    i.Destroy();
+                    routerInfo.Destroy();
                 }
                 _routerInfoTable.Clear();
             }
 
             lock (_locatorInfoMap)
             {
-                foreach (LocatorInfo info in _locatorInfoMap.Values)
+                foreach (LocatorInfo locatorInfo in _locatorInfoMap.Values)
                 {
-                    info.Destroy();
+                    locatorInfo.Destroy();
                 }
                 _locatorInfoMap.Clear();
                 _locatorTableMap.Clear();
             }
 
-            foreach (IEndpointFactory f in _endpointFactories)
+            foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
             {
-                f.Destroy();
+                factory.Destroy();
             }
-            _endpointFactories.Clear();
+            _typeToEndpointFactory.Clear();
+            _transportToEndpointFactory.Clear();
 
             if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
             {
@@ -1039,24 +993,21 @@ namespace Ice
                 plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
             }
             plugins.Reverse();
-            foreach ((string Name, IPlugin Plugin) in plugins)
+            foreach ((string name, IPlugin plugin) in plugins)
             {
                 try
                 {
-                    Plugin.Destroy();
+                    plugin.Destroy();
                 }
                 catch (Exception ex)
                 {
                     Util.GetProcessLogger().Warning(
-                        $"unexpected exception raised by plug-in `{Name}' destruction:\n{ex}");
+                        $"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
                 }
             }
 
             lock (this)
             {
-                _serverThreadPool = null;
-                _asyncIOThread = null;
-
                 _adminAdapter = null;
                 _adminFacets.Clear();
 
@@ -1244,22 +1195,12 @@ namespace Ice
             }
         }
 
-        internal AsyncIOThread AsyncIOThread()
+        // Registers an endpoint factory.
+        // TODO: make public and add Ice prefix when removing ITransportPluginFacade.
+        internal void AddEndpointFactory(IEndpointFactory factory)
         {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                if (_asyncIOThread == null) // Lazy initialization.
-                {
-                    _asyncIOThread = new AsyncIOThread(this);
-                }
-
-                return _asyncIOThread;
-            }
+            _typeToEndpointFactory.Add(factory.Type(), factory);
+            _transportToEndpointFactory.Add(factory.Transport(), factory);
         }
 
         internal int CheckRetryAfterException(System.Exception ex, Reference reference, ref int cnt)
@@ -1384,17 +1325,13 @@ namespace Ice
             return interval;
         }
 
-        internal IceInternal.ThreadPool ClientThreadPool()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _clientThreadPool;
-            }
-        }
+        // Finds an endpoint factory previously registered using AddEndpointFactory.
+        internal IEndpointFactory? FindEndpointFactory(string transport) =>
+            _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
+
+         // Finds an endpoint factory previously registered using AddEndpointFactory.
+        internal IEndpointFactory? FindEndpointFactory(EndpointType type) =>
+            _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
 
         internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
         {
@@ -1475,29 +1412,6 @@ namespace Ice
                 return null;
             });
 
-        internal IceInternal.ThreadPool ServerThreadPool()
-        {
-            lock (this)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                if (_serverThreadPool == null) // Lazy initialization.
-                {
-                    if (_state == StateDestroyInProgress)
-                    {
-                        throw new CommunicatorDestroyedException();
-                    }
-                    _serverThreadPool = new IceInternal.ThreadPool(this, "Ice.ThreadPool.Server",
-                        GetPropertyAsInt("Ice.ServerIdleTime") ?? 0);
-                }
-
-                return _serverThreadPool;
-            }
-        }
-
         internal void SetRcvBufSizeWarn(EndpointType type, int size)
         {
             lock (_setBufSizeWarn)
@@ -1554,15 +1468,6 @@ namespace Ice
             }
         }
 
-        internal void SetThreadHook(Action threadStart, Action threadStop)
-        {
-            //
-            // No locking, as it can only be called during plug-in loading
-            //
-            ThreadStart = threadStart;
-            ThreadStop = threadStop;
-        }
-
         internal void UpdateConnectionObservers()
         {
             try
@@ -1589,29 +1494,8 @@ namespace Ice
         {
             try
             {
-                _clientThreadPool.UpdateObservers();
-                if (_serverThreadPool != null)
-                {
-                    _serverThreadPool.UpdateObservers();
-                }
-
-                ObjectAdapter[] adapters;
-                lock (this)
-                {
-                    adapters = _adapters.ToArray();
-                }
-
-                foreach (ObjectAdapter adapter in adapters)
-                {
-                    adapter.UpdateThreadObservers();
-                }
-
                 UpdateEndpointHostResolverObserver();
 
-                if (_asyncIOThread != null)
-                {
-                    _asyncIOThread.UpdateObserver();
-                }
                 Debug.Assert(Observer != null);
                 _timer.UpdateObserver(Observer);
             }

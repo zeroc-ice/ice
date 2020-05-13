@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]]
+[[suppress-warning:deprecated]]
 
 module await
 {
@@ -21,7 +21,7 @@ struct break
 
 interface case
 {
-    ["amd"] void catch(int checked, out int continue);
+    [amd] void catch(int checked, out int continue);
 }
 
 interface typeof
@@ -60,7 +60,7 @@ interface optionalParams
                           tag(7) string namespace,
                           tag(8) explicit* null);
 
-    ["amd"]
+    [amd]
     tag(1) break continue(tag(2) var goto,
                                tag(3) explicit if,
                                tag(5) while internal,
@@ -73,7 +73,7 @@ interface optionalParams
                          out tag(7) string namespace,
                          out tag(8) explicit* null);
 
-    ["amd"]
+    [amd]
     tag(1) break foreach(out tag(2) var goto,
                               out tag(3) explicit if,
                               out tag(5) while internal,

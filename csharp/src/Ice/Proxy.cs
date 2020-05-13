@@ -368,9 +368,9 @@ namespace Ice
         }
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
+        /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="oneway">When true, the request is sent as a oneway request. When false, it is sent as a
         /// two-way request.</param>
-        /// <param name="proxy">The proxy for the target Ice object.</param>
         /// <param name="request">The incoming request frame.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
@@ -392,8 +392,8 @@ namespace Ice
         private class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>
         {
             public GetConnectionTaskCompletionCallback(IProgress<bool>? progress = null,
-                                                       CancellationToken cancellationToken = new CancellationToken()) :
-                base(progress, cancellationToken)
+                                                       CancellationToken cancellationToken = new CancellationToken())
+                : base(progress, cancellationToken)
             {
             }
 

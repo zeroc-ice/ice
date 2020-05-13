@@ -10,15 +10,15 @@ namespace Ice
 {
     public sealed class RouterInfo
     {
-        public interface GetClientEndpointsCallback
+        public interface IGetClientEndpointsCallback
         {
-            void setEndpoints(IReadOnlyList<Endpoint> endpoints);
-            void setException(System.Exception ex);
+            void SetEndpoints(IReadOnlyList<Endpoint> endpoints);
+            void SetException(System.Exception ex);
         }
 
-        public interface AddProxyCallback
+        public interface IAddProxyCallback
         {
-            void addedProxy();
+            void AddedProxy();
             void SetException(System.Exception ex);
         }
 
@@ -63,7 +63,7 @@ namespace Ice
             return SetClientEndpoints(proxy!, hasRoutingTable ?? true);
         }
 
-        public void GetClientEndpoints(GetClientEndpointsCallback callback)
+        public void GetClientEndpoints(IGetClientEndpointsCallback callback)
         {
             IReadOnlyList<Endpoint>? clientEndpoints = null;
             lock (this)
@@ -73,7 +73,7 @@ namespace Ice
 
             if (clientEndpoints != null) // Lazy initialization.
             {
-                callback.setEndpoints(clientEndpoints);
+                callback.SetEndpoints(clientEndpoints);
                 return;
             }
 
@@ -83,11 +83,11 @@ namespace Ice
                     try
                     {
                         (IObjectPrx? prx, bool? hasRoutingTable) = t.Result;
-                        callback.setEndpoints(SetClientEndpoints(prx!, hasRoutingTable ?? true));
+                        callback.SetEndpoints(SetClientEndpoints(prx!, hasRoutingTable ?? true));
                     }
                     catch (System.AggregateException ae)
                     {
-                        callback.setException(ae.InnerException!);
+                        callback.SetException(ae.InnerException!);
                     }
                 },
                 System.Threading.Tasks.TaskScheduler.Current);
@@ -122,7 +122,7 @@ namespace Ice
             AddAndEvictProxies(proxy, Router.AddProxies(new IObjectPrx[] { proxy }) as IObjectPrx[]);
         }
 
-        public bool AddProxy(IObjectPrx proxy, AddProxyCallback callback)
+        public bool AddProxy(IObjectPrx proxy, IAddProxyCallback callback)
         {
             Debug.Assert(proxy != null);
             lock (this)
@@ -146,7 +146,7 @@ namespace Ice
                     try
                     {
                         AddAndEvictProxies(proxy, t.Result as IObjectPrx[]);
-                        callback.addedProxy();
+                        callback.AddedProxy();
                     }
                     catch (System.AggregateException ae)
                     {
@@ -320,5 +320,4 @@ namespace Ice
 
         private readonly Dictionary<IRouterPrx, RouterInfo> _routerInfoTable = new Dictionary<IRouterPrx, RouterInfo>();
     }
-
 }

@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["swift:class-resolver-prefix:IceSlicingObjectsAMD"]]
+[[swift:class-resolver-prefix:IceSlicingObjectsAMD]]
 
 module Test
 {
@@ -72,7 +72,7 @@ class PBase
 
 sequence<PBase> PBaseSeq;
 
-["preserve-slice"]
+[preserve-slice]
 class Preserved : PBase
 {
     string ps;
@@ -83,18 +83,18 @@ class PDerived : Preserved
     PBase pb;
 }
 
-["preserve-slice"]
+[preserve-slice]
 class PNode
 {
     PNode next;
 }
 
-["preserve-slice"]
+[preserve-slice]
 exception PreservedException
 {
 }
 
-["amd", "format:sliced"]
+[amd] [format:sliced]
 interface TestIntf
 {
     Object SBaseAsObject();
@@ -104,7 +104,7 @@ interface TestIntf
 
     SBase SBSUnknownDerivedAsSBase();
 
-    ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
+    [format:compact] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
     void checkSUnknown(Object o);

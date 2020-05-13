@@ -502,11 +502,6 @@ namespace IceInternal
             }
         }
 
-        [DllImport("libc", SetLastError = true)]
-#pragma warning disable IDE1006 // Naming Styles
-        private static extern int setsockopt(int socket, int level, int name, ref int value, uint len);
-#pragma warning restore IDE1006 // Naming Styles
-
         public static IPEndPoint DoBind(Socket socket, EndPoint addr)
         {
             try
@@ -523,7 +518,6 @@ namespace IceInternal
 
         public static void DoListen(Socket socket, int backlog)
         {
-
         repeatListen:
 
             try
@@ -632,7 +626,7 @@ namespace IceInternal
             try
             {
                 return fd.BeginConnect(addr,
-                                       delegate (IAsyncResult result)
+                                       result =>
                                        {
                                            if (!result.CompletedSynchronously)
                                            {

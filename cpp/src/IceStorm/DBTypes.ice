@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h"]]
+[[ice-prefix]]
+[[cpp:header-ext:h]]
 
 #include <IceStorm/SubscriberRecord.ice>
 #include <IceStorm/LLURecord.ice>

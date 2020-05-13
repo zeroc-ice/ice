@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Ice
 {
-    ///<summary>SlicedData holds the sliced-off unknown slices of a class or remote exception. Each SlicedData value
+    /// <summary>SlicedData holds the sliced-off unknown slices of a class or remote exception. Each SlicedData value
     /// holds at least one slice.</summary>
     public readonly struct SlicedData
     {

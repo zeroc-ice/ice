@@ -6,9 +6,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cs:typeid-namespace:Ice.serialize.TypeId"]]
+[[cs:typeid-namespace:Ice.serialize.TypeId]]
 
-["cs:namespace:Ice.serialize"]
+[cs:namespace:Ice.serialize]
 module Test
 {
 
@@ -38,7 +38,7 @@ interface MyInterface
 
 sequence<MyInterface*> ProxySeq;
 
-["clr:property"]
+[clr:property]
 struct RefStruct
 {
     string s;
@@ -49,19 +49,19 @@ struct RefStruct
 }
 
 sequence<ValStruct> ValStructS;
-["clr:generic:List"]
+[clr:generic:List]
 sequence<ValStruct> ValStructList;
-["clr:generic:LinkedList"]
+[clr:generic:LinkedList]
 sequence<ValStruct> ValStructLinkedList;
-["clr:generic:Stack"]
+[clr:generic:Stack]
 sequence<ValStruct> ValStructStack;
-["clr:generic:Queue"]
+[clr:generic:Queue]
 sequence<ValStruct> ValStructQueue;
 
 dictionary<int, string> IntStringD;
 dictionary<int, ValStruct> IntValStructD;
 dictionary<int, MyInterface*> IntProxyD;
-["clr:generic:SortedDictionary"]
+[clr:generic:SortedDictionary]
 dictionary<int, string> IntStringSD;
 
 class Base

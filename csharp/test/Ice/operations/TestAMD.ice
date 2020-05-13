@@ -6,10 +6,10 @@
 
 #include <Ice/Context.ice>
 
-[["cs:typeid-namespace:Ice.operations.AMD.TypeId",
-  "suppress-warning:deprecated"]] // For classes with operations
+[[cs:typeid-namespace:Ice.operations.AMD.TypeId]]
+[[suppress-warning:deprecated]] // For classes with operations
 
-["cs:namespace:Ice.operations.AMD"]
+[cs:namespace:Ice.operations.AMD]
 module Test
 {
 
@@ -38,7 +38,14 @@ sequence<byte> ByteS;
 sequence<bool> BoolS;
 sequence<short> ShortS;
 sequence<int> IntS;
+sequence<varint> VarIntS;
 sequence<long> LongS;
+sequence<varlong> VarLongS;
+sequence<ushort> UShortS;
+sequence<uint> UIntS;
+sequence<varuint> VarUIntS;
+sequence<ulong> ULongS;
+sequence<varulong> VarULongS;
 sequence<float> FloatS;
 sequence<double> DoubleS;
 sequence<string> StringS;
@@ -50,6 +57,11 @@ sequence<BoolS> BoolSS;
 sequence<ShortS> ShortSS;
 sequence<IntS> IntSS;
 sequence<LongS> LongSS;
+sequence<VarLongS> VarLongSS;
+sequence<UShortS> UShortSS;
+sequence<UIntS> UIntSS;
+sequence<ULongS> ULongSS;
+sequence<VarULongS> VarULongSS;
 sequence<FloatS> FloatSS;
 sequence<DoubleS> DoubleSS;
 sequence<StringS> StringSS;
@@ -67,6 +79,8 @@ struct MyStruct
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
+dictionary<ushort, uint> UShortUIntD;
+dictionary<ulong, float> ULongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
 dictionary<MyEnum, string> MyEnumStringD;
@@ -74,7 +88,9 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
 sequence<ByteBoolD> ByteBoolDS;
 sequence<ShortIntD> ShortIntDS;
+sequence<UShortUIntD> UShortUIntDS;
 sequence<LongFloatD> LongFloatDS;
+sequence<ULongFloatD> ULongFloatDS;
 sequence<StringStringD> StringStringDS;
 sequence<StringMyEnumD> StringMyEnumDS;
 sequence<MyEnumStringD> MyEnumStringDS;
@@ -85,6 +101,9 @@ dictionary<bool, BoolS> BoolBoolSD;
 dictionary<short, ShortS> ShortShortSD;
 dictionary<int, IntS> IntIntSD;
 dictionary<long, LongS> LongLongSD;
+dictionary<ushort, UShortS> UShortUShortSD;
+dictionary<uint, UIntS> UIntUIntSD;
+dictionary<ulong, ULongS> ULongULongSD;
 dictionary<string, FloatS> StringFloatSD;
 dictionary<string, DoubleS> StringDoubleSD;
 dictionary<string, StringS> StringStringSD;
@@ -92,7 +111,7 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
 exception SomeException {}
 
-["amd"] interface MyClass
+[amd] interface MyClass
 {
     void shutdown();
 
@@ -106,8 +125,14 @@ exception SomeException {}
     bool opBool(bool p1, bool p2,
                 out bool p3);
 
-    long opShortIntLong(short p1, int p2, long p3,
-                        out short p4, out int p5, out long p6);
+    long opShortIntLong(short p1, int p2, long p3, out short p4, out int p5, out long p6);
+    ulong opUShortUIntULong(ushort p1, uint p2, ulong p3, out ushort p4, out uint p5, out ulong p6);
+
+    varint opVarInt(varint v);
+    varuint opVarUInt(varuint v);
+
+    varlong opVarLong(varlong v);
+    varulong opVarULong(varulong v);
 
     double opFloatDouble(float p1, double p2,
                          out float p3, out double p4);
@@ -128,8 +153,9 @@ exception SomeException {}
     BoolS opBoolS(BoolS p1, BoolS p2,
                   out BoolS p3);
 
-    LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
-                          out ::Test::ShortS p4, out IntS p5, out LongS p6);
+    LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3, out ::Test::ShortS p4, out IntS p5, out LongS p6);
+    ULongS opUShortUIntULongS(
+        Test::UShortS p1, UIntS p2, ULongS p3, out ::Test::UShortS p4, out UIntS p5, out ULongS p6);
 
     DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
                            out FloatS p3, out DoubleS p4);
@@ -143,8 +169,11 @@ exception SomeException {}
     BoolSS opBoolSS(BoolSS p1, BoolSS p2,
                     out BoolSS p3);
 
-    LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
-                            out ShortSS p4, out IntSS p5, out LongSS p6);
+    LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3, out ShortSS p4, out IntSS p5, out LongSS p6);
+    ULongSS opUShortUIntULongSS(UShortSS p1, UIntSS p2, ULongSS p3, out UShortSS p4, out UIntSS p5, out ULongSS p6);
+
+    VarLongS opVarIntVarLongS(VarIntS p1, VarLongS p2, out VarIntS p3, out VarLongS p4);
+    VarULongS opVarUIntVarULongS(VarUIntS p1, VarULongS p2, out VarUIntS p3, out VarULongS p4);
 
     DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
@@ -158,11 +187,11 @@ exception SomeException {}
     ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2,
                           out ByteBoolD p3);
 
-    ShortIntD opShortIntD(ShortIntD p1, ShortIntD p2,
-                          out ShortIntD p3);
+    ShortIntD opShortIntD(ShortIntD p1, ShortIntD p2, out ShortIntD p3);
+    UShortUIntD opUShortUIntD(UShortUIntD p1, UShortUIntD p2, out UShortUIntD p3);
 
-    LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2,
-                            out LongFloatD p3);
+    LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2, out LongFloatD p3);
+    ULongFloatD opULongFloatD(ULongFloatD p1, ULongFloatD p2, out ULongFloatD p3);
 
     StringStringD opStringStringD(StringStringD p1, StringStringD p2,
                                   out StringStringD p3);
@@ -179,11 +208,11 @@ exception SomeException {}
     ByteBoolDS opByteBoolDS(ByteBoolDS p1, ByteBoolDS p2,
                             out ByteBoolDS p3);
 
-    ShortIntDS opShortIntDS(ShortIntDS p1, ShortIntDS p2,
-                            out ShortIntDS p3);
+    ShortIntDS opShortIntDS(ShortIntDS p1, ShortIntDS p2, out ShortIntDS p3);
+    UShortUIntDS opUShortUIntDS(UShortUIntDS p1, UShortUIntDS p2, out UShortUIntDS p3);
 
-    LongFloatDS opLongFloatDS(LongFloatDS p1, LongFloatDS p2,
-                              out LongFloatDS p3);
+    LongFloatDS opLongFloatDS(LongFloatDS p1, LongFloatDS p2, out LongFloatDS p3);
+    ULongFloatDS opULongFloatDS(ULongFloatDS p1, ULongFloatDS p2, out ULongFloatDS p3);
 
     StringStringDS opStringStringDS(StringStringDS p1, StringStringDS p2,
                                     out StringStringDS p3);
@@ -203,14 +232,14 @@ exception SomeException {}
     BoolBoolSD opBoolBoolSD(BoolBoolSD p1, BoolBoolSD p2,
                             out BoolBoolSD p3);
 
-    ShortShortSD opShortShortSD(ShortShortSD p1, ShortShortSD p2,
-                                out ShortShortSD p3);
+    ShortShortSD opShortShortSD(ShortShortSD p1, ShortShortSD p2, out ShortShortSD p3);
+    UShortUShortSD opUShortUShortSD(UShortUShortSD p1, UShortUShortSD p2, out UShortUShortSD p3);
 
-    IntIntSD opIntIntSD(IntIntSD p1, IntIntSD p2,
-                        out IntIntSD p3);
+    IntIntSD opIntIntSD(IntIntSD p1, IntIntSD p2, out IntIntSD p3);
+    UIntUIntSD opUIntUIntSD(UIntUIntSD p1, UIntUIntSD p2, out UIntUIntSD p3);
 
-    LongLongSD opLongLongSD(LongLongSD p1, LongLongSD p2,
-                            out LongLongSD p3);
+    LongLongSD opLongLongSD(LongLongSD p1, LongLongSD p2, out LongLongSD p3);
+    ULongULongSD opULongULongSD(ULongULongSD p1, ULongULongSD p2, out ULongULongSD p3);
 
     StringFloatSD opStringFloatSD(StringFloatSD p1, StringFloatSD p2,
                                   out StringFloatSD p3);
@@ -238,13 +267,16 @@ exception SomeException {}
 
     void opOneway();
 
-    ["oneway"]
+    [oneway]
     void opOnewayMetadata();
 
     byte opByte1(byte opByte1);
     short opShort1(short opShort1);
     int opInt1(int opInt1);
     long opLong1(long opLong1);
+    ushort opUShort1(ushort opUShort1);
+    uint opUInt1(uint opUInt1);
+    ulong opULong1(ulong opULong1);
     float opFloat1(float opFloat1);
     double opDouble1(double opDouble1);
     string opString1(string opString1);
@@ -256,14 +288,14 @@ exception SomeException {}
     StringS opStringLiterals();
     StringS opWStringLiterals();
 
-    ["marshaled-result"] Structure opMStruct1();
-    ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
+    [marshaled-result] Structure opMStruct1();
+    [marshaled-result] Structure opMStruct2(Structure p1, out Structure p2);
 
-    ["marshaled-result"] StringS opMSeq1();
-    ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
+    [marshaled-result] StringS opMSeq1();
+    [marshaled-result] StringS opMSeq2(StringS p1, out StringS p2);
 
-    ["marshaled-result"] StringStringD opMDict1();
-    ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
+    [marshaled-result] StringStringD opMDict1();
+    [marshaled-result] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
 }
 
 struct MyStruct1
@@ -280,7 +312,7 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-["amd"] interface MyDerivedClass : MyClass
+[amd] interface MyDerivedClass : MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
@@ -361,7 +393,7 @@ const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194
 // Test proxy inheritance for class with operations
 // see: https://github.com/zeroc-ice/ice/issues/406
 //
-["cs:namespace:Ice.operations.AMD"]
+[cs:namespace:Ice.operations.AMD]
 module M
 {
     class A
@@ -370,12 +402,12 @@ module M
         // void opA();
     }
 
-    ["amd"] interface Intf
+    [amd] interface Intf
     {
         void opIntf();
     }
 
-    ["amd"] class B : A implements Intf
+    [amd] class B : A implements Intf
     {
         void opB();
     }
