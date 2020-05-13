@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
@@ -14,10 +13,10 @@ namespace Ice
     {
         private static readonly ThreadLocal<Random> _rand = new ThreadLocal<Random>(() => new Random());
 
-        /// <summary>Shuffle the elements of a sequence.</summary>
+        /// <summary>Shuffles the elements of a sequence.</summary>
         /// <typeparam name="TSource">The type of the elements of source.</typeparam>
         /// <param name="source">A sequence of values to shuffle.</param>
-        /// <returns>An IEnumerable&lt;TSouce&gt; whose elements are shuffled.</returns>
+        /// <returns>An <see cref="IEnumerable{TSouce}"/> whose elements are shuffled.</returns>
         public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source) =>
             source.OrderBy(element => _rand.Value!.Next());
     }
