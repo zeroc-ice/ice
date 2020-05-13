@@ -18,11 +18,11 @@ namespace Ice.perf
         {
             output.Write($"testing {name}... ");
             output.Flush();
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 warmUpInvocation();
             }
-            ;
+
             var watch = new Stopwatch();
             var collections = new int[GC.MaxGeneration].Select((v, i) => GC.CollectionCount(i)).ToArray();
             watch.Start();
@@ -68,7 +68,7 @@ namespace Ice.perf
 
             var perf = IPerformancePrx.Parse("perf:" + helper.GetTestEndpoint(0), communicator);
 
-            RunTest(output, 100000, "latency", () => perf.IcePing());
+            RunTest(output, 10000, "latency", () => perf.IcePing());
             RunTest<byte>(output, 1000, "sending byte sequence", v => perf.sendBytes(v), Constants.ByteSeqSize);
             RunTest<byte>(output, 1000, "received byte sequence", sz => perf.receiveBytes(sz), Constants.ByteSeqSize);
 

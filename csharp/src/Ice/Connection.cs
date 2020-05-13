@@ -71,10 +71,12 @@ namespace Ice
         /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the
         /// outgoing connection used by the proxy in order to receive callbacks. This is useful if the server
         /// cannot establish a connection back to the client, for example because of firewalls.</summary>
-        /// <returns>The object adapter that dispatches requests for the connection, or null if no adapter is set.
-        /// </returns>
+        /// <value>The object adapter that dispatches requests for the connection, or null if no adapter is set.
+        /// </value>
         public ObjectAdapter? Adapter
         {
+            // We don't use a volatile for _adapter to avoid extra-memory barriers when accessing _adapter with
+            // the mutex locked.
             get
             {
                 lock (_mutex)
@@ -94,15 +96,11 @@ namespace Ice
         /// <summary>
         /// Get the endpoint from which the connection was created.
         /// </summary>
-        /// <returns>The endpoint from which the connection was created.</returns>
-        public Endpoint Endpoint => _endpoint; // No mutex protection necessary, _endpoint is immutable.
+        /// <value>The endpoint from which the connection was created.</value>
+        public Endpoint Endpoint { get; }
 
-        /// <summary>
-        /// Get the timeout for the connection.
-        /// </summary>
-        /// <returns>The connection's timeout.</returns>
         // TODO: Remove Timeout after reviewing its usages, it's no longer used by the connection
-        public int Timeout => _endpoint.Timeout; // No mutex protection necessary, _endpoint is immutable.
+        internal int Timeout => Endpoint.Timeout;
 
         internal IConnector Connector => _connector!;
 
@@ -124,7 +122,6 @@ namespace Ice
         private readonly int _compressionLevel;
         private readonly IConnector? _connector;
         private int _dispatchCount;
-        private readonly Endpoint _endpoint;
         private System.Exception? _exception;
         private Action<Connection>? _heartbeatCallback;
         private ConnectionInfo? _info;
@@ -142,6 +139,7 @@ namespace Ice
         private readonly bool _warn;
         private readonly bool _warnUdp;
 
+        // Map internal connection states to Ice.Instrumentation.ConnectionState state values.
         private static readonly ConnectionState[] _connectionStateMap = new ConnectionState[]
         {
             ConnectionState.ConnectionStateValidating,   // State.NotInitialized
@@ -196,8 +194,8 @@ namespace Ice
         /// <param name="factory">The proxy factory. Use INamePrx.Factory, where INamePrx is the desired proxy type.
         /// </param>
         /// <returns>A proxy that matches the given identity and uses this connection.</returns>
-        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx
-            => factory(new Reference(_communicator, this, identity));
+        public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            factory(new Reference(_communicator, this, identity));
 
         /// <summary>Get the ACM parameters.</summary>
         /// <returns>The ACM parameters.</returns>
@@ -294,7 +292,7 @@ namespace Ice
         }
 
         /// <summary>Set a close callback on the connection. The callback is called by the connection when it's
-        /// closed.If the callback needs more information about the closure, it can call Connection.throwException.
+        /// closed. If the callback needs more information about the closure, it can call Connection.throwException.
         /// </summary>
         /// <param name="callback">The close callback object.</param>
         public void SetCloseCallback(Action<Connection> callback)
@@ -377,7 +375,7 @@ namespace Ice
             _monitor = monitor;
             _transceiver = transceiver;
             _connector = connector;
-            _endpoint = endpoint;
+            Endpoint = endpoint;
             _adapter = adapter;
             _warn = communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
@@ -505,13 +503,13 @@ namespace Ice
                     if (acm.Heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
                     {
                         Debug.Assert(_state == State.Active);
-                        if (!_endpoint.IsDatagram)
+                        if (!Endpoint.IsDatagram)
                         {
                             try
                             {
                                 Send(new OutgoingMessage(_validateConnectionMessage, false));
                             }
-                            catch (System.Exception ex)
+                            catch (Exception ex)
                             {
                                 SetState(State.Closed, ex);
                             }
@@ -524,7 +522,7 @@ namespace Ice
                 int timeout = acm.Timeout;
                 if (_state >= State.Closing)
                 {
-                    timeout = _communicator.OverrideCloseTimeout ?? _endpoint.Timeout;
+                    timeout = _communicator.OverrideCloseTimeout ?? Endpoint.Timeout;
                 }
 
                 // ACM close is always enabled when in the closing state for connection close timeouts.
@@ -595,7 +593,7 @@ namespace Ice
                 // Ensure the message isn't bigger than what we can send with the transport.
                 _transceiver.CheckSendSize(size);
 
-                outgoing.AttachRemoteObserver(InitConnectionInfo(), _endpoint, requestId,
+                outgoing.AttachRemoteObserver(InitConnectionInfo(), Endpoint, requestId,
                     size - (Ice1Definitions.HeaderSize + 4));
 
                 try
@@ -622,21 +620,21 @@ namespace Ice
                 // TODO: for now, we continue using the endpoint timeout as the default connect timeout. This is
                 // use for both connect/accept timeouts. We're leaning toward adding Ice.ConnectTimeout for
                 // connection establishemnt and using the ACM timeout for accepting connections.
-                int timeout = _communicator.OverrideConnectTimeout ?? _endpoint.Timeout;
+                int timeout = _communicator.OverrideConnectTimeout ?? Endpoint.Timeout;
 
                 // Initialize the transport
                 await AwaitWithTimeout(_transceiver.InitializeAsync().AsTask(), timeout).ConfigureAwait(false);
 
                 ArraySegment<byte> readBuffer = default;
-                if (!_endpoint.IsDatagram) // Datagram connections are always implicitly validated.
+                if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
                 {
                     if (_connector == null) // The server side has the active role for connection validation.
                     {
                         int offset = 0;
                         while (offset < _validateConnectionMessage.GetByteCount())
                         {
-                            var writeTask = _transceiver.WriteAsync(_validateConnectionMessage, offset).AsTask();
-                            await AwaitWithTimeout(writeTask, timeout).ConfigureAwait(false);
+                            var writeTask = _transceiver.WriteAsync(_validateConnectionMessage, offset);
+                            await AwaitWithTimeout(writeTask.AsTask(), timeout).ConfigureAwait(false);
                             offset += writeTask.Result;
                         }
                         Debug.Assert(offset == _validateConnectionMessage.GetByteCount());
@@ -647,14 +645,14 @@ namespace Ice
                         int offset = 0;
                         while (offset < Ice1Definitions.HeaderSize)
                         {
-                            var readTask = _transceiver.ReadAsync(readBuffer, offset).AsTask();
-                            await AwaitWithTimeout(readTask, timeout).ConfigureAwait(false);
+                            var readTask = _transceiver.ReadAsync(readBuffer, offset);
+                            await AwaitWithTimeout(readTask.AsTask(), timeout).ConfigureAwait(false);
                             offset += readTask.Result;
                         }
 
                         Ice1Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
-                        var messageType = (Ice1Definitions.MessageType)readBuffer[8];
-                        if (messageType != Ice1Definitions.MessageType.ValidateConnectionMessage)
+                        var messageType = (Ice1Definitions.FrameType)readBuffer[8];
+                        if (messageType != Ice1Definitions.FrameType.ValidateConnection)
                         {
                             throw new InvalidDataException(@$"received ice1 frame with message type `{messageType
                                 }' before receiving the validate connection message");
@@ -676,7 +674,7 @@ namespace Ice
                         throw _exception!;
                     }
 
-                    if (!_endpoint.IsDatagram) // Datagram connections are always implicitly validated.
+                    if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
                     {
                         if (_connector == null) // The server side has the active role for connection validation.
                         {
@@ -693,12 +691,12 @@ namespace Ice
                     if (_communicator.TraceLevels.Network >= 1)
                     {
                         var s = new StringBuilder();
-                        if (_endpoint.IsDatagram)
+                        if (Endpoint.IsDatagram)
                         {
                             s.Append("starting to ");
                             s.Append(_connector != null ? "send" : "receive");
                             s.Append(" ");
-                            s.Append(_endpoint.Name);
+                            s.Append(Endpoint.Name);
                             s.Append(" messages\n");
                             s.Append(_transceiver.ToDetailedString());
                         }
@@ -706,7 +704,7 @@ namespace Ice
                         {
                             s.Append(_connector != null ? "established" : "accepted");
                             s.Append(" ");
-                            s.Append(_endpoint.Name);
+                            s.Append(Endpoint.Name);
                             s.Append(" connection\n");
                             s.Append(ToString());
                         }
@@ -741,18 +739,18 @@ namespace Ice
             // Helper to await task with timeout
             static async ValueTask AwaitWithTimeout(Task task, int timeout)
             {
-                if (timeout < 0)
+                if (timeout < 0 || task.IsCompleted)
                 {
                     await task.ConfigureAwait(false);
                 }
                 else
                 {
                     var cancelTimeout = new CancellationTokenSource();
-                    var t = await Task.WhenAny(Task.Delay(timeout, cancelTimeout.Token), task).ConfigureAwait(false);
-                    if (t == task)
+                    if (await Task.WhenAny(Task.Delay(timeout, cancelTimeout.Token), task).ConfigureAwait(false) ==
+                        task)
                     {
                         cancelTimeout.Cancel();
-                        await t.ConfigureAwait(false); // Unwrap the exception if it failed
+                        await task.ConfigureAwait(false); // Unwrap the exception if it failed
                     }
                     else
                     {
@@ -771,7 +769,7 @@ namespace Ice
                     return;
                 }
 
-                _observer = _communicator.Observer?.GetConnectionObserver(InitConnectionInfo(), _endpoint,
+                _observer = _communicator.Observer?.GetConnectionObserver(InitConnectionInfo(), Endpoint,
                     _connectionStateMap[(int)_state], _observer);
                 if (_observer != null)
                 {
@@ -860,7 +858,7 @@ namespace Ice
             }
             for (ConnectionInfo? info = _info; info != null; info = info.Underlying)
             {
-                info.ConnectionId = _endpoint.ConnectionId;
+                info.ConnectionId = Endpoint.ConnectionId;
                 info.AdapterName = _adapter != null ? _adapter.Name : "";
                 info.Incoming = _connector == null;
             }
@@ -871,7 +869,7 @@ namespace Ice
         {
             Debug.Assert(_state == State.Closing && _dispatchCount == 0);
 
-            if (!_endpoint.IsDatagram)
+            if (!Endpoint.IsDatagram)
             {
                 // Before we shut down, we send a close connection message.
                 Send(new OutgoingMessage(_closeConnectionMessage, false));
@@ -972,7 +970,7 @@ namespace Ice
         {
             // Read header
             ArraySegment<byte> readBuffer;
-            if (_endpoint.IsDatagram)
+            if (Endpoint.IsDatagram)
             {
                 readBuffer = await _transceiver.ReadAsync().ConfigureAwait(false);
             }
@@ -1020,7 +1018,7 @@ namespace Ice
             }
 
             // Read the remainder of the message if needed
-            if (!_endpoint.IsDatagram)
+            if (!Endpoint.IsDatagram)
             {
                 if (size > readBuffer.Array!.Length)
                 {
@@ -1078,7 +1076,7 @@ namespace Ice
                 }
 
                 // The magic and version fields have already been checked.
-                var messageType = (Ice1Definitions.MessageType)readBuffer[8];
+                var messageType = (Ice1Definitions.FrameType)readBuffer[8];
                 byte compressionStatus = readBuffer[9];
                 if (compressionStatus == 2)
                 {
@@ -1094,10 +1092,10 @@ namespace Ice
 
                 switch (messageType)
                 {
-                    case Ice1Definitions.MessageType.CloseConnectionMessage:
+                    case Ice1Definitions.FrameType.CloseConnection:
                     {
                         TraceUtil.TraceRecv(_communicator, readBuffer);
-                        if (_endpoint.IsDatagram)
+                        if (Endpoint.IsDatagram)
                         {
                             if (_warn)
                             {
@@ -1113,7 +1111,7 @@ namespace Ice
                         break;
                     }
 
-                    case Ice1Definitions.MessageType.RequestMessage:
+                    case Ice1Definitions.FrameType.Request:
                     {
                         if (_state >= State.Closing)
                         {
@@ -1142,7 +1140,7 @@ namespace Ice
                         break;
                     }
 
-                    case Ice1Definitions.MessageType.RequestBatchMessage:
+                    case Ice1Definitions.FrameType.RequestBatch:
                     {
                         if (_state >= State.Closing)
                         {
@@ -1163,7 +1161,7 @@ namespace Ice
                         break;
                     }
 
-                    case Ice1Definitions.MessageType.ReplyMessage:
+                    case Ice1Definitions.FrameType.Reply:
                     {
                         TraceUtil.TraceRecv(_communicator, readBuffer);
                         readBuffer = readBuffer.Slice(Ice1Definitions.HeaderSize);
@@ -1185,7 +1183,7 @@ namespace Ice
                         break;
                     }
 
-                    case Ice1Definitions.MessageType.ValidateConnectionMessage:
+                    case Ice1Definitions.FrameType.ValidateConnection:
                     {
                         TraceUtil.TraceRecv(_communicator, readBuffer);
                         if (_heartbeatCallback != null)
@@ -1226,7 +1224,7 @@ namespace Ice
             // when the connection is closed.
             while (true)
             {
-                var (incoming, adapter) = await ReadIncomingAsync().ConfigureAwait(false);
+                (Func<ValueTask>? incoming, ObjectAdapter? adapter) = await ReadIncomingAsync().ConfigureAwait(false);
                 if (incoming != null)
                 {
                     if (adapter != null && adapter.SerializeDispatch)
@@ -1267,11 +1265,11 @@ namespace Ice
                 }
             }
 
-            static async ValueTask TaskRun(Func<ValueTask> func, TaskScheduler? scheduler)
+            static async ValueTask TaskRun(Func<ValueTask> func, TaskScheduler scheduler)
             {
                 // First await for the dispach async to be ran on the task scheduler.
                 ValueTask task = await Task.Factory.StartNew(func, default, TaskCreationOptions.None,
-                    scheduler ?? TaskScheduler.Default).ConfigureAwait(false);
+                    scheduler).ConfigureAwait(false);
 
                 // Now wait for the async dispatch to complete.
                 await task.ConfigureAwait(false);
@@ -1303,7 +1301,7 @@ namespace Ice
                 // closure. If a connection is forcefully closed while a Write task is running,
                 // we want to make sure the Write returns before notifying the outgoing requests
                 // of the failure. Notifying the requests before the write returns could break
-                // at most once semantics if for example the Write completed bu the request got
+                // at most once semantics if for example the Write completed but the request got
                 // notified of the connection closure before.
                 ++_pendingIO;
             }
@@ -1425,7 +1423,7 @@ namespace Ice
         {
             // We don't want to send close connection messages if the endpoint only supports oneway transmission
             // from client to server.
-            if (_endpoint.IsDatagram && state == State.Closing)
+            if (Endpoint.IsDatagram && state == State.Closing)
             {
                 state = State.Closed;
             }
@@ -1482,7 +1480,7 @@ namespace Ice
                         {
                             var s = new StringBuilder();
                             s.Append("closed ");
-                            s.Append(_endpoint.Name);
+                            s.Append(Endpoint.Name);
                             s.Append(" connection\n");
                             s.Append(ToString());
 
@@ -1547,7 +1545,7 @@ namespace Ice
                 ConnectionState newState = _connectionStateMap[(int)state];
                 if (oldState != newState)
                 {
-                    _observer = _communicator.Observer!.GetConnectionObserver(InitConnectionInfo(), _endpoint,
+                    _observer = _communicator.Observer!.GetConnectionObserver(InitConnectionInfo(), Endpoint,
                         newState, _observer);
                     if (_observer != null)
                     {
@@ -1585,7 +1583,7 @@ namespace Ice
             // Wait for the pending IO operations to return to terminate the connection with the Finish
             // method and set its state to Finished. It's important in particular for messages being
             // written. We want to make sure WriteAsync returns and correctly reports the send status
-            // of the message being sent (it is has been sent it will be removed from the outgoing
+            // of the message being sent (if it has been sent it will be removed from the outgoing
             // message queue otherwise it's left in the message queue and the exception closure will be
             // reported by Finish).
             if (_state == State.Closed && _pendingIO == 0)
@@ -1608,7 +1606,7 @@ namespace Ice
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"received {length} bytes via {_endpoint.Name}\n{this}");
+                    $"received {length} bytes via {Endpoint.Name}\n{this}");
             }
 
             if (_observer != null && length > 0)
@@ -1622,7 +1620,7 @@ namespace Ice
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"sent {length} bytes via {_endpoint.Name}\n{this}");
+                    $"sent {length} bytes via {Endpoint.Name}\n{this}");
             }
 
             if (_observer != null && length > 0)

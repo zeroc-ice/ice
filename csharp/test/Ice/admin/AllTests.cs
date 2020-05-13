@@ -392,8 +392,8 @@ namespace Ice.admin
                 //
                 // Now, test RemoteLogger
                 //
-                ObjectAdapter adapter =
-                    communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost", true);
+                ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("RemoteLoggerAdapter",
+                    "tcp -h localhost", serializeDispatch: true);
 
                 var remoteLogger = new RemoteLogger();
 

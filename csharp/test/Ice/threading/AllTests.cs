@@ -17,7 +17,8 @@ namespace Ice.threading
     {
         private class Progress : IProgress<bool>
         {
-            public TaskScheduler Scheduler {
+            public TaskScheduler Scheduler
+            {
                 get
                 {
                     _event.WaitOne();

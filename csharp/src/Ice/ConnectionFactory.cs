@@ -1091,7 +1091,7 @@ namespace IceInternal
                             $"stopping to accept {_endpoint.Name} connections at {_acceptor}");
                     }
 
-                    _acceptor!.Close();
+                    _acceptor.Close();
                 }
 
                 foreach (Connection connection in _connections)

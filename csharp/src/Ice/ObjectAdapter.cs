@@ -32,7 +32,7 @@ namespace Ice
         /// <value>The object adapter's name.</value>
         public string Name { get; }
 
-        /// <summary>Indicates whether or not this object adapter serializes the dispatching of of requests received
+        /// <summary>Indicates whether or not this object adapter serializes the dispatching of requests received
         /// over the same connection.</summary>
         /// <value>The serialize dispatch value.</value>
         public bool SerializeDispatch { get; }
