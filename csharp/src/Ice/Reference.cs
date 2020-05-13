@@ -50,7 +50,6 @@ namespace Ice
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
-        private static readonly Random _rand = new Random(unchecked((int)DateTime.Now.Ticks));
         private readonly Connection? _fixedConnection;
         private int _hashCode = 0;
         private IRequestHandler? _requestHandler; // readonly when IsFixed is true
@@ -1536,31 +1535,7 @@ namespace Ice
             if (EndpointSelection == EndpointSelectionType.Random)
             {
                 // Shuffle the filtered endpoints using _rand
-                Endpoint[] array = filteredEndpoints.ToArray();
-                lock (_rand)
-                {
-                    for (int i = 0; i < array.Length - 1; ++i)
-                    {
-                        int r = _rand.Next(array.Length - i) + i;
-                        Debug.Assert(r >= i && r < array.Length);
-                        if (r != i)
-                        {
-                            Endpoint tmp = array[i];
-                            array[i] = array[r];
-                            array[r] = tmp;
-                        }
-                    }
-                }
-
-                if (!PreferNonSecure)
-                {
-                    // We're done
-                    return array;
-                }
-                else
-                {
-                    filteredEndpoints = array;
-                }
+                filteredEndpoints = filteredEndpoints.Shuffle();
             }
 
             if (PreferNonSecure)
