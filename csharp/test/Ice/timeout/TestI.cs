@@ -24,7 +24,7 @@ namespace Ice.timeout
     {
         public Controller(Communicator communicator)
         {
-            _adapter = communicator.CreateObjectAdapter("TestAdapter");
+            _adapter = communicator.CreateObjectAdapter("TestAdapter", serializeDispatch: true);
             _adapter.Add("timeout", new Timeout());
             _adapter.Activate();
         }
@@ -32,7 +32,7 @@ namespace Ice.timeout
         public void holdAdapter(int to, Current current)
         {
             _adapter.Destroy();
-            _adapter = _adapter.Communicator.CreateObjectAdapter("TestAdapter");
+            _adapter = _adapter.Communicator.CreateObjectAdapter("TestAdapter", serializeDispatch: true);
             _adapter.Add("timeout", new Timeout());
 
             if (to >= 0)

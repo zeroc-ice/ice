@@ -587,8 +587,6 @@ namespace controller
             _mainPage = mainPage;
             var initData = new InitializationData();
             initData.properties = Util.createProperties();
-            initData.properties.setProperty("Ice.ThreadPool.Client.SizeMax", "10");
-            initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             //initData.properties.setProperty("Ice.Trace.Network", "3");

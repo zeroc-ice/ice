@@ -31,7 +31,6 @@ namespace Ice.acm
             {
                 communicator.SetProperty($"{name}.ACM.Heartbeat", heartbeat.ToString());
             }
-            communicator.SetProperty($"{name}.ThreadPool.Size", "2");
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{transport} -h \"{host}\"");
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }

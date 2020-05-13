@@ -81,7 +81,7 @@ outfilters = [ lambda x: re.sub("-! .* warning: deprecated property: IceSSL.KeyF
 #
 # With UWP, we can't run this test with the UWP C++ server (used with tcp/ws)
 #
-options=lambda current: { "protocol": ["ssl", "wss"] } if current.config.uwp else {}
+options=lambda current: { "transport": ["ssl", "wss"] } if current.config.uwp else {}
 
 TestSuite(__name__, [
    ConfigurationTestCase(client=IceSSLConfigurationClient(outfilters=outfilters, args=['"{testdir}"']),

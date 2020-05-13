@@ -18,5 +18,5 @@ if Mapping.getByPath(__name__).hasSource("Ice/metrics", "collocated"):
     testcases += [ CollocatedTestCase(traceProps=traceProps) ]
 
 TestSuite(__name__, testcases,
-          options = { "ipv6" : [False], "compress": [False], "protocol" : ["tcp", "ssl"] },
+          options = { "ipv6" : [False], "compress": [False], "transport" : ["tcp", "ssl"] },
           multihost=False)

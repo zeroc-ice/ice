@@ -766,7 +766,7 @@ public class AllTests
             ObjectAdapter adapter = communicator.CreateObjectAdapter();
             IRelayPrx relay = adapter.AddWithUUID(new Relay(), IRelayPrx.Factory);
             adapter.Activate();
-            testPrx.GetConnection().SetAdapter(adapter);
+            testPrx.GetConnection().Adapter = adapter;
 
             try
             {

@@ -31,20 +31,20 @@ namespace Ice
         internal static readonly byte[] ProtocolBytes = new byte[] { 1, 0, 1, 0 };
 
         // The Ice protocol message types
-        internal enum MessageType : byte
+        internal enum FrameType : byte
         {
-            RequestMessage = 0,
-            RequestBatchMessage = 1,
-            ReplyMessage = 2,
-            ValidateConnectionMessage = 3,
-            CloseConnectionMessage = 4
+            Request = 0,
+            RequestBatch = 1,
+            Reply = 2,
+            ValidateConnection = 3,
+            CloseConnection = 4
         }
 
         internal static readonly byte[] RequestHeader = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte) MessageType.RequestMessage,
+            (byte) FrameType.Request,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
             0, 0, 0, 0 // Request ID (placeholder).
@@ -54,7 +54,7 @@ namespace Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte) MessageType.RequestBatchMessage,
+            (byte) FrameType.RequestBatch,
             0, // Compression status.
             0, 0, 0, 0, // Message size (placeholder).
             0, 0, 0, 0 // Number of requests in batch (placeholder).
@@ -64,7 +64,7 @@ namespace Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte) MessageType.ReplyMessage,
+            (byte) FrameType.Reply,
             0, // Compression status.
             0, 0, 0, 0 // Message size (placeholder).
         };
@@ -73,7 +73,7 @@ namespace Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte) MessageType.ValidateConnectionMessage,
+            (byte) FrameType.ValidateConnection,
             0, // Compression status.
             HeaderSize, 0, 0, 0 // Message size.
         };
@@ -82,7 +82,7 @@ namespace Ice
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
-            (byte) MessageType.CloseConnectionMessage,
+            (byte) FrameType.CloseConnection,
             0, // Compression status.
             HeaderSize, 0, 0, 0 // Message size.
         };

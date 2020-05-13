@@ -10,7 +10,7 @@ class Ice(Component):
 
     # Options for all transports (ran only with Ice client/server tests defined for cross testing)
     transportOptions = {
-        "protocol" : ["tcp", "ssl", "wss", "ws"],
+        "transport" : ["tcp", "ssl", "wss", "ws"],
         "compress" : [False, True],
         "ipv6" : [False, True],
         "serialize" : [False, True],
@@ -19,7 +19,7 @@ class Ice(Component):
 
     # Options for Ice tests, run tests with ssl and ws/ipv6/serial/mx/compress
     coreOptions = {
-        "protocol" : ["ssl", "ws"],
+        "transport" : ["ssl", "ws"],
         "compress" : [False, True],
         "ipv6" : [False, True],
         "serialize" : [False, True],
@@ -28,7 +28,7 @@ class Ice(Component):
 
     # Options for Ice services, run tests with ssl + mx
     serviceOptions = {
-        "protocol" : ["ssl"],
+        "transport" : ["ssl"],
         "compress" : [False],
         "ipv6" : [False],
         "serialize" : [False],

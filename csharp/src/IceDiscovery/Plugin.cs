@@ -114,18 +114,9 @@ namespace IceDiscovery
 
         public void Destroy()
         {
-            if (_multicastAdapter != null)
-            {
-                _multicastAdapter.Destroy();
-            }
-            if (_replyAdapter != null)
-            {
-                _replyAdapter.Destroy();
-            }
-            if (_locatorAdapter != null)
-            {
-                _locatorAdapter.Destroy();
-            }
+            _multicastAdapter?.Destroy();
+            _replyAdapter?.Destroy();
+            _locatorAdapter?.Destroy();
 
             if (IObjectPrx.Equals(_communicator.DefaultLocator, _locator))
             {

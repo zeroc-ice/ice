@@ -15,12 +15,6 @@ namespace Ice.ami
             properties["Ice.Warn.Connections"] = "0";
 
             //
-            // We use a client thread pool with more than one thread to test
-            // that task inlining works.
-            //
-            properties["Ice.ThreadPool.Client.Size"] = "5";
-
-            //
             // Limit the send buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.
             //

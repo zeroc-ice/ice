@@ -13,7 +13,7 @@ namespace IceInternal
     {
         IRequestHandler? Update(IRequestHandler previousHandler, IRequestHandler? newHandler);
 
-        int SendAsyncRequest(ProxyOutgoingAsyncBase @out);
+        void SendAsyncRequest(ProxyOutgoingAsyncBase @out);
 
         Ice.Connection? GetConnection();
     }
