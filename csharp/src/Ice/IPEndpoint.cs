@@ -190,8 +190,7 @@ namespace Ice
                                                               Port,
                                                               Instance.IPVersion,
                                                               EndpointSelectionType.Ordered,
-                                                              Instance.PreferIPv6,
-                                                              true);
+                                                              Instance.PreferIPv6);
 
             if (addresses.Count == 1)
             {
@@ -293,11 +292,14 @@ namespace Ice
                     throw new FormatException(
                         $"no argument provided for --sourceAddress option in endpoint `{endpointString}'");
                 }
-                SourceAddress = Network.GetNumericAddress(argument);
-                if (SourceAddress == null)
+                try
+                {
+                    SourceAddress = IPAddress.Parse(argument);
+                }
+                catch (Exception ex)
                 {
                     throw new FormatException(
-                        $"invalid IP address provided for --sourceAddress option in endpoint `{endpointString}'");
+                        $"invalid IP address provided for --sourceAddress option in endpoint `{endpointString}'", ex);
                 }
                 options.Remove("--sourceAddress");
             }

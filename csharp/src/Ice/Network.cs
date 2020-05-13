@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace IceInternal
 {
@@ -710,15 +710,20 @@ namespace IceInternal
                     return new IPEndPoint(IPAddress.Any, port);
                 }
             }
-            return GetAddresses(host, port, ipVersion, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
+            return GetAddresses(host, port, ipVersion, Ice.EndpointSelectionType.Ordered, preferIPv6)[0];
         }
 
-        public static List<IPEndPoint> GetAddresses(string host, int port, int ipVersion,
-                                                  Ice.EndpointSelectionType selType, bool preferIPv6, bool blocking)
+        public static IPEndPoint GetAddressForClient(string host, int port, int ipVersion, bool preferIPv6)
         {
-            var addresses = new List<IPEndPoint>();
+            return GetAddressesForClient(host, port, ipVersion, Ice.EndpointSelectionType.Random, preferIPv6)[0];
+        }
+
+        public static List<IPEndPoint> GetAddressesForClient(string host, int port, int ipVersion,
+            Ice.EndpointSelectionType selType, bool preferIPv6)
+        {
             if (host.Length == 0)
             {
+                var addresses = new List<IPEndPoint>();
                 foreach (IPAddress a in GetLoopbackAddresses(ipVersion))
                 {
                     addresses.Add(new IPEndPoint(a, port));
@@ -739,84 +744,82 @@ namespace IceInternal
                 return addresses;
             }
 
-            int retry = 5;
+            return GetAddresses(host, port, ipVersion, selType, preferIPv6);
+        }
 
-        repeatGetHostByName:
+        public static List<IPEndPoint> GetAddresses(string host, int port, int ipVersion,
+            Ice.EndpointSelectionType selType, bool preferIPv6)
+        {
             try
             {
-                //
-                // No need for lookup if host is ip address.
-                //
+                return GetAddressesAsync(host, port, ipVersion, selType, preferIPv6).Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException!;
+            }
+        }
+
+        public static async ValueTask<List<IPEndPoint>> GetAddressesAsync(string host, int port, int ipVersion,
+            Ice.EndpointSelectionType selType, bool preferIPv6)
+        {
+            Debug.Assert(host.Length > 0);
+            var addresses = new List<IPEndPoint>();
+
+            int retry = 5;
+            while (true)
+            {
                 try
                 {
-                    var addr = IPAddress.Parse(host);
-                    if ((addr.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
-                        (addr.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
+                    foreach (IPAddress a in await Dns.GetHostAddressesAsync(host).ConfigureAwait(false))
                     {
-                        addresses.Add(new IPEndPoint(addr, port));
-                        return addresses;
+                        if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
+                            (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
+                        {
+                            addresses.Add(new IPEndPoint(a, port));
+                        }
                     }
-                    else
+
+                    if (selType == Ice.EndpointSelectionType.Random)
                     {
-                        throw new Ice.DNSException(host);
+                        var rnd = new Random();
+                        addresses = addresses.OrderBy(x => (endpoint: rnd.Next(), i: x)).ToList();
+                    }
+
+                    if (ipVersion == EnableBoth)
+                    {
+                        if (preferIPv6)
+                        {
+                            addresses.OrderByDescending(addr => addr.AddressFamily).ToList();
+                        }
+                        else
+                        {
+                            addresses.OrderBy(addr => addr.AddressFamily).ToList();
+                        }
                     }
                 }
-                catch (FormatException)
+                catch (SocketException ex)
                 {
-                    if (!blocking)
+                    if (SocketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
                     {
-                        return addresses;
+                        continue;
                     }
+                    throw new Ice.DNSException(host, ex);
+                }
+                catch (Exception ex)
+                {
+                    throw new Ice.DNSException(host, ex);
                 }
 
-                foreach (IPAddress a in Dns.GetHostAddresses(host))
+                //
+                // No InterNetwork/InterNetworkV6 available.
+                //
+                if (addresses.Count == 0)
                 {
-                    if ((a.AddressFamily == AddressFamily.InterNetwork && ipVersion != EnableIPv6) ||
-                       (a.AddressFamily == AddressFamily.InterNetworkV6 && ipVersion != EnableIPv4))
-                    {
-                        addresses.Add(new IPEndPoint(a, port));
-                    }
+                    throw new Ice.DNSException(host);
                 }
-
-                if (selType == Ice.EndpointSelectionType.Random)
-                {
-                    var rnd = new Random();
-                    addresses = addresses.OrderBy(x => (endpoint: rnd.Next(), i: x)).ToList();
-                }
-
-                if (ipVersion == EnableBoth)
-                {
-                    if (preferIPv6)
-                    {
-                        addresses.OrderByDescending(addr => addr.AddressFamily).ToList();
-                    }
-                    else
-                    {
-                        addresses.OrderBy(addr => addr.AddressFamily).ToList();
-                    }
-                }
+                return addresses;
             }
-            catch (SocketException ex)
-            {
-                if (SocketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
-                {
-                    goto repeatGetHostByName;
-                }
-                throw new Ice.DNSException(host, ex);
-            }
-            catch (Exception ex)
-            {
-                throw new Ice.DNSException(host, ex);
-            }
-
-            //
-            // No InterNetwork/InterNetworkV6 available.
-            //
-            if (addresses.Count == 0)
-            {
-                throw new Ice.DNSException(host);
-            }
-            return addresses;
         }
 
         public static IPAddress[] GetLocalAddresses(int ipVersion, bool includeLoopback, bool singleAddressPerInterface)
@@ -1263,20 +1266,6 @@ namespace IceInternal
             }
 
             throw new ArgumentException("couldn't find interface `" + iface + "'");
-        }
-
-        public static IPAddress? GetNumericAddress(string sourceAddress)
-        {
-            if (!string.IsNullOrEmpty(sourceAddress))
-            {
-                List<IPEndPoint> addrs = GetAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered,
-                                                    false, false);
-                if (addrs.Count != 0)
-                {
-                    return addrs[0].Address;
-                }
-            }
-            return null;
         }
 
         private static bool

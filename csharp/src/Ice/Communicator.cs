@@ -429,11 +429,14 @@ namespace Ice
 
                 if (GetProperty("Ice.Default.SourceAddress") is string address)
                 {
-                    DefaultSourceAddress = Network.GetNumericAddress(address);
-                    if (DefaultSourceAddress == null)
+                    try
+                    {
+                        DefaultSourceAddress = IPAddress.Parse(address);
+                    }
+                    catch (FormatException ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"invalid IP address set for Ice.Default.SourceAddress: `{address}'");
+                            $"invalid IP address set for Ice.Default.SourceAddress: `{address}'", ex);
                     }
                 }
 

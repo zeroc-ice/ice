@@ -125,12 +125,7 @@ namespace IceInternal
         public INetworkProxy ResolveHost(int ipVersion)
         {
             Debug.Assert(_host != null);
-            return new SOCKSNetworkProxy(Network.GetAddresses(_host,
-                                                              _port,
-                                                              ipVersion,
-                                                              EndpointSelectionType.Random,
-                                                              false,
-                                                              true)[0]);
+            return new SOCKSNetworkProxy(Network.GetAddressForClient(_host, _port, ipVersion, false));
         }
 
         public EndPoint GetAddress()
@@ -230,13 +225,7 @@ namespace IceInternal
         public INetworkProxy ResolveHost(int ipVersion)
         {
             Debug.Assert(_host != null);
-            return new HTTPNetworkProxy(Network.GetAddresses(_host,
-                                                             _port,
-                                                             ipVersion,
-                                                             Ice.EndpointSelectionType.Random,
-                                                             false,
-                                                             true)[0],
-                                        ipVersion);
+            return new HTTPNetworkProxy(Network.GetAddressForClient(_host, _port, ipVersion, false), ipVersion);
         }
 
         public EndPoint GetAddress()

@@ -82,29 +82,6 @@ namespace Ice
         public void Resolve(string host, int port, EndpointSelectionType selType, IPEndpoint endpoint,
             IEndpointConnectors callback)
         {
-            //
-            // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
-            // entry and the thread will take care of getting the endpoint addresses.
-            //
-            INetworkProxy? networkProxy = NetworkProxy;
-            if (networkProxy == null)
-            {
-                try
-                {
-                    List<IPEndPoint> addrs = Network.GetAddresses(host, port, IPVersion, selType, PreferIPv6, false);
-                    if (addrs.Count > 0)
-                    {
-                        callback.Connectors(endpoint.Connectors(addrs, null));
-                        return;
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    callback.Exception(ex);
-                    return;
-                }
-            }
-
             lock (_endpointHostResolverThread)
             {
                 Debug.Assert(!_endpointHostResolverDestroyed);
@@ -170,7 +147,7 @@ namespace Ice
                     }
 
                     List<IPEndPoint> addrs = Network.GetAddresses(r.Host, r.Port, ipVersion, r.SelType,
-                        PreferIPv6, true);
+                        PreferIPv6);
                     if (r.Observer != null)
                     {
                         r.Observer.Detach();
