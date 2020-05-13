@@ -12,8 +12,6 @@ namespace Ice.proxy
         public override void Run(string[] args)
         {
             var properties = CreateTestProperties(ref args);
-            properties["Ice.ThreadPool.Client.Size"] = "2"; // For nested AMI.
-            properties["Ice.ThreadPool.Client.SizeWarn"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
 
             using var communicator = Initialize(properties);

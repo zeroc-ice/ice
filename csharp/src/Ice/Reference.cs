@@ -50,8 +50,6 @@ namespace Ice
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
         internal RouterInfo? RouterInfo { get; }
-        internal ThreadPool ThreadPool => IsFixed ? _fixedConnection!.ThreadPool : Communicator.ClientThreadPool();
-
         private static readonly Random _rand = new Random(unchecked((int)DateTime.Now.Ticks));
         private readonly Connection? _fixedConnection;
         private int _hashCode = 0;
@@ -1730,7 +1728,7 @@ namespace Ice
                 //
                 if (_rr.RouterInfo != null && _rr.RouterInfo.Adapter != null)
                 {
-                    connection.SetAdapter(_rr.RouterInfo.Adapter);
+                    connection.Adapter = _rr.RouterInfo.Adapter;
                 }
                 _callback.SetConnection(connection, compress);
             }

@@ -21,7 +21,6 @@ public class Server : TestHelper
 
         communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num));
         communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
-        communicator.SetProperty("ControlAdapter.ThreadPool.Size", "1");
 
         Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
         adapter.Add($"controller{num}", new Controller());

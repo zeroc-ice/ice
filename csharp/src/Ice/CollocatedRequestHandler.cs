@@ -3,6 +3,7 @@
 //
 
 using Ice;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -16,18 +17,15 @@ namespace IceInternal
         {
             _reference = @ref;
             _adapter = adapter;
-
-            _logger = _reference.Communicator.Logger; // Cached for better performance.
-            _traceLevels = _reference.Communicator.TraceLevels; // Cached for better performance.
             _requestId = 0;
         }
 
         public IRequestHandler? Update(IRequestHandler previousHandler, IRequestHandler? newHandler) =>
             previousHandler == this ? newHandler : this;
 
-        public int SendAsyncRequest(ProxyOutgoingAsyncBase outAsync) => outAsync.InvokeCollocated(this);
+        public void SendAsyncRequest(ProxyOutgoingAsyncBase outAsync) => outAsync.InvokeCollocated(this);
 
-        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, System.Exception ex)
+        public void AsyncRequestCanceled(OutgoingAsyncBase outAsync, Exception ex)
         {
             lock (this)
             {
@@ -40,7 +38,7 @@ namespace IceInternal
                     _sendAsyncRequests.Remove(outAsync);
                     if (outAsync.Exception(ex))
                     {
-                        outAsync.InvokeExceptionAsync();
+                        Task.Run(outAsync.InvokeException);
                     }
                     _adapter.DecDirectCount(); // invokeAll won't be called, decrease the direct count.
                     return;
@@ -55,7 +53,7 @@ namespace IceInternal
                             _asyncRequests.Remove(e.Key);
                             if (outAsync.Exception(ex))
                             {
-                                outAsync.InvokeExceptionAsync();
+                                Task.Run(outAsync.InvokeException);
                             }
                             return;
                         }
@@ -66,7 +64,7 @@ namespace IceInternal
 
         public Connection? GetConnection() => null;
 
-        public int InvokeAsyncRequest(ProxyOutgoingAsyncBase outAsync, bool synchronous)
+        public void InvokeAsyncRequest(ProxyOutgoingAsyncBase outAsync, bool synchronous)
         {
             //
             // Increase the direct count to prevent the thread pool from being destroyed before
@@ -90,18 +88,19 @@ namespace IceInternal
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 _adapter.DecDirectCount();
                 throw;
             }
 
             outAsync.AttachCollocatedObserver(_adapter, requestId, outAsync.RequestFrame.Size);
-            if (!synchronous || outAsync.IsOneway || _reference.InvocationTimeout > 0)
+            if (_adapter.TaskScheduler != null || !synchronous || outAsync.IsOneway || _reference.InvocationTimeout > 0)
             {
-                // Don't invoke from the user thread if async or invocation timeout is set
-                // TODO: why is oneway included in this list?
-                _adapter.ThreadPool.Dispatch(
+                // Don't invoke from the user thread if async or invocation timeout is set. We also don't dispatch
+                // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
+                // request returns as soon as it's sent over the transport.
+                Task.Factory.StartNew(
                     () =>
                     {
                         if (SentAsync(outAsync))
@@ -109,7 +108,7 @@ namespace IceInternal
                             ValueTask vt = InvokeAllAsync(outAsync.RequestFrame, requestId);
                             // TODO: do something with the value task
                         }
-                    });
+                    }, default, TaskCreationOptions.None, _adapter.TaskScheduler ?? TaskScheduler.Default);
             }
             else // Optimization: directly call invokeAll
             {
@@ -120,7 +119,6 @@ namespace IceInternal
                     // TODO: do something with the value task
                 }
             }
-            return OutgoingAsyncBase.AsyncStatusQueued;
         }
 
         private bool SentAsync(OutgoingAsyncBase outAsync)
@@ -137,7 +135,8 @@ namespace IceInternal
                     return true;
                 }
             }
-            outAsync.InvokeSent();
+            // The progress callback is always called from the default task scheduler
+            Task.Run(outAsync.InvokeSent);
             return true;
         }
 
@@ -149,13 +148,11 @@ namespace IceInternal
             Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
             try
             {
-                if (_traceLevels.Protocol >= 1)
+                if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
                     // TODO we need a better API for tracing
-                    List<System.ArraySegment<byte>> requestData =
-                        Ice1Definitions.GetRequestData(outgoingRequest, requestId);
-                    TraceUtil.TraceSend(_adapter.Communicator, VectoredBufferExtensions.ToArray(requestData), _logger,
-                        _traceLevels);
+                    List<ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequest, requestId);
+                    TraceUtil.TraceSend(_adapter.Communicator, requestData);
                 }
 
                 var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
@@ -169,27 +166,24 @@ namespace IceInternal
                     dispatchObserver?.Attach();
                 }
 
-                bool amd = true;
                 try
                 {
                     IObject? servant = current.Adapter.Find(current.Identity, current.Facet);
 
                     if (servant == null)
                     {
-                        amd = false;
                         throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
-                    amd = !vt.IsCompleted;
                     if (requestId != 0)
                     {
                         OutgoingResponseFrame response = await vt.ConfigureAwait(false);
                         dispatchObserver?.Reply(response.Size);
-                        SendResponse(requestId, response, amd);
+                        SendResponse(requestId, response);
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     if (requestId != 0)
                     {
@@ -206,13 +200,13 @@ namespace IceInternal
                         Incoming.ReportException(actualEx, dispatchObserver, current);
                         var response = new OutgoingResponseFrame(current, actualEx);
                         dispatchObserver?.Reply(response.Size);
-                        SendResponse(requestId, response, amd);
+                        SendResponse(requestId, response);
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                HandleException(requestId, ex, false);
+                HandleException(requestId, ex);
             }
             finally
             {
@@ -221,23 +215,21 @@ namespace IceInternal
             }
         }
 
-        private void SendResponse(int requestId, OutgoingResponseFrame responseFrame, bool amd)
+        private void SendResponse(int requestId, OutgoingResponseFrame responseFrame)
         {
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
-                byte[] responseBuffer = VectoredBufferExtensions.ToArray(
-                        Ice1Definitions.GetResponseData(responseFrame, requestId));
-                if (_traceLevels.Protocol >= 1)
+                var responseBuffer = new ArraySegment<byte>(VectoredBufferExtensions.ToArray(
+                        Ice1Definitions.GetResponseData(responseFrame, requestId)));
+                if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    var istr = new InputStream(_adapter.Communicator, Ice1Definitions.Encoding, responseBuffer,
-                        Ice1Definitions.HeaderSize + 4);
-                    TraceUtil.TraceRecv(istr, _logger, _traceLevels);
+                    TraceUtil.TraceRecv(_adapter.Communicator, responseBuffer);
                 }
-
+                responseBuffer = responseBuffer.Slice(Ice1Definitions.HeaderSize + 4);
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    if (!outAsync.Response(responseBuffer))
+                    if (!outAsync.Response(new IncomingResponseFrame(_adapter.Communicator, responseBuffer)))
                     {
                         outAsync = null;
                     }
@@ -247,18 +239,11 @@ namespace IceInternal
 
             if (outAsync != null)
             {
-                if (amd)
-                {
-                    outAsync.InvokeResponseAsync();
-                }
-                else
-                {
-                    outAsync.InvokeResponse();
-                }
+                outAsync.InvokeResponse();
             }
         }
 
-        private void HandleException(int requestId, System.Exception ex, bool amd)
+        private void HandleException(int requestId, Exception ex)
         {
             if (requestId == 0)
             {
@@ -280,30 +265,13 @@ namespace IceInternal
 
             if (outAsync != null)
             {
-                //
-                // If called from an AMD dispatch, invoke asynchronously
-                // the completion callback since this might be called from
-                // the user code.
-                //
-                if (amd)
-                {
-                    outAsync.InvokeExceptionAsync();
-                }
-                else
-                {
-                    outAsync.InvokeException();
-                }
+                outAsync.InvokeException();
             }
         }
 
         private readonly Reference _reference;
-
         private readonly Ice.ObjectAdapter _adapter;
-        private readonly Ice.ILogger _logger;
-        private readonly TraceLevels _traceLevels;
-
         private int _requestId;
-
         private readonly Dictionary<OutgoingAsyncBase, int> _sendAsyncRequests = new Dictionary<OutgoingAsyncBase, int>();
         private readonly Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();
     }
