@@ -58,10 +58,15 @@ protected:
     enum ParamDir { InParam, OutParam };
     void writeParamDocComment(const OperationPtr&, const CommentInfo&, ParamDir);
 
-    void moduleStart(const ModulePtr&);
-    void moduleEnd(const ModulePtr&);
+    void openNamespace(const ModulePtr&);
+    void closeNamespace();
 
     ::IceUtilInternal::Output& _out;
+
+private:
+
+    // Empty means we opened the namespace (and need to close it), non-empty means a saved enclosing namespace.
+    std::stack<std::string> _namespaceStack;
 };
 
 class Gen : private ::IceUtil::noncopyable

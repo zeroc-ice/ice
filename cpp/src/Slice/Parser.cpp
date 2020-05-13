@@ -3286,6 +3286,19 @@ Slice::Module::Module(const ContainerPtr& container, const string& name) :
 {
 }
 
+bool
+Slice::Module::hasOnlySubModules() const
+{
+    for (const auto& contained: _contents)
+    {
+        if (!ModulePtr::dynamicCast(contained))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 // ----------------------------------------------------------------------
 // Constructed
 // ----------------------------------------------------------------------
