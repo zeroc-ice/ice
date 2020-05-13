@@ -6,9 +6,7 @@
 
 #include <SingleModuleWithPackage.ice>
 
-module M
-{
-module N
+module M::N
 {
 
 const smwpEnum smwpTest10Constant = smwpE1;
@@ -73,5 +71,4 @@ class smwpTest10Class : smwpBaseClass implements smwpBaseInterface
         throws smwpException;
 }
 
-}
 }

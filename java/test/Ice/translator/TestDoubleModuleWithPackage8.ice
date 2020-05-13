@@ -6,9 +6,7 @@
 
 #include <DoubleModuleWithPackage.ice>
 
-module T1
-{
-module T2
+module T1::T2
 {
 
 const ::M1::M2::dmwpEnum dmwpTest8Constant = ::M1::M2::dmwpE1;
@@ -73,5 +71,4 @@ class dmwpTest8Class : ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInte
         throws ::M1::M2::dmwpException;
 }
 
-}
 }

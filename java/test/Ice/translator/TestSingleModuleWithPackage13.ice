@@ -8,9 +8,7 @@
 
 [[java:package:smwp]]
 
-module M
-{
-module N
+module M::N
 {
 
 const smwpEnum smwpTest13Constant = smwpE1;
@@ -75,5 +73,4 @@ class smwpTest13Class : smwpBaseClass implements smwpBaseInterface
         throws smwpException;
 }
 
-}
 }

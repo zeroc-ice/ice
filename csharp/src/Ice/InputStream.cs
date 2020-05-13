@@ -29,56 +29,104 @@ namespace Ice
         //
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<bool> IceReaderIntoBool = (istr) => istr.ReadBool();
+        public static readonly InputStreamReader<bool> IceReaderIntoBool =
+            istr => istr.ReadBool();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<bool[]> IceReaderIntoBoolArray =
-            (istr) => istr.ReadFixedSizeNumericArray<bool>();
+            istr => istr.ReadFixedSizeNumericArray<bool>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<byte> IceReaderIntoByte = (istr) => istr.ReadByte();
+        public static readonly InputStreamReader<byte> IceReaderIntoByte =
+            istr => istr.ReadByte();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<byte[]> IceReaderIntoByteArray =
-            (istr) => istr.ReadFixedSizeNumericArray<byte>();
+            istr => istr.ReadFixedSizeNumericArray<byte>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<double> IceReaderIntoDouble = (istr) => istr.ReadDouble();
+        public static readonly InputStreamReader<double> IceReaderIntoDouble =
+            istr => istr.ReadDouble();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<double[]> IceReaderIntoDoubleArray =
-            (istr) => istr.ReadFixedSizeNumericArray<double>();
+            istr => istr.ReadFixedSizeNumericArray<double>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<float> IceReaderIntoFloat = (istr) => istr.ReadFloat();
+        public static readonly InputStreamReader<float> IceReaderIntoFloat =
+            istr => istr.ReadFloat();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<float[]> IceReaderIntoFloatArray =
-            (istr) => istr.ReadFixedSizeNumericArray<float>();
+            istr => istr.ReadFixedSizeNumericArray<float>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<int> IceReaderIntoInt = (istr) => istr.ReadInt();
+        public static readonly InputStreamReader<int> IceReaderIntoInt =
+            istr => istr.ReadInt();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int[]> IceReaderIntoIntArray =
-            (istr) => istr.ReadFixedSizeNumericArray<int>();
+            istr => istr.ReadFixedSizeNumericArray<int>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<long> IceReaderIntoLong = (istr) => istr.ReadLong();
+        public static readonly InputStreamReader<long> IceReaderIntoLong =
+            istr => istr.ReadLong();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<long[]> IceReaderIntoLongArray =
-            (istr) => istr.ReadFixedSizeNumericArray<long>();
+            istr => istr.ReadFixedSizeNumericArray<long>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<short> IceReaderIntoShort = (istr) => istr.ReadShort();
+        public static readonly InputStreamReader<short> IceReaderIntoShort =
+            istr => istr.ReadShort();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<short[]> IceReaderIntoShortArray =
-            (istr) => istr.ReadFixedSizeNumericArray<short>();
+            istr => istr.ReadFixedSizeNumericArray<short>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<string> IceReaderIntoString = (istr) => istr.ReadString();
+        public static readonly InputStreamReader<string> IceReaderIntoString =
+            istr => istr.ReadString();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<uint> IceReaderIntoUInt =
+            istr => istr.ReadUInt();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<uint[]> IceReaderIntoUIntArray =
+            istr => istr.ReadFixedSizeNumericArray<uint>();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<ulong> IceReaderIntoULong =
+            istr => istr.ReadULong();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<ulong[]> IceReaderIntoULongArray =
+            istr => istr.ReadFixedSizeNumericArray<ulong>();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<ushort> IceReaderIntoUShort =
+            istr => istr.ReadUShort();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<ushort[]> IceReaderIntoUShortArray =
+            istr => istr.ReadFixedSizeNumericArray<ushort>();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<int> IceReaderIntoVarInt =
+            istr => istr.ReadVarInt();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<long> IceReaderIntoVarLong =
+            istr => istr.ReadVarLong();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<uint> IceReaderIntoVarUInt =
+            istr => istr.ReadVarUInt();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<ulong> IceReaderIntoVarULong =
+            istr => istr.ReadVarULong();
 
         /// <summary>The communicator associated with this stream.</summary>
         /// <value>The communicator.</value>
@@ -107,6 +155,8 @@ namespace Ice
 
         // True when reading a top-level encapsulation; otherwise, false.
         private bool InEncapsulation { get; }
+
+        private bool OldEncoding => Encoding == Encoding.V1_1;
 
         // The byte buffer we are reading.
         private ArraySegment<byte> _buffer;
@@ -157,7 +207,6 @@ namespace Ice
         /// <returns>The double read from the stream.</returns>
         public double ReadDouble()
         {
-            Debug.Assert(_buffer.Array != null);
             double value = BitConverter.ToDouble(_buffer.AsSpan(_pos, sizeof(double)));
             _pos += sizeof(double);
             return value;
@@ -167,7 +216,6 @@ namespace Ice
         /// <returns>The float read from the stream.</returns>
         public float ReadFloat()
         {
-            Debug.Assert(_buffer.Array != null);
             float value = BitConverter.ToSingle(_buffer.AsSpan(_pos, sizeof(float)));
             _pos += sizeof(float);
             return value;
@@ -177,7 +225,6 @@ namespace Ice
         /// <returns>The int read from the stream.</returns>
         public int ReadInt()
         {
-            Debug.Assert(_buffer.Array != null);
             int value = BitConverter.ToInt32(_buffer.AsSpan(_pos, sizeof(int)));
             _pos += sizeof(int);
             return value;
@@ -187,7 +234,6 @@ namespace Ice
         /// <returns>The long read from the stream.</returns>
         public long ReadLong()
         {
-            Debug.Assert(_buffer.Array != null);
             long value = BitConverter.ToInt64(_buffer.AsSpan(_pos, sizeof(long)));
             _pos += sizeof(long);
             return value;
@@ -197,7 +243,6 @@ namespace Ice
         /// <returns>The short read from the stream.</returns>
         public short ReadShort()
         {
-            Debug.Assert(_buffer.Array != null);
             short value = BitConverter.ToInt16(_buffer.AsSpan(_pos, sizeof(short)));
             _pos += sizeof(short);
             return value;
@@ -216,6 +261,87 @@ namespace Ice
             _pos += size;
             return value;
         }
+
+        /// <summary>Reads a uint from the stream.</summary>
+        /// <returns>The uint read from the stream.</returns>
+        public uint ReadUInt()
+        {
+            uint value = BitConverter.ToUInt32(_buffer.AsSpan(_pos, sizeof(uint)));
+            _pos += sizeof(uint);
+            return value;
+        }
+
+        /// <summary>Reads a ulong from the stream.</summary>
+        /// <returns>The ulong read from the stream.</returns>
+        public ulong ReadULong()
+        {
+            ulong value = BitConverter.ToUInt64(_buffer.AsSpan(_pos, sizeof(ulong)));
+            _pos += sizeof(ulong);
+            return value;
+        }
+
+        /// <summary>Reads a ushort from the stream.</summary>
+        /// <returns>The ushort read from the stream.</returns>
+        public ushort ReadUShort()
+        {
+            ushort value = BitConverter.ToUInt16(_buffer.AsSpan(_pos, sizeof(ushort)));
+            _pos += sizeof(ushort);
+            return value;
+        }
+
+        /// <summary>Reads an int from the stream. This int is encoded using Ice's variable-length integer encoding.
+        /// </summary>
+        /// <returns>The int read from the stream.</returns>
+        public int ReadVarInt()
+        {
+            try
+            {
+                return (int)ReadVarLong();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException("varint value is out of range", ex);
+            }
+        }
+
+        /// <summary>Reads a long from the stream. This long is encoded using Ice's variable-length integer encoding.
+        /// </summary>
+        /// <returns>The long read from the stream.</returns>
+        public long ReadVarLong() => OldEncoding ? ReadLong() :
+            (_buffer[_pos] & 0x03) switch
+            {
+                0 => (sbyte)ReadByte() >> 2,
+                1 => ReadShort() >> 2,
+                2 => ReadInt() >> 2,
+                _ => ReadLong() >> 2
+            };
+
+        /// <summary>Reads a uint from the stream. This uint is encoded using Ice's variable-length integer encoding.
+        /// </summary>
+        /// <returns>The uint read from the stream.</returns>
+        public uint ReadVarUInt()
+        {
+            try
+            {
+                return (uint)ReadVarULong();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException("varuint value is out of range", ex);
+            }
+        }
+
+        /// <summary>Reads a ulong from the stream. This ulong is encoded using Ice's variable-length integer encoding.
+        /// </summary>
+        /// <returns>The ulong read from the stream.</returns>
+        public ulong ReadVarULong() => OldEncoding ? ReadULong() :
+            (_buffer[_pos] & 0x03) switch
+            {
+                0 => (uint)ReadByte() >> 2,   // cast to uint to use operator >> for uint instead of int, which is
+                1 => (uint)ReadUShort() >> 2, // later implicitly converted to ulong
+                2 => ReadUInt() >> 2,
+                _ => ReadULong() >> 2
+            };
 
         //
         // Read methods for constructed types except class and exception
@@ -642,23 +768,25 @@ namespace Ice
 
         /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
+        /// <param name="encoding">The encoding of the buffer.</param>
         /// <param name="buffer">The byte buffer.</param>
-        internal static void ReadEmptyEncapsulation(Communicator communicator, ArraySegment<byte> buffer)
+        internal static void ReadEmptyEncapsulation(
+            Communicator communicator, Encoding encoding, ArraySegment<byte> buffer)
         {
-            var istr = new InputStream(communicator, buffer, startEncaps: true, 0);
+            var istr = new InputStream(communicator, encoding, buffer, startEncaps: true, 0);
             istr.SkipTaggedParams();
             istr.CheckEndOfBuffer();
         }
 
         /// <summary>Reads the contents of an encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
+        /// <param name="encoding">The encoding of the buffer.</param>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="payloadReader">The reader used to read the payload of this encapsulation.</param>
-        internal static T ReadEncapsulation<T>(Communicator communicator,
-                                               ArraySegment<byte> buffer,
-                                               InputStreamReader<T> payloadReader)
+        internal static T ReadEncapsulation<T>(
+            Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, InputStreamReader<T> payloadReader)
         {
-            var istr = new InputStream(communicator, buffer, startEncaps: true, 0);
+            var istr = new InputStream(communicator, encoding, buffer, startEncaps: true, 0);
             T result = payloadReader(istr);
             istr.SkipTaggedParams();
             istr.CheckEndOfBuffer();
@@ -669,9 +797,9 @@ namespace Ice
         internal static long ReadLong(ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
 
-        internal static string ReadString(ArraySegment<byte> buffer, Encoding encoding)
+        internal static string ReadString(Encoding encoding, ArraySegment<byte> buffer)
         {
-            int size = ReadSize(buffer, encoding);
+            int size = ReadSize(encoding, buffer);
             if (size == 0)
             {
                 return "";
@@ -684,10 +812,11 @@ namespace Ice
 
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
+        /// <param name="encoding">The encoding of the buffer.</param>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="pos">The initial position in the buffer.</param>
-        internal InputStream(Communicator communicator, ArraySegment<byte> buffer, int pos = 0)
-            : this(communicator, buffer, false, pos)
+        internal InputStream(Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, int pos = 0)
+            : this(communicator, encoding, buffer, false, pos)
         {
             // TODO: pos should always be 0 and buffer should be a slice as needed.
             // Currently this does not work because of the tracing code that resets Pos to 0 to read the protocol frame
@@ -698,7 +827,7 @@ namespace Ice
         /// <returns>The encapsulation header read from the stream.</returns>
         internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
         {
-            (Encoding Encoding, int Size) result = ReadEncapsulationHeader(_buffer.Slice(_pos), Encoding);
+            (Encoding Encoding, int Size) result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
             _pos += 6;
             return result;
         }
@@ -784,10 +913,10 @@ namespace Ice
             return encoding;
         }
 
-        private static (Encoding Encoding, int Size) ReadEncapsulationHeader(ReadOnlySpan<byte> buffer,
-                                                                             Encoding encoding)
+        private static (Encoding Encoding, int Size) ReadEncapsulationHeader(
+            Encoding encoding, ReadOnlySpan<byte> buffer)
         {
-            Debug.Assert(encoding == Encoding.V1_1); // temporary
+            Debug.Assert(encoding == Encoding.V1_1 || encoding == Encoding.V2_0); // for now, only endpoints use 2.0
 
             // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and not on a variable-length
             // size, for ease of marshaling.
@@ -807,9 +936,9 @@ namespace Ice
             return (new Encoding(buffer[4], buffer[5]), size);
         }
 
-        private static int ReadSize(ArraySegment<byte> buffer, Encoding encoding)
+        private static int ReadSize(Encoding encoding, ArraySegment<byte> buffer)
         {
-            Debug.Assert(encoding == Encoding.V1_1);
+            Debug.Assert(encoding == Encoding.V1_1 || encoding == Encoding.V2_0); // to silence warning
 
             byte b = buffer[0];
             if (b < 255)
@@ -825,7 +954,8 @@ namespace Ice
             return size;
         }
 
-        private InputStream(Communicator communicator, ArraySegment<byte> buffer, bool startEncaps, int pos)
+        private InputStream(
+            Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, bool startEncaps, int pos)
         {
             Debug.Assert(pos == 0 || !startEncaps); // while pos is still there, it's 0 when startEncaps is true
             Communicator = communicator;
@@ -834,7 +964,7 @@ namespace Ice
             {
                 _pos = 0;
                 int size;
-                (Encoding, size) = ReadEncapsulationHeader(buffer, Encoding.V1_1);
+                (Encoding, size) = ReadEncapsulationHeader(encoding, buffer);
                 Encoding.CheckSupported();
                 // We slice the provided buffer to the encapsulation (minus its header). This way, we can easily prevent
                 // reads past the end of the encapsulation.
@@ -845,7 +975,7 @@ namespace Ice
             {
                 _buffer = buffer;
                 _pos = pos;
-                Encoding = Encoding.V1_1;
+                Encoding = encoding;
                 InEncapsulation = false;
             }
         }

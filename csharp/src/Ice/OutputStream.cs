@@ -60,57 +60,11 @@ namespace Ice
         //
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<bool> IceWriterFromBool = (ostr, value) => ostr.WriteBool(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<byte> IceWriterFromByte = (ostr, value) => ostr.WriteByte(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<short> IceWriterFromShort = (ostr, value) => ostr.WriteShort(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<int> IceWriterFromInt = (ostr, value) => ostr.WriteInt(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<long> IceWriterFromLong = (ostr, value) => ostr.WriteLong(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<float> IceWriterFromFloat = (ostr, value) => ostr.WriteFloat(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<double> IceWriterFromDouble =
-            (ostr, value) => ostr.WriteDouble(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<string> IceWriterFromString =
-            (ostr, value) => ostr.WriteString(value);
+        public static readonly OutputStreamWriter<bool> IceWriterFromBool =
+            (ostr, value) => ostr.WriteBool(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<bool[]> IceWriterFromBoolArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<byte[]> IceWriterFromByteArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<short[]> IceWriterFromShortArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<int[]> IceWriterFromIntArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<long[]> IceWriterFromLongArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<float[]> IceWriterFromFloatArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<double[]> IceWriterFromDoubleArray =
             (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -118,28 +72,132 @@ namespace Ice
             (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<byte> IceWriterFromByte =
+            (ostr, value) => ostr.WriteByte(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<byte[]> IceWriterFromByteArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<byte>> IceWriterFromByteSequence =
             (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<ReadOnlyMemory<short>> IceWriterFromShortSequence =
+        public static readonly OutputStreamWriter<double> IceWriterFromDouble =
+            (ostr, value) => ostr.WriteDouble(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<double[]> IceWriterFromDoubleArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ReadOnlyMemory<double>> IceWriterFromDoubleSequence =
             (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<ReadOnlyMemory<int>> IceWriterFromIntSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+        public static readonly OutputStreamWriter<float> IceWriterFromFloat =
+            (ostr, value) => ostr.WriteFloat(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<ReadOnlyMemory<long>> IceWriterFromLongSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+        public static readonly OutputStreamWriter<float[]> IceWriterFromFloatArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<float>> IceWriterFromFloatSequence =
             (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<ReadOnlyMemory<double>> IceWriterFromDoubleSequence =
+        public static readonly OutputStreamWriter<int> IceWriterFromInt =
+            (ostr, value) => ostr.WriteInt(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<int[]> IceWriterFromIntArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ReadOnlyMemory<int>> IceWriterFromIntSequence =
             (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<long> IceWriterFromLong =
+            (ostr, value) => ostr.WriteLong(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<long[]> IceWriterFromLongArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ReadOnlyMemory<long>> IceWriterFromLongSequence =
+            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<short> IceWriterFromShort =
+            (ostr, value) => ostr.WriteShort(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<short[]> IceWriterFromShortArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ReadOnlyMemory<short>> IceWriterFromShortSequence =
+            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<string> IceWriterFromString =
+            (ostr, value) => ostr.WriteString(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<uint> IceWriterFromUInt =
+            (ostr, value) => ostr.WriteUInt(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<uint[]> IceWriterFromUIntArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ReadOnlyMemory<uint>> IceWriterFromUIntSequence =
+            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ulong> IceWriterFromULong =
+            (ostr, value) => ostr.WriteULong(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ulong[]> IceWriterFromULongArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ReadOnlyMemory<ulong>> IceWriterFromULongSequence =
+            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ushort> IceWriterFromUShort =
+            (ostr, value) => ostr.WriteUShort(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ushort[]> IceWriterFromUShortArray =
+            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ReadOnlyMemory<ushort>> IceWriterFromUShortSequence =
+            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<int> IceWriterFromVarInt =
+            (ostr, value) => ostr.WriteVarInt(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<long> IceWriterFromVarLong =
+            (ostr, value) => ostr.WriteVarLong(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<uint> IceWriterFromVarUInt =
+            (ostr, value) => ostr.WriteVarUInt(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<ulong> IceWriterFromVarULong =
+            (ostr, value) => ostr.WriteVarULong(value);
 
         /// <summary>The encoding used when writing to this stream.</summary>
         /// <value>The encoding.</value>
@@ -158,6 +216,8 @@ namespace Ice
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
         private bool InEncapsulation => _startPos != null;
+
+        private bool OldEncoding => Encoding == Encoding.V1_1;
 
         // The number of bytes that the stream can hold.
         private int _capacity;
@@ -261,6 +321,90 @@ namespace Ice
                 byte[] data = _utf8.GetBytes(v);
                 WriteSize(data.Length);
                 WriteByteSpan(data.AsSpan());
+            }
+        }
+
+        /// <summary>Writes a uint to the stream.</summary>
+        /// <param name="v">The uint to write to the stream.</param>
+        public void WriteUInt(uint v) => WriteFixedSizeNumeric(v);
+
+        /// <summary>Writes a ulong to the stream.</summary>
+        /// <param name="v">The ulong to write to the stream.</param>
+        public void WriteULong(ulong v) => WriteFixedSizeNumeric(v);
+
+        /// <summary>Writes a ushort to the stream.</summary>
+        /// <param name="v">The ushort to write to the stream.</param>
+        public void WriteUShort(ushort v) => WriteFixedSizeNumeric(v);
+
+        /// <summary>Writes an int to stream, using Ice's variable-length integer encoding.</summary>
+        /// <param name="v">The int to write to the stream.</param>
+        public void WriteVarInt(int v) => WriteVarLong(v);
+
+        /// <summary>Writes a long to stream, using Ice's variable-length integer encoding, with the minimum number of
+        /// bytes required by the encoding.</summary>
+        /// <param name="v">The long to write to the stream. It must be in the range [-2^61..2^61 - 1].</param>
+        public void WriteVarLong(long v)
+        {
+            if (v < EncodingDefinitions.VarLongMinValue || v > EncodingDefinitions.VarLongMaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"varlong value `{v}' is out of range", nameof(v));
+            }
+
+            if (OldEncoding)
+            {
+                WriteLong(v);
+            }
+            else
+            {
+                v <<= 2;
+                int encodedLength = v switch
+                {
+                    long b when b >= sbyte.MinValue && b <= sbyte.MaxValue => 0,
+                    long s when s >= short.MinValue && s <= short.MaxValue => 1,
+                    long i when i >= int.MinValue && i <= int.MaxValue => 2,
+                    _ => 3
+                };
+
+                v |= (uint)encodedLength;
+                Span<byte> data = stackalloc byte[sizeof(long)];
+                MemoryMarshal.Write(data, ref v);
+                WriteByteSpan(data.Slice(0, 1 << encodedLength));
+            }
+        }
+
+        /// <summary>Writes a uint to stream, using Ice's variable-length integer encoding.</summary>
+        /// <param name="v">The uint to write to the stream.</param>
+        public void WriteVarUInt(uint v) => WriteVarULong(v);
+
+        /// <summary>Writes a ulong to stream, using Ice's variable-length integer encoding, with the minimum number of
+        /// bytes required by the encoding.</summary>
+        /// <param name="v">The ulong to write to the stream. It must be in the range [0..2^62 - 1].</param>
+        public void WriteVarULong(ulong v)
+        {
+            if (v > EncodingDefinitions.VarULongMaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"varulong value `{v}' is out of range", nameof(v));
+            }
+
+            if (OldEncoding)
+            {
+                WriteULong(v);
+            }
+            else
+            {
+                v <<= 2;
+                int encodedLength = v switch
+                {
+                    ulong b when b <= byte.MaxValue => 0,
+                    ulong s when s <= ushort.MaxValue => 1,
+                    ulong i when i <= uint.MaxValue => 2,
+                    _ => 3
+                };
+
+                v |= (uint)encodedLength;
+                Span<byte> data = stackalloc byte[sizeof(ulong)];
+                MemoryMarshal.Write(data, ref v);
+                WriteByteSpan(data.Slice(0, 1 << encodedLength));
             }
         }
 

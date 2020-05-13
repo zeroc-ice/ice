@@ -4,9 +4,7 @@
 
 // dmnp = double module no package
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 enum dmnpEnum { dmnpE1, dmnpE2 }
@@ -57,5 +55,4 @@ exception dmnpException : dmnpBaseException
 {
 }
 
-}
 }

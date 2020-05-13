@@ -8,9 +8,7 @@
 
 [[java:package:dmnpTest7]]
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 const dmnpEnum dmnpTest7Constant = dmnpE1;
@@ -75,5 +73,4 @@ class dmnpTest7Class : dmnpBaseClass implements dmnpBaseInterface
         throws dmnpException;
 }
 
-}
 }

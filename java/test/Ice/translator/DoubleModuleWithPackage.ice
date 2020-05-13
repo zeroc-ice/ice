@@ -6,9 +6,7 @@
 
 [[java:package:dmwp]]
 
-module M1
-{
-module M2
+module M1::M2
 {
 
 enum dmwpEnum { dmwpE1, dmwpE2 }
@@ -59,5 +57,4 @@ exception dmwpException : dmwpBaseException
 {
 }
 
-}
 }

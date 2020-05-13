@@ -185,10 +185,7 @@ enum m1 { green }
 enum M1 { blue }
 enum en2 { yellow, en1, EN1}
 
-module xxx
-{
-
-module xx
+module xxx::xx
 {
 
 interface Base
@@ -225,8 +222,6 @@ struct s2
 {
     Derived* blah;
     derived* bletch;
-}
-
 }
 
 }

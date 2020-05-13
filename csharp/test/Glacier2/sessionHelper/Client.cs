@@ -151,6 +151,7 @@ public class Client : TestHelper
     {
         System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
         properties["Ice.Warn.Connections"] = "0";
+        properties["Ice.Default.Encoding"] = "1.1";
         properties["Ice.Default.Router"] = $"Glacier2/router:{GetTestEndpoint(properties, 50)}";
 
         using Communicator communicator = Initialize(properties);
@@ -337,7 +338,7 @@ public class Client : TestHelper
             IProcessPrx process;
             {
                 Console.Out.Write("testing stringToProxy for process object... ");
-                process = IProcessPrx.Parse($"Glacier2/admin -f Process:{GetTestEndpoint(51)}", communicator);
+                process = IProcessPrx.Parse($"Glacier2/admin -e 1.1 -f Process:{GetTestEndpoint(51)}", communicator);
                 Console.Out.WriteLine("ok");
             }
 

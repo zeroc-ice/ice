@@ -15,7 +15,8 @@ namespace IceInternal
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
-                var iss = new InputStream(communicator, buffer.GetSegment(0, buffer.GetByteCount()).Array!);
+                var iss = new InputStream(communicator, Ice1Definitions.Encoding,
+                    buffer.GetSegment(0, buffer.GetByteCount()).Array!);
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
                 Ice1Definitions.MessageType type = PrintMessage(s, iss);
@@ -29,7 +30,7 @@ namespace IceInternal
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
-                var iss = new InputStream(communicator, buffer);
+                var iss = new InputStream(communicator, Ice1Definitions.Encoding, buffer);
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
                 Ice1Definitions.MessageType type = PrintMessage(s, iss);
@@ -43,7 +44,7 @@ namespace IceInternal
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
-                var iss = new InputStream(communicator, buffer);
+                var iss = new InputStream(communicator, Ice1Definitions.Encoding, buffer);
 
                 using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
                 s.Write(heading);

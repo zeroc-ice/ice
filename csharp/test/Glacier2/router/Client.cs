@@ -25,7 +25,7 @@ public class Client : TestHelper
             {
                 Console.Out.Write("testing stringToProxy for router... ");
                 Console.Out.Flush();
-                routerBase = IObjectPrx.Parse($"Glacier2/router:{GetTestEndpoint(50)}", communicator);
+                routerBase = IObjectPrx.Parse($"Glacier2/router -e 1.1:{GetTestEndpoint(50)}", communicator);
                 Console.Out.WriteLine("ok");
             }
 
@@ -41,7 +41,8 @@ public class Client : TestHelper
             {
                 Console.Out.Write("testing router finder... ");
                 Console.Out.Flush();
-                IRouterFinderPrx finder = IRouterFinderPrx.Parse($"Ice/RouterFinder:{GetTestEndpoint(50)}", communicator);
+                IRouterFinderPrx finder = IRouterFinderPrx.Parse($"Ice/RouterFinder -e 1.1:{GetTestEndpoint(50)}",
+                    communicator);
                 Assert(finder.GetRouter()!.Identity.Equals(router.Identity));
                 Console.Out.WriteLine("ok");
             }
@@ -380,7 +381,8 @@ public class Client : TestHelper
                 IProcessPrx process;
                 {
                     Console.Out.Write("testing stringToProxy for admin object... ");
-                    process = IProcessPrx.Parse($"Glacier2/admin -f Process:{GetTestEndpoint(51)}", communicator);
+                    process = IProcessPrx.Parse($"Glacier2/admin -e 1.1 -f Process:{GetTestEndpoint(51)}",
+                        communicator);
                     Console.Out.WriteLine("ok");
                 }
 
