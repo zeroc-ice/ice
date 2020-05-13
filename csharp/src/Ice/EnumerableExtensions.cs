@@ -3,10 +3,10 @@
 //
 
 using System;
-using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 
 namespace Ice
 {
@@ -18,11 +18,7 @@ namespace Ice
         /// <typeparam name="TSource">The type of the elements of source.</typeparam>
         /// <param name="source">A sequence of values to shuffle.</param>
         /// <returns>An IEnumerable&lt;TSouce&gt; whose elements are shuffled.</returns>
-        public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source)
-        {
-            Random? rand = _rand.Value;
-            Debug.Assert(rand != null);
-            return source.OrderBy(element => rand.Next());
-        }
+        public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source) =>
+            source.OrderBy(element => _rand.Value!.Next());
     }
 }
