@@ -2,9 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+
+using Ice;
 
 namespace IceDiscovery
 {
@@ -108,8 +111,8 @@ namespace IceDiscovery
                 {
                     return null;
                 }
-                //adapterIds.Suffle();
-                return prx.Clone(adapterId: adapterIds[0]);
+
+                return prx.Clone(adapterId: adapterIds.Shuffle().First());
             }
         }
 

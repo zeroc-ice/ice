@@ -223,8 +223,6 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceWrite(OutputStream ostr) => IceReference.Write(ostr);
 
-        public TaskScheduler Scheduler => IceReference.ThreadPool;
-
         public static bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
         {
             if (ReferenceEquals(lhs, rhs))

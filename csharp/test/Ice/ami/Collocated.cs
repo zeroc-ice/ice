@@ -21,11 +21,7 @@ namespace Ice.ami
             // send() blocking after sending a given amount of data.
             //
             properties["Ice.TCP.SndSize"] = "50000";
-            //
-            // We use a client thread pool with more than one thread to test
-            // that task inlining works.
-            //
-            properties["Ice.ThreadPool.Client.Size"] = "5";
+
             using var communicator = Initialize(properties);
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));

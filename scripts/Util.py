@@ -551,7 +551,7 @@ class Mapping(object):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["config=", "platform=", "protocol=", "target=", "compress", "ipv6", "no-ipv6", "serialize",
+            return ("", ["config=", "platform=", "transport=", "target=", "compress", "ipv6", "no-ipv6", "serialize",
                          "mx", "cprops=", "sprops="])
 
         @classmethod
@@ -562,7 +562,7 @@ class Mapping(object):
         def commonUsage(self):
             print("")
             print("Mapping options:")
-            print("--protocol=<prot>     Run with the given protocol.")
+            print("--transport=<value>   Run with the given transport.")
             print("--compress            Run the tests with protocol compression.")
             print("--ipv6                Use IPv6 addresses.")
             print("--serialize           Run with connection serialization.")
@@ -588,7 +588,7 @@ class Mapping(object):
                 self.buildPlatform = platform.getDefaultBuildPlatform()
 
             self.pathOverride = ""
-            self.protocol = "tcp"
+            self.transport = "tcp"
             self.compress = False
             self.serialize = False
             self.ipv6 = False
@@ -720,7 +720,7 @@ class Mapping(object):
             # options that are set on the JS configuration.
             #
             clone = copy.copy(self)
-            for o in current.config.parsedOptions + ["protocol"]:
+            for o in current.config.parsedOptions + ["transport"]:
                 if o not in ["buildConfig", "buildPlatform"]:
                     setattr(clone, o, getattr(current.config, o))
             clone.parsedOptions = current.config.parsedOptions
@@ -733,10 +733,9 @@ class Mapping(object):
             props = {}
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
-                if self.protocol:
-                    # TODO: rename protocol to transport
-                    props["Ice.Default.Protocol"] = self.protocol
-                    props["Ice.Default.Transport"] = self.protocol
+                if self.transport:
+                    # TODO: rename once all the mapping support Ice.Default.Transport
+                    props["Ice.Default.Protocol"] = self.transport
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:
@@ -1039,10 +1038,14 @@ class Mapping(object):
     def getProps(self, process, current):
         props = {}
         if isinstance(process, IceProcess):
-            if current.config.protocol in ["bt", "bts"]:
+            if current.config.transport in ["bt", "bts"]:
                 props["Ice.Plugin.IceBT"] = self.getPluginEntryPoint("IceBT", process, current)
-            if current.config.protocol in ["ssl", "wss", "bts", "iaps"]:
+            if current.config.transport in ["ssl", "wss", "bts", "iaps"]:
                 props.update(self.getSSLProps(process, current))
+        if isinstance(process, Server):
+            props["Ice.ThreadPool.Server.Size"] = 1
+            props["Ice.ThreadPool.Server.SizeMax"] = 3
+            props["Ice.ThreadPool.Server.SizeWarn"] = 0
         return props
 
     def getSSLProps(self, process, current):
@@ -1362,11 +1365,6 @@ class Server(IceProcess):
 
     def getProps(self, current):
         props = IceProcess.getProps(self, current)
-        props.update({
-            "Ice.ThreadPool.Server.Size": 1,
-            "Ice.ThreadPool.Server.SizeMax": 3,
-            "Ice.ThreadPool.Server.SizeWarn": 0,
-        })
         props.update(current.driver.getProcessProps(current, self.ready, self.readyCount + (1 if current.config.mx else 0)))
         return props
 
@@ -1913,7 +1911,7 @@ class Result:
 class TestSuite(object):
 
     def __init__(self, path, testcases=None, options=None, libDirs=None, runOnMainThread=False, chdir=False,
-                 multihost=True, mapping=None):
+                 multihost=True):
         global currentMapping
         self.path = os.path.dirname(path) if os.path.basename(path) == "test.py" else path
         self.mapping = currentMapping or Mapping.getByPath(self.path)
@@ -2038,7 +2036,7 @@ class LocalProcessController(ProcessController):
                     current.writeln("saved {0}".format(self.traceFile))
 
     def getHost(self, current):
-        return current.driver.getHost(current.config.protocol, current.config.ipv6)
+        return current.driver.getHost(current.config.transport, current.config.ipv6)
 
     def start(self, process, current, args, props, envs, watchDog):
 
@@ -2176,7 +2174,7 @@ class RemoteProcessController(ProcessController):
         return "remote controller"
 
     def getHost(self, current):
-        return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
+        return self.getController(current).getHost(current.config.transport, current.config.ipv6)
 
     def getController(self, current):
         ident = self.getControllerIdentity(current)
@@ -2752,7 +2750,7 @@ class BrowserProcessController(RemoteProcessController):
             testsuite += "typescript/"
         testsuite += str(current.testsuite)
 
-        if current.config.protocol == "wss":
+        if current.config.transport == "wss":
             protocol = "https"
             port = "9090"
             cport = "15003"
@@ -2998,8 +2996,8 @@ class Driver:
         (filters, rfilters) = ([re.compile(a) for a in filters], [re.compile(a) for a in rfilters])
         return (self.filters + filters, self.rfilters + rfilters)
 
-    def getHost(self, protocol, ipv6):
-        if protocol == "bt":
+    def getHost(self, transport, ipv6):
+        if transport == "bt":
             if not self.hostBT:
                 raise RuntimeError("no Bluetooth address set with --host-bt")
             return self.hostBT
@@ -3099,7 +3097,7 @@ class Driver:
             processController = iOSDeviceProcessController
         elif current.config.uwp:
             # No SSL server-side support in UWP.
-            if current.config.protocol in ["ssl", "wss"] and not isinstance(process, Client):
+            if current.config.transport in ["ssl", "wss"] and not isinstance(process, Client):
                 processController = LocalProcessController
             else:
                 processController = UWPProcessController
@@ -3385,6 +3383,14 @@ class CSharpMapping(Mapping):
             if self.uwp or self.android or "iphone" in self.buildPlatform:
                 self.xamarin = True
 
+        def getProps(self, process, current):
+            props = Mapping.Config.getProps(self, process, current)
+            # TODO: Remove once all the mapping supports the new Ice.Default.Transport property
+            if "Ice.Default.Protocol" in props and isinstance(process.getMapping(current), CSharpMapping):
+                del props["Ice.Default.Protocol"]
+                props["Ice.Default.Transport"] = self.transport
+            return props
+
     def getBinTargetFramework(self, current):
         return current.config.binTargetFramework
 
@@ -3404,18 +3410,21 @@ class CSharpMapping(Mapping):
             # With SSL we need to delay the creation of the admin adapter until the plug-in has
             # been initialized.
             #
-            if current.config.protocol in ["ssl", "wss"] and current.config.mx:
+            if current.config.transport in ["ssl", "wss"] and current.config.mx:
                 props["Ice.Admin.DelayCreation"] = "1"
+        props.pop("Ice.ThreadPool.Server.Size", None)
+        props.pop("Ice.ThreadPool.Server.SizeMax", None)
+        props.pop("Ice.ThreadPool.Server.SizeWarn", None)
         return props
 
     def getOptions(self, current):
+        # TODO: remove once all the mappings no longer support serialize
+        options = { "serialize" : [False] }
         if current.config.xamarin and current.config.uwp:
-            #
             # Do not run MX tests with SSL it cause problems with Xamarin UWP implementation
-            #
-            return {"mx" : ["False"]} if current.config.protocol in ["ssl", "wss"] else {}
-        else:
-            return {}
+            if current.config.transport in ["ssl", "wss"]:
+                options["mx"] = [False]
+        return options
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -3423,7 +3432,7 @@ class CSharpMapping(Mapping):
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": os.path.join(self.component.getSourceDir(), "certs"),
             "IceSSL.CAs": "cacert.pem",
-            "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
+            "IceSSL.VerifyPeer": "0" if current.config.transport == "wss" else "2",
             "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
         })
         if current.config.xamarin:
@@ -3679,7 +3688,7 @@ class JavaScriptMixin():
 
     def getOptions(self, current):
         options = {
-            "protocol" : ["ws", "wss"] if current.config.browser else ["tcp"],
+            "transport" : ["ws", "wss"] if current.config.browser else ["tcp"],
             "compress" : [False],
             "ipv6" : [False],
             "serialize" : [False],
@@ -3707,8 +3716,8 @@ class JavaScriptMapping(JavaScriptMixin,Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            if self.browser and self.protocol == "tcp":
-                self.protocol = "ws"
+            if self.browser and self.transport == "tcp":
+                self.transport = "ws"
 
             # Ie only support ES5 for now
             if self.browser in ["Ie"]:
@@ -3756,8 +3765,8 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            if self.browser and self.protocol == "tcp":
-                self.protocol = "ws"
+            if self.browser and self.transport == "tcp":
+                self.transport = "ws"
 
         def canRun(self, testId, current):
             # TODO: test TypeScript with browser, the test are currently only compiled for CommonJS (NodeJS)

@@ -2,7 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#ifdef __SLICE2PY__
+module Test
+{
+module Common
+#else
 module Test::Common
+#endif
 {
     sequence<bool> BoolSeq;
     sequence<string> StringSeq;
@@ -115,3 +121,6 @@ module Test::Common
         void setProcessController(ProcessController* controller);
     }
 }
+#ifdef __SLICE2PY__
+}
+#endif

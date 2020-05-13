@@ -116,8 +116,11 @@ namespace IceSSL
             {
                 return _delegate.StartRead(ref buffer, ref offset, callback, state);
             }
-
-            Debug.Assert(_sslStream != null && _sslStream.IsAuthenticated);
+            else if (_sslStream == null)
+            {
+                throw new ConnectionLostException();
+            }
+            Debug.Assert(_sslStream.IsAuthenticated);
 
             int packetSize = GetRecvPacketSize(buffer.Count - offset);
             try
@@ -194,6 +197,10 @@ namespace IceSSL
             if (!_isConnected)
             {
                 return _delegate.StartWrite(buffer, offset, cb, state, out completed);
+            }
+            else if (_sslStream == null)
+            {
+                throw new ConnectionLostException();
             }
 
             Debug.Assert(_sslStream != null);

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -69,20 +70,34 @@ namespace Ice
         /// <summary>Creates a new object adapter. The communicator uses the object adapter's name to lookup its
         /// properties, such as name.Endpoints.</summary>
         /// <param name="name">The object adapter name. Cannot be empty.</param>
+        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
+        /// of requests received over the same connection.</param>
+        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapter(string name) => AddObjectAdapter(name);
+        public ObjectAdapter CreateObjectAdapter(string name, bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null)
+            => AddObjectAdapter(name, serializeDispatch, taskScheduler);
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be
         /// associated with a bi-directional connection.</summary>
+        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
+        /// of requests received over the same connection.</param>
+        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapter() => AddObjectAdapter();
+        public ObjectAdapter CreateObjectAdapter(bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
+            => AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler);
 
         /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
-        /// to setting the name.Endpoints property and then calling <see cref="CreateObjectAdapter(string)"/>.</summary>
+        /// to setting the name.Endpoints property and then calling
+        /// <see cref="CreateObjectAdapter(string, bool, TaskScheduler?)"/>.</summary>
         /// <param name="name">The object adapter name. Cannot be empty.</param>
         /// <param name="endpoints">The endpoint string for the object adapter.</param>
+        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
+        /// of requests received over the same connection.</param>
+        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithEndpoints(string name, string endpoints)
+        public ObjectAdapter CreateObjectAdapterWithEndpoints(string name, string endpoints,
+            bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
         {
             if (name.Length == 0)
             {
@@ -90,23 +105,32 @@ namespace Ice
             }
 
             SetProperty($"{name}.Endpoints", endpoints);
-            return AddObjectAdapter(name);
+            return AddObjectAdapter(name, serializeDispatch, taskScheduler);
         }
 
         /// <summary>Creates a new object adapter with the specified endpoint string. This method generates a UUID for
-        /// the object adapter name and then calls <see cref="CreateObjectAdapterWithEndpoints(string, string)"/>
-        /// </summary>
+        /// the object adapter name and then calls
+        /// <see cref="CreateObjectAdapterWithEndpoints(string, string, bool, TaskScheduler?)"/>.</summary>
         /// <param name="endpoints">The endpoint string for the object adapter.</param>
+        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
+        /// of requests received over the same connection.</param>
+        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithEndpoints(string endpoints)
-            => CreateObjectAdapterWithEndpoints(Guid.NewGuid().ToString(), endpoints);
+        public ObjectAdapter CreateObjectAdapterWithEndpoints(string endpoints, bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null)
+            => CreateObjectAdapterWithEndpoints(Guid.NewGuid().ToString(), endpoints, serializeDispatch, taskScheduler);
 
         /// <summary>Creates a new object adapter with the specified router proxy. Calling this method is equivalent
-        /// to setting the name.Router property and then calling <see cref="CreateObjectAdapter(string)"/>.</summary>
+        /// to setting the name.Router property and then calling
+        /// <see cref="CreateObjectAdapter(string, bool, TaskScheduler?)"/>.</summary>
         /// <param name="name">The object adapter name. Cannot be empty.</param>
         /// <param name="router">The proxy to the router.</param>
+        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
+        /// of requests received over the same connection.</param>
+        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(string name, IRouterPrx router)
+        public ObjectAdapter CreateObjectAdapterWithRouter(string name, IRouterPrx router,
+            bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
         {
             if (name.Length == 0)
             {
@@ -120,16 +144,20 @@ namespace Ice
                 SetProperty(entry.Key, entry.Value);
             }
 
-            return AddObjectAdapter(name, router);
+            return AddObjectAdapter(name, serializeDispatch, taskScheduler, router);
         }
 
         /// <summary>Creates a new object adapter with the specified router proxy. This method generates a UUID for
-        /// the object adapter name and then calls <see cref="CreateObjectAdapterWithRouter(string, IRouterPrx)"/>.
-        /// </summary>
+        /// the object adapter name and then calls
+        /// <see cref="CreateObjectAdapterWithRouter(string, IRouterPrx, bool, TaskScheduler?)"/>.</summary>
         /// <param name="router">The proxy to the router.</param>
+        /// <param name="serializeDispatch">Indicates whether or not this object adapter serializes the dispatching of
+        /// of requests received over the same connection.</param>
+        /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(IRouterPrx router)
-            => CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router);
+        public ObjectAdapter CreateObjectAdapterWithRouter(IRouterPrx router, bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null)
+            => CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
 
         internal void RemoveObjectAdapter(ObjectAdapter adapter)
         {
@@ -149,7 +177,8 @@ namespace Ice
             }
         }
 
-        private ObjectAdapter AddObjectAdapter(string? name = null, IRouterPrx? router = null)
+        private ObjectAdapter AddObjectAdapter(string? name = null, bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null, IRouterPrx? router = null)
         {
             if (name != null && name.Length == 0)
             {
@@ -179,7 +208,7 @@ namespace Ice
             ObjectAdapter? adapter = null;
             try
             {
-                adapter = new ObjectAdapter(this, name ?? "", router);
+                adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router);
                 lock (this)
                 {
                     if (_isShutdown)

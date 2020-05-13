@@ -37,7 +37,7 @@ class IceGridAdminTestCase(IceGridTestCase):
 
         current.writeln("ok")
 
-        if current.config.protocol == "ssl":
+        if current.config.transport == "ssl":
 
             current.write("testing login with ssl... ")
 

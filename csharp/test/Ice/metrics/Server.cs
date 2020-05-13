@@ -19,8 +19,6 @@ public class Server : TestHelper
 
         using Ice.Communicator communicator = Initialize(properties);
         communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-        communicator.SetProperty("TestAdapter.ThreadPool.SizeMax",
-            communicator.GetProperty("Ice.ThreadPool.Server.SizeMax") ?? "");
 
         communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
         Ice.ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");

@@ -20,12 +20,10 @@ namespace IceInternal
             if (_acceptFd != null)
             {
                 Network.CloseSocketNoThrow(_acceptFd);
-                _acceptFd = null;
             }
             if (_fd != null)
             {
                 Network.CloseSocketNoThrow(_fd);
-                _fd = null;
             }
         }
 
@@ -51,7 +49,7 @@ namespace IceInternal
             try
             {
                 Debug.Assert(_fd != null);
-                _result = _fd.BeginAccept(delegate (IAsyncResult result)
+                _result = _fd.BeginAccept(delegate(IAsyncResult result)
                                           {
                                               if (!result.CompletedSynchronously)
                                               {

@@ -68,7 +68,6 @@ namespace IceInternal
                 catch (System.IO.IOException)
                 {
                 }
-                _fd = null;
             }
         }
 

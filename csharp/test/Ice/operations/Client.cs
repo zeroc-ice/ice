@@ -12,8 +12,6 @@ namespace Ice.operations
         public override void Run(string[] args)
         {
             var properties = CreateTestProperties(ref args);
-            properties["Ice.ThreadPool.Client.Size"] = "2";
-            properties["Ice.ThreadPool.Client.SizeWarn"] = "0";
             using var communicator = Initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.TypeId" });
             var myClass = AllTests.allTests(this);
 

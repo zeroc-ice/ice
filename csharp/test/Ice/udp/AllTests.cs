@@ -205,8 +205,8 @@ namespace Ice.udp
 
             Console.Out.Write("testing udp bi-dir connection... ");
             Console.Out.Flush();
-            obj.GetConnection().SetAdapter(adapter);
-            objMcast.GetConnection().SetAdapter(adapter);
+            obj.GetConnection().Adapter = adapter;
+            objMcast.GetConnection().Adapter = adapter;
             nRetry = 5;
             while (nRetry-- > 0)
             {
