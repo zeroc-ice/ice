@@ -48,8 +48,8 @@ namespace Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
-            var ostr = new OutputStream(response.Encoding, response.Data, new OutputStream.Position(0, 1),
-                 format ?? current.Adapter.Communicator.DefaultFormat);
+            var ostr = new OutputStream(Ice1Definitions.Encoding, response.Data, new OutputStream.Position(0, 1),
+                response.Encoding, format ?? current.Adapter.Communicator.DefaultFormat);
             writer(ostr, value);
             ostr.Save();
             response.Finish();
@@ -74,8 +74,8 @@ namespace Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
-            var ostr = new OutputStream(response.Encoding, response.Data, new OutputStream.Position(0, 1),
-                format ?? current.Adapter.Communicator.DefaultFormat);
+            var ostr = new OutputStream(Ice1Definitions.Encoding, response.Data, new OutputStream.Position(0, 1),
+                response.Encoding, format ?? current.Adapter.Communicator.DefaultFormat);
             writer(ostr, value);
             ostr.Save();
             response.Finish();
@@ -102,17 +102,19 @@ namespace Ice
                         nameof(payload));
                 }
 
-                int size = InputStream.ReadInt(payload.AsSpan(1, 4));
+                (Encoding encapsEncoding, int size) =
+                    InputStream.ReadEncapsulationHeader(Ice1Definitions.Encoding, payload.AsSpan(1));
+
                 if (size != payload.Count - 1)
                 {
                     throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count}'",
                         nameof(payload));
                 }
 
-                if (payload[5] != Encoding.Major || payload[6] != Encoding.Minor)
+                if (encapsEncoding != Encoding)
                 {
-                    throw new ArgumentException(@$"the payload encoding `{payload[5]}.{payload[6]
-                        }' must be the same as the supplied encoding `{Encoding.Major}.{Encoding.Minor}'",
+                    throw new ArgumentException(@$"the payload encoding `{encapsEncoding
+                        }' must be the same as the supplied encoding `{Encoding}'",
                         nameof(payload));
                 }
             }
@@ -158,7 +160,8 @@ namespace Ice
                 byte[] buffer = new byte[256];
                 buffer[0] = (byte)ReplyStatus.UserException;
                 Data.Add(buffer);
-                ostr = new OutputStream(Encoding, Data, new OutputStream.Position(0, 1), FormatType.Sliced);
+                ostr = new OutputStream(Ice1Definitions.Encoding, Data, new OutputStream.Position(0, 1),
+                    Encoding, FormatType.Sliced);
                 ostr.WriteException(exception);
             }
 
@@ -174,6 +177,7 @@ namespace Ice
             if (writeVoidReturnValue)
             {
                 Encoding.CheckSupported();
+                // TODO: this is not correct, the encoding of the empty payload must be `encoding`.
                 Data.Add(Ice1Definitions.EmptyResponsePayload);
                 Size = Data.GetByteCount();
                 IsSealed = true;

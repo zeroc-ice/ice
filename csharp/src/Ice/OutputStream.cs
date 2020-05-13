@@ -201,7 +201,7 @@ namespace Ice
 
         /// <summary>The encoding used when writing to this stream.</summary>
         /// <value>The encoding.</value>
-        public Encoding Encoding { get; }
+        public Encoding Encoding { get; private set; }
 
         /// <summary>Determines the current size of the stream. This corresponds to the number of bytes already written
         /// to the stream.</summary>
@@ -239,7 +239,11 @@ namespace Ice
         //  - Instance ID = 1 means the instance is encoded inline afterwards.
         //  - Instance ID > 1 means a reference to a previously encoded instance, found in this map.
         private Dictionary<AnyClass, int>? _instanceMap;
-        // all segments before the tail segment are fully used
+
+        // The encoding used to write the encapsulation header itself.
+        private readonly Encoding _mainEncoding;
+
+        // All segments before the tail segment are fully used.
         private readonly List<ArraySegment<byte>> _segmentList;
 
         // When set, we are writing to a top-level encapsulation.
@@ -752,9 +756,9 @@ namespace Ice
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartSize();
+                Position pos = StartFixedLengthSize();
                 WriteDictionary(dict, keyWriter, valueWriter);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -771,9 +775,9 @@ namespace Ice
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartSize();
+                Position pos = StartFixedLengthSize();
                 WriteDictionary(dict, valueWriter);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -791,9 +795,9 @@ namespace Ice
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartSize();
+                Position pos = StartFixedLengthSize();
                 WriteDictionary(dict, keyWriter);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -809,9 +813,9 @@ namespace Ice
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartSize();
+                Position pos = StartFixedLengthSize();
                 WriteDictionary(dict);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -862,9 +866,9 @@ namespace Ice
             if (v != null)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartSize();
+                Position pos = StartFixedLengthSize();
                 WriteProxy(v);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -938,9 +942,9 @@ namespace Ice
             if (v is IEnumerable<T> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartSize();
+                Position pos = StartFixedLengthSize();
                 WriteSequence(value, writer);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -954,9 +958,9 @@ namespace Ice
             if (v is IEnumerable<T> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                Position pos = StartSize();
+                Position pos = StartFixedLengthSize();
                 WriteSequence(value);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -997,9 +1001,9 @@ namespace Ice
             if (v is T value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                var pos = StartSize();
+                var pos = StartFixedLengthSize();
                 value.IceWrite(this);
-                EndSize(pos);
+                EndFixedLengthSize(pos);
             }
         }
 
@@ -1012,6 +1016,7 @@ namespace Ice
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
+            _mainEncoding = encoding;
             Encoding = encoding;
             Encoding.CheckSupported();
             _format = default; // not used
@@ -1037,12 +1042,18 @@ namespace Ice
         }
 
         // Constructor that starts an encapsulation.
-        internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position startAt, FormatType format)
+        internal OutputStream(
+            Encoding encoding,
+            List<ArraySegment<byte>> data,
+            Position startAt,
+            Encoding payloadEncoding,
+            FormatType format)
             : this(encoding, data, startAt)
         {
             _startPos = _tail;
             _format = format;
-            WriteEncapsulationHeader(0, Encoding); // 0 is a placeholder for the encapsulation size.
+            WriteEncapsulationHeader(0, payloadEncoding); // 0 is a placeholder for the encapsulation size
+            Encoding = payloadEncoding;
         }
 
         /// <summary>Finishes writing to the stream, in particular completes the current encapsulation (if any).
@@ -1055,7 +1066,8 @@ namespace Ice
 
             if (_startPos is Position startPos)
             {
-                RewriteInt(Distance(startPos), startPos);
+                Encoding = _mainEncoding;
+                RewriteFixedLengthSize(Distance(startPos), startPos);
             }
             return _tail;
         }
@@ -1070,6 +1082,8 @@ namespace Ice
 
         internal void WriteEndpoint(Endpoint endpoint)
         {
+            // Encoding does not change at all in this method.
+
             WriteShort((short)endpoint.Type);
             var startPos = _tail;
             if (endpoint is OpaqueEndpoint opaqueEndpoint)
@@ -1082,7 +1096,7 @@ namespace Ice
                 WriteEncapsulationHeader(0, Encoding); // 0 is a placeholder for the size
                 endpoint.IceWritePayload(this);
             }
-            RewriteInt(Distance(startPos), startPos);
+            RewriteFixedLengthSize(Distance(startPos), startPos);
         }
 
         /// <summary>Writes a facet to the stream.</summary>
@@ -1148,7 +1162,7 @@ namespace Ice
         /// </summary>
         /// <param name="size">The size to write.</param>
         /// <param name="data">The destination byte buffer.</param>
-        private static void WriteFixedLengthSize(int size, ref Span<byte> data)
+        private static void WriteFixedLengthSize(int size, Span<byte> data)
         {
             if (size < 0 || size > 1_073_741_823) // 2^30 -1
             {
@@ -1179,10 +1193,10 @@ namespace Ice
         /// <summary>Computes the amount of data written from the start position to the current position and writes that
         /// value at the start position (as a fixed-length size).</summary>
         /// <param name="start">The start position.</param>
-        private void EndSize(Position start)
+        private void EndFixedLengthSize(Position start)
         {
             Debug.Assert(start.Offset >= 0);
-            RewriteInt(Distance(start) - 4, start);
+            RewriteFixedLengthSize(Distance(start) - 4, start);
         }
 
         /// <summary>Expands the stream to make room for more data. If the bytes remaining in the stream are not enough
@@ -1222,16 +1236,26 @@ namespace Ice
             }
         }
 
-        /// <summary>Writes an integer number (4 bytes) at the given position of the stream.</summary>
-        /// <param name="v">The integer value to write.</param>
+        /// <summary>Writes a size on a fixed number of bytes (currently always 4) at the given position of the
+        /// stream.</summary>
+        /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
-        private void RewriteInt(int v, Position pos)
+        private void RewriteFixedLengthSize(int size, Position pos)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
                 $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
+
             Span<byte> data = stackalloc byte[4];
-            MemoryMarshal.Write(data, ref v);
+            MemoryMarshal.Write(data, ref size);
+            if (OldEncoding)
+            {
+                MemoryMarshal.Write(data, ref size);
+            }
+            else
+            {
+                WriteFixedLengthSize(size, data);
+            }
             RewriteByteSpan(data, pos);
         }
 
@@ -1256,9 +1280,9 @@ namespace Ice
             }
             else
             {
-                // With the 2.0 encoding, the size placeholder must be 4 bytes long.
+                // With the 2.0 encoding, the size placeholder is 4 bytes long.
                 Span<byte> data = stackalloc byte[4];
-                WriteFixedLengthSize(size, ref data);
+                WriteFixedLengthSize(size, data);
                 RewriteByteSpan(data, pos);
             }
         }
@@ -1282,7 +1306,7 @@ namespace Ice
         /// <summary>Returns the current position and write an int (four bytes) placeholder for a fixed-length (32-bit)
         /// size value. The position can be used to rewrite the size later.</summary>
         /// <returns>The position before writing the size.</returns>
-        private Position StartSize()
+        private Position StartFixedLengthSize()
         {
             Position pos = _tail;
             WriteInt(0); // Placeholder for 32-bit size
@@ -1331,7 +1355,7 @@ namespace Ice
 
         private void WriteEncapsulationHeader(int size, Encoding encoding)
         {
-            WriteInt(size);
+            WriteFixedLengthSize(size);
             WriteByte(encoding.Major);
             WriteByte(encoding.Minor);
         }
@@ -1340,10 +1364,16 @@ namespace Ice
         /// <param name="size">The size to write to the stream.</param>
         private void WriteFixedLengthSize(int size)
         {
-            Debug.Assert(!OldEncoding);
-            Span<byte> data = stackalloc byte[4];
-            WriteFixedLengthSize(size, ref data);
-            WriteByteSpan(data);
+            if (OldEncoding)
+            {
+                WriteInt(size);
+            }
+            else
+            {
+                Span<byte> data = stackalloc byte[4];
+                WriteFixedLengthSize(size, data);
+                WriteByteSpan(data);
+            }
         }
 
         /// <summary>Writes a fixed-size numeric to the stream.</summary>

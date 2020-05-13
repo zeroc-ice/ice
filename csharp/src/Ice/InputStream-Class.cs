@@ -387,7 +387,7 @@ namespace Ice
             // Read the slice size if necessary.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
-                _current.SliceSize = ReadInt();
+                _current.SliceSize = ReadFixedLengthSize();
                 if (_current.SliceSize < 4)
                 {
                     throw new InvalidDataException($"invalid slice size: {_current.SliceSize}");
@@ -491,7 +491,7 @@ namespace Ice
                         {
                             throw new InvalidDataException("size of slice missing");
                         }
-                        int sliceSize = ReadInt();
+                        int sliceSize = ReadFixedLengthSize();
                         if (sliceSize < 4)
                         {
                             throw new InvalidDataException($"invalid slice size: {sliceSize}");

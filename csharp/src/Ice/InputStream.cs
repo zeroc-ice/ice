@@ -644,8 +644,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
-                // We skip this int that holds the size (in bytes) of the tagged parameter.
-                _ = ReadInt();
+                SkipFixedLengthSize();
                 return ReadProxy(factory);
             }
             else
@@ -690,7 +689,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
-                _ = ReadInt();
+                SkipFixedLengthSize();
                 return ReadSequence(minElementSize, reader);
             }
             else
@@ -713,7 +712,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
-                _ = ReadInt();
+                SkipFixedLengthSize();
                 return ReadDictionary(minEntrySize, keyReader, valueReader);
             }
             else
@@ -736,7 +735,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
-                _ = ReadInt();
+                SkipFixedLengthSize();
                 return ReadSortedDictionary(minEntrySize, keyReader, valueReader);
             }
             else
@@ -753,7 +752,7 @@ namespace Ice
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
-                _ = ReadInt();
+                SkipFixedLengthSize();
                 return reader(this);
             }
             else
@@ -793,14 +792,41 @@ namespace Ice
             return result;
         }
 
+        internal static (Encoding Encoding, int Size) ReadEncapsulationHeader(
+            Encoding encoding, ReadOnlySpan<byte> buffer)
+        {
+            Debug.Assert(encoding == Encoding.V1_1 || encoding == Encoding.V2_0); // for now, only endpoints use 2.0
+
+            // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and not on a variable-length
+            // size, for ease of marshaling.
+            int minSize = encoding == Encoding.V1_1 ? 6 : 3;
+            if (buffer.Length < minSize)
+            {
+                throw new InvalidDataException($"encapsulation buffer has only {buffer.Length} bytes");
+            }
+            int size = ReadFixedLengthSize(encoding, buffer);
+            if (size < minSize)
+            {
+                throw new InvalidDataException($"encapsulation has only {size} bytes");
+            }
+
+            if (encoding == Encoding.V1_1 && size - 4 > buffer.Length)
+            {
+                throw new InvalidDataException(
+                    $"the encapsulation's size ({size}) extends beyond the end of the buffer");
+            }
+            // else TODO 2.0 encoding check
+
+            return (new Encoding(buffer[4], buffer[5]), size);
+        }
+
         internal static int ReadInt(ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
 
-        internal static string ReadString(Encoding encoding, ArraySegment<byte> buffer)
+        internal static string Read11String(ArraySegment<byte> buffer)
         {
-            Debug.Assert(encoding == Encoding.V1_1);
-            int size = ReadSize(encoding, buffer);
+            int size = ReadSize(Encoding.V1_1, buffer.AsSpan());
             if (size == 0)
             {
                 return "";
@@ -904,7 +930,10 @@ namespace Ice
             }
             else
             {
-                return (int)ReadVarUInt();
+                checked
+                {
+                    return (int)ReadVarUInt();
+                }
             }
         }
 
@@ -916,50 +945,47 @@ namespace Ice
             _pos += size - 6;
             if (_pos > _buffer.Count)
             {
-                throw new InvalidDataException("the encapsulation's size extends beyond the end of the frame");
+                throw new InvalidDataException(
+                    $"the encapsulation's size ({size}) extends beyond the end of the frame");
             }
             return encoding;
         }
 
-        private static (Encoding Encoding, int Size) ReadEncapsulationHeader(
-            Encoding encoding, ReadOnlySpan<byte> buffer)
+        private static int ReadFixedLengthSize(Encoding encoding, ReadOnlySpan<byte> buffer) =>
+            encoding == Encoding.V1_1 ? ReadInt(buffer) : ReadSize(encoding, buffer);
+
+        private static int ReadSize(Encoding encoding, ReadOnlySpan<byte> buffer)
         {
-            Debug.Assert(encoding == Encoding.V1_1 || encoding == Encoding.V2_0); // for now, only endpoints use 2.0
+            if (encoding == Encoding.V1_1)
+            {
+                byte b = buffer[0];
+                if (b < 255)
+                {
+                    return b;
+                }
 
-            // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and not on a variable-length
-            // size, for ease of marshaling.
-            if (buffer.Length < 6)
-            {
-                throw new InvalidDataException($"encapsulation buffer has only {buffer.Length} bytes");
+                int size = ReadInt(buffer.Slice(1, 4));
+                if (size < 0)
+                {
+                    throw new InvalidDataException($"read invalid size: {size}");
+                }
+                return size;
             }
-            int size = ReadInt(buffer);
-            if (size < 6)
+            else
             {
-                throw new InvalidDataException($"encapsulation has only {size} bytes");
-            }
-            if (size - 4 > buffer.Length)
-            {
-                throw new InvalidDataException("the encapsulation's size extends beyond the end of the buffer");
-            }
-            return (new Encoding(buffer[4], buffer[5]), size);
-        }
+                ulong size = (buffer[0] & 0x03) switch
+                {
+                    0 => (uint)buffer[0] >> 2,
+                    1 => (uint)BitConverter.ToUInt16(buffer) >> 2,
+                    2 => BitConverter.ToUInt32(buffer) >> 2,
+                    _ => BitConverter.ToUInt64(buffer) >> 2
+                };
 
-        private static int ReadSize(Encoding encoding, ArraySegment<byte> buffer)
-        {
-            Debug.Assert(encoding == Encoding.V1_1);
-
-            byte b = buffer[0];
-            if (b < 255)
-            {
-                return b;
+                checked // make sure we don't overflow
+                {
+                    return (int)size;
+                }
             }
-
-            int size = ReadInt(buffer.AsSpan(1, 4));
-            if (size < 0)
-            {
-                throw new InvalidDataException($"read invalid size: {size}");
-            }
-            return size;
         }
 
         private InputStream(
@@ -1022,6 +1048,8 @@ namespace Ice
             }
             return sz;
         }
+
+        private int ReadFixedLengthSize() => OldEncoding ? ReadInt() : ReadSize();
 
         private int ReadSpan(Span<byte> span)
         {
@@ -1100,6 +1128,20 @@ namespace Ice
             _pos += size;
         }
 
+        private void SkipFixedLengthSize()
+        {
+            if (OldEncoding)
+            {
+                Skip(4);
+            }
+            else
+            {
+                // With the 2.0 encoding, there is only one encoding for size, and the writer decides how many bytes
+                // to use.
+                SkipSize();
+            }
+        }
+
         /// <summary>Skips over a size value. Equivalent to ReadSize()</summary>
         private void SkipSize()
         {
@@ -1141,7 +1183,7 @@ namespace Ice
                     Skip(ReadSize());
                     break;
                 case EncodingDefinitions.TagFormat.FSize:
-                    Skip(ReadInt());
+                    Skip(ReadFixedLengthSize());
                     break;
                 case EncodingDefinitions.TagFormat.Class:
                     ReadAnyClass();
