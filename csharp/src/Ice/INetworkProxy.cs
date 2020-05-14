@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace IceInternal
 {
@@ -42,7 +44,7 @@ namespace IceInternal
         // This is called from the endpoint host resolver thread, so
         // it's safe if this method blocks.
         //
-        INetworkProxy ResolveHost(int ipVersion);
+        ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion);
 
         //
         // Returns the IP address of the network proxy. This method
@@ -122,10 +124,14 @@ namespace IceInternal
             }
         }
 
-        public INetworkProxy ResolveHost(int ipVersion)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion)
         {
             Debug.Assert(_host != null);
-            return new SOCKSNetworkProxy(Network.GetAddressForClient(_host, _port, ipVersion, false));
+
+            // Get addresses in random order and use the first one
+            IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
+                ipVersion, Ice.EndpointSelectionType.Random, false).ConfigureAwait(false);
+            return new SOCKSNetworkProxy(addresses.First());
         }
 
         public EndPoint GetAddress()
@@ -222,10 +228,14 @@ namespace IceInternal
             }
         }
 
-        public INetworkProxy ResolveHost(int ipVersion)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion)
         {
             Debug.Assert(_host != null);
-            return new HTTPNetworkProxy(Network.GetAddressForClient(_host, _port, ipVersion, false), ipVersion);
+
+            // Get addresses in random order and use the first one
+            IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
+                ipVersion, Ice.EndpointSelectionType.Random, false).ConfigureAwait(false);
+            return new HTTPNetworkProxy(addresses.First(), ipVersion);
         }
 
         public EndPoint GetAddress()

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Test;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 internal class Endpoint : Ice.Endpoint
 {
@@ -109,17 +110,12 @@ internal class Endpoint : Ice.Endpoint
         return new Acceptor(this, acceptor);
     }
 
-    public override void ConnectorsAsync(Ice.EndpointSelectionType selType, Ice.IEndpointConnectors cb)
+    public override async ValueTask<IEnumerable<IceInternal.IConnector>>
+        ConnectorsAsync(Ice.EndpointSelectionType selType)
     {
-        try
-        {
-            _configuration.CheckConnectorsException();
-            _endpoint.ConnectorsAsync(selType, new ConnectorsCallback(cb));
-        }
-        catch (System.Exception ex)
-        {
-            cb.Exception(ex);
-        }
+        _configuration.CheckConnectorsException();
+        IEnumerable<IceInternal.IConnector> connectors = await _endpoint.ConnectorsAsync(selType).ConfigureAwait(false);
+        return connectors.Select(item => new Connector(item));
     }
 
     public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
@@ -155,29 +151,4 @@ internal class Endpoint : Ice.Endpoint
     }
 
     internal Endpoint GetEndpoint(Ice.Endpoint del) => del == _endpoint ? this : new Endpoint(del);
-
-    private class ConnectorsCallback : Ice.IEndpointConnectors
-    {
-        private Ice.IEndpointConnectors _callback;
-
-        internal ConnectorsCallback(Ice.IEndpointConnectors cb)
-        {
-            _callback = cb;
-        }
-
-        public void Connectors(List<IceInternal.IConnector> cons)
-        {
-            var connectors = new List<IceInternal.IConnector>();
-            foreach (IceInternal.IConnector connector in cons)
-            {
-                connectors.Add(new Connector(connector));
-            }
-            _callback.Connectors(connectors);
-        }
-
-        public void Exception(System.Exception exception)
-        {
-            _callback.Exception(exception);
-        }
-    }
 }

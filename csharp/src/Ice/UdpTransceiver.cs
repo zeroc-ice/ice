@@ -717,7 +717,7 @@ namespace IceInternal
 
             try
             {
-                _addr = Network.GetAddressForServer(host, port, instance.IPVersion, instance.PreferIPv6);
+                _addr = Network.GetAddressForServerEndpoint(host, port, instance.IPVersion, instance.PreferIPv6);
 
                 _readEventArgs = new SocketAsyncEventArgs();
                 _readEventArgs.RemoteEndPoint = _addr;

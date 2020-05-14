@@ -696,18 +696,6 @@ namespace Ice
                     throw;
                 }
 
-                try
-                {
-                    _endpointHostResolverThread = new HelperThread(this);
-                    UpdateEndpointHostResolverObserver();
-                    _endpointHostResolverThread.Start(IceInternal.Util.StringToThreadPriority(GetProperty("Ice.ThreadPriority")));
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"cannot create thread for endpoint host resolver:\n{ex}");
-                    throw;
-                }
-
                 // The default router/locator may have been set during the loading of plugins.
                 // Therefore we only set it if it hasn't already been set.
                 try
@@ -929,22 +917,10 @@ namespace Ice
                 ((ILoggerAdminLogger)Logger).Destroy();
             }
 
-            if (_endpointHostResolverThread != null)
-            {
-                lock (_endpointHostResolverThread)
-                {
-                    Debug.Assert(!_endpointHostResolverDestroyed);
-                    _endpointHostResolverDestroyed = true;
-                    Monitor.Pulse(_endpointHostResolverThread);
-                }
-            }
-
             //
             // Wait for all the threads to be finished.
             //
             _timer?.Destroy();
-
-            _endpointHostResolverThread?.Join();
 
             lock (_routerInfoTable)
             {
@@ -1497,8 +1473,6 @@ namespace Ice
         {
             try
             {
-                UpdateEndpointHostResolverObserver();
-
                 Debug.Assert(Observer != null);
                 _timer.UpdateObserver(Observer);
             }
