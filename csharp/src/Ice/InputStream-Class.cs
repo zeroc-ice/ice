@@ -274,12 +274,13 @@ namespace Ice
             Debug.Assert(_current != null && _current.IndirectionTable == null);
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
             {
-                int savedPos = _pos;
-                if (_current.SliceSize < 4)
+                if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) == 0)
                 {
-                    throw new InvalidDataException($"invalid slice size: {_current.SliceSize}");
+                    throw new InvalidDataException("slice has indirection table but does not have a size");
                 }
-                _pos = savedPos + _current.SliceSize - 4;
+
+                int savedPos = _pos;
+                _pos = savedPos + _current.SliceSize;
                 _current.IndirectionTable = ReadIndirectionTable();
                 _current.PosAfterIndirectionTable = _pos;
                 _pos = savedPos;
@@ -387,11 +388,15 @@ namespace Ice
             // Read the slice size if necessary.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
-                // Note: the slice size includes the size length.
                 _current.SliceSize = ReadFixedLengthSize();
-                if (_current.SliceSize < 4)
+                if (OldEncoding)
                 {
-                    throw new InvalidDataException($"invalid slice size: {_current.SliceSize}");
+                    if (_current.SliceSize < 4)
+                    {
+                        throw new InvalidDataException($"invalid slice size: {_current.SliceSize}");
+                    }
+                    // With the 1.1 encoding, the encoded size includes the size length.
+                    _current.SliceSize -= 4;
                 }
             }
             else
@@ -493,11 +498,15 @@ namespace Ice
                             throw new InvalidDataException("size of slice missing");
                         }
                         int sliceSize = ReadFixedLengthSize();
-                        if (sliceSize < 4)
+                        if (OldEncoding)
                         {
-                            throw new InvalidDataException($"invalid slice size: {sliceSize}");
+                            if (sliceSize < 4)
+                            {
+                                throw new InvalidDataException($"invalid slice size: {sliceSize}");
+                            }
+                            sliceSize -= 4;
                         }
-                        _pos = _pos + sliceSize - 4;
+                        _pos = _pos + sliceSize;
 
                         // If this slice has an indirection table, skip it too
                         if ((sliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
@@ -534,8 +543,7 @@ namespace Ice
 
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
-                Debug.Assert(_current.SliceSize >= 4);
-                Skip(_current.SliceSize - 4);
+                Skip(_current.SliceSize);
             }
             else
             {

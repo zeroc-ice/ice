@@ -46,18 +46,35 @@ namespace Ice
 
             public override void Flush()
             {
+                // _pos represents the size
+
                 try
                 {
                     if (_data != null)
                     {
                         Debug.Assert(_stream.OldEncoding);
                         Debug.Assert(_pos <= _data.Length);
-                        _stream.WriteSize(_pos);
+                        _stream.WriteSize(_pos); // 1 byte size length
                         _stream.WriteByteSpan(_data.AsSpan(0, _pos));
                     }
                     else
                     {
-                        _stream.RewriteSize(_pos, _startPos); // Patch previously-written dummy value.
+                        // Patch previously-written dummy value.
+
+                        if (_stream.OldEncoding)
+                        {
+                            Debug.Assert(_pos >= 255);
+                            Span<byte> data = stackalloc byte[5];
+                            data[0] = 255;
+                            OutputStream.WriteInt(_pos, data.Slice(1, 4));
+                            _stream.RewriteByteSpan(data, _startPos);
+                        }
+                        else
+                        {
+                            Span<byte> data = stackalloc byte[4];
+                            OutputStream.WriteFixedLength20Size(_pos, data);
+                            _stream.RewriteByteSpan(data, _startPos);
+                        }
                     }
                 }
                 catch (Exception ex)

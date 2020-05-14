@@ -1311,33 +1311,6 @@ namespace Ice
             }
         }
 
-        private void RewriteSize(int size, Position pos)
-        {
-            if (OldEncoding)
-            {
-                // With the 1.1 encoding, size is always variable-length, so RewriteSize requires that the initial
-                // placeholder has the correct length (1 or 5).
-                if (size < 255)
-                {
-                    ArraySegment<byte> segment = _segmentList[pos.Segment];
-                    segment[pos.Offset] = (byte)size;
-                }
-                else
-                {
-                    Span<byte> data = stackalloc byte[5];
-                    data[0] = 255;
-                    WriteInt(size, data.Slice(1, 4));
-                    RewriteByteSpan(data, pos);
-                }
-            }
-            else
-            {
-                Span<byte> data = stackalloc byte[4];
-                WriteFixedLength20Size(size, data);
-                RewriteByteSpan(data, pos);
-            }
-        }
-
         private void RewriteByteSpan(Span<byte> data, Position pos)
         {
             ArraySegment<byte> segment = _segmentList[pos.Segment];
