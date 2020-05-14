@@ -1133,7 +1133,7 @@ namespace Ice
             }
             else
             {
-                WriteVarUInt((uint)v);
+                WriteVarULong((ulong)v);
             }
         }
 
