@@ -60,7 +60,7 @@ public sealed class TestIntf : ITestIntf
     public void relayKnownPreservedAsBase(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.knownPreservedAsBase();
@@ -77,7 +77,7 @@ public sealed class TestIntf : ITestIntf
     public void relayKnownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.knownPreservedAsKnownPreserved();
@@ -94,7 +94,7 @@ public sealed class TestIntf : ITestIntf
     public void relayClientPrivateException(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.clientPrivateException();
@@ -123,7 +123,7 @@ public sealed class TestIntf : ITestIntf
     public void relayUnknownPreservedAsBase(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.unknownPreservedAsBase();
@@ -140,7 +140,7 @@ public sealed class TestIntf : ITestIntf
     public void relayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Ice.Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.unknownPreservedAsKnownPreserved();

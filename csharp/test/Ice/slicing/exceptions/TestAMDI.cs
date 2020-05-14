@@ -79,7 +79,7 @@ public sealed class TestIntf : ITestIntf
     relayKnownPreservedAsBaseAsync(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.knownPreservedAsBase();
@@ -98,7 +98,7 @@ public sealed class TestIntf : ITestIntf
     relayKnownPreservedAsKnownPreservedAsync(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.knownPreservedAsKnownPreserved();
@@ -130,7 +130,7 @@ public sealed class TestIntf : ITestIntf
     relayUnknownPreservedAsBaseAsync(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.unknownPreservedAsBase();
@@ -149,7 +149,7 @@ public sealed class TestIntf : ITestIntf
     relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx? r, Ice.Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.unknownPreservedAsKnownPreserved();
@@ -167,7 +167,7 @@ public sealed class TestIntf : ITestIntf
     public ValueTask relayClientPrivateExceptionAsync(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
-        IRelayPrx p = current.Connection!.CreateProxy(r.Identity, IRelayPrx.Factory);
+        IRelayPrx p = r.Clone(fixedConnection: current.Connection);
         try
         {
             p.clientPrivateException();

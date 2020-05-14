@@ -1028,17 +1028,19 @@ public class AllTests
             checkFailure(clientMetrics, "Invocation", im1.Id, "Ice.ConnectionLostException", 2, output);
         }
 
+        Encoding defaultEncoding = communicator.DefaultEncoding;
+
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -p ice1 -e 2.0 [op]", op,
-            output);
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
+            $"metrics -t -p ice1 -e {defaultEncoding} [op]", op, output);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "facet", "", op, output);
-        testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "2.0", op, output);
+        testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", $"{defaultEncoding}", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t -p ice1 -e 2.0:" + endpoint + " -t " + timeout, op, output);
+                      $"metrics -t -p ice1 -e {defaultEncoding}:{endpoint} -t {timeout}", op, output);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
