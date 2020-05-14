@@ -1061,8 +1061,6 @@ namespace Ice
             return sz;
         }
 
-        private int ReadFixedLengthSize() => OldEncoding ? ReadInt() : Read20Size();
-
         private int ReadSpan(Span<byte> span)
         {
             int length = Math.Min(span.Length, _buffer.Count - _pos);
@@ -1196,7 +1194,7 @@ namespace Ice
                     Skip(ReadSize());
                     break;
                 case EncodingDefinitions.TagFormat.FSize:
-                    Skip(ReadFixedLengthSize());
+                    Skip(OldEncoding ? ReadInt() : Read20Size());
                     break;
                 case EncodingDefinitions.TagFormat.Class:
                     ReadAnyClass();

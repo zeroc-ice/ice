@@ -388,16 +388,7 @@ namespace Ice
             // Read the slice size if necessary.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
-                _current.SliceSize = ReadFixedLengthSize();
-                if (OldEncoding)
-                {
-                    if (_current.SliceSize < 4)
-                    {
-                        throw new InvalidDataException($"invalid slice size: {_current.SliceSize}");
-                    }
-                    // With the 1.1 encoding, the encoded size includes the size length.
-                    _current.SliceSize -= 4;
-                }
+                _current.SliceSize = ReadSliceSize();
             }
             else
             {
@@ -409,6 +400,24 @@ namespace Ice
             _current.PosAfterIndirectionTable = null;
 
             return _current.SliceTypeId;
+        }
+
+        private int ReadSliceSize()
+        {
+            if (OldEncoding)
+            {
+                int size = ReadInt();
+                if (size < 4)
+                {
+                    throw new InvalidDataException($"invalid slice size: {size}");
+                }
+                // With the 1.1 encoding, the encoded size includes the size length.
+                return size - 4;
+            }
+            else
+            {
+                return Read20Size();
+            }
         }
 
         private string ReadTypeId(bool isIndex)
@@ -497,15 +506,7 @@ namespace Ice
                         {
                             throw new InvalidDataException("size of slice missing");
                         }
-                        int sliceSize = ReadFixedLengthSize();
-                        if (OldEncoding)
-                        {
-                            if (sliceSize < 4)
-                            {
-                                throw new InvalidDataException($"invalid slice size: {sliceSize}");
-                            }
-                            sliceSize -= 4;
-                        }
+                        int sliceSize = ReadSliceSize();
                         _pos = _pos + sliceSize;
 
                         // If this slice has an indirection table, skip it too

@@ -1219,12 +1219,20 @@ namespace Ice
         }
 
         /// <summary>Computes the amount of data written from the start position to the current position and writes that
-        /// value at the start position (as a fixed-length 4-bytes size).</summary>
+        /// size at the start position (as a fixed-length 4-bytes size). The size does not include its own encoded
+        /// length.</summary>
         /// <param name="start">The start position.</param>
         private void EndFixedLengthSize(Position start)
         {
             Debug.Assert(start.Offset >= 0);
-            RewriteFixedLengthSize(Distance(start) - 4, start);
+            if (OldEncoding)
+            {
+                RewriteFixedLength11Size(Distance(start) - 4, start);
+            }
+            else
+            {
+                RewriteFixedLength20Size(Distance(start) - 4, start);
+            }
         }
 
         /// <summary>Expands the stream to make room for more data. If the bytes remaining in the stream are not enough
@@ -1269,27 +1277,40 @@ namespace Ice
         /// <param name="size">The number of bytes in the encapsulation, without taking into account the bytes for the
         /// size itself.</param>
         /// <param name="pos">The position to write to.</param>
-        /// <param name="sizeLength">The number of bytes used to encode the size with the 2.0 encoding.
-        /// Can be 1, 2 or 4.</param>
+        /// <param name="sizeLength">The number of bytes used to encode the size with the 2.0 encoding. Can be 1, 2 or
+        /// 4.</param>
         private void RewriteEncapsulationSize(int size, Position pos, int sizeLength = 4)
         {
             if (OldEncoding)
             {
                 // With the 1.1 encoding, sizeLength is always 4 bytes and the encoded size includes this sizeLength.
-                RewriteFixedLengthSize(size + 4, pos);
+                RewriteFixedLength11Size(size + 4, pos);
             }
             else
             {
-                RewriteFixedLengthSize(size, pos, sizeLength);
+                RewriteFixedLength20Size(size, pos, sizeLength);
             }
+        }
+
+        /// <summary>Writes a size on 4 bytes at the given position of the stream.</summary>
+        /// <param name="size">The size to write.</param>
+        /// <param name="pos">The position to write to.</param>
+        private void RewriteFixedLength11Size(int size, Position pos)
+        {
+            Debug.Assert(pos.Segment < _segmentList.Count);
+            Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
+                $"offset: {pos.Offset} segment size: {Size - _segmentList.Take(pos.Segment).Sum(data => data.Count)}");
+
+            Span<byte> data = stackalloc byte[4];
+            MemoryMarshal.Write(data, ref size);
+            RewriteByteSpan(data, pos);
         }
 
         /// <summary>Writes a size on a fixed number of bytes at the given position of the stream.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
-        /// <param name="sizeLength">The number of bytes used to encode the size with the 2.0 encoding.
-        /// Can be 1, 2 or 4.</param>
-        private void RewriteFixedLengthSize(int size, Position pos, int sizeLength = 4)
+        /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4.</param>
+        private void RewriteFixedLength20Size(int size, Position pos, int sizeLength = 4)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
@@ -1297,18 +1318,9 @@ namespace Ice
 
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
 
-            if (OldEncoding)
-            {
-                Span<byte> data = stackalloc byte[4];
-                MemoryMarshal.Write(data, ref size);
-                RewriteByteSpan(data, pos);
-            }
-            else
-            {
-                Span<byte> data = stackalloc byte[sizeLength];
-                WriteFixedLength20Size(size, data);
-                RewriteByteSpan(data, pos);
-            }
+            Span<byte> data = stackalloc byte[sizeLength];
+            WriteFixedLength20Size(size, data);
+            RewriteByteSpan(data, pos);
         }
 
         private void RewriteByteSpan(Span<byte> data, Position pos)
@@ -1406,22 +1418,6 @@ namespace Ice
             Span<byte> data = stackalloc byte[sizeLength];
             WriteFixedLength20Size(size, data);
             WriteByteSpan(data);
-        }
-
-        /// <summary>Writes a size to the stream using a fixed number of bytes.</summary>
-        /// <param name="size">The size to write to the stream.</param>
-        /// <param name="sizeLength">The number of bytes used to encode the size with the 2.0 encoding. Can be 1, 2 or
-        /// 4. </param>
-        private void WriteFixedLengthSize(int size, int sizeLength = 4)
-        {
-            if (OldEncoding)
-            {
-                WriteInt(size);
-            }
-            else
-            {
-                WriteFixedLength20Size(size, sizeLength);
-            }
         }
 
         /// <summary>Writes a fixed-size numeric to the stream.</summary>

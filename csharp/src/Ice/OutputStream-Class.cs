@@ -39,12 +39,12 @@ namespace Ice
                 if (OldEncoding)
                 {
                     // Size includes the size length.
-                    RewriteFixedLengthSize(Distance(_current.SliceSizePos), _current.SliceSizePos);
+                    RewriteFixedLength11Size(Distance(_current.SliceSizePos), _current.SliceSizePos);
                 }
                 else
                 {
                     // Size does not include the size length.
-                    EndFixedLengthSize(_current.SliceSizePos);
+                    RewriteFixedLength20Size(Distance(_current.SliceSizePos) - 4, _current.SliceSizePos);
                 }
             }
 
