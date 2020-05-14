@@ -1153,24 +1153,26 @@ namespace Ice
             int size = segment.Count - start.Offset;
             for (int i = start.Segment + 1; i < end.Segment; ++i)
             {
-                size += data[i].Count;
+                checked
+                {
+                    size += data[i].Count;
+                }
             }
-            return size + end.Offset;
+            checked
+            {
+                return size + end.Offset;
+            }
         }
 
         /// <summary>Writes a size into a span of bytes using a fixed number of bytes (currently always 4 bytes).
         /// </summary>
         /// <param name="size">The size to write.</param>
         /// <param name="data">The destination byte buffer.</param>
-        private static void WriteFixedLengthSize(int size, Span<byte> data)
+        private static void WriteFixedLength20Size(int size, Span<byte> data)
         {
             if (size < 0 || size > 1_073_741_823) // 2^30 -1
             {
                 throw new ArgumentOutOfRangeException("size is out of range", nameof(size));
-            }
-            if (data.Length < 4)
-            {
-                throw new ArgumentException("target buffer is too small", nameof(data));
             }
 
             uint v = (uint)size;
@@ -1254,7 +1256,7 @@ namespace Ice
             }
             else
             {
-                WriteFixedLengthSize(size, data);
+                WriteFixedLength20Size(size, data);
             }
             RewriteByteSpan(data, pos);
         }
@@ -1282,7 +1284,7 @@ namespace Ice
             {
                 // With the 2.0 encoding, the size placeholder is 4 bytes long.
                 Span<byte> data = stackalloc byte[4];
-                WriteFixedLengthSize(size, data);
+                WriteFixedLength20Size(size, data);
                 RewriteByteSpan(data, pos);
             }
         }
@@ -1371,7 +1373,7 @@ namespace Ice
             else
             {
                 Span<byte> data = stackalloc byte[4];
-                WriteFixedLengthSize(size, data);
+                WriteFixedLength20Size(size, data);
                 WriteByteSpan(data);
             }
         }

@@ -296,7 +296,10 @@ namespace Ice
         {
             try
             {
-                return (int)ReadVarLong();
+                checked
+                {
+                    return (int)ReadVarLong();
+                }
             }
             catch (Exception ex)
             {
@@ -323,7 +326,10 @@ namespace Ice
         {
             try
             {
-                return (uint)ReadVarULong();
+                checked
+                {
+                    return (uint)ReadVarULong();
+                }
             }
             catch (Exception ex)
             {
@@ -765,6 +771,19 @@ namespace Ice
         // Internal and private methods
         //
 
+        internal static string Read11String(ArraySegment<byte> buffer)
+        {
+            int size = Read11Size(buffer.AsSpan());
+            if (size == 0)
+            {
+                return "";
+            }
+            else
+            {
+                return _utf8.GetString(buffer.AsSpan(size < 255 ? 1 : 5, size));
+            }
+        }
+
         /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
         /// <param name="encoding">The encoding of the buffer.</param>
@@ -823,19 +842,6 @@ namespace Ice
         internal static int ReadInt(ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
-
-        internal static string Read11String(ArraySegment<byte> buffer)
-        {
-            int size = ReadSize(Encoding.V1_1, buffer.AsSpan());
-            if (size == 0)
-            {
-                return "";
-            }
-            else
-            {
-                return _utf8.GetString(buffer.AsSpan(size < 255 ? 1 : 5, size));
-            }
-        }
 
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
@@ -911,31 +917,7 @@ namespace Ice
 
         /// <summary>Reads a size from the stream.</summary>
         /// <returns>The size read from the stream.</returns>
-        internal int ReadSize()
-        {
-            if (OldEncoding)
-            {
-                byte b = ReadByte();
-                if (b < 255)
-                {
-                    return b;
-                }
-
-                int size = ReadInt();
-                if (size < 0)
-                {
-                    throw new InvalidDataException($"read invalid size: {size}");
-                }
-                return size;
-            }
-            else
-            {
-                checked
-                {
-                    return (int)ReadVarUInt();
-                }
-            }
-        }
+        internal int ReadSize() => OldEncoding ? Read11Size() : Read20Size();
 
         /// <summary>Skips over an encapsulation without reading it.</summary>
         /// <returns>The encoding version of the skipped encapsulation.</returns>
@@ -951,42 +933,40 @@ namespace Ice
             return encoding;
         }
 
-        private static int ReadFixedLengthSize(Encoding encoding, ReadOnlySpan<byte> buffer) =>
-            encoding == Encoding.V1_1 ? ReadInt(buffer) : ReadSize(encoding, buffer);
-
-        private static int ReadSize(Encoding encoding, ReadOnlySpan<byte> buffer)
+        private static int Read11Size(ReadOnlySpan<byte> buffer)
         {
-            if (encoding == Encoding.V1_1)
+            byte b = buffer[0];
+            if (b < 255)
             {
-                byte b = buffer[0];
-                if (b < 255)
-                {
-                    return b;
-                }
-
-                int size = ReadInt(buffer.Slice(1, 4));
-                if (size < 0)
-                {
-                    throw new InvalidDataException($"read invalid size: {size}");
-                }
-                return size;
+                return b;
             }
-            else
-            {
-                ulong size = (buffer[0] & 0x03) switch
-                {
-                    0 => (uint)buffer[0] >> 2,
-                    1 => (uint)BitConverter.ToUInt16(buffer) >> 2,
-                    2 => BitConverter.ToUInt32(buffer) >> 2,
-                    _ => BitConverter.ToUInt64(buffer) >> 2
-                };
 
-                checked // make sure we don't overflow
-                {
-                    return (int)size;
-                }
+            int size = ReadInt(buffer.Slice(1, 4));
+            if (size < 0)
+            {
+                throw new InvalidDataException($"read invalid size: {size}");
+            }
+            return size;
+        }
+
+        private static int Read20Size(ReadOnlySpan<byte> buffer)
+        {
+            ulong size = (buffer[0] & 0x03) switch
+            {
+                0 => (uint)buffer[0] >> 2,
+                1 => (uint)BitConverter.ToUInt16(buffer) >> 2,
+                2 => BitConverter.ToUInt32(buffer) >> 2,
+                _ => BitConverter.ToUInt64(buffer) >> 2
+            };
+
+            checked // make sure we don't overflow
+            {
+                return (int)size;
             }
         }
+
+        private static int ReadFixedLengthSize(Encoding encoding, ReadOnlySpan<byte> buffer) =>
+            encoding == Encoding.V1_1 ? ReadInt(buffer) : Read20Size(buffer);
 
         private InputStream(
             Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, bool startEncaps, int pos)
@@ -1022,6 +1002,30 @@ namespace Ice
             }
         }
 
+        private int Read11Size()
+        {
+            byte b = ReadByte();
+            if (b < 255)
+            {
+                return b;
+            }
+
+            int size = ReadInt();
+            if (size < 0)
+            {
+                throw new InvalidDataException($"read invalid size: {size}");
+            }
+            return size;
+        }
+
+        private int Read20Size()
+        {
+            checked
+            {
+                return (int)ReadVarULong();
+            }
+        }
+
         /// <summary>Reads a sequence size and makes sure there is enough space in the underlying buffer to read the
         /// sequence. This validation is performed to make sure we do not allocate a large container based on an
         /// invalid encoded size.</summary>
@@ -1049,7 +1053,7 @@ namespace Ice
             return sz;
         }
 
-        private int ReadFixedLengthSize() => OldEncoding ? ReadInt() : ReadSize();
+        private int ReadFixedLengthSize() => OldEncoding ? ReadInt() : Read20Size();
 
         private int ReadSpan(Span<byte> span)
         {
@@ -1138,7 +1142,8 @@ namespace Ice
             {
                 // With the 2.0 encoding, there is only one encoding for size, and the writer decides how many bytes
                 // to use.
-                SkipSize();
+                byte b = _buffer[_pos];
+                Skip(1 << (b & 0x03));
             }
         }
 
