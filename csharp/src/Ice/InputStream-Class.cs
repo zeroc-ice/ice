@@ -387,6 +387,7 @@ namespace Ice
             // Read the slice size if necessary.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
+                // Note: the slice size includes the size length.
                 _current.SliceSize = ReadFixedLengthSize();
                 if (_current.SliceSize < 4)
                 {

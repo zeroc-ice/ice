@@ -102,12 +102,12 @@ namespace Ice
                         nameof(payload));
                 }
 
-                (Encoding encapsEncoding, int size) =
-                    InputStream.ReadEncapsulationHeader(Ice1Definitions.Encoding, payload.AsSpan(1));
+                (int size, Encoding encapsEncoding) = InputStream.ReadEncapsulationHeader(
+                    Ice1Definitions.Encoding, payload.AsSpan(1));
 
-                if (size != payload.Count - 1)
+                if (size + 4 + 1 != payload.Count) // 4 = size length with 1.1 encoding
                 {
-                    throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count}'",
+                    throw new ArgumentException($"invalid payload size `{size}'; expected `{payload.Count - 5}'",
                         nameof(payload));
                 }
 

@@ -157,7 +157,7 @@ namespace Ice
                 else
                 {
                     // Placeholder for a fixed-length size
-                    _stream.WriteFixedLengthSize(0);
+                    _stream.WriteFixedLength20Size(0);
                 }
             }
         }

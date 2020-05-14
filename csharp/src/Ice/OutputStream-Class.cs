@@ -36,6 +36,7 @@ namespace Ice
             // Writes the slice size if necessary.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
+                // Size includes the size length.
                 RewriteFixedLengthSize(Distance(_current.SliceSizePos), _current.SliceSizePos);
             }
 
@@ -130,8 +131,8 @@ namespace Ice
 
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
-                _current.SliceSizePos = _tail;
-                WriteFixedLengthSize(0); // Placeholder for the slice length.
+                // Note: this slice size _includes_ the size length.
+                _current.SliceSizePos = StartFixedLengthSize();
             }
             _current.SliceFirstMemberPos = _tail;
         }

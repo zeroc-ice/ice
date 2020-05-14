@@ -811,32 +811,30 @@ namespace Ice
             return result;
         }
 
-        internal static (Encoding Encoding, int Size) ReadEncapsulationHeader(
+        internal static (int Size, Encoding encoding) ReadEncapsulationHeader(
             Encoding encoding, ReadOnlySpan<byte> buffer)
         {
-            Debug.Assert(encoding == Encoding.V1_1 || encoding == Encoding.V2_0); // for now, only endpoints use 2.0
+            int sizeLength;
+            int size;
 
-            // With the 1.1 encoding, the encapsulation size is encoded on a 4-bytes int and not on a variable-length
-            // size, for ease of marshaling.
-            int minSize = encoding == Encoding.V1_1 ? 6 : 3;
-            if (buffer.Length < minSize)
+            if (encoding == Encoding.V1_1)
             {
-                throw new InvalidDataException($"encapsulation buffer has only {buffer.Length} bytes");
+                sizeLength = 4;
+                size = ReadInt(buffer) - sizeLength; // Remove the size length which is included with the 1.1 encoding.
             }
-            int size = ReadFixedLengthSize(encoding, buffer);
-            if (size < minSize)
+            else
             {
-                throw new InvalidDataException($"encapsulation has only {size} bytes");
+                sizeLength = (1 << (buffer[0] & 0x03));
+                size = Read20Size(buffer);
             }
 
-            if (encoding == Encoding.V1_1 && size - 4 > buffer.Length)
+            if (sizeLength + size > buffer.Length)
             {
                 throw new InvalidDataException(
                     $"the encapsulation's size ({size}) extends beyond the end of the buffer");
             }
-            // else TODO 2.0 encoding check
 
-            return (new Encoding(buffer[4], buffer[5]), size);
+            return (size, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
         }
 
         internal static int ReadInt(ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
@@ -858,10 +856,17 @@ namespace Ice
 
         /// <summary>Reads an encapsulation header from the stream.</summary>
         /// <returns>The encapsulation header read from the stream.</returns>
-        internal (Encoding Encoding, int Size) ReadEncapsulationHeader()
+        internal (int Size, Encoding Encoding) ReadEncapsulationHeader()
         {
-            (Encoding Encoding, int Size) result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
-            _pos += 6;
+            var result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
+            if (OldEncoding)
+            {
+                _pos += 6; // 4 (size length) + 2 (encoding length)
+            }
+            else
+            {
+                _pos += (1 << (_buffer[_pos] & 0x03)) + 2; // size length + encoding length
+            }
             return result;
         }
 
@@ -870,7 +875,7 @@ namespace Ice
         internal Endpoint ReadEndpoint()
         {
             var type = (EndpointType)ReadShort();
-            (Encoding encoding, int size) = ReadEncapsulationHeader();
+            (int size, Encoding encoding) = ReadEncapsulationHeader();
 
             Endpoint endpoint;
             if (encoding.IsSupported && Communicator.FindEndpointFactory(type) is IEndpointFactory factory)
@@ -880,7 +885,7 @@ namespace Ice
                 int oldPos = _pos;
                 int oldMinTotalSeqSize = _minTotalSeqSize;
                 Encoding = encoding;
-                _buffer = _buffer.Slice(_pos, size - 6);
+                _buffer = _buffer.Slice(_pos, size - 2);
                 _pos = 0;
                 _minTotalSeqSize = 0;
 
@@ -891,13 +896,13 @@ namespace Ice
                 // anything unless we succeed.
                 Encoding = oldEncoding;
                 _buffer = oldBuffer;
-                _pos = oldPos + size - 6;
+                _pos = oldPos + size - 2;
                 _minTotalSeqSize = oldMinTotalSeqSize;
             }
             else
             {
-                endpoint = new OpaqueEndpoint(type, encoding, _buffer.Slice(_pos, size - 6).ToArray());
-                _pos += size - 6;
+                endpoint = new OpaqueEndpoint(type, encoding, _buffer.Slice(_pos, size - 2).ToArray());
+                _pos += size - 2;
             }
 
             return endpoint;
@@ -923,8 +928,8 @@ namespace Ice
         /// <returns>The encoding version of the skipped encapsulation.</returns>
         internal Encoding SkipEncapsulation()
         {
-            (Encoding encoding, int size) = ReadEncapsulationHeader();
-            _pos += size - 6;
+            (int size, Encoding encoding) = ReadEncapsulationHeader();
+            _pos += size - 2;
             if (_pos > _buffer.Count)
             {
                 throw new InvalidDataException(
@@ -965,9 +970,6 @@ namespace Ice
             }
         }
 
-        private static int ReadFixedLengthSize(Encoding encoding, ReadOnlySpan<byte> buffer) =>
-            encoding == Encoding.V1_1 ? ReadInt(buffer) : Read20Size(buffer);
-
         private InputStream(
             Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, bool startEncaps, int pos)
         {
@@ -977,12 +979,18 @@ namespace Ice
             if (startEncaps)
             {
                 _pos = 0;
-                int size;
-                (Encoding, size) = ReadEncapsulationHeader(encoding, buffer);
+                _buffer = buffer;
+                Encoding = encoding;
                 Encoding.CheckSupported();
+
+                (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
                 // We slice the provided buffer to the encapsulation (minus its header). This way, we can easily prevent
                 // reads past the end of the encapsulation.
-                _buffer = buffer.Slice(6, size - 6);
+                _buffer = buffer.Slice(_pos, size - 2);
+                _pos = 0;
+
+                Encoding = encapsEncoding;
+                Encoding.CheckSupported();
                 InEncapsulation = true;
             }
             else
