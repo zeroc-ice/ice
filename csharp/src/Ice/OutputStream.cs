@@ -1188,13 +1188,13 @@ namespace Ice
             uint v = (uint)size;
             v <<= 2;
 
-            uint encodedSizeLength = sizeLength switch
+            uint encodedLength = sizeLength switch
             {
                 1 => 0x00,
                 2 => 0x01,
                 _ => 0x02
             };
-            v |= encodedSizeLength;
+            v |= encodedLength;
             MemoryMarshal.Write(uintBuf, ref v);
             for (int i = sizeLength; i < 4; ++i)
             {
@@ -1403,21 +1403,13 @@ namespace Ice
             }
             else
             {
-                WriteFixedLength20Size(size, sizeLength);
+                Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
+                Span<byte> data = stackalloc byte[sizeLength];
+                WriteFixedLength20Size(size, data);
+                WriteByteSpan(data);
             }
             WriteByte(encoding.Major);
             WriteByte(encoding.Minor);
-        }
-
-        /// <summary>Writes a size to the stream using a fixed number of bytes and the 2.0 encoding.</summary>
-        /// <param name="size">The size to write to the stream.</param>
-        /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4. </param>
-        private void WriteFixedLength20Size(int size, int sizeLength = 4)
-        {
-            Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
-            Span<byte> data = stackalloc byte[sizeLength];
-            WriteFixedLength20Size(size, data);
-            WriteByteSpan(data);
         }
 
         /// <summary>Writes a fixed-size numeric to the stream.</summary>

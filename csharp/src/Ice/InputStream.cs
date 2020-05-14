@@ -824,7 +824,7 @@ namespace Ice
             }
             else
             {
-                sizeLength = (1 << (buffer[0] & 0x03));
+                sizeLength = 1 << (buffer[0] & 0x03);
                 size = Read20Size(buffer);
             }
 
