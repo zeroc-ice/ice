@@ -5,7 +5,7 @@
 using System;
 using System.Globalization;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Represents a version of the Ice protocol. A Protocol can hold a byte value that does not correspond
     /// to any of its enumerators, and such protocol is not supported by this Ice runtime. It is possible to marshal

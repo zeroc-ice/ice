@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 
 using System;
 using System.Collections.Generic;
@@ -54,9 +54,9 @@ namespace IceInternal
 
         public string Transport() => _instance.Transport;
 
-        public Ice.ConnectionInfo GetInfo()
+        public ConnectionInfo GetInfo()
         {
-            var info = new Ice.TCPConnectionInfo();
+            var info = new TCPConnectionInfo();
             Socket? fd = _stream.Fd();
             if (fd != null)
             {

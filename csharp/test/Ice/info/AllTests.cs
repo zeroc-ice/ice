@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Test;
 
-namespace Ice.info
+namespace ZeroC.Ice.info
 {
     public class AllTests
     {

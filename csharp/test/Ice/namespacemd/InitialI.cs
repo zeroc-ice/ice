@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.namespacemd
+namespace ZeroC.Ice.namespacemd
 {
     public class Initial : Test.IInitial
     {

@@ -2,9 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public abstract class BasePluginFail : Ice.IPlugin
+using ZeroC.Ice;
+
+public abstract class BasePluginFail : IPlugin
 {
-    public BasePluginFail(Ice.Communicator communicator)
+    public BasePluginFail(Communicator communicator)
     {
         _communicator = communicator;
         _initialized = false;
@@ -18,7 +20,7 @@ public abstract class BasePluginFail : Ice.IPlugin
     public abstract void Initialize();
     public abstract void Destroy();
 
-    protected Ice.Communicator _communicator;
+    protected Communicator _communicator;
     protected bool _initialized;
     protected bool _destroyed;
     protected BasePluginFail? _one;

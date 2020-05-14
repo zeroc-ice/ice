@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using Test;
 
-using Ice;
+using ZeroC.Ice;
 
 public class Client : TestHelper
 {

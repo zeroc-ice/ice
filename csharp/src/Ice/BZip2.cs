@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     // Map Bzip2 bz_stream struct to a C# struct for using with the Bzip2 low level API.
     [StructLayout(LayoutKind.Sequential)]

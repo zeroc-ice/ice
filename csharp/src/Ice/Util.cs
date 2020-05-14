@@ -5,7 +5,7 @@
 using System;
 using System.Threading;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>
     /// Utility methods for the Ice run time.
@@ -65,7 +65,7 @@ namespace IceInternal
 {
     public sealed class Util
     {
-        public static ITransportPluginFacade GetTransportPluginFacade(Ice.Communicator communicator) =>
+        public static ITransportPluginFacade GetTransportPluginFacade(ZeroC.Ice.Communicator communicator) =>
             new TransportPluginFacade(communicator);
 
         public static ThreadPriority StringToThreadPriority(string? s)

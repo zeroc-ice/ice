@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace ZeroC.Ice
 {
     // Default implementation of the Process Admin facet.
     internal sealed class Process : IProcess

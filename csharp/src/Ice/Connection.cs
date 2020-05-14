@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.Instrumentation;
+using ZeroC.Ice.Instrumentation;
 using IceInternal;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public enum ACMClose
     {

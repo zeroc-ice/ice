@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
-
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The output mode or format for ToString on an Ice proxy or Ice identity.</summary>
     public enum ToStringMode

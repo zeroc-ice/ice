@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Ice.enums
+namespace ZeroC.Ice.enums
 {
     public class TestIntf : Test.ITestIntf
     {

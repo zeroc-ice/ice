@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Ice.dictMapping.AMD
+namespace ZeroC.Ice.dictMapping.AMD
 {
     public sealed class MyClass : Test.IMyClass
     {

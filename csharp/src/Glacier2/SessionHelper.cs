@@ -6,9 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Ice;
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
 
-namespace Glacier2
+namespace ZeroC.Glacier2
 {
     /// <summary>
     /// A helper class for using Glacier2 with GUI applications.
@@ -32,7 +33,7 @@ namespace Glacier2
             bool useCallbacks,
             Dictionary<string, string> properties,
             ILogger? logger = null,
-            Ice.Instrumentation.ICommunicatorObserver? observer = null,
+            ICommunicatorObserver? observer = null,
             string[]? typeIdNamespaces = null)
         {
             _callback = callback;
@@ -135,7 +136,7 @@ namespace Glacier2
                 }
                 Debug.Assert(_category != null);
                 return InternalObjectAdapter().Add(
-                    new Ice.Identity(Guid.NewGuid().ToString(), _category), servant, IObjectPrx.Factory);
+                    new Identity(Guid.NewGuid().ToString(), _category), servant, IObjectPrx.Factory);
             }
         }
 

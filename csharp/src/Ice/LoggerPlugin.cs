@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>
     /// Class to support custom loggers. Applications using a custom logger

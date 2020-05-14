@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.adapterDeactivation
+namespace ZeroC.Ice.adapterDeactivation
 {
     public class Server : TestHelper
     {

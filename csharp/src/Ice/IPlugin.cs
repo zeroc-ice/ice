@@ -1,7 +1,7 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-namespace Ice
+namespace ZeroC.Ice
 {
     public partial interface IPlugin
     {

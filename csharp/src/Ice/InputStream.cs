@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>A delegate that reads a value from an input stream.</summary>
     /// <typeparam name="T">The type of the value to read.</typeparam>

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using ZeroC.Ice;
+
 namespace IceInternal
 {
     public sealed class ACMConfig
@@ -13,11 +15,11 @@ namespace IceInternal
         internal ACMConfig(bool server)
         {
             Timeout = 60 * 1000;
-            Heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
-            Close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
+            Heartbeat = ACMHeartbeat.HeartbeatOnDispatch;
+            Close = server ? ACMClose.CloseOnInvocation : ACMClose.CloseOnInvocationAndIdle;
         }
 
-        public ACMConfig(Ice.Communicator communicator, Ice.ILogger logger, string prefix, ACMConfig defaults)
+        public ACMConfig(Communicator communicator, ILogger logger, string prefix, ACMConfig defaults)
         {
             Debug.Assert(prefix != null);
 
@@ -40,9 +42,9 @@ namespace IceInternal
             }
 
             int hb = communicator.GetPropertyAsInt($"{prefix}.Heartbeat") ?? (int)defaults.Heartbeat;
-            if (hb >= (int)Ice.ACMHeartbeat.HeartbeatOff && hb <= (int)Ice.ACMHeartbeat.HeartbeatAlways)
+            if (hb >= (int)ACMHeartbeat.HeartbeatOff && hb <= (int)ACMHeartbeat.HeartbeatAlways)
             {
-                Heartbeat = (Ice.ACMHeartbeat)hb;
+                Heartbeat = (ACMHeartbeat)hb;
             }
             else
             {
@@ -51,9 +53,9 @@ namespace IceInternal
             }
 
             int cl = communicator.GetPropertyAsInt($"{prefix}.Close") ?? (int)defaults.Close;
-            if (cl >= (int)Ice.ACMClose.CloseOff && cl <= (int)Ice.ACMClose.CloseOnIdleForceful)
+            if (cl >= (int)ACMClose.CloseOff && cl <= (int)ACMClose.CloseOnIdleForceful)
             {
-                Close = (Ice.ACMClose)cl;
+                Close = (ACMClose)cl;
             }
             else
             {
@@ -65,35 +67,35 @@ namespace IceInternal
         public ACMConfig Clone() => (ACMConfig)MemberwiseClone();
 
         public int Timeout;
-        public Ice.ACMHeartbeat Heartbeat;
-        public Ice.ACMClose Close;
+        public ACMHeartbeat Heartbeat;
+        public ACMClose Close;
     }
 
     public interface IACMMonitor : ITimerTask
     {
-        void Add(Ice.Connection con);
-        void Remove(Ice.Connection con);
-        void Reap(Ice.Connection con);
+        void Add(Connection con);
+        void Remove(Connection con);
+        void Reap(Connection con);
 
-        IACMMonitor Acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h);
-        Ice.ACM GetACM();
+        IACMMonitor Acm(int? timeout, ACMClose? c, ACMHeartbeat? h);
+        ACM GetACM();
     }
 
     public class FactoryACMMonitor : IACMMonitor
     {
         internal class Change
         {
-            internal Change(Ice.Connection connection, bool remove)
+            internal Change(Connection connection, bool remove)
             {
                 Connection = connection;
                 Remove = remove;
             }
 
-            public readonly Ice.Connection Connection;
+            public readonly Connection Connection;
             public readonly bool Remove;
         }
 
-        internal FactoryACMMonitor(Ice.Communicator communicator, ACMConfig config)
+        internal FactoryACMMonitor(Communicator communicator, ACMConfig config)
         {
             _communicator = communicator;
             _config = config;
@@ -139,7 +141,7 @@ namespace IceInternal
             }
         }
 
-        public void Add(Ice.Connection connection)
+        public void Add(Connection connection)
         {
             if (_config.Timeout == 0)
             {
@@ -161,7 +163,7 @@ namespace IceInternal
             }
         }
 
-        public void Remove(Ice.Connection connection)
+        public void Remove(Connection connection)
         {
             if (_config.Timeout == 0)
             {
@@ -175,7 +177,7 @@ namespace IceInternal
             }
         }
 
-        public void Reap(Ice.Connection connection)
+        public void Reap(Connection connection)
         {
             lock (this)
             {
@@ -183,7 +185,7 @@ namespace IceInternal
             }
         }
 
-        public IACMMonitor Acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h)
+        public IACMMonitor Acm(int? timeout, ACMClose? c, ACMHeartbeat? h)
         {
             Debug.Assert(_communicator != null);
 
@@ -203,9 +205,9 @@ namespace IceInternal
             return new ConnectionACMMonitor(this, _communicator.Timer(), config);
         }
 
-        public Ice.ACM GetACM()
+        public ACM GetACM()
         {
-            return new Ice.ACM
+            return new ACM
             {
                 Timeout = _config.Timeout / 1000,
                 Close = _config.Close,
@@ -213,16 +215,16 @@ namespace IceInternal
             };
         }
 
-        internal IEnumerable<Ice.Connection> SwapReapedConnections()
+        internal IEnumerable<Connection> SwapReapedConnections()
         {
             lock (this)
             {
                 if (_reapedConnections.Count == 0)
                 {
-                    return Enumerable.Empty<Ice.Connection>();
+                    return Enumerable.Empty<Connection>();
                 }
-                List<Ice.Connection> connections = _reapedConnections;
-                _reapedConnections = new List<Ice.Connection>();
+                List<Connection> connections = _reapedConnections;
+                _reapedConnections = new List<Connection>();
                 return connections;
             }
         }
@@ -263,7 +265,7 @@ namespace IceInternal
             // that connections can be added or removed during monitoring.
             //
             long now = Time.CurrentMonotonicTimeMillis();
-            foreach (Ice.Connection connection in _connections)
+            foreach (Connection connection in _connections)
             {
                 try
                 {
@@ -288,12 +290,12 @@ namespace IceInternal
             }
         }
 
-        private Ice.Communicator? _communicator;
+        private Communicator? _communicator;
         private readonly ACMConfig _config;
 
-        private readonly HashSet<Ice.Connection> _connections = new HashSet<Ice.Connection>();
+        private readonly HashSet<Connection> _connections = new HashSet<Connection>();
         private readonly List<Change> _changes = new List<Change>();
-        private List<Ice.Connection> _reapedConnections = new List<Ice.Connection>();
+        private List<Connection> _reapedConnections = new List<Connection>();
     }
 
     internal class ConnectionACMMonitor : IACMMonitor
@@ -305,7 +307,7 @@ namespace IceInternal
             _config = config;
         }
 
-        public void Add(Ice.Connection connection)
+        public void Add(Connection connection)
         {
             lock (this)
             {
@@ -318,7 +320,7 @@ namespace IceInternal
             }
         }
 
-        public void Remove(Ice.Connection connection)
+        public void Remove(Connection connection)
         {
             lock (this)
             {
@@ -331,13 +333,13 @@ namespace IceInternal
             }
         }
 
-        public void Reap(Ice.Connection connection) => _parent.Reap(connection);
+        public void Reap(Connection connection) => _parent.Reap(connection);
 
-        public IACMMonitor Acm(int? timeout, Ice.ACMClose? c, Ice.ACMHeartbeat? h) => _parent.Acm(timeout, c, h);
+        public IACMMonitor Acm(int? timeout, ACMClose? c, ACMHeartbeat? h) => _parent.Acm(timeout, c, h);
 
-        public Ice.ACM GetACM()
+        public ACM GetACM()
         {
-            return new Ice.ACM
+            return new ACM
             {
                 Timeout = _config.Timeout / 1000,
                 Close = _config.Close,
@@ -347,7 +349,7 @@ namespace IceInternal
 
         public void RunTimerTask()
         {
-            Ice.Connection connection;
+            Connection connection;
             lock (this)
             {
                 if (_connection == null)
@@ -371,6 +373,6 @@ namespace IceInternal
         private readonly Timer _timer;
         private readonly ACMConfig _config;
 
-        private Ice.Connection? _connection;
+        private Connection? _connection;
     }
 }

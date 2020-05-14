@@ -18,7 +18,7 @@
 #include <Ice/BuiltinSequences.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 /// IceBox is an application server for Ice applications. IceBox can load IceBox services packaged as DLLs, .NET
 /// assemblies, Java classes and similar.
 module IceBox

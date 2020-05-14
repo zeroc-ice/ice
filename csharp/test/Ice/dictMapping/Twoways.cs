@@ -7,7 +7,7 @@ using System.Linq;
 
 using Test;
 
-namespace Ice.dictMapping
+namespace ZeroC.Ice.dictMapping
 {
     public class Twoways
     {

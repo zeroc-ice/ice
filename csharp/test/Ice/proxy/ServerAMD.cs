@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.proxy.AMD.Test;
+using ZeroC.Ice.proxy.AMD.Test;
 
-namespace Ice.proxy.AMD
+namespace ZeroC.Ice.proxy.AMD
 {
     public class Server : global::Test.TestHelper
     {

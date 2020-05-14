@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Ice.dictMapping
+namespace ZeroC.Ice.dictMapping
 {
     public sealed class MyClass : Test.IMyClass
     {

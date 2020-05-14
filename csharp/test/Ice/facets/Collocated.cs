@@ -3,9 +3,8 @@
 //
 
 using Test;
-using Ice.facets.Test;
 
-namespace Ice.facets
+namespace ZeroC.Ice.facets
 {
     public class Collocated : TestHelper
     {

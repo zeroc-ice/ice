@@ -13,7 +13,7 @@ public class Client : TestHelper
     public sealed class caseI : Icase
     {
         public ValueTask<int>
-        catchAsync(int @checked, Ice.Current current)
+        catchAsync(int @checked, ZeroC.Ice.Current current)
         {
             return new ValueTask<int>(0);
         }
@@ -21,7 +21,7 @@ public class Client : TestHelper
 
     public sealed class decimalI : Idecimal
     {
-        public void @default(Ice.Current current)
+        public void @default(ZeroC.Ice.Current current)
         {
         }
     }
@@ -29,21 +29,21 @@ public class Client : TestHelper
     public sealed class explicitI : Iexplicit
     {
         public ValueTask<int>
-        catchAsync(int @checked, Ice.Current current) => new ValueTask<int>(0);
+        catchAsync(int @checked, ZeroC.Ice.Current current) => new ValueTask<int>(0);
 
-        public void @default(Ice.Current current) => Assert(current.Operation == "default");
+        public void @default(ZeroC.Ice.Current current) => Assert(current.Operation == "default");
     }
 
     public sealed class Test1I : @abstract.System.ITest
     {
-        public void op(Ice.Current c)
+        public void op(ZeroC.Ice.Current c)
         {
         }
     }
 
     public sealed class Test2I : ITest
     {
-        public void op(Ice.Current c)
+        public void op(ZeroC.Ice.Current c)
         {
         }
     }
@@ -103,7 +103,7 @@ public class Client : TestHelper
         using (var communicator = Initialize(ref args))
         {
             communicator.SetProperty("TestAdapter.Endpoints", "default");
-            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new decimalI());
             adapter.Add("test1", new Test1I());
             adapter.Add("test2", new Test2I());

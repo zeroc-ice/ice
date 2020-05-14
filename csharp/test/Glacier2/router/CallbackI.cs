@@ -3,27 +3,28 @@
 //
 
 using Test;
+using ZeroC.Ice;
 
 public sealed class Callback : ICallback
 {
     public void
-    initiateCallback(ICallbackReceiverPrx? proxy, Ice.Current current) => proxy!.callback(current.Context);
+    initiateCallback(ICallbackReceiverPrx? proxy, Current current) => proxy!.callback(current.Context);
 
     public void
-    initiateCallbackEx(ICallbackReceiverPrx? proxy, Ice.Current current)
+    initiateCallbackEx(ICallbackReceiverPrx? proxy, Current current)
     {
         try
         {
             proxy!.callbackEx(current.Context);
         }
-        catch (Ice.RemoteException ex)
+        catch (RemoteException ex)
         {
             ex.ConvertToUnhandled = false;
             throw;
         }
     }
 
-    public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
+    public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 }
 
 public sealed class CallbackReceiver : ICallbackReceiver
@@ -31,7 +32,7 @@ public sealed class CallbackReceiver : ICallbackReceiver
     public CallbackReceiver() => _callback = false;
 
     public void
-    callback(Ice.Current current)
+    callback(Current current)
     {
         lock (this)
         {
@@ -42,7 +43,7 @@ public sealed class CallbackReceiver : ICallbackReceiver
     }
 
     public void
-    callbackEx(Ice.Current current)
+    callbackEx(Current current)
     {
         callback(current);
         throw new CallbackException(3.14, "3.14");

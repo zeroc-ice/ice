@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
     public class Hello : Test.IHello
     {

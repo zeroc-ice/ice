@@ -5,7 +5,7 @@
 using System.IO;
 using Test;
 
-namespace Ice.defaultValue
+namespace ZeroC.Ice.defaultValue
 {
     public class AllTests
     {

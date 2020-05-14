@@ -6,9 +6,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[cs:typeid-namespace:Ice.serialize.TypeId]]
+[[cs:typeid-namespace:ZeroC.Ice.serialize.TypeId]]
 
-[cs:namespace:Ice.serialize]
+[cs:namespace:ZeroC.Ice.serialize]
 module Test
 {
 

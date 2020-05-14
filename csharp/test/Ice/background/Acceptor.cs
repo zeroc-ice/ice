@@ -9,7 +9,7 @@ internal class Acceptor : IceInternal.IAcceptor
         _acceptor.Close();
     }
 
-    public Ice.Endpoint Listen()
+    public ZeroC.Ice.Endpoint Listen()
     {
         _endpoint = _endpoint.GetEndpoint(_acceptor.Listen());
         return _endpoint;

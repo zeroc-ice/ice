@@ -8,9 +8,9 @@
 // Suppress warnings
 //
 [[suppress-warning:invalid-metadata, deprecated]]
-[[cs:typeid-namespace:Ice.defaultValue.TypeId]]
+[[cs:typeid-namespace:ZeroC.Ice.defaultValue.TypeId]]
 
-[cs:namespace:Ice.defaultValue]
+[cs:namespace:ZeroC.Ice.defaultValue]
 module Test
 {
 

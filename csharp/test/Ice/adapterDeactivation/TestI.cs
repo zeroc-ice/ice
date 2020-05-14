@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.adapterDeactivation
+namespace ZeroC.Ice.adapterDeactivation
 {
     public sealed class TestIntf : Test.ITestIntf
     {

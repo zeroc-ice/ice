@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using Test;
 
 public class AllTests

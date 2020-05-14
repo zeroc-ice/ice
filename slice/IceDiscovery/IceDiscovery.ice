@@ -16,7 +16,7 @@
 #include <Ice/Identity.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceDiscovery
 {
     /// The LookupReply interface is used by IceDiscovery clients to answer requests

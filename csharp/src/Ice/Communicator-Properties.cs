@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed partial class Communicator
     {

@@ -4,10 +4,11 @@
 
 using Test;
 using System.Collections.Generic;
+using ZeroC.Ice;
 
 internal class BackgroundController : IBackgroundController
 {
-    public void pauseCall(string opName, Ice.Current current)
+    public void pauseCall(string opName, Current current)
     {
         lock (this)
         {
@@ -15,7 +16,7 @@ internal class BackgroundController : IBackgroundController
         }
     }
 
-    public void resumeCall(string opName, Ice.Current current)
+    public void resumeCall(string opName, Current current)
     {
         lock (this)
         {
@@ -24,7 +25,7 @@ internal class BackgroundController : IBackgroundController
         }
     }
 
-    internal void checkCallPause(Ice.Current current)
+    internal void checkCallPause(Current current)
     {
         lock (this)
         {
@@ -36,42 +37,42 @@ internal class BackgroundController : IBackgroundController
         }
     }
 
-    public void initializeException(bool enable, Ice.Current current)
+    public void initializeException(bool enable, Current current)
     {
-        _configuration.InitializeException(enable ? new Ice.TransportException("") : null);
+        _configuration.InitializeException(enable ? new TransportException("") : null);
     }
 
-    public void readReady(bool enable, Ice.Current current)
+    public void readReady(bool enable, Current current)
     {
         _configuration.ReadReady(enable);
     }
 
-    public void readException(bool enable, Ice.Current current)
+    public void readException(bool enable, Current current)
     {
-        _configuration.ReadException(enable ? new Ice.TransportException("") : null);
+        _configuration.ReadException(enable ? new TransportException("") : null);
     }
 
-    public void writeReady(bool enable, Ice.Current current)
+    public void writeReady(bool enable, Current current)
     {
         _configuration.WriteReady(enable);
     }
 
-    public void writeException(bool enable, Ice.Current current)
+    public void writeException(bool enable, Current current)
     {
-        _configuration.WriteException(enable ? new Ice.TransportException("") : null);
+        _configuration.WriteException(enable ? new TransportException("") : null);
     }
 
-    public void buffered(bool enable, Ice.Current current)
+    public void buffered(bool enable, Current current)
     {
         _configuration.Buffered(enable);
     }
 
-    internal BackgroundController(Ice.ObjectAdapter adapter)
+    internal BackgroundController(ObjectAdapter adapter)
     {
         _adapter = adapter;
         _configuration = Configuration.GetInstance();
     }
-    private Ice.ObjectAdapter _adapter;
+    private ObjectAdapter _adapter;
     private Configuration _configuration;
     private HashSet<string> _pausedCalls = new HashSet<string>();
 }

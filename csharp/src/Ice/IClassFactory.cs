@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>IClassFactory is a publicly visible Ice internal interface used by InputStream and implemented by
     /// the generated code.</summary>

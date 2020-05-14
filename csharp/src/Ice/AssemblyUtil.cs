@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public static class AssemblyUtil
     {

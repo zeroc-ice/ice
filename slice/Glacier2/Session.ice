@@ -20,7 +20,7 @@
 #include <Glacier2/SSLInfo.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Glacier2
 {
     /// This exception is raised if an attempt to create a new session failed.

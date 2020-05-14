@@ -2,13 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public class PluginOneFactory : Ice.IPluginFactory
+using ZeroC.Ice;
+
+public class PluginOneFactory : IPluginFactory
 {
-    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new PluginOne(communicator);
+    public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginOne(communicator);
 
     internal class PluginOne : BasePlugin
     {
-        public PluginOne(Ice.Communicator communicator) : base(communicator)
+        public PluginOne(Communicator communicator) : base(communicator)
         {
         }
 

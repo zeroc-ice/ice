@@ -3,12 +3,13 @@
 //
 
 using System;
+using ZeroC.Ice;
 
-public class PluginFactory : Ice.IPluginFactory
+public class PluginFactory : IPluginFactory
 {
-    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new Plugin(args);
+    public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(args);
 
-    internal class Plugin : Ice.IPlugin
+    internal class Plugin : IPlugin
     {
         public Plugin(string[] args) => _args = args;
 

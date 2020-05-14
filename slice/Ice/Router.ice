@@ -18,6 +18,7 @@
 
 [[java:package:com.zeroc]]
 
+[cs:namespace:ZeroC]
 module Ice
 {
     /// The Ice router interface. Routers can be set either globally with

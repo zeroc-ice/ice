@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.admin.Test;
+using ZeroC.Ice.admin.Test;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Test;
 
-namespace Ice.admin
+namespace ZeroC.Ice.admin
 {
     public class AllTests
     {

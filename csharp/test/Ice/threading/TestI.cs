@@ -2,14 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
-using System.Diagnostics;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Ice.threading.Test;
+using ZeroC.Ice.threading.Test;
 
-namespace Ice.threading
+namespace ZeroC.Ice.threading
 {
     public sealed class TestIntf : ITestIntf
     {

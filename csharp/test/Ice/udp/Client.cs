@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Ice.udp
+namespace ZeroC.Ice.udp
 {
     public class Client : global::Test.TestHelper
     {

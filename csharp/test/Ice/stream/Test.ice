@@ -12,7 +12,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[cs:namespace:Ice.stream]
+[cs:namespace:ZeroC.Ice.stream]
 module Test
 {
 
@@ -130,7 +130,7 @@ sequence<Ice::StringSeq> StringSStack;
 [clr:generic:SortedDictionary]
 dictionary<string, string> SortedStringStringD;
 
-[clr:serializable:Ice.stream.Serialize.Small] sequence<byte> SerialSmall;
+[clr:serializable:ZeroC.Ice.stream.Serialize.Small] sequence<byte> SerialSmall;
 
 class MyClass
 {

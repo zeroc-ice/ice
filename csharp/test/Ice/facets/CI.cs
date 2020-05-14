@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.facets
+namespace ZeroC.Ice.facets
 {
     public sealed class C : Test.IC
     {

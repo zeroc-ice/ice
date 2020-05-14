@@ -22,7 +22,7 @@
 #include <Ice/BuiltinSequences.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceGrid
 {
     /// This exception is raised if an application does not exist.

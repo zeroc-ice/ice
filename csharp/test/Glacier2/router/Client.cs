@@ -2,10 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
 using System;
 using System.Collections.Generic;
 using Test;
+using ZeroC.Ice;
+using ZeroC.Glacier2;
 
 public class Client : TestHelper
 {
@@ -29,11 +30,11 @@ public class Client : TestHelper
                 Console.Out.WriteLine("ok");
             }
 
-            Glacier2.IRouterPrx? router;
+            ZeroC.Glacier2.IRouterPrx? router;
             {
                 Console.Out.Write("testing checked cast for router... ");
                 Console.Out.Flush();
-                router = Glacier2.IRouterPrx.CheckedCast(routerBase);
+                router = ZeroC.Glacier2.IRouterPrx.CheckedCast(routerBase);
                 Assert(router != null);
                 Console.Out.WriteLine("ok");
             }
@@ -97,11 +98,11 @@ public class Client : TestHelper
                     router.CreateSession("userid", "xxx");
                     Assert(false);
                 }
-                catch (Glacier2.PermissionDeniedException)
+                catch (PermissionDeniedException)
                 {
                     Console.Out.WriteLine("ok");
                 }
-                catch (Glacier2.CannotCreateSessionException)
+                catch (CannotCreateSessionException)
                 {
                     Assert(false);
                 }
@@ -115,7 +116,7 @@ public class Client : TestHelper
                     router.DestroySession();
                     Assert(false);
                 }
-                catch (Glacier2.SessionNotExistException)
+                catch (SessionNotExistException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -128,11 +129,11 @@ public class Client : TestHelper
                 {
                     router.CreateSession("userid", "abc123");
                 }
-                catch (Glacier2.PermissionDeniedException)
+                catch (PermissionDeniedException)
                 {
                     Assert(false);
                 }
-                catch (Glacier2.CannotCreateSessionException)
+                catch (CannotCreateSessionException)
                 {
                     Assert(false);
                 }
@@ -147,11 +148,11 @@ public class Client : TestHelper
                     router.CreateSession("userid", "abc123");
                     Assert(false);
                 }
-                catch (Glacier2.PermissionDeniedException)
+                catch (PermissionDeniedException)
                 {
                     Assert(false);
                 }
-                catch (Glacier2.CannotCreateSessionException)
+                catch (CannotCreateSessionException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -265,7 +266,7 @@ public class Client : TestHelper
                     twoway.initiateCallback(fakeTwowayR, context);
                     Assert(false);
                 }
-                catch (Ice.ObjectNotExistException)
+                catch (ObjectNotExistException)
                 {
                     Console.Out.WriteLine("ok");
                 }

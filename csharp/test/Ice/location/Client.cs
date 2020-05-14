@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
     public class Client : TestHelper
     {

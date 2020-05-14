@@ -5,6 +5,8 @@
 using System;
 using Test;
 
+using ZeroC.Ice;
+
 public class Server : TestHelper
 {
     public override void Run(string[] args)
@@ -22,7 +24,7 @@ public class Server : TestHelper
         communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num));
         communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
 
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
+        ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
         adapter.Add($"controller{num}", new Controller());
         adapter.Activate();
 

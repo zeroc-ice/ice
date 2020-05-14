@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 
@@ -14,7 +14,7 @@ namespace IceInternal
         EndpointType Type();
         string Transport();
         Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint);
-        Endpoint Read(Ice.InputStream s);
+        Endpoint Read(InputStream s);
         void Destroy();
 
         IEndpointFactory Clone(TransportInstance instance);
@@ -52,7 +52,7 @@ namespace IceInternal
             Endpoint underlyingEndpoint = _underlying.Create(endpointString, options, oaEndpoint);
             return CreateWithUnderlying(underlyingEndpoint, endpointString, options, oaEndpoint);
         }
-        public Endpoint Read(Ice.InputStream istr)
+        public Endpoint Read(InputStream istr)
         {
             if (_underlying == null)
             {
@@ -76,6 +76,6 @@ namespace IceInternal
 
         protected abstract Endpoint CreateWithUnderlying(Endpoint underlying,
             string endpointString, Dictionary<string, string?> options, bool oaEndpoint);
-        protected abstract Endpoint ReadWithUnderlying(Endpoint underlying, Ice.InputStream istr);
+        protected abstract Endpoint ReadWithUnderlying(Endpoint underlying, InputStream istr);
     }
 }

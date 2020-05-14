@@ -4,9 +4,9 @@
 
 #pragma once
 
-[[cs:typeid-namespace:Ice.seqMapping.AMD.TypeId]]
+[[cs:typeid-namespace:ZeroC.Ice.seqMapping.AMD.TypeId]]
 
-[cs:namespace:Ice.seqMapping.AMD]
+[cs:namespace:ZeroC.Ice.seqMapping.AMD]
 module Test
 {
 
@@ -120,11 +120,11 @@ sequence<En> AEnS;
 [clr:generic:Queue] sequence<En> QEnS;
 [clr:generic:Stack] sequence<En> SEnS;
 
-[clr:generic:Ice.seqMapping.Custom] sequence<int> CustomIntS;
-[clr:generic:Ice.seqMapping.Custom] sequence<CV> CustomCVS;
+[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<int> CustomIntS;
+[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<CV> CustomCVS;
 
-[clr:generic:Ice.seqMapping.Custom] sequence<CustomIntS> CustomIntSS;
-[clr:generic:Ice.seqMapping.Custom] sequence<CustomCVS> CustomCVSS;
+[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<CustomIntS> CustomIntSS;
+[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<CustomCVS> CustomCVSS;
 
 [clr:serializable:Serialize.Small] sequence<byte> SerialSmall;
 [clr:serializable:Serialize.Large] sequence<byte> SerialLarge;

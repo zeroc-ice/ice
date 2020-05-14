@@ -5,7 +5,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice.timeout
+namespace ZeroC.Ice.timeout
 {
     internal class Timeout : Test.ITimeout
     {

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 
 public class Client : Test.TestHelper
 {

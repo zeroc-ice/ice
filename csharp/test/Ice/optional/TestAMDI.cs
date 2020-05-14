@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Ice.optional.AMD
+namespace ZeroC.Ice.optional.AMD
 {
     public class Initial : Test.IInitial
     {

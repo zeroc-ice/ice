@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -83,7 +83,7 @@ namespace IceInternal
             _connection.AsyncRequestCanceled(outAsync, ex);
         }
 
-        public Ice.Connection? GetConnection()
+        public Connection? GetConnection()
         {
             lock (this)
             {
@@ -108,7 +108,7 @@ namespace IceInternal
         // Implementation of Reference.GetConnectionCallback
         //
 
-        public void SetConnection(Ice.Connection connection, bool compress)
+        public void SetConnection(Connection connection, bool compress)
         {
             lock (this)
             {
@@ -150,7 +150,7 @@ namespace IceInternal
             {
                 _reference.Communicator.RemoveConnectRequestHandler(_reference, this);
             }
-            catch (Ice.CommunicatorDestroyedException)
+            catch (CommunicatorDestroyedException)
             {
                 // Ignore
             }

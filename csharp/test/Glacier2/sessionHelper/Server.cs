@@ -3,7 +3,7 @@
 //
 
 using Test;
-using Ice;
+using ZeroC.Ice;
 
 public class Server : TestHelper
 {

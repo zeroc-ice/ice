@@ -19,6 +19,7 @@
 
 [[java:package:com.zeroc]]
 
+[cs:namespace:ZeroC]
 module Ice
 {
     /// An enumeration representing the different types of log messages.

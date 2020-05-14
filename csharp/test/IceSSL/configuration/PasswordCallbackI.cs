@@ -5,7 +5,7 @@
 using System.Security;
 using Test;
 
-public class PasswordCallback : IceSSL.IPasswordCallback
+public class PasswordCallback : ZeroC.IceSSL.IPasswordCallback
 {
     public PasswordCallback() => _password = CreateSecureString("password");
 

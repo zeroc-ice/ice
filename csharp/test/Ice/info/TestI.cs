@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
-namespace Ice.info
+namespace ZeroC.Ice.info
 {
     public class TestIntf : Test.ITestIntf
     {
-        private static IPEndpoint? getIPEndpoint(Ice.Endpoint endpoint)
+        private static IPEndpoint? getIPEndpoint(Endpoint endpoint)
         {
             for (Endpoint? e = endpoint; e != null; e = e.Underlying)
             {

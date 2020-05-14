@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using IceInternal;
 
-namespace IceMX
+namespace ZeroC.IceMX
 {
     public partial class Metrics
     {

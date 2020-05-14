@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:Ice.binding]
+[cs:namespace:ZeroC.Ice.binding]
 module Test
 {
 

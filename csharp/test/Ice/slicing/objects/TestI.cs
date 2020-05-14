@@ -7,25 +7,27 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
+using ZeroC.Ice;
+
 public sealed class TestIntf : ITestIntf
 {
-    public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
+    public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
-    public Ice.AnyClass SBaseAsObject(Ice.Current current)
+    public AnyClass SBaseAsObject(Current current)
     {
         var sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
-    public SBase SBaseAsSBase(Ice.Current current)
+    public SBase SBaseAsSBase(Current current)
     {
         var sb = new SBase();
         sb.sb = "SBase.sb";
         return sb;
     }
 
-    public SBase SBSKnownDerivedAsSBase(Ice.Current current)
+    public SBase SBSKnownDerivedAsSBase(Current current)
     {
         var sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -33,7 +35,7 @@ public sealed class TestIntf : ITestIntf
         return sbskd;
     }
 
-    public SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(Ice.Current current)
+    public SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived(Current current)
     {
         var sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -41,27 +43,27 @@ public sealed class TestIntf : ITestIntf
         return sbskd;
     }
 
-    public SBase SBSUnknownDerivedAsSBase(Ice.Current current)
+    public SBase SBSUnknownDerivedAsSBase(Current current)
         => new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
 
-    public SBase SBSUnknownDerivedAsSBaseCompact(Ice.Current current) =>
+    public SBase SBSUnknownDerivedAsSBaseCompact(Current current) =>
         new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
 
-    public Ice.AnyClass SUnknownAsObject(Ice.Current current)
+    public AnyClass SUnknownAsObject(Current current)
     {
         var su = new SUnknown("SUnknown.su", null);
         su.cycle = su;
         return su;
     }
 
-    public void checkSUnknown(Ice.AnyClass? obj, Ice.Current current)
+    public void checkSUnknown(AnyClass? obj, Current current)
     {
         TestHelper.Assert(obj is SUnknown);
         var su = (SUnknown)obj;
         TestHelper.Assert(su.su.Equals("SUnknown.su"));
     }
 
-    public B oneElementCycle(Ice.Current current)
+    public B oneElementCycle(Current current)
     {
         var b = new B();
         b.sb = "B1.sb";
@@ -69,7 +71,7 @@ public sealed class TestIntf : ITestIntf
         return b;
     }
 
-    public B twoElementCycle(Ice.Current current)
+    public B twoElementCycle(Current current)
     {
         var b1 = new B();
         b1.sb = "B1.sb";
@@ -80,7 +82,7 @@ public sealed class TestIntf : ITestIntf
         return b1;
     }
 
-    public B D1AsB(Ice.Current current)
+    public B D1AsB(Current current)
     {
         var d1 = new D1();
         d1.sb = "D1.sb";
@@ -95,7 +97,7 @@ public sealed class TestIntf : ITestIntf
         return d1;
     }
 
-    public D1 D1AsD1(Ice.Current current)
+    public D1 D1AsD1(Current current)
     {
         var d1 = new D1();
         d1.sb = "D1.sb";
@@ -110,7 +112,7 @@ public sealed class TestIntf : ITestIntf
         return d1;
     }
 
-    public B D2AsB(Ice.Current current)
+    public B D2AsB(Current current)
     {
         var d2 = new D2();
         d2.sb = "D2.sb";
@@ -125,7 +127,7 @@ public sealed class TestIntf : ITestIntf
         return d2;
     }
 
-    public (B, B) paramTest1(Ice.Current current)
+    public (B, B) paramTest1(Current current)
     {
         var d1 = new D1();
         d1.sb = "D1.sb";
@@ -140,13 +142,13 @@ public sealed class TestIntf : ITestIntf
         return (d1, d2);
     }
 
-    public (B, B) paramTest2(Ice.Current current)
+    public (B, B) paramTest2(Current current)
     {
         var (p1, p2) = paramTest1(current);
         return (p2, p1);
     }
 
-    public (B, B, B) paramTest3(Ice.Current current)
+    public (B, B, B) paramTest3(Current current)
     {
         var d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
@@ -175,7 +177,7 @@ public sealed class TestIntf : ITestIntf
         return (d3, d2, d4);
     }
 
-    public (B, B) paramTest4(Ice.Current current)
+    public (B, B) paramTest4(Current current)
     {
         var d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -187,21 +189,21 @@ public sealed class TestIntf : ITestIntf
         return (d4.p2, d4);
     }
 
-    public (B, B, B) returnTest1(Ice.Current current)
+    public (B, B, B) returnTest1(Current current)
     {
         var (p1, p2) = paramTest1(current);
         return (p1, p1, p2);
     }
 
-    public (B, B, B) returnTest2(Ice.Current current)
+    public (B, B, B) returnTest2(Current current)
     {
         var (p1, p2) = paramTest1(current);
         return (p2, p2, p1);
     }
 
-    public B? returnTest3(B? p1, B? p2, Ice.Current current) => p1;
+    public B? returnTest3(B? p1, B? p2, Current current) => p1;
 
-    public SS3 sequenceTest(SS1? p1, SS2? p2, Ice.Current current)
+    public SS3 sequenceTest(SS1? p1, SS2? p2, Current current)
     {
         var ss = new SS3();
         ss.c1 = p1;
@@ -210,7 +212,7 @@ public sealed class TestIntf : ITestIntf
     }
 
     public (IReadOnlyDictionary<int, B?>, IReadOnlyDictionary<int, B?>) dictionaryTest(Dictionary<int, B?> bin,
-        Ice.Current current)
+        Current current)
     {
         var bout = new Dictionary<int, B?>();
         int i;
@@ -239,12 +241,12 @@ public sealed class TestIntf : ITestIntf
         return (r, bout);
     }
 
-    public PBase? exchangePBase(PBase? pb, Ice.Current current) => pb;
+    public PBase? exchangePBase(PBase? pb, Current current) => pb;
 
-    public Preserved PBSUnknownAsPreserved(Ice.Current current) =>
+    public Preserved PBSUnknownAsPreserved(Current current) =>
         new PSUnknown(5, "preserved", "unknown", null, new MyClass(15));
 
-    public void checkPBSUnknown(Preserved? p, Ice.Current current)
+    public void checkPBSUnknown(Preserved? p, Current current)
     {
 
         TestHelper.Assert(p is PSUnknown);
@@ -257,7 +259,7 @@ public sealed class TestIntf : ITestIntf
     }
 
     public ValueTask<Preserved?>
-    PBSUnknownAsPreservedWithGraphAsync(Ice.Current current)
+    PBSUnknownAsPreservedWithGraphAsync(Current current)
     {
         var graph = new PNode();
         graph.next = new PNode();
@@ -268,7 +270,7 @@ public sealed class TestIntf : ITestIntf
         return new ValueTask<Preserved?>(r);
     }
 
-    public void checkPBSUnknownWithGraph(Preserved? p, Ice.Current current)
+    public void checkPBSUnknownWithGraph(Preserved? p, Current current)
     {
         TestHelper.Assert(p is PSUnknown);
         var pu = (PSUnknown)p;
@@ -281,14 +283,14 @@ public sealed class TestIntf : ITestIntf
     }
 
     public ValueTask<Preserved?>
-    PBSUnknown2AsPreservedWithGraphAsync(Ice.Current current)
+    PBSUnknown2AsPreservedWithGraphAsync(Current current)
     {
         var r = new PSUnknown2(5, "preserved", null);
         r.pb = r;
         return new ValueTask<Preserved?>(r);
     }
 
-    public void checkPBSUnknown2WithGraph(Preserved? p, Ice.Current current)
+    public void checkPBSUnknown2WithGraph(Preserved? p, Current current)
     {
         TestHelper.Assert(p is PSUnknown2);
         var pu = (PSUnknown2)p;
@@ -297,16 +299,16 @@ public sealed class TestIntf : ITestIntf
         TestHelper.Assert(pu.pb == pu);
     }
 
-    public PNode? exchangePNode(PNode? pn, Ice.Current current) => pn;
+    public PNode? exchangePNode(PNode? pn, Current current) => pn;
 
-    public void throwBaseAsBase(Ice.Current current)
+    public void throwBaseAsBase(Current current)
     {
         var b = new B("sb", null);
         b.pb = b;
         throw new BaseException("sbe", b);
     }
 
-    public void throwDerivedAsBase(Ice.Current current)
+    public void throwDerivedAsBase(Current current)
     {
         var b = new B("sb1", null);
         b.pb = b;
@@ -318,7 +320,7 @@ public sealed class TestIntf : ITestIntf
         throw new DerivedException("sbe", b, "sde1", d);
     }
 
-    public void throwDerivedAsDerived(Ice.Current current)
+    public void throwDerivedAsDerived(Current current)
     {
         var b = new B("sb1", null);
         b.pb = b;
@@ -330,7 +332,7 @@ public sealed class TestIntf : ITestIntf
         throw new DerivedException("sbe", b, "sde1", d);
     }
 
-    public void throwUnknownDerivedAsBase(Ice.Current current)
+    public void throwUnknownDerivedAsBase(Current current)
     {
         var d2 = new D2();
         d2.sb = "sb d2";
@@ -342,7 +344,7 @@ public sealed class TestIntf : ITestIntf
     }
 
     public ValueTask
-    throwPreservedExceptionAsync(Ice.Current current)
+    throwPreservedExceptionAsync(Current current)
     {
         var ue = new PSUnknownException();
         ue.p = new PSUnknown2(5, "preserved", null);
@@ -350,7 +352,7 @@ public sealed class TestIntf : ITestIntf
         throw ue;
     }
 
-    public Forward useForward(Ice.Current current)
+    public Forward useForward(Current current)
     {
         var f = new Forward();
         f.h = new Hidden();
@@ -361,10 +363,10 @@ public sealed class TestIntf : ITestIntf
 
 public sealed class TestIntf2 : ITestIntf2
 {
-    public SBase SBSUnknownDerivedAsSBase(Ice.Current current)
+    public SBase SBSUnknownDerivedAsSBase(Current current)
         => new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud");
 
-    public void CUnknownAsSBase(SBase? cUnknown, Ice.Current current)
+    public void CUnknownAsSBase(SBase? cUnknown, Current current)
     {
         if (cUnknown!.sb != "CUnknown.sb")
         {

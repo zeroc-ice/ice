@@ -4,14 +4,14 @@
 
 using Test;
 
-namespace Ice.optional
+namespace ZeroC.Ice.optional
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
             using var communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "Ice.optional.TypeId" });
+                typeIdNamespaces: new string[] { "ZeroC.Ice.optional.TypeId" });
             AllTests.allTests(this).shutdown();
         }
 

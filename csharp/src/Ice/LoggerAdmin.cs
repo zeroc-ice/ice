@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -134,7 +134,7 @@ namespace IceInternal
         public (IEnumerable<LogMessage>, string) GetLog(LogMessageType[] messageTypes, string[] categories,
             int messageMax, Current current)
         {
-            LinkedList<Ice.LogMessage> logMessages;
+            LinkedList<LogMessage> logMessages;
             lock (this)
             {
                 if (messageMax != 0)

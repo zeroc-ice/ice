@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.ami
+namespace ZeroC.Ice.ami
 {
     public class Server : TestHelper
     {

@@ -11,7 +11,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed class WSEndpoint : Endpoint
     {
@@ -88,7 +88,7 @@ namespace Ice
             }
         }
 
-        public override void IceWritePayload(Ice.OutputStream ostr)
+        public override void IceWritePayload(OutputStream ostr)
         {
             _delegate.IceWritePayload(ostr);
             ostr.WriteString(Resource);
@@ -105,7 +105,7 @@ namespace Ice
             compressionFlag == _delegate.HasCompressionFlag ? this :
                 new WSEndpoint(_instance, _delegate.NewCompressionFlag(compressionFlag), Resource);
 
-        public override void ConnectorsAsync(Ice.EndpointSelectionType endpointSelection, IEndpointConnectors callback)
+        public override void ConnectorsAsync(EndpointSelectionType endpointSelection, IEndpointConnectors callback)
         {
             string host = "";
             for (Endpoint? p = _delegate; p != null; p = p.Underlying)
@@ -196,7 +196,7 @@ namespace Ice
                 _callback.Connectors(newConnectors);
             }
 
-            public void Exception(System.Exception ex) => _callback.Exception(ex);
+            public void Exception(Exception ex) => _callback.Exception(ex);
 
             internal EndpointConnectors(TransportInstance instance, string host, string res, IEndpointConnectors cb)
             {
@@ -217,7 +217,7 @@ namespace Ice
             Dictionary<string, string?> options, bool oaEndpoint) =>
             new WSEndpoint(Instance, underlying, endpointString, options);
 
-        protected override Endpoint ReadWithUnderlying(Endpoint underlying, Ice.InputStream s) =>
+        protected override Endpoint ReadWithUnderlying(Endpoint underlying, InputStream s) =>
             new WSEndpoint(Instance, underlying, s);
 
         internal WSEndpointFactory(TransportInstance instance, EndpointType type)

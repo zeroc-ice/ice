@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:Ice.retry]
+[cs:namespace:ZeroC.Ice.retry]
 module Test
 {
 

@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice.optional
+namespace ZeroC.Ice.optional
 {
     public class Initial : Test.IInitial
     {

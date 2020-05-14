@@ -6,7 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Glacier2
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
+
+namespace ZeroC.Glacier2
 {
     /// <summary>A helper class for using Glacier2 with GUI applications.
     ///
@@ -25,8 +28,8 @@ namespace Glacier2
         /// default is Ice.TypeId.</param>
         public SessionFactoryHelper(ISessionCallback callback,
                              Dictionary<string, string> properties,
-                             Ice.ILogger? logger = null,
-                             Ice.Instrumentation.ICommunicatorObserver? observer = null,
+                             ILogger? logger = null,
+                             ICommunicatorObserver? observer = null,
                              string[]? typeIdNamespaces = null)
         {
             _callback = callback;
@@ -40,7 +43,7 @@ namespace Glacier2
 
         /// <summary>Set the router object identity.</summary>
         /// <param name="identity">The Glacier2 router's identity.</param>
-        public void SetRouterIdentity(Ice.Identity identity)
+        public void SetRouterIdentity(Identity identity)
         {
             lock (this)
             {
@@ -50,7 +53,7 @@ namespace Glacier2
 
         /// <summary>Returns the object identity of the Glacier2 router.</summary>
         /// <returns>The Glacier2 router's identity.</returns>
-        public Ice.Identity? GetRouterIdentity()
+        public Identity? GetRouterIdentity()
         {
             lock (this)
             {
@@ -252,9 +255,9 @@ namespace Glacier2
         }
 
         private string GetRouterFinderStr() =>
-            CreateProxyStr(new Ice.Identity("RouterFinder", "Ice"));
+            CreateProxyStr(new Identity("RouterFinder", "Ice"));
 
-        private string CreateProxyStr(Ice.Identity ident)
+        private string CreateProxyStr(Identity ident)
         {
             if (_timeout > 0)
             {
@@ -274,12 +277,12 @@ namespace Glacier2
 
         private readonly ISessionCallback _callback;
         private readonly Dictionary<string, string> _properties;
-        private readonly Ice.ILogger? _logger;
-        private readonly Ice.Instrumentation.ICommunicatorObserver? _observer;
+        private readonly ILogger? _logger;
+        private readonly ICommunicatorObserver? _observer;
         private readonly string[]? _typeIdNamespaces;
 
         private string _routerHost = "localhost";
-        private Ice.Identity? _identity = null;
+        private Identity? _identity = null;
         private string _transport = "ssl";
         private int _port = 0;
         private int _timeout = 10000;

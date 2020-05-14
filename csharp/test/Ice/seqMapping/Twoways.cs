@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Test;
 
-namespace Ice.seqMapping
+namespace ZeroC.Ice.seqMapping
 {
     public class Twoways
     {
@@ -627,7 +627,7 @@ namespace Ice.seqMapping
                     TestHelper.Assert(r.d11 == 11.0);
                     TestHelper.Assert(r.s1 == Serialize.Large.LargeString);
                 }
-                catch (Ice.OperationNotExistException)
+                catch (OperationNotExistException)
                 {
                     // OK, talking to non-C# server.
                 }

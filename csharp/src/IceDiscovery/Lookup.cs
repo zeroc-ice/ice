@@ -8,9 +8,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ice;
+using ZeroC.Ice;
 
-namespace IceDiscovery
+namespace ZeroC.IceDiscovery
 {
     internal abstract class Request<T>
     {

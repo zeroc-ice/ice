@@ -4,10 +4,10 @@
 
 using System;
 using System.Text;
-using Ice.udp.Test;
+using ZeroC.Ice.udp.Test;
 using Test;
 
-namespace Ice.udp
+namespace ZeroC.Ice.udp
 {
     public class AllTests
     {
@@ -127,7 +127,7 @@ namespace Ice.udp
                     //
                     TestHelper.Assert(seq.Length > 16384);
                 }
-                obj.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
+                obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 communicator.SetProperty("Ice.UDP.SndSize", "64000");
                 seq = new byte[50000];
                 try

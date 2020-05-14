@@ -4,10 +4,10 @@
 
 #pragma once
 
-[[cs:typeid-namespace:Ice.optional.TypeId]]
+[[cs:typeid-namespace:ZeroC.Ice.optional.TypeId]]
 [[suppress-warning:deprecated]]
 
-[cs:namespace:Ice.optional]
+[cs:namespace:ZeroC.Ice.optional]
 module Test
 {
 
@@ -67,7 +67,7 @@ sequence<FixedStruct> FixedStructSeq;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 
-[clr:serializable:Ice.optional.Test.SerializableClass]
+[clr:serializable:ZeroC.Ice.optional.Test.SerializableClass]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;

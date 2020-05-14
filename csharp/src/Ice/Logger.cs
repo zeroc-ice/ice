@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public abstract class Logger : ILogger
     {

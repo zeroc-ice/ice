@@ -3,15 +3,16 @@
 //
 
 using Test;
+using ZeroC.Ice;
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
     public override void Run(string[] args)
     {
         using (var communicator = Initialize(ref args))
         {
             communicator.SetProperty("CallbackAdapter.Endpoints", GetTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
 
             //
             // The test allows "c1" as category.

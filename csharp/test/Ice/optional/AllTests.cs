@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.optional.Test;
+using ZeroC.Ice.optional.Test;
 
 using System.Linq;
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.optional
+namespace ZeroC.Ice.optional
 {
     public class AllTests
     {

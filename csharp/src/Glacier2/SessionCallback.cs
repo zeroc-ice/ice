@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Glacier2
+namespace ZeroC.Glacier2
 {
     /// <summary>A callback class to get notifications of status changes in the Glacier2 session. All callbacks on the
     /// SessionCallback interface occur in the main swing thread.</summary>

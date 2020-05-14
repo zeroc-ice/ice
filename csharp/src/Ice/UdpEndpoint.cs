@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The Endpoint class for the UDP transport.</summary>
     public sealed class UdpEndpoint : IPEndpoint
@@ -124,7 +124,7 @@ namespace Ice
             return sb.ToString();
         }
 
-        public override void IceWritePayload(Ice.OutputStream ostr)
+        public override void IceWritePayload(OutputStream ostr)
         {
             base.IceWritePayload(ostr);
             ostr.WriteBool(HasCompressionFlag);
@@ -166,7 +166,7 @@ namespace Ice
             HasCompressionFlag = compressionFlag;
         }
 
-        internal UdpEndpoint(TransportInstance instance, Ice.InputStream s)
+        internal UdpEndpoint(TransportInstance instance, InputStream s)
             : base(instance, s)
         {
             _connect = false;
@@ -268,7 +268,7 @@ namespace Ice
         public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
             new UdpEndpoint(_instance, endpointString, options, oaEndpoint);
 
-        public Endpoint Read(Ice.InputStream s) => new UdpEndpoint(_instance, s);
+        public Endpoint Read(InputStream s) => new UdpEndpoint(_instance, s);
         public IEndpointFactory Clone(TransportInstance instance) => new UdpEndpointFactory(instance);
 
         internal UdpEndpointFactory(TransportInstance instance) => _instance = instance;

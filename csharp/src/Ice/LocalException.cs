@@ -5,7 +5,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>This exception reports incorrect or missing Ice configuration.</summary>
     [Serializable]

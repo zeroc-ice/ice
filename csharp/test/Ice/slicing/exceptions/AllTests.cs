@@ -5,30 +5,31 @@
 using System;
 using System.Collections.Generic;
 using Test;
-using Ice;
+using ZeroC.Ice;
+
 public class AllTests
 {
     private class Relay : IRelay
     {
-        public void knownPreservedAsBase(Ice.Current current) =>
+        public void knownPreservedAsBase(Current current) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public void knownPreservedAsKnownPreserved(Ice.Current current) =>
+        public void knownPreservedAsKnownPreserved(Current current) =>
             throw new KnownPreservedDerived("base", "preserved", "derived");
 
-        public void unknownPreservedAsBase(Ice.Current current)
+        public void unknownPreservedAsBase(Current current)
         {
             var p = new PreservedClass("bc", "pc");
             throw new Preserved2("base", "preserved", "derived", p, p);
         }
 
-        public void unknownPreservedAsKnownPreserved(Ice.Current current)
+        public void unknownPreservedAsKnownPreserved(Current current)
         {
             var p = new PreservedClass("bc", "pc");
             throw new Preserved2("base", "preserved", "derived", p, p);
         }
 
-        public void clientPrivateException(Ice.Current current) => throw new ClientPrivateException("ClientPrivate");
+        public void clientPrivateException(Current current) => throw new ClientPrivateException("ClientPrivate");
     }
 
     public static ITestIntfPrx allTests(TestHelper helper)
@@ -779,7 +780,7 @@ public class AllTests
                 TestHelper.Assert(ex.kp.Equals("preserved"));
                 TestHelper.Assert(ex.kpd.Equals("derived"));
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
             catch (System.Exception)
@@ -798,7 +799,7 @@ public class AllTests
                 TestHelper.Assert(ex.kp.Equals("preserved"));
                 TestHelper.Assert(ex.kpd.Equals("derived"));
             }
-            catch (Ice.OperationNotExistException)
+            catch (OperationNotExistException)
             {
             }
             catch (System.Exception)

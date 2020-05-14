@@ -20,7 +20,7 @@
 #include <IceStorm/Metrics.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 /// A messaging service with support for federation. In contrast to
 /// most other messaging or event services, IceStorm supports typed
 /// events, meaning that broadcasting a message over a federation is as

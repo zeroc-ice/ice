@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 
 using Test;
+using ZeroC.Ice;
 
 public class TestIntf : ITestIntf
 {
@@ -12,7 +13,7 @@ public class TestIntf : ITestIntf
 
     public TestIntf(string[] args) => _args = args;
 
-    public string getProperty(string name, Ice.Current current) => current.Adapter.Communicator.GetProperty(name) ?? "";
+    public string getProperty(string name, Current current) => current.Adapter.Communicator.GetProperty(name) ?? "";
 
-    public IEnumerable<string> getArgs(Ice.Current current) => _args;
+    public IEnumerable<string> getArgs(Current current) => _args;
 }

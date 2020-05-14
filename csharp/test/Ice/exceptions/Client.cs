@@ -5,13 +5,13 @@
 using Test;
 using System.Collections.Generic;
 
-namespace Ice.exceptions
+namespace ZeroC.Ice.exceptions
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
-            string[] typeIdNamespaces = new string[] { "Ice.exceptions.TypeId" };
+            string[] typeIdNamespaces = new string[] { "ZeroC.Ice.exceptions.TypeId" };
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.MessageSizeMax"] = "10"; // 10KB max

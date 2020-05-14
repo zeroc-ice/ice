@@ -10,9 +10,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Ice;
+using ZeroC.Ice;
 
-namespace IceBox
+namespace ZeroC.IceBox
 {
     public sealed class ServiceManager : IServiceManager
     {

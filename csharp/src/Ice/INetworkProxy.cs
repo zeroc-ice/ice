@@ -1,7 +1,7 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using Ice;
+using ZeroC.Ice;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -76,11 +76,11 @@ namespace IceInternal
         {
             if (!(endpoint is IPEndPoint))
             {
-                throw new Ice.TransportException("SOCKS4 does not support domain names");
+                throw new TransportException("SOCKS4 does not support domain names");
             }
             else if (endpoint.AddressFamily != AddressFamily.InterNetwork)
             {
-                throw new Ice.TransportException("SOCKS4 only supports IPv4 addresses");
+                throw new TransportException("SOCKS4 only supports IPv4 addresses");
             }
 
             //
@@ -118,7 +118,7 @@ namespace IceInternal
         {
             if (buffer[0] != 0x00 || buffer[1] != 0x5a)
             {
-                throw new Ice.ConnectFailedException();
+                throw new ConnectFailedException();
             }
         }
 
@@ -233,7 +233,7 @@ namespace IceInternal
             return new HTTPNetworkProxy(Network.GetAddresses(_host,
                                                              _port,
                                                              ipVersion,
-                                                             Ice.EndpointSelectionType.Random,
+                                                             EndpointSelectionType.Random,
                                                              false,
                                                              true)[0],
                                         ipVersion);

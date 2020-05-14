@@ -12,7 +12,7 @@ public class Server : TestHelper
         properties["Ice.Warn.Dispatch"] = "0";
         using var communicator = Initialize(properties);
         communicator.SetProperty("TestAdapter.Endpoints", $"{GetTestEndpoint(0)} -t 2000");
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+        ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add("Test", new TestIntf());
         adapter.Add("Test2", new TestIntf2());
         adapter.Activate();

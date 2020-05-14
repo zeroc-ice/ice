@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     [Serializable]
     public class ConnectionInfo

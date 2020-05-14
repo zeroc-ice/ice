@@ -2,11 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using ZeroC.Ice;
+
 namespace IceInternal
 {
     public sealed class TraceLevels
     {
-        internal TraceLevels(Ice.Communicator communicator)
+        internal TraceLevels(Communicator communicator)
         {
             NetworkCat = "Network";
             ProtocolCat = "Protocol";

@@ -3,10 +3,10 @@
 //
 
 using System;
-using Ice.timeout.Test;
+using ZeroC.Ice.timeout.Test;
 using Test;
 
-namespace Ice.timeout
+namespace ZeroC.Ice.timeout
 {
     public class AllTests
     {
@@ -28,7 +28,7 @@ namespace Ice.timeout
             return prx.GetConnection();
         }
 
-        public static void allTests(global::Test.TestHelper helper)
+        public static void allTests(TestHelper helper)
         {
             var communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

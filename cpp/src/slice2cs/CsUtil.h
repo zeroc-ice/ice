@@ -113,8 +113,6 @@ protected:
 
     static std::string getCustomTypeIdNamespace(const UnitPtr&);
 
-    static std::string getTagFormat(const TypePtr&, const std::string&);
-
     //
     // Generate code to marshal or unmarshal a type
     //

@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame

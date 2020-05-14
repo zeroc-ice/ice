@@ -322,12 +322,6 @@ Slice::fixId(const string& name, unsigned int baseTypes)
 }
 
 string
-Slice::CsGenerator::getTagFormat(const TypePtr& type, const string& scope)
-{
-    return getUnqualified("Ice.OptionalFormat", scope) + "." + type->getTagFormat();
-}
-
-string
 Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional, bool readOnly)
 {
     if(!type)
@@ -360,9 +354,9 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "float",
         "double",
         "string",
-        "Ice.IObject",
-        "Ice.IObjectPrx",
-        "Ice.AnyClass"
+        "ZeroC.Ice.IObject",
+        "ZeroC.Ice.IObjectPrx",
+        "ZeroC.Ice.AnyClass"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -383,7 +377,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     {
         if(cl->isInterface())
         {
-            return getUnqualified("Ice.AnyClass", package);
+            return "ZeroC.Ice.AnyClass";
         }
         else
         {
@@ -402,7 +396,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         else
         {
-            return getUnqualified("Ice.IObjectPrx", package);
+            return "ZeroC.Ice.IObjectPrx";
         }
     }
 
@@ -820,7 +814,7 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     ostringstream out;
     if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << "global::Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
+        out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
     }
     else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
     {
@@ -831,7 +825,7 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
         if (isMappedToReadOnlyMemory(seq))
         {
             builtin = BuiltinPtr::dynamicCast(seq->type());
-            out << "global::Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()] <<
+            out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()] <<
                 (forNestedType ? "Array" : "Sequence");
         }
         else
@@ -892,14 +886,14 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     ostringstream out;
     if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
     {
-        out << "Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()];
+        out << "ZeroC.Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()];
     }
     else if (SequencePtr seq = SequencePtr::dynamicCast(type))
     {
         if (isMappedToReadOnlyMemory(seq))
         {
             builtin = BuiltinPtr::dynamicCast(seq->type());
-            out << "global::Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()] << "Array";
+            out << "ZeroC.Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()] << "Array";
         }
         else
         {

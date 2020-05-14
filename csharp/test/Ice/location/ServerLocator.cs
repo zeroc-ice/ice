@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
     public class ServerLocator : Test.ITestLocator
     {

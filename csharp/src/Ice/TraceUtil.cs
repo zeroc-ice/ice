@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -56,7 +56,7 @@ namespace IceInternal
 
         private static readonly HashSet<string> _slicingIds = new HashSet<string>();
 
-        internal static void TraceSlicing(string kind, string typeId, string slicingCat, Ice.ILogger logger)
+        internal static void TraceSlicing(string kind, string typeId, string slicingCat, ILogger logger)
         {
             lock (_mutex)
             {
@@ -69,13 +69,13 @@ namespace IceInternal
             }
         }
 
-        private static void PrintIdentityFacetOperation(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintIdentityFacetOperation(System.IO.StringWriter s, InputStream str)
         {
             try
             {
-                Ice.ToStringMode toStringMode = str.Communicator.ToStringMode;
+                ToStringMode toStringMode = str.Communicator.ToStringMode;
 
-                var identity = new Ice.Identity(str);
+                var identity = new Identity(str);
                 s.Write("\nidentity = " + identity.ToString(toStringMode));
 
                 string facet = str.ReadFacet();
@@ -94,7 +94,7 @@ namespace IceInternal
             }
         }
 
-        private static void PrintRequest(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintRequest(System.IO.StringWriter s, InputStream str)
         {
             int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
@@ -106,7 +106,7 @@ namespace IceInternal
             PrintRequestHeader(s, str);
         }
 
-        private static void PrintBatchRequest(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintBatchRequest(System.IO.StringWriter s, InputStream str)
         {
             int batchRequestNum = str.ReadInt();
             s.Write("\nnumber of requests = " + batchRequestNum);
@@ -118,7 +118,7 @@ namespace IceInternal
             }
         }
 
-        private static void PrintReply(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintReply(System.IO.StringWriter s, InputStream str)
         {
             int requestId = str.ReadInt();
             s.Write("\nrequest id = " + requestId);
@@ -133,7 +133,7 @@ namespace IceInternal
             }
         }
 
-        private static void PrintRequestHeader(System.IO.StringWriter s, Ice.InputStream str)
+        private static void PrintRequestHeader(System.IO.StringWriter s, InputStream str)
         {
             PrintIdentityFacetOperation(s, str);
 
@@ -181,7 +181,7 @@ namespace IceInternal
                     }
                 }
 
-                Ice.Encoding v = str.SkipEncapsulation();
+                Encoding v = str.SkipEncapsulation();
                 s.Write("\nencoding = ");
                 s.Write(v.ToString());
             }
@@ -191,7 +191,7 @@ namespace IceInternal
             }
         }
 
-        private static Ice1Definitions.FrameType PrintHeader(System.IO.StringWriter s, Ice.InputStream str)
+        private static Ice1Definitions.FrameType PrintHeader(System.IO.StringWriter s, InputStream str)
         {
             try
             {
@@ -296,7 +296,7 @@ namespace IceInternal
             return type;
         }
 
-        internal static void TraceHeader(string heading, Ice.InputStream str, Ice.ILogger logger, TraceLevels tl)
+        internal static void TraceHeader(string heading, InputStream str, ILogger logger, TraceLevels tl)
         {
             if (tl.Protocol >= 1)
             {

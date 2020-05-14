@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -334,7 +334,7 @@ namespace IceInternal
                 {
                     throw new ConnectionLostException(ex);
                 }
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
             catch (ObjectDisposedException ex)
             {
