@@ -518,9 +518,11 @@ public class AllTests
             cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-            TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + 4); // 4 is for the seq variable size
+            int sizeLengthIncrease = communicator.DefaultEncoding == Encoding.V1_1 ? 4 : 1;
+
+            TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == requestSz + bs.Length + sizeLengthIncrease);
             TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == replySz);
-            TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == requestSz + bs.Length + 4);
+            TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == requestSz + bs.Length + sizeLengthIncrease);
             TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == replySz);
 
             cm1 = cm2;
@@ -532,9 +534,11 @@ public class AllTests
             cm2 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
             sm2 = getServerConnectionMetrics(serverMetrics, sm1.SentBytes + replySz)!;
 
-            TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + 4)); // 4 is for the seq variable size
+            sizeLengthIncrease = communicator.DefaultEncoding == Encoding.V1_1 ? 4 : 3;
+
+            TestHelper.Assert((cm2.SentBytes - cm1.SentBytes) == (requestSz + bs.Length + sizeLengthIncrease));
             TestHelper.Assert((cm2.ReceivedBytes - cm1.ReceivedBytes) == replySz);
-            TestHelper.Assert((sm2.ReceivedBytes - sm1.ReceivedBytes) == (requestSz + bs.Length + 4));
+            TestHelper.Assert((sm2.ReceivedBytes - sm1.ReceivedBytes) == (requestSz + bs.Length + sizeLengthIncrease));
             TestHelper.Assert((sm2.SentBytes - sm1.SentBytes) == replySz);
 
             props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";

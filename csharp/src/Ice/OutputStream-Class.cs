@@ -36,7 +36,7 @@ namespace Ice
             // Writes the slice size if necessary.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
-                RewriteInt(Distance(_current.SliceSizePos), _current.SliceSizePos);
+                RewriteFixedLengthSize(Distance(_current.SliceSizePos), _current.SliceSizePos);
             }
 
             if (_current.IndirectionTable?.Count > 0)
@@ -131,7 +131,7 @@ namespace Ice
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
             {
                 _current.SliceSizePos = _tail;
-                WriteInt(0); // Placeholder for the slice length.
+                WriteFixedLengthSize(0); // Placeholder for the slice length.
             }
             _current.SliceFirstMemberPos = _tail;
         }

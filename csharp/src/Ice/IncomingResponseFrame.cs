@@ -76,12 +76,12 @@ namespace Ice
             Payload = payload;
             if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
             {
-                int size = InputStream.ReadInt(Payload.Slice(1, 4));
+                int size;
+                (Encoding, size) = InputStream.ReadEncapsulationHeader(Ice1Definitions.Encoding, Payload.AsSpan(1));
                 if (size != Payload.Count - 1)
                 {
-                    throw new InvalidDataException($"invalid encapsulation size: `{size}'");
+                    throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
                 }
-                Encoding = new Encoding(payload[5], payload[6]);
             }
             else
             {
@@ -122,7 +122,7 @@ namespace Ice
         }
 
         internal UnhandledException ReadUnhandledException() =>
-            new UnhandledException(InputStream.ReadString(Encoding, Payload.Slice(1)), Identity.Empty, "", "");
+            new UnhandledException(InputStream.Read11String(Payload.Slice(1)), Identity.Empty, "", "");
 
         internal DispatchException ReadDispatchException()
         {

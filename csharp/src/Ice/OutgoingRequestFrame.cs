@@ -98,8 +98,8 @@ namespace Ice
             T value, OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
-            var ostr = new OutputStream(request.Encoding, request.Data, request._payloadStart,
-                format ?? proxy.Communicator.DefaultFormat);
+            var ostr = new OutputStream(Ice1Definitions.Encoding, request.Data, request._payloadStart,
+                request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
             return request;
@@ -124,8 +124,8 @@ namespace Ice
             in T value, OutputStreamStructWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
-            var ostr = new OutputStream(request.Encoding, request.Data, request._payloadStart,
-                format ?? proxy.Communicator.DefaultFormat);
+            var ostr = new OutputStream(Ice1Definitions.Encoding, request.Data, request._payloadStart,
+                request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
             return request;
@@ -195,7 +195,7 @@ namespace Ice
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(Encoding.V1_1, Data, new OutputStream.Position(0, 0));
+            var ostr = new OutputStream(Ice1Definitions.Encoding, Data, new OutputStream.Position(0, 0));
             Identity.IceWrite(ostr);
             ostr.WriteFacet(Facet);
             ostr.WriteString(operation);
