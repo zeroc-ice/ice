@@ -42,7 +42,7 @@ namespace ZeroC.IceLocatorDiscovery
             _current = current;
         }
 
-        internal void Invoke(ILocatorPrx l)
+        internal async Task Invoke(ILocatorPrx l)
         {
             if (_locatorPrx == null || !_locatorPrx.Equals(l))
             {
@@ -50,20 +50,14 @@ namespace ZeroC.IceLocatorDiscovery
                 var requestFrame = new OutgoingRequestFrame(l, _current.Operation, _current.IsIdempotent,
                     _current.Context, _payload);
 
-                l.InvokeAsync(requestFrame).ContinueWith(
-                    task =>
-                    {
-                        try
-                        {
-                            SetResult(task.Result);
-                        }
-                        catch (AggregateException ae)
-                        {
-                            Debug.Assert(ae.InnerException != null);
-                            Exception(ae.InnerException);
-                        }
-                    },
-                    TaskScheduler.Current);
+                try
+                {
+                    SetResult(await l.InvokeAsync(requestFrame).ConfigureAwait(false));
+                }
+                catch (Exception ex)
+                {
+                    Exception(ex);
+                }
             }
             else
             {
@@ -350,7 +344,7 @@ namespace ZeroC.IceLocatorDiscovery
                     //
                     foreach (Request req in _pendingRequests)
                     {
-                        req.Invoke(_locator);
+                        _ = req.Invoke(_locator);
                     }
                     _pendingRequests.Clear();
                 }
@@ -364,11 +358,11 @@ namespace ZeroC.IceLocatorDiscovery
             {
                 if (request != null && _locator != null && _locator != locator)
                 {
-                    request.Invoke(_locator);
+                    _ = request.Invoke(_locator);
                 }
                 else if (request != null && IceInternal.Time.CurrentMonotonicTimeMillis() < _nextRetry)
                 {
-                    request.Invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
+                    _ = request.Invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
                 }
                 else
                 {
@@ -399,18 +393,7 @@ namespace ZeroC.IceLocatorDiscovery
 
                             foreach (KeyValuePair<ILookupPrx, ILookupReplyPrx?> l in _lookups)
                             {
-                                l.Key.FindLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
-                                {
-                                    try
-                                    {
-                                        t.Wait();
-                                    }
-                                    catch (AggregateException ex)
-                                    {
-                                        Debug.Assert(ex.InnerException != null);
-                                        Exception(ex.InnerException);
-                                    }
-                                }, TaskScheduler.Current); // Send multicast request.
+                                _ = FindLocator(l.Key, l.Value!); // Send multicast request.
                             }
                             _timer.Schedule(this, _timeout);
                         }
@@ -430,7 +413,7 @@ namespace ZeroC.IceLocatorDiscovery
 
                             foreach (Request req in _pendingRequests)
                             {
-                                req.Invoke(_voidLocator);
+                                _ = req.Invoke(_voidLocator);
                             }
                             _pendingRequests.Clear();
                             _pendingRetryCount = 0;
@@ -485,7 +468,7 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         foreach (Request req in _pendingRequests)
                         {
-                            req.Invoke(_voidLocator);
+                            _ = req.Invoke(_voidLocator);
                         }
                         _pendingRequests.Clear();
                     }
@@ -493,6 +476,17 @@ namespace ZeroC.IceLocatorDiscovery
             }
         }
 
+        private async Task FindLocator(ILookupPrx lookup, ILookupReplyPrx reply)
+        {
+            try
+            {
+                await lookup.FindLocatorAsync(_instanceName, reply).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Exception(ex);
+            }
+        }
         public void RunTimerTask()
         {
             lock (this)
@@ -522,18 +516,7 @@ namespace ZeroC.IceLocatorDiscovery
 
                         foreach (KeyValuePair<ILookupPrx, ILookupReplyPrx?> l in _lookups)
                         {
-                            l.Key.FindLocatorAsync(_instanceName, l.Value).ContinueWith(t =>
-                            {
-                                try
-                                {
-                                    t.Wait();
-                                }
-                                catch (AggregateException ex)
-                                {
-                                    Debug.Assert(ex.InnerException != null);
-                                    Exception(ex.InnerException);
-                                }
-                            }, TaskScheduler.Current); // Send multicast request.
+                            _ = FindLocator(l.Key, l.Value!); // Sent multicast request
                         }
                         _timer.Schedule(this, _timeout);
                         return;
@@ -566,7 +549,7 @@ namespace ZeroC.IceLocatorDiscovery
                 {
                     foreach (Request req in _pendingRequests)
                     {
-                        req.Invoke(_voidLocator);
+                        _ = req.Invoke(_voidLocator);
                     }
                     _pendingRequests.Clear();
                 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Text;
 
 namespace ZeroC.Ice
@@ -105,7 +106,7 @@ namespace ZeroC.Ice
             compressionFlag == _delegate.HasCompressionFlag ? this :
                 new WSEndpoint(_instance, _delegate.NewCompressionFlag(compressionFlag), Resource);
 
-        public override void ConnectorsAsync(EndpointSelectionType endpointSelection, IEndpointConnectors callback)
+        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
         {
             string host = "";
             for (Endpoint? p = _delegate; p != null; p = p.Underlying)
@@ -116,7 +117,8 @@ namespace ZeroC.Ice
                     break;
                 }
             }
-            _delegate.ConnectorsAsync(endpointSelection, new EndpointConnectors(_instance, host, Resource, callback));
+            IEnumerable<IConnector> connectors = await _delegate.ConnectorsAsync(endptSelection).ConfigureAwait(false);
+            return connectors.Select(item => new WSConnector(_instance, item, host, Resource));
         }
 
         public override IEnumerable<Endpoint> ExpandIfWildcard() =>
@@ -177,34 +179,6 @@ namespace ZeroC.Ice
             _delegate = del;
 
             Resource = istr.ReadString();
-        }
-
-        private sealed class EndpointConnectors : IEndpointConnectors
-        {
-            private readonly TransportInstance _instance;
-            private readonly string _host;
-            private readonly string _resource;
-            private readonly IEndpointConnectors _callback;
-
-            public void Connectors(List<IConnector> connectors)
-            {
-                var newConnectors = new List<IConnector>();
-                foreach (IConnector c in connectors)
-                {
-                    newConnectors.Add(new WSConnector(_instance, c, _host, _resource));
-                }
-                _callback.Connectors(newConnectors);
-            }
-
-            public void Exception(Exception ex) => _callback.Exception(ex);
-
-            internal EndpointConnectors(TransportInstance instance, string host, string res, IEndpointConnectors cb)
-            {
-                _instance = instance;
-                _host = host;
-                _resource = res;
-                _callback = cb;
-            }
         }
     }
 

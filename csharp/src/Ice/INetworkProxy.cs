@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace IceInternal
 {
@@ -42,7 +44,7 @@ namespace IceInternal
         // This is called from the endpoint host resolver thread, so
         // it's safe if this method blocks.
         //
-        INetworkProxy ResolveHost(int ipVersion);
+        ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion);
 
         //
         // Returns the IP address of the network proxy. This method
@@ -99,20 +101,16 @@ namespace IceInternal
             buffer.Add(data);
         }
 
-        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
-        {
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred) =>
             // Once the request is sent, read the response
-            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
-        }
+            bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
 
         // Read the SOCKS4 response whose size is 8 bytes.
         public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[8]);
 
-        public int EndRead(ref ArraySegment<byte> buffer, int offset)
-        {
+        public int EndRead(ref ArraySegment<byte> buffer, int offset) =>
             // We're done once we read the response
-            return offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
-        }
+            offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
 
         public void Finish(ArraySegment<byte> buffer)
         {
@@ -122,15 +120,14 @@ namespace IceInternal
             }
         }
 
-        public INetworkProxy ResolveHost(int ipVersion)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion)
         {
             Debug.Assert(_host != null);
-            return new SOCKSNetworkProxy(Network.GetAddresses(_host,
-                                                              _port,
-                                                              ipVersion,
-                                                              EndpointSelectionType.Random,
-                                                              false,
-                                                              true)[0]);
+
+            // Get addresses in random order and use the first one
+            IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
+                ipVersion, EndpointSelectionType.Random, false).ConfigureAwait(false);
+            return new SOCKSNetworkProxy(addresses.First());
         }
 
         public EndPoint GetAddress()
@@ -177,11 +174,9 @@ namespace IceInternal
             buffer.Add(System.Text.Encoding.ASCII.GetBytes(str.ToString()));
         }
 
-        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
-        {
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred) =>
             // Once the request is sent, read the response
-            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
-        }
+            bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
 
         // Read the HTTP response, reserve enough space for reading at least HTTP1.1
         public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[256], 0, 7);
@@ -227,16 +222,14 @@ namespace IceInternal
             }
         }
 
-        public INetworkProxy ResolveHost(int ipVersion)
+        public async ValueTask<INetworkProxy> ResolveHostAsync(int ipVersion)
         {
             Debug.Assert(_host != null);
-            return new HTTPNetworkProxy(Network.GetAddresses(_host,
-                                                             _port,
-                                                             ipVersion,
-                                                             EndpointSelectionType.Random,
-                                                             false,
-                                                             true)[0],
-                                        ipVersion);
+
+            // Get addresses in random order and use the first one
+            IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
+                ipVersion, EndpointSelectionType.Random, false).ConfigureAwait(false);
+            return new HTTPNetworkProxy(addresses.First(), ipVersion);
         }
 
         public EndPoint GetAddress()

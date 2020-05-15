@@ -37,9 +37,6 @@ namespace IceInternal
         public INetworkProxy? NetworkProxy => Communicator.NetworkProxy;
 
         public IEndpointFactory? GetEndpointFactory(EndpointType type) => Communicator.FindEndpointFactory(type);
-        public void Resolve(string host, int port, EndpointSelectionType type, IPEndpoint endpt,
-                            IEndpointConnectors callback) =>
-            Communicator.Resolve(host, port, type, endpt, callback);
         public void SetSndBufSizeWarn(EndpointType type, int size) => Communicator.SetSndBufSizeWarn(type, size);
         public void SetRcvBufSizeWarn(EndpointType type, int size) => Communicator.SetRcvBufSizeWarn(type, size);
 

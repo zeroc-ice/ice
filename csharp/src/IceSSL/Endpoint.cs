@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ZeroC.IceSSL
 {
@@ -67,8 +68,8 @@ namespace ZeroC.IceSSL
         public override Ice.Endpoint NewTimeout(int timeout) =>
         timeout == _delegate.Timeout ? this : new Endpoint(_instance, _delegate.NewTimeout(timeout));
 
-        public override void ConnectorsAsync(Ice.EndpointSelectionType endpointSelection,
-                                             Ice.IEndpointConnectors callback)
+        public override async ValueTask<IEnumerable<IceInternal.IConnector>>
+            ConnectorsAsync(Ice.EndpointSelectionType endptSelection)
         {
             string host = "";
             for (Ice.Endpoint? p = _delegate; p != null; p = p.Underlying)
@@ -79,7 +80,9 @@ namespace ZeroC.IceSSL
                     break;
                 }
             }
-            _delegate.ConnectorsAsync(endpointSelection, new EndpointI_connectorsI(_instance, host, callback));
+            IEnumerable<IceInternal.IConnector> connectors =
+                await _delegate.ConnectorsAsync(endptSelection).ConfigureAwait(false);
+            return connectors.Select(item => new ConnectorI(_instance, item, host));
         }
 
         public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
@@ -106,31 +109,6 @@ namespace ZeroC.IceSSL
         {
             _instance = instance;
             _delegate = del;
-        }
-
-        private sealed class EndpointI_connectorsI : Ice.IEndpointConnectors
-        {
-            private readonly Instance _instance;
-            private readonly string _host;
-            private readonly Ice.IEndpointConnectors _callback;
-
-            public void Connectors(List<IceInternal.IConnector> connectors)
-            {
-                var l = new List<IceInternal.IConnector>();
-                foreach (IceInternal.IConnector c in connectors)
-                {
-                    l.Add(new ConnectorI(_instance, c, _host));
-                }
-                _callback.Connectors(l);
-            }
-            public void Exception(System.Exception ex) => _callback.Exception(ex);
-
-            internal EndpointI_connectorsI(Instance instance, string host, Ice.IEndpointConnectors cb)
-            {
-                _instance = instance;
-                _host = host;
-                _callback = cb;
-            }
         }
     }
 

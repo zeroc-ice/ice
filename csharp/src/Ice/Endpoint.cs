@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -27,12 +28,6 @@ namespace ZeroC.Ice
         iAP = 8,
         iAPS = 9
 #pragma warning restore SA1300 // Element should begin with upper-case letter
-    }
-
-    public interface IEndpointConnectors
-    {
-        void Connectors(List<IConnector> connectors);
-        void Exception(Exception ex);
     }
 
      /// <summary>An endpoint describes a server-side network sink for Ice requests: an object adapter listens on one or
@@ -117,7 +112,7 @@ namespace ZeroC.Ice
         public abstract Endpoint NewCompressionFlag(bool compressionFlag);
 
         // Returns a connector for this endpoint, or empty list if no connector is available.
-        public abstract void ConnectorsAsync(EndpointSelectionType endpointSelection, IEndpointConnectors callback);
+        public abstract ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endpointSelection);
 
         // Expands endpoint out in to separate endpoints for each local host if listening on INADDR_ANY on server side
         // or if no host was specified on client side.

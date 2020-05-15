@@ -125,7 +125,7 @@ namespace IceInternal
             try
             {
                 int ipVersion = _instance.IPVersion;
-                _addr = (IPEndPoint)Network.GetAddressForServer(host, port, ipVersion, _instance.PreferIPv6);
+                _addr = (IPEndPoint)Network.GetAddressForServerEndpoint(host, port, ipVersion, _instance.PreferIPv6);
                 _fd = Network.CreateServerSocket(false, _addr.AddressFamily, ipVersion);
                 Network.SetBlock(_fd, false);
                 Network.SetTcpBufSize(_fd, _instance);

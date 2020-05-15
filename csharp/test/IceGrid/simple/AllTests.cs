@@ -176,10 +176,10 @@ public class AllTests
             try
             {
                 IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
-                TestHelper.Assert(false);
             }
             catch (NoEndpointException)
             {
+                TestHelper.Assert(false);
             }
             com.Destroy();
         }

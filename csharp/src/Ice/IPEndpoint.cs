@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -170,8 +171,37 @@ namespace ZeroC.Ice
             return connectors;
         }
 
-        public override void ConnectorsAsync(EndpointSelectionType endpointSelection, IEndpointConnectors callback) =>
-            Instance.Resolve(Host, Port, endpointSelection, this, callback);
+        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
+        {
+            Instrumentation.IObserver? observer = Instance.Communicator.Observer?.GetEndpointLookupObserver(this);
+            observer?.Attach();
+            try
+            {
+                INetworkProxy? networkProxy = Instance.Communicator.NetworkProxy;
+                int ipVersion = Instance.Communicator.IPVersion;
+                if (networkProxy != null)
+                {
+                    networkProxy = await networkProxy.ResolveHostAsync(ipVersion).ConfigureAwait(false);
+                    if (networkProxy != null)
+                    {
+                        ipVersion = networkProxy.GetIPVersion();
+                    }
+                }
+
+                IEnumerable<IPEndPoint> addrs = await Network.GetAddressesForClientEndpointAsync(Host, Port, ipVersion,
+                    endptSelection, Instance.Communicator.PreferIPv6).ConfigureAwait(false);
+                return addrs.Select(item => CreateConnector(item, networkProxy));
+            }
+            catch (Exception ex)
+            {
+                observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                throw;
+            }
+            finally
+            {
+                observer?.Detach();
+            }
+        }
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
         {
@@ -186,14 +216,13 @@ namespace ZeroC.Ice
             // endpoints. Otherwise, we'll publish each individual expanded endpoint.
             publish = Port > 0 ? this : null;
 
-            List<IPEndPoint> addresses = Network.GetAddresses(Host,
-                                                              Port,
-                                                              Instance.IPVersion,
-                                                              EndpointSelectionType.Ordered,
-                                                              Instance.PreferIPv6,
-                                                              true);
+            IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host,
+                                                                     Port,
+                                                                     Instance.IPVersion,
+                                                                     EndpointSelectionType.Ordered,
+                                                                     Instance.PreferIPv6);
 
-            if (addresses.Count == 1)
+            if (addresses.Count() == 1)
             {
                 return new Endpoint[] { this };
             }
@@ -293,11 +322,14 @@ namespace ZeroC.Ice
                     throw new FormatException(
                         $"no argument provided for --sourceAddress option in endpoint `{endpointString}'");
                 }
-                SourceAddress = Network.GetNumericAddress(argument);
-                if (SourceAddress == null)
+                try
+                {
+                    SourceAddress = IPAddress.Parse(argument);
+                }
+                catch (Exception ex)
                 {
                     throw new FormatException(
-                        $"invalid IP address provided for --sourceAddress option in endpoint `{endpointString}'");
+                        $"invalid IP address provided for --sourceAddress option in endpoint `{endpointString}'", ex);
                 }
                 options.Remove("--sourceAddress");
             }
