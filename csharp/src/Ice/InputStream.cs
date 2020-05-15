@@ -1201,7 +1201,7 @@ namespace ZeroC.Ice
                 case EncodingDefinitions.TagFormat.FSize:
                     if (OldEncoding)
                     {
-                        int size = Read11Size();
+                        int size = ReadInt();
                         if (size < 0)
                         {
                             throw new InvalidDataException("invalid negative fixed-length size");
