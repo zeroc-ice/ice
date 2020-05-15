@@ -675,7 +675,7 @@ namespace Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : count * entrySize + GetSizeLength(count));
                 WriteDictionary(dict, keyWriter, valueWriter);
             }
         }
@@ -697,7 +697,7 @@ namespace Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : count * entrySize + GetSizeLength(count));
                 WriteDictionary(dict, valueWriter);
             }
         }
@@ -720,7 +720,7 @@ namespace Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : count * entrySize + GetSizeLength(count));
                 WriteDictionary(dict, keyWriter);
             }
         }
@@ -741,7 +741,7 @@ namespace Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
                 int count = dict.Count;
-                WriteSize(count == 0 ? 1 : (count * entrySize) + (count > 254 ? 5 : 1));
+                WriteSize(count == 0 ? 1 : count * entrySize + GetSizeLength(count));
                 WriteDictionary(dict);
             }
         }
@@ -856,7 +856,7 @@ namespace Ice
                 if (elementSize > 1)
                 {
                     // This size is redundant and optimized out by the encoding when elementSize is 1.
-                    WriteSize(v.Length == 0 ? 1 : (v.Length * elementSize) + (v.Length > 254 ? 5 : 1));
+                    WriteSize(v.Length == 0 ? 1 : v.Length * elementSize + GetSizeLength(v.Length));
                 }
                 WriteFixedSizeNumericSequence(v);
             }
@@ -894,7 +894,7 @@ namespace Ice
                 {
                     // First write the size in bytes, so that the reader can skip it. We optimize-out this byte size
                     // when size is 1.
-                    WriteSize(count == 0 ? 1 : (count * elementSize) + (count > 254 ? 5 : 1));
+                    WriteSize(count == 0 ? 1 : count * elementSize + GetSizeLength(count));
                 }
                 WriteSize(count);
                 foreach (T item in value)
@@ -925,7 +925,7 @@ namespace Ice
                 {
                     // First write the size in bytes, so that the reader can skip it. We optimize-out this byte size
                     // when size is 1.
-                    WriteSize(count == 0 ? 1 : (count * elementSize) + (count > 254 ? 5 : 1));
+                    WriteSize(count == 0 ? 1 : count * elementSize + GetSizeLength(count));
                 }
 
                 // Write the sequence "inline" instead of calling WriteSequence to avoid recomputing count.
@@ -1129,14 +1129,14 @@ namespace Ice
         {
             if (OldEncoding)
             {
-                if (v > 254)
+                if (v < 255)
                 {
-                    WriteByte(255);
-                    WriteInt(v);
+                    WriteByte((byte)v);
                 }
                 else
                 {
-                    WriteByte((byte)v);
+                    WriteByte(255);
+                    WriteInt(v);
                 }
             }
             else
@@ -1237,7 +1237,7 @@ namespace Ice
         }
 
         /// <summary>Expands the stream to make room for more data. If the bytes remaining in the stream are not enough
-        /// to hold the given number of bytes allocate  new byte array.</summary>
+        /// to hold the given number of bytes allocate new byte array.</summary>
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
         private void Expand(int n)
         {
@@ -1253,6 +1253,30 @@ namespace Ice
                     _currentSegment = buffer;
                 }
                 _capacity += buffer.Length;
+            }
+        }
+
+        /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the current
+        /// encoding .</summary>
+        /// <param name="size">The size.</param>
+        /// <returns>The minimum number of bytes.</returns>
+        private int GetSizeLength(int size)
+        {
+            if (OldEncoding)
+            {
+                return size < 255 ? 1 : 5;
+            }
+            else
+            {
+                ulong v = (ulong)size;
+                v <<= 2;
+                return v switch
+                {
+                    ulong b when b <= byte.MaxValue => 1,
+                    ulong s when s <= ushort.MaxValue => 2,
+                    ulong i when i <= uint.MaxValue => 4,
+                    _ => 8
+                };
             }
         }
 
