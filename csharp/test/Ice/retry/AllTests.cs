@@ -279,10 +279,10 @@ namespace Ice
                         // important here is to make sure there are 4 retries and that no calls succeed to
                         // ensure retries with the old connection timeout semantics work.
                         Test.RetryPrx retryWithTimeout =
-                            (Test.RetryPrx)retry1.ice_invocationTimeout(-2).ice_timeout(200);
+                            (Test.RetryPrx)retry1.ice_invocationTimeout(-2).ice_timeout(100);
                         try
                         {
-                            retryWithTimeout.sleep(500);
+                            retryWithTimeout.sleep(1000);
                             test(false);
                         }
                         catch(Ice.TimeoutException)
