@@ -811,7 +811,7 @@ namespace Ice
             return result;
         }
 
-        internal static (int Size, Encoding encoding) ReadEncapsulationHeader(
+        internal static (int Size, Encoding Encoding) ReadEncapsulationHeader(
             Encoding encoding, ReadOnlySpan<byte> buffer)
         {
             int sizeLength;
@@ -821,6 +821,11 @@ namespace Ice
             {
                 sizeLength = 4;
                 size = ReadInt(buffer) - sizeLength; // Remove the size length which is included with the 1.1 encoding.
+                if (size < 0)
+                {
+                    throw new InvalidDataException(
+                        $"the 1.1 encapsulation's size ({size + sizeLength}) is too small");
+                }
             }
             else
             {
@@ -858,7 +863,7 @@ namespace Ice
         /// <returns>The encapsulation header read from the stream.</returns>
         internal (int Size, Encoding Encoding) ReadEncapsulationHeader()
         {
-            var result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
+            (int Size, Encoding Encoding) result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
             if (OldEncoding)
             {
                 _pos += 6; // 4 (size length) + 2 (encoding length)
@@ -1194,7 +1199,19 @@ namespace Ice
                     Skip(ReadSize());
                     break;
                 case EncodingDefinitions.TagFormat.FSize:
-                    Skip(OldEncoding ? ReadInt() : Read20Size());
+                    if (OldEncoding)
+                    {
+                        int size = Read11Size();
+                        if (size < 0)
+                        {
+                            throw new InvalidDataException("invalid negative fixed-length size");
+                        }
+                        Skip(size);
+                    }
+                    else
+                    {
+                        Skip(Read20Size());
+                    }
                     break;
                 case EncodingDefinitions.TagFormat.Class:
                     ReadAnyClass();
