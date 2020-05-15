@@ -76,7 +76,7 @@ isDefaultInitialized(const DataMemberPtr& member, bool considerDefaultValue)
 }
 
 string
-opFormatTypeToString(const OperationPtr& op, string ns)
+opFormatTypeToString(const OperationPtr& op)
 {
     switch (op->format())
     {
@@ -2455,7 +2455,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& operation)
     if(inParams.size() > 0)
     {
         _out << ",";
-        _out << nl << "format: " << opFormatTypeToString(operation, ns) << ",";
+        _out << nl << "format: " << opFormatTypeToString(operation) << ",";
         _out << nl << "writer: ";
         writeOutgoingRequestWriter(operation);
     }
@@ -2689,7 +2689,7 @@ Slice::Gen::DispatcherVisitor::writeReturnValueStruct(const OperationPtr& operat
         _out << sb;
         _out << nl << "Response = ZeroC.Ice.OutgoingResponseFrame.WithReturnValue(";
         _out.inc();
-        _out << nl << "current, " << opFormatTypeToString(operation, ns) << ", " << toTuple(outParams, "iceP_") << ",";
+        _out << nl << "current, " << opFormatTypeToString(operation) << ", " << toTuple(outParams, "iceP_") << ",";
         if(outParams.size() > 1)
         {
             _out << nl << "(ZeroC.Ice.OutputStream ostr, " << toTupleType(outParams, "iceP_") << " value) =>";
@@ -2855,7 +2855,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         else
         {
             _out << nl << "var response = ZeroC.Ice.OutgoingResponseFrame.WithReturnValue(current, "
-                 << opFormatTypeToString(operation, ns) << ", result, " << writer << ");";
+                 << opFormatTypeToString(operation) << ", result, " << writer << ");";
 
             if(amd)
             {
