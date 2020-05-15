@@ -1256,7 +1256,7 @@ namespace Ice
         }
 
         /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the current
-        /// encoding .</summary>
+        /// encoding.</summary>
         /// <param name="size">The size.</param>
         /// <returns>The minimum number of bytes.</returns>
         private int GetSizeLength(int size)
