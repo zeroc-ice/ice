@@ -892,7 +892,7 @@ namespace ZeroC.Ice
                 if (elementSize > 1)
                 {
                     // First write the size in bytes, so that the reader can skip it. We optimize-out this byte size
-                    // when size is 1.
+                    // when elementSize is 1.
                     WriteSize(count == 0 ? 1 : (count * elementSize) + GetSizeLength(count));
                 }
                 WriteSize(count);
@@ -923,7 +923,7 @@ namespace ZeroC.Ice
                 if (elementSize > 1)
                 {
                     // First write the size in bytes, so that the reader can skip it. We optimize-out this byte size
-                    // when size is 1.
+                    // when elementSize is 1.
                     WriteSize(count == 0 ? 1 : (count * elementSize) + GetSizeLength(count));
                 }
 
