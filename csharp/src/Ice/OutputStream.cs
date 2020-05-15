@@ -246,12 +246,7 @@ namespace Ice
         // All segments before the tail segment are fully used.
         private readonly List<ArraySegment<byte>> _segmentList;
 
-        // The position of the size of the encapsulation (which is also the start of the encapsulation itself). When
-        // set, we are writing to a top-level encapsulation.
-        private readonly Position? _sizePos;
-
-        // The start of the contents of an encapsulation, just after the encoding. When set, we are writing to a
-        // top-level encapsulation.
+        // The start of an encapsulation. When set, we are writing to a top-level encapsulation.
         private readonly Position? _startPos;
 
         // The position for the next write operation.
@@ -1056,9 +1051,8 @@ namespace Ice
             : this(encoding, data, startAt)
         {
             _format = format;
-            _sizePos = _tail;
-            WriteEncapsulationHeader(0, payloadEncoding); // 0 is a placeholder for the actual encapsulation size
             _startPos = _tail;
+            WriteEncapsulationHeader(0, payloadEncoding); // 0 is a placeholder for the actual encapsulation size
             Encoding = payloadEncoding;
         }
 
@@ -1070,10 +1064,10 @@ namespace Ice
         {
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
 
-            if (_sizePos is Position sizePos)
+            if (_startPos is Position startPos)
             {
                 Encoding = _mainEncoding;
-                RewriteEncapsulationSize(Distance(_startPos!.Value) + 2, sizePos);
+                RewriteEncapsulationSize(Distance(startPos) - 4, startPos); // 4= size length
             }
             return _tail;
         }
@@ -1088,21 +1082,23 @@ namespace Ice
 
         internal void WriteEndpoint(Endpoint endpoint)
         {
+            int sizeLength = OldEncoding ? 4 : 2;
+
             // Encoding does not change at all in this method.
 
             WriteShort((short)endpoint.Type);
             if (endpoint is OpaqueEndpoint opaqueEndpoint)
             {
-                WriteEncapsulationHeader(2 + opaqueEndpoint.Bytes.Length, opaqueEndpoint.Encoding, sizeLength: 2);
+                // 2 is the encoding length
+                WriteEncapsulationHeader(2 + opaqueEndpoint.Bytes.Length, opaqueEndpoint.Encoding, sizeLength);
                 WriteByteSpan(opaqueEndpoint.Bytes.Span); // WriteByteSpan is not encoding-sensitive
             }
             else
             {
-                var sizePos = _tail;
-                WriteEncapsulationHeader(0, Encoding, sizeLength: 2); // 0 is a placeholder for the size
                 var startPos = _tail;
+                WriteEncapsulationHeader(0, Encoding, sizeLength); // 0 is a placeholder for the size
                 endpoint.IceWritePayload(this);
-                RewriteEncapsulationSize(Distance(startPos) + 2, sizePos, sizeLength: 2);
+                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
             }
         }
 
