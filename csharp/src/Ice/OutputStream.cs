@@ -213,9 +213,8 @@ namespace Ice
 
         private const int DefaultSegmentSize = 256;
 
-        // The number of bytes we use by default when writing a size on a fixed number of bytes, when using the 2.0
-        // encoding.
-        private const int DefaultSizeFixedLength = 4;
+        // The number of bytes we use by default when writing a size on a fixed number of byte with the 2.0 encoding.
+        private const int DefaultSizeLength = 4;
 
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
@@ -1071,7 +1070,7 @@ namespace Ice
             if (_startPos is Position startPos)
             {
                 Encoding = _mainEncoding;
-                int sizeLength = OldEncoding ? 4 : DefaultSizeFixedLength;
+                int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
                 RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos);
             }
             return _tail;
@@ -1232,7 +1231,7 @@ namespace Ice
             }
             else
             {
-                RewriteFixedLength20Size(Distance(start) - DefaultSizeFixedLength, start);
+                RewriteFixedLength20Size(Distance(start) - DefaultSizeLength, start);
             }
         }
 
@@ -1304,7 +1303,7 @@ namespace Ice
         /// <param name="pos">The position to write to.</param>
         /// <param name="sizeLength">The number of bytes used to encode the size with the 2.0 encoding. Can be 1, 2 or
         /// 4.</param>
-        private void RewriteEncapsulationSize(int size, Position pos, int sizeLength = DefaultSizeFixedLength)
+        private void RewriteEncapsulationSize(int size, Position pos, int sizeLength = DefaultSizeLength)
         {
             if (OldEncoding)
             {
@@ -1335,7 +1334,7 @@ namespace Ice
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
         /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4.</param>
-        private void RewriteFixedLength20Size(int size, Position pos, int sizeLength = DefaultSizeFixedLength)
+        private void RewriteFixedLength20Size(int size, Position pos, int sizeLength = DefaultSizeLength)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
@@ -1370,7 +1369,7 @@ namespace Ice
         private Position StartFixedLengthSize()
         {
             Position pos = _tail;
-            int sizeLength = OldEncoding ? 4 : DefaultSizeFixedLength;
+            int sizeLength = OldEncoding ? 4 : DefaultSizeLength;
             WriteByteSpan(stackalloc byte[sizeLength]); // placeholder for future size
             return pos;
         }
@@ -1421,7 +1420,7 @@ namespace Ice
         /// <param name="encoding">The encoding of the new encapsulation.</param>
         /// <param name="sizeLength">The number of bytes used to encode the size, used only with the 2.0 encoding. Can
         /// be 1, 2 or 4.</param>
-        private void WriteEncapsulationHeader(int size, Encoding encoding, int sizeLength = DefaultSizeFixedLength)
+        private void WriteEncapsulationHeader(int size, Encoding encoding, int sizeLength = DefaultSizeLength)
         {
             if (OldEncoding)
             {

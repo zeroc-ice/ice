@@ -44,7 +44,7 @@ namespace Ice
                 else
                 {
                     // Size does not include the size length.
-                    RewriteFixedLength20Size(Distance(_current.SliceSizePos) - DefaultSizeFixedLength,
+                    RewriteFixedLength20Size(Distance(_current.SliceSizePos) - DefaultSizeLength,
                         _current.SliceSizePos);
                 }
             }

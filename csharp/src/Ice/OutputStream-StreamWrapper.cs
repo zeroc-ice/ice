@@ -21,7 +21,7 @@ namespace Ice
         // size. Otherwise, if the _data buffer contains fewer than 255 bytes when this class is disposed, we write the
         // sequence size as a single byte, followed by the contents of the _data buffer.
         //
-        // 2.0 encoding: we write the size on DefaultSizeFixedLength bytes and the data directly into the OutputStream
+        // 2.0 encoding: we write the size on DefaultSizeLength bytes and the data directly into the OutputStream
         // buffer.
         private sealed class StreamWrapper : Stream
         {
@@ -72,7 +72,7 @@ namespace Ice
                         }
                         else
                         {
-                            Span<byte> data = stackalloc byte[OutputStream.DefaultSizeFixedLength];
+                            Span<byte> data = stackalloc byte[OutputStream.DefaultSizeLength];
                             OutputStream.WriteFixedLength20Size(_pos, data);
                             _stream.RewriteByteSpan(data, _startPos);
                         }
@@ -175,7 +175,7 @@ namespace Ice
                 else
                 {
                     // placeholder for future size
-                    _stream.WriteByteSpan(stackalloc byte[OutputStream.DefaultSizeFixedLength]);
+                    _stream.WriteByteSpan(stackalloc byte[OutputStream.DefaultSizeLength]);
                 }
             }
         }
