@@ -5,7 +5,7 @@
 using Test;
 using System.Collections.Generic;
 
-namespace Ice.enums
+namespace ZeroC.Ice.enums
 {
     public class Server : TestHelper
     {

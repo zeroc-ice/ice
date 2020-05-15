@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.binding
+namespace ZeroC.Ice.binding
 {
     public class TestIntf : Test.ITestIntf
     {

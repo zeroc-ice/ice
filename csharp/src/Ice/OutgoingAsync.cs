@@ -2,7 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -136,7 +137,7 @@ namespace IceInternal
 
         public void AttachRemoteObserver(ConnectionInfo info, Endpoint endpt, int requestId, int size)
         {
-            Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
+            IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
                 ChildObserver = observer.GetRemoteObserver(info, endpt, requestId, size);
@@ -149,7 +150,7 @@ namespace IceInternal
 
         public void AttachCollocatedObserver(ObjectAdapter adapter, int requestId, int size)
         {
-            Ice.Instrumentation.IInvocationObserver? observer = GetObserver();
+            IInvocationObserver? observer = GetObserver();
             if (observer != null)
             {
                 ChildObserver = observer.GetCollocatedObserver(adapter, requestId, size);
@@ -290,7 +291,7 @@ namespace IceInternal
             }
         }
 
-        protected Ice.Instrumentation.IInvocationObserver? GetObserver() => Observer;
+        protected IInvocationObserver? GetObserver() => Observer;
 
         public bool SentSynchronously { get; protected set; }
 
@@ -299,8 +300,8 @@ namespace IceInternal
         protected bool Synchronous;
         protected int State;
 
-        protected Ice.Instrumentation.IInvocationObserver? Observer;
-        protected Ice.Instrumentation.IChildInvocationObserver? ChildObserver;
+        protected IInvocationObserver? Observer;
+        protected IChildInvocationObserver? ChildObserver;
 
         private bool _doneInSent;
         private bool _alreadySent;

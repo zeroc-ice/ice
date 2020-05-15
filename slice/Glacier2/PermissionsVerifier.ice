@@ -18,7 +18,7 @@
 #include <Glacier2/SSLInfo.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Glacier2
 {
     /// This exception is raised if a client is denied the ability to create

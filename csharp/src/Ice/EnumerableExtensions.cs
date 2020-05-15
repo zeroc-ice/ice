@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public static class EnumerableExtensions
     {

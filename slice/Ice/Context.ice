@@ -15,7 +15,7 @@
 [[python:pkgdir:Ice]]
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Ice
 {
     /// A request context. <code>Context</code> is used to transmit metadata about a

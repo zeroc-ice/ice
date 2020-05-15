@@ -3,26 +3,22 @@
 //
 
 using Test;
-using Ice.admin.Test;
 
-namespace Ice
+namespace ZeroC.Ice.admin
 {
-    namespace admin
+    public class Server : TestHelper
     {
-        public class Server : TestHelper
+        public override void Run(string[] args)
         {
-            public override void Run(string[] args)
-            {
-                using Communicator communicator = Initialize(ref args);
-                communicator.SetProperty("TestAdapter.Endpoints", $"{GetTestEndpoint(0)} -t 10000");
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.Add("factory", new RemoteCommunicatorFactoryI());
-                adapter.Activate();
-                ServerReady();
-                communicator.WaitForShutdown();
-            }
-
-            public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+            using Communicator communicator = Initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", $"{GetTestEndpoint(0)} -t 10000");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("factory", new RemoteCommunicatorFactoryI());
+            adapter.Activate();
+            ServerReady();
+            communicator.WaitForShutdown();
         }
+
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

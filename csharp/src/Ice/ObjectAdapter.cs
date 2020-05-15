@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed class ObjectAdapter
     {

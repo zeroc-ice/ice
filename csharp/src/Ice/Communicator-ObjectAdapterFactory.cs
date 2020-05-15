@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed partial class Communicator
     {

@@ -3,9 +3,9 @@
 //
 
 using Test;
-using Ice.acm.Test;
+using ZeroC.Ice.acm.Test;
 
-namespace Ice.acm
+namespace ZeroC.Ice.acm
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {

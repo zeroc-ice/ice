@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.threading"]
+["cs:namespace:ZeroC.Ice.threading"]
 module Test
 {
 

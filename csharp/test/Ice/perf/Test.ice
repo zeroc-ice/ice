@@ -4,7 +4,7 @@
 
 #pragma once
 
-["cs:namespace:Ice.perf"]
+["cs:namespace:ZeroC.Ice.perf"]
 module Test
 {
 

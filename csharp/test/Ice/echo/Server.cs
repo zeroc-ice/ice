@@ -3,19 +3,20 @@
 //
 
 using Test;
+using ZeroC.Ice;
 
 public class Server : TestHelper
 {
     private class Echo : IEcho
     {
-        public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
     }
 
     public override void Run(string[] args)
     {
-        using Ice.Communicator communicator = Initialize(ref args);
+        using Communicator communicator = Initialize(ref args);
         communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+        ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         var blob = new BlobjectI();
         adapter.AddDefault(blob);
         adapter.Add("__echo", new Echo());

@@ -6,13 +6,13 @@ using System.Linq;
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.seqMapping
+namespace ZeroC.Ice.seqMapping
 {
     public class TwowaysAMI
     {
         private const int Length = 100;
 
-        internal static void twowaysAMI(Ice.Communicator communicator, Test.IMyClassPrx p)
+        internal static void twowaysAMI(Communicator communicator, Test.IMyClassPrx p)
         {
             {
                 var i = Enumerable.Range(0, Length).Select(x => (byte)x).ToArray();

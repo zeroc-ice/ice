@@ -6,11 +6,10 @@ using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Proxy provides extension methods for IObjectPrx</summary>
     public static class Proxy

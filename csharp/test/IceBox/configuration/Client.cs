@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using ZeroC.Ice;
+
 public class Client : Test.TestHelper
 {
     public override void Run(string[] args)
@@ -13,7 +15,7 @@ public class Client : Test.TestHelper
         //
         // Shutdown the IceBox server.
         //
-        Ice.IProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).Shutdown();
+        IProcessPrx.Parse("DemoIceBox/admin -f Process:default -p 9996", communicator).Shutdown();
     }
 
     public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);

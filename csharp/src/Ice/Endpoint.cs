@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Each endpoint's type is identified by a short value. The enumerators of EndpointType represent the
     /// types of endpoints that the Ice runtime knows and implements. Other endpoint types, with values not represented

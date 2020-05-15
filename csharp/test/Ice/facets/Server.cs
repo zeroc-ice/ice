@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.facets
+namespace ZeroC.Ice.facets
 {
     public class Server : TestHelper
     {

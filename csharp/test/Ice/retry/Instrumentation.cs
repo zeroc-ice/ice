@@ -5,13 +5,15 @@
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.retry
+using ZeroC.Ice.Instrumentation;
+
+namespace ZeroC.Ice.retry
 {
     public class Instrumentation
     {
         private static object mutex = new object();
 
-        private class InvocationObserver : Ice.Instrumentation.IInvocationObserver
+        private class InvocationObserver : IInvocationObserver
         {
             public void
             Attach()
@@ -50,44 +52,43 @@ namespace Ice.retry
             {
             }
 
-            public Ice.Instrumentation.IRemoteObserver?
+            public IRemoteObserver?
             GetRemoteObserver(ConnectionInfo ci, Endpoint ei, int i, int j) => null;
 
-            public Ice.Instrumentation.ICollocatedObserver?
+            public ICollocatedObserver?
             GetCollocatedObserver(ObjectAdapter adapter, int i, int j) => null;
 
         };
 
-        private static Ice.Instrumentation.IInvocationObserver invocationObserver = new InvocationObserver();
+        private static IInvocationObserver invocationObserver = new InvocationObserver();
 
-        private class CommunicatorObserverI : Ice.Instrumentation.ICommunicatorObserver
+        private class CommunicatorObserverI : ICommunicatorObserver
         {
-            public Ice.Instrumentation.IObserver? GetConnectionEstablishmentObserver(Endpoint e, string s) => null;
+            public IObserver? GetConnectionEstablishmentObserver(Endpoint e, string s) => null;
 
-            public Ice.Instrumentation.IObserver? GetEndpointLookupObserver(Endpoint e) => null;
+            public IObserver? GetEndpointLookupObserver(Endpoint e) => null;
 
-            public Ice.Instrumentation.IConnectionObserver? GetConnectionObserver(
+            public IConnectionObserver? GetConnectionObserver(
                 ConnectionInfo ci,
                 Endpoint ei,
-                Ice.Instrumentation.ConnectionState s,
-                Ice.Instrumentation.IConnectionObserver? o) => null;
+                ConnectionState s,
+                IConnectionObserver? o) => null;
 
-            public Ice.Instrumentation.IThreadObserver? GetThreadObserver(
-                string p, string n, Ice.Instrumentation.ThreadState s, Ice.Instrumentation.IThreadObserver? o) => null;
+            public IThreadObserver? GetThreadObserver(string p, string n, ThreadState s, IThreadObserver? o) => null;
 
-            public Ice.Instrumentation.IInvocationObserver? GetInvocationObserver(
-                IObjectPrx? p, string o, IReadOnlyDictionary<string, string> c) => invocationObserver;
+            public IInvocationObserver? GetInvocationObserver(IObjectPrx? p, string o,
+                IReadOnlyDictionary<string, string> c) => invocationObserver;
 
-            public Ice.Instrumentation.IDispatchObserver? GetDispatchObserver(Current c, int i) => null;
+            public IDispatchObserver? GetDispatchObserver(Current c, int i) => null;
 
-            public void SetObserverUpdater(Ice.Instrumentation.IObserverUpdater? u)
+            public void SetObserverUpdater(IObserverUpdater? u)
             {
             }
         };
 
-        private static Ice.Instrumentation.ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
+        private static ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
-        public static Ice.Instrumentation.ICommunicatorObserver GetObserver() => communicatorObserver;
+        public static ICommunicatorObserver GetObserver() => communicatorObserver;
 
         private static void
         testEqual(ref int value, int expected)

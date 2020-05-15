@@ -19,7 +19,7 @@
 [[java:package:com.zeroc]]
 
 [swift:module:Ice:MX]
-
+[cs:namespace:ZeroC]
 /// The Ice Management eXtension facility. It provides the
 /// {@link IceMX#MetricsAdmin} interface for management clients to
 /// retrieve metrics from Ice applications.

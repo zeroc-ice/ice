@@ -5,17 +5,18 @@
 using Test;
 using System;
 using System.Collections.Generic;
+using ZeroC.Ice;
 
 internal sealed class SSLServer : IServer
 {
-    internal SSLServer(Ice.Communicator communicator) => _communicator = communicator;
+    internal SSLServer(Communicator communicator) => _communicator = communicator;
 
     public void
-    noCert(Ice.Current current)
+    noCert(Current current)
     {
         try
         {
-            var info = (IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
+            var info = (ZeroC.IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
             TestHelper.Assert(info.Certs == null);
         }
         catch (Exception)
@@ -25,11 +26,11 @@ internal sealed class SSLServer : IServer
     }
 
     public void
-    checkCert(string subjectDN, string issuerDN, Ice.Current current)
+    checkCert(string subjectDN, string issuerDN, Current current)
     {
         try
         {
-            var info = (IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
+            var info = (ZeroC.IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
             TestHelper.Assert(info.Verified);
             TestHelper.Assert(info.Certs != null &&
                 info.Certs.Length == 2 &&
@@ -43,11 +44,11 @@ internal sealed class SSLServer : IServer
     }
 
     public void
-    checkCipher(string cipher, Ice.Current current)
+    checkCipher(string cipher, Current current)
     {
         try
         {
-            var info = (IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
+            var info = (ZeroC.IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
             TestHelper.Assert(info.Cipher != null && info.Cipher.Equals(cipher));
         }
         catch (Exception)
@@ -58,18 +59,18 @@ internal sealed class SSLServer : IServer
 
     internal void Destroy() => _communicator.Destroy();
 
-    private readonly Ice.Communicator _communicator;
+    private readonly Communicator _communicator;
 }
 
 internal sealed class ServerFactory : IServerFactory
 {
     public ServerFactory(string defaultDir) => _defaultDir = defaultDir;
 
-    public IServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
+    public IServerPrx createServer(Dictionary<string, string> props, Current current)
     {
         props["IceSSL.DefaultDir"] = _defaultDir;
-        var communicator = new Ice.Communicator(props);
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+        var communicator = new Communicator(props);
+        ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         var server = new SSLServer(communicator);
         var prx = adapter.AddWithUUID(server, IServerPrx.Factory);
         _servers[prx.Identity] = server;
@@ -77,7 +78,7 @@ internal sealed class ServerFactory : IServerFactory
         return prx;
     }
 
-    public void destroyServer(IServerPrx? srv, Ice.Current current)
+    public void destroyServer(IServerPrx? srv, Current current)
     {
         if (_servers.TryGetValue(srv!.Identity, out SSLServer? server))
         {
@@ -86,12 +87,12 @@ internal sealed class ServerFactory : IServerFactory
         }
     }
 
-    public void shutdown(Ice.Current current)
+    public void shutdown(Current current)
     {
         TestHelper.Assert(_servers.Count == 0);
         current.Adapter.Communicator.Shutdown();
     }
 
     private readonly string _defaultDir;
-    private Dictionary<Ice.Identity, SSLServer> _servers = new Dictionary<Ice.Identity, SSLServer>();
+    private Dictionary<Identity, SSLServer> _servers = new Dictionary<Identity, SSLServer>();
 }

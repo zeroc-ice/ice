@@ -3,15 +3,16 @@
 //
 
 using System;
+using ZeroC.Ice;
 
-public class PluginTwoFailFactory : Ice.IPluginFactory
+public class PluginTwoFailFactory : IPluginFactory
 {
-    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) =>
+    public IPlugin Create(Communicator communicator, string name, string[] args) =>
         new PluginTwoFail(communicator);
 
     internal class PluginTwoFail : BasePluginFail
     {
-        public PluginTwoFail(Ice.Communicator communicator) : base(communicator)
+        public PluginTwoFail(Communicator communicator) : base(communicator)
         {
         }
 

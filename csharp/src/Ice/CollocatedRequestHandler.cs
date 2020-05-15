@@ -2,7 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,9 +14,9 @@ namespace IceInternal
     public class CollocatedRequestHandler : IRequestHandler
     {
         public
-        CollocatedRequestHandler(Reference @ref, Ice.ObjectAdapter adapter)
+        CollocatedRequestHandler(Reference reference, ObjectAdapter adapter)
         {
-            _reference = @ref;
+            _reference = reference;
             _adapter = adapter;
             _requestId = 0;
         }
@@ -145,7 +146,7 @@ namespace IceInternal
             // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
             // upon completion.
 
-            Ice.Instrumentation.IDispatchObserver? dispatchObserver = null;
+            IDispatchObserver? dispatchObserver = null;
             try
             {
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
@@ -159,7 +160,7 @@ namespace IceInternal
                 var current = new Current(_adapter, incomingRequest, requestId);
 
                 // Then notify and set dispatch observer, if any.
-                Ice.Instrumentation.ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
+                ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
                 if (communicatorObserver != null)
                 {
                     dispatchObserver = communicatorObserver.GetDispatchObserver(current, incomingRequest.Size);
@@ -270,7 +271,7 @@ namespace IceInternal
         }
 
         private readonly Reference _reference;
-        private readonly Ice.ObjectAdapter _adapter;
+        private readonly ObjectAdapter _adapter;
         private int _requestId;
         private readonly Dictionary<OutgoingAsyncBase, int> _sendAsyncRequests = new Dictionary<OutgoingAsyncBase, int>();
         private readonly Dictionary<int, OutgoingAsyncBase> _asyncRequests = new Dictionary<int, OutgoingAsyncBase>();

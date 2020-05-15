@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.proxy
+namespace ZeroC.Ice.proxy
 {
     public class AllTests
     {

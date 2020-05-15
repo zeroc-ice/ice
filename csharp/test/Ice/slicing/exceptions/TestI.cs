@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using Test;
 
 public sealed class TestIntf : ITestIntf
@@ -137,7 +137,7 @@ public sealed class TestIntf : ITestIntf
         TestHelper.Assert(false);
     }
 
-    public void relayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Ice.Current current)
+    public void relayUnknownPreservedAsKnownPreserved(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
         IRelayPrx p = r.Clone(fixedConnection: current.Connection);

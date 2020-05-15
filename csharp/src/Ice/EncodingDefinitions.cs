@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     internal static class EncodingDefinitions
     {

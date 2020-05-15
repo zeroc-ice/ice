@@ -2,11 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using System.IO;
 using Test;
 
-namespace Ice.dictMapping
+namespace ZeroC.Ice.dictMapping
 {
     public class AllTests
     {

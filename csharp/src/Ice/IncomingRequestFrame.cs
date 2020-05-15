@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Represents a request protocol frame received by the application.</summary>
     public sealed class IncomingRequestFrame

@@ -6,7 +6,7 @@ using System;
 using System.Threading;
 using Test;
 
-namespace Ice.retry
+namespace ZeroC.Ice.retry
 {
     public class AllTests
     {

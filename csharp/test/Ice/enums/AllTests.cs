@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using Test;
 
-namespace Ice.enums
+namespace ZeroC.Ice.enums
 {
     public class AllTests
     {

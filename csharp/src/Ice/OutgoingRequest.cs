@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     // publicly visible Ice-internal class used as base class for requests
     public class OutgoingRequest<TReturnValue>

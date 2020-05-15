@@ -22,7 +22,7 @@
 #include <IceGrid/Descriptor.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceGrid
 {
     /// An enumeration representing the state of the server.

@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 
-namespace Ice.interceptor
+namespace ZeroC.Ice.interceptor
 {
     public class MyObject : Test.IMyObject
     {

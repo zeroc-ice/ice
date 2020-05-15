@@ -15,7 +15,7 @@
 [[python:pkgdir:Ice]]
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Ice
 {
     /// The identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a nil

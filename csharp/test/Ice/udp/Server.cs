@@ -4,10 +4,11 @@
 
 using System;
 using System.Text;
+using Test;
 
-namespace Ice.udp
+namespace ZeroC.Ice.udp
 {
-    public class Server : global::Test.TestHelper
+    public class Server : TestHelper
     {
         public override void Run(string[] args)
         {

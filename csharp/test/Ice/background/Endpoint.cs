@@ -3,11 +3,12 @@
 //
 
 using System.Collections.Generic;
-using Test;
-using System.Diagnostics;
 using System.Linq;
+using Test;
 
-internal class Endpoint : Ice.Endpoint
+using ZeroC.Ice;
+
+internal class Endpoint : ZeroC.Ice.Endpoint
 {
     public override string ConnectionId => _endpoint.ConnectionId;
     public override bool HasCompressionFlag => _endpoint.HasCompressionFlag;
@@ -17,13 +18,13 @@ internal class Endpoint : Ice.Endpoint
     public override string Name => _endpoint.Name;
 
     public override int Timeout => _endpoint.Timeout;
-    public override Ice.EndpointType Type => (Ice.EndpointType)(TYPE_BASE + (short)_endpoint.Type);
+    public override EndpointType Type => (EndpointType)(TYPE_BASE + (short)_endpoint.Type);
 
     internal static short TYPE_BASE = 100;
-    private Ice.Endpoint _endpoint;
+    private ZeroC.Ice.Endpoint _endpoint;
     private Configuration _configuration;
 
-    public override bool Equals(Ice.Endpoint? other)
+    public override bool Equals(ZeroC.Ice.Endpoint? other)
     {
         if (ReferenceEquals(this, other))
         {
@@ -45,7 +46,7 @@ internal class Endpoint : Ice.Endpoint
 
     public override string OptionsToString() => _endpoint.OptionsToString();
 
-    public override bool Equivalent(Ice.Endpoint endpoint)
+    public override bool Equivalent(ZeroC.Ice.Endpoint endpoint)
     {
         if (endpoint is Endpoint testEndpoint)
         {
@@ -57,15 +58,15 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override void IceWritePayload(Ice.OutputStream ostr)
+    public override void IceWritePayload(OutputStream ostr)
     {
         ostr.WriteShort((short)_endpoint.Type);
         _endpoint.IceWritePayload(ostr);
     }
 
-    public override Ice.Endpoint NewCompressionFlag(bool compressionFlag)
+    public override ZeroC.Ice.Endpoint NewCompressionFlag(bool compressionFlag)
     {
-        Ice.Endpoint endpoint = _endpoint.NewCompressionFlag(compressionFlag);
+        ZeroC.Ice.Endpoint endpoint = _endpoint.NewCompressionFlag(compressionFlag);
         if (endpoint == _endpoint)
         {
             return this;
@@ -76,9 +77,9 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override Ice.Endpoint NewConnectionId(string connectionId)
+    public override ZeroC.Ice.Endpoint NewConnectionId(string connectionId)
     {
-        Ice.Endpoint endpoint = _endpoint.NewConnectionId(connectionId);
+        ZeroC.Ice.Endpoint endpoint = _endpoint.NewConnectionId(connectionId);
         if (endpoint == _endpoint)
         {
             return this;
@@ -89,7 +90,7 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override Ice.Endpoint NewTimeout(int timeout)
+    public override ZeroC.Ice.Endpoint NewTimeout(int timeout)
     {
         var endpoint = _endpoint.NewTimeout(timeout);
         if (endpoint == _endpoint)
@@ -109,7 +110,7 @@ internal class Endpoint : Ice.Endpoint
         return new Acceptor(this, acceptor);
     }
 
-    public override void ConnectorsAsync(Ice.EndpointSelectionType selType, Ice.IEndpointConnectors cb)
+    public override void ConnectorsAsync(EndpointSelectionType selType, IEndpointConnectors cb)
     {
         try
         {
@@ -122,7 +123,7 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)
+    public override IEnumerable<ZeroC.Ice.Endpoint> ExpandHost(out ZeroC.Ice.Endpoint? publish)
     {
         var endpoints = _endpoint.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
         if (publish != null)
@@ -132,7 +133,7 @@ internal class Endpoint : Ice.Endpoint
         return endpoints;
     }
 
-    public override IEnumerable<Ice.Endpoint> ExpandIfWildcard() =>
+    public override IEnumerable<ZeroC.Ice.Endpoint> ExpandIfWildcard() =>
         _endpoint.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
     public override IceInternal.ITransceiver? GetTransceiver()
@@ -148,19 +149,19 @@ internal class Endpoint : Ice.Endpoint
         }
     }
 
-    internal Endpoint(Ice.Endpoint endpoint)
+    internal Endpoint(ZeroC.Ice.Endpoint endpoint)
     {
         _endpoint = endpoint;
         _configuration = Configuration.GetInstance();
     }
 
-    internal Endpoint GetEndpoint(Ice.Endpoint del) => del == _endpoint ? this : new Endpoint(del);
+    internal Endpoint GetEndpoint(ZeroC.Ice.Endpoint del) => del == _endpoint ? this : new Endpoint(del);
 
-    private class ConnectorsCallback : Ice.IEndpointConnectors
+    private class ConnectorsCallback : IEndpointConnectors
     {
-        private Ice.IEndpointConnectors _callback;
+        private IEndpointConnectors _callback;
 
-        internal ConnectorsCallback(Ice.IEndpointConnectors cb)
+        internal ConnectorsCallback(IEndpointConnectors cb)
         {
             _callback = cb;
         }

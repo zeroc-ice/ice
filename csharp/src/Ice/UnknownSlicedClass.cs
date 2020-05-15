@@ -4,7 +4,7 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>UnknownSlicedClass represents a fully sliced class instance. The local Ice runtime does not known this
     /// type or any of its base classes (other than AnyClass).</summary>

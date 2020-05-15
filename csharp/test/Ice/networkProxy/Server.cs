@@ -8,14 +8,14 @@ public class Server : TestHelper
 {
     public class TestIntf : ITestIntf
     {
-        public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(ZeroC.Ice.Current current) => current.Adapter.Communicator.Shutdown();
     }
 
     public override void Run(string[] args)
     {
         using var communicator = Initialize(ref args);
         communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+        ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add("test", new TestIntf());
         adapter.Activate();
 

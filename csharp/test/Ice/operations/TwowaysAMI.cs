@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 using Test;
 
-namespace Ice.operations
+namespace ZeroC.Ice.operations
 {
     public class TwowaysAMI
     {

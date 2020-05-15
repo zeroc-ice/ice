@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.operations
+namespace ZeroC.Ice.operations
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass, IObject
     {

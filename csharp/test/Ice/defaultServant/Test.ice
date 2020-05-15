@@ -5,7 +5,7 @@
 #pragma once
 [[normalize-case]]
 
-[cs:namespace:Ice.DefaultServant]
+[cs:namespace:ZeroC.Ice.DefaultServant]
 module Test
 {
     interface MyObject

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
     public abstract class IPEndpoint : Endpoint

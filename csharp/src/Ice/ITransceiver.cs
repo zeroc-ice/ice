@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
-
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Threading.Tasks;
+
+using ZeroC.Ice;
 
 namespace IceInternal
 {
@@ -296,7 +295,7 @@ namespace IceInternal
 
         string Transport();
         string ToDetailedString();
-        Ice.ConnectionInfo GetInfo();
+        ConnectionInfo GetInfo();
         void CheckSendSize(int size);
         void SetBufferSize(int rcvSize, int sndSize);
     }

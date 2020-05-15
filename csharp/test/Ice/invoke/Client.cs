@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.invoke
+namespace ZeroC.Ice.invoke
 {
     public class Client : TestHelper
     {

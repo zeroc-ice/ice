@@ -2,24 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.binding.Test;
-
-namespace Ice.binding
+namespace ZeroC.Ice.binding
 {
-    public class RemoteObjectAdapter : IRemoteObjectAdapter
+    public class RemoteObjectAdapter : Test.IRemoteObjectAdapter
     {
         public RemoteObjectAdapter(ObjectAdapter adapter)
         {
             _adapter = adapter;
-            _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
+            _testIntf = _adapter.Add("test", new TestIntf(), Test.ITestIntfPrx.Factory);
             _adapter.Activate();
         }
 
-        public ITestIntfPrx
-        getTestIntf(Current current) => _testIntf;
+        public Test.ITestIntfPrx getTestIntf(Current current) => _testIntf;
 
-        public void
-        deactivate(Current current)
+        public void deactivate(Current current)
         {
             try
             {
@@ -31,6 +27,6 @@ namespace Ice.binding
         }
 
         private ObjectAdapter _adapter;
-        private ITestIntfPrx _testIntf;
+        private Test.ITestIntfPrx _testIntf;
     }
 }

@@ -15,7 +15,7 @@
 [[python:pkgdir:Glacier2]]
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Glacier2
 {
 

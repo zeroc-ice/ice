@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ internal class Transceiver : IceInternal.ITransceiver
 
     public void Close() => _transceiver.Close();
 
-    public Ice.Endpoint Bind() => _transceiver.Bind();
+    public ZeroC.Ice.Endpoint Bind() => _transceiver.Bind();
 
     public int Write(IList<ArraySegment<byte>> buf, ref int offset)
     {

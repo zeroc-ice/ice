@@ -6,7 +6,6 @@
 // NOTE: This test is not interoperable with other language mappings.
 //
 
-using Ice;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +14,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Test;
+using ZeroC.Ice;
+using ZeroC.IceSSL;
 
 public class AllTests
 {
@@ -30,7 +31,7 @@ public class AllTests
     CreateProperties(Dictionary<string, string> defaultProperties, string? cert = null, string? ca = null)
     {
         var properties = new Dictionary<string, string>(defaultProperties);
-        properties["Ice.Plugin.IceSSL"] = "IceSSL:IceSSL.PluginFactory";
+        properties["Ice.Plugin.IceSSL"] = "IceSSL:ZeroC.IceSSL.PluginFactory";
         string? value;
         if (defaultProperties.TryGetValue("IceSSL.DefaultDir", out value))
         {
@@ -64,9 +65,9 @@ public class AllTests
         return properties;
     }
 
-    public static Test.IServerFactoryPrx allTests(Test.TestHelper helper, string testDir)
+    public static IServerFactoryPrx allTests(TestHelper helper, string testDir)
     {
-        Ice.Communicator? communicator = helper.Communicator();
+        Communicator? communicator = helper.Communicator();
         TestHelper.Assert(communicator != null);
         string factoryRef = "factory:" + helper.GetTestEndpoint(0, "tcp");
 
@@ -92,8 +93,10 @@ public class AllTests
         X509Certificate2 caCert1 = new X509Certificate2(caCert1File);
         X509Certificate2 caCert2 = new X509Certificate2(caCert2File);
 
-        TestHelper.Assert(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert1File)).RawData, caCert1.RawData));
-        TestHelper.Assert(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert2File)).RawData, caCert2.RawData));
+        TestHelper.Assert(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert1File)).RawData,
+            caCert1.RawData));
+        TestHelper.Assert(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert2File)).RawData,
+            caCert2.RawData));
 
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
@@ -107,7 +110,8 @@ public class AllTests
             catch (CryptographicException)
             {
                 store.Open(OpenFlags.ReadOnly);
-                Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
+                Console.Out.WriteLine(
+                    "warning: some test requires administrator privileges, run as Administrator to run all the tests.");
             }
         }
 
@@ -166,7 +170,7 @@ public class AllTests
                 clientProperties["Ice.InitPlugins"] = "0";
                 clientProperties["IceSSL.CAs"] = caCert1File;
                 var comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Plugin? plugin = (Plugin?)comm.GetPlugin("IceSSL");
                 TestHelper.Assert(plugin != null);
                 plugin.SetCertificates(coll);
                 comm.InitializePlugins();
@@ -197,7 +201,7 @@ public class AllTests
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                 clientProperties["Ice.InitPlugins"] = "0";
                 var comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Plugin? plugin = (Plugin?)comm.GetPlugin("IceSSL");
                 TestHelper.Assert(plugin != null);
                 plugin.SetCACertificates(coll);
                 comm.InitializePlugins();
@@ -229,16 +233,17 @@ public class AllTests
                 clientProperties = CreateProperties(defaultProperties);
                 clientProperties["IceSSL.VerifyPeer"] = "0";
                 var comm = new Communicator(ref args, clientProperties);
-                var fact = Test.IServerFactoryPrx.Parse(factoryRef, comm);
+                var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                 serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                 serverProperties["IceSSL.VerifyPeer"] = "0";
-                Test.IServerPrx? server = fact.createServer(serverProperties);
+                IServerPrx? server = fact.createServer(serverProperties);
                 try
                 {
                     server!.noCert();
-                    TestHelper.Assert(!((IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
+                    TestHelper.Assert(
+                        !((ZeroC.IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                     TestHelper.Assert(false);
@@ -260,7 +265,8 @@ public class AllTests
                 try
                 {
                     server!.noCert();
-                    TestHelper.Assert(((IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
+                    TestHelper.Assert(((
+                        ZeroC.IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
                 }
                 catch (Exception ex)
                 {
@@ -338,7 +344,7 @@ public class AllTests
                         new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
                     X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
+                    var info = (ZeroC.IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
                     TestHelper.Assert(info.Certs!.Length == 2);
                     TestHelper.Assert(info.Verified);
 
@@ -749,7 +755,7 @@ public class AllTests
                         try
                         {
                             server!.IcePing();
-                            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
+                            var info = (ZeroC.IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
                             TestHelper.Assert(!info.Verified);
                         }
                         catch (Exception ex)
@@ -813,7 +819,7 @@ public class AllTests
                 }
                 try
                 {
-                    IceSSL.ConnectionInfo info;
+                    ZeroC.IceSSL.ConnectionInfo info;
 
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.VerifyPeer"] = "0";
@@ -831,7 +837,7 @@ public class AllTests
                     Test.IServerPrx? server = fact.createServer(serverProperties);
                     try
                     {
-                        info = (IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                        info = (ZeroC.IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
                         TestHelper.Assert(info.Certs!.Length == 1);
                         TestHelper.Assert(!info.Verified);
                     }
@@ -851,7 +857,7 @@ public class AllTests
                     server = fact.createServer(serverProperties);
                     try
                     {
-                        info = (IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                        info = (ZeroC.IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
                         TestHelper.Assert(info.Certs!.Length == 1);
                         TestHelper.Assert(!info.Verified);
                     }
@@ -872,7 +878,7 @@ public class AllTests
                     server = fact.createServer(serverProperties);
                     try
                     {
-                        info = (IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                        info = (ZeroC.IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
                         TestHelper.Assert(info.Certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
                     }
                     catch (Exception ex)
@@ -898,7 +904,7 @@ public class AllTests
                         server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                            info = (ZeroC.IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
                             TestHelper.Assert(info.Certs!.Length == 2);
                             TestHelper.Assert(info.Verified);
                         }
@@ -965,7 +971,7 @@ public class AllTests
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                info = (IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                                info = (ZeroC.IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
                                 TestHelper.Assert(info.Certs!.Length == 3);
                                 TestHelper.Assert(info.Verified);
                             }
@@ -1010,7 +1016,7 @@ public class AllTests
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                info = (IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                                info = (ZeroC.IceSSL.ConnectionInfo)server!.GetConnection().GetConnectionInfo();
                                 TestHelper.Assert(info.Certs!.Length == 4);
                                 TestHelper.Assert(info.Verified);
                             }
@@ -1092,7 +1098,7 @@ public class AllTests
                 //
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                 Communicator comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Plugin? plugin = (Plugin?)comm.GetPlugin("IceSSL");
                 TestHelper.Assert(plugin != null);
                 var verifier = new CertificateVerifier();
                 plugin.SetCertificateVerifier(verifier);
@@ -1104,7 +1110,7 @@ public class AllTests
                 try
                 {
                     TestHelper.Assert(server != null);
-                    var info = (IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
+                    var info = (ZeroC.IceSSL.ConnectionInfo)server.GetConnection().GetConnectionInfo();
                     TestHelper.Assert(info.Cipher != null);
                     server.checkCipher(info.Cipher);
                 }
@@ -1122,7 +1128,7 @@ public class AllTests
                 //
                 verifier.reset();
                 verifier.returnValue(false);
-                server.GetConnection().Close(Ice.ConnectionClose.GracefullyWithWait);
+                server.GetConnection().Close(ConnectionClose.GracefullyWithWait);
                 try
                 {
                     server.IcePing();
@@ -1150,7 +1156,7 @@ public class AllTests
                 clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                 clientProperties["IceSSL.CertVerifier"] = "CertificateVerifier";
                 Communicator comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Plugin? plugin = (Plugin?)comm.GetPlugin("IceSSL");
                 TestHelper.Assert(plugin != null);
                 TestHelper.Assert(plugin.GetCertificateVerifier() != null);
                 comm.Destroy();
@@ -1408,7 +1414,7 @@ public class AllTests
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
                 using var comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Plugin? plugin = (Plugin?)comm.GetPlugin("IceSSL");
                 TestHelper.Assert(plugin != null);
                 var cb = new PasswordCallback("bogus");
                 plugin.SetPasswordCallback(cb);
@@ -1431,7 +1437,7 @@ public class AllTests
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
                 Communicator comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Plugin? plugin = (Plugin?)comm.GetPlugin("IceSSL");
                 TestHelper.Assert(plugin != null);
                 var cb = new PasswordCallback();
                 plugin.SetPasswordCallback(cb);
@@ -1456,7 +1462,7 @@ public class AllTests
                 // Don't specify the password.
                 clientProperties.Remove("IceSSL.Password");
                 Communicator comm = new Communicator(ref args, clientProperties);
-                IceSSL.Plugin? plugin = (IceSSL.Plugin?)comm.GetPlugin("IceSSL");
+                Plugin? plugin = (Plugin?)comm.GetPlugin("IceSSL");
                 TestHelper.Assert(plugin != null);
                 TestHelper.Assert(plugin.GetPasswordCallback() != null);
                 comm.Destroy();
@@ -2317,16 +2323,16 @@ public class AllTests
                         p.IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (Ice.SecurityException)
+                    catch (SecurityException)
                     {
                         // Expected, by default we don't check for system CAs.
                         break;
                     }
                     catch (System.Exception ex)
                     {
-                        if ((ex is Ice.ConnectTimeoutException) ||
-                           (ex is Ice.TransportException) ||
-                           (ex is Ice.DNSException))
+                        if ((ex is ConnectTimeoutException) ||
+                           (ex is TransportException) ||
+                           (ex is DNSException))
                         {
                             if (++retryCount < retryMax)
                             {
@@ -2364,16 +2370,17 @@ public class AllTests
                 {
                     try
                     {
-                        IceSSL.ConnectionInfo? info = (IceSSL.ConnectionInfo?)p.GetConnection().GetConnectionInfo().Underlying;
+                        ZeroC.IceSSL.ConnectionInfo? info =
+                            (ZeroC.IceSSL.ConnectionInfo?)p.GetConnection().GetConnectionInfo().Underlying;
                         TestHelper.Assert(info != null);
                         TestHelper.Assert(info.Verified);
                         break;
                     }
                     catch (System.Exception ex)
                     {
-                        if ((ex is Ice.ConnectTimeoutException) ||
-                           (ex is Ice.TransportException) ||
-                           (ex is Ice.DNSException))
+                        if ((ex is ConnectTimeoutException) ||
+                           (ex is TransportException) ||
+                           (ex is DNSException))
                         {
                             if (++retryCount < retryMax)
                             {

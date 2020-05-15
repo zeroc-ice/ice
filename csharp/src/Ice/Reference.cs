@@ -9,9 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Reference is an Ice-internal but publicly visible class. Each Ice proxy has single get-only property,
     /// IceReference, which holds the reference associated with this proxy. Reference represents the untyped
@@ -1077,7 +1076,7 @@ namespace Ice
             }
         }
 
-        internal Ice.Connection? GetCachedConnection()
+        internal Connection? GetCachedConnection()
         {
             if (IsFixed)
             {

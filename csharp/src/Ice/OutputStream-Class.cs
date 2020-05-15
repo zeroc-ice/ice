@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     // This partial class provides the class/exception marshaling logic.
 

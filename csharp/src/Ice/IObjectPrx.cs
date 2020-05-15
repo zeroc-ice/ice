@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public enum InvocationMode : byte
     {

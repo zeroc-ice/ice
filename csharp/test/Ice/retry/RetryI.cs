@@ -4,7 +4,7 @@
 
 using System.Threading;
 
-namespace Ice.retry
+namespace ZeroC.Ice.retry
 {
     public sealed class Retry : Test.IRetry
     {
@@ -14,7 +14,7 @@ namespace Ice.retry
             {
                 if (current.Connection != null)
                 {
-                    current.Connection.Close(Ice.ConnectionClose.Forcefully);
+                    current.Connection.Close(ConnectionClose.Forcefully);
                 }
                 else
                 {
@@ -28,7 +28,7 @@ namespace Ice.retry
             if (nRetry > _counter)
             {
                 ++_counter;
-                throw new Ice.ConnectionLostException();
+                throw new ConnectionLostException();
             }
             int counter = _counter;
             _counter = 0;

@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 
-namespace Ice.objects
+namespace ZeroC.Ice.objects
 {
     public sealed class UnexpectedObjectExceptionTest : IObject
     {

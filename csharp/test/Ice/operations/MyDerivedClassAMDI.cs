@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace Ice.operations.AMD
+namespace ZeroC.Ice.operations.AMD
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass
     {

@@ -7,9 +7,8 @@ using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Test;
-using Ice.perf.Test;
 
-namespace Ice.perf
+namespace ZeroC.Ice.perf
 {
     public class AllTests
     {
@@ -56,7 +55,7 @@ namespace Ice.perf
             RunTest(output, repetitions, name, () => invocation(size), () => invocation(0));
         }
 
-        public static IPerformancePrx allTests(TestHelper helper)
+        public static Test.IPerformancePrx allTests(TestHelper helper)
         {
             Communicator communicator = helper.Communicator()!;
             TestHelper.Assert(communicator != null);
@@ -66,11 +65,11 @@ namespace Ice.perf
             output.WriteLine("warning: performance test built with DEBUG");
 #endif
 
-            var perf = IPerformancePrx.Parse("perf:" + helper.GetTestEndpoint(0), communicator);
+            var perf = Test.IPerformancePrx.Parse("perf:" + helper.GetTestEndpoint(0), communicator);
 
             RunTest(output, 10000, "latency", () => perf.IcePing());
-            RunTest<byte>(output, 1000, "sending byte sequence", v => perf.sendBytes(v), Constants.ByteSeqSize);
-            RunTest<byte>(output, 1000, "received byte sequence", sz => perf.receiveBytes(sz), Constants.ByteSeqSize);
+            RunTest<byte>(output, 1000, "sending byte sequence", v => perf.sendBytes(v), Test.Constants.ByteSeqSize);
+            RunTest<byte>(output, 1000, "received byte sequence", sz => perf.receiveBytes(sz), Test.Constants.ByteSeqSize);
 
             return perf;
         }

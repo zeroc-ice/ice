@@ -19,7 +19,7 @@
 #include <IceGrid/Exception.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceGrid
 {
     /// A session object is used by IceGrid clients to allocate and

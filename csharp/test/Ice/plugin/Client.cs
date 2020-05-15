@@ -115,7 +115,7 @@ public class Client : TestHelper
         }
     }
 
-    internal class MyPlugin : Ice.IPlugin
+    internal class MyPlugin : ZeroC.Ice.IPlugin
     {
         public bool isInitialized() => _initialized;
 

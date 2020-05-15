@@ -5,12 +5,13 @@
 using System;
 using System.Linq;
 using Test;
+using ZeroC.Ice;
 
 public class AllTests
 {
     public static void allTests(TestHelper helper)
     {
-        Ice.Communicator? communicator = helper.Communicator();
+        Communicator? communicator = helper.Communicator();
         TestHelper.Assert(communicator != null);
         var service1 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
         var service2 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(1)}", communicator);

@@ -5,11 +5,11 @@
 using System;
 using System.Collections.Generic;
 
-using Ice;
+using ZeroC.Ice;
 
-namespace IceDiscovery
+namespace ZeroC.IceDiscovery
 {
-    public sealed class PluginFactory : Ice.IPluginFactory
+    public sealed class PluginFactory : IPluginFactory
     {
         public IPlugin
         Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);

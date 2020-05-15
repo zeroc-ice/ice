@@ -5,7 +5,7 @@
 using System;
 using Test;
 
-public class Server : Test.TestHelper
+public class Server : TestHelper
 {
     public override void Run(string[] args)
     {
@@ -16,7 +16,7 @@ public class Server : Test.TestHelper
         }
 
         communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+        ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
         adapter.Activate();
 

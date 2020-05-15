@@ -6,7 +6,8 @@ using System;
 using System.Collections.Generic;
 
 using Test;
-using Ice;
+using ZeroC.Ice;
+using ZeroC.IceMX;
 
 public class AllTests
 {
@@ -88,7 +89,7 @@ public class AllTests
         Console.Out.Write("testing metrics admin facet... ");
         Console.Out.Flush();
         {
-            var ma = IceMX.IMetricsAdminPrx.CheckedCast(
+            var ma = IMetricsAdminPrx.CheckedCast(
                 admin.Clone(facet: "IceBox.Service.TestService.Metrics", IObjectPrx.Factory));
             var pa = IPropertiesAdminPrx.CheckedCast(
                 admin.Clone(facet: "IceBox.Service.TestService.Properties", IObjectPrx.Factory));
@@ -108,7 +109,7 @@ public class AllTests
             TestHelper.Assert(views.Length == 3);
 
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            views = admin.Clone(facet: "Metrics", IceMX.IMetricsAdminPrx.Factory).GetMetricsViewNames().ReturnValue;
+            views = admin.Clone(facet: "Metrics", IMetricsAdminPrx.Factory).GetMetricsViewNames().ReturnValue;
             TestHelper.Assert(views.Length == 0);
         }
         Console.Out.WriteLine("ok");

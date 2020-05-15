@@ -22,7 +22,7 @@
 #include <Ice/BuiltinSequences.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceGrid
 {
     /// A mapping of string to string.

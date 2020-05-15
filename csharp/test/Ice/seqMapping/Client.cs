@@ -5,14 +5,14 @@
 using System;
 using Test;
 
-namespace Ice.seqMapping
+namespace ZeroC.Ice.seqMapping
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
             using var communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "Ice.seqMapping.TypeId" });
+                typeIdNamespaces: new string[] { "ZeroC.Ice.seqMapping.TypeId" });
             var myClass = AllTests.allTests(this, false);
             Console.Out.Write("shutting down server... ");
             Console.Out.Flush();

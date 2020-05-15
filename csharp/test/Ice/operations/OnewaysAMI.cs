@@ -6,7 +6,7 @@ using System;
 using Test;
 using System.Threading;
 
-namespace Ice.operations
+namespace ZeroC.Ice.operations
 {
     public class OnewaysAMI
     {

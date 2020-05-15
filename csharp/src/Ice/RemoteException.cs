@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Base class for exceptions that can be transmitted in responses to Ice requests. The derived exception
     /// classes are generated from exceptions defined in Slice.</summary>

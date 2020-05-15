@@ -5,7 +5,7 @@
 using Test;
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     namespace acm
     {

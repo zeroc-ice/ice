@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The reply status used in ice1 response frames (known as reply messages).</summary>
     public enum ReplyStatus : byte

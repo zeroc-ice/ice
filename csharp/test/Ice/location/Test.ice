@@ -6,7 +6,7 @@
 
 #include <Ice/Locator.ice>
 
-[cs:namespace:Ice.location]
+[cs:namespace:ZeroC.Ice.location]
 module Test
 {
 

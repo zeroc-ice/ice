@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Ice;
+using ZeroC.Ice;
 
-namespace IceDiscovery
+namespace ZeroC.IceDiscovery
 {
     internal class LocatorRegistry : ILocatorRegistry
     {

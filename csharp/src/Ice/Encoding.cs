@@ -5,7 +5,7 @@
 using System;
 using System.Globalization;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The Ice encoding defines how Slice constructs are marshaled to and later unmarshaled from sequences
     /// of bytes. An Encoding struct holds a version of the Ice encoding.</summary>

@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.operations
+namespace ZeroC.Ice.operations
 {
     public class AllTests
     {

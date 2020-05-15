@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:Ice.facets]
+[cs:namespace:ZeroC.Ice.facets]
 module Test
 {
 

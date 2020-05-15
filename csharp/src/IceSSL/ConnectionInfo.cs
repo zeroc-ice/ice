@@ -4,7 +4,7 @@
 
 using System.Security.Cryptography.X509Certificates;
 
-namespace IceSSL
+namespace ZeroC.IceSSL
 {
     public class ConnectionInfo : Ice.ConnectionInfo
     {

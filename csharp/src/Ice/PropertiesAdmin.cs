@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     // This partial interface extends the IPropertieAdmin interface generated from the Slice interface PropertiesAdmin.
     public partial interface IPropertiesAdmin

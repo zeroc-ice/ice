@@ -3,9 +3,8 @@
 //
 
 using Test;
-using Ice.perf.Test;
 
-namespace Ice.perf
+namespace ZeroC.Ice.perf
 {
     public class Server : TestHelper
     {

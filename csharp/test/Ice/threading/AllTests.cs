@@ -3,15 +3,14 @@
 //
 
 using System;
-using System.Linq;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
-using Ice.threading.Test;
+using ZeroC.Ice.threading.Test;
 
-namespace Ice.threading
+namespace ZeroC.Ice.threading
 {
     public class AllTests
     {

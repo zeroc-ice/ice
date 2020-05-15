@@ -4,10 +4,7 @@
 
 using Test;
 
-using Ice.ami.Test;
-using Ice.ami.Test.Outer.Inner;
-
-namespace Ice.ami
+namespace ZeroC.Ice.ami
 {
     public class Collocated : TestHelper
     {

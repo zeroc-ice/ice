@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The base interface for all servants.</summary>
     public interface IObject

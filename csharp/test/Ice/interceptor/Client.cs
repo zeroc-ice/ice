@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-using Ice.interceptor.Test;
+using ZeroC.Ice.interceptor.Test;
 
-namespace Ice.interceptor
+namespace ZeroC.Ice.interceptor
 {
     public class RetryException : Exception
     {

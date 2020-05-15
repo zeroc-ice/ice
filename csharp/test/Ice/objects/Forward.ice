@@ -4,8 +4,8 @@
 
 #pragma once
 
-[[cs:typeid-namespace:Ice.objects.TypeId]]
-[cs:namespace:Ice.objects]
+[[cs:typeid-namespace:ZeroC.Ice.objects.TypeId]]
+[cs:namespace:ZeroC.Ice.objects]
 
 module Test
 {

@@ -5,7 +5,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Ice.seqMapping
+namespace ZeroC.Ice.seqMapping
 {
     public class Custom<T> : IReadOnlyCollection<T>
     {

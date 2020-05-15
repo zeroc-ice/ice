@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>
     /// Applications implement this interface to provide a plug-in factory

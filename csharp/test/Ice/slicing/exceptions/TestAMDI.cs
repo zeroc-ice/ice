@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System.Threading.Tasks;
 using Test;
 
@@ -59,7 +59,7 @@ public sealed class TestIntf : ITestIntf
         throw new UnknownMostDerived1("UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1");
 
     public ValueTask
-    unknownMostDerived2AsBaseAsync(Ice.Current current) =>
+    unknownMostDerived2AsBaseAsync(Current current) =>
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
 
     public ValueTask
@@ -146,7 +146,7 @@ public sealed class TestIntf : ITestIntf
     }
 
     public ValueTask
-    relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx? r, Ice.Current current)
+    relayUnknownPreservedAsKnownPreservedAsync(IRelayPrx? r, Current current)
     {
         TestHelper.Assert(r != null);
         IRelayPrx p = r.Clone(fixedConnection: current.Connection);

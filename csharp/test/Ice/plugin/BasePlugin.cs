@@ -6,6 +6,8 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
+using ZeroC.Ice;
+
 public static class TestHelper
 {
     public static void Assert([DoesNotReturnIf(false)] bool b)
@@ -17,9 +19,9 @@ public static class TestHelper
         }
     }
 }
-public abstract class BasePlugin : Ice.IPlugin
+public abstract class BasePlugin : IPlugin
 {
-    public BasePlugin(Ice.Communicator communicator) => _communicator = communicator;
+    public BasePlugin(Communicator communicator) => _communicator = communicator;
 
     public bool isInitialized() => _initialized;
 
@@ -28,7 +30,7 @@ public abstract class BasePlugin : Ice.IPlugin
     public abstract void Initialize();
     public abstract void Destroy();
 
-    protected Ice.Communicator _communicator;
+    protected Communicator _communicator;
     protected bool _initialized = false;
     protected bool _destroyed = false;
     protected BasePlugin? _other = null;

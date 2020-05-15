@@ -2,24 +2,23 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.location.Test;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
     public class AllTests
     {
-        public static void allTests(global::Test.TestHelper helper)
+        public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var manager = IServerManagerPrx.Parse($"ServerManager :{helper.GetTestEndpoint(0)}", communicator);
-            var locator = ITestLocatorPrx.UncheckedCast(communicator.DefaultLocator!);
+            var manager = Test.IServerManagerPrx.Parse($"ServerManager :{helper.GetTestEndpoint(0)}", communicator);
+            var locator = Test.ITestLocatorPrx.UncheckedCast(communicator.DefaultLocator!);
             Console.WriteLine("registry checkedcast");
-            var registry = ITestLocatorRegistryPrx.CheckedCast(locator.GetRegistry()!);
+            var registry = Test.ITestLocatorRegistryPrx.CheckedCast(locator.GetRegistry()!);
             TestHelper.Assert(registry != null);
 
             System.IO.TextWriter output = helper.GetWriter();
@@ -71,17 +70,17 @@ namespace Ice.location
 
             output.Write("testing checked cast... ");
             output.Flush();
-            var obj1 = ITestIntfPrx.CheckedCast(base1);
+            var obj1 = Test.ITestIntfPrx.CheckedCast(base1);
             TestHelper.Assert(obj1 != null);
-            var obj2 = ITestIntfPrx.CheckedCast(base2);
+            var obj2 = Test.ITestIntfPrx.CheckedCast(base2);
             TestHelper.Assert(obj2 != null);
-            var obj3 = ITestIntfPrx.CheckedCast(base3);
+            var obj3 = Test.ITestIntfPrx.CheckedCast(base3);
             TestHelper.Assert(obj3 != null);
-            var obj4 = IServerManagerPrx.CheckedCast(base4);
+            var obj4 = Test.IServerManagerPrx.CheckedCast(base4);
             TestHelper.Assert(obj4 != null);
-            var obj5 = ITestIntfPrx.CheckedCast(base5);
+            var obj5 = Test.ITestIntfPrx.CheckedCast(base5);
             TestHelper.Assert(obj5 != null);
-            var obj6 = ITestIntfPrx.CheckedCast(base6);
+            var obj6 = Test.ITestIntfPrx.CheckedCast(base6);
             TestHelper.Assert(obj6 != null);
             output.WriteLine("ok");
 
@@ -175,7 +174,7 @@ namespace Ice.location
             manager.startServer();
             try
             {
-                obj5 = ITestIntfPrx.CheckedCast(base5);
+                obj5 = Test.ITestIntfPrx.CheckedCast(base5);
                 TestHelper.Assert(obj5 != null);
                 obj5.IcePing();
             }
@@ -251,8 +250,8 @@ namespace Ice.location
 
             output.Write("testing proxy from server... ");
             output.Flush();
-            obj1 = ITestIntfPrx.Parse("test@TestAdapter", communicator);
-            IHelloPrx? hello = obj1.getHello();
+            obj1 = Test.ITestIntfPrx.Parse("test@TestAdapter", communicator);
+            Test.IHelloPrx? hello = obj1.getHello();
             TestHelper.Assert(hello != null);
             TestHelper.Assert(hello.AdapterId.Equals("TestAdapter"));
             hello.sayHello();
@@ -513,7 +512,7 @@ namespace Ice.location
 
             output.Write("testing object migration... ");
             output.Flush();
-            hello = IHelloPrx.Parse("hello", communicator);
+            hello = Test.IHelloPrx.Parse("hello", communicator);
             obj1.migrateHello();
             hello.GetConnection().Close(ConnectionClose.GracefullyWithWait);
             hello.sayHello();
@@ -525,7 +524,7 @@ namespace Ice.location
 
             output.Write("testing locator encoding resolution... ");
             output.Flush();
-            hello = IHelloPrx.Parse("hello", communicator);
+            hello = Test.IHelloPrx.Parse("hello", communicator);
             count = locator.getRequestCount();
             IObjectPrx.Parse("test@TestAdapter", communicator).Clone(encoding: Encoding.V1_1).IcePing();
             TestHelper.Assert(count == locator.getRequestCount());
@@ -576,16 +575,16 @@ namespace Ice.location
             adapter.Activate();
 
             // Ensure that calls on the well-known proxy is collocated.
-            IHelloPrx? helloPrx;
-            helloPrx = IHelloPrx.Parse($"\"{id.ToString(communicator.ToStringMode)}\"", communicator);
+            Test.IHelloPrx? helloPrx;
+            helloPrx = Test.IHelloPrx.Parse($"\"{id.ToString(communicator.ToStringMode)}\"", communicator);
             TestHelper.Assert(helloPrx.GetConnection() == null);
 
             // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-            helloPrx = IHelloPrx.CheckedCast(adapter.CreateIndirectProxy(id, IObjectPrx.Factory));
+            helloPrx = Test.IHelloPrx.CheckedCast(adapter.CreateIndirectProxy(id, IObjectPrx.Factory));
             TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() == null);
 
             // Ensure that calls on the direct proxy is collocated
-            helloPrx = IHelloPrx.CheckedCast(adapter.CreateDirectProxy(id, IObjectPrx.Factory));
+            helloPrx = Test.IHelloPrx.CheckedCast(adapter.CreateDirectProxy(id, IObjectPrx.Factory));
             TestHelper.Assert(helloPrx != null && helloPrx.GetConnection() == null);
 
             output.WriteLine("ok");

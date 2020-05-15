@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace IceSSL
+namespace ZeroC.IceSSL
 {
     internal class RFC2253
     {

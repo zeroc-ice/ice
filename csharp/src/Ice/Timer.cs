@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
+
 namespace IceInternal
 {
     public interface ITimerTask
@@ -46,7 +49,7 @@ namespace IceInternal
             {
                 if (_communicator == null)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 var token = new Token(Time.CurrentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
@@ -74,7 +77,7 @@ namespace IceInternal
             {
                 if (_communicator == null)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 var token = new Token(Time.CurrentMonotonicTimeMillis() + period, ++_tokenId, period, task);
@@ -118,7 +121,7 @@ namespace IceInternal
         //
         // Only for use by Instance.
         //
-        internal Timer(Ice.Communicator communicator, ThreadPriority priority = ThreadPriority.Normal)
+        internal Timer(Communicator communicator, ThreadPriority priority = ThreadPriority.Normal)
         {
             _communicator = communicator;
             string? threadName = _communicator.GetProperty("Ice.ProgramName");
@@ -134,14 +137,14 @@ namespace IceInternal
             _thread.Start();
         }
 
-        internal void UpdateObserver(Ice.Instrumentation.ICommunicatorObserver obsv)
+        internal void UpdateObserver(ICommunicatorObserver obsv)
         {
             lock (this)
             {
                 Debug.Assert(obsv != null);
                 _observer = obsv.GetThreadObserver("Communicator",
                                                    _thread.Name!,
-                                                   Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                   ZeroC.Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                    _observer);
                 if (_observer != null)
                 {
@@ -227,19 +230,19 @@ namespace IceInternal
                 {
                     try
                     {
-                        Ice.Instrumentation.IThreadObserver? threadObserver = _observer;
+                        IThreadObserver? threadObserver = _observer;
                         if (threadObserver != null)
                         {
-                            threadObserver.StateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                                        Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                            threadObserver.StateChanged(ZeroC.Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                        ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                             try
                             {
                                 token.Task.RunTimerTask();
                             }
                             finally
                             {
-                                threadObserver.StateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                                            Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                                threadObserver.StateChanged(ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                                                            ZeroC.Ice.Instrumentation.ThreadState.ThreadStateIdle);
                             }
                         }
                         else
@@ -320,7 +323,7 @@ namespace IceInternal
 
         private readonly IDictionary<Token, object?> _tokens = new SortedDictionary<Token, object?>();
         private readonly IDictionary<ITimerTask, Token> _tasks = new Dictionary<ITimerTask, Token>();
-        private Ice.Communicator? _communicator;
+        private Communicator? _communicator;
         private long _wakeUpTime = long.MaxValue;
         private int _tokenId = 0;
         private readonly Thread _thread;
@@ -330,6 +333,6 @@ namespace IceInternal
         // _observer. Reference assignement is atomic in Java so it
         // also doesn't need to be synchronized.
         //
-        private volatile Ice.Instrumentation.IThreadObserver? _observer;
+        private volatile IThreadObserver? _observer;
     }
 }

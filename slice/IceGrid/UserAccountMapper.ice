@@ -16,7 +16,7 @@
 [[python:pkgdir:IceGrid]]
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceGrid
 {
     /// This exception is raised if a user account for a given session

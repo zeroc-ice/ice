@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.perf
+namespace ZeroC.Ice.perf
 {
     public class Client : TestHelper
     {

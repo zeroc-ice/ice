@@ -5,7 +5,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace Ice.objects
+namespace ZeroC.Ice.objects
 {
     public sealed class Initial : Test.IInitial
     {

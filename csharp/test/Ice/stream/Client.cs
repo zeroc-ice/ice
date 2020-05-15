@@ -2,17 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.stream
+using Test;
+
+namespace ZeroC.Ice.stream
 {
-    public class Client : global::Test.TestHelper
+    public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
             using var communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "Ice.stream.TypeId" });
+                typeIdNamespaces: new string[] { "ZeroC.Ice.stream.TypeId" });
             AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

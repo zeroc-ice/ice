@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Linq;
 using Test;
 
-namespace Ice.invoke
+namespace ZeroC.Ice.invoke
 {
     public class Server : TestHelper
     {

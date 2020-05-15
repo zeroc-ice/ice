@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IceBox
+namespace ZeroC.IceBox
 {
     public static class Server
     {

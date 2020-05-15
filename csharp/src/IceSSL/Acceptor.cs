@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceSSL
+namespace ZeroC.IceSSL
 {
     internal class Acceptor : IceInternal.IAcceptor
     {

@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.inheritance
+namespace ZeroC.Ice.inheritance
 {
     public class Client : TestHelper
     {

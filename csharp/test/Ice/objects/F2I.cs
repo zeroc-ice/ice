@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.objects
+namespace ZeroC.Ice.objects
 {
     public sealed class F2 : Test.IF2
     {

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.timeout.Test;
+using Test;
 
-namespace Ice.timeout
+namespace ZeroC.Ice.timeout
 {
-    public class Server : global::Test.TestHelper
+    public class Server : TestHelper
     {
         public override void Run(string[] args)
         {

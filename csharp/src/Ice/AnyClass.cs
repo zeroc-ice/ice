@@ -5,7 +5,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     [Serializable]
     public abstract class AnyClass

@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.facets.Test;
+using ZeroC.Ice.facets.Test;
 using Test;
 
-namespace Ice.facets
+namespace ZeroC.Ice.facets
 {
     public class AllTests
     {

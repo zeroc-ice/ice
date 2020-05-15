@@ -10,7 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
+using ZeroC.Ice;
 
 namespace IceInternal
 {
@@ -206,7 +206,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
 
             if (!udp)
@@ -226,7 +226,7 @@ namespace IceInternal
                 catch (SocketException ex)
                 {
                     CloseSocketNoThrow(socket);
-                    throw new Ice.TransportException(ex);
+                    throw new TransportException(ex);
                 }
             }
             return socket;
@@ -245,7 +245,7 @@ namespace IceInternal
                 catch (SocketException ex)
                 {
                     CloseSocketNoThrow(socket);
-                    throw new Ice.TransportException(ex);
+                    throw new TransportException(ex);
                 }
             }
             return socket;
@@ -279,7 +279,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -292,7 +292,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -325,7 +325,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -338,7 +338,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -351,7 +351,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -365,7 +365,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
             return sz;
         }
@@ -379,7 +379,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -393,7 +393,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
             return sz;
         }
@@ -407,7 +407,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -430,7 +430,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -478,7 +478,7 @@ namespace IceInternal
             catch (Exception ex)
             {
                 CloseSocketNoThrow(s);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -498,7 +498,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -512,7 +512,7 @@ namespace IceInternal
             catch (SocketException ex)
             {
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -532,7 +532,7 @@ namespace IceInternal
                 }
 
                 CloseSocketNoThrow(socket);
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -573,11 +573,11 @@ namespace IceInternal
 
                 if (ConnectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException(ex);
+                    throw new ConnectionRefusedException(ex);
                 }
                 else
                 {
-                    throw new Ice.ConnectFailedException(ex);
+                    throw new ConnectFailedException(ex);
                 }
             }
 
@@ -586,7 +586,7 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             SetBlock(fd, fd.Blocking);
-            if (!Ice.AssemblyUtil.IsWindows)
+            if (!AssemblyUtil.IsWindows)
             {
                 //
                 // Prevent self connect (self connect happens on Linux when a client tries to connect to
@@ -595,7 +595,7 @@ namespace IceInternal
                 //
                 if (addr.Equals(GetLocalAddress(fd)))
                 {
-                    throw new Ice.ConnectionRefusedException();
+                    throw new ConnectionRefusedException();
                 }
             }
             return true;
@@ -644,11 +644,11 @@ namespace IceInternal
 
                 if (ConnectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException(ex);
+                    throw new ConnectionRefusedException(ex);
                 }
                 else
                 {
-                    throw new Ice.ConnectFailedException(ex);
+                    throw new ConnectFailedException(ex);
                 }
             }
         }
@@ -667,11 +667,11 @@ namespace IceInternal
             {
                 if (ConnectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException(ex);
+                    throw new ConnectionRefusedException(ex);
                 }
                 else
                 {
-                    throw new Ice.ConnectFailedException(ex);
+                    throw new ConnectFailedException(ex);
                 }
             }
 
@@ -680,7 +680,7 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             SetBlock(fd, fd.Blocking);
-            if (!Ice.AssemblyUtil.IsWindows)
+            if (!AssemblyUtil.IsWindows)
             {
                 //
                 // Prevent self connect (self connect happens on Linux when a client tries to connect to
@@ -690,7 +690,7 @@ namespace IceInternal
                 EndPoint? remoteAddr = GetRemoteAddress(fd);
                 if (remoteAddr!.Equals(GetLocalAddress(fd)))
                 {
-                    throw new Ice.ConnectionRefusedException();
+                    throw new ConnectionRefusedException();
                 }
             }
         }
@@ -710,11 +710,11 @@ namespace IceInternal
                     return new IPEndPoint(IPAddress.Any, port);
                 }
             }
-            return GetAddresses(host, port, ipVersion, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
+            return GetAddresses(host, port, ipVersion, EndpointSelectionType.Ordered, preferIPv6, true)[0];
         }
 
         public static List<IPEndPoint> GetAddresses(string host, int port, int ipVersion,
-                                                  Ice.EndpointSelectionType selType, bool preferIPv6, bool blocking)
+                                                    EndpointSelectionType selType, bool preferIPv6, bool blocking)
         {
             var addresses = new List<IPEndPoint>();
             if (host.Length == 0)
@@ -758,7 +758,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        throw new Ice.DNSException(host);
+                        throw new DNSException(host);
                     }
                 }
                 catch (FormatException)
@@ -778,7 +778,7 @@ namespace IceInternal
                     }
                 }
 
-                if (selType == Ice.EndpointSelectionType.Random)
+                if (selType == EndpointSelectionType.Random)
                 {
                     var rnd = new Random();
                     addresses = addresses.OrderBy(x => (endpoint: rnd.Next(), i: x)).ToList();
@@ -802,11 +802,11 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                throw new Ice.DNSException(host, ex);
+                throw new DNSException(host, ex);
             }
             catch (Exception ex)
             {
-                throw new Ice.DNSException(host, ex);
+                throw new DNSException(host, ex);
             }
 
             //
@@ -814,7 +814,7 @@ namespace IceInternal
             //
             if (addresses.Count == 0)
             {
-                throw new Ice.DNSException(host);
+                throw new DNSException(host);
             }
             return addresses;
         }
@@ -857,11 +857,11 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                throw new Ice.DNSException("0.0.0.0", ex);
+                throw new DNSException("0.0.0.0", ex);
             }
             catch (Exception ex)
             {
-                throw new Ice.DNSException("0.0.0.0", ex);
+                throw new DNSException("0.0.0.0", ex);
             }
 
             return addresses.ToArray();
@@ -890,7 +890,7 @@ namespace IceInternal
             // platforms, we use the system defaults.
             //
             int dfltBufSize = 0;
-            if (Ice.AssemblyUtil.IsWindows)
+            if (AssemblyUtil.IsWindows)
             {
                 dfltBufSize = 128 * 1024;
             }
@@ -915,12 +915,12 @@ namespace IceInternal
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    Ice.BufSizeWarnInfo winfo = instance.GetBufSizeWarn(Ice.EndpointType.TCP);
+                    BufSizeWarnInfo winfo = instance.GetBufSizeWarn(EndpointType.TCP);
                     if (!winfo.RcvWarn || rcvSize != winfo.RcvSize)
                     {
                         instance.Logger.Warning(
                             $"TCP receive buffer size: requested size of {rcvSize} adjusted to {size}");
-                        instance.SetRcvBufSizeWarn(Ice.EndpointType.TCP, rcvSize);
+                        instance.SetRcvBufSizeWarn(EndpointType.TCP, rcvSize);
                     }
                 }
             }
@@ -938,12 +938,12 @@ namespace IceInternal
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    Ice.BufSizeWarnInfo winfo = instance.GetBufSizeWarn(Ice.EndpointType.TCP);
+                    BufSizeWarnInfo winfo = instance.GetBufSizeWarn(EndpointType.TCP);
                     if (!winfo.SndWarn || sndSize != winfo.SndSize)
                     {
                         instance.Logger.Warning(
                             $"TCP send buffer size: requested size of {sndSize} adjusted to {size}");
-                        instance.SetSndBufSizeWarn(Ice.EndpointType.TCP, sndSize);
+                        instance.SetSndBufSizeWarn(EndpointType.TCP, sndSize);
                     }
                 }
             }
@@ -1081,7 +1081,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
         }
 
@@ -1269,7 +1269,7 @@ namespace IceInternal
         {
             if (!string.IsNullOrEmpty(sourceAddress))
             {
-                List<IPEndPoint> addrs = GetAddresses(sourceAddress, 0, EnableBoth, Ice.EndpointSelectionType.Ordered,
+                List<IPEndPoint> addrs = GetAddresses(sourceAddress, 0, EnableBoth, EndpointSelectionType.Ordered,
                                                     false, false);
                 if (addrs.Count != 0)
                 {

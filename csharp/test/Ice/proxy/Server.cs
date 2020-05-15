@@ -3,9 +3,9 @@
 //
 
 using Test;
-using Ice.proxy.Test;
+using ZeroC.Ice.proxy.Test;
 
-namespace Ice.proxy
+namespace ZeroC.Ice.proxy
 {
     public class Server : TestHelper
     {

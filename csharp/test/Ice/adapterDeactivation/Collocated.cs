@@ -4,26 +4,23 @@
 
 using Test;
 
-namespace Ice
+namespace ZeroC.Ice.adapterDeactivation
 {
-    namespace adapterDeactivation
+    public class Collocated : TestHelper
     {
-        public class Collocated : TestHelper
+        public override void Run(string[] args)
         {
-            public override void Run(string[] args)
-            {
-                using Communicator communicator = Initialize(ref args);
-                communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            using Communicator communicator = Initialize(ref args);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.AddDefault(new Servant());
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.AddDefault(new Servant());
 
-                AllTests.allTests(this);
+            AllTests.allTests(this);
 
-                adapter.WaitForDeactivate();
-            }
-
-            public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+            adapter.WaitForDeactivate();
         }
+
+        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.scope.Test;
+using ZeroC.Ice.scope.Test;
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.scope
+namespace ZeroC.Ice.scope
 {
     public class Server : TestHelper
     {
@@ -103,7 +103,7 @@ namespace Ice.scope
         public override void Run(string[] args)
         {
             using Communicator communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "Ice.scope.TypeId" });
+                typeIdNamespaces: new string[] { "ZeroC.Ice.scope.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("i1", new I1());

@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed partial class Communicator
     {

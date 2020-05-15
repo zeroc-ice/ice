@@ -18,6 +18,7 @@
 
 [[java:package:com.zeroc]]
 
+[cs:namespace:ZeroC.Ice]
 module Ice
 {
     /// A sequence of bools.

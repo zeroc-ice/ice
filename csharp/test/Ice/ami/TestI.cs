@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace Ice.ami
+namespace ZeroC.Ice.ami
 {
     public class TestIntf : Test.ITestIntf
     {

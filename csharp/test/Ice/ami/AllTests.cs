@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.ami.Test;
+using ZeroC.Ice.ami.Test;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace Ice.ami
+namespace ZeroC.Ice.ami
 {
     public class AllTests
     {
