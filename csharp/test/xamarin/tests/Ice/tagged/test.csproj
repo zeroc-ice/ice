@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Ice.tagged</AssemblyName>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../Ice/tagged/AllTests.cs" />
+    <Compile Include="../../../../Ice/tagged/Client.cs" />
+    <Compile Include="../../../../Ice/tagged/SerializableClass.cs" />
+    <Compile Include="../../../../Ice/tagged/Server.cs" />
+    <Compile Include="../../../../Ice/tagged/ServerAMD.cs" />
+    <Compile Include="../../../../Ice/tagged/TestI.cs" />
+    <Compile Include="../../../../Ice/tagged/TestAMDI.cs" />
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../../../Ice/tagged/Test.ice</SliceCompileSource>
+    </Compile>
+
+    <Compile Include="generated/TestAMD.cs">
+      <SliceCompileSource>../../../../Ice/tagged/TestAMD.ice</SliceCompileSource>
+    </Compile>
+
+    <SliceCompile Include="../../../../Ice/tagged/Test.ice" />
+    <SliceCompile Include="../../../../Ice/tagged/TestAMD.ice" />
+  </ItemGroup>
+</Project>

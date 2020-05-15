@@ -228,17 +228,17 @@ namespace controller
                 return new Ice.operations.AMD.Server();
             }
 
-            else if (type.Equals("Ice.optional.Client"))
+            else if (type.Equals("Ice.tagged.Client"))
             {
-                return new Ice.optional.Client();
+                return new Ice.tagged.Client();
             }
-            else if (type.Equals("Ice.optional.Server"))
+            else if (type.Equals("Ice.tagged.Server"))
             {
-                return new Ice.optional.Server();
+                return new Ice.tagged.Server();
             }
-            else if (type.Equals("Ice.optional.Serveramd"))
+            else if (type.Equals("Ice.tagged.Serveramd"))
             {
-                return new Ice.optional.AMD.Server();
+                return new Ice.tagged.AMD.Server();
             }
 
             else if (type.Equals("Ice.namespacemd.Client"))

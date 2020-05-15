@@ -4,14 +4,14 @@
 
 #pragma once
 
-[[cs:typeid-namespace:ZeroC.Ice.optional.AMD.TypeId]]
+[[cs:typeid-namespace:ZeroC.Ice.tagged.TypeId]]
 [[suppress-warning:deprecated]]
 
-[cs:namespace:ZeroC.Ice.optional.AMD]
+[cs:namespace:ZeroC.Ice.tagged]
 module Test
 {
 
-class OneOptional
+class OneTagged
 {
     tag(1) int a;
 }
@@ -65,9 +65,9 @@ sequence<SmallStruct> SmallStructSeq;
 sequence<FixedStruct> FixedStructSeq;
 [clr:generic:LinkedList] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
-sequence<OneOptional> OneOptionalSeq;
+sequence<OneTagged> OneTaggedSeq;
 
-[clr:serializable:ZeroC.Ice.optional.Test.SerializableClass]
+[clr:serializable:ZeroC.Ice.tagged.Test.SerializableClass]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;
@@ -75,9 +75,9 @@ dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
-dictionary<int, OneOptional> IntOneOptionalDict;
+dictionary<int, OneTagged> IntOneTaggedDict;
 
-class MultiOptional
+class MultiTagged
 {
     tag(1) byte a;
     tag(2) bool b;
@@ -88,7 +88,7 @@ class MultiOptional
     tag(7) double g;
     tag(8) string h;
     tag(9) MyEnum i;
-    tag(11) MultiOptional k;
+    tag(11) MultiTagged k;
     tag(12) ByteSeq bs;
     tag(13) StringSeq ss;
     tag(14) IntIntDict iid;
@@ -100,12 +100,12 @@ class MultiOptional
     tag(19) MyEnumSeq es;
     tag(20) FixedStructSeq fss;
     tag(21) VarStructSeq vss;
-    tag(22) OneOptionalSeq oos;
+    tag(22) OneTaggedSeq oos;
 
     tag(24) IntEnumDict ied;
     tag(25) IntFixedStructDict ifsd;
     tag(26) IntVarStructDict ivsd;
-    tag(27) IntOneOptionalDict iood;
+    tag(27) IntOneTaggedDict iood;
 
     tag(29) BoolSeq bos;
 
@@ -139,28 +139,28 @@ class WD
     tag(2) string s = "test";
 }
 
-exception OptionalException
+exception TaggedException
 {
     bool req = false;
     tag(1) int a = 5;
     tag(2) string b;
-    tag(50) OneOptional o;
+    tag(50) OneTagged o;
 }
 
-exception DerivedException : OptionalException
+exception DerivedException : TaggedException
 {
     tag(600) string ss = "test";
-    tag(601) OneOptional o2;
+    tag(601) OneTagged o2;
 }
 
-exception RequiredException : OptionalException
+exception RequiredException : TaggedException
 {
     string ss = "test";
-    OneOptional o2;
+    OneTagged o2;
 }
 
 [clr:property]
-class OptionalWithCustom
+class TaggedWithCustom
 {
     tag(1) SmallStructList l;
     tag(2) SmallStructList lp;
@@ -198,25 +198,25 @@ class G
 class Recursive;
 sequence<Recursive> RecursiveSeq;
 
-class Recursive {
+class Recursive
+{
     tag(0) RecursiveSeq value;
 }
 
-[amd]
 interface Initial
 {
     void shutdown();
 
     Object pingPong(Object o);
 
-    void opOptionalException(tag(1) int a, tag(2) string b, tag(3) OneOptional o)
-        throws OptionalException;
+    void opTaggedException(tag(1) int a, tag(2) string b, tag(3) OneTagged o)
+        throws TaggedException;
 
-    void opDerivedException(tag(1) int a, tag(2) string b, tag(3) OneOptional o)
-        throws OptionalException;
+    void opDerivedException(tag(1) int a, tag(2) string b, tag(3) OneTagged o)
+        throws TaggedException;
 
-    void opRequiredException(tag(1) int a, tag(2) string b, tag(3) OneOptional o)
-        throws OptionalException;
+    void opRequiredException(tag(1) int a, tag(2) string b, tag(3) OneTagged o)
+        throws TaggedException;
 
     tag(1) byte opByte(tag(2) byte p1, out tag(3) byte p3);
 
@@ -242,9 +242,9 @@ interface Initial
 
     tag(1) VarStruct opVarStruct(tag(2) VarStruct p1, out tag(3) VarStruct p3);
 
-    tag(1) OneOptional opOneOptional(tag(2) OneOptional p1, out tag(3) OneOptional p3);
+    tag(1) OneTagged opOneTagged(tag(2) OneTagged p1, out tag(3) OneTagged p3);
 
-    tag(1) OneOptional* opOneOptionalProxy(tag(2) OneOptional* p1, out tag(3) OneOptional* p3);
+    tag(1) OneTagged* opOneTaggedProxy(tag(2) OneTagged* p1, out tag(3) OneTagged* p3);
 
     tag(1) ByteSeq opByteSeq(tag(2) ByteSeq p1, out tag(3) ByteSeq p3);
     tag(1) ByteList opByteList(tag(2) ByteList p1, out tag(3) ByteList p3);
@@ -286,14 +286,14 @@ interface Initial
 
     tag(1) StringIntDict opStringIntDict(tag(2) StringIntDict p1, out tag(3) StringIntDict p3);
 
-    tag(1) IntOneOptionalDict opIntOneOptionalDict(tag(2) IntOneOptionalDict p1,
-                                                        out tag(3) IntOneOptionalDict p3);
+    tag(1) IntOneTaggedDict opIntOneTaggedDict(tag(2) IntOneTaggedDict p1,
+                                                        out tag(3) IntOneTaggedDict p3);
 
-    void opClassAndUnknownOptional(A p);
+    void opClassAndUnknownTagged(A p);
 
-    void sendOptionalClass(bool req, tag(1) OneOptional o);
+    void sendTaggedClass(bool req, tag(1) OneTagged o);
 
-    void returnOptionalClass(bool req, out tag(1) OneOptional o);
+    void returnTaggedClass(bool req, out tag(1) OneTagged o);
 
     G opG(G g);
 
@@ -322,7 +322,7 @@ interface Initial
 
     bool supportsCppStringView();
 
-    bool supportsNullOptional();
+    bool supportsNullTagged();
 }
 
 }

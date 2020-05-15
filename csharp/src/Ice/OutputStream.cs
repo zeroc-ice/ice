@@ -1450,7 +1450,7 @@ namespace ZeroC.Ice
 
         /// <summary>Writes the header for a tagged parameter of data member.</summary>
         /// <param name="tag">The numeric tag associated with the parameter or data member.</param>
-        /// <param name="format">The optional format of the parameter or data member.</param>
+        /// <param name="format">The tag format.</param>
         private void WriteTaggedParamHeader(int tag, EncodingDefinitions.TagFormat format)
         {
             Debug.Assert(InEncapsulation);

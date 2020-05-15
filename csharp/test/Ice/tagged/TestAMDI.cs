@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.optional.AMD
+namespace ZeroC.Ice.tagged.AMD
 {
     public class Initial : Test.IInitial
     {
@@ -20,17 +20,17 @@ namespace ZeroC.Ice.optional.AMD
         pingPongAsync(AnyClass? obj, Current current) => MakeValueTask(obj);
 
         public ValueTask
-        opOptionalExceptionAsync(int? a, string? b, Test.OneOptional? o, Current c) =>
-            throw new Test.OptionalException(false, a, b, o);
+        opTaggedExceptionAsync(int? a, string? b, Test.OneTagged? o, Current c) =>
+            throw new Test.TaggedException(false, a, b, o);
 
         public ValueTask
-        opDerivedExceptionAsync(int? a, string? b, Test.OneOptional? o, Current c) =>
+        opDerivedExceptionAsync(int? a, string? b, Test.OneTagged? o, Current c) =>
             throw new Test.DerivedException(false, a, b, o, b, o);
 
         public ValueTask
         opRequiredExceptionAsync(int? a,
                                     string? b,
-                                    Test.OneOptional? o,
+                                    Test.OneTagged? o,
                                     Current c)
         {
             var e = new Test.RequiredException();
@@ -77,10 +77,10 @@ namespace ZeroC.Ice.optional.AMD
         public ValueTask<(Test.VarStruct?, Test.VarStruct?)>
         opVarStructAsync(Test.VarStruct? p1, Current current) => MakeValueTask((p1, p1));
 
-        public ValueTask<(Test.OneOptional?, Test.OneOptional?)> opOneOptionalAsync(Test.OneOptional? p1, Current current) =>
+        public ValueTask<(Test.OneTagged?, Test.OneTagged?)> opOneTaggedAsync(Test.OneTagged? p1, Current current) =>
             MakeValueTask((p1, p1));
 
-        public ValueTask<(IObjectPrx?, IObjectPrx?)> opOneOptionalProxyAsync(IObjectPrx? p1, Current current) =>
+        public ValueTask<(IObjectPrx?, IObjectPrx?)> opOneTaggedProxyAsync(IObjectPrx? p1, Current current) =>
             MakeValueTask((p1, p1));
 
         public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> opByteSeqAsync(byte[]? p1, Current current) =>
@@ -140,8 +140,8 @@ namespace ZeroC.Ice.optional.AMD
         public ValueTask<(IEnumerable<Test.VarStruct>?, IEnumerable<Test.VarStruct>?)> opVarStructSeqAsync(
             Test.VarStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<Test.VarStruct>);
 
-        public ValueTask<(optional.Test.SerializableClass?, optional.Test.SerializableClass?)>
-        opSerializableAsync(optional.Test.SerializableClass? p1, Current current) => MakeValueTask((p1, p1));
+        public ValueTask<(tagged.Test.SerializableClass?, tagged.Test.SerializableClass?)>
+        opSerializableAsync(tagged.Test.SerializableClass? p1, Current current) => MakeValueTask((p1, p1));
 
         public ValueTask<(IReadOnlyDictionary<int, int>?, IReadOnlyDictionary<int, int>?)>
         opIntIntDictAsync(Dictionary<int, int>? p1, Current current) => ToReturnValue(p1);
@@ -149,18 +149,18 @@ namespace ZeroC.Ice.optional.AMD
         public ValueTask<(IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?)>
         opStringIntDictAsync(Dictionary<string, int>? p1, Current current) => ToReturnValue(p1);
 
-        public ValueTask<(IReadOnlyDictionary<int, Test.OneOptional?>?, IReadOnlyDictionary<int, Test.OneOptional?>?)>
-        opIntOneOptionalDictAsync(Dictionary<int, Test.OneOptional?>? p1, Current current) => ToReturnValue(p1);
+        public ValueTask<(IReadOnlyDictionary<int, Test.OneTagged?>?, IReadOnlyDictionary<int, Test.OneTagged?>?)>
+        opIntOneTaggedDictAsync(Dictionary<int, Test.OneTagged?>? p1, Current current) => ToReturnValue(p1);
 
         public ValueTask
-        opClassAndUnknownOptionalAsync(Test.A? p, Current current) => new ValueTask(Task.CompletedTask);
+        opClassAndUnknownTaggedAsync(Test.A? p, Current current) => new ValueTask(Task.CompletedTask);
 
         public ValueTask
-        sendOptionalClassAsync(bool req, Test.OneOptional? o, Current current) => new ValueTask(Task.CompletedTask);
+        sendTaggedClassAsync(bool req, Test.OneTagged? o, Current current) => new ValueTask(Task.CompletedTask);
 
-        public ValueTask<Test.OneOptional?>
-        returnOptionalClassAsync(bool req, Current current) =>
-            new ValueTask<Test.OneOptional?>(new Test.OneOptional(53));
+        public ValueTask<Test.OneTagged?>
+        returnTaggedClassAsync(bool req, Current current) =>
+            new ValueTask<Test.OneTagged?>(new Test.OneTagged(53));
 
         public ValueTask<Test.G?> opGAsync(Test.G? g, Current current) => MakeValueTask(g);
 
@@ -235,7 +235,7 @@ namespace ZeroC.Ice.optional.AMD
         supportsCppStringViewAsync(Current current) => MakeValueTask(false);
 
         public ValueTask<bool>
-        supportsNullOptionalAsync(Current current) => MakeValueTask(true);
+        supportsNullTaggedAsync(Current current) => MakeValueTask(true);
 
         private static ValueTask<T> MakeValueTask<T>(T result) => new ValueTask<T>(result);
 

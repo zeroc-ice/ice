@@ -4,7 +4,7 @@
 
 using System;
 
-namespace ZeroC.Ice.optional.Test
+namespace ZeroC.Ice.tagged.Test
 {
     [Serializable]
     public class SerializableClass

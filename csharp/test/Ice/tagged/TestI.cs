@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.optional
+namespace ZeroC.Ice.tagged
 {
     public class Initial : Test.IInitial
     {
@@ -13,15 +13,15 @@ namespace ZeroC.Ice.optional
 
         public AnyClass? pingPong(AnyClass? obj, Current current) => obj;
 
-        public void opOptionalException(int? a, string? b, Test.OneOptional? o, Current current) =>
-            throw new Test.OptionalException(false, a, b, o);
+        public void opTaggedException(int? a, string? b, Test.OneTagged? o, Current current) =>
+            throw new Test.TaggedException(false, a, b, o);
 
-        public void opDerivedException(int? a, string? b, Test.OneOptional? o, Current current) =>
+        public void opDerivedException(int? a, string? b, Test.OneTagged? o, Current current) =>
             throw new Test.DerivedException(false, a, b, o, b, o);
 
         public void opRequiredException(int? a,
                                         string? b,
-                                        Test.OneOptional? o,
+                                        Test.OneTagged? o,
                                         Current current)
         {
             Test.RequiredException e = new Test.RequiredException();
@@ -64,9 +64,9 @@ namespace ZeroC.Ice.optional
 
         public (Test.VarStruct?, Test.VarStruct?) opVarStruct(Test.VarStruct? p1, Current current) => (p1, p1);
 
-        public (Test.OneOptional?, Test.OneOptional?) opOneOptional(Test.OneOptional? p1, Current current) => (p1, p1);
+        public (Test.OneTagged?, Test.OneTagged?) opOneTagged(Test.OneTagged? p1, Current current) => (p1, p1);
 
-        public (IObjectPrx?, IObjectPrx?) opOneOptionalProxy(IObjectPrx? p1, Current current) => (p1, p1);
+        public (IObjectPrx?, IObjectPrx?) opOneTaggedProxy(IObjectPrx? p1, Current current) => (p1, p1);
 
         public (ReadOnlyMemory<byte>, ReadOnlyMemory<byte>) opByteSeq(byte[]? p1, Current current) => (p1, p1);
         public (IEnumerable<byte>?, IEnumerable<byte>?) opByteList(List<byte>? p1, Current current) => (p1, p1);
@@ -115,18 +115,18 @@ namespace ZeroC.Ice.optional
         public (IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?)
         opStringIntDict(Dictionary<string, int>? p1, Current current) => (p1, p1);
 
-        public (IReadOnlyDictionary<int, Test.OneOptional?>?, IReadOnlyDictionary<int, Test.OneOptional?>?)
-        opIntOneOptionalDict(Dictionary<int, Test.OneOptional?>? p1, Current current) => (p1, p1);
+        public (IReadOnlyDictionary<int, Test.OneTagged?>?, IReadOnlyDictionary<int, Test.OneTagged?>?)
+        opIntOneTaggedDict(Dictionary<int, Test.OneTagged?>? p1, Current current) => (p1, p1);
 
-        public void opClassAndUnknownOptional(Test.A? p, Current current)
+        public void opClassAndUnknownTagged(Test.A? p, Current current)
         {
         }
 
-        public void sendOptionalClass(bool req, Test.OneOptional? o, Current current)
+        public void sendTaggedClass(bool req, Test.OneTagged? o, Current current)
         {
         }
 
-        public Test.OneOptional? returnOptionalClass(bool req, Current current) => new Test.OneOptional(53);
+        public Test.OneTagged? returnTaggedClass(bool req, Current current) => new Test.OneTagged(53);
 
         public Test.G? opG(Test.G? g, Current current) => g;
 
@@ -169,6 +169,6 @@ namespace ZeroC.Ice.optional
 
         public bool supportsCppStringView(Current current) => false;
 
-        public bool supportsNullOptional(Current current) => true;
+        public bool supportsNullTagged(Current current) => true;
     }
 }

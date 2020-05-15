@@ -26,7 +26,7 @@ namespace ZeroC.Ice
                 _current.SliceFlags |= EncodingDefinitions.SliceFlags.IsLastSlice;
             }
 
-            // Writes the tagged member end marker if some tagged members were encoded. Note that the optional members
+            // Writes the tagged member end marker if some tagged members were encoded. Note that tagged members
             // are encoded before the indirection table and are included in the slice size.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0)
             {
@@ -232,7 +232,7 @@ namespace ZeroC.Ice
                 // Writes the bytes associated with this slice.
                 WriteByteSpan(info.Bytes.Span);
 
-                if (info.HasOptionalMembers)
+                if (info.HasTaggedMembers)
                 {
                     _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTaggedMembers;
                 }

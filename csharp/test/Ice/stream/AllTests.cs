@@ -199,7 +199,7 @@ namespace ZeroC.Ice.stream
 
             {
                 ostr = new OutputStream(communicator);
-                var o = new Test.OptionalClass();
+                var o = new Test.ClassWithTaggedMembers();
                 o.bo = true;
                 o.by = 5;
                 o.sh = 4;
@@ -211,7 +211,7 @@ namespace ZeroC.Ice.stream
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
-                var o2 = istr.ReadClass<Test.OptionalClass>();
+                var o2 = istr.ReadClass<Test.ClassWithTaggedMembers>();
                 istr.EndEncapsulation();
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);

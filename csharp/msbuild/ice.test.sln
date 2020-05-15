@@ -396,25 +396,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{A313EF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\defaultValue\msbuild\client\client.csproj", "{279C3FC6-CCEF-4D75-9DD0-0BC5ABDBD466}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "optional", "optional", "{3EF9C591-5A45-4490-B6AC-119A8FF2DD5B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tagged", "tagged", "{3EF9C591-5A45-4490-B6AC-119A8FF2DD5B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "msbuild", "msbuild", "{65E7885D-FA93-412D-822B-DC4510D9AD1B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serveramd", "serveramd", "{AE39F912-1A33-45E9-BDAB-39594BFF0CDD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\optional\msbuild\serveramd\serveramd.csproj", "{9F385295-C422-48E2-9184-88773DC979F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\tagged\msbuild\serveramd\serveramd.csproj", "{9F385295-C422-48E2-9184-88773DC979F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{5790C45E-F8BB-44EF-85AE-80ABAECDF8F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\optional\msbuild\client\client.csproj", "{DDD52C5A-51FC-4C2C-BF27-DBF1F8CF0762}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\tagged\msbuild\client\client.csproj", "{DDD52C5A-51FC-4C2C-BF27-DBF1F8CF0762}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "serializable", "serializable", "{796F420F-C9BA-4623-9DB4-E2F784397A1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\optional\msbuild\serializable\serializable.csproj", "{457A0A73-4A96-43FA-B728-243A7DD8182B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serializable", "..\test\Ice\tagged\msbuild\serializable\serializable.csproj", "{457A0A73-4A96-43FA-B728-243A7DD8182B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{83CEBF50-47F1-470B-8581-7414CA333054}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\optional\msbuild\server\server.csproj", "{DBBC1CFA-36ED-46D6-8EBD-55D007DFE5F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\tagged\msbuild\server\server.csproj", "{DBBC1CFA-36ED-46D6-8EBD-55D007DFE5F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "acm", "acm", "{910705C7-7F2B-4D6D-B6CB-64C80E5624FE}"
 EndProject

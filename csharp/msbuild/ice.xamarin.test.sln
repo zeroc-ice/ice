@@ -83,9 +83,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "operations", "operations", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\operations\test.csproj", "{AA1A3A35-D870-438C-8D21-A78211B7059A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "optional", "optional", "{153D4FEE-25AD-4182-AB53-C7F24861CCD4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tagged", "tagged", "{153D4FEE-25AD-4182-AB53-C7F24861CCD4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\optional\test.csproj", "{FA714D0F-528A-49F5-A2A8-51AAD5CD4D79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\tagged\test.csproj", "{FA714D0F-528A-49F5-A2A8-51AAD5CD4D79}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "namespacemd", "namespacemd", "{76132143-9859-4F3C-9AB5-24E9905CAB77}"
 EndProject

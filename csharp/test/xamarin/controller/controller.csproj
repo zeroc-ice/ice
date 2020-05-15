@@ -53,7 +53,6 @@
     <ProjectReference Include="..\tests\Ice\location\test.csproj" />
     <ProjectReference Include="..\tests\Ice\objects\test.csproj" />
     <ProjectReference Include="..\tests\Ice\operations\test.csproj" />
-    <ProjectReference Include="..\tests\Ice\optional\test.csproj" />
     <ProjectReference Include="..\tests\Ice\namespacemd\test.csproj" />
     <ProjectReference Include="..\tests\Ice\proxy\test.csproj" />
     <ProjectReference Include="..\tests\Ice\retry\test.csproj" />
@@ -61,6 +60,7 @@
     <ProjectReference Include="..\tests\Ice\seqMapping\test.csproj" />
     <ProjectReference Include="..\tests\Ice\serialize\test.csproj" />
     <ProjectReference Include="..\tests\Ice\stream\test.csproj" />
+    <ProjectReference Include="..\tests\Ice\tagged\test.csproj" />
     <ProjectReference Include="..\tests\Ice\threadPoolPriority\test.csproj" />
     <ProjectReference Include="..\tests\Ice\timeout\test.csproj" />
     <ProjectReference Include="..\tests\Ice\udp\test.csproj" />

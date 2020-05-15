@@ -563,10 +563,10 @@ namespace ZeroC.Ice
             }
 
             // Preserve this slice.
-            bool hasOptionalMembers = (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0;
+            bool hasTaggedMembers = (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0;
             int end = _pos;
             int dataEnd = end;
-            if (hasOptionalMembers)
+            if (hasTaggedMembers)
             {
                 // Don't include the tagged end marker. It will be re-written by IceEndSlice when the sliced data is
                 // re-written.
@@ -606,7 +606,7 @@ namespace ZeroC.Ice
                                      _current.SliceCompactId,
                                      new ReadOnlyMemory<byte>(bytes),
                                      Array.AsReadOnly(_current.IndirectionTable ?? Array.Empty<AnyClass>()),
-                                     hasOptionalMembers,
+                                     hasTaggedMembers,
                                      isLastSlice);
             _current.Slices.Add(info);
 

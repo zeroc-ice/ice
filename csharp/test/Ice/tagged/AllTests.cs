@@ -2,13 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.optional.Test;
+using ZeroC.Ice.tagged.Test;
 
 using System.Linq;
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.optional
+namespace ZeroC.Ice.tagged
 {
     public class AllTests
     {
@@ -20,18 +20,18 @@ namespace ZeroC.Ice.optional
             var output = helper.GetWriter();
             var initial = IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
 
-            output.Write("testing optional data members... ");
+            output.Write("testing tagged data members... ");
             output.Flush();
 
-            var oo1 = new OneOptional();
+            var oo1 = new OneTagged();
             TestHelper.Assert(!oo1.a.HasValue);
             oo1.a = 15;
             TestHelper.Assert(oo1.a.HasValue && oo1.a == 15);
 
-            OneOptional oo2 = new OneOptional(16);
+            OneTagged oo2 = new OneTagged(16);
             TestHelper.Assert(oo2.a.HasValue && oo2.a == 16);
 
-            MultiOptional mo1 = new MultiOptional();
+            MultiTagged mo1 = new MultiTagged();
             mo1.a = 15;
             mo1.b = true;
             mo1.c = 19;
@@ -59,7 +59,7 @@ namespace ZeroC.Ice.optional
             mo1.es = new MyEnum[] { MyEnum.MyEnumMember, MyEnum.MyEnumMember };
             mo1.fss = new FixedStruct[] { fs };
             mo1.vss = new VarStruct[] { vs };
-            mo1.oos = new OneOptional[] { oo1 };
+            mo1.oos = new OneTagged[] { oo1 };
 
             mo1.ied = new Dictionary<int, MyEnum>();
             mo1.ied.Add(4, MyEnum.MyEnumMember);
@@ -67,8 +67,8 @@ namespace ZeroC.Ice.optional
             mo1.ifsd.Add(4, fs);
             mo1.ivsd = new Dictionary<int, VarStruct>();
             mo1.ivsd.Add(5, vs);
-            mo1.iood = new Dictionary<int, OneOptional?>();
-            mo1.iood.Add(5, new OneOptional(15));
+            mo1.iood = new Dictionary<int, OneTagged?>();
+            mo1.iood.Add(5, new OneTagged(15));
 
             mo1.bos = new bool[] { false, true, false };
             mo1.ser = new SerializableClass(56);
@@ -109,13 +109,13 @@ namespace ZeroC.Ice.optional
             output.Write("testing marshaling... ");
             output.Flush();
 
-            var oo4 = (OneOptional?)initial.pingPong(new OneOptional());
+            var oo4 = (OneTagged?)initial.pingPong(new OneTagged());
             TestHelper.Assert(oo4 != null && !oo4.a.HasValue);
 
-            var oo5 = (OneOptional?)initial.pingPong(oo1);
+            var oo5 = (OneTagged?)initial.pingPong(oo1);
             TestHelper.Assert(oo5 != null && oo1.a == oo5.a);
 
-            var mo4 = (MultiOptional?)initial.pingPong(new MultiOptional());
+            var mo4 = (MultiTagged?)initial.pingPong(new MultiTagged());
             TestHelper.Assert(mo4 != null);
             TestHelper.Assert(mo4.a == null);
             TestHelper.Assert(mo4.b == null);
@@ -155,7 +155,7 @@ namespace ZeroC.Ice.optional
                 mo1.ser = null;
             }
 
-            var mo5 = (MultiOptional?)initial.pingPong(mo1);
+            var mo5 = (MultiTagged?)initial.pingPong(mo1);
             TestHelper.Assert(mo5 != null);
             TestHelper.Assert(mo5.a == mo1.a);
             TestHelper.Assert(mo5.b == mo1.b);
@@ -190,8 +190,8 @@ namespace ZeroC.Ice.optional
                 TestHelper.Assert(mo5.ser!.Equals(new SerializableClass(56)));
             }
 
-            // Clear the first half of the optional members
-            MultiOptional mo6 = new MultiOptional();
+            // Clear the first half of the tagged members
+            MultiTagged mo6 = new MultiTagged();
             mo6.b = mo5.b;
             mo6.d = mo5.d;
             mo6.f = mo5.f;
@@ -206,7 +206,7 @@ namespace ZeroC.Ice.optional
             mo6.iood = mo5.iood;
             mo6.bos = mo5.bos;
 
-            var mo7 = (MultiOptional?)initial.pingPong(mo6);
+            var mo7 = (MultiTagged?)initial.pingPong(mo6);
             TestHelper.Assert(mo7 != null);
             TestHelper.Assert(mo7.a == null);
             TestHelper.Assert(mo7.b.Equals(mo1.b));
@@ -239,8 +239,8 @@ namespace ZeroC.Ice.optional
             TestHelper.Assert(Enumerable.SequenceEqual(mo7.bos, new bool[] { false, true, false }));
             TestHelper.Assert(mo7.ser == null);
 
-            // Clear the second half of the optional members
-            var mo8 = new MultiOptional();
+            // Clear the second half of the tagged members
+            var mo8 = new MultiTagged();
             mo8.a = mo5.a;
             mo8.c = mo5.c;
             mo8.e = mo5.e;
@@ -261,7 +261,7 @@ namespace ZeroC.Ice.optional
                 mo8.ser = new SerializableClass(56);
             }
 
-            var mo9 = (MultiOptional?)initial.pingPong(mo8);
+            var mo9 = (MultiTagged?)initial.pingPong(mo8);
             TestHelper.Assert(mo9 != null);
             TestHelper.Assert(mo9.a.Equals(mo1.a));
             TestHelper.Assert(!mo9.b.HasValue);
@@ -298,13 +298,13 @@ namespace ZeroC.Ice.optional
             }
 
             {
-                OptionalWithCustom owc1 = new OptionalWithCustom();
+                TaggedWithCustom owc1 = new TaggedWithCustom();
                 owc1.l = new List<SmallStruct>();
                 owc1.l.Add(new SmallStruct(5));
                 owc1.l.Add(new SmallStruct(6));
                 owc1.l.Add(new SmallStruct(7));
                 owc1.s = new ClassVarStruct(5);
-                var owc2 = (OptionalWithCustom?)initial.pingPong(owc1);
+                var owc2 = (TaggedWithCustom?)initial.pingPong(owc1);
                 TestHelper.Assert(owc2 != null);
                 TestHelper.Assert(owc2.l != null);
                 TestHelper.Assert(Enumerable.SequenceEqual(owc1.l, owc2.l));
@@ -315,7 +315,7 @@ namespace ZeroC.Ice.optional
 
             //
             // Send a request using blobjects. Upon receival, we don't read
-            // any of the optional members. This ensures the optional members
+            // any of the tagged members. This ensures the tagged members
             // are skipped even if the receiver knows nothing about them.
             //
             factory.setEnabled(true);
@@ -349,12 +349,12 @@ namespace ZeroC.Ice.optional
 
             //
             // TODO: simplify  It was using the 1.0 encoding with operations whose
-            // only class parameters were optional.
+            // only class parameters were tagged.
             //
-            OneOptional? oo = new OneOptional(53);
-            initial.sendOptionalClass(true, oo);
+            OneTagged? oo = new OneTagged(53);
+            initial.sendTaggedClass(true, oo);
 
-            oo = initial.returnOptionalClass(true);
+            oo = initial.returnTaggedClass(true);
             TestHelper.Assert(oo != null);
 
             Recursive[] recursive1 = new Recursive[1];
@@ -394,7 +394,7 @@ namespace ZeroC.Ice.optional
 
             output.Write("testing marshaling of large containers with fixed size elements... ");
             output.Flush();
-            MultiOptional? mc = new MultiOptional();
+            MultiTagged? mc = new MultiTagged();
 
             mc.bs = new byte[1000];
             mc.shs = new short[300];
@@ -411,7 +411,7 @@ namespace ZeroC.Ice.optional
                 mc.ifsd.Add(i, new FixedStruct());
             }
 
-            mc = (MultiOptional?)initial.pingPong(mc);
+            mc = (MultiTagged?)initial.pingPong(mc);
             TestHelper.Assert(mc != null);
             TestHelper.Assert(mc.bs!.Length == 1000);
             TestHelper.Assert(mc.shs!.Length == 300);
@@ -477,7 +477,7 @@ namespace ZeroC.Ice.optional
             }
             output.WriteLine("ok");
 
-            output.Write("testing marshalling of objects with optional objects...");
+            output.Write("testing marshalling of objects with tagged objects...");
             output.Flush();
             {
                 F? f = new F();
@@ -508,7 +508,7 @@ namespace ZeroC.Ice.optional
             }
             output.WriteLine("ok");
 
-            output.Write("testing optional with default values... ");
+            output.Write("testing tagged with default values... ");
             output.Flush();
             {
                 var wd = (WD?)initial.pingPong(new WD());
@@ -953,71 +953,71 @@ namespace ZeroC.Ice.optional
 
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
-                ostr.WriteOptional(1, OptionalFormat.Class);
+                ostr.WriteTagged(1, TaggedFormat.Class);
                 ostr.WriteClass(f);
-                ostr.WriteOptional(2, OptionalFormat.Class);
+                ostr.WriteTagged(2, TaggedFormat.Class);
                 ostr.WriteClass(f.ae);
                 ostr.EndEncapsulation();
                 var inEncaps = ostr.ToArray();
 
                 var istr = new InputStream(communicator, inEncaps);
                 istr.StartEncapsulation();
-                test(istr.ReadOptional(2, OptionalFormat.Class));
+                test(istr.ReadTagged(2, TaggedFormat.Class));
                 var a = istr.ReadClass<A>();
                 istr.EndEncapsulation();
                 test(a != null && a.requiredA == 56);*/
             }
 
             {
-                OneOptional? p1 = null;
-                var (p2, p3) = initial.opOneOptional(p1);
+                OneTagged? p1 = null;
+                var (p2, p3) = initial.opOneTagged(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.opOneOptional(null);
+                (p2, p3) = initial.opOneTagged(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
-                p1 = new OneOptional(58);
-                (p2, p3) = initial.opOneOptional(p1);
+                p1 = new OneTagged(58);
+                (p2, p3) = initial.opOneTagged(p1);
                 TestHelper.Assert(p2!.a == 58 && p3!.a == 58);
-                var r = initial.opOneOptionalAsync(p1).Result;
+                var r = initial.opOneTaggedAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue!.a == 58 && r.p3!.a == 58);
-                (p2, p3) = initial.opOneOptional(p1);
+                (p2, p3) = initial.opOneTagged(p1);
                 TestHelper.Assert(p2!.a == 58 && p3!.a == 58);
-                r = initial.opOneOptionalAsync(p1).Result;
+                r = initial.opOneTaggedAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue!.a == 58 && r.p3!.a == 58);
 
-                (p2, p3) = initial.opOneOptional(null);
+                (p2, p3) = initial.opOneTagged(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneOptional", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneTagged", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, OneOptional? p1) => ostr.WriteTaggedClass(2, p1));
+                    (OutputStream ostr, OneTagged? p1) => ostr.WriteTaggedClass(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedClass<OneOptional>(1), istr.ReadTaggedClass<OneOptional>(3)));
+                    (istr.ReadTaggedClass<OneTagged>(1), istr.ReadTaggedClass<OneTagged>(3)));
                 TestHelper.Assert(p2!.a == 58 && p3!.a == 58);
             }
 
             {
                 IObjectPrx? p1 = null;
-                var (p2, p3) = initial.opOneOptionalProxy(p1);
+                var (p2, p3) = initial.opOneTaggedProxy(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.opOneOptionalProxy(p1);
+                (p2, p3) = initial.opOneTaggedProxy(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.opOneOptionalProxy(null);
+                (p2, p3) = initial.opOneTaggedProxy(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
                 p1 = IObjectPrx.Parse("test", communicator);
-                (p2, p3) = initial.opOneOptionalProxy(p1);
+                (p2, p3) = initial.opOneTaggedProxy(p1);
                 TestHelper.Assert(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
 
-                (p2, p3) = initial.opOneOptionalProxyAsync(p1).Result;
+                (p2, p3) = initial.opOneTaggedProxyAsync(p1).Result;
                 TestHelper.Assert(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
 
-                (p2, p3) = initial.opOneOptionalProxy(null);
+                (p2, p3) = initial.opOneTaggedProxy(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneOptionalProxy", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneTaggedProxy", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, IObjectPrx? p1) => ostr.WriteTaggedProxy(2, p1));
 
@@ -1591,54 +1591,54 @@ namespace ZeroC.Ice.optional
             }
 
             {
-                Dictionary<int, OneOptional?>? p1 = null;
-                var (p2, p3) = initial.opIntOneOptionalDict(p1);
+                Dictionary<int, OneTagged?>? p1 = null;
+                var (p2, p3) = initial.opIntOneTaggedDict(p1);
                 TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.opIntOneOptionalDict(null);
+                (p2, p3) = initial.opIntOneTaggedDict(null);
                 TestHelper.Assert(p2 == null && p3 == null);
 
-                p1 = new Dictionary<int, OneOptional?>();
-                p1.Add(1, new OneOptional(58));
-                p1.Add(2, new OneOptional(59));
-                (p2, p3) = initial.opIntOneOptionalDict(p1);
+                p1 = new Dictionary<int, OneTagged?>();
+                p1.Add(1, new OneTagged(58));
+                p1.Add(2, new OneTagged(59));
+                (p2, p3) = initial.opIntOneTaggedDict(p1);
                 TestHelper.Assert(p2![1]!.a == 58 && p3![1]!.a == 58);
-                var r = initial.opIntOneOptionalDictAsync(p1).Result;
+                var r = initial.opIntOneTaggedDictAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue![1]!.a == 58 && r.p3![1]!.a == 58);
-                (p2, p3) = initial.opIntOneOptionalDict(p1);
+                (p2, p3) = initial.opIntOneTaggedDict(p1);
                 TestHelper.Assert(p2![1]!.a == 58 && p3![1]!.a == 58);
-                r = initial.opIntOneOptionalDictAsync(p1).Result;
+                r = initial.opIntOneTaggedDictAsync(p1).Result;
                 TestHelper.Assert(r.ReturnValue![1]!.a == 58 && r.p3![1]!.a == 58);
 
-                (p2, p3) = initial.opIntOneOptionalDict(null);
+                (p2, p3) = initial.opIntOneTaggedDict(null);
                 TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
 
-                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntOneOptionalDict", idempotent: false,
+                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntOneTaggedDict", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, Dictionary<int, OneOptional?>? p1) =>
+                    (OutputStream ostr, Dictionary<int, OneTagged?>? p1) =>
                         ostr.WriteTaggedDictionary(2, p1, (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteClass(v)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedVariableSizeEntryDictionary(1, 5, istr => istr.ReadInt(),
-                                                                     istr => istr.ReadClass<OneOptional>()),
+                                                                     istr => istr.ReadClass<OneTagged>()),
                         istr.ReadTaggedVariableSizeEntryDictionary(3, 5, istr => istr.ReadInt(),
-                                                                         istr => istr.ReadClass<OneOptional>())));
+                                                                         istr => istr.ReadClass<OneTagged>())));
                 TestHelper.Assert(p2![1]!.a == 58);
                 TestHelper.Assert(p3![1]!.a == 58);
             }
             output.WriteLine("ok");
 
-            output.Write("testing exception optionals... ");
+            output.Write("testing exception tagged members... ");
             output.Flush();
             {
                 try
                 {
                     int? a = null;
                     string? b = null;
-                    OneOptional? o = null;
-                    initial.opOptionalException(a, b, o);
+                    OneTagged? o = null;
+                    initial.opTaggedException(a, b, o);
                 }
-                catch (OptionalException ex)
+                catch (TaggedException ex)
                 {
                     TestHelper.Assert(ex.a == 5);
                     TestHelper.Assert(ex.b == null);
@@ -1649,10 +1649,10 @@ namespace ZeroC.Ice.optional
                 {
                     int? a = 30;
                     string? b = "test";
-                    OneOptional? o = new OneOptional(53);
-                    initial.opOptionalException(a, b, o);
+                    OneTagged? o = new OneTagged(53);
+                    initial.opTaggedException(a, b, o);
                 }
-                catch (OptionalException ex)
+                catch (TaggedException ex)
                 {
                     TestHelper.Assert(ex.a == 30);
                     TestHelper.Assert(ex.b == "test");
@@ -1663,7 +1663,7 @@ namespace ZeroC.Ice.optional
                 {
                     int? a = null;
                     string? b = null;
-                    OneOptional? o = null;
+                    OneTagged? o = null;
                     initial.opDerivedException(a, b, o);
                 }
                 catch (DerivedException ex)
@@ -1679,7 +1679,7 @@ namespace ZeroC.Ice.optional
                 {
                     int? a = 30;
                     string? b = "test2";
-                    OneOptional? o = new OneOptional(53);
+                    OneTagged? o = new OneTagged(53);
                     initial.opDerivedException(a, b, o);
                 }
                 catch (DerivedException ex)
@@ -1695,7 +1695,7 @@ namespace ZeroC.Ice.optional
                 {
                     int? a = null;
                     string? b = null;
-                    OneOptional? o = null;
+                    OneTagged? o = null;
                     initial.opRequiredException(a, b, o);
                 }
                 catch (RequiredException ex)
@@ -1711,7 +1711,7 @@ namespace ZeroC.Ice.optional
                 {
                     int? a = 30;
                     string? b = "test2";
-                    OneOptional? o = new OneOptional(53);
+                    OneTagged? o = new OneTagged(53);
                     initial.opRequiredException(a, b, o);
                 }
                 catch (RequiredException ex)
@@ -1725,7 +1725,7 @@ namespace ZeroC.Ice.optional
             }
             output.WriteLine("ok");
 
-            output.Write("testing optionals with marshaled results... ");
+            output.Write("testing tagged members with marshaled results... ");
             output.Flush();
             {
                 TestHelper.Assert(initial.opMStruct1() != null);

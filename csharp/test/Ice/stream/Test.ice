@@ -40,7 +40,7 @@ struct SmallStruct
     MyInterface* p;
 }
 
-class OptionalClass
+class ClassWithTaggedMembers
 {
     bool bo;
     byte by;

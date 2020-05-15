@@ -45,19 +45,24 @@ namespace ZeroC.Ice
         public IReadOnlyList<AnyClass> Instances { get; internal set; }
 
         /// <summary>Whether or not the slice contains tagged members.</summary>
-        public bool HasOptionalMembers { get; }
+        public bool HasTaggedMembers { get; }
 
         /// <summary>Whether or not this is the last (least derived) slice of the instance.</summary>
         public bool IsLastSlice { get; }
 
-        internal SliceInfo(string? typeId, int? compactId, ReadOnlyMemory<byte> bytes,
-                           IReadOnlyList<AnyClass> instances, bool hasOptionalMembers, bool isLastSlice)
+        internal SliceInfo(
+            string? typeId,
+            int? compactId,
+            ReadOnlyMemory<byte> bytes,
+            IReadOnlyList<AnyClass> instances,
+            bool hasTaggedlMembers,
+            bool isLastSlice)
         {
             TypeId = typeId;
             CompactId = compactId;
             Bytes = bytes;
             Instances = instances;
-            HasOptionalMembers = hasOptionalMembers;
+            HasTaggedMembers = hasTaggedlMembers;
             IsLastSlice = isLastSlice;
         }
     }

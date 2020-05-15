@@ -41,7 +41,7 @@ interface explicit : decimal, case
 
 dictionary<string, break> while;
 
-class optionalMembers
+class taggedMembers
 {
     tag(1) break for;
     tag(2) as goto;
@@ -51,7 +51,7 @@ class optionalMembers
     tag(8) explicit* null;
 }
 
-interface optionalParams
+interface taggedParams
 {
     tag(1) break for(tag(2) as goto,
                           tag(3) explicit if,
