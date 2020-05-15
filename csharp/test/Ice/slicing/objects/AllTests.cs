@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Test;
-using Ice;
+using ZeroC.Ice;
 
 namespace Test
 {
@@ -244,7 +244,7 @@ public class AllTests
         }
         catch (AggregateException ae)
         {
-            TestHelper.Assert(ae.InnerException is Ice.InvalidDataException);
+            TestHelper.Assert(ae.InnerException is InvalidDataException);
         }
         output.WriteLine("ok");
 

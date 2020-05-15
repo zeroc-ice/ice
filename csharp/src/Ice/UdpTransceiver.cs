@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -149,7 +149,7 @@ namespace IceInternal
                     {
                         if (_peerAddr == null)
                         {
-                            throw new Ice.TransportException("cannot send datagram to undefined peer");
+                            throw new TransportException("cannot send datagram to undefined peer");
                         }
 
                         ArraySegment<byte> data = buffer.GetSegment(0, count);
@@ -173,11 +173,11 @@ namespace IceInternal
 
                     if (Network.ConnectionLost(ex))
                     {
-                        throw new Ice.ConnectionLostException(ex);
+                        throw new ConnectionLostException(ex);
                     }
                     else
                     {
-                        throw new Ice.TransportException(ex);
+                        throw new TransportException(ex);
                     }
                 }
             }
@@ -253,11 +253,11 @@ namespace IceInternal
 
                     if (Network.ConnectionLost(e))
                     {
-                        throw new Ice.ConnectionLostException();
+                        throw new ConnectionLostException();
                     }
                     else
                     {
-                        throw new Ice.TransportException(e);
+                        throw new TransportException(e);
                     }
                 }
             }
@@ -328,11 +328,11 @@ namespace IceInternal
                 {
                     if (Network.ConnectionLost(ex))
                     {
-                        throw new Ice.ConnectionLostException(ex);
+                        throw new ConnectionLostException(ex);
                     }
                     else
                     {
-                        throw new Ice.TransportException(ex);
+                        throw new TransportException(ex);
                     }
                 }
             }
@@ -373,22 +373,22 @@ namespace IceInternal
                 {
                     if (Network.ConnectionLost(ex))
                     {
-                        throw new Ice.ConnectionLostException(ex);
+                        throw new ConnectionLostException(ex);
                     }
                     else if (Network.ConnectionRefused(ex))
                     {
-                        throw new Ice.ConnectionRefusedException(ex);
+                        throw new ConnectionRefusedException(ex);
                     }
                     else
                     {
-                        throw new Ice.TransportException(ex);
+                        throw new TransportException(ex);
                     }
                 }
             }
 
             if (ret == 0)
             {
-                throw new Ice.ConnectionLostException();
+                throw new ConnectionLostException();
             }
 
             Debug.Assert(ret > 0);
@@ -451,7 +451,7 @@ namespace IceInternal
                 {
                     if (_peerAddr == null)
                     {
-                        throw new Ice.TransportException("cannot send datagram to undefined peer");
+                        throw new TransportException("cannot send datagram to undefined peer");
                     }
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
@@ -465,11 +465,11 @@ namespace IceInternal
             {
                 if (Network.ConnectionLost(ex))
                 {
-                    throw new Ice.ConnectionLostException(ex);
+                    throw new ConnectionLostException(ex);
                 }
                 else
                 {
-                    throw new Ice.TransportException(ex);
+                    throw new TransportException(ex);
                 }
             }
             completed = true;
@@ -528,7 +528,7 @@ namespace IceInternal
                 }
                 else
                 {
-                    throw new Ice.TransportException(ex);
+                    throw new TransportException(ex);
                 }
             }
 
@@ -819,7 +819,7 @@ namespace IceInternal
                     //
                     if (sizeSet < sizeRequested)
                     {
-                        Ice.BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(Ice.EndpointType.UDP);
+                        BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(EndpointType.UDP);
                         if ((isSnd && (!winfo.SndWarn || winfo.SndSize != sizeRequested)) ||
                            (!isSnd && (!winfo.RcvWarn || winfo.RcvSize != sizeRequested)))
                         {
@@ -828,11 +828,11 @@ namespace IceInternal
 
                             if (isSnd)
                             {
-                                _instance.SetSndBufSizeWarn(Ice.EndpointType.UDP, sizeRequested);
+                                _instance.SetSndBufSizeWarn(EndpointType.UDP, sizeRequested);
                             }
                             else
                             {
-                                _instance.SetRcvBufSizeWarn(Ice.EndpointType.UDP, sizeRequested);
+                                _instance.SetRcvBufSizeWarn(EndpointType.UDP, sizeRequested);
                             }
                         }
                     }

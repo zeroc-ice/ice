@@ -4,8 +4,9 @@
 
 using System;
 using Test;
-using Ice;
 
+using ZeroC.Ice;
+using ZeroC.IceGrid;
 public class AllTests
 {
     public static void allTests(TestHelper helper)
@@ -33,10 +34,10 @@ public class AllTests
         Console.Out.Write("testing discovery... ");
         {
             // Add test well-known object
-            IceGrid.IRegistryPrx? registry = IceGrid.IRegistryPrx.Parse(
+            IRegistryPrx? registry = IRegistryPrx.Parse(
                 communicator.DefaultLocator!.Identity.Category + "/Registry", communicator);
 
-            IceGrid.IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
+            IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
             TestHelper.Assert(session != null);
             session.GetAdmin()!.AddObjectWithType(obj, "::Test");
             session.Destroy();
@@ -47,7 +48,8 @@ public class AllTests
             //
             var properties = communicator.GetProperties();
             properties.Remove("Ice.Default.Locator");
-            properties["Ice.Plugin.IceLocatorDiscovery"] = "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory";
+            properties["Ice.Plugin.IceLocatorDiscovery"] =
+                "IceLocatorDiscovery:ZeroC.IceLocatorDiscovery.PluginFactory";
             properties["IceLocatorDiscovery.Port"] = helper.GetTestPort(99).ToString();
             properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
             properties["AdapterForDiscoveryTest.Endpoints"] = "default";
@@ -58,8 +60,8 @@ public class AllTests
             IObjectPrx.Parse("test", com).IcePing();
 
             TestHelper.Assert(com.DefaultLocator!.GetRegistry() != null);
-            TestHelper.Assert(IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry() != null);
-            TestHelper.Assert(IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
+            TestHelper.Assert(ZeroC.IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry() != null);
+            TestHelper.Assert(ZeroC.IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
 
             ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
             adapter.Activate();
@@ -91,10 +93,10 @@ public class AllTests
             }
 
             TestHelper.Assert(com.DefaultLocator!.GetRegistry() == null);
-            TestHelper.Assert(IceGrid.ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
+            TestHelper.Assert(ZeroC.IceGrid.ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
             try
             {
-                IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
+                ZeroC.IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
             }
             catch (OperationNotExistException)
             {
@@ -121,7 +123,8 @@ public class AllTests
             //
             properties = communicator.GetProperties();
             properties.Remove("Ice.Default.Locator");
-            properties["Ice.Plugin.IceLocatorDiscovery"] = "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory";
+            properties["Ice.Plugin.IceLocatorDiscovery"] =
+                "IceLocatorDiscovery:ZeroC.IceLocatorDiscovery.PluginFactory";
             properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
             com = new Communicator(properties);
             TestHelper.Assert(com.DefaultLocator != null);
@@ -138,7 +141,8 @@ public class AllTests
             properties = communicator.GetProperties();
             properties.Remove("Ice.Default.Locator");
             properties["IceLocatorDiscovery.RetryCount"] = "0";
-            properties["Ice.Plugin.IceLocatorDiscovery"] = "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory";
+            properties["Ice.Plugin.IceLocatorDiscovery"] =
+                "IceLocatorDiscovery:ZeroC.IceLocatorDiscovery.PluginFactory";
             properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
             com = new Communicator(properties);
             TestHelper.Assert(com.DefaultLocator != null);
@@ -155,7 +159,8 @@ public class AllTests
             properties = communicator.GetProperties();
             properties.Remove("Ice.Default.Locator");
             properties["IceLocatorDiscovery.RetryCount"] = "1";
-            properties["Ice.Plugin.IceLocatorDiscovery"] = "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory";
+            properties["Ice.Plugin.IceLocatorDiscovery"] =
+                "IceLocatorDiscovery:ZeroC.IceLocatorDiscovery.PluginFactory";
             {
                 string intf = communicator.GetProperty("IceLocatorDiscovery.Interface") ?? "";
                 if (intf != "")
@@ -233,13 +238,13 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
 
-        IceGrid.IRegistryPrx registry = IceGrid.IRegistryPrx.Parse(
+        IRegistryPrx registry = IRegistryPrx.Parse(
             communicator.DefaultLocator!.Identity.Category + "/Registry", communicator);
-        IceGrid.IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
+        IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
         TestHelper.Assert(session != null);
         session.GetConnection().SetACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
-        IceGrid.IAdminPrx? admin = session.GetAdmin();
+        IAdminPrx? admin = session.GetAdmin();
         TestHelper.Assert(admin != null);
         admin.EnableServer("server", false);
         admin.StopServer("server");
@@ -251,7 +256,7 @@ public class AllTests
             obj.IcePing();
             TestHelper.Assert(false);
         }
-        catch (Ice.NoEndpointException)
+        catch (NoEndpointException)
         {
         }
         try
@@ -259,7 +264,7 @@ public class AllTests
             obj2.IcePing();
             TestHelper.Assert(false);
         }
-        catch (Ice.NoEndpointException)
+        catch (NoEndpointException)
         {
         }
 
@@ -267,11 +272,11 @@ public class AllTests
         {
             admin.EnableServer("server", true);
         }
-        catch (IceGrid.ServerNotExistException)
+        catch (ServerNotExistException)
         {
             TestHelper.Assert(false);
         }
-        catch (IceGrid.NodeUnreachableException)
+        catch (NodeUnreachableException)
         {
             TestHelper.Assert(false);
         }
@@ -288,7 +293,7 @@ public class AllTests
         {
             obj2.IcePing();
         }
-        catch (Ice.NoEndpointException)
+        catch (NoEndpointException)
         {
             TestHelper.Assert(false);
         }
@@ -298,15 +303,15 @@ public class AllTests
         {
             admin.StopServer("server");
         }
-        catch (IceGrid.ServerNotExistException)
+        catch (ServerNotExistException)
         {
             TestHelper.Assert(false);
         }
-        catch (IceGrid.ServerStopException)
+        catch (ServerStopException)
         {
             TestHelper.Assert(false);
         }
-        catch (IceGrid.NodeUnreachableException)
+        catch (NodeUnreachableException)
         {
             TestHelper.Assert(false);
         }

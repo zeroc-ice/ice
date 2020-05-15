@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary> This attribute class is used by the generated code to assign a type ID to C# classes and
     /// interfaces mapped from Slice interfaces, classes and exceptions. </summary>

@@ -2,15 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ice.proxy
+namespace ZeroC.Ice.proxy
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass
     {
-
         public IObjectPrx? echo(IObjectPrx? obj, Current c) => obj;
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

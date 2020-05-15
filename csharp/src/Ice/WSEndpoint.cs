@@ -12,7 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed class WSEndpoint : Endpoint
     {
@@ -89,7 +89,7 @@ namespace Ice
             }
         }
 
-        public override void IceWritePayload(Ice.OutputStream ostr)
+        public override void IceWritePayload(OutputStream ostr)
         {
             _delegate.IceWritePayload(ostr);
             ostr.WriteString(Resource);
@@ -191,7 +191,7 @@ namespace Ice
             Dictionary<string, string?> options, bool oaEndpoint) =>
             new WSEndpoint(Instance, underlying, endpointString, options);
 
-        protected override Endpoint ReadWithUnderlying(Endpoint underlying, Ice.InputStream s) =>
+        protected override Endpoint ReadWithUnderlying(Endpoint underlying, InputStream s) =>
             new WSEndpoint(Instance, underlying, s);
 
         internal WSEndpointFactory(TransportInstance instance, EndpointType type)

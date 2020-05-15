@@ -18,6 +18,7 @@
 
 #include <Ice/Identity.ice>
 
+[cs:namespace:ZeroC]
 module Ice
 {
 #ifdef __SLICE2CS__

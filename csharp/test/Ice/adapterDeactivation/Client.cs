@@ -4,19 +4,16 @@
 
 using Test;
 
-namespace Ice
+namespace ZeroC.Ice.adapterDeactivation
 {
-    namespace adapterDeactivation
+    public class Client : TestHelper
     {
-        public class Client : TestHelper
+        public override void Run(string[] args)
         {
-            public override void Run(string[] args)
-            {
-                using Communicator communicator = Initialize(ref args);
-                AllTests.allTests(this);
-            }
-
-            public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+            using Communicator communicator = Initialize(ref args);
+            AllTests.allTests(this);
         }
+
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

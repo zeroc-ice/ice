@@ -18,7 +18,7 @@
 #include <Ice/Process.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Ice
 {
     /// This exception is raised if an adapter cannot be found.

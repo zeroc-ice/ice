@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.seqMapping
+namespace ZeroC.Ice.seqMapping
 {
     public class AllTests
     {

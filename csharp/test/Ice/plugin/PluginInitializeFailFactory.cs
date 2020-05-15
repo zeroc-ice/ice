@@ -2,11 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public class PluginInitializeFailFactory : Ice.IPluginFactory
-{
-    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new PluginInitializeFail();
+using ZeroC.Ice;
 
-    internal class PluginInitializeFail : Ice.IPlugin
+public class PluginInitializeFailFactory : IPluginFactory
+{
+    public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginInitializeFail();
+
+    internal class PluginInitializeFail : IPlugin
     {
         public void Initialize() => throw new PluginInitializeFailException();
 

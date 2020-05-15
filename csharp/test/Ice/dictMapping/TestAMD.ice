@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:Ice.dictMapping.AMD]
+[cs:namespace:ZeroC.Ice.dictMapping.AMD]
 module Test
 {
 

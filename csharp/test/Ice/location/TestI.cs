@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.location.Test;
 using Test;
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
-    public class TestIntf : ITestIntf
+    public class TestIntf : Test.ITestIntf
     {
         internal TestIntf(ObjectAdapter adapter1, ObjectAdapter adapter2, ServerLocatorRegistry registry)
         {
@@ -20,9 +19,11 @@ namespace Ice.location
 
         public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
 
-        public IHelloPrx getHello(Current current) => _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
+        public Test.IHelloPrx getHello(Current current) =>
+            _adapter1.CreateIndirectProxy("hello", Test.IHelloPrx.Factory);
 
-        public IHelloPrx getReplicatedHello(Current current) => _adapter1.CreateProxy("hello", IHelloPrx.Factory);
+        public Test.IHelloPrx getReplicatedHello(Current current) =>
+            _adapter1.CreateProxy("hello", Test.IHelloPrx.Factory);
 
         public void migrateHello(Current current)
         {

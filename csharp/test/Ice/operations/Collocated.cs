@@ -3,9 +3,8 @@
 //
 
 using Test;
-using Ice.operations.Test;
 
-namespace Ice.operations
+namespace ZeroC.Ice.operations
 {
     public class Collocated : TestHelper
     {
@@ -13,11 +12,12 @@ namespace Ice.operations
         {
             var properties = CreateTestProperties(ref args);
 
-            using var communicator = Initialize(properties, typeIdNamespaces: new string[] { "Ice.operations.TypeId" });
+            using var communicator = Initialize(properties,
+                typeIdNamespaces: new string[] { "ZeroC.Ice.operations.TypeId" });
             communicator.SetProperty("TestAdapter.AdapterId", "test");
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            var prx = adapter.Add("test", new MyDerivedClass(), IMyDerivedClassPrx.Factory);
+            var prx = adapter.Add("test", new MyDerivedClass(), Test.IMyDerivedClassPrx.Factory);
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             if (prx.GetConnection() != null)

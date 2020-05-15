@@ -3,9 +3,8 @@
 //
 
 using Test;
-using Ice.info.Test;
 
-namespace Ice.info
+namespace ZeroC.Ice.info
 {
     public class Server : TestHelper
     {

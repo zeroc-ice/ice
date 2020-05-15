@@ -4,8 +4,8 @@
 
 #pragma once
 
-[[cs:typeid-namespace:Ice.scope.TypeId]]
-[cs:namespace:Ice.scope]
+[[cs:typeid-namespace:ZeroC.Ice.scope.TypeId]]
+[cs:namespace:ZeroC.Ice.scope]
 module Test
 {
     struct S

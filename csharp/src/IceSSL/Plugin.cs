@@ -4,9 +4,9 @@
 
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
-using Ice;
+using ZeroC.Ice;
 
-namespace IceSSL
+namespace ZeroC.IceSSL
 {
     /// <summary>
     /// Plug-in factories must implement this interface.

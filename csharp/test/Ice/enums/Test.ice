@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:Ice.enums]
+[cs:namespace:ZeroC.Ice.enums]
 module Test
 {
 

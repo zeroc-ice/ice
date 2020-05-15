@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Test;
 
-namespace Ice.operations
+namespace ZeroC.Ice.operations
 {
     public class Twoways
     {

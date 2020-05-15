@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
     public class ServerLocator : Test.ITestLocator
     {
@@ -22,7 +21,7 @@ namespace Ice.location
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
-            return new ValueTask<IObjectPrx?>(_registry.GetAdapter(adapter));
+            return new ValueTask<IObjectPrx?>(_registry.GetAdapter(adapter).Clone(encoding: current.Encoding));
         }
 
         public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current)
@@ -31,7 +30,7 @@ namespace Ice.location
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
             System.Threading.Thread.Sleep(1);
-            return new ValueTask<IObjectPrx?>(_registry.GetObject(id));
+            return new ValueTask<IObjectPrx?>(_registry.GetObject(id).Clone(encoding: current.Encoding));
         }
 
         public ILocatorRegistryPrx GetRegistry(Current current) => _registryPrx;

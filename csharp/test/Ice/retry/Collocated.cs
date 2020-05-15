@@ -3,9 +3,9 @@
 //
 
 using Test;
-using Ice.retry.Test;
+using ZeroC.Ice.retry.Test;
 
-namespace Ice.retry
+namespace ZeroC.Ice.retry
 {
     public class Collocated : TestHelper
     {

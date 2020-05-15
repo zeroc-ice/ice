@@ -5,7 +5,7 @@
 using Test;
 using System.Collections.Generic;
 
-namespace Ice.exceptions
+namespace ZeroC.Ice.exceptions
 {
     public sealed class DummyLogger : ILogger
     {

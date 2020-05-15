@@ -5,7 +5,7 @@
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-namespace IceSSL
+namespace ZeroC.IceSSL
 {
     internal class Instance : IceInternal.TransportInstance
     {

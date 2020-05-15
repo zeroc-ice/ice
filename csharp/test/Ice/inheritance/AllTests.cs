@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using Test;
 
-namespace Ice.inheritance
+namespace ZeroC.Ice.inheritance
 {
     public class AllTests
     {

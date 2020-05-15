@@ -5,11 +5,12 @@
 using Test;
 using System;
 using System.Threading;
-using Ice;
+using ZeroC.Ice;
+using ZeroC.Glacier2;
 
 public class Client : TestHelper
 {
-    public class SessionCallback1 : Glacier2.ISessionCallback
+    public class SessionCallback1 : ISessionCallback
     {
         public
         SessionCallback1(Client app)
@@ -18,19 +19,19 @@ public class Client : TestHelper
         }
 
         public void
-        Connected(Glacier2.SessionHelper session) => Assert(false);
+        Connected(SessionHelper session) => Assert(false);
 
         public void
-        Disconnected(Glacier2.SessionHelper session) => Assert(false);
+        Disconnected(SessionHelper session) => Assert(false);
 
         public void
-        ConnectFailed(Glacier2.SessionHelper session, Exception exception)
+        ConnectFailed(SessionHelper session, Exception exception)
         {
             try
             {
                 throw exception;
             }
-            catch (Glacier2.PermissionDeniedException)
+            catch (PermissionDeniedException)
             {
                 Console.Out.WriteLine("ok");
             }
@@ -45,47 +46,47 @@ public class Client : TestHelper
         }
 
         public void
-        CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
+        CreatedCommunicator(SessionHelper session) => Assert(session.Communicator() != null);
 
         private Client _app;
     }
 
-    public class SessionCallback2 : Glacier2.ISessionCallback
+    public class SessionCallback2 : ISessionCallback
     {
         public SessionCallback2(Client app) => _app = app;
 
-        public void Connected(Glacier2.SessionHelper session)
+        public void Connected(SessionHelper session)
         {
             Console.Out.WriteLine("ok");
             _app.wakeUp();
         }
 
-        public void Disconnected(Glacier2.SessionHelper session)
+        public void Disconnected(SessionHelper session)
         {
             Console.Out.WriteLine("ok");
             _app.wakeUp();
         }
 
-        public void ConnectFailed(Glacier2.SessionHelper session, Exception ex)
+        public void ConnectFailed(SessionHelper session, Exception ex)
         {
             Console.Out.WriteLine(ex.ToString());
             Assert(false);
         }
 
-        public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
+        public void CreatedCommunicator(SessionHelper session) => Assert(session.Communicator() != null);
 
         private readonly Client _app;
     }
 
-    public class SessionCallback3 : Glacier2.ISessionCallback
+    public class SessionCallback3 : ISessionCallback
     {
         public SessionCallback3(Client app) => _app = app;
 
-        public void Connected(Glacier2.SessionHelper session) => Assert(false);
+        public void Connected(SessionHelper session) => Assert(false);
 
-        public void Disconnected(Glacier2.SessionHelper session) => Assert(false);
+        public void Disconnected(SessionHelper session) => Assert(false);
 
-        public void ConnectFailed(Glacier2.SessionHelper session, Exception exception)
+        public void ConnectFailed(SessionHelper session, Exception exception)
         {
             try
             {
@@ -105,20 +106,20 @@ public class Client : TestHelper
             }
         }
 
-        public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
+        public void CreatedCommunicator(SessionHelper session) => Assert(session.Communicator() != null);
 
         private readonly Client _app;
     }
 
-    public class SessionCallback4 : Glacier2.ISessionCallback
+    public class SessionCallback4 : ISessionCallback
     {
         public SessionCallback4(Client app) => _app = app;
 
-        public void Connected(Glacier2.SessionHelper session) => Assert(false);
+        public void Connected(SessionHelper session) => Assert(false);
 
-        public void Disconnected(Glacier2.SessionHelper session) => Assert(false);
+        public void Disconnected(SessionHelper session) => Assert(false);
 
-        public void ConnectFailed(Glacier2.SessionHelper session, Exception exception)
+        public void ConnectFailed(SessionHelper session, Exception exception)
         {
             try
             {
@@ -142,7 +143,7 @@ public class Client : TestHelper
             }
         }
 
-        public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
+        public void CreatedCommunicator(SessionHelper session) => Assert(session.Communicator() != null);
 
         private readonly Client _app;
     }
@@ -159,8 +160,8 @@ public class Client : TestHelper
         string transport = GetTestTransport();
         string host = GetTestHost();
 
-        var factory = new Glacier2.SessionFactoryHelper(new SessionCallback1(this), properties);
-        Glacier2.SessionHelper? session = null;
+        var factory = new SessionFactoryHelper(new SessionCallback1(this), properties);
+        SessionHelper? session = null;
 
         //
         // Test to create a session with wrong userid/password
@@ -190,7 +191,7 @@ public class Client : TestHelper
         }
 
         properties.Remove("Ice.Default.Router");
-        factory = new Glacier2.SessionFactoryHelper(new SessionCallback4(this), properties);
+        factory = new SessionFactoryHelper(new SessionCallback4(this), properties);
         lock (this)
         {
             Console.Out.Write("testing SessionHelper connect interrupt... ");
@@ -220,7 +221,7 @@ public class Client : TestHelper
             Assert(!session.IsConnected());
         }
 
-        factory = new Glacier2.SessionFactoryHelper(new SessionCallback2(this), properties);
+        factory = new SessionFactoryHelper(new SessionCallback2(this), properties);
         lock (this)
         {
             Console.Out.Write("testing SessionHelper connect... ");
@@ -255,7 +256,7 @@ public class Client : TestHelper
             {
                 Assert(!session.CategoryForClient().Equals(""));
             }
-            catch (Glacier2.SessionNotExistException)
+            catch (SessionNotExistException)
             {
                 Assert(false);
             }
@@ -309,7 +310,7 @@ public class Client : TestHelper
                 Assert(!session.CategoryForClient().Equals(""));
                 Assert(false);
             }
-            catch (Glacier2.SessionNotExistException)
+            catch (SessionNotExistException)
             {
             }
             Console.Out.WriteLine("ok");
@@ -349,13 +350,13 @@ public class Client : TestHelper
                 process.IcePing();
                 Assert(false);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 Console.Out.WriteLine("ok");
             }
         }
 
-        factory = new Glacier2.SessionFactoryHelper(new SessionCallback3(this), properties);
+        factory = new SessionFactoryHelper(new SessionCallback3(this), properties);
         lock (this)
         {
             Console.Out.Write("testing SessionHelper connect after router shutdown... ");

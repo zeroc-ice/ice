@@ -3,9 +3,8 @@
 //
 
 using Test;
-using Ice.proxy.Test;
 
-namespace Ice.proxy
+namespace ZeroC.Ice.proxy
 {
     public class Collocated : TestHelper
     {

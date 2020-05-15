@@ -4,20 +4,22 @@
 
 using System;
 using System.Diagnostics;
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
 
 namespace IceInternal
 {
     internal static class Incoming
     {
-        internal static void ReportException(Ice.RemoteException ex,
-                                             Ice.Instrumentation.IDispatchObserver? dispatchObserver,
-                                             Ice.Current current)
+        internal static void ReportException(RemoteException ex,
+                                             IDispatchObserver? dispatchObserver,
+                                             Current current)
         {
-            bool unhandledException = ex is Ice.UnhandledException;
+            bool unhandledException = ex is UnhandledException;
 
             if (unhandledException && (current.Adapter.Communicator.GetPropertyAsBool("Ice.Warn.Dispatch") ?? false))
             {
-                Warning((Ice.UnhandledException)ex, current);
+                Warning((UnhandledException)ex, current);
             }
 
             if (dispatchObserver != null)
@@ -33,7 +35,7 @@ namespace IceInternal
             }
         }
 
-        private static void Warning(Ice.UnhandledException ex, Ice.Current current)
+        private static void Warning(UnhandledException ex, Current current)
         {
             Debug.Assert(current.Adapter.Communicator != null);
 
@@ -48,9 +50,9 @@ namespace IceInternal
             {
                 try
                 {
-                    for (Ice.ConnectionInfo? p = current.Connection.GetConnectionInfo(); p != null; p = p.Underlying)
+                    for (ConnectionInfo? p = current.Connection.GetConnectionInfo(); p != null; p = p.Underlying)
                     {
-                        if (p is Ice.IPConnectionInfo ipinfo)
+                        if (p is IPConnectionInfo ipinfo)
                         {
                             output.Append("\nremote host: ").Append(ipinfo.RemoteAddress)
                                   .Append(" remote port: ")
@@ -59,7 +61,7 @@ namespace IceInternal
                         }
                     }
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                 }
             }

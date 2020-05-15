@@ -13,9 +13,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     internal sealed class BufSizeWarnInfo
     {
@@ -1268,7 +1267,7 @@ namespace Ice
             Debug.Assert(cnt > 0);
 
             int interval;
-            if (cnt == (_retryIntervals.Length + 1) && ex is Ice.ConnectionClosedByPeerException)
+            if (cnt == (_retryIntervals.Length + 1) && ex is ConnectionClosedByPeerException)
             {
                 //
                 // A connection closed exception is always retried at least once, even if the retry

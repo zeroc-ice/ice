@@ -19,6 +19,7 @@
 
 [[java:package:com.zeroc]]
 
+[cs:namespace:ZeroC]
 [swift:module:Glacier2:MX]
 module IceMX
 {

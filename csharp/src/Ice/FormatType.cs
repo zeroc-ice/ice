@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>This enumeration describes the possible formats for classes and exceptions. As of Ice 4.0,
     /// exceptions are always marshaled in the Sliced format, but can be received in the Compact format from

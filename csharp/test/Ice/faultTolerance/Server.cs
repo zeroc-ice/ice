@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Test;
+using ZeroC.Ice;
 
 public class Server : TestHelper
 {
@@ -40,9 +41,9 @@ public class Server : TestHelper
             throw new ArgumentException("Server: no port specified");
         }
 
-        using Ice.Communicator communicator = Initialize(properties);
+        using Communicator communicator = Initialize(properties);
         communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(port));
-        Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+        ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
         adapter.Add("test", new TestIntf());
         adapter.Activate();
         communicator.WaitForShutdown();

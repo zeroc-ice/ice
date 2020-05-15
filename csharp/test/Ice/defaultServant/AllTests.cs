@@ -1,12 +1,11 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using Ice.DefaultServant.Test;
 using System.IO;
 
 using Test;
 
-namespace Ice.DefaultServant
+namespace ZeroC.Ice.DefaultServant
 {
     public class AllTests
     {
@@ -45,17 +44,17 @@ namespace Ice.DefaultServant
             var identity = new Identity("", "foo");
             string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
-            IMyObjectPrx? prx = null;
+            Test.IMyObjectPrx? prx = null;
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], identity.Category);
-                prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
+                prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
                 prx.IcePing();
                 TestHelper.Assert(prx.GetName() == names[idx]);
             }
 
             identity = new Identity("ObjectNotExist", identity.Category);
-            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
+            prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
             try
             {
                 prx.IcePing();
@@ -87,7 +86,7 @@ namespace Ice.DefaultServant
                     prx.IcePing();
                     TestHelper.Assert(false);
                 }
-                catch (Ice.ObjectNotExistException)
+                catch (ObjectNotExistException)
                 {
                     // Expected
                 }
@@ -97,7 +96,7 @@ namespace Ice.DefaultServant
                     prx.GetName();
                     TestHelper.Assert(false);
                 }
-                catch (Ice.ObjectNotExistException)
+                catch (ObjectNotExistException)
                 {
                     // Expected
                 }
@@ -108,7 +107,7 @@ namespace Ice.DefaultServant
             removed = oa.RemoveDefaultForCategory("foo");
             TestHelper.Assert(removed == null);
             identity = new Identity(identity.Name, "foo");
-            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
+            prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
             try
             {
                 prx.IcePing();
@@ -147,7 +146,7 @@ namespace Ice.DefaultServant
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], "");
-                prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
+                prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
                 prx.IcePing();
                 TestHelper.Assert(prx.GetName() == names[idx]);
             }

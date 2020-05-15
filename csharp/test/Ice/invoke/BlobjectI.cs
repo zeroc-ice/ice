@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 
-namespace Ice.invoke
+namespace ZeroC.Ice.invoke
 {
     public class BlobjectI : IObject
     {

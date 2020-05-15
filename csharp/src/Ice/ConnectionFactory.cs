@@ -2,12 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
+
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IceInternal
 {
@@ -140,7 +141,7 @@ namespace IceInternal
             _monitor.Destroy();
         }
 
-        public void Create(IReadOnlyList<Endpoint> endpts, bool hasMore, Ice.EndpointSelectionType selType,
+        public void Create(IReadOnlyList<Endpoint> endpts, bool hasMore, EndpointSelectionType selType,
                            ICreateConnectionCallback callback)
         {
             Debug.Assert(endpts.Count > 0);
@@ -175,14 +176,14 @@ namespace IceInternal
         public void SetRouterInfo(RouterInfo routerInfo)
         {
             Debug.Assert(routerInfo != null);
-            Ice.ObjectAdapter? adapter = routerInfo.Adapter;
+            ObjectAdapter? adapter = routerInfo.Adapter;
             IReadOnlyList<Endpoint> endpoints = routerInfo.GetClientEndpoints(); // Must be called outside the synchronization
 
             lock (this)
             {
                 if (_destroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 //
@@ -228,7 +229,7 @@ namespace IceInternal
             }
         }
 
-        public void RemoveAdapter(Ice.ObjectAdapter adapter)
+        public void RemoveAdapter(ObjectAdapter adapter)
         {
             lock (this)
             {
@@ -250,7 +251,7 @@ namespace IceInternal
         //
         // Only for use by Instance.
         //
-        internal OutgoingConnectionFactory(Ice.Communicator communicator)
+        internal OutgoingConnectionFactory(Communicator communicator)
         {
             _communicator = communicator;
             _destroyed = false;
@@ -272,7 +273,7 @@ namespace IceInternal
             {
                 if (_destroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 Debug.Assert(endpoints.Count > 0);
@@ -344,7 +345,7 @@ namespace IceInternal
             {
                 if (_destroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
                 ++_pendingConnectCount;
             }
@@ -369,7 +370,7 @@ namespace IceInternal
             {
                 if (_destroyed)
                 {
-                    throw new Ice.CommunicatorDestroyedException();
+                    throw new CommunicatorDestroyedException();
                 }
 
                 //
@@ -391,7 +392,7 @@ namespace IceInternal
                 {
                     if (_destroyed)
                     {
-                        throw new Ice.CommunicatorDestroyedException();
+                        throw new CommunicatorDestroyedException();
                     }
 
                     //
@@ -464,7 +465,7 @@ namespace IceInternal
                 {
                     if (_destroyed)
                     {
-                        throw new Ice.CommunicatorDestroyedException();
+                        throw new CommunicatorDestroyedException();
                     }
 
                     connection = new Connection(_communicator, _monitor, transceiver, ci.Connector,
@@ -600,7 +601,7 @@ namespace IceInternal
             TraceLevels traceLevels = _communicator.TraceLevels;
             if (traceLevels.Network >= 2)
             {
-                if (ex is Ice.CommunicatorDestroyedException)
+                if (ex is CommunicatorDestroyedException)
                 {
                     _communicator.Logger.Trace(traceLevels.NetworkCat, $"connection to endpoint failed\n{ex}");
                 }
@@ -673,7 +674,7 @@ namespace IceInternal
             TraceLevels traceLevels = _communicator.TraceLevels;
             if (traceLevels.Network >= 2)
             {
-                if (ex is Ice.CommunicatorDestroyedException)
+                if (ex is CommunicatorDestroyedException)
                 {
                     _communicator.Logger.Trace(traceLevels.NetworkCat, $"couldn't resolve endpoint host\n{ex}");
                 }
@@ -716,7 +717,7 @@ namespace IceInternal
         private class ConnectCallback
         {
             internal ConnectCallback(OutgoingConnectionFactory f, bool more, ICreateConnectionCallback cb,
-                Ice.EndpointSelectionType selType)
+                EndpointSelectionType selType)
             {
                 _factory = f;
                 _hasMore = more;
@@ -840,7 +841,7 @@ namespace IceInternal
                     ConnectorInfo connector = _connectors[i];
                     try
                     {
-                        Ice.Instrumentation.ICommunicatorObserver? obsv = _factory._communicator.Observer;
+                        ICommunicatorObserver? obsv = _factory._communicator.Observer;
                         if (obsv != null)
                         {
                             _observer = obsv.GetConnectionEstablishmentObserver(connector.Endpoint,
@@ -870,7 +871,7 @@ namespace IceInternal
                         _factory.FinishGetConnection(_connectors, connector, connection, this);
                         return;
                     }
-                    catch (Ice.CommunicatorDestroyedException ex)
+                    catch (CommunicatorDestroyedException ex)
                     {
                         lastException = ex;
                         break; // No need to continue
@@ -902,10 +903,10 @@ namespace IceInternal
             private readonly ICreateConnectionCallback _callback;
             private readonly EndpointSelectionType _selType;
             private readonly List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
-            private Ice.Instrumentation.IObserver? _observer;
+            private IObserver? _observer;
         }
 
-        private readonly Ice.Communicator _communicator;
+        private readonly Communicator _communicator;
         private readonly FactoryACMMonitor _monitor;
         private bool _destroyed;
 
@@ -931,7 +932,7 @@ namespace IceInternal
         private readonly ITransceiver? _transceiver;
         private readonly bool _warn;
 
-        public IncomingConnectionFactory(Ice.ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish,
+        public IncomingConnectionFactory(ObjectAdapter adapter, Endpoint endpoint, Endpoint? publish,
                                          ACMConfig acmConfig)
         {
             _communicator = adapter.Communicator;

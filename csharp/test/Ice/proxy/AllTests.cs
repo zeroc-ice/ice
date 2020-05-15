@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.proxy
+namespace ZeroC.Ice.proxy
 {
     public class AllTests
     {
@@ -229,7 +229,7 @@ namespace Ice.proxy
             TestHelper.Assert(b1.InvocationMode == InvocationMode.BatchDatagram);
             b1 = IObjectPrx.Parse("test", communicator);
 
-            TestHelper.Assert(b1.Encoding.Equals(Encoding.Latest));
+            TestHelper.Assert(b1.Encoding.Equals(communicator.DefaultEncoding));
 
             b1 = IObjectPrx.Parse("test -e 1.0", communicator);
             TestHelper.Assert(b1.Encoding.Major == 1 && b1.Encoding.Minor == 0);
@@ -572,7 +572,7 @@ namespace Ice.proxy
             TestHelper.Assert(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
 
             TestHelper.Assert(proxyProps["Test.Locator.Router"].Equals(
-                "router -t -p ice1 -e " + Encoding.Latest.ToString()));
+                $"router -t -p ice1 -e {communicator.DefaultEncoding}"));
             TestHelper.Assert(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
             TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
             TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"].Equals("1"));

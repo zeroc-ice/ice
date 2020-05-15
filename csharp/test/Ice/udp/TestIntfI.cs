@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace Ice.udp
+namespace ZeroC.Ice.udp
 {
     public sealed class TestIntf : Test.ITestIntf
     {

@@ -3,7 +3,7 @@
 //
 
 using System.Threading.Tasks;
-using Ice;
+using ZeroC.Ice;
 
 namespace IceInternal
 {

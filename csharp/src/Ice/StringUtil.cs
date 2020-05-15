@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
+using ZeroC.Ice;
+
 namespace IceUtilInternal
 {
     public static class StringUtil
@@ -65,7 +67,7 @@ namespace IceUtilInternal
         }
 
         private static void
-        EncodeChar(char c, StringBuilder sb, string? special, Ice.ToStringMode toStringMode)
+        EncodeChar(char c, StringBuilder sb, string? special, ToStringMode toStringMode)
         {
             switch (c)
             {
@@ -86,7 +88,7 @@ namespace IceUtilInternal
                     }
                 case '\a':
                     {
-                        if (toStringMode == Ice.ToStringMode.Compat)
+                        if (toStringMode == ToStringMode.Compat)
                         {
                             // Octal escape for compatibility with 3.6 and earlier
                             sb.Append("\\007");
@@ -124,7 +126,7 @@ namespace IceUtilInternal
                     }
                 case '\v':
                     {
-                        if (toStringMode == Ice.ToStringMode.Compat)
+                        if (toStringMode == ToStringMode.Compat)
                         {
                             // Octal escape for compatibility with 3.6 and earlier
                             sb.Append("\\013");
@@ -147,7 +149,7 @@ namespace IceUtilInternal
                             int i = (int)c;
                             if (i < 32 || i > 126)
                             {
-                                if (toStringMode == Ice.ToStringMode.Compat)
+                                if (toStringMode == ToStringMode.Compat)
                                 {
                                     //
                                     // When ToStringMode=Compat, c is a UTF-8 byte
@@ -170,7 +172,7 @@ namespace IceUtilInternal
                                     }
                                     sb.Append(octal);
                                 }
-                                else if (i < 32 || i == 127 || (toStringMode & Ice.ToStringMode.ASCII) != 0)
+                                else if (i < 32 || i == 127 || (toStringMode & ToStringMode.ASCII) != 0)
                                 {
                                     // append \\unnnn
                                     sb.Append("\\u");
@@ -201,7 +203,7 @@ namespace IceUtilInternal
         //
         // Add escape sequences (such as "\n", or "\007") to the input string
         //
-        public static string EscapeString(string s, string? special, Ice.ToStringMode toStringMode)
+        public static string EscapeString(string s, string? special, ToStringMode toStringMode)
         {
             if (special != null)
             {
@@ -215,7 +217,7 @@ namespace IceUtilInternal
                 }
             }
 
-            if (toStringMode == Ice.ToStringMode.Compat)
+            if (toStringMode == ToStringMode.Compat)
             {
                 // Encode UTF-8 bytes
 
@@ -237,13 +239,13 @@ namespace IceUtilInternal
                 for (int i = 0; i < s.Length; i++)
                 {
                     char c = s[i];
-                    if ((toStringMode & Ice.ToStringMode.Unicode) != 0 || !char.IsSurrogate(c))
+                    if ((toStringMode & ToStringMode.Unicode) != 0 || !char.IsSurrogate(c))
                     {
                         EncodeChar(c, result, special, toStringMode);
                     }
                     else
                     {
-                        Debug.Assert((toStringMode & Ice.ToStringMode.ASCII) != 0 && char.IsSurrogate(c));
+                        Debug.Assert((toStringMode & ToStringMode.ASCII) != 0 && char.IsSurrogate(c));
                         if (i + 1 == s.Length)
                         {
                             throw new System.ArgumentException("high surrogate without low surrogate", nameof(s));

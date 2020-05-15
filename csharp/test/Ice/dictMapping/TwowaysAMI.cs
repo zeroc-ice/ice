@@ -6,7 +6,7 @@ using Test;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ice.dictMapping
+namespace ZeroC.Ice.dictMapping
 {
     public static class DictionaryExtension
     {

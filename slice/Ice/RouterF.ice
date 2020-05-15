@@ -16,6 +16,7 @@
 
 [[java:package:com.zeroc]]
 
+[cs:namespace:ZeroC]
 module Ice
 {
     interface Router;

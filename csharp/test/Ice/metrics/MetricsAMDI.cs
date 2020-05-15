@@ -6,55 +6,57 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
+using ZeroC.Ice;
+
 public sealed class Controller : IController
 {
-    public Controller(Func<Ice.ObjectAdapter> factory)
+    public Controller(Func<ObjectAdapter> factory)
     {
         _factory = factory;
         _adapter = factory();
         _adapter.Activate();
     }
 
-    public void hold(Ice.Current current)
+    public void hold(Current current)
     {
         _adapter.Destroy();
         _adapter = _factory(); // Recreate the adapter without activating it
     }
 
-    public void resume(Ice.Current current) => _adapter.Activate();
+    public void resume(Current current) => _adapter.Activate();
 
-    private readonly Func<Ice.ObjectAdapter> _factory;
-    private Ice.ObjectAdapter _adapter;
+    private readonly Func<ObjectAdapter> _factory;
+    private ObjectAdapter _adapter;
 };
 
 public sealed class Metrics : IMetrics
 {
-    public ValueTask opAsync(Ice.Current current) => new ValueTask(Task.CompletedTask);
+    public ValueTask opAsync(Current current) => new ValueTask(Task.CompletedTask);
 
-    public ValueTask failAsync(Ice.Current current)
+    public ValueTask failAsync(Current current)
     {
-        current.Connection!.Close(Ice.ConnectionClose.Forcefully);
+        current.Connection!.Close(ConnectionClose.Forcefully);
         return new ValueTask(Task.CompletedTask);
     }
 
-    public ValueTask opWithUserExceptionAsync(Ice.Current current) => throw new UserEx();
+    public ValueTask opWithUserExceptionAsync(Current current) => throw new UserEx();
 
-    public ValueTask opWithRequestFailedExceptionAsync(Ice.Current current) =>
-        throw new Ice.ObjectNotExistException(current);
+    public ValueTask opWithRequestFailedExceptionAsync(Current current) =>
+        throw new ObjectNotExistException(current);
 
-    public ValueTask opWithLocalExceptionAsync(Ice.Current current) =>
-        throw new Ice.InvalidConfigurationException("fake");
+    public ValueTask opWithLocalExceptionAsync(Current current) =>
+        throw new InvalidConfigurationException("fake");
 
     public ValueTask
-    opWithUnknownExceptionAsync(Ice.Current current) => throw new ArgumentOutOfRangeException();
+    opWithUnknownExceptionAsync(Current current) => throw new ArgumentOutOfRangeException();
 
-    public ValueTask opByteSAsync(byte[] bs, Ice.Current current) => new ValueTask(Task.CompletedTask);
+    public ValueTask opByteSAsync(byte[] bs, Current current) => new ValueTask(Task.CompletedTask);
 
-    public Ice.IObjectPrx? getAdmin(Ice.Current current)
+    public IObjectPrx? getAdmin(Current current)
     {
         TestHelper.Assert(current != null);
         return current.Adapter.Communicator.GetAdmin();
     }
 
-    public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
+    public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 }

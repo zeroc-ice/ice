@@ -4,26 +4,23 @@
 
 using Test;
 
-namespace Ice
+namespace ZeroC.Ice.admin
 {
-    namespace admin
+    public class Client : TestHelper
     {
-        public class Client : TestHelper
+        public override void Run(string[] args)
         {
-            public override void Run(string[] args)
+            try
             {
-                try
-                {
-                    using Communicator communicator = Initialize(ref args);
-                    AllTests.allTests(this);
-                }
-                catch (System.Exception ex)
-                {
-                    System.Console.WriteLine(ex.ToString());
-                }
+                using Communicator communicator = Initialize(ref args);
+                AllTests.allTests(this);
             }
-
-            public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex.ToString());
+            }
         }
+
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

@@ -5,13 +5,13 @@
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.invoke
+namespace ZeroC.Ice.invoke
 {
     public class AllTests
     {
         private const string _testString = "This is a test string";
 
-        public static Test.IMyClassPrx allTests(global::Test.TestHelper helper)
+        public static Test.IMyClassPrx allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

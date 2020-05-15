@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The Endpoint class for the TCP transport.</summary>
     public sealed class TcpEndpoint : IPEndpoint

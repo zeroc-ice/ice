@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     internal static class DictionaryExtensions
     {

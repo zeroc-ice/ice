@@ -2,13 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.binding.Test;
-
-namespace Ice.binding
+namespace ZeroC.Ice.binding
 {
-    public class RemoteCommunicator : IRemoteCommunicator
+    public class RemoteCommunicator : Test.IRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx
+        public Test.IRemoteObjectAdapterPrx
         createObjectAdapter(string name, string endpts, Current current)
         {
             int retry = 5;
@@ -25,7 +23,7 @@ namespace Ice.binding
 
                     ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
                     return current.Adapter.AddWithUUID(
-                        new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
+                        new RemoteObjectAdapter(adapter), Test.IRemoteObjectAdapterPrx.Factory);
                 }
                 catch (TransportException)
                 {
@@ -38,7 +36,7 @@ namespace Ice.binding
         }
 
         // Collocated call.
-        public void deactivateObjectAdapter(IRemoteObjectAdapterPrx? adapter, Current current) =>
+        public void deactivateObjectAdapter(Test.IRemoteObjectAdapterPrx? adapter, Current current) =>
             adapter!.deactivate();
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IceSSL
+namespace ZeroC.IceSSL
 {
     /// <summary> Endpoint represents a TLS layer over another endpoint.</summary>
     public sealed class Endpoint : Ice.Endpoint

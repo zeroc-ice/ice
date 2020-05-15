@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public static class VectoredBufferExtensions
     {

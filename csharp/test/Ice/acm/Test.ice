@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:Ice.acm]
+[cs:namespace:ZeroC.Ice.acm]
 module Test
 {
 

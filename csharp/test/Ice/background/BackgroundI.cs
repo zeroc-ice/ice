@@ -3,20 +3,20 @@
 //
 
 using Test;
-
+using ZeroC.Ice;
 internal class Background : IBackground
 {
-    public void op(Ice.Current current)
+    public void op(Current current)
     {
         _controller.checkCallPause(current);
     }
 
-    public void opWithPayload(byte[] seq, Ice.Current current)
+    public void opWithPayload(byte[] seq, Current current)
     {
         _controller.checkCallPause(current);
     }
 
-    public void shutdown(Ice.Current current)
+    public void shutdown(Current current)
     {
         current.Adapter.Communicator.Shutdown();
     }

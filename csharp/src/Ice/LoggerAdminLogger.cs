@@ -7,11 +7,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
+using ZeroC.Ice;
+
 namespace IceInternal
 {
-    internal interface ILoggerAdminLogger : Ice.ILogger
+    internal interface ILoggerAdminLogger : ILogger
     {
-        Ice.ILoggerAdmin GetFacet();
+        ILoggerAdmin GetFacet();
         void Destroy();
     }
 
@@ -19,37 +21,37 @@ namespace IceInternal
     {
         public void Print(string message)
         {
-            var logMessage = new Ice.LogMessage(Ice.LogMessageType.PrintMessage, Now(), "", message);
+            var logMessage = new LogMessage(LogMessageType.PrintMessage, Now(), "", message);
             _localLogger.Print(message);
             Log(logMessage);
         }
 
         public void Trace(string category, string message)
         {
-            var logMessage = new Ice.LogMessage(Ice.LogMessageType.TraceMessage, Now(), category, message);
+            var logMessage = new LogMessage(LogMessageType.TraceMessage, Now(), category, message);
             _localLogger.Trace(category, message);
             Log(logMessage);
         }
 
         public void Warning(string message)
         {
-            var logMessage = new Ice.LogMessage(Ice.LogMessageType.WarningMessage, Now(), "", message);
+            var logMessage = new LogMessage(LogMessageType.WarningMessage, Now(), "", message);
             _localLogger.Warning(message);
             Log(logMessage);
         }
 
         public void Error(string message)
         {
-            var logMessage = new Ice.LogMessage(Ice.LogMessageType.ErrorMessage, Now(), "", message);
+            var logMessage = new LogMessage(LogMessageType.ErrorMessage, Now(), "", message);
             _localLogger.Error(message);
             Log(logMessage);
         }
 
         public string GetPrefix() => _localLogger.GetPrefix();
 
-        public Ice.ILogger CloneWithPrefix(string prefix) => _localLogger.CloneWithPrefix(prefix);
+        public ILogger CloneWithPrefix(string prefix) => _localLogger.CloneWithPrefix(prefix);
 
-        public Ice.ILoggerAdmin GetFacet() => _loggerAdmin;
+        public ILoggerAdmin GetFacet() => _loggerAdmin;
 
         public void Destroy()
         {
@@ -73,7 +75,7 @@ namespace IceInternal
             _loggerAdmin.Destroy();
         }
 
-        internal LoggerAdminLogger(Ice.Communicator communicator, Ice.ILogger localLogger)
+        internal LoggerAdminLogger(Communicator communicator, ILogger localLogger)
         {
             if (localLogger is LoggerAdminLogger)
             {
@@ -86,11 +88,11 @@ namespace IceInternal
             _loggerAdmin = new LoggerAdmin(communicator, this);
         }
 
-        internal Ice.ILogger GetLocalLogger() => _localLogger;
+        internal ILogger GetLocalLogger() => _localLogger;
 
-        internal void Log(Ice.LogMessage logMessage)
+        internal void Log(LogMessage logMessage)
         {
-            List<Ice.IRemoteLoggerPrx>? remoteLoggers = _loggerAdmin.Log(logMessage);
+            List<IRemoteLoggerPrx>? remoteLoggers = _loggerAdmin.Log(logMessage);
 
             if (remoteLoggers != null)
             {
@@ -138,7 +140,7 @@ namespace IceInternal
                     job = _jobQueue.Dequeue();
                 }
 
-                foreach (Ice.IRemoteLoggerPrx p in job.RemoteLoggers)
+                foreach (IRemoteLoggerPrx p in job.RemoteLoggers)
                 {
                     if (_loggerAdmin.GetTraceLevel() > 1)
                     {
@@ -164,7 +166,7 @@ namespace IceInternal
                                 }
                                 catch (AggregateException ae)
                                 {
-                                    if (ae.InnerException is Ice.CommunicatorDestroyedException)
+                                    if (ae.InnerException is CommunicatorDestroyedException)
                                     {
                                         // expected if there are outstanding calls during communicator destruction
                                     }
@@ -192,17 +194,17 @@ namespace IceInternal
 
         private class Job
         {
-            internal Job(List<Ice.IRemoteLoggerPrx> r, Ice.LogMessage l)
+            internal Job(List<IRemoteLoggerPrx> r, LogMessage l)
             {
                 RemoteLoggers = r;
                 LogMessage = l;
             }
 
-            internal readonly List<Ice.IRemoteLoggerPrx> RemoteLoggers;
-            internal readonly Ice.LogMessage LogMessage;
+            internal readonly List<IRemoteLoggerPrx> RemoteLoggers;
+            internal readonly LogMessage LogMessage;
         }
 
-        private readonly Ice.ILogger _localLogger;
+        private readonly ILogger _localLogger;
         private readonly LoggerAdmin _loggerAdmin;
         private bool _destroyed = false;
         private Thread? _sendLogThread;

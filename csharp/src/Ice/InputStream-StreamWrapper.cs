@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed partial class InputStream
     {

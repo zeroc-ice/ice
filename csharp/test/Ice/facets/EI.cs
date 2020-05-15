@@ -2,17 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice
+namespace ZeroC.Ice.facets
 {
-    namespace facets
+    public sealed class E : Test.IE
     {
-        public sealed class E : Test.IE
+        public E()
         {
-            public E()
-            {
-            }
-
-            public string callE(Current current) => "E";
         }
+
+        public string callE(Current current) => "E";
     }
 }

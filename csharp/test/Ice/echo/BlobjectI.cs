@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 using Test;
-using Ice;
+using ZeroC.Ice;
 
 public class BlobjectI : IObject
 {

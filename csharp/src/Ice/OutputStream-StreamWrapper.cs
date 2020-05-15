@@ -5,20 +5,23 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed partial class OutputStream
     {
         // Adapts OutputStream to System.IO.Stream.
         // We use this class to serialize arbitrary .NET serializable classes into a Slice byte sequence.
         //
-        // Slice sequences are encoded on the wire as a count of elements, followed by the sequence contents. For
-        // arbitrary .NET classes, we do not know how big the sequence will be. To avoid excessive data copying, this
-        // class maintains a private _data array of 254 bytes and, initially, writes data into that array. If more than
-        // 254 bytes end up being written, we write a dummy sequence size of 255 (which occupies five bytes on the wire)
-        // into the stream and, once this class is disposed, patch that size to match the actual size. Otherwise, if the
-        // _data buffer contains fewer than 255 bytes when this class is disposed, we write the sequence size as a
-        // single byte, followed by the contents of the _data buffer.
+        // Slice sequences are encoded on the wire as a count of elements, followed by the sequence contents.
+        //
+        // 1.1 encoding: For arbitrary .NET classes, we do not know how big the sequence will be. To avoid excessive
+        // data copying, this class maintains a private _data array of 254 bytes and, initially, writes data into that
+        // array. If more than  254 bytes end up being written, we write a dummy sequence size of 255 (which occupies
+        // five bytes on the wire) into the stream and, once this class is disposed, patch that size to match the actual
+        // size. Otherwise, if the _data buffer contains fewer than 255 bytes when this class is disposed, we write the
+        // sequence size as a single byte, followed by the contents of the _data buffer.
+        //
+        // 2.0 encoding: we write the size on 4 bytes and the data directly into the OutputStream buffer.
         private sealed class StreamWrapper : Stream
         {
             public override bool CanRead => false;
@@ -37,8 +40,8 @@ namespace Ice
             }
 
             private readonly OutputStream _stream;
-            private Position _startPos;
-            private byte[]? _data;
+            private readonly Position _startPos;
+            private byte[]? _data; // always null with 2.0 encoding
             private int _pos;
 
             public override void Flush()
@@ -47,6 +50,7 @@ namespace Ice
                 {
                     if (_data != null)
                     {
+                        Debug.Assert(_stream.OldEncoding);
                         Debug.Assert(_pos <= _data.Length);
                         _stream.WriteSize(_pos);
                         _stream.WriteByteSpan(_data.AsSpan(0, _pos));
@@ -144,9 +148,17 @@ namespace Ice
             internal StreamWrapper(OutputStream stream)
             {
                 _stream = stream;
-                _data = new byte[254];
                 _pos = 0;
                 _startPos = stream.Tail;
+                if (_stream.OldEncoding)
+                {
+                    _data = new byte[254];
+                }
+                else
+                {
+                    // Placeholder for a fixed-length size
+                    _stream.WriteFixedLengthSize(0);
+                }
             }
         }
     }

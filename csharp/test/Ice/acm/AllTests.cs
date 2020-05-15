@@ -10,7 +10,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ice.acm
+namespace ZeroC.Ice.acm
 {
     public class LoggerI : ILogger
     {
@@ -517,22 +517,22 @@ namespace Ice.acm
                 {
                 }
 
-                Ice.ACM acm = con.GetACM();
+                ACM acm = con.GetACM();
                 TestHelper.Assert(acm.Timeout == 15);
-                TestHelper.Assert(acm.Close == Ice.ACMClose.CloseOnIdleForceful);
-                TestHelper.Assert(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
+                TestHelper.Assert(acm.Close == ACMClose.CloseOnIdleForceful);
+                TestHelper.Assert(acm.Heartbeat == ACMHeartbeat.HeartbeatOff);
 
                 con.SetACM(null, null, null);
                 acm = con.GetACM();
                 TestHelper.Assert(acm.Timeout == 15);
-                TestHelper.Assert(acm.Close == Ice.ACMClose.CloseOnIdleForceful);
-                TestHelper.Assert(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
+                TestHelper.Assert(acm.Close == ACMClose.CloseOnIdleForceful);
+                TestHelper.Assert(acm.Heartbeat == ACMHeartbeat.HeartbeatOff);
 
-                con.SetACM(1, Ice.ACMClose.CloseOnInvocationAndIdle, Ice.ACMHeartbeat.HeartbeatAlways);
+                con.SetACM(1, ACMClose.CloseOnInvocationAndIdle, ACMHeartbeat.HeartbeatAlways);
                 acm = con.GetACM();
                 TestHelper.Assert(acm.Timeout == 1);
-                TestHelper.Assert(acm.Close == Ice.ACMClose.CloseOnInvocationAndIdle);
-                TestHelper.Assert(acm.Heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
+                TestHelper.Assert(acm.Close == ACMClose.CloseOnInvocationAndIdle);
+                TestHelper.Assert(acm.Heartbeat == ACMHeartbeat.HeartbeatAlways);
 
                 proxy.startHeartbeatCount();
                 proxy.waitForHeartbeatCount(2);
@@ -560,7 +560,7 @@ namespace Ice.acm
             }
         }
 
-        public static void allTests(global::Test.TestHelper helper)
+        public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

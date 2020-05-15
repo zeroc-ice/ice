@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Ice.stream.Serialize
+namespace ZeroC.Ice.stream.Serialize
 {
 
     [Serializable]

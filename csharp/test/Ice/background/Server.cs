@@ -3,7 +3,7 @@
 //
 
 using Test;
-using Ice;
+using ZeroC.Ice;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 

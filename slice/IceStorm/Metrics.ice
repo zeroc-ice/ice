@@ -19,6 +19,7 @@
 
 [js:module:ice]
 [swift:module:IceStorm:MX]
+[cs:namespace:ZeroC]
 module IceMX
 {
     /// Provides information on IceStorm topics.

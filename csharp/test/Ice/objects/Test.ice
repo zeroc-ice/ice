@@ -6,10 +6,9 @@
 
 #include <Ice/Identity.ice>
 
-[[cs:typeid-namespace:Ice.objects.TypeId]]
-[[suppress-warning:deprecated]] // For classes with operations
+[[cs:typeid-namespace:ZeroC.Ice.objects.TypeId]]
 
-[cs:namespace:Ice.objects]
+[cs:namespace:ZeroC.Ice.objects]
 module Test
 {
 

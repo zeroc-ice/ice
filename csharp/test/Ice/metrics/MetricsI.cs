@@ -3,51 +3,52 @@
 //
 
 using System;
-using System.Threading.Tasks;
 using Test;
+
+using ZeroC.Ice;
 
 public sealed class Controller : IController
 {
-    public Controller(Func<Ice.ObjectAdapter> factory)
+    public Controller(Func<ObjectAdapter> factory)
     {
         _factory = factory;
         _adapter = factory();
         _adapter.Activate();
     }
 
-    public void hold(Ice.Current current)
+    public void hold(Current current)
     {
         _adapter.Destroy();
         _adapter = _factory(); // Recreate the adapter without activating it
     }
 
-    public void resume(Ice.Current current) => _adapter.Activate();
+    public void resume(Current current) => _adapter.Activate();
 
-    private readonly Func<Ice.ObjectAdapter> _factory;
-    private Ice.ObjectAdapter _adapter;
+    private readonly Func<ObjectAdapter> _factory;
+    private ObjectAdapter _adapter;
 };
 
 public sealed class Metrics : IMetrics
 {
-    public void op(Ice.Current current)
+    public void op(Current current)
     {
     }
 
-    public void fail(Ice.Current current) => current.Connection!.Close(Ice.ConnectionClose.Forcefully);
+    public void fail(Current current) => current.Connection!.Close(ConnectionClose.Forcefully);
 
-    public void opWithUserException(Ice.Current current) => throw new UserEx();
+    public void opWithUserException(Current current) => throw new UserEx();
 
-    public void opWithRequestFailedException(Ice.Current current) => throw new Ice.ObjectNotExistException(current);
+    public void opWithRequestFailedException(Current current) => throw new ObjectNotExistException(current);
 
-    public void opWithLocalException(Ice.Current current) => throw new Ice.InvalidConfigurationException("fake");
+    public void opWithLocalException(Current current) => throw new InvalidConfigurationException("fake");
 
-    public void opWithUnknownException(Ice.Current current) => throw new ArgumentOutOfRangeException();
+    public void opWithUnknownException(Current current) => throw new ArgumentOutOfRangeException();
 
-    public void opByteS(byte[] bs, Ice.Current current)
+    public void opByteS(byte[] bs, Current current)
     {
     }
 
-    public Ice.IObjectPrx? getAdmin(Ice.Current current) => current.Adapter.Communicator.GetAdmin();
+    public IObjectPrx? getAdmin(Current current) => current.Adapter.Communicator.GetAdmin();
 
-    public void shutdown(Ice.Current current) => current.Adapter.Communicator.Shutdown();
+    public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 }

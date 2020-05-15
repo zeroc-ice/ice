@@ -5,11 +5,11 @@
 using System;
 using System.Collections.Generic;
 
-using Ice;
+using ZeroC.Ice;
 
-namespace IceDiscovery
+namespace ZeroC.IceDiscovery
 {
-    public sealed class PluginFactory : Ice.IPluginFactory
+    public sealed class PluginFactory : IPluginFactory
     {
         public IPlugin
         Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
@@ -114,18 +114,9 @@ namespace IceDiscovery
 
         public void Destroy()
         {
-            if (_multicastAdapter != null)
-            {
-                _multicastAdapter.Destroy();
-            }
-            if (_replyAdapter != null)
-            {
-                _replyAdapter.Destroy();
-            }
-            if (_locatorAdapter != null)
-            {
-                _locatorAdapter.Destroy();
-            }
+            _multicastAdapter?.Destroy();
+            _replyAdapter?.Destroy();
+            _locatorAdapter?.Destroy();
 
             if (IObjectPrx.Equals(_communicator.DefaultLocator, _locator))
             {

@@ -3,16 +3,15 @@
 //
 
 using Test;
-using Ice.seqMapping.Test;
 
-namespace Ice.seqMapping
+namespace ZeroC.Ice.seqMapping
 {
     public class Server : TestHelper
     {
         public override void Run(string[] args)
         {
             using var communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "Ice.seqMapping.TypeId" });
+                typeIdNamespaces: new string[] { "ZeroC.Ice.seqMapping.TypeId" });
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyClass());

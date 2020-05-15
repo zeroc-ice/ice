@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>Represents a request protocol frame received by the application.</summary>
     public sealed class IncomingRequestFrame
@@ -52,7 +52,7 @@ namespace Ice
             (Encoding encoding, int size) = istr.ReadEncapsulationHeader();
             if (size != Payload.Count)
             {
-                throw new InvalidDataException($"invalid encapsulation size: {size}");
+                throw new InvalidDataException($"invalid request encapsulation size: {size}");
             }
             Encoding = encoding;
         }

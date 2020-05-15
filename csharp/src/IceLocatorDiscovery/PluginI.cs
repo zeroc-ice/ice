@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,9 +11,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IceLocatorDiscovery
+namespace ZeroC.IceLocatorDiscovery
 {
-    public sealed class PluginFactory : Ice.IPluginFactory
+    public sealed class PluginFactory : IPluginFactory
     {
         public Ice.IPlugin
         Create(Communicator communicator, string name, string[] args) => new PluginI(name, communicator);
@@ -31,7 +31,7 @@ namespace IceLocatorDiscovery
         private readonly Current _current;
 
         private ILocatorPrx? _locatorPrx;
-        private System.Exception? _exception;
+        private Exception? _exception;
 
         internal Request(LocatorI locator,
                          ArraySegment<byte> payload,

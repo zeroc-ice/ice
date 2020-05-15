@@ -5,10 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using Test;
 
-namespace Ice.scope
+namespace ZeroC.Ice.scope
 {
     public class AllTests
     {

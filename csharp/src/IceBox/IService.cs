@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceBox
+namespace ZeroC.IceBox
 {
     public interface IService
     {
@@ -13,7 +13,7 @@ namespace IceBox
         /// <param name="communicator">A communicator for use by the service.</param>
         /// <param name="args">The service arguments that were not converted into properties.</param>
         /// <exception name="FailureException">Raised if start failed.</exception>
-        void Start(string name, Ice.Communicator communicator, string[] args);
+        void Start(string name, ZeroC.Ice.Communicator communicator, string[] args);
 
         /// <summary>Stop the service.</summary>
         void Stop();

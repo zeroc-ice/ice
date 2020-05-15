@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.inheritance
+namespace ZeroC.Ice.inheritance
 {
     public sealed class IB1 : Test.MB.IIB1
     {

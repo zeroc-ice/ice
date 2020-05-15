@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Ice.proxy.AMD
+namespace ZeroC.Ice.proxy.AMD
 {
     public sealed class MyDerivedClass : Test.IMyDerivedClass
     {

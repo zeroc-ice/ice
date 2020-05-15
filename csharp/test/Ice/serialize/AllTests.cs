@@ -7,8 +7,9 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Test;
+using ZeroC.Ice.serialize.Test;
 
-namespace Ice.serialize
+namespace ZeroC.Ice.serialize
 {
     public class AllTests
     {
@@ -20,10 +21,10 @@ namespace Ice.serialize
             output.Write("testing serialization... ");
             output.Flush();
 
-            var proxy = Test.IMyInterfacePrx.Parse("test", communicator);
+            var proxy = IMyInterfacePrx.Parse("test", communicator);
 
-            Test.MyException ex, ex2;
-            ex = new Test.MyException(name: "",
+            MyException ex, ex2;
+            ex = new MyException(name: "",
                                       b: 0,
                                       s: 0,
                                       i: 0,
@@ -32,14 +33,14 @@ namespace Ice.serialize
                                       rs: default,
                                       c: null,
                                       p: null,
-                                      vss: new Test.ValStruct[0],
-                                      vsl: new List<Test.ValStruct>(),
-                                      vsll: new LinkedList<Test.ValStruct>(),
-                                      vssk: new Stack<Test.ValStruct>(),
-                                      vsq: new Queue<Test.ValStruct>(),
+                                      vss: new ValStruct[0],
+                                      vsl: new List<ValStruct>(),
+                                      vsll: new LinkedList<ValStruct>(),
+                                      vssk: new Stack<ValStruct>(),
+                                      vsq: new Queue<ValStruct>(),
                                       isd: new Dictionary<int, string>(),
-                                      ivd: new Dictionary<int, Test.ValStruct>(),
-                                      ipd: new Dictionary<int, Test.IMyInterfacePrx?>(),
+                                      ivd: new Dictionary<int, ValStruct>(),
+                                      ipd: new Dictionary<int, IMyInterfacePrx?>(),
                                       issd: new SortedDictionary<int, string>(),
                                       optName: null,
                                       optInt: null,
@@ -73,30 +74,30 @@ namespace Ice.serialize
             ex.s = 2;
             ex.i = 3;
             ex.l = 4;
-            ex.vs = new Test.ValStruct(true, 1, 2, 3, 4, Test.MyEnum.enum2);
-            ex.rs = new Test.RefStruct("RefStruct", "prop", null, proxy, new Test.IMyInterfacePrx?[] { proxy, null, proxy });
-            ex.vss = new Test.ValStruct[1];
+            ex.vs = new ValStruct(true, 1, 2, 3, 4, MyEnum.enum2);
+            ex.rs = new RefStruct("RefStruct", "prop", null, proxy, new IMyInterfacePrx?[] { proxy, null, proxy });
+            ex.vss = new ValStruct[1];
             ex.vss[0] = ex.vs;
-            ex.vsl = new List<Test.ValStruct>();
+            ex.vsl = new List<ValStruct>();
             ex.vsl.Add(ex.vs);
-            ex.vsll = new LinkedList<Test.ValStruct>();
+            ex.vsll = new LinkedList<ValStruct>();
             ex.vsll.AddLast(ex.vs);
-            ex.vssk = new Stack<Test.ValStruct>();
+            ex.vssk = new Stack<ValStruct>();
             ex.vssk.Push(ex.vs);
-            ex.vsq = new Queue<Test.ValStruct>();
+            ex.vsq = new Queue<ValStruct>();
             ex.vsq.Enqueue(ex.vs);
             ex.isd = new Dictionary<int, string>();
             ex.isd[5] = "five";
-            ex.ivd = new Dictionary<int, Test.ValStruct>();
+            ex.ivd = new Dictionary<int, ValStruct>();
             ex.ivd[1] = ex.vs;
-            ex.ipd = new Dictionary<int, Test.IMyInterfacePrx?>() { { 1, proxy }, { 2, null }, { 3, proxy } };
+            ex.ipd = new Dictionary<int, IMyInterfacePrx?>() { { 1, proxy }, { 2, null }, { 3, proxy } };
             ex.issd = new SortedDictionary<int, string>();
             ex.issd[3] = "three";
             ex.optName = "MyException";
             ex.optInt = 99;
             ex.optValStruct = ex.vs;
             ex.optRefStruct = ex.rs;
-            ex.optEnum = Test.MyEnum.enum3;
+            ex.optEnum = MyEnum.enum3;
             ex.optClass = null;
             ex.optProxy = proxy;
             ex2 = inOut(ex, communicator);
@@ -120,17 +121,17 @@ namespace Ice.serialize
             TestHelper.Assert(ex2.optInt.HasValue && ex2.optInt.Value == 99);
             TestHelper.Assert(ex2.optValStruct.HasValue && ex2.optValStruct.Value.Equals(ex.vs));
             TestHelper.Assert(ex2.optRefStruct != null && ex2.optRefStruct.Value.p!.Equals(ex.rs.p));
-            TestHelper.Assert(ex2.optEnum.HasValue && ex2.optEnum.Value == Test.MyEnum.enum3);
+            TestHelper.Assert(ex2.optEnum.HasValue && ex2.optEnum.Value == MyEnum.enum3);
             TestHelper.Assert(ex2.optClass == null);
             TestHelper.Assert(ex2.optProxy!.Equals(proxy));
 
-            Test.RefStruct rs, rs2;
-            rs = new Test.RefStruct();
+            RefStruct rs, rs2;
+            rs = new RefStruct();
             rs.s = "RefStruct";
             rs.sp = "prop";
             rs.c = null;
-            rs.p = Test.IMyInterfacePrx.Parse("test", communicator);
-            rs.seq = new Test.IMyInterfacePrx[] { rs.p };
+            rs.p = IMyInterfacePrx.Parse("test", communicator);
+            rs.seq = new IMyInterfacePrx[] { rs.p };
             rs2 = inOut(rs, communicator);
             TestHelper.Assert(rs2.s == "RefStruct");
             TestHelper.Assert(rs2.sp == "prop");
@@ -139,8 +140,8 @@ namespace Ice.serialize
             TestHelper.Assert(rs2.seq.Length == rs.seq.Length);
             TestHelper.Assert(rs2.seq[0]!.Equals(rs.seq[0]));
 
-            Test.Base b, b2;
-            b = new Test.Base(true, 1, 2, 3, 4, Test.MyEnum.enum2);
+            Base b, b2;
+            b = new Base(true, 1, 2, 3, 4, MyEnum.enum2);
             b2 = inOut(b, communicator);
             TestHelper.Assert(b2.bo == b.bo);
             TestHelper.Assert(b2.by == b.by);
@@ -149,8 +150,8 @@ namespace Ice.serialize
             TestHelper.Assert(b2.l == b.l);
             TestHelper.Assert(b2.e == b.e);
 
-            Test.MyClass c, c2;
-            c = new Test.MyClass(true, 1, 2, 3, 4, Test.MyEnum.enum1, null, null, new Test.ValStruct(true, 1, 2, 3, 4, Test.MyEnum.enum2));
+            MyClass c, c2;
+            c = new MyClass(true, 1, 2, 3, 4, MyEnum.enum1, null, null, new ValStruct(true, 1, 2, 3, 4, MyEnum.enum2));
             c.c = c;
             c.o = c;
             c2 = inOut(c, communicator);

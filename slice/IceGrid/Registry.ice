@@ -21,7 +21,7 @@
 #include <Ice/Locator.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceGrid
 {
     /// Determines which load sampling interval to use.

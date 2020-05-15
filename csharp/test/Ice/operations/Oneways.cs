@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-
-namespace Ice.operations
+namespace ZeroC.Ice.operations
 {
     public class Oneways
     {

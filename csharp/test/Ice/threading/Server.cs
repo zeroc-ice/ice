@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-using Ice.threading.Test;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
-namespace Ice.threading
+namespace ZeroC.Ice.threading
 {
     public class Server : TestHelper
     {

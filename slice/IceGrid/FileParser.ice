@@ -18,7 +18,7 @@
 #include <IceGrid/Admin.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module IceGrid
 {
     /// This exception is raised if an error occurs during parsing.

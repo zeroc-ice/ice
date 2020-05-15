@@ -5,7 +5,7 @@
 using System.Threading.Tasks;
 using Test;
 
-namespace Ice.interceptor
+namespace ZeroC.Ice.interceptor
 {
     internal sealed class Interceptor : IObject
     {

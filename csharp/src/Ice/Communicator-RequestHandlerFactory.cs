@@ -5,7 +5,7 @@
 using IceInternal;
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed partial class Communicator
     {

@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
-using Ice;
+using ZeroC.Ice;
 
 namespace Test
 {
@@ -130,13 +130,13 @@ namespace Test
 
         public Communicator Initialize(ref string[] args,
             Dictionary<string, string>? defaults = null,
-            Ice.Instrumentation.ICommunicatorObserver? observer = null,
+            ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null,
             string[]? typeIdNamespaces = null) =>
             Initialize(CreateTestProperties(ref args, defaults), observer, typeIdNamespaces);
 
         public Communicator Initialize(
             Dictionary<string, string> properties,
-            Ice.Instrumentation.ICommunicatorObserver? observer = null,
+            ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null,
             string[]? typeIdNamespaces = null)
         {
             var communicator = new Communicator(properties, observer: observer, typeIdNamespaces: typeIdNamespaces);

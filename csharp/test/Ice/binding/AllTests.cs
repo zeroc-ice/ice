@@ -4,10 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Test;
 
-namespace Ice.binding
+namespace ZeroC.Ice.binding
 {
     public class AllTests
     {

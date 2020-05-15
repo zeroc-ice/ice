@@ -2,11 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
 using System.Diagnostics;
-using System.Collections.Generic;
 
-namespace Ice.perf
+namespace ZeroC.Ice.perf
 {
     public sealed class PerformanceI : Test.IPerformance
     {

@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-using Ice;
+using ZeroC.Ice;
 
 public class Client : Test.TestHelper
 {

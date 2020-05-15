@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace Ice.DefaultServant
+namespace ZeroC.Ice.DefaultServant
 {
     public sealed class MyObject : Test.IMyObject
     {

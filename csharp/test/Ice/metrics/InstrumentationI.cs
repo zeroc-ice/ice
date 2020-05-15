@@ -6,7 +6,10 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-public class Observer : Ice.Instrumentation.IObserver
+using ZeroC.Ice;
+using ZeroC.Ice.Instrumentation;
+
+public class Observer : IObserver
 {
     public virtual void
     reset()
@@ -77,7 +80,7 @@ public class Observer : Ice.Instrumentation.IObserver
     public int failedCount;
 };
 
-public class ChildInvocationObserver : Observer, Ice.Instrumentation.IChildInvocationObserver
+public class ChildInvocationObserver : Observer, IChildInvocationObserver
 {
     public override void
     reset()
@@ -101,15 +104,15 @@ public class ChildInvocationObserver : Observer, Ice.Instrumentation.IChildInvoc
     public int replySize;
 };
 
-public class RemoteObserver : ChildInvocationObserver, Ice.Instrumentation.IRemoteObserver
+public class RemoteObserver : ChildInvocationObserver, IRemoteObserver
 {
 };
 
-public class CollocatedObserver : ChildInvocationObserver, Ice.Instrumentation.ICollocatedObserver
+public class CollocatedObserver : ChildInvocationObserver, ICollocatedObserver
 {
 };
 
-public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObserver
+public class InvocationObserver : Observer, IInvocationObserver
 {
     public override void
     reset()
@@ -148,8 +151,8 @@ public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObser
         }
     }
 
-    public Ice.Instrumentation.IRemoteObserver
-    GetRemoteObserver(Ice.ConnectionInfo c, Ice.Endpoint e, int a, int b)
+    public IRemoteObserver
+    GetRemoteObserver(ConnectionInfo c, Endpoint e, int a, int b)
     {
         lock (this)
         {
@@ -162,8 +165,8 @@ public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObser
         }
     }
 
-    public Ice.Instrumentation.ICollocatedObserver
-    GetCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)
+    public ICollocatedObserver
+    GetCollocatedObserver(ObjectAdapter adapter, int a, int b)
     {
         lock (this)
         {
@@ -183,7 +186,7 @@ public class InvocationObserver : Observer, Ice.Instrumentation.IInvocationObser
     public CollocatedObserver? collocatedObserver = null;
 };
 
-public class DispatchObserver : Observer, Ice.Instrumentation.IDispatchObserver
+public class DispatchObserver : Observer, IDispatchObserver
 {
     public override void
     reset()
@@ -218,7 +221,7 @@ public class DispatchObserver : Observer, Ice.Instrumentation.IDispatchObserver
     public int replySize;
 };
 
-public class ConnectionObserver : Observer, Ice.Instrumentation.IConnectionObserver
+public class ConnectionObserver : Observer, IConnectionObserver
 {
     public override void
     reset()
@@ -253,7 +256,7 @@ public class ConnectionObserver : Observer, Ice.Instrumentation.IConnectionObser
     public int received;
 };
 
-public class ThreadObserver : Observer, Ice.Instrumentation.IThreadObserver
+public class ThreadObserver : Observer, IThreadObserver
 {
     public override void
     reset()
@@ -266,7 +269,7 @@ public class ThreadObserver : Observer, Ice.Instrumentation.IThreadObserver
     }
 
     public void
-    StateChanged(Ice.Instrumentation.ThreadState o, Ice.Instrumentation.ThreadState n)
+    StateChanged(ThreadState o, ThreadState n)
     {
         lock (this)
         {
@@ -277,10 +280,10 @@ public class ThreadObserver : Observer, Ice.Instrumentation.IThreadObserver
     public int states;
 };
 
-public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
+public class CommunicatorObserver : ICommunicatorObserver
 {
     public void
-    SetObserverUpdater(Ice.Instrumentation.IObserverUpdater? u)
+    SetObserverUpdater(IObserverUpdater? u)
     {
         lock (this)
         {
@@ -288,8 +291,8 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IObserver
-    GetConnectionEstablishmentObserver(Ice.Endpoint e, string s)
+    public IObserver
+    GetConnectionEstablishmentObserver(Endpoint e, string s)
     {
         lock (this)
         {
@@ -302,8 +305,8 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IObserver
-    GetEndpointLookupObserver(Ice.Endpoint e)
+    public IObserver
+    GetEndpointLookupObserver(Endpoint e)
     {
         lock (this)
         {
@@ -316,11 +319,11 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IConnectionObserver?
-    GetConnectionObserver(Ice.ConnectionInfo c,
-                          Ice.Endpoint e,
-                          Ice.Instrumentation.ConnectionState s,
-                          Ice.Instrumentation.IConnectionObserver? old)
+    public IConnectionObserver?
+    GetConnectionObserver(ConnectionInfo c,
+                          Endpoint e,
+                          ConnectionState s,
+                          IConnectionObserver? old)
     {
         lock (this)
         {
@@ -334,8 +337,8 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IThreadObserver?
-    GetThreadObserver(string p, string id, Ice.Instrumentation.ThreadState s, Ice.Instrumentation.IThreadObserver? old)
+    public IThreadObserver?
+    GetThreadObserver(string p, string id, ThreadState s, IThreadObserver? old)
     {
         lock (this)
         {
@@ -349,8 +352,8 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IInvocationObserver
-    GetInvocationObserver(Ice.IObjectPrx? p, string op, IReadOnlyDictionary<string, string> ctx)
+    public IInvocationObserver
+    GetInvocationObserver(IObjectPrx? p, string op, IReadOnlyDictionary<string, string> ctx)
     {
         lock (this)
         {
@@ -363,8 +366,8 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.IDispatchObserver
-    GetDispatchObserver(Ice.Current current, int s)
+    public IDispatchObserver
+    GetDispatchObserver(Current current, int s)
     {
         lock (this)
         {
@@ -411,7 +414,7 @@ public class CommunicatorObserver : Ice.Instrumentation.ICommunicatorObserver
     }
     */
 
-    protected Ice.Instrumentation.IObserverUpdater? updater;
+    protected IObserverUpdater? updater;
 
     public Observer? connectionEstablishmentObserver;
     public Observer? endpointLookupObserver;

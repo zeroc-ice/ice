@@ -6,7 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[cs:namespace:Ice.proxy]
+[cs:namespace:ZeroC.Ice.proxy]
 module Test
 {
 

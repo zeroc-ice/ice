@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>A ProxyIdentityComparer allows you to use proxies as keys of a Dictionary, while using only the
     /// proxies' object identity for equality and hashing.</summary>

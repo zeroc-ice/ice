@@ -5,7 +5,7 @@
 using System;
 using Test;
 
-namespace Ice.exceptions
+namespace ZeroC.Ice.exceptions
 {
     public sealed class Thrower : Test.IThrower
     {

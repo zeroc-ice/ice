@@ -12,13 +12,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     public sealed class OpaqueEndpoint : Endpoint
     {
         public ReadOnlyMemory<byte> Bytes { get; }
         public override string ConnectionId => "";
-        public Ice.Encoding Encoding { get; }
+        public Encoding Encoding { get; }
         public override bool HasCompressionFlag => false;
         public override bool IsDatagram => false;
         public override bool IsSecure => false;
@@ -99,7 +99,7 @@ namespace Ice
             return $"opaque -t {typeNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
         }
 
-        public override void IceWritePayload(Ice.OutputStream ostr)
+        public override void IceWritePayload(OutputStream ostr)
         {
             Debug.Assert(false);
             throw new NotImplementedException("cannot write the payload for an opaque endpoint");
@@ -110,7 +110,7 @@ namespace Ice
         public override Endpoint NewConnectionId(string id) => this;
         public override Endpoint NewCompressionFlag(bool compress) => this;
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(Ice.EndpointSelectionType endSel) =>
+        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endSel) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)
@@ -163,7 +163,7 @@ namespace Ice
                 }
                 try
                 {
-                    Encoding = Ice.Encoding.Parse(argument);
+                    Encoding = Encoding.Parse(argument);
                 }
                 catch (FormatException ex)
                 {
@@ -202,7 +202,7 @@ namespace Ice
             // the caller deals with remaining options, if any
         }
 
-        internal OpaqueEndpoint(EndpointType type, Ice.Encoding encoding, byte[] bytes)
+        internal OpaqueEndpoint(EndpointType type, Encoding encoding, byte[] bytes)
         {
             Type = type;
             Encoding = encoding;

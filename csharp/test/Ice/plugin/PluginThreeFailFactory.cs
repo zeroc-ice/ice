@@ -3,14 +3,15 @@
 //
 
 using System;
+using ZeroC.Ice;
 
-public class PluginThreeFailFactory : Ice.IPluginFactory
+public class PluginThreeFailFactory : IPluginFactory
 {
-    public Ice.IPlugin Create(Ice.Communicator communicator, string name, string[] args) => new PluginThreeFail(communicator);
+    public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginThreeFail(communicator);
 
     internal class PluginThreeFail : BasePluginFail
     {
-        public PluginThreeFail(Ice.Communicator communicator) : base(communicator)
+        public PluginThreeFail(Communicator communicator) : base(communicator)
         {
         }
 

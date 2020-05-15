@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using Test;
 
+using ZeroC.Ice;
+
 public class AllTests
 {
     private static void ExceptAbortI(Exception ex, TextWriter output)
@@ -16,13 +18,13 @@ public class AllTests
         {
             throw ex;
         }
-        catch (Ice.ConnectionLostException)
+        catch (ConnectionLostException)
         {
         }
-        catch (Ice.ConnectFailedException)
+        catch (ConnectFailedException)
         {
         }
-        catch (Ice.TransportException)
+        catch (TransportException)
         {
         }
         catch (Exception)
@@ -34,7 +36,7 @@ public class AllTests
 
     public static void allTests(TestHelper helper, List<int> ports)
     {
-        Ice.Communicator? communicator = helper.Communicator();
+        Communicator? communicator = helper.Communicator();
         TestHelper.Assert(communicator != null);
         TextWriter output = helper.GetWriter();
         output.Write("testing stringToProxy... ");
@@ -44,7 +46,7 @@ public class AllTests
         {
             refString += ":" + helper.GetTestEndpoint(ports[i]);
         }
-        var basePrx = Ice.IObjectPrx.Parse(refString, communicator);
+        var basePrx = IObjectPrx.Parse(refString, communicator);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
@@ -110,15 +112,15 @@ public class AllTests
                         obj.abort();
                         TestHelper.Assert(false);
                     }
-                    catch (Ice.ConnectionLostException)
+                    catch (ConnectionLostException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch (Ice.TransportException)
+                    catch (TransportException)
                     {
                         output.WriteLine("ok");
                     }
@@ -151,15 +153,15 @@ public class AllTests
                         obj.idempotentAbort();
                         TestHelper.Assert(false);
                     }
-                    catch (Ice.ConnectionLostException)
+                    catch (ConnectionLostException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                         output.WriteLine("ok");
                     }
-                    catch (Ice.TransportException)
+                    catch (TransportException)
                     {
                         output.WriteLine("ok");
                     }

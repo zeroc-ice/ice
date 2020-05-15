@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
     public class ServerLocatorRegistry : Test.ITestLocatorRegistry
     {

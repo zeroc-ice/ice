@@ -5,6 +5,8 @@
 using System.Collections.Generic;
 using Test;
 
+using ZeroC.Ice;
+
 public class Server : TestHelper
 {
     public override void Run(string[] args)
@@ -17,13 +19,13 @@ public class Server : TestHelper
         properties["Ice.MessageSizeMax"] = "50000";
         properties["Ice.Default.Host"] = "127.0.0.1";
 
-        using Ice.Communicator communicator = Initialize(properties);
+        using Communicator communicator = Initialize(properties);
         communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
         communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
-        Ice.ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
+        ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
         controllerAdapter.Add("controller", new Controller(() => {
-            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("metrics", new Metrics());
             return adapter;
         }));

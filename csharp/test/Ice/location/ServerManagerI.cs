@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice.location.Test;
 using System.Collections.Generic;
 using Test;
 
-namespace Ice.location
+namespace ZeroC.Ice.location
 {
-    public class ServerManager : IServerManager
+    public class ServerManager : Test.IServerManager
     {
         internal ServerManager(ServerLocatorRegistry registry, TestHelper helper)
         {
@@ -65,8 +64,8 @@ namespace Ice.location
                     adapter2.Locator = locator;
 
                     var testI = new TestIntf(adapter, adapter2, _registry);
-                    _registry.AddObject(adapter.Add("test", testI, Ice.IObjectPrx.Factory));
-                    _registry.AddObject(adapter.Add("test2", testI, Ice.IObjectPrx.Factory));
+                    _registry.AddObject(adapter.Add("test", testI, IObjectPrx.Factory));
+                    _registry.AddObject(adapter.Add("test2", testI, IObjectPrx.Factory));
                     adapter.Add("test3", testI);
 
                     adapter.Activate();

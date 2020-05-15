@@ -2,20 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System.Diagnostics;
 using System.Collections.Generic;
-using Ice.admin.Test;
 
-namespace Ice.admin
+namespace ZeroC.Ice.admin
 {
-    public class TestFacet : ITestFacet
+    public class TestFacet : Test.ITestFacet
     {
-        public void op(Ice.Current current)
+        public void op(Current current)
         {
         }
     }
 
-    public class RemoteCommunicator : IRemoteCommunicator
+    public class RemoteCommunicator : Test.IRemoteCommunicator
     {
         private volatile IReadOnlyDictionary<string, string>? _changes;
         private readonly Communicator _communicator;
@@ -47,9 +45,9 @@ namespace Ice.admin
         public void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
     }
 
-    public class RemoteCommunicatorFactoryI : IRemoteCommunicatorFactory
+    public class RemoteCommunicatorFactoryI : Test.IRemoteCommunicatorFactory
     {
-        public IRemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Current current)
+        public Test.IRemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Current current)
         {
             //
             // Prepare the property set using the given properties.
@@ -87,7 +85,7 @@ namespace Ice.admin
                 admin.Updated += (_, updates) => servant.Updated(updates);
             }
 
-            return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
+            return current.Adapter.AddWithUUID(servant, Test.IRemoteCommunicatorPrx.Factory);
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

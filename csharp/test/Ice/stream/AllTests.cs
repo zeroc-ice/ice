@@ -6,10 +6,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Ice.stream.Test;
+using ZeroC.Ice.stream.Test;
 using Test;
 
-namespace Ice.stream
+namespace ZeroC.Ice.stream
 {
     public class AllTests
     {

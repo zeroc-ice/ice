@@ -17,7 +17,7 @@
 #include <Ice/BuiltinSequences.ice>
 
 [[java:package:com.zeroc]]
-
+[cs:namespace:ZeroC]
 module Ice
 {
     /// A simple collection of properties, represented as a dictionary of key/value pairs. Both key and value are

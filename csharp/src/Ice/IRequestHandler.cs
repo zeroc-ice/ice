@@ -15,6 +15,6 @@ namespace IceInternal
 
         void SendAsyncRequest(ProxyOutgoingAsyncBase @out);
 
-        Ice.Connection? GetConnection();
+        ZeroC.Ice.Connection? GetConnection();
     }
 }

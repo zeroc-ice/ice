@@ -12,7 +12,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ice
+namespace ZeroC.Ice
 {
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
     public abstract class IPEndpoint : Endpoint
@@ -173,7 +173,7 @@ namespace Ice
 
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
         {
-            Ice.Instrumentation.IObserver? observer = Instance.Communicator.Observer?.GetEndpointLookupObserver(this);
+            Instrumentation.IObserver? observer = Instance.Communicator.Observer?.GetEndpointLookupObserver(this);
             observer?.Attach();
             try
             {

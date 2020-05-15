@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:Ice.interceptor]
+[cs:namespace:ZeroC.Ice.interceptor]
 module Test
 {
 

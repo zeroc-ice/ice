@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Ice;
+using ZeroC.Ice;
 
 using System;
 using System.Collections.Generic;
@@ -60,7 +60,7 @@ namespace IceInternal
             }
             catch (SocketException ex)
             {
-                throw new Ice.TransportException(ex);
+                throw new TransportException(ex);
             }
             return _result.CompletedSynchronously;
         }
@@ -76,7 +76,7 @@ namespace IceInternal
                 }
                 catch (SocketException ex)
                 {
-                    _acceptError = new Ice.TransportException(ex);
+                    _acceptError = new TransportException(ex);
                 }
             }
         }

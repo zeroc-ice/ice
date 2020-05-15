@@ -1,7 +1,7 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using Ice;
+using ZeroC.Ice;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -78,11 +78,11 @@ namespace IceInternal
         {
             if (!(endpoint is IPEndPoint))
             {
-                throw new Ice.TransportException("SOCKS4 does not support domain names");
+                throw new TransportException("SOCKS4 does not support domain names");
             }
             else if (endpoint.AddressFamily != AddressFamily.InterNetwork)
             {
-                throw new Ice.TransportException("SOCKS4 only supports IPv4 addresses");
+                throw new TransportException("SOCKS4 only supports IPv4 addresses");
             }
 
             //
@@ -101,26 +101,22 @@ namespace IceInternal
             buffer.Add(data);
         }
 
-        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
-        {
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred) =>
             // Once the request is sent, read the response
-            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
-        }
+            bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
 
         // Read the SOCKS4 response whose size is 8 bytes.
         public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[8]);
 
-        public int EndRead(ref ArraySegment<byte> buffer, int offset)
-        {
+        public int EndRead(ref ArraySegment<byte> buffer, int offset) =>
             // We're done once we read the response
-            return offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
-        }
+            offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
 
         public void Finish(ArraySegment<byte> buffer)
         {
             if (buffer[0] != 0x00 || buffer[1] != 0x5a)
             {
-                throw new Ice.ConnectFailedException();
+                throw new ConnectFailedException();
             }
         }
 
@@ -130,7 +126,7 @@ namespace IceInternal
 
             // Get addresses in random order and use the first one
             IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
-                ipVersion, Ice.EndpointSelectionType.Random, false).ConfigureAwait(false);
+                ipVersion, EndpointSelectionType.Random, false).ConfigureAwait(false);
             return new SOCKSNetworkProxy(addresses.First());
         }
 
@@ -178,11 +174,9 @@ namespace IceInternal
             buffer.Add(System.Text.Encoding.ASCII.GetBytes(str.ToString()));
         }
 
-        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred)
-        {
+        public int EndWrite(IList<ArraySegment<byte>> buffer, int bytesTransferred) =>
             // Once the request is sent, read the response
-            return bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
-        }
+            bytesTransferred < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.Read;
 
         // Read the HTTP response, reserve enough space for reading at least HTTP1.1
         public ArraySegment<byte> BeginRead() => new ArraySegment<byte>(new byte[256], 0, 7);
@@ -234,7 +228,7 @@ namespace IceInternal
 
             // Get addresses in random order and use the first one
             IEnumerable<IPEndPoint> addresses = await Network.GetAddressesForClientEndpointAsync(_host, _port,
-                ipVersion, Ice.EndpointSelectionType.Random, false).ConfigureAwait(false);
+                ipVersion, EndpointSelectionType.Random, false).ConfigureAwait(false);
             return new HTTPNetworkProxy(addresses.First(), ipVersion);
         }
 

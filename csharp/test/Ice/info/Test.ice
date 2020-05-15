@@ -6,7 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[cs:namespace:Ice.info]
+[cs:namespace:ZeroC.Ice.info]
 module Test
 {
 

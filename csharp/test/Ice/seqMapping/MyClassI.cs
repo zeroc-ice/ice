@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ice.seqMapping
+namespace ZeroC.Ice.seqMapping
 {
     public sealed class MyClass : Test.IMyClass
     {
