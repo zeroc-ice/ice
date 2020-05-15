@@ -1620,7 +1620,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     if(!dataMembers.empty())
     {
-        bool optionals = false;
+        bool hasTaggedMembers = false;
         static const std::array<std::string, 18> builtinGetter =
         {
             "GetBoolean",
@@ -1648,7 +1648,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             DataMemberPtr m = *q;
             if(m->tagged() && isValueType(m->type()))
             {
-                optionals = true;
+                hasTaggedMembers = true;
                 continue;
             }
             string getter;
@@ -1675,7 +1675,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << ")!;";
         }
 
-        if(optionals)
+        if(hasTaggedMembers)
         {
             _out << nl << "foreach (var entry in info)";
             _out << sb;
