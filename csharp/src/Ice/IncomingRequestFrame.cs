@@ -49,8 +49,8 @@ namespace ZeroC.Ice
             IsIdempotent = istr.ReadOperationMode() != OperationMode.Normal;
             Context = istr.ReadContext();
             Payload = Data.Slice(istr.Pos);
-            (Encoding encoding, int size) = istr.ReadEncapsulationHeader();
-            if (size != Payload.Count)
+            (int size, Encoding encoding) = istr.ReadEncapsulationHeader();
+            if (size + 4 != Payload.Count)
             {
                 throw new InvalidDataException($"invalid request encapsulation size: {size}");
             }

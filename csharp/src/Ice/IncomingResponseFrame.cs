@@ -77,8 +77,8 @@ namespace ZeroC.Ice
             if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
             {
                 int size;
-                (Encoding, size) = InputStream.ReadEncapsulationHeader(Ice1Definitions.Encoding, Payload.AsSpan(1));
-                if (size != Payload.Count - 1)
+                (size, Encoding) = InputStream.ReadEncapsulationHeader(Ice1Definitions.Encoding, Payload.AsSpan(1));
+                if (size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
                 {
                     throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
                 }

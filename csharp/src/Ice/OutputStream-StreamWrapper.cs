@@ -21,7 +21,8 @@ namespace ZeroC.Ice
         // size. Otherwise, if the _data buffer contains fewer than 255 bytes when this class is disposed, we write the
         // sequence size as a single byte, followed by the contents of the _data buffer.
         //
-        // 2.0 encoding: we write the size on 4 bytes and the data directly into the OutputStream buffer.
+        // 2.0 encoding: we write the size on DefaultSizeLength bytes and the data directly into the OutputStream
+        // buffer.
         private sealed class StreamWrapper : Stream
         {
             public override bool CanRead => false;
@@ -46,18 +47,35 @@ namespace ZeroC.Ice
 
             public override void Flush()
             {
+                // _pos represents the size
+
                 try
                 {
                     if (_data != null)
                     {
                         Debug.Assert(_stream.OldEncoding);
                         Debug.Assert(_pos <= _data.Length);
-                        _stream.WriteSize(_pos);
+                        _stream.WriteSize(_pos); // 1 byte size length
                         _stream.WriteByteSpan(_data.AsSpan(0, _pos));
                     }
                     else
                     {
-                        _stream.RewriteSize(_pos, _startPos); // Patch previously-written dummy value.
+                        // Patch previously-written dummy value.
+
+                        if (_stream.OldEncoding)
+                        {
+                            Debug.Assert(_pos >= 255);
+                            Span<byte> data = stackalloc byte[5];
+                            data[0] = 255;
+                            OutputStream.WriteInt(_pos, data.Slice(1, 4));
+                            _stream.RewriteByteSpan(data, _startPos);
+                        }
+                        else
+                        {
+                            Span<byte> data = stackalloc byte[OutputStream.DefaultSizeLength];
+                            OutputStream.WriteFixedLength20Size(_pos, data);
+                            _stream.RewriteByteSpan(data, _startPos);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -156,8 +174,8 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    // Placeholder for a fixed-length size
-                    _stream.WriteFixedLengthSize(0);
+                    // placeholder for future size
+                    _stream.WriteByteSpan(stackalloc byte[OutputStream.DefaultSizeLength]);
                 }
             }
         }
