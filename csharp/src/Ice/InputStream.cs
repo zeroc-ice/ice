@@ -185,7 +185,7 @@ namespace ZeroC.Ice
         // See _typeIdMap.
         private int _posAfterLatestInsertedTypeId = 0;
 
-        // Unknown Sliced type-ids, we keep a set to only warn once per type-id
+        // Unknown Sliced type-ids, we keep a set of type-ids to only warn once per type-id
         private static readonly HashSet<string> _slicingIds = new HashSet<string>();
         private static readonly object _slicingIdsMutex = new object();
 

@@ -228,12 +228,8 @@ namespace IceInternal
                 var incomingResponseFrame = new IncomingResponseFrame(_adapter.Communicator, responseBuffer);
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceUtil.TraceReceivedResponse(
-                        _adapter.Communicator,
-                        incomingResponseFrame,
-                        size,
-                        requestId,
-                        compressionStatus);
+                    TraceUtil.TraceReceivedResponse(_adapter.Communicator, incomingResponseFrame, size,
+                        requestId, compressionStatus);
                 }
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {

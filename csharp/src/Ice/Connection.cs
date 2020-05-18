@@ -679,8 +679,7 @@ namespace ZeroC.Ice
                         if (_connector == null) // The server side has the active role for connection validation.
                         {
                             TraceSentAndUpdateObserver(_validateConnectionMessage.GetByteCount());
-                            TraceUtil.TraceHeader(_communicator,
-                                Ice1Definitions.FrameType.ValidateConnection,
+                            TraceUtil.TraceHeader(_communicator, Ice1Definitions.FrameType.ValidateConnection,
                                 Ice1Definitions.ValidateConnectionMessage[9],
                                 Ice1Definitions.ValidateConnectionMessage.Length,
                                 "sending ");
@@ -688,11 +687,8 @@ namespace ZeroC.Ice
                         else
                         {
                             TraceReceivedAndUpdateObserver(readBuffer.Count);
-                            TraceUtil.TraceHeader(_communicator,
-                                (Ice1Definitions.FrameType)readBuffer[8],
-                                readBuffer[9],
-                                readBuffer.Count,
-                                "received ");
+                            TraceUtil.TraceHeader(_communicator, (Ice1Definitions.FrameType)readBuffer[8],
+                                readBuffer[9], readBuffer.Count, "received ");
                         }
                     }
 
@@ -944,7 +940,7 @@ namespace ZeroC.Ice
                     {
                         // TODO: should we await on Send for the response when Send is async?
                         Send(new OutgoingMessage(Ice1Definitions.GetResponseData(response, current.RequestId),
-                             compressionStatus > 0));
+                             compressionStatus > 0, current.RequestId, response));
                     }
 
                     // Decrease the dispatch count
@@ -1704,7 +1700,7 @@ namespace ZeroC.Ice
                         else
                         {
                             TraceUtil.TraceHeader(_communicator, (Ice1Definitions.FrameType)header[8], header[9],
-                                uncompressedSize, "sending");
+                                uncompressedSize, "sending ");
                         }
                     }
                 }
@@ -1798,10 +1794,12 @@ namespace ZeroC.Ice
         private class OutgoingMessage
         {
             internal OutgoingMessage(List<ArraySegment<byte>> requestData, bool compress,
+                int requestId = 0,
                 OutgoingResponseFrame? responseFrame = null)
             {
                 OutgoingData = requestData;
                 Compress = compress;
+                RequestId = requestId;
                 ResponseFrame = responseFrame;
             }
 
@@ -1812,7 +1810,7 @@ namespace ZeroC.Ice
                 OutgoingData = data;
                 Compress = compress;
                 RequestId = requestId;
-                RequestFrame = ((ProxyOutgoingAsyncBase)outgoing).RequestFrame;
+                RequestFrame = (outgoing as ProxyOutgoingAsyncBase)?.RequestFrame;
             }
 
             internal List<ArraySegment<byte>>? OutgoingData;
