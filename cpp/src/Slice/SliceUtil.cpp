@@ -454,8 +454,8 @@ Slice::splitScopedName(const string& scoped)
     return ids;
 }
 
-void
-Slice::checkIdentifier(const string& id)
+bool
+Slice::checkIdentifier(const string& id, const std::string& typeName)
 {
     // check whether the identifier is scoped
     size_t scopeIndex = id.rfind("::");
@@ -470,13 +470,15 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
+    bool isValid = true;
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
         if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
         {
-            unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+            unit->error("illegal " + typeName + " identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+            isValid = false;
         }
     }
 
@@ -484,15 +486,18 @@ Slice::checkIdentifier(const string& id)
     size_t index = name.find('_');
     if(index == 0)
     {
-        unit->error("illegal leading underscore in identifier `" + name + "'");
+        unit->error("illegal leading underscore in " + typeName + " identifier `" + name + "'");
+        isValid = false;
     }
     else if(name.rfind('_') == (name.size() - 1))
     {
-        unit->error("illegal trailing underscore in identifier `" + name + "'");
+        unit->error("illegal trailing underscore in " + typeName + " identifier `" + name + "'");
+        isValid = false;
     }
     else if(name.find("__") != string::npos)
     {
-        unit->error("illegal double underscore in identifier `" + name + "'");
+        unit->error("illegal double underscore in " + typeName + " identifier `" + name + "'");
+        isValid = false;
     }
     else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
     {
@@ -500,7 +505,8 @@ Slice::checkIdentifier(const string& id)
         assert(dc);
         if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
         {
-            unit->error("illegal underscore in identifier `" + name + "'");
+            unit->error("illegal underscore in " + typeName + " identifier `" + name + "'");
+            isValid = false;
         }
     }
 
@@ -513,10 +519,13 @@ Slice::checkIdentifier(const string& id)
         {
             if(ciequals(name.substr(0, 3), "ice"))
             {
-                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+                unit->error("illegal " + typeName + " identifier `" + name + "': `" + name.substr(0, 3) +
+                            "' prefix is reserved");
+                isValid = false;
             }
         }
     }
+    return isValid;
 }
 
 bool

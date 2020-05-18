@@ -543,7 +543,6 @@ public:
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
-    bool nameIsLegal(const std::string&, const char *);
     bool checkForGlobalDef(const std::string&, const char *);
 
 protected:

@@ -1211,7 +1211,7 @@ Slice::Container::createModule(const string& name)
         }
     }
 
-    if(!nameIsLegal(name, "module"))
+    if(!checkIdentifier(name, "module"))
     {
         return 0;
     }
@@ -1278,7 +1278,7 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
         return 0;
     }
 
-    if(!nameIsLegal(name, intf ? "interface" : "class"))
+    if(!checkIdentifier(name, intf ? "interface" : "class"))
     {
         return 0;
     }
@@ -1358,7 +1358,7 @@ Slice::Container::createClassDecl(const string& name, bool intf)
         }
     }
 
-    if(!nameIsLegal(name, intf ? "interface" : "class"))
+    if(!checkIdentifier(name, intf ? "interface" : "class"))
     {
         return 0;
     }
@@ -1429,7 +1429,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         return 0;
     }
 
-    nameIsLegal(name, "exception"); // Don't return here -- we create the exception anyway
+    checkIdentifier(name, "exception"); // Don't return here -- we create the exception anyway
 
     if(nt == Real)
     {
@@ -1471,7 +1471,7 @@ Slice::Container::createStruct(const string& name, NodeType nt)
         return 0;
     }
 
-    nameIsLegal(name, "structure"); // Don't return here -- we create the struct anyway.
+    checkIdentifier(name, "structure"); // Don't return here -- we create the struct anyway.
 
     if(nt == Real)
     {
@@ -1514,7 +1514,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         return 0;
     }
 
-    nameIsLegal(name, "sequence"); // Don't return here -- we create the sequence anyway.
+    checkIdentifier(name, "sequence"); // Don't return here -- we create the sequence anyway.
 
     if(nt == Real)
     {
@@ -1559,7 +1559,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         return 0;
     }
 
-    nameIsLegal(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
+    checkIdentifier(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
 
     if(nt == Real)
     {
@@ -1617,7 +1617,7 @@ Slice::Container::createEnum(const string& name, NodeType nt)
         return 0;
     }
 
-    nameIsLegal(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
+    checkIdentifier(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
 
     if(nt == Real)
     {
@@ -1685,7 +1685,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
         return 0;
     }
 
-    nameIsLegal(name, "constant"); // Don't return here -- we create the constant anyway.
+    checkIdentifier(name, "constant"); // Don't return here -- we create the constant anyway.
 
     if(nt == Real)
     {
@@ -2775,70 +2775,6 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 }
 
 bool
-Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
-{
-    checkIdentifier(newName);
-
-    //
-    // Check whether the enclosing module has the same name.
-    //
-    ModulePtr module = ModulePtr::dynamicCast(this);
-    if(module)
-    {
-        if(newName == module->name())
-        {
-            string msg = newConstruct;
-            msg += " name `" + newName + "' must differ from the name of its immediately enclosing module";
-            _unit->error(msg);
-            return false;
-        }
-
-        string name = IceUtilInternal::toLower(newName);
-        string thisName = IceUtilInternal::toLower(module->name());
-        if(name == thisName)
-        {
-            string msg = newConstruct;
-            msg += " name `" + name + "' cannot differ only in capitalization from its immediately enclosing "
-                   "module name `" + module->name() + "'";
-            _unit->error(msg);
-            return false;
-        }
-
-        module = ModulePtr::dynamicCast(module->container()); // Get enclosing module for test below.
-    }
-
-    //
-    // Check whether any of the enclosing modules have the same name.
-    //
-    while(module)
-    {
-        if(newName == module->name())
-        {
-            string msg = newConstruct;
-            msg += " name `" + newName + "' must differ from the name of enclosing module `" + module->name()
-                   + "' (first defined at " + module->file() + ":" + module->line() + ")";
-            _unit->error(msg);
-            return false;
-        }
-
-        string name = IceUtilInternal::toLower(newName);
-        string thisName = IceUtilInternal::toLower(module->name());
-        if(name == thisName)
-        {
-            string msg = newConstruct;
-            msg += " name `" + name + "' cannot differ only in capitalization from enclosing module `"
-                   + module->name() + "' (first defined at " + module->file() + ":" + module->line() + ")";
-            _unit->error(msg);
-            return false;
-        }
-
-        module = ModulePtr::dynamicCast(module->container());
-    }
-
-    return true;
-}
-
-bool
 Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct)
 {
     if(dynamic_cast<Unit*>(this) && strcmp(newConstruct, "module"))
@@ -3243,7 +3179,7 @@ Slice::Container::validateEnumerator(const string& name)
         }
     }
 
-    nameIsLegal(name, "enumerator"); // Ignore return value.
+    checkIdentifier(name, "enumerator"); // Ignore return value.
     return 0;
 }
 
