@@ -21,11 +21,11 @@ namespace ZeroC.Ice
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; }
 
-        /// <summary>The frame byte count.</summary>
-        public int Size => Payload.Count;
-
         /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus { get; }
+
+        /// <summary>The frame byte count.</summary>
+        public int Size => Payload.Count;
 
         private readonly Communicator _communicator;
 

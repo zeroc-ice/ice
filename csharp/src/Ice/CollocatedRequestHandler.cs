@@ -157,7 +157,7 @@ namespace IceInternal
                         Span<byte> header = stackalloc byte[Ice1Definitions.HeaderSize + 4];
                         OutputStream.WriteInt(Ice1Definitions.HeaderSize + 4 + frame.Size, header.Slice(10));
                         OutputStream.WriteInt(requestId, header.Slice(Ice1Definitions.HeaderSize));
-                        TraceUtil.TraceFrame(communicator, header, frame);
+                        ProtocolTrace.TraceFrame(communicator, header, frame);
                     }
                 }
 
@@ -233,7 +233,7 @@ namespace IceInternal
                 var incomingResponseFrame = new IncomingResponseFrame(_adapter.Communicator, responseBuffer);
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceUtil.TraceFrame(_adapter.Communicator, header, incomingResponseFrame);
+                    ProtocolTrace.TraceFrame(_adapter.Communicator, header, incomingResponseFrame);
                 }
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {

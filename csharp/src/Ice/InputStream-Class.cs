@@ -529,15 +529,8 @@ namespace ZeroC.Ice
             if (Communicator.TraceLevels.Slicing > 0)
             {
                 string typeId = _current.SliceTypeId ?? "";
-                lock (_slicingIdsMutex)
-                {
-                    if (_slicingIds.Add(typeId))
-                    {
-                        string slicingCategory = Communicator.TraceLevels.SlicingCat;
-                        string kind = _current.InstanceType == InstanceType.Exception ? "exception" : "object";
-                        Communicator.Logger.Trace(slicingCategory, $"unknown {kind} type `{typeId}'");
-                    }
-                }
+                string kind = _current.InstanceType == InstanceType.Exception ? "exception" : "object";
+                Communicator.Logger.Trace(Communicator.TraceLevels.SlicingCat, $"unknown {kind} type `{typeId}'");
             }
 
             int start = _pos;

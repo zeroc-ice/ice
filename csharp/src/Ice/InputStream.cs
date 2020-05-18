@@ -185,10 +185,6 @@ namespace ZeroC.Ice
         // See _typeIdMap.
         private int _posAfterLatestInsertedTypeId = 0;
 
-        // Unknown Sliced type-ids, we keep a set of type-ids to only warn once per type-id
-        private static readonly HashSet<string> _slicingIds = new HashSet<string>();
-        private static readonly object _slicingIdsMutex = new object();
-
         // Map of type ID index to type ID string.
         // When reading a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
         // read, in order. Since this map is a list, we lookup a previously assigned type ID string with
