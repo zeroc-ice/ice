@@ -64,17 +64,17 @@ IdentAsKeywordUnderscore.ice:76: `i8': an interface can be defined only at modul
 IdentAsKeywordUnderscore.ice:78: `i9': an interface can be defined only at module scope
 IdentAsKeywordUnderscore.ice:79: `i10': an interface can be defined only at module scope
 IdentAsKeywordUnderscore.ice:81: `true': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:83: illegal leading underscore in interface identifier `_a'
+IdentAsKeywordUnderscore.ice:83: illegal leading underscore in identifier `_a'
 IdentAsKeywordUnderscore.ice:83: `_a': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:84: illegal leading underscore in interface identifier `_true'
+IdentAsKeywordUnderscore.ice:84: illegal leading underscore in identifier `_true'
 IdentAsKeywordUnderscore.ice:84: `_true': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:85: illegal leading underscore in interface identifier `_true'
+IdentAsKeywordUnderscore.ice:85: illegal leading underscore in identifier `_true'
 IdentAsKeywordUnderscore.ice:85: `_true': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:87: illegal trailing underscore in interface identifier `b_'
+IdentAsKeywordUnderscore.ice:87: illegal trailing underscore in identifier `b_'
 IdentAsKeywordUnderscore.ice:87: `b_': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:89: illegal double underscore in interface identifier `b__c'
+IdentAsKeywordUnderscore.ice:89: illegal double underscore in identifier `b__c'
 IdentAsKeywordUnderscore.ice:89: `b__c': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:90: illegal double underscore in interface identifier `b___c'
+IdentAsKeywordUnderscore.ice:90: illegal double underscore in identifier `b___c'
 IdentAsKeywordUnderscore.ice:90: `b___c': an interface can be defined only at module scope
 IdentAsKeywordUnderscore.ice:92: `a_b': an interface can be defined only at module scope
 IdentAsKeywordUnderscore.ice:93: `a_b_c': an interface can be defined only at module scope

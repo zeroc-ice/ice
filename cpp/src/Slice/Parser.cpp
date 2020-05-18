@@ -1211,7 +1211,7 @@ Slice::Container::createModule(const string& name)
         }
     }
 
-    if(!checkIdentifier(name, "module"))
+    if(!checkIdentifier(name))
     {
         return 0;
     }
@@ -1278,7 +1278,7 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name, intf ? "interface" : "class");
+    bool isIllegal = !checkIdentifier(name);
     isIllegal |= !checkForGlobalDef(name, intf ? "interface" : "class");
     if(isIllegal)
     {
@@ -1355,7 +1355,7 @@ Slice::Container::createClassDecl(const string& name, bool intf)
         }
     }
 
-    bool isIllegal = !checkIdentifier(name, intf ? "interface" : "class");
+    bool isIllegal = !checkIdentifier(name);
     isIllegal |= !checkForGlobalDef(name, intf ? "interface" : "class");
     if(isIllegal)
     {
@@ -1423,7 +1423,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         return 0;
     }
 
-    checkIdentifier(name, "exception"); // Don't return here -- we create the exception anyway
+    checkIdentifier(name); // Don't return here -- we create the exception anyway
 
     if(nt == Real)
     {
@@ -1465,7 +1465,7 @@ Slice::Container::createStruct(const string& name, NodeType nt)
         return 0;
     }
 
-    checkIdentifier(name, "structure"); // Don't return here -- we create the struct anyway.
+    checkIdentifier(name); // Don't return here -- we create the struct anyway.
 
     if(nt == Real)
     {
@@ -1508,7 +1508,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         return 0;
     }
 
-    checkIdentifier(name, "sequence"); // Don't return here -- we create the sequence anyway.
+    checkIdentifier(name); // Don't return here -- we create the sequence anyway.
 
     if(nt == Real)
     {
@@ -1553,7 +1553,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         return 0;
     }
 
-    checkIdentifier(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
+    checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
 
     if(nt == Real)
     {
@@ -1611,7 +1611,7 @@ Slice::Container::createEnum(const string& name, NodeType nt)
         return 0;
     }
 
-    checkIdentifier(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
+    checkIdentifier(name); // Don't return here -- we create the enumeration anyway.
 
     if(nt == Real)
     {
@@ -1679,7 +1679,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
         return 0;
     }
 
-    checkIdentifier(name, "constant"); // Don't return here -- we create the constant anyway.
+    checkIdentifier(name); // Don't return here -- we create the constant anyway.
 
     if(nt == Real)
     {
@@ -3173,7 +3173,7 @@ Slice::Container::validateEnumerator(const string& name)
         }
     }
 
-    checkIdentifier(name, "enumerator"); // Ignore return value.
+    checkIdentifier(name); // Ignore return value.
     return 0;
 }
 
