@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -10,37 +11,63 @@ namespace ZeroC.Ice
 {
     internal static class TraceUtil
     {
-        internal static void TraceSendRequest(Communicator communicator, OutgoingRequestFrame request, int size,
-            int requestId, byte compress) =>
-            TraceRequest("sending request", communicator, size, requestId, compress, request.Identity,
-                request.Facet,
-                request.Operation,
-                request.IsIdempotent ? OperationMode.Idempotent : OperationMode.Normal,
-                request.Context,
-                request.Encoding);
+        internal static void TraceFrame(Communicator communicator, Span<byte> header, OutgoingRequestFrame frame) =>
+            TraceRequest(
+                "sending request",
+                communicator,
+                header,
+                frame.Identity,
+                frame.Facet,
+                frame.Operation,
+                frame.IsIdempotent,
+                frame.Context,
+                frame.Encoding);
 
-        internal static void TraceReceivedRequest(Communicator communicator,
-            IncomingRequestFrame request, int size, int requestId, byte compress) =>
-            TraceRequest("received request", communicator, size, requestId, compress, request.Identity,
-                request.Facet,
-                request.Operation,
-                request.IsIdempotent ? OperationMode.Idempotent : OperationMode.Normal,
-                request.Context, request.Encoding);
+        internal static void TraceFrame(Communicator communicator, Span<byte> header, OutgoingResponseFrame frame) =>
+            TraceResponse(
+                "sending response",
+                communicator,
+                header,
+                frame.ReplyStatus,
+                frame.Encoding);
 
-        private static void TraceRequest(string heading, Communicator communicator, int size, int requestId,
-            byte compress, Identity identity, string facet, string operation, OperationMode mode,
-            IReadOnlyDictionary<string, string> context, Encoding encoding)
+        internal static void TraceFrame(Communicator communicator, Span<byte> header, IncomingRequestFrame frame) =>
+            TraceRequest(
+                "received request",
+                communicator,
+                header,
+                frame.Identity,
+                frame.Facet,
+                frame.Operation,
+                frame.IsIdempotent,
+                frame.Context,
+                frame.Encoding);
+
+        internal static void TraceFrame(Communicator communicator, Span<byte> header, IncomingResponseFrame frame) =>
+            TraceResponse(
+                "received response",
+                communicator,
+                header,
+                frame.ReplyStatus,
+                frame.Encoding);
+
+        private static void TraceRequest(
+            string heading,
+            Communicator communicator,
+            Span<byte> header,
+            Identity identity,
+            string facet,
+            string operation,
+            bool isIdempotent,
+            IReadOnlyDictionary<string, string> context,
+            Encoding encoding)
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 using var s = new StringWriter(CultureInfo.CurrentCulture);
                 s.Write(heading);
-                PrintFrameHeader(Ice1Definitions.FrameType.Request, compress, size, s);
-                s.Write("\nrequest id = " + requestId);
-                if (requestId == 0)
-                {
-                    s.Write(" (oneway)");
-                }
+                PrintHeader(header, s);
+                PrintRequestId(header, s);
 
                 ToStringMode toStringMode = communicator.ToStringMode;
                 s.Write("\nidentity = ");
@@ -55,6 +82,7 @@ namespace ZeroC.Ice
                 s.Write("\noperation = ");
                 s.Write(operation);
 
+                OperationMode mode = isIdempotent ? OperationMode.Idempotent : OperationMode.Normal;
                 s.Write("\noperation mode = ");
                 s.Write((byte)mode);
                 s.Write(mode switch
@@ -81,30 +109,19 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static void TraceSendResponse(Communicator communicator, OutgoingResponseFrame response,
-            int size, int requestId, byte compress) =>
-            TraceResponse("sending reply", communicator, size, requestId, compress, response.ReplyStatus,
-                response.Encoding);
-
-        internal static void TraceReceivedResponse(Communicator communicator, IncomingResponseFrame response,
-            int size, int requestId, byte compress) =>
-            TraceResponse("received reply", communicator, size, requestId, compress, response.ReplyStatus,
-                response.Encoding);
-
-        internal static void TraceResponse(string heading, Communicator communicator, int size, int requestId,
-            byte compress, ReplyStatus replyStatus, Encoding encoding)
+        private static void TraceResponse(
+            string heading,
+            Communicator communicator,
+            Span<byte> header,
+            ReplyStatus replyStatus,
+            Encoding encoding)
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 using var s = new StringWriter(CultureInfo.CurrentCulture);
                 s.Write(heading);
-                PrintFrameHeader(Ice1Definitions.FrameType.Reply, compress, size, s);
-                s.Write("\nrequest id = ");
-                s.Write(requestId);
-                if (requestId == 0)
-                {
-                    s.Write(" (oneway)");
-                }
+                PrintHeader(header, s);
+                PrintRequestId(header, s);
                 s.Write("\nreply status = ");
                 s.Write(replyStatus);
                 s.Write("\nencoding = ");
@@ -113,24 +130,30 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static void TraceHeader(Communicator communicator, Ice1Definitions.FrameType type, byte compress,
-            int size, string heading)
+        internal static void TraceSend(Communicator communicator, Span<byte> header) =>
+            Trace("sending ", communicator, header);
+
+        internal static void TraceReceived(Communicator communicator, Span<byte> header) =>
+            Trace("received ", communicator, header);
+
+        internal static void Trace(string heading, Communicator communicator, Span<byte> header)
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 using var s = new StringWriter(CultureInfo.CurrentCulture);
                 s.Write(heading);
-                s.Write(GetFrameTypeAsString(type));
-                PrintFrameHeader(type, compress, size, s);
+                s.Write(GetFrameTypeAsString((Ice1Definitions.FrameType)header[8]));
+                PrintHeader(header, s);
                 communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
             }
         }
 
-        private static void PrintFrameHeader(Ice1Definitions.FrameType type, byte compress, int size, StringWriter s)
+        private static void PrintHeader(Span<byte> header, StringWriter s)
         {
+            byte messageType = header[8];
             s.Write("\nmessage type = ");
-            s.Write((byte)type);
-            s.Write(type switch
+            s.Write(messageType);
+            s.Write((Ice1Definitions.FrameType)messageType switch
             {
                 Ice1Definitions.FrameType.Request => " (request)",
                 Ice1Definitions.FrameType.RequestBatch => " (batch request)",
@@ -140,6 +163,7 @@ namespace ZeroC.Ice
                 _ => " (unknown)"
             });
 
+            byte compress = header[9];
             s.Write("\ncompression status = ");
             s.Write(compress);
             s.Write(compress switch
@@ -151,7 +175,18 @@ namespace ZeroC.Ice
             });
 
             s.Write("\nmessage size = ");
-            s.Write(size);
+            s.Write(InputStream.ReadInt(header.Slice(10, 4)));
+        }
+
+        private static void PrintRequestId(Span<byte> header, StringWriter s)
+        {
+            int requestId = InputStream.ReadInt(header.Slice(Ice1Definitions.HeaderSize, 4));
+            s.Write("\nrequest id = ");
+            s.Write(requestId);
+            if (requestId == 0)
+            {
+                s.Write(" (oneway)");
+            }
         }
 
         private static string GetFrameTypeAsString(Ice1Definitions.FrameType type)

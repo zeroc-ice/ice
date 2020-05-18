@@ -679,16 +679,12 @@ namespace ZeroC.Ice
                         if (_connector == null) // The server side has the active role for connection validation.
                         {
                             TraceSentAndUpdateObserver(_validateConnectionMessage.GetByteCount());
-                            TraceUtil.TraceHeader(_communicator, Ice1Definitions.FrameType.ValidateConnection,
-                                Ice1Definitions.ValidateConnectionMessage[9],
-                                Ice1Definitions.ValidateConnectionMessage.Length,
-                                "sending ");
+                            TraceUtil.TraceSend(_communicator, Ice1Definitions.ValidateConnectionMessage);
                         }
                         else
                         {
                             TraceReceivedAndUpdateObserver(readBuffer.Count);
-                            TraceUtil.TraceHeader(_communicator, (Ice1Definitions.FrameType)readBuffer[8],
-                                readBuffer[9], readBuffer.Count, "received ");
+                            TraceUtil.TraceReceived(_communicator, readBuffer);
                         }
                     }
 
@@ -1098,7 +1094,7 @@ namespace ZeroC.Ice
                 {
                     case Ice1Definitions.FrameType.CloseConnection:
                     {
-                        TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size, "received ");
+                        TraceUtil.TraceReceived(_communicator, readBuffer);
                         if (Endpoint.IsDatagram)
                         {
                             if (_warn)
@@ -1119,15 +1115,17 @@ namespace ZeroC.Ice
                     {
                         if (_state >= State.Closing)
                         {
-                            TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size,
-                                "received request during closing\n(ignored by server, client will retry)");
+                            TraceUtil.Trace(
+                                "received request during closing\n(ignored by server, client will retry)",
+                                _communicator,
+                                readBuffer);
                         }
                         else
                         {
                             readBuffer = readBuffer.Slice(Ice1Definitions.HeaderSize);
                             int requestId = InputStream.ReadInt(readBuffer.AsSpan(0, 4));
                             var request = new IncomingRequestFrame(_communicator, readBuffer.Slice(4));
-                            TraceUtil.TraceReceivedRequest(_communicator, request, size, requestId, compressionStatus);
+                            TraceUtil.TraceFrame(_communicator, readBuffer, request);
                             if (_adapter == null)
                             {
                                 throw new ObjectNotExistException(request.Identity, request.Facet,
@@ -1148,12 +1146,14 @@ namespace ZeroC.Ice
                     {
                         if (_state >= State.Closing)
                         {
-                            TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size,
-                                "received batch request during closing\n(ignored by server, client will retry)");
+                            TraceUtil.Trace(
+                                "received batch request during closing\n(ignored by server, client will retry)",
+                                _communicator,
+                                readBuffer);
                         }
                         else
                         {
-                            TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size, "received ");
+                            TraceUtil.TraceReceived(_communicator, readBuffer);
                             int invokeNum = InputStream.ReadInt(readBuffer.AsSpan(Ice1Definitions.HeaderSize, 4));
                             if (invokeNum < 0)
                             {
@@ -1167,11 +1167,11 @@ namespace ZeroC.Ice
 
                     case Ice1Definitions.FrameType.Reply:
                     {
+                        ArraySegment<byte> header = readBuffer.Slice(0, Ice1Definitions.HeaderSize + 4);
                         readBuffer = readBuffer.Slice(Ice1Definitions.HeaderSize);
                         int requestId = InputStream.ReadInt(readBuffer.AsSpan(0, 4));
                         var responseFrame = new IncomingResponseFrame(_communicator, readBuffer.Slice(4));
-                        TraceUtil.TraceReceivedResponse(_communicator, responseFrame, size, requestId,
-                            compressionStatus);
+                        TraceUtil.TraceFrame(_communicator, header, responseFrame);
                         if (_requests.TryGetValue(requestId, out OutgoingAsyncBase? outAsync))
                         {
                             _requests.Remove(requestId);
@@ -1191,7 +1191,7 @@ namespace ZeroC.Ice
 
                     case Ice1Definitions.FrameType.ValidateConnection:
                     {
-                        TraceUtil.TraceHeader(_communicator, messageType, readBuffer[9], readBuffer.Count, "received ");
+                        TraceUtil.TraceReceived(_communicator, readBuffer);
                         if (_heartbeatCallback != null)
                         {
                             var callback = _heartbeatCallback;
@@ -1213,8 +1213,9 @@ namespace ZeroC.Ice
 
                     default:
                     {
-                        TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size,
-                            "received unknown message\n(invalid, closing connection)");
+                        TraceUtil.Trace("received unknown message\n(invalid, closing connection)",
+                            _communicator,
+                            readBuffer);
                         throw new InvalidDataException(
                             $"received ice1 frame with unknown message type `{messageType}'");
                     }
@@ -1689,18 +1690,15 @@ namespace ZeroC.Ice
                         ArraySegment<byte> header = writeBuffer[0];
                         if (message.RequestFrame != null)
                         {
-                            TraceUtil.TraceSendRequest(_communicator, message.RequestFrame, uncompressedSize,
-                                message.RequestId, header[9]);
+                            TraceUtil.TraceFrame(_communicator, header, message.RequestFrame);
                         }
                         else if (message.ResponseFrame != null)
                         {
-                            TraceUtil.TraceSendResponse(_communicator, message.ResponseFrame, uncompressedSize,
-                                message.RequestId, header[9]);
+                            TraceUtil.TraceFrame(_communicator, header, message.ResponseFrame);
                         }
                         else
                         {
-                            TraceUtil.TraceHeader(_communicator, (Ice1Definitions.FrameType)header[8], header[9],
-                                uncompressedSize, "sending ");
+                            TraceUtil.TraceSend(_communicator, header);
                         }
                     }
                 }

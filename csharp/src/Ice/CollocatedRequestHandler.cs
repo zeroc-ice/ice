@@ -151,8 +151,14 @@ namespace IceInternal
             {
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceUtil.TraceSendRequest(_adapter.Communicator, outgoingRequest,
-                        outgoingRequest.Size + Ice1Definitions.HeaderSize + 4, requestId, 0);
+                    TraceFrame(_adapter.Communicator, requestId, outgoingRequest);
+                    static void TraceFrame(Communicator communicator, int requestId, OutgoingRequestFrame frame)
+                    {
+                        Span<byte> header = stackalloc byte[Ice1Definitions.HeaderSize + 4];
+                        OutputStream.WriteInt(Ice1Definitions.HeaderSize + 4 + frame.Size, header.Slice(10));
+                        OutputStream.WriteInt(requestId, header.Slice(Ice1Definitions.HeaderSize));
+                        TraceUtil.TraceFrame(communicator, header, frame);
+                    }
                 }
 
                 var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
@@ -222,14 +228,12 @@ namespace IceInternal
             {
                 var responseBuffer = new ArraySegment<byte>(VectoredBufferExtensions.ToArray(
                         Ice1Definitions.GetResponseData(outgoingResponseFrame, requestId)));
-                byte compressionStatus = responseBuffer[9];
-                int size = InputStream.ReadInt(responseBuffer.AsSpan(10, 4));
+                ArraySegment<byte> header = responseBuffer.Slice(0, Ice1Definitions.HeaderSize + 4);
                 responseBuffer = responseBuffer.Slice(Ice1Definitions.HeaderSize + 4);
                 var incomingResponseFrame = new IncomingResponseFrame(_adapter.Communicator, responseBuffer);
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceUtil.TraceReceivedResponse(_adapter.Communicator, incomingResponseFrame, size,
-                        requestId, compressionStatus);
+                    TraceUtil.TraceFrame(_adapter.Communicator, header, incomingResponseFrame);
                 }
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
