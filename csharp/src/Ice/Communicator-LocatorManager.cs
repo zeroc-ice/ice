@@ -592,9 +592,12 @@ namespace ZeroC.Ice
             }
             else
             {
-                if (proxy != null && !proxy.IceReference.IsWellKnown)
+                if (proxy != null && !proxy.IceReference.IsWellKnown &&
+                    proxy.IceReference.Encoding == reference.Encoding)
                 {
-                    // Cache the well-known object reference.
+                    // Cache the well-known object reference. We only add proxies to the cache which support
+                    // the requested encoding. Unlike adapter IDs, the locator might return proxies with an
+                    // incompatible encoding.
                     _table.AddObjectReference(reference.Identity, proxy.IceReference);
                 }
                 else if (notRegistered) // If the well-known object isn't registered anymore, remove it from the cache.
