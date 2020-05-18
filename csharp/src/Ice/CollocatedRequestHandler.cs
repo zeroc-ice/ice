@@ -152,6 +152,9 @@ namespace IceInternal
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
                     TraceFrame(_adapter.Communicator, requestId, outgoingRequest);
+                    // TODO this local method is required to use stackalloc, we can refactor InvokeAllAsync to
+                    // not be async and use a local async function for the await, or allow to pass size, requestId
+                    // directry to TraceFrame without need to allocate a header.
                     static void TraceFrame(Communicator communicator, int requestId, OutgoingRequestFrame frame)
                     {
                         Span<byte> header = stackalloc byte[Ice1Definitions.HeaderSize + 4];
