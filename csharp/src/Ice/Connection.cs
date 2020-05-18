@@ -633,7 +633,7 @@ namespace ZeroC.Ice
                         int offset = 0;
                         while (offset < _validateConnectionMessage.GetByteCount())
                         {
-                            var writeTask = _transceiver.WriteAsync(_validateConnectionMessage, offset);
+                            ValueTask<int> writeTask = _transceiver.WriteAsync(_validateConnectionMessage, offset);
                             await AwaitWithTimeout(writeTask.AsTask(), timeout).ConfigureAwait(false);
                             offset += writeTask.Result;
                         }
@@ -645,7 +645,7 @@ namespace ZeroC.Ice
                         int offset = 0;
                         while (offset < Ice1Definitions.HeaderSize)
                         {
-                            var readTask = _transceiver.ReadAsync(readBuffer, offset);
+                            ValueTask<int> readTask = _transceiver.ReadAsync(readBuffer, offset);
                             await AwaitWithTimeout(readTask.AsTask(), timeout).ConfigureAwait(false);
                             offset += readTask.Result;
                         }
@@ -1178,7 +1178,11 @@ namespace ZeroC.Ice
 
                             if (outAsync.Response(responseFrame))
                             {
-                                incoming = () => { outAsync.InvokeResponse(); return default; };
+                                incoming = () =>
+                                {
+                                    outAsync.InvokeResponse();
+                                    return default;
+                                };
                             }
 
                             if (_requests.Count == 0)
@@ -1194,7 +1198,7 @@ namespace ZeroC.Ice
                         ProtocolTrace.TraceReceived(_communicator, readBuffer);
                         if (_heartbeatCallback != null)
                         {
-                            var callback = _heartbeatCallback;
+                            Action<Connection> callback = _heartbeatCallback;
                             incoming = () =>
                             {
                                 try

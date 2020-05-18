@@ -507,7 +507,7 @@ namespace ZeroC.Ice
                             throw new InvalidDataException("size of slice missing");
                         }
                         int sliceSize = ReadSliceSize();
-                        _pos = _pos + sliceSize;
+                        _pos += sliceSize;
 
                         // If this slice has an indirection table, skip it too
                         if ((sliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)

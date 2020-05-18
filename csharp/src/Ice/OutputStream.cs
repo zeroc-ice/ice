@@ -1004,7 +1004,7 @@ namespace ZeroC.Ice
             if (v is T value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
-                var pos = StartFixedLengthSize();
+                Position pos = StartFixedLengthSize();
                 value.IceWrite(this);
                 EndFixedLengthSize(pos);
             }
@@ -1099,7 +1099,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                var startPos = _tail;
+                Position startPos = _tail;
                 WriteEncapsulationHeader(0, Encoding, sizeLength); // 0 is a placeholder for the size
                 endpoint.IceWritePayload(this);
                 RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
