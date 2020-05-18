@@ -1278,12 +1278,9 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
         return 0;
     }
 
-    if(!checkIdentifier(name, intf ? "interface" : "class"))
-    {
-        return 0;
-    }
-
-    if(!checkForGlobalDef(name, intf ? "interface" : "class"))
+    bool isIllegal = !checkIdentifier(name, intf ? "interface" : "class");
+    isIllegal |= !checkForGlobalDef(name, intf ? "interface" : "class");
+    if(isIllegal)
     {
         return 0;
     }
@@ -1358,12 +1355,9 @@ Slice::Container::createClassDecl(const string& name, bool intf)
         }
     }
 
-    if(!checkIdentifier(name, intf ? "interface" : "class"))
-    {
-        return 0;
-    }
-
-    if(!checkForGlobalDef(name, intf ? "interface" : "class"))
+    bool isIllegal = !checkIdentifier(name, intf ? "interface" : "class");
+    isIllegal |= !checkForGlobalDef(name, intf ? "interface" : "class");
+    if(isIllegal)
     {
         return 0;
     }

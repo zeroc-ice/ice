@@ -18,5 +18,3 @@ Reserved.ice:40: illegal module identifier `Ice': `Ice' prefix is reserved
 Reserved.ice:41: illegal module identifier `IceFoo': `Ice' prefix is reserved
 Reserved.ice:44: illegal module identifier `iceberg': `ice' prefix is reserved
 Reserved.ice:45: illegal module identifier `aPtr': `Ptr' suffix is reserved
-Reserved.ice:45: illegal module identifier `bPrx': `Prx' suffix is reserved
-Reserved.ice:45: illegal module identifier `cHelper': `Helper' suffix is reserved
