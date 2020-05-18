@@ -2,316 +2,156 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     internal static class TraceUtil
     {
-        internal static void TraceSend(Communicator communicator, IList<System.ArraySegment<byte>> buffer)
+        internal static void TraceSendRequest(Communicator communicator, OutgoingRequestFrame request, int size,
+            int requestId, byte compress) =>
+            TraceRequest("sending request", communicator, size, requestId, compress, request.Identity,
+                request.Facet,
+                request.Operation,
+                request.IsIdempotent ? OperationMode.Idempotent : OperationMode.Normal,
+                request.Context,
+                request.Encoding);
+
+        internal static void TraceReceivedRequest(Communicator communicator,
+            IncomingRequestFrame request, int size, int requestId, byte compress) =>
+            TraceRequest("received request", communicator, size, requestId, compress, request.Identity,
+                request.Facet,
+                request.Operation,
+                request.IsIdempotent ? OperationMode.Idempotent : OperationMode.Normal,
+                request.Context, request.Encoding);
+
+        private static void TraceRequest(string heading, Communicator communicator, int size, int requestId,
+            byte compress, Identity identity, string facet, string operation, OperationMode mode,
+            IReadOnlyDictionary<string, string> context, Encoding encoding)
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
-                var iss = new InputStream(communicator, Ice1Definitions.Encoding,
-                    buffer.GetSegment(0, buffer.GetByteCount()).Array!);
-
-                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
-                Ice1Definitions.FrameType type = PrintMessage(s, iss);
-
-                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat,
-                    "sending " + GetFrameTypeAsString(type) + " " + s.ToString());
-            }
-        }
-
-        internal static void TraceRecv(Communicator communicator, System.ArraySegment<byte> buffer)
-        {
-            if (communicator.TraceLevels.Protocol >= 1)
-            {
-                var iss = new InputStream(communicator, Ice1Definitions.Encoding, buffer);
-
-                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
-                Ice1Definitions.FrameType type = PrintMessage(s, iss);
-
-                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat,
-                    "received " + GetFrameTypeAsString(type) + " " + s.ToString());
-            }
-        }
-
-        internal static void Trace(string heading, Communicator communicator, System.ArraySegment<byte> buffer)
-        {
-            if (communicator.TraceLevels.Protocol >= 1)
-            {
-                var iss = new InputStream(communicator, Ice1Definitions.Encoding, buffer);
-
-                using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
+                using var s = new StringWriter(CultureInfo.CurrentCulture);
                 s.Write(heading);
-                PrintMessage(s, iss);
-
-                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
-            }
-        }
-
-        private static readonly HashSet<string> _slicingIds = new HashSet<string>();
-
-        internal static void TraceSlicing(string kind, string typeId, string slicingCat, ILogger logger)
-        {
-            lock (_mutex)
-            {
-                if (_slicingIds.Add(typeId))
+                PrintFrameHeader(Ice1Definitions.FrameType.Request, compress, size, s);
+                s.Write("\nrequest id = " + requestId);
+                if (requestId == 0)
                 {
-                    using var s = new System.IO.StringWriter(CultureInfo.CurrentCulture);
-                    s.Write("unknown " + kind + " type `" + typeId + "'");
-                    logger.Trace(slicingCat, s.ToString());
+                    s.Write(" (oneway)");
                 }
-            }
-        }
 
-        private static void PrintIdentityFacetOperation(System.IO.StringWriter s, InputStream str)
-        {
-            try
-            {
-                ToStringMode toStringMode = str.Communicator.ToStringMode;
+                ToStringMode toStringMode = communicator.ToStringMode;
+                s.Write("\nidentity = ");
+                s.Write(identity.ToString(toStringMode));
 
-                var identity = new Identity(str);
-                s.Write("\nidentity = " + identity.ToString(toStringMode));
-
-                string facet = str.ReadFacet();
                 s.Write("\nfacet = ");
                 if (facet.Length > 0)
                 {
                     s.Write(IceUtilInternal.StringUtil.EscapeString(facet, "", toStringMode));
                 }
 
-                string operation = str.ReadString();
-                s.Write("\noperation = " + operation);
-            }
-            catch (System.IO.IOException)
-            {
-                Debug.Assert(false);
-            }
-        }
+                s.Write("\noperation = ");
+                s.Write(operation);
 
-        private static void PrintRequest(System.IO.StringWriter s, InputStream str)
-        {
-            int requestId = str.ReadInt();
-            s.Write("\nrequest id = " + requestId);
-            if (requestId == 0)
-            {
-                s.Write(" (oneway)");
-            }
-
-            PrintRequestHeader(s, str);
-        }
-
-        private static void PrintBatchRequest(System.IO.StringWriter s, InputStream str)
-        {
-            int batchRequestNum = str.ReadInt();
-            s.Write("\nnumber of requests = " + batchRequestNum);
-
-            for (int i = 0; i < batchRequestNum; ++i)
-            {
-                s.Write("\nrequest #" + i + ':');
-                PrintRequestHeader(s, str);
-            }
-        }
-
-        private static void PrintReply(System.IO.StringWriter s, InputStream str)
-        {
-            int requestId = str.ReadInt();
-            s.Write("\nrequest id = " + requestId);
-
-            var replyStatus = (ReplyStatus)str.ReadByte();
-            s.Write($"\nreply status = {replyStatus}");
-
-            if (replyStatus == ReplyStatus.OK || replyStatus == ReplyStatus.UserException)
-            {
-                _ = str.SkipEncapsulation();
-                s.Write("\nencoding = ");
-            }
-        }
-
-        private static void PrintRequestHeader(System.IO.StringWriter s, InputStream str)
-        {
-            PrintIdentityFacetOperation(s, str);
-
-            try
-            {
-                byte mode = str.ReadByte();
-                s.Write("\noperation mode = " + (int)mode + ' ');
-                switch (mode)
+                s.Write("\noperation mode = ");
+                s.Write((byte)mode);
+                s.Write(mode switch
                 {
-                    case 0:
-                        {
-                            s.Write("(non-idempotent)");
-                            break;
-                        }
+                    OperationMode.Normal => " (non-idempotent)",
+                    _ => " (idempotent)",
+                });
 
-                    case 1:
-                        {
-                            s.Write("(idempotent/nonmutating)");
-                            break;
-                        }
-
-                    case 2:
-                        {
-                            s.Write("(idempotent)");
-                            break;
-                        }
-
-                    default:
-                        {
-                            s.Write("(unknown)");
-                            break;
-                        }
-                }
-
-                int sz = str.ReadSize();
+                int sz = context.Count;
                 s.Write("\ncontext = ");
-                while (sz-- > 0)
+                foreach ((string key, string value) in context)
                 {
-                    string key = str.ReadString();
-                    string val = str.ReadString();
-                    s.Write(key + '/' + val);
-                    if (sz > 0)
+                    s.Write(key);
+                    s.Write('/');
+                    s.Write(value);
+                    if (--sz > 0)
                     {
                         s.Write(", ");
                     }
                 }
-
-                Encoding v = str.SkipEncapsulation();
                 s.Write("\nencoding = ");
-                s.Write(v.ToString());
-            }
-            catch (System.IO.IOException)
-            {
-                Debug.Assert(false);
+                s.Write(encoding.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
             }
         }
 
-        private static Ice1Definitions.FrameType PrintHeader(System.IO.StringWriter s, InputStream str)
+        internal static void TraceSendResponse(Communicator communicator, OutgoingResponseFrame response,
+            int size, int requestId, byte compress) =>
+            TraceResponse("sending reply", communicator, size, requestId, compress, response.ReplyStatus,
+                response.Encoding);
+
+        internal static void TraceReceivedResponse(Communicator communicator, IncomingResponseFrame response,
+            int size, int requestId, byte compress) =>
+            TraceResponse("received reply", communicator, size, requestId, compress, response.ReplyStatus,
+                response.Encoding);
+
+        internal static void TraceResponse(string heading, Communicator communicator, int size, int requestId,
+            byte compress, ReplyStatus replyStatus, Encoding encoding)
         {
-            try
+            if (communicator.TraceLevels.Protocol >= 1)
             {
-                str.ReadByte(); // Don't bother printing the magic number
-                str.ReadByte();
-                str.ReadByte();
-                str.ReadByte();
-
-                /* byte pMajor = */
-                str.ReadByte();
-                /* byte pMinor = */
-                str.ReadByte();
-                //s.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
-
-                /* byte eMajor = */
-                str.ReadByte();
-                /* byte eMinor = */
-                str.ReadByte();
-                //s.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
-
-                var type = (Ice1Definitions.FrameType)str.ReadByte();
-                s.Write("\nmessage type = " + (int)type + " (" + GetFrameTypeAsString(type) + ')');
-
-                byte compress = str.ReadByte();
-                s.Write("\ncompression status = " + (int)compress + ' ');
-                switch (compress)
+                using var s = new StringWriter(CultureInfo.CurrentCulture);
+                s.Write(heading);
+                PrintFrameHeader(Ice1Definitions.FrameType.Reply, compress, size, s);
+                s.Write("\nrequest id = ");
+                s.Write(requestId);
+                if (requestId == 0)
                 {
-                    case 0:
-                        {
-                            s.Write("(not compressed; do not compress response, if any)");
-                            break;
-                        }
-
-                    case 1:
-                        {
-                            s.Write("(not compressed; compress response, if any)");
-                            break;
-                        }
-
-                    case 2:
-                        {
-                            s.Write("(compressed; compress response, if any)");
-                            break;
-                        }
-
-                    default:
-                        {
-                            s.Write("(unknown)");
-                            break;
-                        }
+                    s.Write(" (oneway)");
                 }
-
-                int size = str.ReadInt();
-                s.Write("\nmessage size = " + size);
-                return type;
-            }
-            catch (System.IO.IOException)
-            {
-                Debug.Assert(false);
-                return 0;
+                s.Write("\nreply status = ");
+                s.Write(replyStatus);
+                s.Write("\nencoding = ");
+                s.Write(encoding.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
             }
         }
 
-        private static Ice1Definitions.FrameType PrintMessage(System.IO.StringWriter s, InputStream str)
+        internal static void TraceHeader(Communicator communicator, Ice1Definitions.FrameType type, byte compress,
+            int size, string heading)
         {
-            var type = (Ice1Definitions.FrameType) PrintHeader(s, str);
-
-            switch (type)
+            if (communicator.TraceLevels.Protocol >= 1)
             {
-                case Ice1Definitions.FrameType.CloseConnection:
-                case Ice1Definitions.FrameType.ValidateConnection:
-                    {
-                        // We're done.
-                        break;
-                    }
-
-                case Ice1Definitions.FrameType.Request:
-                    {
-                        PrintRequest(s, str);
-                        break;
-                    }
-
-                case Ice1Definitions.FrameType.RequestBatch:
-                    {
-                        PrintBatchRequest(s, str);
-                        break;
-                    }
-
-                case Ice1Definitions.FrameType.Reply:
-                    {
-                        PrintReply(s, str);
-                        break;
-                    }
-
-                default:
-                    {
-                        s.Write("(unknown)");
-                        break;
-                    }
+                using var s = new StringWriter(CultureInfo.CurrentCulture);
+                s.Write(heading);
+                s.Write(GetFrameTypeAsString(type));
+                PrintFrameHeader(type, compress, size, s);
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
             }
-
-            return type;
         }
 
-        internal static void TraceHeader(string heading, InputStream str, ILogger logger, TraceLevels tl)
+        private static void PrintFrameHeader(Ice1Definitions.FrameType type, byte compress, int size, StringWriter s)
         {
-            if (tl.Protocol >= 1)
+            s.Write("\nmessage type = ");
+            s.Write((byte)type);
+            s.Write(type switch
             {
-                int p = str.Pos;
-                str.Pos = 0;
+                Ice1Definitions.FrameType.Request => " (request)",
+                Ice1Definitions.FrameType.RequestBatch => " (batch request)",
+                Ice1Definitions.FrameType.Reply => " (reply)",
+                Ice1Definitions.FrameType.CloseConnection => " (close connection)",
+                Ice1Definitions.FrameType.ValidateConnection => " (validate connection)",
+                _ => " (unknown)"
+            });
 
-                using (var s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
-                {
-                    s.Write(heading);
-                    PrintHeader(s, str);
+            s.Write("\ncompression status = ");
+            s.Write(compress);
+            s.Write(compress switch
+            {
+                0 => " (not compressed; do not compress response, if any)",
+                1 => " (not compressed; compress response, if any)",
+                2 => " (compressed; compress response, if any)",
+                _ => " (unknown)"
+            });
 
-                    logger.Trace(tl.ProtocolCat, s.ToString());
-                }
-                str.Pos = p;
-            }
+            s.Write("\nmessage size = ");
+            s.Write(size);
         }
 
         private static string GetFrameTypeAsString(Ice1Definitions.FrameType type)
@@ -326,7 +166,5 @@ namespace IceInternal
                 _ => "unknown",
             };
         }
-
-        private static readonly object _mutex = new object();
     }
 }

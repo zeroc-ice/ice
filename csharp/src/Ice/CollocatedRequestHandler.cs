@@ -151,9 +151,8 @@ namespace IceInternal
             {
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    // TODO we need a better API for tracing
-                    List<ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequest, requestId);
-                    TraceUtil.TraceSend(_adapter.Communicator, requestData);
+                    TraceUtil.TraceSendRequest(_adapter.Communicator, outgoingRequest,
+                        outgoingRequest.Size + Ice1Definitions.HeaderSize + 4, requestId, 0);
                 }
 
                 var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
@@ -216,21 +215,29 @@ namespace IceInternal
             }
         }
 
-        private void SendResponse(int requestId, OutgoingResponseFrame responseFrame)
+        private void SendResponse(int requestId, OutgoingResponseFrame outgoingResponseFrame)
         {
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
                 var responseBuffer = new ArraySegment<byte>(VectoredBufferExtensions.ToArray(
-                        Ice1Definitions.GetResponseData(responseFrame, requestId)));
+                        Ice1Definitions.GetResponseData(outgoingResponseFrame, requestId)));
+                byte compressionStatus = responseBuffer[9];
+                int size = InputStream.ReadInt(responseBuffer.AsSpan(10, 4));
+                responseBuffer = responseBuffer.Slice(Ice1Definitions.HeaderSize + 4);
+                var incomingResponseFrame = new IncomingResponseFrame(_adapter.Communicator, responseBuffer);
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceUtil.TraceRecv(_adapter.Communicator, responseBuffer);
+                    TraceUtil.TraceReceivedResponse(
+                        _adapter.Communicator,
+                        incomingResponseFrame,
+                        size,
+                        requestId,
+                        compressionStatus);
                 }
-                responseBuffer = responseBuffer.Slice(Ice1Definitions.HeaderSize + 4);
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    if (!outAsync.Response(new IncomingResponseFrame(_adapter.Communicator, responseBuffer)))
+                    if (!outAsync.Response(incomingResponseFrame))
                     {
                         outAsync = null;
                     }

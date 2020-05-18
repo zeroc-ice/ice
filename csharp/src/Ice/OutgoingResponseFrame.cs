@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace ZeroC.Ice
 {
@@ -19,6 +18,9 @@ namespace ZeroC.Ice
 
         /// <summary>Returns a list of array segments with the contents of the frame payload.</summary>
         public IList<ArraySegment<byte>> Payload => Data;
+
+        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
+        public ReplyStatus ReplyStatus => (ReplyStatus) Data[0][0];
 
         /// <summary>The frame byte count.</summary>
         public int Size { get; private set; }

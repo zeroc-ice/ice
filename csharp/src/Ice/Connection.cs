@@ -679,12 +679,20 @@ namespace ZeroC.Ice
                         if (_connector == null) // The server side has the active role for connection validation.
                         {
                             TraceSentAndUpdateObserver(_validateConnectionMessage.GetByteCount());
-                            TraceUtil.TraceSend(_communicator, _validateConnectionMessage);
+                            TraceUtil.TraceHeader(_communicator,
+                                Ice1Definitions.FrameType.ValidateConnection,
+                                Ice1Definitions.ValidateConnectionMessage[9],
+                                Ice1Definitions.ValidateConnectionMessage.Length,
+                                "sending ");
                         }
                         else
                         {
                             TraceReceivedAndUpdateObserver(readBuffer.Count);
-                            TraceUtil.TraceRecv(_communicator, readBuffer);
+                            TraceUtil.TraceHeader(_communicator,
+                                (Ice1Definitions.FrameType)readBuffer[8],
+                                readBuffer[9],
+                                readBuffer.Count,
+                                "received ");
                         }
                     }
 
@@ -1011,7 +1019,7 @@ namespace ZeroC.Ice
                     _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                 }
 
-                // Connection is validated on first message. This is only used by setState() to check wether or
+                // Connection is validated on first message. This is only used by setState() to check whether or
                 // not we can print a connection warning (a client might close the connection forcefully if the
                 // connection isn't validated, we don't want to print a warning in this case).
                 _validated = true;
@@ -1094,7 +1102,7 @@ namespace ZeroC.Ice
                 {
                     case Ice1Definitions.FrameType.CloseConnection:
                     {
-                        TraceUtil.TraceRecv(_communicator, readBuffer);
+                        TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size, "received ");
                         if (Endpoint.IsDatagram)
                         {
                             if (_warn)
@@ -1115,15 +1123,15 @@ namespace ZeroC.Ice
                     {
                         if (_state >= State.Closing)
                         {
-                            TraceUtil.Trace("received request during closing\n" +
-                                "(ignored by server, client will retry)", _communicator, readBuffer);
+                            TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size,
+                                "received request during closing\n(ignored by server, client will retry)");
                         }
                         else
                         {
-                            TraceUtil.TraceRecv(_communicator, readBuffer);
                             readBuffer = readBuffer.Slice(Ice1Definitions.HeaderSize);
                             int requestId = InputStream.ReadInt(readBuffer.AsSpan(0, 4));
                             var request = new IncomingRequestFrame(_communicator, readBuffer.Slice(4));
+                            TraceUtil.TraceReceivedRequest(_communicator, request, size, requestId, compressionStatus);
                             if (_adapter == null)
                             {
                                 throw new ObjectNotExistException(request.Identity, request.Facet,
@@ -1144,12 +1152,12 @@ namespace ZeroC.Ice
                     {
                         if (_state >= State.Closing)
                         {
-                            TraceUtil.Trace("received batch request during closing\n" +
-                                "(ignored by server, client will retry)", _communicator, readBuffer);
+                            TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size,
+                                "received batch request during closing\n(ignored by server, client will retry)");
                         }
                         else
                         {
-                            TraceUtil.TraceRecv(_communicator, readBuffer);
+                            TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size, "received ");
                             int invokeNum = InputStream.ReadInt(readBuffer.AsSpan(Ice1Definitions.HeaderSize, 4));
                             if (invokeNum < 0)
                             {
@@ -1163,14 +1171,16 @@ namespace ZeroC.Ice
 
                     case Ice1Definitions.FrameType.Reply:
                     {
-                        TraceUtil.TraceRecv(_communicator, readBuffer);
                         readBuffer = readBuffer.Slice(Ice1Definitions.HeaderSize);
                         int requestId = InputStream.ReadInt(readBuffer.AsSpan(0, 4));
+                        var responseFrame = new IncomingResponseFrame(_communicator, readBuffer.Slice(4));
+                        TraceUtil.TraceReceivedResponse(_communicator, responseFrame, size, requestId,
+                            compressionStatus);
                         if (_requests.TryGetValue(requestId, out OutgoingAsyncBase? outAsync))
                         {
                             _requests.Remove(requestId);
 
-                            if (outAsync.Response(new IncomingResponseFrame(_communicator, readBuffer.Slice(4))))
+                            if (outAsync.Response(responseFrame))
                             {
                                 incoming = () => { outAsync.InvokeResponse(); return default; };
                             }
@@ -1185,7 +1195,7 @@ namespace ZeroC.Ice
 
                     case Ice1Definitions.FrameType.ValidateConnection:
                     {
-                        TraceUtil.TraceRecv(_communicator, readBuffer);
+                        TraceUtil.TraceHeader(_communicator, messageType, readBuffer[9], readBuffer.Count, "received ");
                         if (_heartbeatCallback != null)
                         {
                             var callback = _heartbeatCallback;
@@ -1207,8 +1217,8 @@ namespace ZeroC.Ice
 
                     default:
                     {
-                        TraceUtil.Trace("received unknown message\n(invalid, closing connection)", _communicator,
-                             readBuffer);
+                        TraceUtil.TraceHeader(_communicator, messageType, compressionStatus, size,
+                            "received unknown message\n(invalid, closing connection)");
                         throw new InvalidDataException(
                             $"received ice1 frame with unknown message type `{messageType}'");
                     }
@@ -1642,7 +1652,6 @@ namespace ZeroC.Ice
                     }
                     Debug.Assert(_outgoingMessages.Count > 0);
                     message = _outgoingMessages.First!.Value;
-                    TraceUtil.TraceSend(_communicator, message.OutgoingData!);
                 }
 
                 List<ArraySegment<byte>> writeBuffer = message.OutgoingData!;
@@ -1651,6 +1660,7 @@ namespace ZeroC.Ice
                 // TODO: Benoit: we should consider doing the compression at an earlier stage from the application
                 // user thread instead of the WriteAsync task continuation?
                 int size = writeBuffer.GetByteCount();
+                int uncompressedSize = size;
                 if (BZip2.IsLoaded && message.Compress)
                 {
                     List<ArraySegment<byte>>? compressed = null;
@@ -1667,7 +1677,35 @@ namespace ZeroC.Ice
                     else // Message not compressed, request compressed response, if any.
                     {
                         ArraySegment<byte> header = writeBuffer[0];
-                        header[9] = (byte)1; // Write the compression status
+                        header[9] = 1; // Write the compression status
+                    }
+                }
+
+                if (_communicator.TraceLevels.Protocol >= 1)
+                {
+                    lock (_mutex)
+                    {
+                        if (_state > State.Closing)
+                        {
+                            return;
+                        }
+
+                        ArraySegment<byte> header = writeBuffer[0];
+                        if (message.RequestFrame != null)
+                        {
+                            TraceUtil.TraceSendRequest(_communicator, message.RequestFrame, uncompressedSize,
+                                message.RequestId, header[9]);
+                        }
+                        else if (message.ResponseFrame != null)
+                        {
+                            TraceUtil.TraceSendResponse(_communicator, message.ResponseFrame, uncompressedSize,
+                                message.RequestId, header[9]);
+                        }
+                        else
+                        {
+                            TraceUtil.TraceHeader(_communicator, (Ice1Definitions.FrameType)header[8], header[9],
+                                uncompressedSize, "sending");
+                        }
                     }
                 }
 
@@ -1759,10 +1797,12 @@ namespace ZeroC.Ice
         // TODO: Benoit: Remove with the refactoring of SendAsyncRequest
         private class OutgoingMessage
         {
-            internal OutgoingMessage(List<ArraySegment<byte>> requestData, bool compress)
+            internal OutgoingMessage(List<ArraySegment<byte>> requestData, bool compress,
+                OutgoingResponseFrame? responseFrame = null)
             {
                 OutgoingData = requestData;
                 Compress = compress;
+                ResponseFrame = responseFrame;
             }
 
             internal OutgoingMessage(OutgoingAsyncBase outgoing, List<ArraySegment<byte>> data, bool compress,
@@ -1772,12 +1812,16 @@ namespace ZeroC.Ice
                 OutgoingData = data;
                 Compress = compress;
                 RequestId = requestId;
+                RequestFrame = ((ProxyOutgoingAsyncBase)outgoing).RequestFrame;
             }
 
             internal List<ArraySegment<byte>>? OutgoingData;
             internal OutgoingAsyncBase? OutAsync;
             internal bool Compress;
             internal int RequestId;
+
+            internal OutgoingResponseFrame? ResponseFrame;
+            internal OutgoingRequestFrame? RequestFrame;
         }
 
         private enum State

@@ -528,15 +528,15 @@ namespace ZeroC.Ice
             Debug.Assert(_current != null);
             if (Communicator.TraceLevels.Slicing > 0)
             {
-                ILogger logger = Communicator.Logger;
-                string slicingCat = Communicator.TraceLevels.SlicingCat;
-                if (_current.InstanceType == InstanceType.Exception)
+                string typeId = _current.SliceTypeId ?? "";
+                lock (_slicingIdsMutex)
                 {
-                    IceInternal.TraceUtil.TraceSlicing("exception", _current.SliceTypeId ?? "", slicingCat, logger);
-                }
-                else
-                {
-                    IceInternal.TraceUtil.TraceSlicing("object", _current.SliceTypeId ?? "", slicingCat, logger);
+                    if (_slicingIds.Add(typeId))
+                    {
+                        string slicingCategory = Communicator.TraceLevels.SlicingCat;
+                        string kind = _current.InstanceType == InstanceType.Exception ? "exception" : "object";
+                        Communicator.Logger.Trace(slicingCategory, $"unknown {kind} type `{typeId}'");
+                    }
                 }
             }
 
