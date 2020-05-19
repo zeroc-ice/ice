@@ -1662,7 +1662,6 @@ namespace ZeroC.Ice
                 // TODO: Benoit: we should consider doing the compression at an earlier stage from the application
                 // user thread instead of the WriteAsync task continuation?
                 int size = writeBuffer.GetByteCount();
-                int uncompressedSize = size;
                 if (BZip2.IsLoaded && message.Compress)
                 {
                     List<ArraySegment<byte>>? compressed = null;
