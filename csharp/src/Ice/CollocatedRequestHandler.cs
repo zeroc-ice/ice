@@ -151,9 +151,11 @@ namespace IceInternal
             {
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    // TODO we need a better API for tracing
-                    List<ArraySegment<byte>> requestData = Ice1Definitions.GetRequestData(outgoingRequest, requestId);
-                    TraceUtil.TraceSend(_adapter.Communicator, requestData);
+                    ProtocolTrace.TraceCollocatedFrame(
+                        _adapter.Communicator,
+                        (byte)Ice1Definitions.FrameType.Request,
+                        requestId,
+                        outgoingRequest);
                 }
 
                 var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
@@ -216,21 +218,26 @@ namespace IceInternal
             }
         }
 
-        private void SendResponse(int requestId, OutgoingResponseFrame responseFrame)
+        private void SendResponse(int requestId, OutgoingResponseFrame outgoingResponseFrame)
         {
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
-                var responseBuffer = new ArraySegment<byte>(VectoredBufferExtensions.ToArray(
-                        Ice1Definitions.GetResponseData(responseFrame, requestId)));
+                var incomingResponseFrame = new IncomingResponseFrame(
+                    _adapter.Communicator,
+                    VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data));
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceUtil.TraceRecv(_adapter.Communicator, responseBuffer);
+                    ProtocolTrace.TraceCollocatedFrame(
+                        _adapter.Communicator,
+                        (byte)Ice1Definitions.FrameType.Reply,
+                        requestId,
+                        incomingResponseFrame);
                 }
-                responseBuffer = responseBuffer.Slice(Ice1Definitions.HeaderSize + 4);
+
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
-                    if (!outAsync.Response(new IncomingResponseFrame(_adapter.Communicator, responseBuffer)))
+                    if (!outAsync.Response(incomingResponseFrame))
                     {
                         outAsync = null;
                     }

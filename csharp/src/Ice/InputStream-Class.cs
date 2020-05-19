@@ -507,7 +507,7 @@ namespace ZeroC.Ice
                             throw new InvalidDataException("size of slice missing");
                         }
                         int sliceSize = ReadSliceSize();
-                        _pos = _pos + sliceSize;
+                        _pos += sliceSize;
 
                         // If this slice has an indirection table, skip it too
                         if ((sliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
@@ -528,16 +528,9 @@ namespace ZeroC.Ice
             Debug.Assert(_current != null);
             if (Communicator.TraceLevels.Slicing > 0)
             {
-                ILogger logger = Communicator.Logger;
-                string slicingCat = Communicator.TraceLevels.SlicingCat;
-                if (_current.InstanceType == InstanceType.Exception)
-                {
-                    IceInternal.TraceUtil.TraceSlicing("exception", _current.SliceTypeId ?? "", slicingCat, logger);
-                }
-                else
-                {
-                    IceInternal.TraceUtil.TraceSlicing("object", _current.SliceTypeId ?? "", slicingCat, logger);
-                }
+                string typeId = _current.SliceTypeId ?? "";
+                string kind = _current.InstanceType == InstanceType.Exception ? "exception" : "object";
+                Communicator.Logger.Trace(Communicator.TraceLevels.SlicingCat, $"unknown {kind} type `{typeId}'");
             }
 
             int start = _pos;

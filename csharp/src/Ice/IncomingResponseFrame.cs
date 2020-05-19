@@ -14,15 +14,15 @@ namespace ZeroC.Ice
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
 
-        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
-        public ReplyStatus ReplyStatus { get; }
-
         /// <summary>The response context. Always null with Ice1.</summary>
         public Dictionary<string, string>? Context { get; }
 
         /// <summary>The payload of this response frame. The bytes inside the payload should not be written to;
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; }
+
+        /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
+        public ReplyStatus ReplyStatus { get; }
 
         /// <summary>The frame byte count.</summary>
         public int Size => Payload.Count;
