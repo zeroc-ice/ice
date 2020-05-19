@@ -86,13 +86,11 @@ class MultiOptional
     tag(20) FixedStructSeq fss;
     tag(21) VarStructSeq vss;
     tag(22) OneOptionalSeq oos;
-    tag(23) OneOptionalPrxSeq oops;
 
     tag(24) IntEnumDict ied;
     tag(25) IntFixedStructDict ifsd;
     tag(26) IntVarStructDict ivsd;
     tag(27) IntOneOptionalDict iood;
-    tag(28) IntOneOptionalPrxDict ioopd;
 
     tag(29) BoolSeq bos;
 
