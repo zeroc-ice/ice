@@ -6,8 +6,6 @@
 
 #include <Ice/Context.ice>
 
-[[suppress-warning:deprecated]]
-
 module Test
 {
 

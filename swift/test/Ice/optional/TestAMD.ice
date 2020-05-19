@@ -5,7 +5,6 @@
 #pragma once
 
 [[swift:class-resolver-prefix:IceOptionalAMD]]
-[[suppress-warning:deprecated]]
 
 module Test
 {
@@ -56,7 +55,6 @@ sequence<FixedStruct> FixedStructSeq;
 [clr:generic:LinkedList] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
-sequence<OneOptional*> OneOptionalPrxSeq;
 
 [clr:serializable:Ice.optional.Test.SerializableClass]
 sequence<byte> Serializable;
@@ -67,7 +65,6 @@ dictionary<int, MyEnum> IntEnumDict;
 dictionary<int, FixedStruct> IntFixedStructDict;
 dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
-dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 
 class MultiOptional
 {
@@ -80,7 +77,6 @@ class MultiOptional
     tag(7) double g;
     tag(8) string h;
     tag(9) MyEnum i;
-    tag(10) MultiOptional* j;
     tag(11) MultiOptional k;
     tag(12) ByteSeq bs;
     tag(13) StringSeq ss;
@@ -94,13 +90,11 @@ class MultiOptional
     tag(20) FixedStructSeq fss;
     tag(21) VarStructSeq vss;
     tag(22) OneOptionalSeq oos;
-    tag(23) OneOptionalPrxSeq oops;
 
     tag(24) IntEnumDict ied;
     tag(25) IntFixedStructDict ifsd;
     tag(26) IntVarStructDict ivsd;
     tag(27) IntOneOptionalDict iood;
-    tag(28) IntOneOptionalPrxDict ioopd;
 
     tag(29) BoolSeq bos;
 
@@ -238,8 +232,6 @@ interface Initial
     tag(1) VarStruct opVarStruct(tag(2) VarStruct p1, out tag(3) VarStruct p3);
 
     tag(1) OneOptional opOneOptional(tag(2) OneOptional p1, out tag(3) OneOptional p3);
-
-    tag(1) OneOptional* opOneOptionalProxy(tag(2) OneOptional* p1, out tag(3) OneOptional* p3);
 
     tag(1) ByteSeq opByteSeq(tag(2) ByteSeq p1, out tag(3) ByteSeq p3);
 

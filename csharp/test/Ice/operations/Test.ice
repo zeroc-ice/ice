@@ -7,7 +7,6 @@
 #include <Ice/Context.ice>
 
 [[cs:typeid-namespace:ZeroC.Ice.operations.TypeId]]
-[[suppress-warning:deprecated]] // For classes with operations
 
 [cs:namespace:ZeroC.Ice.operations]
 module Test

@@ -6,8 +6,6 @@
 
 #include <Ice/Context.ice>
 
-[[suppress-warning:deprecated]] // For classes with operations
-
 module Test
 {
 
@@ -390,10 +388,5 @@ module M
     interface Intf
     {
         void opIntf();
-    }
-
-    class B : A implements Intf
-    {
-        void opB();
     }
 }

@@ -1,23 +1,30 @@
-ChangedMeaning.ice:45: `M' has changed meaning
-ChangedMeaning.ice:51: `M' has changed meaning
-ChangedMeaning.ice:58: `i1' has changed meaning
-ChangedMeaning.ice:59: `i2' has changed meaning
-ChangedMeaning.ice:79: `e1' has changed meaning
-ChangedMeaning.ice:80: `e2' has changed meaning
-ChangedMeaning.ice:90: `c1' has changed meaning
-ChangedMeaning.ice:91: `c2' has changed meaning
-ChangedMeaning.ice:108: `CounterSeq' has changed meaning
-ChangedMeaning.ice:117: redefinition of parameter `param'
-ChangedMeaning.ice:135: `E' is not an exception
-ChangedMeaning.ice:135: `E' has changed meaning
-ChangedMeaning.ice:142: `E' has changed meaning
-ChangedMeaning.ice:148: `E' has changed meaning
-ChangedMeaning.ice:183: data member `X' differs only in capitalization from data member `x'
-ChangedMeaning.ice:183: `X' has changed meaning
-ChangedMeaning.ice:189: member `X' differs only in capitalization from member `x'
-ChangedMeaning.ice:189: `X' has changed meaning
-ChangedMeaning.ice:194: parameter `A' differs only in capitalization from parameter `a'
-ChangedMeaning.ice:194: `A' has changed meaning
-ChangedMeaning.ice:202: redefinition of operation `x' as data member `x'
-ChangedMeaning.ice:214: exception member `X' differs only in capitalization from exception member `x'
-ChangedMeaning.ice:214: `X' has changed meaning
+ChangedMeaning.ice:43: `M' has changed meaning
+ChangedMeaning.ice:49: `M' has changed meaning
+ChangedMeaning.ice:56: `i1' has changed meaning
+ChangedMeaning.ice:57: `i2' has changed meaning
+ChangedMeaning.ice:77: `e1' has changed meaning
+ChangedMeaning.ice:78: `e2' has changed meaning
+ChangedMeaning.ice:87: warning: classes implementing interfaces are deprecated
+ChangedMeaning.ice:88: `c1' has changed meaning
+ChangedMeaning.ice:89: `c2' has changed meaning
+ChangedMeaning.ice:106: `CounterSeq' has changed meaning
+ChangedMeaning.ice:115: redefinition of parameter `param'
+ChangedMeaning.ice:133: `E' is not an exception
+ChangedMeaning.ice:133: `E' has changed meaning
+ChangedMeaning.ice:140: `E' has changed meaning
+ChangedMeaning.ice:146: `E' has changed meaning
+ChangedMeaning.ice:168: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:169: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:170: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:171: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:181: data member `X' differs only in capitalization from data member `x'
+ChangedMeaning.ice:181: `X' has changed meaning
+ChangedMeaning.ice:187: member `X' differs only in capitalization from member `x'
+ChangedMeaning.ice:187: `X' has changed meaning
+ChangedMeaning.ice:192: parameter `A' differs only in capitalization from parameter `a'
+ChangedMeaning.ice:192: `A' has changed meaning
+ChangedMeaning.ice:199: warning: classes with operations are deprecated
+ChangedMeaning.ice:200: redefinition of operation `x' as data member `x'
+ChangedMeaning.ice:205: warning: classes with operations are deprecated
+ChangedMeaning.ice:212: exception member `X' differs only in capitalization from exception member `x'
+ChangedMeaning.ice:212: `X' has changed meaning

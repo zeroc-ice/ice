@@ -73,10 +73,6 @@ class FI extends Test.F
     }
 }
 
-class HI extends Test.H
-{
-}
-
 class II extends Ice.InterfaceByValue
 {
     constructor()
@@ -111,8 +107,6 @@ function MyValueFactory(type:string):Ice.Value
             return new II();
         case "::Test::J":
             return new JI();
-        case "::Test::H":
-            return new HI();
         case "::Test::Inner::A":
             return new Test.Inner.A();
         case "::Test::Inner::Sub::A":
@@ -137,7 +131,6 @@ export class Client extends TestHelper
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
-        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
 
@@ -237,15 +230,6 @@ export class Client extends TestHelper
         test((f.e2 as EI).checkValues());
         out.writeLine("ok");
 
-        out.write("getting I, J and H... ");
-        const i = await initial.getI();
-        test(i !== null);
-        const j = await initial.getJ();
-        test(j !== null);
-        const h = await initial.getH();
-        test(h !== null);
-        out.writeLine("ok");
-
         out.write("getting K...");
         const k = await initial.getK();
         test(k !== null);
@@ -311,12 +295,6 @@ export class Client extends TestHelper
         {
             test(ex instanceof Ice.OperationNotExistException, ex);
         }
-        out.writeLine("ok");
-
-        out.write("setting I... ");
-        await initial.setI(i);
-        await initial.setI(j);
-        await initial.setI(h);
         out.writeLine("ok");
 
         out.write("testing sequences... ");

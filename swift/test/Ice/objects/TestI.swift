@@ -59,8 +59,6 @@ public class FI: F {
     }
 }
 
-public class HI: H {}
-
 public class II: Ice.InterfaceByValue {
     public required init() {
         super.init(id: "::Test::I")
@@ -138,18 +136,6 @@ class InitialI: Initial {
         return _f
     }
 
-    func getI(current _: Ice.Current) throws -> Ice.Value? {
-        return II()
-    }
-
-    func getJ(current _: Ice.Current) throws -> Ice.Value? {
-        return JI()
-    }
-
-    func getH(current _: Ice.Current) throws -> Ice.Value? {
-        return HI()
-    }
-
     func getK(current _: Ice.Current) throws -> K? {
         return K(value: L(data: "l"))
     }
@@ -186,8 +172,6 @@ class InitialI: Initial {
     }
 
     func setG(theG _: G?, current _: Ice.Current) throws {}
-
-    func setI(theI _: Ice.Value?, current _: Ice.Current) throws {}
 
     func opBaseSeq(inSeq: [Base?], current _: Ice.Current) throws -> (returnValue: [Base?], outSeq: [Base?]) {
         return (inSeq, inSeq)

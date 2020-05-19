@@ -73,7 +73,6 @@ public class AllTests
         mo1.setG(1.0);
         mo1.setH("test");
         mo1.setI(MyEnum.MyEnumMember);
-        mo1.setJ(communicator.stringToProxy("test"));
         mo1.setK(mo1);
         mo1.setBs(new byte[] { 5 });
         mo1.setSs(new String[] { "test", "test2" });
@@ -93,7 +92,6 @@ public class AllTests
         mo1.setFss(new FixedStruct[] { fs });
         mo1.setVss(new VarStruct[] { vs });
         mo1.setOos(new OneOptional[] { oo1 });
-        mo1.setOops(new com.zeroc.Ice.ObjectPrx[] { communicator.stringToProxy("test") });
 
         mo1.setIed(new java.util.HashMap<>());
         mo1.getIed().put(4, MyEnum.MyEnumMember);
@@ -103,8 +101,6 @@ public class AllTests
         mo1.getIvsd().put(5, vs);
         mo1.setIood(new java.util.HashMap<>());
         mo1.getIood().put(5, new OneOptional(15));
-        mo1.setIoopd(new java.util.HashMap<>());
-        mo1.getIoopd().put(5, communicator.stringToProxy("test"));
 
         mo1.setBos(new boolean[] { false, true, false });
 
@@ -120,7 +116,6 @@ public class AllTests
         test(mo1.getG() == 1.0);
         test(mo1.getH().equals("test"));
         test(mo1.getI() == MyEnum.MyEnumMember);
-        test(mo1.getJ().equals(communicator.stringToProxy("test")));
         test(mo1.getK() == mo1);
         test(java.util.Arrays.equals(mo1.getBs(), new byte[] { 5 }));
         test(java.util.Arrays.equals(mo1.getSs(), new String[] { "test", "test2" }));
@@ -134,13 +129,11 @@ public class AllTests
         test(mo1.getFss()[0].equals(new FixedStruct(78)));
         test(mo1.getVss()[0].equals(new VarStruct("hello")));
         test(mo1.getOos()[0] == oo1);
-        test(mo1.getOops()[0].equals(communicator.stringToProxy("test")));
 
         test(mo1.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo1.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo1.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo1.getIood().get(5).getA() == 15);
-        test(mo1.getIoopd().get(5).equals(communicator.stringToProxy("test")));
 
         test(java.util.Arrays.equals(mo1.getBos(), new boolean[] { false, true, false }));
 
@@ -167,7 +160,6 @@ public class AllTests
         test(!mo4.hasG());
         test(!mo4.hasH());
         test(!mo4.hasI());
-        test(!mo4.hasJ());
         test(!mo4.hasK());
         test(!mo4.hasBs());
         test(!mo4.hasSs());
@@ -181,13 +173,11 @@ public class AllTests
         test(!mo4.hasFss());
         test(!mo4.hasVss());
         test(!mo4.hasOos());
-        test(!mo4.hasOops());
 
         test(!mo4.hasIed());
         test(!mo4.hasIfsd());
         test(!mo4.hasIvsd());
         test(!mo4.hasIood());
-        test(!mo4.hasIoopd());
 
         test(!mo4.hasBos());
 
@@ -209,7 +199,6 @@ public class AllTests
         test(mo5.getG() == mo1.getG());
         test(mo5.getH().equals(mo1.getH()));
         test(mo5.getI() == mo1.getI());
-        test(mo5.getJ().equals(mo1.getJ()));
         test(mo5.getK() == mo5);
         test(java.util.Arrays.equals(mo5.getBs(), mo1.getBs()));
         test(java.util.Arrays.equals(mo5.getSs(), mo1.getSs()));
@@ -222,13 +211,11 @@ public class AllTests
         test(mo5.getFss()[0].equals(new FixedStruct(78)));
         test(mo5.getVss()[0].equals(new VarStruct("hello")));
         test(mo5.getOos()[0].getA() == 15);
-        test(mo5.getOops()[0].equals(communicator.stringToProxy("test")));
 
         test(mo5.getIed().get(4) == MyEnum.MyEnumMember);
         test(mo5.getIfsd().get(4).equals(new FixedStruct(78)));
         test(mo5.getIvsd().get(5).equals(new VarStruct("hello")));
         test(mo5.getIood().get(5).getA() == 15);
-        test(mo5.getIoopd().get(5).equals(communicator.stringToProxy("test")));
 
         test(java.util.Arrays.equals(mo5.getBos(), new boolean[] { false, true, false }));
 
@@ -243,7 +230,6 @@ public class AllTests
         mo6.setD(mo5.getD());
         mo6.setF(mo5.getF());
         mo6.setH(mo5.getH());
-        mo6.setJ(mo5.getJ());
         mo6.setBs(mo5.getBs());
         mo6.setIid(mo5.getIid());
         mo6.setFs(mo5.getFs());
@@ -264,7 +250,6 @@ public class AllTests
         test(!mo7.hasG());
         test(mo7.getH().equals(mo1.getH()));
         test(!mo7.hasI());
-        test(mo7.getJ().equals(mo1.getJ()));
         test(!mo7.hasK());
         test(java.util.Arrays.equals(mo7.getBs(), mo1.getBs()));
         test(!mo7.hasSs());
@@ -278,13 +263,11 @@ public class AllTests
         test(mo7.getFss()[0].equals(new FixedStruct(78)));
         test(!mo7.hasVss());
         test(mo7.getOos()[0].getA() == 15);
-        test(!mo7.hasOops());
 
         test(!mo7.hasIed());
         test(mo7.getIfsd().get(4).equals(new FixedStruct(78)));
         test(!mo7.hasIvsd());
         test(mo7.getIood().get(5).getA() == 15);
-        test(!mo7.hasIoopd());
 
         test(java.util.Arrays.equals(mo7.getBos(), new boolean[] { false, true, false }));
 
@@ -302,11 +285,9 @@ public class AllTests
 
         mo8.setEs(mo5.getEs());
         mo8.setVss(mo5.getVss());
-        mo8.setOops(mo5.getOops());
 
         mo8.setIed(mo5.getIed());
         mo8.setIvsd(mo5.getIvsd());
-        mo8.setIoopd(mo5.getIoopd());
 
         MultiOptional mo9 = (MultiOptional)initial.pingPong(mo8);
         test(mo9.getA() == mo1.getA());
@@ -318,7 +299,6 @@ public class AllTests
         test(mo9.getG() == mo1.getG());
         test(!mo9.hasH());
         test(mo9.getI() == mo1.getI());
-        test(!mo9.hasJ());
         test(mo9.getK() == mo9);
         test(!mo9.hasBs());
         test(java.util.Arrays.equals(mo9.getSs(), mo1.getSs()));
@@ -332,13 +312,11 @@ public class AllTests
         test(!mo9.hasFss());
         test(mo9.getVss()[0].equals(new VarStruct("hello")));
         test(!mo9.hasOos());
-        test(mo9.getOops()[0].equals(communicator.stringToProxy("test")));
 
         test(mo9.getIed().get(4) == MyEnum.MyEnumMember);
         test(!mo9.hasIfsd());
         test(mo9.getIvsd().get(5).equals(new VarStruct("hello")));
         test(!mo9.hasIood());
-        test(mo9.getIoopd().get(5).equals(communicator.stringToProxy("test")));
 
         test(!mo9.hasBos());
 
@@ -1133,45 +1111,6 @@ public class AllTests
                 in.readValue(3, v -> p3cb.value = v, OneOptional.class);
                 in.endEncapsulation();
                 test(p2cb.value.getA() == 58 && p3cb.value.getA() == 58);
-
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                in.endEncapsulation();
-            }
-        }
-
-        {
-            com.zeroc.Ice.@Nullable ObjectPrx p1 = null;
-            Initial.OpOneOptionalProxyResult r = initial.opOneOptionalProxy(p1);
-            test(r.returnValue == null && r.p3 == null);
-
-            p1 = communicator.stringToProxy("test");
-            r = initial.opOneOptionalProxy(p1);
-            test(r.returnValue.equals(p1) && r.p3.equals(p1));
-            r = initial.opOneOptionalProxyAsync(p1).join();
-            test(r.returnValue.equals(p1) && r.p3.equals(p1));
-
-            if(reqParams)
-            {
-                Initial.OpOneOptionalProxyReqResult rr = initial.opOneOptionalProxyReq(p1);
-                test(rr.returnValue.equals(p1) && rr.p3.equals(p1));
-                rr = initial.opOneOptionalProxyReqAsync(p1).join();
-                test(rr.returnValue.equals(p1) && rr.p3.equals(p1));
-
-                os = new OutputStream(communicator);
-                os.startEncapsulation();
-                os.writeTag(2, TagFormat.FSize);
-                int pos = os.startSize();
-                os.writeProxy(p1);
-                os.endSize(pos);
-                os.endEncapsulation();
-                inEncaps = os.finished();
-                inv = initial.ice_invoke("opOneOptionalProxyReq", OperationMode.Normal, inEncaps);
-                in = new InputStream(communicator, inv.outParams);
-                in.startEncapsulation();
-                test(in.readProxy(1).equals(p1));
-                test(in.readProxy(3).equals(p1));
-                in.endEncapsulation();
 
                 in = new InputStream(communicator, inv.outParams);
                 in.startEncapsulation();

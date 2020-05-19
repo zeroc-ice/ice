@@ -41,10 +41,6 @@ public class Collocated extends test.TestHelper
             {
                 return new JI();
             }
-            else if(type.equals("::Test::H"))
-            {
-                return new HI();
-            }
 
             assert (false); // Should never be reached
             return null;

@@ -5,7 +5,6 @@
 #pragma once
 
 [[cs:typeid-namespace:ZeroC.Ice.tagged.AMD.TypeId]]
-[[suppress-warning:deprecated]]
 
 [cs:namespace:ZeroC.Ice.tagged.AMD]
 module Test
@@ -243,8 +242,6 @@ interface Initial
     tag(1) VarStruct opVarStruct(tag(2) VarStruct p1, out tag(3) VarStruct p3);
 
     tag(1) OneTagged opOneTagged(tag(2) OneTagged p1, out tag(3) OneTagged p3);
-
-    tag(1) OneTagged* opOneTaggedProxy(tag(2) OneTagged* p1, out tag(3) OneTagged* p3);
 
     tag(1) ByteSeq opByteSeq(tag(2) ByteSeq p1, out tag(3) ByteSeq p3);
     tag(1) ByteList opByteList(tag(2) ByteList p1, out tag(3) ByteList p3);

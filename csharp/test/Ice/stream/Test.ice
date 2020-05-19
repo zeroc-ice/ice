@@ -8,7 +8,7 @@
 // Suppress invalid metadata warnings
 //
 [[cs:typeid-namespace:Ice.stream.TypeId]]
-[[suppress-warning:invalid-metadata, deprecated]]
+[[suppress-warning:invalid-metadata]]
 
 #include <Ice/BuiltinSequences.ice>
 

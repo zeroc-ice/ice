@@ -860,13 +860,3 @@ MyDerivedClassI::opMDict2(Test::StringStringD p1, const Ice::Current& current)
 {
     return OpMDict2MarshaledResult(p1, p1, current);
 }
-
-void
-BI::opIntf(const Ice::Current&)
-{
-}
-
-void
-BI::opB(const Ice::Current&)
-{
-}

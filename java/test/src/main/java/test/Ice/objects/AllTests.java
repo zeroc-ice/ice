@@ -13,7 +13,6 @@ import test.Ice.objects.Test.D;
 import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.G;
-import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.K;
 import test.Ice.objects.Test.L;
@@ -193,16 +192,6 @@ public class AllTests
         }
         out.println("ok");
 
-        out.print("getting I, J and H... ");
-        out.flush();
-        com.zeroc.Ice.Value i = initial.getI();
-        test(i != null && i.ice_id().equals(I.ice_staticId()));
-        com.zeroc.Ice.Value j = initial.getJ();
-        test(j != null && j.ice_id().equals(J.ice_staticId()));
-        com.zeroc.Ice.Value h = initial.getH();
-        test(h != null && ((H)h) != null);
-        out.println("ok");
-
         out.print("getting K... ");
         out.flush();
         {
@@ -272,13 +261,6 @@ public class AllTests
         catch(com.zeroc.Ice.OperationNotExistException ex)
         {
         }
-        out.println("ok");
-
-        out.print("setting I... ");
-        out.flush();
-        initial.setI(i);
-        initial.setI(j);
-        initial.setI(h);
         out.println("ok");
 
         out.print("testing sequences...");

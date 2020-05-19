@@ -999,41 +999,6 @@ namespace ZeroC.Ice.tagged
             }
 
             {
-                IObjectPrx? p1 = null;
-                var (p2, p3) = initial.opOneTaggedProxy(p1);
-                TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.opOneTaggedProxy(p1);
-                TestHelper.Assert(p2 == null && p3 == null);
-                (p2, p3) = initial.opOneTaggedProxy(null);
-                TestHelper.Assert(p2 == null && p3 == null);
-
-                p1 = IObjectPrx.Parse("test", communicator);
-                (p2, p3) = initial.opOneTaggedProxy(p1);
-                TestHelper.Assert(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
-
-                (p2, p3) = initial.opOneTaggedProxyAsync(p1).Result;
-                TestHelper.Assert(IObjectPrx.Equals(p1, p2) && IObjectPrx.Equals(p1, p3));
-
-                (p2, p3) = initial.opOneTaggedProxy(null);
-                TestHelper.Assert(p2 == null && p3 == null); // Ensure out parameter is cleared.
-
-                requestFrame = OutgoingRequestFrame.WithParamList(initial, "opOneTaggedProxy", idempotent: false,
-                    format: null, context: null, p1,
-                    (OutputStream ostr, IObjectPrx? p1) => ostr.WriteTaggedProxy(2, p1));
-
-                IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
-
-                (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    {
-                        IObjectPrx? prx1 = istr.ReadTaggedProxy(1, IObjectPrx.Factory);
-                        IObjectPrx? prx2 = istr.ReadTaggedProxy(3, IObjectPrx.Factory);
-                        return (prx1, prx2);
-                    });
-                TestHelper.Assert(IObjectPrx.Equals(p1, p2));
-                TestHelper.Assert(IObjectPrx.Equals(p1, p3));
-            }
-
-            {
                 byte[]? p1 = null;
                 var (p2, p3) = initial.opByteSeq(p1);
                 TestHelper.Assert(p2 == null && p3 == null);

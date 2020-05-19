@@ -461,28 +461,6 @@ public class Client: TestHelperI {
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
-            MyInterfaceSHelper.write(to: outS, value: myInterfaceArray)
-            outS.writePendingValues()
-            var data = outS.finished()
-            inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2 = try MyInterfaceSHelper.read(from: inS)
-            try inS.readPendingValues()
-            try test(arr2.count == myInterfaceArray.count)
-
-            let arrS = [myInterfaceArray, [], myInterfaceArray]
-            outS = Ice.OutputStream(communicator: communicator)
-            MyInterfaceSSHelper.write(to: outS, value: arrS)
-            data = outS.finished()
-            inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try MyInterfaceSSHelper.read(from: inS)
-            try test(arr2S.count == arrS.count)
-            try test(arr2S[0].count == arrS[0].count)
-            try test(arr2S[1].count == arrS[1].count)
-            try test(arr2S[2].count == arrS[2].count)
-        }
-
-        do {
-            outS = Ice.OutputStream(communicator: communicator)
             let ex = MyException()
             let c = MyClass()
             c.c = c

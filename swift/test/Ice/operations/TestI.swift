@@ -6,12 +6,6 @@ import Foundation
 import Ice
 import TestCommon
 
-class BI: MBOperations {
-    func opB(current _: Ice.Current) throws {}
-
-    func opIntf(current _: Ice.Current) throws {}
-}
-
 class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     var _helper: TestHelper
     var _opByteSOnewayCallCount: Int32 = 0
@@ -411,29 +405,29 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         return try opStringLiterals(current: current)
     }
 
-    func opMStruct1(current: Current) throws -> Structure {
+    func opMStruct1(current _: Current) throws -> Structure {
         var s = Structure()
         s.e = .enum1
         return s
     }
 
-    func opMStruct2(p1: Structure, current: Current) throws -> (returnValue: Structure, p2: Structure) {
+    func opMStruct2(p1: Structure, current _: Current) throws -> (returnValue: Structure, p2: Structure) {
         return (p1, p1)
     }
 
-    func opMSeq1(current: Current) throws -> StringS {
+    func opMSeq1(current _: Current) throws -> StringS {
         return []
     }
 
-    func opMSeq2(p1: StringS, current: Current) throws -> (returnValue: StringS, p2: StringS) {
+    func opMSeq2(p1: StringS, current _: Current) throws -> (returnValue: StringS, p2: StringS) {
         return (p1, p1)
     }
 
-    func opMDict1(current: Current) throws -> StringStringD {
+    func opMDict1(current _: Current) throws -> StringStringD {
         return [:]
     }
 
-    func opMDict2(p1: StringStringD, current: Current) throws -> (returnValue: StringStringD, p2: StringStringD) {
+    func opMDict2(p1: StringStringD, current _: Current) throws -> (returnValue: StringStringD, p2: StringStringD) {
         return (p1, p1)
     }
 }

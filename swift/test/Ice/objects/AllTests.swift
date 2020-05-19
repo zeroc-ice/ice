@@ -140,15 +140,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     output.writeLine("ok")
 
-    output.write("getting I, J and H... ")
-    let i = try initial.getI()
-    try test(i !== nil)
-    let j = try initial.getJ()
-    try test(j != nil)
-    let h = try initial.getH()
-    try test(h != nil)
-    output.writeLine("ok")
-
     output.write("getting K... ")
     let k = try initial.getK()!
     let l = k.value as! L
@@ -203,12 +194,6 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     do {
         try initial.setG(G(theS: S(str: "hello"), str: "g"))
     } catch is Ice.OperationNotExistException {}
-    output.writeLine("ok")
-
-    output.write("setting I... ")
-    try initial.setI(i)
-    try initial.setI(j)
-    try initial.setI(h)
     output.writeLine("ok")
 
     output.write("testing sequences...")

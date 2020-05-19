@@ -1381,36 +1381,6 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        IceUtil::Optional<OneOptionalPrxPtr> p1;
-        IceUtil::Optional<OneOptionalPrxPtr> p3;
-        IceUtil::Optional<OneOptionalPrxPtr> p2 = initial->opOneOptionalProxy(p1, p3);
-        test(!p2 && !p3);
-
-        p1 = ICE_UNCHECKED_CAST(OneOptionalPrx, communicator->stringToProxy("test"));
-        p2 = initial->opOneOptionalProxy(p1, p3);
-
-        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
-
-        Ice::OutputStream out(communicator);
-        out.startEncapsulation();
-        out.write(2, p1);
-        out.endEncapsulation();
-        out.finished(inEncaps);
-        initial->ice_invoke("opOneOptionalProxy", Ice::OperationMode::Normal, inEncaps, outEncaps);
-        Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-        in.startEncapsulation();
-        in.read(1, p2);
-        in.read(3, p3);
-        in.endEncapsulation();
-
-        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
-
-        Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-        in2.startEncapsulation();
-        in2.endEncapsulation();
-    }
-
-    {
         FPtr f = std::make_shared<F>();
         f->af = std::make_shared<A>();
         (*f->af)->requiredA = 56;

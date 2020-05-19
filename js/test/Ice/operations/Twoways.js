@@ -1472,12 +1472,6 @@
             }
             await prx.opDoubleMarshaling(1278312346.0 / 13.0, ds);
         }
-
-        {
-            const b = M.BPrx.uncheckedCast(communicator.stringToProxy("b:" + helper.getTestEndpoint()));
-            await b.opB();
-            await b.opIntf();
-        }
     }
 
     exports.Twoways = {run: run};

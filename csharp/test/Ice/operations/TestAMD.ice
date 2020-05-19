@@ -7,7 +7,6 @@
 #include <Ice/Context.ice>
 
 [[cs:typeid-namespace:ZeroC.Ice.operations.AMD.TypeId]]
-[[suppress-warning:deprecated]] // For classes with operations
 
 [cs:namespace:ZeroC.Ice.operations.AMD]
 module Test
@@ -399,16 +398,10 @@ module M
     class A
     {
         int x;
-        // void opA();
     }
 
     [amd] interface Intf
     {
         void opIntf();
-    }
-
-    [amd] class B : A implements Intf
-    {
-        void opB();
     }
 }

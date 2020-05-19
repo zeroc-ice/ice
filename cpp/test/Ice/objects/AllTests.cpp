@@ -19,15 +19,6 @@ using namespace Test;
 namespace
 {
 
-class AbstractBaseI : public AbstractBase
-{
-public:
-
-    virtual void op(const Ice::Current&)
-    {
-    }
-};
-
 void
 testUOE(const Ice::CommunicatorPtr& communicator)
 {
@@ -249,15 +240,6 @@ allTests(Test::TestHelper* helper)
     FIPtr f = ICE_DYNAMIC_CAST(FI, initial->getF());
     cout << "ok" << endl;
 
-    cout << "getting I, J and H... " << flush;
-    shared_ptr<Ice::Value> i = initial->getI();
-    test(i->ice_id() == "::Test::I");
-    shared_ptr<Ice::Value> j = initial->getJ();
-    test(j->ice_id() == "::Test::J");
-    shared_ptr<Ice::Value> h = initial->getH();
-    test(h && dynamic_pointer_cast<H>(h));
-    cout << "ok" << endl;
-
     cout << "getting K... " << flush;
     {
         KPtr k = initial->getK();
@@ -334,12 +316,6 @@ allTests(Test::TestHelper* helper)
     catch(const Ice::OperationNotExistException&)
     {
     }
-    cout << "ok" << endl;
-
-    cout << "setting I... " << flush;
-    initial->setI(i);
-    initial->setI(j);
-    initial->setI(h);
     cout << "ok" << endl;
 
     cout << "testing sequences... " << flush;

@@ -406,12 +406,4 @@ private:
     int _opByteSOnewayCallCount;
 };
 
-class BI : public M::BDisp
-{
-public:
-
-    void opIntfAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
-    void opBAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
-};
-
 #endif

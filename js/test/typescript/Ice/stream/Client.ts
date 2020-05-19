@@ -467,27 +467,6 @@ export class Client extends TestHelper
 
         {
             outS = new Ice.OutputStream(communicator);
-            Test.MyInterfaceSHelper.write(outS, myInterfaceArray);
-            outS.writePendingValues();
-            let data = outS.finished();
-            inS = new Ice.InputStream(communicator, data);
-            const arr2 = Test.MyInterfaceSHelper.read(inS);
-            inS.readPendingValues();
-            test(arr2.length == myInterfaceArray.length);
-            const arrS = [myInterfaceArray, [], myInterfaceArray];
-            outS = new Ice.OutputStream(communicator);
-            Test.MyInterfaceSSHelper.write(outS, arrS);
-            data = outS.finished();
-            inS = new Ice.InputStream(communicator, data);
-            const arr2S = Test.MyInterfaceSSHelper.read(inS);
-            test(arr2S.length == arrS.length);
-            test(arr2S[0].length == arrS[0].length);
-            test(arr2S[1].length == arrS[1].length);
-            test(arr2S[2].length == arrS[2].length);
-        }
-
-        {
-            outS = new Ice.OutputStream(communicator);
             const ex = new Test.MyException();
 
             const c = new Test.MyClass();

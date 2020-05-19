@@ -51,7 +51,6 @@
             test(mo4.g === undefined);
             test(mo4.h === undefined);
             test(mo4.i === undefined);
-            test(mo4.j === undefined);
             test(mo4.k === undefined);
             test(mo4.bs === undefined);
             test(mo4.ss === undefined);
@@ -65,13 +64,11 @@
             test(mo4.fss === undefined);
             test(mo4.vss === undefined);
             test(mo4.oos === undefined);
-            test(mo4.oops === undefined);
 
             test(mo4.ied === undefined);
             test(mo4.ifsd === undefined);
             test(mo4.ivsd === undefined);
             test(mo4.iood === undefined);
-            test(mo4.ioopd === undefined);
 
             test(mo4.bos === undefined);
 
@@ -87,7 +84,6 @@
             mo1.g = 1.0;
             mo1.h = "test";
             mo1.i = Test.MyEnum.MyEnumMember;
-            mo1.j = communicator.stringToProxy("test");
             mo1.k = mo1;
             mo1.bs = new Uint8Array([5]);
             mo1.ss = ["test", "test2"];
@@ -105,7 +101,6 @@
             mo1.fss = [mo1.fs];
             mo1.vss = [mo1.vs];
             mo1.oos = [oo1];
-            mo1.oops = [communicator.stringToProxy("test")];
 
             mo1.ied = new Map();
             mo1.ied.set(4, Test.MyEnum.MyEnumMember);
@@ -115,8 +110,6 @@
             mo1.ivsd.set(5, mo1.vs);
             mo1.iood = new Map();
             mo1.iood.set(5, new Test.OneOptional(15));
-            mo1.ioopd = new Map();
-            mo1.ioopd.set(5, communicator.stringToProxy("test"));
 
             mo1.bos = [false, true, false];
 
@@ -131,7 +124,6 @@
             test(mo1.g == mo5.g);
             test(mo1.h == mo5.h);
             test(mo1.i == mo5.i);
-            test(mo1.j.equals(mo5.j));
             test(mo5.k == mo5);
             test(ArrayUtil.equals(mo5.bs, mo1.bs));
             test(ArrayUtil.equals(mo5.ss, mo1.ss));
@@ -144,13 +136,10 @@
             test(mo5.fss[0].equals(new Test.FixedStruct(78)));
             test(mo5.vss[0].equals(new Test.VarStruct("hello")));
             test(mo5.oos[0].a == 15);
-            test(mo5.oops[0].equals(communicator.stringToProxy("test")));
-
             test(mo5.ied.get(4) == Test.MyEnum.MyEnumMember);
             test(mo5.ifsd.get(4).equals(new Test.FixedStruct(78)));
             test(mo5.ivsd.get(5).equals(new Test.VarStruct("hello")));
             test(mo5.iood.get(5).a == 15);
-            test(mo5.ioopd.get(5).equals(communicator.stringToProxy("test")));
 
             test(ArrayUtil.equals(mo5.bos, [false, true, false]));
 
@@ -160,7 +149,6 @@
             mo6.d = mo5.d;
             mo6.f = mo5.f;
             mo6.h = mo5.h;
-            mo6.j = mo5.j;
             mo6.bs = mo5.bs;
             mo6.iid = mo5.iid;
             mo6.fs = mo5.fs;
@@ -181,7 +169,6 @@
             test(mo7.g === undefined);
             test(mo7.h == mo1.h);
             test(mo7.i === undefined);
-            test(mo7.j.equals(mo1.j));
             test(mo7.k === undefined);
             test(ArrayUtil.equals(mo7.bs, mo1.bs));
             test(mo7.ss === undefined);
@@ -194,13 +181,11 @@
             test(mo7.fss[0].equals(new Test.FixedStruct(78)));
             test(mo7.vss === undefined);
             test(mo7.oos[0].a == 15);
-            test(mo7.oops === undefined);
 
             test(mo7.ied === undefined);
             test(mo7.ifsd.get(4).equals(new Test.FixedStruct(78)));
             test(mo7.ivsd === undefined);
             test(mo7.iood.get(5).a == 15);
-            test(mo7.ioopd === undefined);
 
             test(ArrayUtil.equals(mo7.bos, [false, true, false]));
 
@@ -218,11 +203,9 @@
 
             mo8.es = mo1.es;
             mo8.vss = mo1.vss;
-            mo8.oops = mo1.oops;
 
             mo8.ied = mo1.ied;
             mo8.ivsd = mo1.ivsd;
-            mo8.ioopd = mo1.ioopd;
 
             const mo9 = await initial.pingPong(mo8);
 
@@ -235,7 +218,6 @@
             test(mo9.g == mo1.g);
             test(mo9.h === undefined);
             test(mo9.i == mo1.i);
-            test(mo9.j === undefined);
             test(mo9.k == mo9);
             test(mo9.bs === undefined);
             test(ArrayUtil.equals(mo9.ss, mo1.ss));
@@ -249,13 +231,11 @@
             test(mo9.fss === undefined);
             test(mo9.vss[0].equals(new Test.VarStruct("hello")));
             test(mo9.oos === undefined);
-            test(mo9.oops[0].equals(communicator.stringToProxy("test")));
 
             test(mo9.ied.get(4) == Test.MyEnum.MyEnumMember);
             test(mo9.ifsd === undefined);
             test(mo9.ivsd.get(5).equals(new Test.VarStruct("hello")));
             test(mo9.iood === undefined);
-            test(mo9.ioopd.get(5).equals(communicator.stringToProxy("test")));
 
             test(mo9.bos === undefined);
 
@@ -457,12 +437,6 @@
             [p1, p2] = await initial.opOneOptional(new Test.OneOptional(58));
             test(p1 === p2);
             test(p2.a === 58);
-            [p1, p2] = await initial.opOneOptionalProxy();
-            test(p1 === undefined);
-            test(p2 === undefined);
-            [p1, p2] = await initial.opOneOptionalProxy(communicator.stringToProxy("test"));
-            test(p1.equals(communicator.stringToProxy("test")));
-            test(p2.equals(communicator.stringToProxy("test")));
             [p1, p2] = await initial.opByteSeq();
             test(p1 === undefined);
             test(p2 === undefined);

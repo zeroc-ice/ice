@@ -34,7 +34,6 @@ class Collocated: TestHelperI {
 
         communicator.getProperties().setProperty(key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: MBDisp(BI()), id: Ice.stringToIdentity("b"))
         try adapter.add(servant: MyDerivedClassDisp(MyDerivedClassI(self)),
                         id: Ice.stringToIdentity("test"))
         //try adapter.activate() // Don't activate OA to ensure collocation is used.

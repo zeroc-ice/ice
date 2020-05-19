@@ -5,7 +5,6 @@
 #pragma once
 
 [[java:package:test.Ice.objects]]
-[[suppress-warning:deprecated]] // For classes with operations
 
 module Test
 {
@@ -19,11 +18,6 @@ class Base
 {
     S theS;
     string str;
-}
-
-class AbstractBase : Base
-{
-    void op();
 }
 
 class B;
@@ -83,10 +77,6 @@ interface I
 }
 
 interface J : I
-{
-}
-
-class H implements I
 {
 }
 
@@ -221,10 +211,6 @@ interface Initial
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
-    I getH();
-    I getI();
-    I getJ();
-
     K getK();
 
     Value opValue(Value v1, out Value v2);
@@ -235,7 +221,6 @@ interface Initial
     void throwEDerived() throws EDerived;
 
     void setG(G theG);
-    void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 

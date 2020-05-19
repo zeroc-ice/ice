@@ -5,7 +5,6 @@
 #pragma once
 
 [[java:package:test.Slice.escape]]
-[[suppress-warning:deprecated]]
 
 module abstract
 {

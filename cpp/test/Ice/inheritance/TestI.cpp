@@ -7,30 +7,6 @@
 
 using namespace Test;
 
-MA::CAPrxPtr
-CAI_::caop(MA::CAPrxPtr p, const Ice::Current&)
-{
-    return p;
-}
-
-MB::CBPrxPtr
-CBI::cbop(MB::CBPrxPtr p, const Ice::Current&)
-{
-    return p;
-}
-
-MA::CCPrxPtr
-CCI::ccop(MA::CCPrxPtr p, const Ice::Current&)
-{
-    return p;
-}
-
-MA::CDPrxPtr
-CDI::cdop(MA::CDPrxPtr p, const Ice::Current&)
-{
-    return p;
-}
-
 MA::IAPrxPtr
 IAI::iaop(MA::IAPrxPtr p, const Ice::Current&)
 {
@@ -57,10 +33,6 @@ ICI::icop(MA::ICPrxPtr p, const Ice::Current&)
 
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter)
 {
-    _ca = ICE_UNCHECKED_CAST(MA::CAPrx, adapter->addWithUUID(std::make_shared<CAI_>()));
-    _cb = ICE_UNCHECKED_CAST(MB::CBPrx, adapter->addWithUUID(std::make_shared<CBI>()));
-    _cc = ICE_UNCHECKED_CAST(MA::CCPrx, adapter->addWithUUID(std::make_shared<CCI>()));
-    _cd = ICE_UNCHECKED_CAST(MA::CDPrx, adapter->addWithUUID(std::make_shared<CDI>()));
     _ia = ICE_UNCHECKED_CAST(MA::IAPrx, adapter->addWithUUID(std::make_shared<IAI>()));
     _ib1 = ICE_UNCHECKED_CAST(MB::IB1Prx, adapter->addWithUUID(std::make_shared<IB1I>()));
     _ib2 = ICE_UNCHECKED_CAST(MB::IB2Prx, adapter->addWithUUID(std::make_shared<IB2I>()));
@@ -71,30 +43,6 @@ void
 InitialI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
-}
-
-MA::CAPrxPtr
-InitialI::caop(const Ice::Current&)
-{
-    return _ca;
-}
-
-MB::CBPrxPtr
-InitialI::cbop(const Ice::Current&)
-{
-    return _cb;
-}
-
-MA::CCPrxPtr
-InitialI::ccop(const Ice::Current&)
-{
-    return _cc;
-}
-
-MA::CDPrxPtr
-InitialI::cdop(const Ice::Current&)
-{
-    return _cd;
 }
 
 MA::IAPrxPtr

@@ -97,15 +97,6 @@ classdef AllTests
             assert(strcmp(fm.PropertyList(2).GetAccess, 'protected'));
             fprintf('ok\n');
 
-            fprintf('getting I, J and H... ');
-            i = initial.getI();
-            assert(~isempty(i) && strcmp(i.ice_id(), IPrx.ice_staticId()));
-            j = initial.getJ();
-            assert(~isempty(j) && strcmp(j.ice_id(), JPrx.ice_staticId()));
-            h = initial.getH();
-            assert(~isempty(h) && isa(h, 'Test.H'));
-            fprintf('ok\n');
-
             fprintf('getting K... ');
             k = initial.getK();
             assert(~isempty(k));
@@ -157,12 +148,6 @@ classdef AllTests
                     rethrow(ex);
                 end
             end
-            fprintf('ok\n');
-
-            fprintf('setting I... ');
-            initial.setI(i);
-            initial.setI(j);
-            initial.setI(h);
             fprintf('ok\n');
 
             fprintf('testing sequences... ');

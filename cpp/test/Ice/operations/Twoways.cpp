@@ -57,7 +57,7 @@ private:
 }
 
 void
-twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper* helper, const Test::MyClassPrxPtr& p)
+twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test::MyClassPrxPtr& p)
 {
     Test::StringS literals = p->opStringLiterals();
 
@@ -1864,11 +1864,5 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper* helper, cons
         map<string, string> p2, p3;
         p3 = p->opMDict2(p1, p2);
         test(p2 == p1 && p3 == p1);
-    }
-
-    {
-        M::BPrxPtr b = ICE_UNCHECKED_CAST(M::BPrx, communicator->stringToProxy("b:" + helper->getTestEndpoint()));
-        b->opIntf();
-        b->opB();
     }
 }

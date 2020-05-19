@@ -182,13 +182,6 @@ InitialI::opOneOptional(Optional<OneOptionalPtr> p1, Optional<OneOptionalPtr>& p
     return p1;
 }
 
-Optional<OneOptionalPrxPtr>
-InitialI::opOneOptionalProxy(Optional<OneOptionalPrxPtr> p1, Optional<OneOptionalPrxPtr>& p3, const Current&)
-{
-    p3 = p1;
-    return p1;
-}
-
 Optional<Test::ByteSeq>
 InitialI::opByteSeq(Optional<pair<const Ice::Byte*, const Ice::Byte*> > p1, Optional<Test::ByteSeq>& p3,
                     const Current&)

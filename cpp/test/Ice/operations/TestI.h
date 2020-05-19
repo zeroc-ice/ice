@@ -310,12 +310,4 @@ private:
     int _opByteSOnewayCallCount;
 };
 
-class BI : public M::BDisp
-{
-public:
-
-    void opIntf(const Ice::Current&);
-    void opB(const Ice::Current&);
-};
-
 #endif

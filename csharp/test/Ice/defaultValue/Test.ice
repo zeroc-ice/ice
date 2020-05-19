@@ -7,7 +7,8 @@
 //
 // Suppress warnings
 //
-[[suppress-warning:invalid-metadata, deprecated]]
+
+[[suppress-warning:invalid-metadata, deprecated]] // deprecated for enumerator references
 [[cs:typeid-namespace:ZeroC.Ice.defaultValue.TypeId]]
 
 [cs:namespace:ZeroC.Ice.defaultValue]

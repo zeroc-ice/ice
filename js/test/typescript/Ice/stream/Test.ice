@@ -7,7 +7,7 @@
 //
 // Suppress invalid metadata warnings
 //
-[[suppress-warning:invalid-metadata, deprecated]]
+[[suppress-warning:invalid-metadata]]
 [[js:es6-module]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -49,7 +49,6 @@ class OptionalClass
 
 sequence<MyEnum> MyEnumS;
 sequence<MyClass> MyClassS;
-sequence<MyInterface> MyInterfaceS;
 
 sequence<Ice::BoolSeq> BoolSS;
 sequence<Ice::ByteSeq> ByteSS;
@@ -61,7 +60,6 @@ sequence<Ice::DoubleSeq> DoubleSS;
 sequence<Ice::StringSeq> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
-sequence<MyInterfaceS> MyInterfaceSS;
 
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;

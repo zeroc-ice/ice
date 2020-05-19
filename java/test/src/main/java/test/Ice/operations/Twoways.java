@@ -1525,11 +1525,5 @@ class Twoways
             MyClass.OpMDict2Result r = p.opMDict2(p1);
             test(r.p2.equals(p1) && r.returnValue.equals(p1));
         }
-
-        {
-            BPrx b = BPrx.uncheckedCast(communicator.stringToProxy("b:" + helper.getTestEndpoint()));
-            b.opB();
-            b.opIntf();
-        }
     }
 }

@@ -66,8 +66,6 @@ namespace ZeroC.Ice.tagged
 
         public (Test.OneTagged?, Test.OneTagged?) opOneTagged(Test.OneTagged? p1, Current current) => (p1, p1);
 
-        public (IObjectPrx?, IObjectPrx?) opOneTaggedProxy(IObjectPrx? p1, Current current) => (p1, p1);
-
         public (ReadOnlyMemory<byte>, ReadOnlyMemory<byte>) opByteSeq(byte[]? p1, Current current) => (p1, p1);
         public (IEnumerable<byte>?, IEnumerable<byte>?) opByteList(List<byte>? p1, Current current) => (p1, p1);
 

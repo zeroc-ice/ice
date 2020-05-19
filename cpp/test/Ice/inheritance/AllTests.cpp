@@ -25,19 +25,6 @@ allTests(Test::TestHelper* helper)
     test(Ice::targetEqualTo(initial, base));
     cout << "ok" << endl;
 
-    cout << "getting proxies for class hierarchy... " << flush;
-    MA::CAPrxPtr ca = initial->caop();
-    MB::CBPrxPtr cb = initial->cbop();
-    MA::CCPrxPtr cc = initial->ccop();
-    MA::CDPrxPtr cd = initial->cdop();
-    test(!Ice::targetEqualTo(ca, cb));
-    test(!Ice::targetEqualTo(ca, cc));
-    test(!Ice::targetEqualTo(ca, cd));
-    test(!Ice::targetEqualTo(cb, cc));
-    test(!Ice::targetEqualTo(cb, cd));
-    test(!Ice::targetEqualTo(cc, cd));
-    cout << "ok" << endl;
-
     cout << "getting proxies for interface hierarchy... " << flush;
     MA::IAPrxPtr ia = initial->iaop();
     MB::IB1PrxPtr ib1 = initial->ib1op();
@@ -50,73 +37,7 @@ allTests(Test::TestHelper* helper)
     test(!Ice::targetEqualTo(ib2, ic));
     cout << "ok" << endl;
 
-    cout << "invoking proxy operations on class hierarchy... " << flush;
-    MA::CAPrxPtr cao;
-    MB::CBPrxPtr cbo;
-    MA::CCPrxPtr cco;
-
-    cao = ca->caop(ca);
-    test(Ice::targetEqualTo(cao, ca));
-
-    cao = ca->caop(cb);
-    test(Ice::targetEqualTo(cao, cb));
-
-    cao = ca->caop(cc);
-    test(Ice::targetEqualTo(cao, cc));
-
-    cao = cb->caop(ca);
-    test(Ice::targetEqualTo(cao, ca));
-
-    cao = cb->caop(cb);
-    test(Ice::targetEqualTo(cao, cb));
-
-    cao = cb->caop(cc);
-    test(Ice::targetEqualTo(cao, cc));
-
-    cao = cc->caop(ca);
-    test(Ice::targetEqualTo(cao, ca));
-
-    cao = cc->caop(cb);
-    test(Ice::targetEqualTo(cao, cb));
-
-    cao = cc->caop(cc);
-    test(Ice::targetEqualTo(cao, cc));
-
-    cao = cb->cbop(cb);
-    test(Ice::targetEqualTo(cao, cb));
-
-    cbo = cb->cbop(cb);
-    test(Ice::targetEqualTo(cbo, cb));
-
-    cao = cb->cbop(cc);
-    test(Ice::targetEqualTo(cao, cc));
-
-    cbo = cb->cbop(cc);
-    test(Ice::targetEqualTo(cbo, cc));
-
-    cao = cc->cbop(cb);
-    test(Ice::targetEqualTo(cao, cb));
-
-    cbo = cc->cbop(cb);
-    test(Ice::targetEqualTo(cbo, cb));
-
-    cao = cc->cbop(cc);
-    test(Ice::targetEqualTo(cao, cc));
-
-    cbo = cc->cbop(cc);
-    test(Ice::targetEqualTo(cbo, cc));
-
-    cao = cc->ccop(cc);
-    test(Ice::targetEqualTo(cao, cc));
-
-    cbo = cc->ccop(cc);
-    test(Ice::targetEqualTo(cbo, cc));
-
-    cco = cc->ccop(cc);
-    test(Ice::targetEqualTo(cco, cc));
-    cout << "ok" << endl;
-
-    cout << "ditto, but for interface hierarchy... " << flush;
+    cout << "invoking proxy operations for interface hierarchy... " << flush;
     MA::IAPrxPtr iao;
     MB::IB1PrxPtr ib1o;
     MB::IB2PrxPtr ib2o;
@@ -228,47 +149,6 @@ allTests(Test::TestHelper* helper)
 
     ico = ic->icop(ic);
     test(Ice::targetEqualTo(ico, ic));
-
-    cout << "ok" << endl;
-
-    cout << "ditto, but for class implementing interfaces... " << flush;
-    MA::CDPrxPtr cdo;
-
-    cao = cd->caop(cd);
-    test(Ice::targetEqualTo(cao, cd));
-
-    cbo = cd->cbop(cd);
-    test(Ice::targetEqualTo(cbo, cd));
-
-    cco = cd->ccop(cd);
-    test(Ice::targetEqualTo(cco, cd));
-
-    iao = cd->iaop(cd);
-    test(Ice::targetEqualTo(iao, cd));
-
-    ib1o = cd->ib1op(cd);
-    test(Ice::targetEqualTo(ib1o, cd));
-
-    ib2o = cd->ib2op(cd);
-    test(Ice::targetEqualTo(ib2o, cd));
-
-    cao = cd->cdop(cd);
-    test(Ice::targetEqualTo(cao, cd));
-
-    cbo = cd->cdop(cd);
-    test(Ice::targetEqualTo(cbo, cd));
-
-    cco = cd->cdop(cd);
-    test(Ice::targetEqualTo(cco, cd));
-
-    iao = cd->cdop(cd);
-    test(Ice::targetEqualTo(iao, cd));
-
-    ib1o = cd->cdop(cd);
-    test(Ice::targetEqualTo(ib1o, cd));
-
-    ib2o = cd->cdop(cd);
-    test(Ice::targetEqualTo(ib2o, cd));
 
     cout << "ok" << endl;
 

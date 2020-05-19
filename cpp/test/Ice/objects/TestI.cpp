@@ -210,17 +210,6 @@ InitialI::setG(Test::GPtr, const Ice::Current&)
 {
 }
 
-shared_ptr<Ice::Value>
-InitialI::getI(const Ice::Current&)
-{
-    return make_shared<II>();
-}
-
-void
-InitialI::setI(shared_ptr<Ice::Value>, const Ice::Current&)
-{
-}
-
 BaseSeq
 InitialI::opBaseSeq(BaseSeq inSeq, BaseSeq& outSeq, const Ice::Current&)
 {
@@ -260,18 +249,6 @@ InitialI::throwInnerSubEx(const Ice::Current&)
     Inner::Sub::Ex ex;
     ex.reason = "Inner::Sub::Ex";
     throw ex;
-}
-
-shared_ptr<Ice::Value>
-InitialI::getJ(const Ice::Current&)
-{
-    return make_shared<JI>();
-}
-
-shared_ptr<Ice::Value>
-InitialI::getH(const Ice::Current&)
-{
-    return make_shared<HI>();
 }
 
 KPtr

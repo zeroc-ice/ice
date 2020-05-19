@@ -80,9 +80,6 @@ namespace ZeroC.Ice.tagged.AMD
         public ValueTask<(Test.OneTagged?, Test.OneTagged?)> opOneTaggedAsync(Test.OneTagged? p1, Current current) =>
             MakeValueTask((p1, p1));
 
-        public ValueTask<(IObjectPrx?, IObjectPrx?)> opOneTaggedProxyAsync(IObjectPrx? p1, Current current) =>
-            MakeValueTask((p1, p1));
-
         public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> opByteSeqAsync(byte[]? p1, Current current) =>
             ToReturnValue(p1);
         public ValueTask<(IEnumerable<byte>?, IEnumerable<byte>?)> opByteListAsync(List<byte>? p1, Current current) =>

@@ -19,4 +19,4 @@ interface F2
     void op();
 }
 
-};
+}

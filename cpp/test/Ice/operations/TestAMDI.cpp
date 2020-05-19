@@ -1025,19 +1025,3 @@ MyDerivedClassI::opMDict2Async(Test::StringStringD p1,
 {
     response(OpMDict2MarshaledResult(p1, p1, current));
 }
-
-void
-BI::opIntfAsync(function<void()> response,
-                function<void(std::exception_ptr)>,
-                const Ice::Current&)
-{
-    response();
-}
-
-void
-BI::opBAsync(function<void()> response,
-             function<void(std::exception_ptr)>,
-             const Ice::Current&)
-{
-    response();
-}

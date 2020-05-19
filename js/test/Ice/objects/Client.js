@@ -75,10 +75,6 @@
         }
     }
 
-    class HI extends Test.H
-    {
-    }
-
     class II extends Ice.InterfaceByValue
     {
         constructor()
@@ -239,15 +235,6 @@
             test(f.e2.checkValues());
             out.writeLine("ok");
 
-            out.write("getting I, J and H... ");
-            const i = await initial.getI();
-            test(i);
-            const j = await initial.getJ();
-            test(j);
-            const h = await initial.getH();
-            test(h);
-            out.writeLine("ok");
-
             out.write("getting K...");
             const k = await initial.getK();
             test(k);
@@ -307,12 +294,6 @@
             {
                 test(ex instanceof Ice.OperationNotExistException, ex);
             }
-            out.writeLine("ok");
-
-            out.write("setting I... ");
-            await initial.setI(i);
-            await initial.setI(j);
-            await initial.setI(h);
             out.writeLine("ok");
 
             out.write("testing sequences... ");

@@ -70,10 +70,6 @@ export class FI extends Test.F
     }
 }
 
-export class HI extends Test.H
-{
-}
-
 export class II extends Ice.InterfaceByValue
 {
     constructor()
@@ -108,8 +104,6 @@ export function MyValueFactory(type:string):Ice.Value
             return new II();
         case "::Test::J":
             return new JI();
-        case "::Test::H":
-            return new HI();
         case "::Test::Inner::A":
             return new Test.Inner.A();
         case "::Test::Inner::Sub::A":
@@ -134,7 +128,6 @@ export class InitialI extends Test.Initial
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
-            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
             communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
         }
@@ -232,21 +225,6 @@ export class InitialI extends Test.Initial
         return Promise.resolve(this._b1);
     }
 
-    getI(current:Ice.Current):Ice.Value
-    {
-        return new II();
-    }
-
-    getJ(current:Ice.Current):Ice.Value
-    {
-        return new JI();
-    }
-
-    getH(current:Ice.Current):Ice.Value
-    {
-        return new HI();
-    }
-
     getK(current:Ice.Current)
     {
         return new Test.K(new Test.L("l"));
@@ -278,10 +256,6 @@ export class InitialI extends Test.Initial
     }
 
     setG(theG:Test.G, current:Ice.Current):void
-    {
-    }
-
-    setI(theI:Ice.Value, current:Ice.Current):void
     {
     }
 

@@ -7,7 +7,6 @@
 [[cpp:include:list]]
 [[cpp:include:CustomMap.h]]
 [[cpp:include:StringView.h]]
-[[suppress-warning:deprecated]]
 
 module Test
 {
@@ -243,8 +242,6 @@ interface Initial
     tag(1) VarStruct opVarStruct(tag(2) VarStruct p1, out tag(3) VarStruct p3);
 
     tag(1) OneOptional opOneOptional(tag(2) OneOptional p1, out tag(3) OneOptional p3);
-
-    tag(1) OneOptional* opOneOptionalProxy(tag(2) OneOptional* p1, out tag(3) OneOptional* p3);
 
     // Custom mapping operations
     [cpp:array] tag(1) ByteSeq opByteSeq([cpp:array] tag(2) ByteSeq p1,

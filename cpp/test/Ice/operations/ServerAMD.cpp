@@ -30,7 +30,6 @@ ServerAMD::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
-    adapter->add(std::make_shared<BI>(), Ice::stringToIdentity("b"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

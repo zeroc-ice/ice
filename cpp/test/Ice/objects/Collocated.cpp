@@ -73,7 +73,6 @@ Collocated::run(int argc, char** argv)
     communicator->getValueFactoryManager()->add(makeFactory<FI>(), "::Test::F");
     communicator->getValueFactoryManager()->add(makeFactory<II>(), "::Test::I");
     communicator->getValueFactoryManager()->add(makeFactory<JI>(), "::Test::J");
-    communicator->getValueFactoryManager()->add(makeFactory<HI>(), "::Test::H");
     communicator->addObjectFactory(make_shared<MyObjectFactory>(), "TestOF");
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());

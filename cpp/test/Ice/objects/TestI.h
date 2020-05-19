@@ -61,10 +61,6 @@ class JI : public ::Ice::InterfaceByValue<Test::J>
 {
 };
 
-class HI : public Test::H
-{
-};
-
 class InitialI : public Test::Initial
 {
 public:
@@ -90,10 +86,6 @@ public:
 
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
 
-    virtual ::std::shared_ptr<::Ice::Value> getI(const Ice::Current&);
-    virtual ::std::shared_ptr<::Ice::Value> getJ(const Ice::Current&);
-    virtual ::std::shared_ptr<::Ice::Value> getH(const Ice::Current&);
-
     virtual Test::KPtr getK(const Ice::Current&);
 
     virtual Ice::ValuePtr opValue(Ice::ValuePtr, Ice::ValuePtr&, const Ice::Current&);
@@ -105,7 +97,6 @@ public:
 
     virtual void setG(Test::GPtr, const Ice::Current&);
 
-    virtual void setI(::std::shared_ptr<::Ice::Value>, const Ice::Current&);
     virtual Test::BaseSeq opBaseSeq(Test::BaseSeq, Test::BaseSeq&, const Ice::Current&);
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);

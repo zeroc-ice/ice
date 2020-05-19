@@ -7,16 +7,6 @@ import Ice
 import PromiseKit
 import TestCommon
 
-class BI: MBOperations {
-    func opBAsync(current _: Ice.Current) -> Promise<Void> {
-        return Promise.value(())
-    }
-
-    func opIntfAsync(current _: Ice.Current) -> Promise<Void> {
-        return Promise.value(())
-    }
-}
-
 class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     var _helper: TestHelper
     var _opByteSOnewayCallCount: Int32 = 0
@@ -444,29 +434,29 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         return opStringLiteralsAsync(current: current)
     }
 
-    func opMStruct1Async(current: Current) -> Promise<Structure> {
+    func opMStruct1Async(current _: Current) -> Promise<Structure> {
         var s = Structure()
         s.e = .enum1
         return Promise.value(s)
     }
 
-    func opMStruct2Async(p1: Structure, current: Current) -> Promise<(returnValue: Structure, p2: Structure)> {
+    func opMStruct2Async(p1: Structure, current _: Current) -> Promise<(returnValue: Structure, p2: Structure)> {
         return Promise.value((p1, p1))
     }
 
-    func opMSeq1Async(current: Current) -> Promise<StringS> {
+    func opMSeq1Async(current _: Current) -> Promise<StringS> {
         return Promise.value([])
     }
 
-    func opMSeq2Async(p1: StringS, current: Current) -> Promise<(returnValue: StringS, p2: StringS)> {
+    func opMSeq2Async(p1: StringS, current _: Current) -> Promise<(returnValue: StringS, p2: StringS)> {
         return Promise.value((p1, p1))
     }
 
-    func opMDict1Async(current: Current) -> Promise<StringStringD> {
+    func opMDict1Async(current _: Current) -> Promise<StringStringD> {
         return Promise.value([:])
     }
 
-    func opMDict2Async(p1: StringStringD, current: Current) ->
+    func opMDict2Async(p1: StringStringD, current _: Current) ->
         Promise<(returnValue: StringStringD, p2: StringStringD)> {
         return Promise.value((p1, p1))
     }

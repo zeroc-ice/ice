@@ -7,7 +7,7 @@
 #include <Ice/Context.ice>
 
 [[java:package:test.Ice.operations.AMD]]
-[[suppress-warning:deprecated]] // For classes with operations
+
 module Test
 {
 
@@ -365,10 +365,5 @@ module M
     [amd] interface Intf
     {
         void opIntf();
-    }
-
-    [amd] class B : A implements Intf
-    {
-        void opB();
     }
 }

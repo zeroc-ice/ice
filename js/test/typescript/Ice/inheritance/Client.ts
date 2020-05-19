@@ -26,19 +26,6 @@ export class Client extends TestHelper
         test(initial.equals(base));
         out.writeLine("ok");
 
-        out.write("getting proxies for class hierarchy... ");
-        const ca = await initial.caop();
-        const cb = await initial.cbop();
-        const cc = await initial.ccop();
-        const cd = await initial.cdop();
-        test(ca != cb);
-        test(ca != cc);
-        test(ca != cd);
-        test(cb != cc);
-        test(cb != cd);
-        test(cc != cd);
-        out.writeLine("ok");
-
         out.write("getting proxies for interface hierarchy... ");
         const ia = await initial.iaop();
         const ib1 = await initial.ib1op();
@@ -51,53 +38,7 @@ export class Client extends TestHelper
         test(ib2 != ic);
         out.writeLine("ok");
 
-        out.write("invoking proxy operations on class hierarchy... ");
-
-        let cao = await ca.caop(ca);
-        test(cao.equals(ca));
-        cao = await ca.caop(cb);
-        test(cao.equals(cb));
-        cao = await ca.caop(cc);
-        test(cao.equals(cc));
-        cao = await cb.caop(ca);
-        test(cao.equals(ca));
-        cao = await cb.caop(cb);
-        test(cao.equals(cb));
-        cao = await cb.caop(cc);
-        test(cao.equals(cc));
-        cao = await cc.caop(ca);
-        test(cao.equals(ca));
-        cao = await cc.caop(cb);
-        test(cao.equals(cb));
-        cao = await cc.caop(cc);
-        test(cao.equals(cc));
-
-        cao = await cb.cbop(cb);
-        test(cao.equals(cb));
-        let cbo = await cb.cbop(cb);
-        test(cbo.equals(cb));
-        cao = await cb.cbop(cc);
-        test(cao.equals(cc));
-        cbo = await cb.cbop(cc);
-        test(cbo.equals(cc));
-        cao = await cc.cbop(cb);
-        test(cao.equals(cb));
-        cbo = await cc.cbop(cb);
-        test(cbo.equals(cb));
-        cao = await cc.cbop(cc);
-        test(cao.equals(cc));
-        cbo = await cc.cbop(cc);
-        test(cbo.equals(cc));
-
-        cao = await cc.ccop(cc);
-        test(cao.equals(cc));
-        cbo = await cc.ccop(cc);
-        test(cbo.equals(cc));
-        let cco = await cc.ccop(cc);
-        test(cco.equals(cc));
-        out.writeLine("ok");
-
-        out.write("ditto, but for interface hierarchy... ");
+        out.write("invoking proxy operations on interface hierarchy... ");
         let iao;
         let ib1o;
         let ib2o;
@@ -177,36 +118,6 @@ export class Client extends TestHelper
         test(ib2o.equals(ic));
         const ico = await ic.icop(ic);
         test(ico.equals(ic));
-        out.writeLine("ok");
-
-        out.write("ditto, but for class implementing interfaces... ");
-        cao = await cd.caop(cd);
-        test(cao.equals(cd));
-        cbo = await cd.cbop(cd);
-        test(cbo.equals(cd));
-        cco = await cd.ccop(cd);
-        test(cco.equals(cd));
-
-        iao = await cd.iaop(cd);
-        test(iao.equals(cd));
-        ib1o = await cd.ib1op(cd);
-        test(ib1o.equals(cd));
-        ib2o = await cd.ib2op(cd);
-        test(ib2o.equals(cd));
-
-        cao = await cd.cdop(cd);
-        test(cao.equals(cd));
-        cbo = await cd.cdop(cd);
-        test(cbo.equals(cd));
-        cco = await cd.cdop(cd);
-        test(cco.equals(cd));
-
-        iao = await cd.cdop(cd);
-        test(iao.equals(cd));
-        ib1o = await cd.cdop(cd);
-        test(ib1o.equals(cd));
-        ib2o = await cd.cdop(cd);
-        test(ib2o.equals(cd));
         out.writeLine("ok");
 
         await initial.shutdown();

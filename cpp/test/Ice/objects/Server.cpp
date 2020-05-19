@@ -35,7 +35,6 @@ Server::run(int argc, char** argv)
 
     communicator->getValueFactoryManager()->add(makeFactory<II>(), "::Test::I");
     communicator->getValueFactoryManager()->add(makeFactory<JI>(), "::Test::J");
-    communicator->getValueFactoryManager()->add(makeFactory<HI>(), "::Test::H");
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
