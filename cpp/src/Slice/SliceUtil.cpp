@@ -454,7 +454,7 @@ Slice::splitScopedName(const string& scoped)
     return ids;
 }
 
-void
+bool
 Slice::checkIdentifier(const string& id)
 {
     // check whether the identifier is scoped
@@ -470,6 +470,7 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
+    bool isValid = true;
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
@@ -477,6 +478,7 @@ Slice::checkIdentifier(const string& id)
         if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
         {
             unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+            isValid = false;
         }
     }
 
@@ -485,14 +487,17 @@ Slice::checkIdentifier(const string& id)
     if(index == 0)
     {
         unit->error("illegal leading underscore in identifier `" + name + "'");
+        isValid = false;
     }
     else if(name.rfind('_') == (name.size() - 1))
     {
         unit->error("illegal trailing underscore in identifier `" + name + "'");
+        isValid = false;
     }
     else if(name.find("__") != string::npos)
     {
         unit->error("illegal double underscore in identifier `" + name + "'");
+        isValid = false;
     }
     else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
     {
@@ -501,6 +506,7 @@ Slice::checkIdentifier(const string& id)
         if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
         {
             unit->error("illegal underscore in identifier `" + name + "'");
+            isValid = false;
         }
     }
 
@@ -514,9 +520,11 @@ Slice::checkIdentifier(const string& id)
             if(ciequals(name.substr(0, 3), "ice"))
             {
                 unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+                isValid = false;
             }
         }
     }
+    return isValid;
 }
 
 bool
