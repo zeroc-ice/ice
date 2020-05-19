@@ -151,17 +151,11 @@ namespace IceInternal
             {
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    TraceFrame(_adapter.Communicator, requestId, outgoingRequest);
-                    // TODO this local method is required to use stackalloc, we can refactor InvokeAllAsync to
-                    // not be async and use a local async function for the await, or allow to pass size, requestId
-                    // directry to TraceFrame without need to allocate a header.
-                    static void TraceFrame(Communicator communicator, int requestId, OutgoingRequestFrame frame)
-                    {
-                        Span<byte> header = stackalloc byte[Ice1Definitions.HeaderSize + 4];
-                        OutputStream.WriteInt(Ice1Definitions.HeaderSize + 4 + frame.Size, header.Slice(10));
-                        OutputStream.WriteInt(requestId, header.Slice(Ice1Definitions.HeaderSize));
-                        ProtocolTrace.TraceFrame(communicator, header, frame);
-                    }
+                    ProtocolTrace.TraceCollocatedFrame(
+                        _adapter.Communicator,
+                        (byte)Ice1Definitions.FrameType.Request,
+                        requestId,
+                        outgoingRequest);
                 }
 
                 var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
@@ -229,15 +223,18 @@ namespace IceInternal
             OutgoingAsyncBase? outAsync;
             lock (this)
             {
-                var responseBuffer = new ArraySegment<byte>(VectoredBufferExtensions.ToArray(
-                        Ice1Definitions.GetResponseData(outgoingResponseFrame, requestId)));
-                ArraySegment<byte> header = responseBuffer.Slice(0, Ice1Definitions.HeaderSize + 4);
-                responseBuffer = responseBuffer.Slice(Ice1Definitions.HeaderSize + 4);
-                var incomingResponseFrame = new IncomingResponseFrame(_adapter.Communicator, responseBuffer);
+                var incomingResponseFrame = new IncomingResponseFrame(
+                    _adapter.Communicator,
+                    VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data));
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceFrame(_adapter.Communicator, header, incomingResponseFrame);
+                    ProtocolTrace.TraceCollocatedFrame(
+                        _adapter.Communicator,
+                        (byte)Ice1Definitions.FrameType.Reply,
+                        requestId,
+                        incomingResponseFrame);
                 }
+
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))
                 {
                     if (!outAsync.Response(incomingResponseFrame))

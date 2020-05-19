@@ -15,7 +15,10 @@ namespace ZeroC.Ice
             TraceRequest(
                 "sending request",
                 communicator,
-                header,
+                header[8], // Message Type
+                header[9], // Compression Status
+                InputStream.ReadInt(header.Slice(10, 4)), // Request size
+                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id
                 frame.Identity,
                 frame.Facet,
                 frame.Operation,
@@ -28,7 +31,10 @@ namespace ZeroC.Ice
             TraceResponse(
                 "sending response",
                 communicator,
-                header,
+                header[8], // Message Type
+                header[9], // Compression Status
+                InputStream.ReadInt(header.Slice(10, 4)), // Request size
+                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
                 frame.ReplyStatus,
                 frame.Encoding);
 
@@ -37,7 +43,10 @@ namespace ZeroC.Ice
             TraceRequest(
                 "received request",
                 communicator,
-                header,
+                header[8], // Message Type
+                header[9], // Compression Status
+                InputStream.ReadInt(header.Slice(10, 4)), // Request size
+                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
                 frame.Identity,
                 frame.Facet,
                 frame.Operation,
@@ -50,14 +59,48 @@ namespace ZeroC.Ice
             TraceResponse(
                 "received response",
                 communicator,
-                header,
+                header[8], // Message Type
+                header[9], // Compression Status
+                InputStream.ReadInt(header.Slice(10, 4)), // Request size
+                InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
+                frame.ReplyStatus,
+                frame.Encoding);
+
+        internal static void TraceCollocatedFrame(Communicator communicator, byte messageType, int requestId,
+            OutgoingRequestFrame frame) =>
+            TraceRequest(
+                "sending request",
+                communicator,
+                messageType,
+                0,
+                frame.Size + Ice1Definitions.HeaderSize + 4,
+                requestId,
+                frame.Identity,
+                frame.Facet,
+                frame.Operation,
+                frame.IsIdempotent,
+                frame.Context,
+                frame.Encoding);
+
+        internal static void TraceCollocatedFrame(Communicator communicator, byte messageType, int requestId,
+            IncomingResponseFrame frame) =>
+            TraceResponse(
+                "received response",
+                communicator,
+                messageType,
+                0,
+                frame.Size + Ice1Definitions.HeaderSize + 4,
+                requestId,
                 frame.ReplyStatus,
                 frame.Encoding);
 
         private static void TraceRequest(
             string traceMessagePrefix,
             Communicator communicator,
-            ReadOnlySpan<byte> header,
+            byte messageType,
+            byte compress,
+            int size,
+            int requestId,
             Identity identity,
             string facet,
             string operation,
@@ -69,8 +112,8 @@ namespace ZeroC.Ice
             {
                 var s = new StringBuilder();
                 s.Append(traceMessagePrefix);
-                PrintHeader(header, s);
-                PrintRequestId(header, s);
+                PrintHeader(messageType, compress, size, s);
+                PrintRequestId(requestId, s);
 
                 ToStringMode toStringMode = communicator.ToStringMode;
                 s.Append("\nidentity = ");
@@ -115,7 +158,10 @@ namespace ZeroC.Ice
         private static void TraceResponse(
             string traceMessagePrefix,
             Communicator communicator,
-            ReadOnlySpan<byte> header,
+            byte messageType,
+            byte compress,
+            int size,
+            int requestId,
             ReplyStatus replyStatus,
             Encoding encoding)
         {
@@ -123,8 +169,8 @@ namespace ZeroC.Ice
             {
                 var s = new StringBuilder();
                 s.Append(traceMessagePrefix);
-                PrintHeader(header, s);
-                PrintRequestId(header, s);
+                PrintHeader(messageType, compress, size, s);
+                PrintRequestId(requestId, s);
                 s.Append("\nreply status = ");
                 s.Append(replyStatus);
                 s.Append("\nencoding = ");
@@ -146,20 +192,18 @@ namespace ZeroC.Ice
                 var s = new StringBuilder();
                 s.Append(traceMessagePrefix);
                 s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)header[8]));
-                PrintHeader(header, s);
+                PrintHeader(header[8], header[9], InputStream.ReadInt(header.Slice(10, 4)), s);
                 communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
             }
         }
 
-        private static void PrintHeader(ReadOnlySpan<byte> header, StringBuilder s)
+        private static void PrintHeader(byte messageType, byte compress, int size, StringBuilder s)
         {
-            byte messageType = header[8];
             s.Append("\nmessage type = ");
             s.Append(messageType);
             s.Append(" ");
             s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)messageType));
 
-            byte compress = header[9];
             s.Append("\ncompression status = ");
             s.Append(compress);
             s.Append(compress switch
@@ -171,12 +215,11 @@ namespace ZeroC.Ice
             });
 
             s.Append("\nmessage size = ");
-            s.Append(InputStream.ReadInt(header.Slice(10, 4)));
+            s.Append(size);
         }
 
-        private static void PrintRequestId(ReadOnlySpan<byte> header, StringBuilder s)
+        private static void PrintRequestId(int requestId, StringBuilder s)
         {
-            int requestId = InputStream.ReadInt(header.Slice(Ice1Definitions.HeaderSize, 4));
             s.Append("\nrequest id = ");
             s.Append(requestId);
             if (requestId == 0)
