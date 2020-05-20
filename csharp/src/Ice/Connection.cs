@@ -1486,7 +1486,7 @@ namespace ZeroC.Ice
                         }
 
                         // Close the transceiver, this should cause pending IO async calls to return.
-                        _transceiver.Close();
+                        _transceiver.ThreadSafeClose();
 
                         if (_state > State.NotInitialized && _communicator.TraceLevels.Network >= 1)
                         {

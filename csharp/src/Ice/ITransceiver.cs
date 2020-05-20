@@ -93,6 +93,15 @@ namespace IceInternal
         /// with the number of bytes successfully wrote to the socket.</param>
         void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset);
 
+        // TODO: Benoit: temporary hack, thread safe Close used by the connection
+        void ThreadSafeClose()
+        {
+            lock (this)
+            {
+                Close();
+            }
+        }
+
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
         async ValueTask InitializeAsync()
         {
