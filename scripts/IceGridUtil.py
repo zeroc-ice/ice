@@ -80,10 +80,11 @@ class IceGridNode(ProcessFromBinDir, Server):
     def teardown(self, current, success):
         Server.teardown(self, current, success)
         # Remove the database directory tree
-        try:
-            shutil.rmtree(self.dbdir)
-        except:
-            pass
+        if success or current.driver.isInterrupted():
+            try:
+                shutil.rmtree(self.dbdir)
+            except:
+                pass
 
     def getProps(self, current):
         props = {
