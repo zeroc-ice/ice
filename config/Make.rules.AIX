@@ -15,7 +15,7 @@ endif
 platform_ar         = $(AR)
 INSTALL             = /opt/freeware/bin/install -p
 
-ppc_targetdir       = $(if $(filter %/build,$5),/ppc,$(if $(filter-out $($1_target),program),32))
+ppc_targetdir       = $(if $(filter %/build,$5),/ppc,$(if $(and $(filter-out $($1_target),program),$(filter-out $(libdir),$5)),32))
 ppc_installdir      = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %32,$5),true)),32)
 # All 32-bit programs in "bin" get the _32 suffix
 ppc_targetname      = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_32)
