@@ -3459,7 +3459,7 @@ class CSharpMapping(Mapping):
             plugindir += os.sep
 
         return {
-            "IceSSL" : plugindir + "IceSSL.dll:ZeroC.IceSSL.PluginFactory",
+            "IceSSL" : plugindir + "Ice.dll:ZeroC.IceSSL.PluginFactory",
             "IceDiscovery" : plugindir + "IceDiscovery.dll:ZeroC.IceDiscovery.PluginFactory",
             "IceLocatorDiscovery" : plugindir + "IceLocatorDiscovery.dll:ZeroC.IceLocatorDiscovery.PluginFactory"
         }[plugin]

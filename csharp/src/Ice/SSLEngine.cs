@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +9,8 @@ using System.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+
+using ZeroC.Ice;
 
 namespace ZeroC.IceSSL
 {
