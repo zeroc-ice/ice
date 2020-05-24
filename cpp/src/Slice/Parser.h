@@ -1148,6 +1148,7 @@ public:
     bool allowIcePrefix() const;
     bool allowUnderscore() const;
     bool compatMode() const;
+    void checkType(const TypePtr&);
 
     void setComment(const std::string&);
     void addToComment(const std::string&);

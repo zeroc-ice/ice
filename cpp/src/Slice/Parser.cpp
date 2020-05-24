@@ -1623,6 +1623,7 @@ SequencePtr
 Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData,
                                  NodeType nt)
 {
+    _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1666,6 +1667,8 @@ DictionaryPtr
 Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
                                    const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
 {
+    _unit->checkType(keyType);
+    _unit->checkType(valueType);
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3435,6 +3438,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                                   const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                   const string& defaultLiteral)
 {
+    _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -4041,6 +4045,7 @@ Slice::InterfaceDef::createOperation(const string& name,
                                  int tag,
                                  Operation::Mode mode)
 {
+    _unit->checkType(returnType);
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -4332,6 +4337,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                                    const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                    const string& defaultLiteral)
 {
+    _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -4654,6 +4660,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
                                 const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                 const string& defaultLiteral)
 {
+    _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -5524,6 +5531,7 @@ Slice::Operation::hasMarshaledResult() const
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
 {
+    _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -6048,6 +6056,18 @@ bool
 Slice::Unit::compatMode() const
 {
     return currentDefinitionContext()->compatMode();
+}
+
+void
+Slice::Unit::checkType(const TypePtr& type)
+{
+    if (compatMode())
+    {
+        if (InterfaceDeclPtr::dynamicCast(type))
+        {
+            error("interface by value is no longer supported: remove [[3.7]] or specify an optional proxy");
+        }
+    }
 }
 
 void
