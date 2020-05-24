@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <Namespace.ice>
 #include <NoNamespace.ice>
 

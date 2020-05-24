@@ -55,6 +55,9 @@ checkIdentifier(const std::string&);
 bool
 ciequals(const std::string& a, const std::string& b);
 
+TypePtr
+unwrapIfOptional(const TypePtr&);
+
 enum CaseConvention { SliceCase, CamelCase, PascalCase, SnakeCase };
 
 CaseConvention caseConventionFromString(const std::string&);

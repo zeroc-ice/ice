@@ -536,6 +536,17 @@ Slice::ciequals(const string& lhs, const string& rhs)
                                                                       });
 }
 
+TypePtr
+Slice::unwrapIfOptional(const TypePtr& type)
+{
+    auto result = type;
+    if (auto optional = OptionalPtr::dynamicCast(type))
+    {
+        result = optional->underlying();
+    }
+    return result;
+}
+
 CaseConvention
 Slice::caseConventionFromString(const std::string& conventionName)
 {

@@ -24,7 +24,7 @@ class TestI: TestIntf {
     }
 }
 
-public protocol Cookie :  Swift.AnyObject {
+public protocol Cookie: Swift.AnyObject {
     ///
     /// - returns: `Swift.String`
     func message() throws -> Swift.String

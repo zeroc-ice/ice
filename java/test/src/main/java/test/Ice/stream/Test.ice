@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <Ice/BuiltinSequences.ice>
 
 [[java:package:test.Ice.stream]]
@@ -54,23 +56,23 @@ class OptionalClass
 {
     bool bo;
     byte by;
-    tag(1) short sh;
-    tag(2) int i;
-    tag(3) SmallStruct sm;
+    tag(1) short? sh;
+    tag(2) int? i;
+    tag(3) SmallStruct? sm;
 
-    tag(4) MyEnumS enumS4;
-    tag(5) MyClassS myClassS5;
+    tag(4) MyEnumS? enumS4;
+    tag(5) MyClassS? myClassS5;
 
-    tag(6) ByteBoolD byteBoolD6;
-    tag(7) ShortIntD shortIntD7;
+    tag(6) ByteBoolD? byteBoolD6;
+    tag(7) ShortIntD? shortIntD7;
 
-    tag(8) MyEnum enum8;
-    tag(9) MyClass class9;
-    tag(10) StringMyClassD stringMyClassD10;
-    tag(12) Ice::IntSeq intSeq12;
-    tag(13) Ice::ByteSeq byteSeq13;
-    tag(14) Ice::StringSeq stringSeq14;
-    tag(15) Point p15;
+    tag(8) MyEnum? enum8;
+    tag(9) MyClass? class9;
+    tag(10) StringMyClassD? stringMyClassD10;
+    tag(12) Ice::IntSeq? intSeq12;
+    tag(13) Ice::ByteSeq? byteSeq13;
+    tag(14) Ice::StringSeq? stringSeq14;
+    tag(15) Point? p15;
 }
 
 sequence<Ice::BoolSeq> BoolSS;
@@ -115,6 +117,6 @@ exception MyException
 
 interface MyInterface
 {
-};
+}
 
 }

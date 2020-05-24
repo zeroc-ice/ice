@@ -14,6 +14,8 @@
 
 [[python:pkgdir:IceGrid]]
 
+[[3.7]]
+
 #ifndef ICE_BUILDING_ICEGRIDDB
 [[cpp:dll-export:ICEGRID_API]]
 #endif

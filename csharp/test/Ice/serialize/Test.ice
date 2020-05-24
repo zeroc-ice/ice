@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <Ice/BuiltinSequences.ice>
 
 [[cs:typeid-namespace:ZeroC.Ice.serialize.TypeId]]
@@ -104,12 +106,12 @@ exception MyException
     IntProxyD ipd;
     IntStringSD issd;
 
-    tag(1) string optName;
-    tag(2) int optInt;
-    tag(3) ValStruct optValStruct;
-    tag(4) RefStruct optRefStruct;
-    tag(5) MyEnum optEnum;
-    tag(6) MyClass optClass;
+    tag(1) string? optName;
+    tag(2) int? optInt;
+    tag(3) ValStruct? optValStruct;
+    tag(4) RefStruct? optRefStruct;
+    tag(5) MyEnum? optEnum;
+    tag(6) MyClass? optClass;
     tag(7) MyInterface* optProxy;
 }
 

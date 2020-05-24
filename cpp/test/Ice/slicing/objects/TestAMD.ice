@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 module Test
 {
 

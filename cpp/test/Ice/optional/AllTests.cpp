@@ -371,7 +371,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->g = 1.0;
     mo1->h = string("test");
     mo1->i = MyEnum::MyEnumMember;
-    mo1->j = ICE_UNCHECKED_CAST(MultiOptionalPrx, communicator->stringToProxy("test"));
     mo1->k = mo1;
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(5);
@@ -400,8 +399,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->vss->push_back(vs);
     mo1->oos = OneOptionalSeq();
     mo1->oos->push_back(oo1);
-    mo1->oops = OneOptionalPrxSeq();
-    mo1->oops->push_back(ICE_UNCHECKED_CAST(OneOptionalPrx, communicator->stringToProxy("test")));
 
     mo1->ied = IntEnumDict();
     mo1->ied.value()[4] = MyEnum::MyEnumMember;
@@ -412,8 +409,6 @@ allTests(Test::TestHelper* helper, bool)
     mo1->iood = IntOneOptionalDict();
     mo1->iood.value()[5] = std::make_shared<OneOptional>();
     mo1->iood.value()[5]->a = 15;
-    mo1->ioopd = IntOneOptionalPrxDict();
-    mo1->ioopd.value()[5] = ICE_UNCHECKED_CAST(OneOptionalPrx, communicator->stringToProxy("test"));
 
     mo1->bos = BoolSeq();
     mo1->bos->push_back(false);
@@ -434,7 +429,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
     test(mo3->i = MyEnum::MyEnumMember);
-    test(mo3->j = ICE_UNCHECKED_CAST(MultiOptionalPrx, communicator->stringToProxy("test")));
     test(mo3->k == mo1);
     test(mo3->bs == mo1->bs);
     test(mo3->ss == mo1->ss);
@@ -448,13 +442,10 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->fss == mo1->fss);
     test(mo3->vss == mo1->vss);
     test(mo3->oos == mo1->oos);
-    test(mo3->oops == mo1->oops);
-
     test(mo3->ied == mo1->ied);
     test(mo3->ifsd == mo1->ifsd);
     test(mo3->ivsd == mo1->ivsd);
     test(mo3->iood == mo1->iood);
-    test(mo3->ioopd == mo1->ioopd);
 
     test(mo3->bos == mo1->bos);
 
@@ -495,7 +486,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->g);
     test(!mo4->h);
     test(!mo4->i);
-    test(!mo4->j);
     test(!mo4->k);
     test(!mo4->bs);
     test(!mo4->ss);
@@ -509,13 +499,11 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->fss);
     test(!mo4->vss);
     test(!mo4->oos);
-    test(!mo4->oops);
 
     test(!mo4->ied);
     test(!mo4->ifsd);
     test(!mo4->ivsd);
     test(!mo4->iood);
-    test(!mo4->ioopd);
 
     test(!mo4->bos);
 
@@ -530,7 +518,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->g == mo1->g);
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
-    test(targetEqualTo(mo5->j.value(), mo1->j.value()));
     test(mo5->k == mo5->k);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
@@ -545,22 +532,10 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->vss == mo1->vss);
     test(!mo5->oos->empty() && (*mo5->oos)[0]->a == oo1->a);
 
-    test(mo5->oops.value().size() == mo1->oops.value().size());
-    for(size_t i = 0; i< mo5->oops.value().size(); ++i)
-    {
-        test(targetEqualTo(mo5->oops.value()[i], mo1->oops.value()[i]));
-    }
-
     test(mo5->ied == mo1->ied);
     test(mo5->ifsd == mo1->ifsd);
     test(mo5->ivsd == mo1->ivsd);
     test(!mo5->iood->empty() && (*mo5->iood)[5]->a == 15);
-
-    test(mo5->ioopd.value().size() == mo1->ioopd.value().size());
-    for(auto& v : mo5->ioopd.value())
-    {
-        test(targetEqualTo(mo1->ioopd.value()[v.first], v.second));
-    }
 
     test(mo5->bos == mo1->bos);
 
@@ -578,11 +553,9 @@ allTests(Test::TestHelper* helper, bool)
 
     mo6->es = IceUtil::None;
     mo6->vss = IceUtil::None;
-    mo6->oops = IceUtil::None;
 
     mo6->ied = IceUtil::None;
     mo6->ivsd = IceUtil::None;
-    mo6->ioopd = IceUtil::None;
 
     MultiOptionalPtr mo7 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo6));
     test(!mo7->a);
@@ -594,7 +567,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->g);
     test(mo7->h == mo1->h);
     test(!mo7->i);
-    test(targetEqualTo(mo7->j.value(), mo1->j.value()));
     test(!mo7->k);
     test(mo7->bs == mo1->bs);
     test(!mo7->ss);
@@ -608,13 +580,11 @@ allTests(Test::TestHelper* helper, bool)
     test(mo7->fss == mo1->fss);
     test(!mo7->vss);
     test(!mo7->oos->empty() && (*mo7->oos)[0]->a == oo1->a);
-    test(!mo7->oops);
 
     test(!mo7->ied);
     test(mo7->ifsd == mo1->ifsd);
     test(!mo7->ivsd);
     test(!mo7->iood->empty() && (*mo7->iood)[5]->a == 15);
-    test(!mo7->ioopd);
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = std::make_shared<MultiOptional>(*mo5);
@@ -622,7 +592,6 @@ allTests(Test::TestHelper* helper, bool)
     mo8->d = IceUtil::None;
     mo8->f = IceUtil::None;
     mo8->h = IceUtil::None;
-    mo8->j = IceUtil::None;
     mo8->bs = IceUtil::None;
     mo8->iid = IceUtil::None;
     mo8->fs = IceUtil::None;
@@ -645,7 +614,6 @@ allTests(Test::TestHelper* helper, bool)
     test(mo9->g == mo1->g);
     test(!mo9->h);
     test(mo9->i == mo1->i);
-    test(!mo9->j);
     test(mo9->k == mo9);
     test(!mo9->bs);
     test(mo9->ss == mo1->ss);
@@ -659,12 +627,6 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo8->fss);
     test(mo8->vss == mo1->vss);
     test(!mo8->oos);
-
-    test(mo8->oops.value().size() == mo1->oops.value().size());
-    for(size_t i = 0; i< mo8->oops.value().size(); ++i)
-    {
-        test(targetEqualTo(mo8->oops.value()[i], mo1->oops.value()[i]));
-    }
 
     test(mo8->ied == mo1->ied);
     test(!mo8->ifsd);

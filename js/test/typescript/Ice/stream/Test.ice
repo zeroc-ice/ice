@@ -9,6 +9,7 @@
 //
 [[suppress-warning:invalid-metadata]]
 [[js:es6-module]]
+[[3.7]]
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -43,8 +44,8 @@ class OptionalClass
 {
     bool bo;
     byte by;
-    tag(1) short sh;
-    tag(2) int i;
+    tag(1) short? sh;
+    tag(2) int? i;
 }
 
 sequence<MyEnum> MyEnumS;

@@ -25,7 +25,6 @@ const builtinHelpers =
     Ice.FloatHelper,
     Ice.DoubleHelper,
     Ice.StringHelper,
-    Ice.Value,
     Ice.ObjectPrx,
     Ice.Value
 ];

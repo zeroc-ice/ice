@@ -26,7 +26,7 @@ using namespace IceUtilInternal;
 namespace
 {
 
-const std::array<std::string, 18> builtinSuffixTable =
+const std::array<std::string, 17> builtinSuffixTable =
 {
     "Bool",
     "Byte",
@@ -43,7 +43,6 @@ const std::array<std::string, 18> builtinSuffixTable =
     "Float",
     "Double",
     "String",
-    "Value",
     "Proxy",
     "Value"
 };
@@ -145,6 +144,23 @@ public:
     }
 
     virtual bool visitClassDefStart(const ClassDefPtr& p)
+    {
+        StringList metaData = getMetaData(p);
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
+        return true;
+    }
+
+    virtual void visitInterfaceDecl(const InterfaceDeclPtr& p)
+    {
+        StringList metaData = getMetaData(p);
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
+    }
+
+    virtual bool visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -517,19 +533,12 @@ long
 Slice::computeSerialVersionUUID(const ClassDefPtr& p)
 {
     ostringstream os;
-
-    ClassList bases = p->bases();
     os << "Name: " << p->scoped();
 
     os << " Bases: [";
-    for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+    if (p->base())
     {
-        os << (*i)->scoped();
-        i++;
-        if(i != bases.end())
-        {
-            os << ", ";
-        }
+        os << p->base()->scoped();
     }
     os << "]";
 
@@ -991,11 +1000,7 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 
     assert((b && b->usesClasses()) || cl);
 
-    if(b && b->kind() == Builtin::KindObject)
-    {
-        return getUnqualified("com.zeroc.Ice.Object", package) + ".ice_staticId()";
-    }
-    else if(b && b->kind() == Builtin::KindValue)
+    if(b && b->kind() == Builtin::KindValue)
     {
         return getUnqualified("com.zeroc.Ice.Value", package) + ".ice_staticId()";
     }
@@ -1012,13 +1017,15 @@ Slice::JavaGenerator::getTagFormat(const TypePtr& type)
 }
 
 string
-Slice::JavaGenerator::typeToString(const TypePtr& type,
+Slice::JavaGenerator::typeToString(const TypePtr& constType,
                                    TypeMode mode,
                                    const string& package,
                                    const StringList& metaData,
                                    bool formal) const
 {
-    static const std::array<std::string, 18> builtinTable =
+    TypePtr type = unwrapIfOptional(constType);
+
+    static const std::array<std::string, 17> builtinTable =
     {
         "boolean",
         "byte",
@@ -1035,7 +1042,6 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "float",
         "double",
         "String",
-        "com.zeroc.Ice.Object",
         "com.zeroc.Ice.ObjectPrx",
         "com.zeroc.Ice.Value"
     };
@@ -1049,41 +1055,19 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindObject)
-        {
-            return getUnqualified(builtinTable[Builtin::KindValue], package);
-        }
-        else
-        {
-            return getUnqualified(builtinTable[builtin->kind()], package);
-        }
+        return getUnqualified(builtinTable[builtin->kind()], package);
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            return getUnqualified("com.zeroc.Ice.Value", package);
-        }
-        else
-        {
-            return getUnqualified(cl, package);
-        }
+        return getUnqualified(cl, package);
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
+    InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(type);
+    if(interface)
     {
-        ClassDefPtr def = proxy->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            return getUnqualified(proxy->_class(), package, "", "Prx");
-        }
-        else
-        {
-            return getUnqualified("com.zeroc.Ice.ObjectPrx", package);
-        }
+        return getUnqualified(interface, package, "", "Prx");
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -1119,13 +1103,15 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 }
 
 string
-Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
+Slice::JavaGenerator::typeToObjectString(const TypePtr& constType,
                                          TypeMode mode,
                                          const string& package,
                                          const StringList& metaData,
                                          bool formal) const
 {
-    static const std::array<std::string, 18> builtinTable =
+    TypePtr type = unwrapIfOptional(constType);
+
+    static const std::array<std::string, 17> builtinTable =
     {
         "java.lang.Boolean",
         "java.lang.Byte",
@@ -1142,7 +1128,6 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
         "java.lang.Float",
         "java.lang.Double",
         "java.lang.String",
-        "com.zeroc.Ice.Value",
         "com.zeroc.Ice.ObjectPrx",
         "com.zeroc.Ice.Value"
     };
@@ -1157,14 +1142,16 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
 }
 
 string
-Slice::JavaGenerator::typeToAnnotatedString(const TypePtr& type,
+Slice::JavaGenerator::typeToAnnotatedString(const TypePtr& constType,
                                             TypeMode mode,
                                             const string& package,
                                             const StringList& metaData,
-                                            bool optional,
+                                            bool tagged,
                                             bool object) const
 {
-    if(optional)
+    TypePtr type = unwrapIfOptional(constType);
+
+    if(tagged)
     {
         return addAnnotation(typeToObjectString(type, mode, package, metaData, true), "@Nullable");
     }
@@ -1212,7 +1199,7 @@ Slice::JavaGenerator::typeToAnnotatedString(const TypePtr& type,
 string
 typeToBufferString(const TypePtr& type)
 {
-    static const std::array<std::string, 18> builtinBufferTable =
+    static const std::array<std::string, 17> builtinBufferTable =
     {
         "???",
         "java.nio.ByteBuffer",
@@ -1228,7 +1215,6 @@ typeToBufferString(const TypePtr& type)
         "???",
         "java.nio.FloatBuffer",
         "java.nio.DoubleBuffer",
-        "???",
         "???",
         "???",
         "???"
@@ -1248,7 +1234,7 @@ typeToBufferString(const TypePtr& type)
 void
 Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                                                 const string& package,
-                                                const TypePtr& type,
+                                                const TypePtr& constType,
                                                 TagMode mode,
                                                 int tag,
                                                 const string& param,
@@ -1258,6 +1244,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                                                 const StringList& metaData,
                                                 const string& patchParams)
 {
+    // TODO: for now, we handle marshaling of Optional<T> like T
+    TypePtr type = unwrapIfOptional(constType);
+    assert(!OptionalPtr::dynamicCast(type));
+
     string stream = customStream;
     if(stream.empty())
     {
@@ -1292,7 +1282,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 out << patchParams << ");";
             }
-            else if(builtin->kind() == Builtin::KindObjectProxy)
+            else if(builtin->kind() == Builtin::KindObject)
             {
                 if(isTaggedParam)
                 {
@@ -1322,8 +1312,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 
     string typeS = typeToString(type, TypeModeIn, package, metaData);
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
+    InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(type);
+    if(interface)
     {
         if(marshal)
         {
@@ -1705,7 +1695,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     }
 
     TypePtr key = dict->keyType();
-    TypePtr value = dict->valueType();
+    TypePtr value = unwrapIfOptional(dict->valueType());
 
     string keyS = typeToString(key, TypeModeIn, package);
     string valueS = typeToString(value, TypeModeIn, package);
@@ -1791,11 +1781,13 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 
     string typeS = typeToObjectString(seq, TypeModeIn, package);
 
+    TypePtr elementType = unwrapIfOptional(seq->type());
+
     //
     // If the sequence is a byte sequence, check if there's the serializable or protobuf metadata to
     // get rid of these two easy cases first.
     //
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(elementType);
     if(builtin && builtin->kind() == Builtin::KindByte)
     {
         string meta;
@@ -1910,7 +1902,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     // Determine sequence depth.
     //
     int depth = 0;
-    TypePtr origContent = seq->type();
+    TypePtr origContent = elementType;
     SequencePtr s = SequencePtr::dynamicCast(origContent);
     while(s)
     {
@@ -1927,7 +1919,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
     string origContentS = typeToString(origContent, TypeModeIn, package);
 
-    TypePtr type = seq->type();
+    TypePtr type = elementType;
 
     if(customType)
     {
@@ -2220,7 +2212,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     // Get the types of the key and value.
     //
     string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package);
-    string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package);
+    string valueTypeStr = typeToObjectString(unwrapIfOptional(dict->valueType()), TypeModeIn, package);
 
     //
     // Collect metadata for a custom type.
@@ -2251,7 +2243,10 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
                                        string& instanceType,
                                        string& formalType) const
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    // TODO: not quite correct
+    TypePtr elementType = unwrapIfOptional(seq->type());
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(elementType);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindByte)
@@ -2280,7 +2275,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
             string ignored;
             if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignored))
             {
-                instanceType = formalType = typeToBufferString(seq->type());
+                instanceType = formalType = typeToBufferString(elementType);
                 return true;
             }
         }
@@ -2295,7 +2290,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
         assert(!instanceType.empty());
         if(formalType.empty())
         {
-            formalType = "java.util.List<" + typeToObjectString(seq->type(), TypeModeIn, package) + ">";
+            formalType = "java.util.List<" + typeToObjectString(elementType, TypeModeIn, package) + ">";
         }
         return true;
     }
@@ -2303,7 +2298,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     //
     // The default mapping is a native array.
     //
-    instanceType = formalType = typeToString(seq->type(), TypeModeIn, package, metaData) + "[]";
+    instanceType = formalType = typeToString(elementType, TypeModeIn, package, metaData) + "[]";
     return false;
 }
 

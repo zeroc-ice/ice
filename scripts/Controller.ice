@@ -24,13 +24,13 @@ module Test::Common
         optional(6) StringSeq cprops;
         optional(7) StringSeq sprops;
     #else
-        tag(1) string protocol;
-        tag(2) bool mx;
-        tag(3) bool serialize;
-        tag(4) bool compress;
-        tag(5) bool ipv6;
-        tag(6) StringSeq cprops;
-        tag(7) StringSeq sprops;
+        tag(1) string? protocol;
+        tag(2) bool? mx;
+        tag(3) bool? serialize;
+        tag(4) bool? compress;
+        tag(5) bool? ipv6;
+        tag(6) StringSeq? cprops;
+        tag(7) StringSeq? sprops;
     #endif
     }
 
@@ -43,11 +43,11 @@ module Test::Common
         optional(4) BoolSeq compress;
         optional(5) BoolSeq ipv6;
     #else
-        tag(1) StringSeq protocol;
-        tag(2) BoolSeq mx;
-        tag(3) BoolSeq serialize;
-        tag(4) BoolSeq compress;
-        tag(5) BoolSeq ipv6;
+        tag(1) StringSeq? protocol;
+        tag(2) BoolSeq? mx;
+        tag(3) BoolSeq? serialize;
+        tag(4) BoolSeq? compress;
+        tag(5) BoolSeq? ipv6;
     #endif
     }
 

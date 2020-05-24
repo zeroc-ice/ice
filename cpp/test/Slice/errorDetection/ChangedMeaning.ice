@@ -194,18 +194,6 @@ interface Foo2
     void op3(int op3); // Ok
 }
 
-class Foo3
-{
-    void x(int x);
-    string x; // Changed meaning
-}
-
-class Foo4
-{
-    void op(int x);
-    string x; // Ok
-}
-
 exception Foo5
 {
     string x;

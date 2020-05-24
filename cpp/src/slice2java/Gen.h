@@ -70,12 +70,12 @@ protected:
     void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
     //
-    // Generate dispatch methods for a class or interface.
+    // Generate dispatch methods for an interface.
     //
-    void writeDispatch(::IceUtilInternal::Output&, const ClassDefPtr&);
+    void writeDispatch(::IceUtilInternal::Output&, const InterfaceDefPtr&);
 
     //
-    // Generate marshaling methods for a class or interface.
+    // Generate marshaling methods for a class.
     //
     void writeMarshaling(::IceUtilInternal::Output&, const ClassDefPtr&);
 
@@ -143,6 +143,8 @@ private:
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
@@ -151,13 +153,6 @@ private:
         virtual void visitDataMember(const DataMemberPtr&);
         virtual void visitEnum(const EnumPtr&);
         virtual void visitConst(const ConstPtr&);
-
-    private:
-
-        //
-        // Verifies that a data member method does not conflict with an operation.
-        //
-        bool validateMethod(const OperationList&, const std::string&, int, const std::string&, const std::string&);
     };
 
     class CompactIdVisitor : public JavaVisitor
@@ -185,18 +180,9 @@ private:
 
         ProxyVisitor(const std::string&);
 
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
-    };
-
-    class DispatcherVisitor : public JavaVisitor
-    {
-    public:
-
-        DispatcherVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
     class ImplVisitor : public JavaVisitor
@@ -205,14 +191,14 @@ private:
 
         ImplVisitor(const std::string&);
 
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
 
     protected:
 
         //
         // Returns a default value for the type.
         //
-        std::string getDefaultValue(const std::string&, const TypePtr&, bool);
+        std::string getDefaultValue(const std::string&, const TypePtr&);
 
         //
         // Generate code to initialize the operation result.

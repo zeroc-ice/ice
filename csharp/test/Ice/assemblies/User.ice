@@ -1,6 +1,8 @@
 
 #include <Core.ice>
 
+[[3.7]]
+
 module User
 {
     class UserInfo

@@ -1,9 +1,8 @@
 CaseInsensitive.ice:11: redefinition of operation `op' as operation `op'
 CaseInsensitive.ice:17: operation `oP' differs only in capitalization from operation `op'
 CaseInsensitive.ice:17: redefinition of operation `op' as operation `oP'
-CaseInsensitive.ice:23: redefinition of data member `l' as operation `l'
-CaseInsensitive.ice:29: operation `L' differs only in capitalization from data member `l'
-CaseInsensitive.ice:29: redefinition of data member `l' as operation `L'
+CaseInsensitive.ice:23: syntax error
+CaseInsensitive.ice:29: syntax error
 CaseInsensitive.ice:36: module `M1' is capitalized inconsistently with its previous name: `m1'
 CaseInsensitive.ice:38: redefinition of class `c1' as module
 CaseInsensitive.ice:40: module `C1' differs only in capitalization from class name `c1'
@@ -12,17 +11,14 @@ CaseInsensitive.ice:46: parameter `BB' differs only in capitalization from param
 CaseInsensitive.ice:46: `BB' has changed meaning
 CaseInsensitive.ice:51: operation `I4' differs only in capitalization from enclosing interface name `i4'
 CaseInsensitive.ice:56: interface name `i5' cannot be used as operation name
-CaseInsensitive.ice:66: operation `op' is already defined as an operation in a base interface or class
-CaseInsensitive.ice:71: operation `OP' differs only in capitalization from operation `op', which is defined in a base interface or class
-CaseInsensitive.ice:81: operation `l' is already defined as a data member in a base interface or class
-CaseInsensitive.ice:86: operation `L' differs only in capitalization from data member `l', which is defined in a base interface or class
-CaseInsensitive.ice:86: warning: classes with operations are deprecated
-CaseInsensitive.ice:92: operation `L' differs only in capitalization from data member `l'
-CaseInsensitive.ice:92: redefinition of data member `l' as operation `L'
-CaseInsensitive.ice:97: data member `l' is already defined as a data member in a base interface or class
-CaseInsensitive.ice:102: data member `L' differs only in capitalization from data member `l', which is defined in a base interface or class
-CaseInsensitive.ice:107: warning: classes with operations are deprecated
-CaseInsensitive.ice:108: data member `l' differs only in capitalization from operation `L'
+CaseInsensitive.ice:66: operation `op' is already defined as an operation in a base interface
+CaseInsensitive.ice:71: operation `OP' differs only in capitalization from operation `op', which is defined in a base interface
+CaseInsensitive.ice:81: syntax error
+CaseInsensitive.ice:86: syntax error
+CaseInsensitive.ice:92: syntax error
+CaseInsensitive.ice:97: data member `l' is already defined as data member in a base class
+CaseInsensitive.ice:102: data member `L' differs only in capitalization from data member `l', which is defined in a base class
+CaseInsensitive.ice:107: syntax error
 CaseInsensitive.ice:114: redefinition of exception member `l'
 CaseInsensitive.ice:120: exception member `L' differs only in capitalization from exception member `l'
 CaseInsensitive.ice:120: `L' has changed meaning
@@ -59,7 +55,5 @@ CaseInsensitive.ice:239: exception name `Test::xxx::xx::E1' is capitalized incon
 CaseInsensitive.ice:240: exception name `Test::xxx::XX::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
 CaseInsensitive.ice:241: exception name `Test::XXX::xx::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
 CaseInsensitive.ice:259: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
-CaseInsensitive.ice:274: warning: classes with operations are deprecated
-CaseInsensitive.ice:276: parameter `BASE1' differs only in capitalization from parameter `base1'
-CaseInsensitive.ice:276: `BASE1' has changed meaning
-CaseInsensitive.ice:306: data member `x' differs only in capitalization from data member `X', which is defined in a base interface or class
+CaseInsensitive.ice:274: syntax error
+CaseInsensitive.ice:306: data member `x' differs only in capitalization from data member `X', which is defined in a base class

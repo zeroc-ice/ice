@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <Test.ice>
 
 [[swift:class-resolver-prefix:IceSlicingExceptionsServer]]

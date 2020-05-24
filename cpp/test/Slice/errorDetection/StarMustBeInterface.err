@@ -1,0 +1,7 @@
+StarMustBeInterface.ice:9: `C1' must be an interface
+StarMustBeInterface.ice:13: `C1' must be an interface
+StarMustBeInterface.ice:18: `C1' must be an interface
+StarMustBeInterface.ice:19: struct `S' must have at least one member
+StarMustBeInterface.ice:23: `C1' must be an interface
+StarMustBeInterface.ice:26: `C1' must be an interface
+StarMustBeInterface.ice:27: `C1' must be an interface

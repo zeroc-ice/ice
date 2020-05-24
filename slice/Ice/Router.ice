@@ -39,7 +39,7 @@ module Ice
         /// set.
         ///
         /// @return The router's client proxy.
-        [nonmutating] [cpp:const] idempotent Object* getClientProxy(out tag(1) bool hasRoutingTable);
+        [nonmutating] [cpp:const] idempotent Object* getClientProxy(out tag(1) bool? hasRoutingTable);
 
         /// Get the router's server proxy, i.e., the proxy to use for
         /// forwarding requests from the server to the router.

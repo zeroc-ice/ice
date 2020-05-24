@@ -15,6 +15,8 @@
 
 [[python:pkgdir:IceGrid]]
 
+[[3.7]]
+
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Glacier2/Session.ice>
