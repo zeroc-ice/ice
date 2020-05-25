@@ -175,7 +175,7 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
                                      const string& obj)
 {
     const string stream = customStream.empty() ? "ostr" : customStream;
-    string ns = getNamespace(InterfaceDefPtr::dynamicCast(op->container()));
+    string ns = getNamespace(op->interface());
     for(const auto& param : requiredParams)
     {
         writeMarshalCode(_out, param.type, false, ns, obj + param.name, stream);
@@ -183,7 +183,8 @@ Slice::CsVisitor::writeMarshalParams(const OperationPtr& op,
 
     for(const auto& param : taggedParams)
     {
-        writeTaggedMarshalCode(_out, param.type, false, ns, obj + param.name, param.tag, stream);
+        writeTaggedMarshalCode(_out, OptionalPtr::dynamicCast(param.type), false, ns, obj + param.name, param.tag,
+            stream);
     }
 }
 
@@ -194,7 +195,7 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
                                        const string& customStream)
 {
     const string stream = customStream.empty() ? "istr" : customStream;
-    string ns = getNamespace(InterfaceDefPtr::dynamicCast(op->container()));
+    string ns = getNamespace(op->interface());
     for(const auto& param : requiredParams)
     {
         _out << nl << param.typeStr;
@@ -205,7 +206,8 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
     for(const auto& param : taggedParams)
     {
         _out << nl << param.typeStr << " ";
-        writeTaggedUnmarshalCode(_out, param.type, ns, param.name, param.tag, nullptr, stream);
+        writeTaggedUnmarshalCode(_out, OptionalPtr::dynamicCast(param.type), ns, param.name, param.tag, nullptr,
+            stream);
     }
 }
 
@@ -216,7 +218,8 @@ Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const stri
     const string stream = customStream.empty() ? "ostr" : customStream;
     if(member->tagged())
     {
-        writeTaggedMarshalCode(_out, member->type(), true, ns, "this." + name, member->tag(), stream);
+        writeTaggedMarshalCode(_out, OptionalPtr::dynamicCast(member->type()), true, ns, "this." + name, member->tag(),
+            stream);
     }
     else
     {
@@ -232,7 +235,8 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
     if (member->tagged())
     {
         _out << nl;
-        writeTaggedUnmarshalCode(_out, member->type(), ns, name, member->tag(), member, stream);
+        writeTaggedUnmarshalCode(_out, OptionalPtr::dynamicCast(member->type()), ns, name, member->tag(), member,
+            stream);
     }
     else
     {
@@ -2922,7 +2926,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Slice::Gen::ImplVisitor::visitOperation(const OperationPtr& op)
 {
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(op->container());
+    InterfaceDefPtr interface = op->interface();
     string ns = getNamespace(interface);
     string opName = operationName(op);
 

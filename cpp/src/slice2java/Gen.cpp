@@ -124,7 +124,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
 {
     if(dispatch && op->hasMarshaledResult())
     {
-        const InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(op->container());
+        const InterfaceDefPtr interface = op->interface();
         assert(interface);
         string abs = getUnqualified(interface, package);
         string name = op->name();
@@ -156,7 +156,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
         }
         if(type)
         {
-            InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(op->container());
+            InterfaceDefPtr interface = op->interface();
             assert(interface);
             return typeToAnnotatedString(type, TypeModeReturn, package, op->getMetaData(), returnIsTagged, object);
         }
@@ -193,7 +193,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     }
 
     const TypePtr ret = op->returnType();
-    const InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(op->container());
+    const InterfaceDefPtr interface = op->interface();
     assert(interface);
 
     //
@@ -399,7 +399,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
 {
     string opName = op->name();
     const TypePtr ret = op->returnType();
-    const InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(op->container());
+    const InterfaceDefPtr interface = op->interface();
     assert(interface);
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
 
@@ -604,7 +604,7 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 {
     vector<string> params;
 
-    const InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(op->container());
+    const InterfaceDefPtr interface = op->interface();
     assert(interface);
 
     const ParamDeclList paramList = op->inParameters();
@@ -945,18 +945,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         }
     }
 
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), [](const auto& contained)
-        {
-            return contained->scoped();
-        });
-    StringList other;
-    other.push_back(scoped);
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
+    StringList ids = p->ids();
 #ifndef NDEBUG
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
@@ -2435,6 +2424,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 hasOptionals = true;
                 break;
             }
+        }
+        if (hasOptionals)
+        {
+            break;
         }
     }
     if(hasOptionals)

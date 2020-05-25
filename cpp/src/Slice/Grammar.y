@@ -811,8 +811,8 @@ tagged_type_id
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
 
-    OptionalPtr opt = OptionalPtr::dynamicCast(ts->v.first);
-    if(!opt)
+    OptionalPtr optional = OptionalPtr::dynamicCast(ts->v.first);
+    if (!optional)
     {
        unit->error("Only optional types can be tagged.");
     }
@@ -826,11 +826,11 @@ tagged_type_id
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
 
-    // Typically because it's a class or proxy and we're in compat mode.
-    OptionalPtr opt = OptionalPtr::dynamicCast(ts->v.first);
+    OptionalPtr optional = OptionalPtr::dynamicCast(ts->v.first);
 
-    if(opt)
+    if (optional)
     {
+        // Use the optional directly.
         m->type = ts->v.first;
         m->name = ts->v.second;
     }
@@ -1404,24 +1404,24 @@ return_type
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
 
-    OptionalPtr opt = OptionalPtr::dynamicCast($2);
-    if(!opt)
+    OptionalPtr optional = OptionalPtr::dynamicCast($2);
+    if (!optional)
     {
         unit->error("Only optional types can be tagged.");
     }
 
-    m->type = opt;
+    m->type = optional;
     $$ = m;
 }
 | optional type
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
 
-    OptionalPtr opt = OptionalPtr::dynamicCast($2);
+    OptionalPtr optional = OptionalPtr::dynamicCast($2);
 
-    if (opt)
+    if (optional)
     {
-        m->type = opt;
+        m->type = optional;
     }
     else
     {

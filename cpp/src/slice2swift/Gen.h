@@ -97,7 +97,7 @@ private:
     };
 
     // Value here means class instance.
-    // TODO: why do we need a separate visitor?
+    // TODO: merge into TypesVisitor
     class ValueVisitor : public SwiftGenerator, public ParserVisitor
     {
     public:

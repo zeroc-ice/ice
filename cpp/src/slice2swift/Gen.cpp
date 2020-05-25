@@ -317,16 +317,9 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
 
-    ClassList allBases = p->allBases();
-    StringList allIds;
-    transform(allBases.begin(), allBases.end(), back_inserter(allIds), [](const auto& c) { return c->scoped(); });
-    allIds.push_back(p->scoped());
-    allIds.push_back("::Ice::Object");
-    allIds.sort();
-    allIds.unique();
+    StringList allIds = p->ids();
 
     ostringstream ids;
-
     ids << "[";
     for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
     {
@@ -358,16 +351,9 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string name = fixIdent(getUnqualified(getAbsolute(p), swiftModule));
     const string traits = fixIdent(getUnqualified(getAbsolute(p), swiftModule) + "Traits");
 
-    InterfaceList allBases = p->allBases();
-    StringList allIds;
-    transform(allBases.begin(), allBases.end(), back_inserter(allIds), [](const auto& c) { return c->scoped(); });
-    allIds.push_back(p->scoped());
-    allIds.push_back("::Ice::Object");
-    allIds.sort();
-    allIds.unique();
+    StringList allIds = p->ids();
 
     ostringstream ids;
-
     ids << "[";
     for(StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
     {

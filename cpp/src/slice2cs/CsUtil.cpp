@@ -454,7 +454,7 @@ Slice::returnValueName(const ParamDeclList& outParams)
 string
 Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
 {
-    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(op->container());
+    InterfaceDefPtr interface = op->interface();
     // when dispatch is true, the result-type is read-only
     list<ParamInfo> outParams = getAllOutParams(op, dispatch,  "", true);
     if(outParams.size() == 0)
@@ -472,8 +472,7 @@ Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
     }
     else
     {
-        string t = outParams.front().typeStr;
-        return t;
+        return outParams.front().typeStr;
     }
 }
 
@@ -924,14 +923,13 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
 
 void
 Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
-                                           const TypePtr& optionalType,
+                                           const OptionalPtr& optional,
                                            bool isDataMember,
                                            const string& scope,
                                            const string& param,
                                            int tag,
                                            const string& stream)
 {
-    auto optional = OptionalPtr::dynamicCast(optionalType);
     assert(optional);
     TypePtr type = optional->underlying();
 
@@ -1030,14 +1028,13 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
 
 void
 Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
-                                             const TypePtr& optionalType,
+                                             const OptionalPtr& optional,
                                              const string& scope,
                                              const string& param,
                                              int tag,
                                              const DataMemberPtr& dataMember,
                                              const string& customStream)
 {
-    auto optional = OptionalPtr::dynamicCast(optionalType);
     assert(optional);
     TypePtr type = optional->underlying();
 

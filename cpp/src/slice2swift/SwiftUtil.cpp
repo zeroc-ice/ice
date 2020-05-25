@@ -1084,13 +1084,9 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
     {
         return getUnqualified(getAbsoluteImpl(proxy, "", "Prx"), currentModule);
     }
-    else if(cont)
-    {
-        return fixIdent(getUnqualified(getAbsoluteImpl(cont), currentModule));
-    }
 
-    assert(0);
-    return "???";
+    assert(cont);
+    return fixIdent(getUnqualified(getAbsoluteImpl(cont), currentModule));
 }
 
 string
@@ -1109,13 +1105,8 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(type);
-    if(cont)
-    {
-        return getAbsoluteImpl(cont);
-    }
-
-    assert(false);
-    return "???";
+    assert(cont);
+    return getAbsoluteImpl(cont);
 }
 
 string
@@ -1865,7 +1856,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 bool
 SwiftGenerator::operationIsAmd(const OperationPtr& op)
 {
-    const InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(op->container());
+    const InterfaceDefPtr def = op->interface();
     return def->hasMetaData("amd") || op->hasMetaData("amd");
 }
 

@@ -746,6 +746,7 @@ public:
         Idempotent
     };
 
+    InterfaceDefPtr interface() const;
     TypePtr returnType() const;
     bool returnIsTagged() const;
     int returnTag() const;

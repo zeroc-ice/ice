@@ -1465,7 +1465,7 @@ Slice::Gen::DeclVisitor::DeclVisitor(Output& h, Output& c, const string& dllExpo
 bool
 Slice::Gen::DeclVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p->hasClassDecls() &&!p->hasInterfaceDecls() && !p->hasExceptions())
+    if(!p->hasClassDecls() && !p->hasInterfaceDecls() && !p->hasExceptions())
     {
         return false;
     }
@@ -1536,16 +1536,7 @@ Slice::Gen::DeclVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     C << sp;
 
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), [](const auto &c) { return c->scoped(); });
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
+    StringList ids = p->ids();
     C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ids[" << ids.size() << "] =";
     C << sb;
     for (StringList::const_iterator r = ids.begin(); r != ids.end();)
@@ -2852,15 +2843,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     vector<string> allTypes;
     vector<string> allParamDecls;
 
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), [](const auto& c) { return c->scoped(); });
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
+    StringList ids = p->ids();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
     assert(scopedIter != ids.end());
 

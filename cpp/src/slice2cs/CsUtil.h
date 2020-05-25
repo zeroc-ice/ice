@@ -121,10 +121,10 @@ protected:
     void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                             const std::string& = "istr");
 
-    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, const std::string&,
+    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, bool, const std::string&,
                                 const std::string&, int, const std::string& = "ostr");
-    void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
-                                    int, const DataMemberPtr&, const std::string& = "istr");
+    void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, const std::string&,
+                                  const std::string&, int, const DataMemberPtr&, const std::string& = "istr");
 
     std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
     std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);

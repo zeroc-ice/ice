@@ -1,26 +1,26 @@
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:43: `M' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:49: `M' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:56: `i1' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:57: `i2' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:77: `e1' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:78: `e2' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:87: `;' missing after class forward declaration
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:87: syntax error
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:106: `CounterSeq' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:115: redefinition of parameter `param'
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:133: `E' is not an exception
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:133: `E' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:140: `E' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:146: `E' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:168: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:169: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:170: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:171: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:181: data member `X' differs only in capitalization from data member `x'
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:181: `X' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:187: member `X' differs only in capitalization from member `x'
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:187: `X' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:192: parameter `A' differs only in capitalization from parameter `a'
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:192: `A' has changed meaning
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:200: exception member `X' differs only in capitalization from exception member `x'
-/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/ChangedMeaning.ice:200: `X' has changed meaning
+ChangedMeaning.ice:43: `M' has changed meaning
+ChangedMeaning.ice:49: `M' has changed meaning
+ChangedMeaning.ice:56: `i1' has changed meaning
+ChangedMeaning.ice:57: `i2' has changed meaning
+ChangedMeaning.ice:77: `e1' has changed meaning
+ChangedMeaning.ice:78: `e2' has changed meaning
+ChangedMeaning.ice:87: `;' missing after class forward declaration
+ChangedMeaning.ice:87: syntax error
+ChangedMeaning.ice:106: `CounterSeq' has changed meaning
+ChangedMeaning.ice:115: redefinition of parameter `param'
+ChangedMeaning.ice:133: `E' is not an exception
+ChangedMeaning.ice:133: `E' has changed meaning
+ChangedMeaning.ice:140: `E' has changed meaning
+ChangedMeaning.ice:146: `E' has changed meaning
+ChangedMeaning.ice:168: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:169: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:170: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:171: warning: referencing enumerator `C2' in its enumeration's enclosing scope is deprecated
+ChangedMeaning.ice:181: data member `X' differs only in capitalization from data member `x'
+ChangedMeaning.ice:181: `X' has changed meaning
+ChangedMeaning.ice:187: member `X' differs only in capitalization from member `x'
+ChangedMeaning.ice:187: `X' has changed meaning
+ChangedMeaning.ice:192: parameter `A' differs only in capitalization from parameter `a'
+ChangedMeaning.ice:192: `A' has changed meaning
+ChangedMeaning.ice:200: exception member `X' differs only in capitalization from exception member `x'
+ChangedMeaning.ice:200: `X' has changed meaning
