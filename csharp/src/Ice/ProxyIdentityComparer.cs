@@ -19,7 +19,20 @@ namespace ZeroC.Ice
         /// <param name="lhs">The proxy.</param>
         /// <param name="rhs">The other proxy.</param>
         /// <returns>True if the proxies have the same object identity; false, otherwise.</returns>
-        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) => lhs.Identity.Equals(rhs.Identity);
+        public bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
+        {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            if (lhs == null || rhs == null)
+            {
+                return false;
+            }
+
+            return lhs.Identity.Equals(rhs.Identity);
+        }
     }
 
     /// <summary>A ProxyIdentityFacetComparer allows you to use proxies as keys of a Dictionary, while using only the
@@ -35,7 +48,19 @@ namespace ZeroC.Ice
         /// <param name="lhs">The proxy.</param>
         /// <param name="rhs">The other proxy.</param>
         /// <returns>True if the proxies have the same object identity and facet; false, otherwise.</returns>
-        public bool Equals(IObjectPrx lhs, IObjectPrx rhs) =>
-            lhs.Identity.Equals(rhs.Identity) && lhs.Facet.Equals(rhs.Facet);
+        public bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
+        {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            if (lhs == null || rhs == null)
+            {
+                return false;
+            }
+
+            return lhs.Identity.Equals(rhs.Identity) && lhs.Facet.Equals(rhs.Facet);
+        }
     }
 }
