@@ -82,7 +82,7 @@ namespace ZeroC.IceSSL
             }
             IEnumerable<IceInternal.IConnector> connectors =
                 await _delegate.ConnectorsAsync(endptSelection).ConfigureAwait(false);
-            return connectors.Select(item => new ConnectorI(_instance, item, host));
+            return connectors.Select(item => new Connector(_instance, item, host));
         }
 
         public override IEnumerable<Ice.Endpoint> ExpandHost(out Ice.Endpoint? publish)

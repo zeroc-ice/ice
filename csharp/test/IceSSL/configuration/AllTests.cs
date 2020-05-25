@@ -31,7 +31,7 @@ public class AllTests
     CreateProperties(Dictionary<string, string> defaultProperties, string? cert = null, string? ca = null)
     {
         var properties = new Dictionary<string, string>(defaultProperties);
-        properties["Ice.Plugin.IceSSL"] = "IceSSL:ZeroC.IceSSL.PluginFactory";
+        properties["Ice.Plugin.IceSSL"] = "Ice:ZeroC.IceSSL.PluginFactory";
         string? value;
         if (defaultProperties.TryGetValue("IceSSL.DefaultDir", out value))
         {

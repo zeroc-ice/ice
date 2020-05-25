@@ -4,7 +4,7 @@
 
 namespace ZeroC.IceSSL
 {
-    internal sealed class ConnectorI : IceInternal.IConnector
+    internal sealed class Connector : IceInternal.IConnector
     {
         public IceInternal.ITransceiver Connect()
         {
@@ -24,7 +24,7 @@ namespace ZeroC.IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, IceInternal.IConnector del, string host)
+        internal Connector(Instance instance, IceInternal.IConnector del, string host)
         {
             _instance = instance;
             _delegate = del;
@@ -33,7 +33,7 @@ namespace ZeroC.IceSSL
 
         public override bool Equals(object? obj)
         {
-            if (!(obj is ConnectorI))
+            if (!(obj is Connector))
             {
                 return false;
             }
@@ -43,7 +43,7 @@ namespace ZeroC.IceSSL
                 return true;
             }
 
-            var p = (ConnectorI)obj;
+            var p = (Connector)obj;
             return _delegate.Equals(p._delegate);
         }
 
