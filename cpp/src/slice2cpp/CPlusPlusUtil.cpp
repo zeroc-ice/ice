@@ -46,8 +46,7 @@ toOptional(const string& s)
 bool
 isOptionalProxyOrClass(const TypePtr& type)
 {
-    auto optional = OptionalPtr::dynamicCast(type);
-    if (optional)
+    if (auto optional = OptionalPtr::dynamicCast(type))
     {
         auto underlying = optional->underlying();
         if (InterfaceDeclPtr::dynamicCast(underlying) || ClassDeclPtr::dynamicCast(underlying))

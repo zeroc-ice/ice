@@ -299,16 +299,13 @@ class Recursive
     void opVoid();
 
     [marshaled-result] tag(1) SmallStruct? opMStruct1();
-    [marshaled-result] tag(1) SmallStruct? opMStruct2(tag(2) SmallStruct? p1,
-                                                            out tag(3 )SmallStruct? p2);
+    [marshaled-result] tag(1) SmallStruct? opMStruct2(tag(2) SmallStruct? p1, out tag(3) SmallStruct? p2);
 
     [marshaled-result] tag(1) StringSeq? opMSeq1();
-    [marshaled-result] tag(1) StringSeq? opMSeq2(tag(2) StringSeq? p1,
-                                                       out tag(3) StringSeq? p2);
+    [marshaled-result] tag(1) StringSeq? opMSeq2(tag(2) StringSeq? p1, out tag(3) StringSeq? p2);
 
     [marshaled-result] tag(1) StringIntDict? opMDict1();
-    [marshaled-result] tag(1) StringIntDict? opMDict2(tag(2) StringIntDict? p1,
-                                                            out tag(3) StringIntDict? p2);
+    [marshaled-result] tag(1) StringIntDict? opMDict2(tag(2) StringIntDict? p1, out tag(3) StringIntDict? p2);
 
     [marshaled-result] tag(1) G? opMG1();
     [marshaled-result] tag(1) G? opMG2(tag(2) G? p1, out tag(3) G? p2);

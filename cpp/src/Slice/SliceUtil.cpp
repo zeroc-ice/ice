@@ -539,12 +539,14 @@ Slice::ciequals(const string& lhs, const string& rhs)
 TypePtr
 Slice::unwrapIfOptional(const TypePtr& type)
 {
-    auto result = type;
     if (auto optional = OptionalPtr::dynamicCast(type))
     {
-        result = optional->underlying();
+        return optional->underlying();
     }
-    return result;
+    else
+    {
+        return type;
+    }
 }
 
 CaseConvention
