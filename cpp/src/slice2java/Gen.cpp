@@ -4832,7 +4832,6 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
     else
     {
         TypePtr type = op->returnType();
-        bool returnIsTagged = op->returnIsTagged();
         if(!type)
         {
             const ParamDeclList outParams = op->outParameters();
@@ -4840,7 +4839,6 @@ Slice::Gen::ImplVisitor::initResult(Output& out, const string& package, const Op
             {
                 assert(outParams.size() == 1);
                 type = outParams.front()->type();
-                returnIsTagged = outParams.front()->tagged();
             }
         }
         if(type)
