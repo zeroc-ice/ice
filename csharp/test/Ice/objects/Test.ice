@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <Ice/Identity.ice>
 
 [[cs:typeid-namespace:ZeroC.Ice.objects.TypeId]]

@@ -49,8 +49,8 @@ protected:
     bool requiresDataMemberInitializers(const DataMemberList&);
     void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int, bool);
 
-    void writeProxyDocComment(const ClassDefPtr&, const std::string&);
-    void writeServantDocComment(const ClassDefPtr&, const std::string&);
+    void writeProxyDocComment(const InterfaceDefPtr&, const std::string&);
+    void writeServantDocComment(const InterfaceDefPtr&, const std::string&);
 
     void writeTypeDocComment(const ContainedPtr&, const std::string&);
     void writeOperationDocComment(const OperationPtr&, const std::string&, bool, bool);
@@ -132,8 +132,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
         void writeOutgoingRequestReader(const OperationPtr&);
@@ -148,9 +148,9 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
 
     protected:
 
@@ -166,9 +166,9 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
     };
 
     class ClassFactoryVisitor : public CsVisitor

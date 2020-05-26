@@ -3413,9 +3413,9 @@ void initScanner()
         {"true", ICE_TRUE},
         {"idempotent", ICE_IDEMPOTENT},
         {"tag", ICE_TAG},
-        // 'optional' is kept as an alias for 'tag' for backwards compatability.
+        // 'optional' is kept as an alias for 'tag' for backwards compatibility.
         // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
-        // But for 'tag' we require an optional (nullable) type. No inferencing is done.
+        // For 'tag' we require an optional type. No auto-conversion is done.
         {"optional", ICE_OPTIONAL},
         {"Value", ICE_VALUE}
     };

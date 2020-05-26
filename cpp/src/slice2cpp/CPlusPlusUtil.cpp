@@ -43,6 +43,25 @@ toOptional(const string& s)
     return "Ice::optional<" + s + ">";
 }
 
+bool
+isOptionalProxyOrClass(const TypePtr& type)
+{
+    if (auto optional = OptionalPtr::dynamicCast(type))
+    {
+        auto underlying = optional->underlying();
+        if (InterfaceDeclPtr::dynamicCast(underlying) || ClassDeclPtr::dynamicCast(underlying))
+        {
+            return true;
+        }
+        auto builtin = BuiltinPtr::dynamicCast(underlying);
+        if (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 string
 stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
 {
@@ -79,8 +98,7 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
                 }
                 else if(builtin &&
                         builtin->kind() != Builtin::KindString &&
-                        builtin->kind() != Builtin::KindObject &&
-                        builtin->kind() != Builtin::KindObjectProxy)
+                        builtin->kind() != Builtin::KindObject)
                 {
                     string s = toTemplateArg(typeToString(builtin, scope));
                     return "::std::pair< ::IceUtil::ScopedArray<" + s + ">, " +
@@ -126,7 +144,7 @@ void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const string& scope, const string& fixedName,
                        const StringList& metaData, int typeCtx)
 {
-    string s = typeToString(type, scope, metaData, typeCtx);
+    string s = typeToString(unwrapIfOptional(type), scope, metaData, typeCtx);
     if(isTagged)
     {
         s = toOptional(s);
@@ -359,7 +377,6 @@ Slice::isMovable(const TypePtr& type)
         {
             case Builtin::KindString:
             case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
                 return true;
@@ -404,7 +421,7 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 string
 Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    static const std::array<std::string, 18> builtinTable =
+    static const std::array<std::string, 17> builtinTable =
     {
         "bool",
         "::Ice::Byte",
@@ -421,23 +438,13 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "float",
         "double",
         "::std::string",
-        "::std::shared_ptr<::Ice::Object>",
         "::std::shared_ptr<::Ice::ObjectPrx>",
         "::std::shared_ptr<::Ice::Value>"
     };
 
-    if((typeCtx & TypeContextLocal) != 0)
+    if (isOptionalProxyOrClass(type))
     {
-        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
-        {
-            const string cppType = "cpp:type:";
-            const string meta = *i;
-
-            if(meta.find(cppType) == 0)
-            {
-                return meta.substr(cppType.size());
-            }
-        }
+        return typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx);
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -446,10 +453,6 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         if(builtin->kind() == Builtin::KindString)
         {
             return stringTypeToString(type, metaData, typeCtx);
-        }
-        else if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
-        {
-            return getUnqualified(builtinTable[Builtin::KindValue], scope);
         }
         else
         {
@@ -460,38 +463,19 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            return getUnqualified(builtinTable[Builtin::KindValue], scope);
-        }
-        else
-        {
-            return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
-        }
+        return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
+    }
+
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    if(proxy)
+    {
+       return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
         return getUnqualified(fixKwd(st->scoped()), scope);
-    }
-
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
-    {
-        ClassDefPtr def = proxy->_class()->definition();
-        //
-        // Non local classes without operations map to the base
-        // proxy class shared_ptr<Ice::ObjectPrx>
-        //
-        if(!def || def->isAbstract())
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">";
-        }
-        else
-        {
-            return getUnqualified(builtinTable[Builtin::KindObjectProxy], scope);
-        }
     }
 
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -512,22 +496,16 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         return dictionaryTypeToString(dict, scope, metaData, typeCtx);
     }
 
-    OptionalPtr opt = OptionalPtr::dynamicCast(type);
-    if(opt)
-    {
-        auto underlying = typeToString(opt->underlying(), scope, metaData, typeCtx);
-        return "std::optional<" + underlying + ">";
-    }
-
+    assert(0);
     return "???";
 }
 
 string
-Slice::typeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
+Slice::typeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData, int typeCtx)
 {
-    if(optional)
+    if(tagged) // meaning tagged
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx));
+        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx));
     }
     else
     {
@@ -536,7 +514,7 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
+Slice::returnTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData,
                           int typeCtx)
 {
     if(!type)
@@ -544,19 +522,19 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scop
         return "void";
     }
 
-    if(optional)
+    if(tagged)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx));
+        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx));
     }
 
     return typeToString(type, scope, metaData, typeCtx);
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
+Slice::inputTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData,
                          int typeCtx)
 {
-    static const std::array<std::string, 18> inputBuiltinTable =
+    static const std::array<std::string, 17> inputBuiltinTable =
     {
         "bool",
         "::Ice::Byte",
@@ -573,16 +551,21 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "float",
         "double",
         "const ::std::string&",
-        "const ::std::shared_ptr<::Ice::Object>&",
         "const ::std::shared_ptr<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 
     typeCtx |= TypeContextInParam;
 
-    if(optional)
+    if(tagged)
     {
-        return "const " + toOptional(typeToString(type, scope, metaData, typeCtx)) + '&';
+        return "const " + toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData,
+            typeCtx)) + '&';
+    }
+
+    if (isOptionalProxyOrClass(type))
+    {
+        return inputTypeToString(OptionalPtr::dynamicCast(type)->underlying(), tagged, scope, metaData, typeCtx);
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -591,10 +574,6 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         if(builtin->kind() == Builtin::KindString)
         {
             return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
-        }
-        else if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
-        {
-            return getUnqualified(inputBuiltinTable[Builtin::KindValue], scope);
         }
         else
         {
@@ -605,14 +584,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            return getUnqualified(inputBuiltinTable[Builtin::KindValue], scope);
-        }
-        else
-        {
-            return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-        }
+        return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -621,18 +593,10 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         return "const " + getUnqualified(fixKwd(st->scoped()), scope) + "&";
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        ClassDefPtr def = proxy->_class()->definition();
-        if(def && !def->isInterface() && def->allOperations().empty())
-        {
-            return getUnqualified(inputBuiltinTable[Builtin::KindObjectProxy], scope);
-        }
-        else
-        {
-            return "const ::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">&";
-        }
+        return "const ::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -653,14 +617,15 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         return "const " + dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
     }
 
+    assert(0);
     return "???";
 }
 
 string
-Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
+Slice::outputTypeToString(const TypePtr& type, bool tagged, const string& scope, const StringList& metaData,
                           int typeCtx)
 {
-    static const std::array<std::string, 18> outputBuiltinTable =
+    static const std::array<std::string, 17> outputBuiltinTable =
     {
         "bool&",
         "::Ice::Byte&",
@@ -677,14 +642,18 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "float&",
         "double&",
         "::std::string&",
-        "::std::shared_ptr<::Ice::Object>&",
         "::std::shared_ptr<::Ice::ObjectPrx>&",
         "::std::shared_ptr<::Ice::Value>&"
     };
 
-    if(optional)
+    if(tagged)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx)) + '&';
+        return toOptional(typeToString(OptionalPtr::dynamicCast(type)->underlying(), scope, metaData, typeCtx)) + '&';
+    }
+
+    if (isOptionalProxyOrClass(type))
+    {
+        return outputTypeToString(OptionalPtr::dynamicCast(type)->underlying(), tagged, scope, metaData, typeCtx);
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -693,10 +662,6 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         if(builtin->kind() == Builtin::KindString)
         {
             return stringTypeToString(type, metaData, typeCtx) + "&";
-        }
-        else if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
-        {
-            return getUnqualified(outputBuiltinTable[Builtin::KindValue], scope);
         }
         else
         {
@@ -707,14 +672,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            return getUnqualified(outputBuiltinTable[Builtin::KindValue], scope);
-        }
-        else
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-        }
+        return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -723,22 +681,10 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         return getUnqualified(fixKwd(st->scoped()), scope) + "&";
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        ClassDefPtr def = proxy->_class()->definition();
-        //
-        // Non local classes without operations map to the base
-        // proxy class shared_ptr<Ice::ObjectPrx>
-        //
-        if(def && !def->isInterface() && def->allOperations().empty())
-        {
-            return getUnqualified(outputBuiltinTable[Builtin::KindObjectProxy], scope);
-        }
-        else
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->_class()->scoped() + "Prx"), scope) + ">&";
-        }
+        return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -759,6 +705,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         return dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
     }
 
+    assert(0);
     return "???";
 }
 

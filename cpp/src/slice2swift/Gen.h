@@ -41,6 +41,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -55,17 +56,17 @@ private:
         void addImport(const std::string&);
 
         IceUtilInternal::Output& out;
-        std::vector< std::string> _imports;
+        std::vector<std::string> _imports;
     };
 
     class TypesVisitor : public SwiftGenerator, public ParserVisitor
     {
-
     public:
 
         TypesVisitor(IceUtilInternal::Output&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -86,8 +87,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -95,6 +96,8 @@ private:
         IceUtilInternal::Output& out;
     };
 
+    // Value here means class instance.
+    // TODO: merge into TypesVisitor
     class ValueVisitor : public SwiftGenerator, public ParserVisitor
     {
     public:
@@ -103,13 +106,13 @@ private:
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
 
     private:
 
         IceUtilInternal::Output& out;
     };
 
+    // Object here means servant
     class ObjectVisitor : public SwiftGenerator, public ParserVisitor
     {
     public:
@@ -118,8 +121,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -135,8 +138,8 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:

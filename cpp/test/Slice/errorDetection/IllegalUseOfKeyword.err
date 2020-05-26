@@ -6,7 +6,7 @@ IllegalUseOfKeyword.ice:14: structs cannot be forward declared
 IllegalUseOfKeyword.ice:15: keyword `class' cannot be used as struct name
 IllegalUseOfKeyword.ice:20: keyword `interface' cannot be used as class name
 IllegalUseOfKeyword.ice:21: keyword `struct' cannot be used as class name
-IllegalUseOfKeyword.ice:23: warning: classes with operations are deprecated
+IllegalUseOfKeyword.ice:23: syntax error
 IllegalUseOfKeyword.ice:28: keyword `extends' cannot be used as interface name
 IllegalUseOfKeyword.ice:35: keyword `implements' cannot be used as operation name
 IllegalUseOfKeyword.ice:37: keyword `throws' cannot be used as parameter name

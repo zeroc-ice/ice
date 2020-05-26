@@ -18,6 +18,8 @@
 
 [[java:package:com.zeroc]]
 
+[[3.7]] // TODO, temporary
+
 [cs:namespace:ZeroC.Ice]
 module Ice
 {

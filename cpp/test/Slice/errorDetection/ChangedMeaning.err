@@ -4,9 +4,8 @@ ChangedMeaning.ice:56: `i1' has changed meaning
 ChangedMeaning.ice:57: `i2' has changed meaning
 ChangedMeaning.ice:77: `e1' has changed meaning
 ChangedMeaning.ice:78: `e2' has changed meaning
-ChangedMeaning.ice:87: warning: classes implementing interfaces are deprecated
-ChangedMeaning.ice:88: `c1' has changed meaning
-ChangedMeaning.ice:89: `c2' has changed meaning
+ChangedMeaning.ice:87: `;' missing after class forward declaration
+ChangedMeaning.ice:87: syntax error
 ChangedMeaning.ice:106: `CounterSeq' has changed meaning
 ChangedMeaning.ice:115: redefinition of parameter `param'
 ChangedMeaning.ice:133: `E' is not an exception
@@ -23,8 +22,5 @@ ChangedMeaning.ice:187: member `X' differs only in capitalization from member `x
 ChangedMeaning.ice:187: `X' has changed meaning
 ChangedMeaning.ice:192: parameter `A' differs only in capitalization from parameter `a'
 ChangedMeaning.ice:192: `A' has changed meaning
-ChangedMeaning.ice:199: warning: classes with operations are deprecated
-ChangedMeaning.ice:200: redefinition of operation `x' as data member `x'
-ChangedMeaning.ice:205: warning: classes with operations are deprecated
-ChangedMeaning.ice:212: exception member `X' differs only in capitalization from exception member `x'
-ChangedMeaning.ice:212: `X' has changed meaning
+ChangedMeaning.ice:200: exception member `X' differs only in capitalization from exception member `x'
+ChangedMeaning.ice:200: `X' has changed meaning

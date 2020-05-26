@@ -45,17 +45,16 @@ Slice::paramName(const ParamInfo& info)
 }
 
 std::string
-Slice::interfaceName(const ClassDefPtr& c)
+Slice::interfaceName(const InterfaceDeclPtr& decl)
 {
-    string name = normalizeCase(c) ? pascalCase(c->name()) : c->name();
+    string name = normalizeCase(decl) ? pascalCase(decl->name()) : decl->name();
     return name.find("II") == 0 ? name : "I" + name;
 }
 
 std::string
-Slice::interfaceName(const ProxyPtr& p)
+Slice::interfaceName(const InterfaceDefPtr& def)
 {
-    string name = normalizeCase(p->_class()) ? pascalCase(p->_class()->name()) : p->_class()->name();
-    return name.find("II") == 0 ? name : "I" + name;
+    return interfaceName(def->declaration());
 }
 
 std::string
@@ -78,17 +77,6 @@ Slice::helperName(const TypePtr& type, const string& scope)
     return getUnqualified(contained, scope, "", "Helper");
 }
 
-bool
-Slice::isNullable(const TypePtr& type)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin && (builtin->usesClasses() || builtin->kind() == Builtin::KindObjectProxy))
-    {
-        return true;
-    }
-    return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
-}
-
 namespace
 {
 
@@ -109,7 +97,6 @@ const std::array<std::string, 18> builtinSuffixTable =
     "Float",
     "Double",
     "String",
-    "Class",
     "Proxy",
     "Class"
 };
@@ -322,22 +309,31 @@ Slice::fixId(const string& name, unsigned int baseTypes)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional, bool readOnly)
+Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool readOnly)
 {
     if(!type)
     {
         return "void";
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
+    SequencePtr seq;
 
-    if(optional && !(readOnly && seq))
+    auto optional = OptionalPtr::dynamicCast(type);
+    if (optional)
     {
-        // when handle read-only sequences below in if (seq)
-        return typeToString(type, package, false, readOnly) + "?";
+        seq = SequencePtr::dynamicCast(optional->underlying());
+        if (!seq || !readOnly)
+        {
+            return typeToString(optional->underlying(), package, readOnly) + "?";
+        }
+        // else process seq in the code below.
+    }
+    else
+    {
+        seq = SequencePtr::dynamicCast(type);
     }
 
-    static const std::array<std::string, 18> builtinTable =
+    static const std::array<std::string, 17> builtinTable =
     {
         "bool",
         "byte",
@@ -354,7 +350,6 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "float",
         "double",
         "string",
-        "ZeroC.Ice.IObject",
         "ZeroC.Ice.IObjectPrx",
         "ZeroC.Ice.AnyClass"
     };
@@ -362,42 +357,19 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindObject)
-        {
-            return getUnqualified(builtinTable[Builtin::KindValue], package, true);
-        }
-        else
-        {
-            return getUnqualified(builtinTable[builtin->kind()], package, true);
-        }
+        return getUnqualified(builtinTable[builtin->kind()], package, true);
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(cl->isInterface())
-        {
-            return "ZeroC.Ice.AnyClass";
-        }
-        else
-        {
-            return getUnqualified(cl, package);
-        }
+        return getUnqualified(cl, package);
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
+    InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(type);
+    if(interface)
     {
-        ClassDefPtr def = proxy->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            return getUnqualified(getNamespace(proxy->_class()) + "." +
-                                  interfaceName(proxy) + "Prx", package);
-        }
-        else
-        {
-            return "ZeroC.Ice.IObjectPrx";
-        }
+        return getUnqualified(getNamespace(interface) + "." + interfaceName(interface) + "Prx", package);
     }
 
     if(seq)
@@ -406,36 +378,35 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         string serializableType = seq->findMetaDataWithPrefix("cs:serializable:");
         if (!serializableType.empty())
         {
-            return "global::" + serializableType + (readOnly && optional ? "?" : "");
+            return "global::" + serializableType + (optional ? "?" : "");
         }
         else if (readOnly)
         {
             auto elementType = seq->type();
-            string elementTypeStr = "<" + typeToString(elementType, package, isNullable(elementType)) + ">";
+            string elementTypeStr = "<" + typeToString(elementType, package) + ">";
             if (isMappedToReadOnlyMemory(seq))
             {
                 return "global::System.ReadOnlyMemory" + elementTypeStr; // same for optional!
             }
             else
             {
-                // See if (optional ...) earlier
                 return "global::System.Collections.Generic.IEnumerable" + elementTypeStr + (optional ? "?" : "");
             }
         }
         else if (customType.empty())
         {
-            return typeToString(seq->type(), package, isNullable(seq->type())) + "[]";
+            return typeToString(seq->type(), package) + "[]";
         }
         else
         {
-          ostringstream out;
-          out << "global::";
-          if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
-          {
-              out << "System.Collections.Generic.";
-          }
-          out << customType << "<" << typeToString(seq->type(), package, isNullable(seq->type())) << ">";
-          return out.str();
+            ostringstream out;
+            out << "global::";
+            if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
+            {
+                out << "System.Collections.Generic.";
+            }
+            out << customType << "<" << typeToString(seq->type(), package) << ">";
+            return out.str();
         }
     }
 
@@ -455,7 +426,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         }
         return "global::System.Collections.Generic." + typeName + "<" +
             typeToString(d->keyType(), package) + ", " +
-            typeToString(d->valueType(), package, isNullable(d->valueType())) + ">";
+            typeToString(d->valueType(), package) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -483,7 +454,7 @@ Slice::returnValueName(const ParamDeclList& outParams)
 string
 Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
 {
-    ClassDefPtr cls = ClassDefPtr::dynamicCast(op->container());
+    InterfaceDefPtr interface = op->interface();
     // when dispatch is true, the result-type is read-only
     list<ParamInfo> outParams = getAllOutParams(op, dispatch,  "", true);
     if(outParams.size() == 0)
@@ -492,7 +463,7 @@ Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
     }
     else if(dispatch && op->hasMarshaledResult())
     {
-        string name = getNamespace(cls) + "." + interfaceName(cls);
+        string name = getNamespace(interface) + "." + interfaceName(interface);
         return getUnqualified(name, scope) + "." + pascalCase(op->name()) + "MarshaledReturnValue";
     }
     else if(outParams.size() > 1)
@@ -501,12 +472,7 @@ Slice::resultType(const OperationPtr& op, const string& scope, bool dispatch)
     }
     else
     {
-        string t = outParams.front().typeStr;
-        if(outParams.front().nullable && !outParams.front().tagged)
-        {
-            t += "?";
-        }
-        return t;
+        return outParams.front().typeStr;
     }
 }
 
@@ -547,14 +513,14 @@ Slice::isClassType(const TypePtr& type)
 }
 
 bool
-Slice::isProxyType(const TypePtr& type)
+Slice::isInterfaceType(const TypePtr& type)
 {
-    if(ProxyPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type))
     {
         return true;
     }
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return builtin && builtin->kind() == Builtin::KindObjectProxy;
+    return builtin && builtin->kind() == Builtin::KindObject;
 }
 
 bool
@@ -564,14 +530,10 @@ Slice::isCollectionType(const TypePtr& type)
 }
 
 bool
-Slice::isReferenceType(const TypePtr& type)
-{
-    return !isValueType(type);
-}
-
-bool
 Slice::isValueType(const TypePtr& type)
 {
+    assert(!OptionalPtr::dynamicCast(type));
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
@@ -579,7 +541,6 @@ Slice::isValueType(const TypePtr& type)
         {
             case Builtin::KindString:
             case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
                 return false;
@@ -595,8 +556,13 @@ Slice::isValueType(const TypePtr& type)
     {
         return true;
     }
-
     return StructPtr::dynamicCast(type);
+}
+
+bool
+Slice::isReferenceType(const TypePtr& type)
+{
+    return !isValueType(type);
 }
 
 bool
@@ -618,9 +584,8 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
     this->operation = pOperation;
     this->name = fixId(pPrefix + pName);
     this->type = pType;
-    this->typeStr = CsGenerator::typeToString(pType, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
-                                              pTagged, readOnly);
-    this->nullable = isNullable(pType);
+    this->typeStr = CsGenerator::typeToString(pType, getNamespace(InterfaceDefPtr::dynamicCast(operation->container())),
+                                              readOnly);
     this->tagged = pTagged;
     this->tag = pTag;
     this->param = 0;
@@ -631,9 +596,8 @@ Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, bool readOnly, const str
     this->operation = OperationPtr::dynamicCast(pParam->container());
     this->name = fixId(pPrefix + pParam->name());
     this->type = pParam->type();
-    this->typeStr = CsGenerator::typeToString(type, getNamespace(ClassDefPtr::dynamicCast(operation->container())),
-                                              pParam->tagged(), readOnly);
-    this->nullable = isNullable(type);
+    this->typeStr = CsGenerator::typeToString(type, getNamespace(InterfaceDefPtr::dynamicCast(operation->container())),
+                                              readOnly);
     this->tagged = pParam->tagged();
     this->tag = pParam->tag();
     this->param = pParam;
@@ -777,7 +741,7 @@ Slice::toTupleType(const list<ParamInfo>& params, const string& prefix)
     if(params.size() == 1)
     {
         auto param = params.front();
-        return param.typeStr + (param.nullable && !param.tagged ? "?" : "");
+        return param.typeStr;
     }
     else
     {
@@ -786,10 +750,6 @@ Slice::toTupleType(const list<ParamInfo>& params, const string& prefix)
         for(list<ParamInfo>::const_iterator it = params.begin(); it != params.end();)
         {
             os << it->typeStr;
-            if(it->nullable && !it->tagged)
-            {
-                os << "?";
-            }
             os << " " << (it->param ? fixId(prefix + it->param->name()) : fixId(prefix + it->name));
             if(++it != params.end())
             {
@@ -808,11 +768,13 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool forNestedType)
+Slice::CsGenerator::outputStreamWriter(const TypePtr& constTtype, const string& scope, bool forNestedType)
 {
+    TypePtr type = unwrapIfOptional(constTtype);
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
+    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObject)
     {
         out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
     }
@@ -842,19 +804,22 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
 
 void
 Slice::CsGenerator::writeMarshalCode(Output& out,
-                                     const TypePtr& type,
+                                     const TypePtr& constType,
                                      bool forNestedType,
                                      const string& scope,
                                      const string& param,
                                      const string& stream)
 {
+    // TODO: for now, we handle marshaling of Optional<T> like T
+    TypePtr type = unwrapIfOptional(constType);
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
 
-    if(builtin || isProxyType(type) || isClassType(type))
+    if(builtin || isInterfaceType(type) || isClassType(type))
     {
-        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        auto kind = builtin ? builtin->kind() : isInterfaceType(type) ? Builtin::KindObject : Builtin::KindValue;
         out << nl << stream << ".Write" << builtinSuffixTable[kind] << "(" << param << ");";
     }
     else if(st)
@@ -880,11 +845,13 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
 }
 
 string
-Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
+Slice::CsGenerator::inputStreamReader(const TypePtr& constType, const string& scope)
 {
+    TypePtr type = unwrapIfOptional(constType);
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObjectProxy)
+    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObject)
     {
         out << "ZeroC.Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()];
     }
@@ -913,11 +880,14 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 
 void
 Slice::CsGenerator::writeUnmarshalCode(Output &out,
-                                       const TypePtr& type,
+                                       const TypePtr& constType,
                                        const string& scope,
                                        const string& param,
                                        const string& stream)
 {
+    // TODO: for now, we handle unmarshaling of Optional<T> like T
+    TypePtr type = unwrapIfOptional(constType);
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
@@ -927,7 +897,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     {
         out << stream << ".ReadClass<" << typeToString(type, scope) << ">();";
     }
-    else if(isProxyType(type))
+    else if(isInterfaceType(type))
     {
         out << stream << ".ReadProxy(" << typeToString(type, scope) << ".Factory);";
     }
@@ -952,22 +922,25 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
 }
 
 void
-Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
-                                           const TypePtr& type,
+Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
+                                           const OptionalPtr& optional,
                                            bool isDataMember,
                                            const string& scope,
                                            const string& param,
                                            int tag,
                                            const string& stream)
 {
+    assert(optional);
+    TypePtr type = optional->underlying();
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
     EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
-    if(builtin || isProxyType(type) || isClassType(type))
+    if(builtin || isInterfaceType(type) || isClassType(type))
     {
-        auto kind = builtin ? builtin->kind() : isProxyType(type) ? Builtin::KindObjectProxy : Builtin::KindValue;
+        auto kind = builtin ? builtin->kind() : isInterfaceType(type) ? Builtin::KindObject : Builtin::KindValue;
         out << nl << stream << ".WriteTagged" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
     }
     else if(st)
@@ -1055,13 +1028,16 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output &out,
 
 void
 Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
-                                             const TypePtr& type,
+                                             const OptionalPtr& optional,
                                              const string& scope,
                                              const string& param,
                                              int tag,
                                              const DataMemberPtr& dataMember,
                                              const string& customStream)
 {
+    assert(optional);
+    TypePtr type = optional->underlying();
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -1077,7 +1053,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     {
         out << stream << ".ReadTaggedClass<" << typeToString(type, scope) << ">(" << tag << ")";
     }
-    else if (isProxyType(type))
+    else if (isInterfaceType(type))
     {
         out << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope)
             << ".Factory)";
@@ -1147,7 +1123,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     if (hasDefaultValue)
     {
         out << " ?? ";
-        writeConstantValue(out, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue(), scope);
+        writeConstantValue(out, type, dataMember->defaultValueType(), dataMember->defaultValue(), scope);
     }
     out << ";";
 }
@@ -1235,7 +1211,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
 }
 
 void
-Slice::CsGenerator::writeConstantValue(Output &out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+Slice::CsGenerator::writeConstantValue(Output& out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
     const string& value, const string& ns)
 {
     ConstPtr constant = ConstPtr::dynamicCast(valueType);

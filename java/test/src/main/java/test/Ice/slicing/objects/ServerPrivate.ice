@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 [[java:package:test.Ice.slicing.objects.server]]
 module Test
 {

@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 [[cs:typeid-namespace:ZeroC.Ice.scope.TypeId]]
 [cs:namespace:ZeroC.Ice.scope]
 module Test

@@ -53,7 +53,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                         current.writeln("ok")
 
             current.write("Forward.ice... ")
-            for language in ["cpp", "cs", "java", "js", "matlab", "py", "swift"]:
+            for language in ["cpp", "cs", "java", "js", "matlab", "swift"]:
                 compiler = SliceTranslator('slice2%s' % language)
                 if not os.path.isfile(compiler.getCommandLine(current)):
                     continue

@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <TestAMD.ice>
 
 [[swift:class-resolver-prefix:IceSlicingExceptionsServerAMD]]

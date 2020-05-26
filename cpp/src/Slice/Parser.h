@@ -99,9 +99,10 @@ class Module;
 class Constructed;
 class ClassDecl;
 class ClassDef;
-class Proxy;
-class Optional;
+class InterfaceDecl;
+class InterfaceDef;
 class Exception;
+class Optional;
 class Struct;
 class Operation;
 class ParamDecl;
@@ -126,7 +127,8 @@ typedef ::IceUtil::Handle<Module> ModulePtr;
 typedef ::IceUtil::Handle<Constructed> ConstructedPtr;
 typedef ::IceUtil::Handle<ClassDecl> ClassDeclPtr;
 typedef ::IceUtil::Handle<ClassDef> ClassDefPtr;
-typedef ::IceUtil::Handle<Proxy> ProxyPtr;
+typedef ::IceUtil::Handle<InterfaceDecl> InterfaceDeclPtr;
+typedef ::IceUtil::Handle<InterfaceDef> InterfaceDefPtr;
 typedef ::IceUtil::Handle<Optional> OptionalPtr;
 typedef ::IceUtil::Handle<Exception> ExceptionPtr;
 typedef ::IceUtil::Handle<Struct> StructPtr;
@@ -149,6 +151,7 @@ typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
 typedef std::list<ConstructedPtr> ConstructedList;
 typedef std::list<ClassDefPtr> ClassList;
+typedef std::list<InterfaceDefPtr> InterfaceList;
 typedef std::list<ExceptionPtr> ExceptionList;
 typedef std::list<StructPtr> StructList;
 typedef std::list<SequencePtr> SequenceList;
@@ -199,6 +202,9 @@ public:
     virtual void visitClassDecl(const ClassDeclPtr&) { }
     virtual bool visitClassDefStart(const ClassDefPtr&) { return true; }
     virtual void visitClassDefEnd(const ClassDefPtr&) { }
+    virtual void visitInterfaceDecl(const InterfaceDeclPtr&) { }
+    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&) { return true; }
+    virtual void visitInterfaceDefEnd(const InterfaceDefPtr&) { }
     virtual bool visitExceptionStart(const ExceptionPtr&) { return true; }
     virtual void visitExceptionEnd(const ExceptionPtr&) { }
     virtual bool visitStructStart(const StructPtr&) { return true; }
@@ -231,6 +237,9 @@ public:
     void setMetaData(const StringList&);
     std::string findMetaData(const std::string&) const;
     StringList getMetaData() const;
+
+    // When parsing Slice definitions, apply 3.7 or 4.0 semantics for class parameters, Object etc.
+    bool compatMode() const;
 
     //
     // Emit warning unless filtered out by [["suppress-warning"]]
@@ -363,9 +372,8 @@ public:
         KindFloat,
         KindDouble,
         KindString,
-        KindObject,
-        KindObjectProxy,
-        KindValue
+        KindObject, // the implicit base for all proxies
+        KindValue   // TODO: rename to AnyClass
     };
 
     virtual std::string typeId() const;
@@ -401,7 +409,6 @@ public:
         "double",
         "string",
         "Object",
-        "Object*",
         "Value"
     };
 
@@ -452,6 +459,7 @@ public:
         ContainedTypeEnumerator,
         ContainedTypeModule,
         ContainedTypeClass,
+        ContainedTypeInterface,
         ContainedTypeException,
         ContainedTypeStruct,
         ContainedTypeOperation,
@@ -492,8 +500,10 @@ public:
 
     virtual void destroy();
     ModulePtr createModule(const std::string&);
-    ClassDefPtr createClassDef(const std::string&, int, bool, const ClassList&);
-    ClassDeclPtr createClassDecl(const std::string&, bool);
+    ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&);
+    ClassDeclPtr createClassDecl(const std::string&);
+    InterfaceDefPtr createInterfaceDef(const std::string&, const InterfaceList&);
+    InterfaceDeclPtr createInterfaceDecl(const std::string&);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
     StructPtr createStruct(const std::string&, NodeType = Real);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
@@ -511,6 +521,7 @@ public:
     UnitPtr unit() const;
     ModuleList modules() const;
     ClassList classes() const;
+    InterfaceList interfaces() const;
     ExceptionList exceptions() const;
     StructList structs() const;
     SequenceList sequences() const;
@@ -526,6 +537,7 @@ public:
     bool hasDictionaries() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
+    bool hasInterfaceDecls() const;
     bool hasInterfaceDefs() const;
     bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
@@ -549,7 +561,6 @@ protected:
 
     Container(const UnitPtr&);
 
-    bool checkInterfaceAndLocal(const std::string&, bool, bool, bool);
     bool checkFileMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
     EnumeratorPtr validateEnumerator(const std::string&);
@@ -606,7 +617,6 @@ public:
 
     virtual void destroy();
     ClassDefPtr definition() const;
-    bool isInterface() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
@@ -617,24 +627,102 @@ public:
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
-    static void checkBasesAreLegal(const std::string&, const ClassList&, const UnitPtr&);
-
 protected:
 
-    ClassDecl(const ContainerPtr&, const std::string&, bool);
+    ClassDecl(const ContainerPtr&, const std::string&);
     friend class Container;
     friend class ClassDef;
 
     ClassDefPtr _definition;
-    bool _interface;
+};
+
+// ----------------------------------------------------------------------
+// ClassDef
+// ----------------------------------------------------------------------
+
+//
+// Note: For the purpose of this parser, a class definition is not
+// considered to be a type, but a class declaration is. And each class
+// definition has at least one class declaration (but not vice versa),
+// so if you need the class as a "constructed type", use the
+// declaration() operation to navigate to the class declaration.
+//
+class ClassDef : public virtual Container, public virtual Contained
+{
+public:
+
+    virtual void destroy();
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
+                                   const std::string&, const std::string&);
+    ClassDeclPtr declaration() const;
+    ClassDefPtr base() const;
+    ClassList allBases() const;
+    DataMemberList dataMembers() const;
+    DataMemberList sortedTaggedDataMembers() const;
+    DataMemberList allDataMembers() const;
+    DataMemberList classDataMembers() const;
+    DataMemberList allClassDataMembers() const;
+    bool canBeCyclic() const;
+    bool isA(const std::string&) const;
+    bool hasDataMembers() const;
+    bool hasDefaultValues() const;
+    bool inheritsMetaData(const std::string&) const;
+    bool hasBaseDataMembers() const;
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
+    virtual void visit(ParserVisitor*, bool);
+    int compactId() const;
+    StringList ids() const;
+
+protected:
+
+    ClassDef(const ContainerPtr&, const std::string&, int, const ClassDefPtr&);
+    friend class Container;
+
+    ClassDeclPtr _declaration;
+    bool _hasDataMembers;
+    ClassDefPtr _base;
+    int _compactId;
+};
+
+// ----------------------------------------------------------------------
+// InterfaceDecl
+// ----------------------------------------------------------------------
+
+class InterfaceDecl : public virtual Constructed
+{
+public:
+
+    virtual void destroy();
+    InterfaceDefPtr definition() const;
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual std::string getTagFormat() const;
+    virtual bool isVariableLength() const;
+    virtual void visit(ParserVisitor*, bool);
+    virtual std::string kindOf() const;
+    virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
+
+    static void checkBasesAreLegal(const std::string&, const InterfaceList&, const UnitPtr&);
+
+protected:
+
+    InterfaceDecl(const ContainerPtr&, const std::string&);
+    friend class Container;
+    friend class InterfaceDef;
+
+    InterfaceDefPtr _definition;
 
 private:
 
-    typedef std::list<ClassList> GraphPartitionList;
+    typedef std::list<InterfaceList> GraphPartitionList;
     typedef std::list<StringList> StringPartitionList;
 
-    static bool isInList(const GraphPartitionList&, const ClassDefPtr);
-    static void addPartition(GraphPartitionList&, GraphPartitionList::reverse_iterator, const ClassDefPtr);
+    static bool isInList(const GraphPartitionList&, const InterfaceDefPtr&);
+    static void addPartition(GraphPartitionList&, GraphPartitionList::reverse_iterator, const InterfaceDefPtr&);
     static StringPartitionList toStringPartitionList(const GraphPartitionList&);
     static void checkPairIntersections(const StringPartitionList&, const std::string&, const UnitPtr&);
 };
@@ -658,6 +746,7 @@ public:
         Idempotent
     };
 
+    InterfaceDefPtr interface() const;
     TypePtr returnType() const;
     bool returnIsTagged() const;
     int returnTag() const;
@@ -686,7 +775,7 @@ public:
 protected:
 
     Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
-    friend class ClassDef;
+    friend class InterfaceDef;
 
     TypePtr _returnType;
     bool _returnIsTagged;
@@ -696,61 +785,45 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// ClassDef
+// InterfaceDef
 // ----------------------------------------------------------------------
 
 //
-// Note: For the purpose of this parser, a class definition is not
-// considered to be a type, but a class declaration is. And each class
-// definition has at least one class declaration (but not vice versa),
-// so if you need the class as a "constructed type", use the
-// declaration() operation to navigate to the class declaration.
+// Note: For the purpose of this parser, an interface definition is not
+// considered to be a type, but an interface declaration is. And each interface
+// definition has at least one interface declaration (but not vice versa),
+// so if you need the interface as a "constructed type", use the
+// declaration() function to navigate to the interface declaration.
 //
-class ClassDef : public virtual Container, public virtual Contained
+class InterfaceDef : public virtual Container, public virtual Contained
 {
 public:
 
     virtual void destroy();
     OperationPtr createOperation(const std::string&, const TypePtr&, bool, int, Operation::Mode = Operation::Normal);
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-                                   const std::string&, const std::string&);
-    ClassDeclPtr declaration() const;
-    ClassList bases() const;
-    ClassList allBases() const;
+
+    InterfaceDeclPtr declaration() const;
+    InterfaceList bases() const;
+    InterfaceList allBases() const;
     OperationList operations() const;
     OperationList allOperations() const;
-    DataMemberList dataMembers() const;
-    DataMemberList sortedTaggedDataMembers() const;
-    DataMemberList allDataMembers() const;
-    DataMemberList classDataMembers() const;
-    DataMemberList allClassDataMembers() const;
-    bool canBeCyclic() const;
-    bool isAbstract() const;
-    bool isInterface() const;
     bool isA(const std::string&) const;
-    bool hasDataMembers() const;
     bool hasOperations() const;
-    bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
-    bool hasBaseDataMembers() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-    int compactId() const;
     StringList ids() const;
 
 protected:
 
-    ClassDef(const ContainerPtr&, const std::string&, int, bool, const ClassList&);
+    InterfaceDef(const ContainerPtr&, const std::string&, const InterfaceList&);
     friend class Container;
 
-    ClassDeclPtr _declaration;
-    bool _interface;
-    bool _hasDataMembers;
+    InterfaceDeclPtr _declaration;
+    InterfaceList _bases;
     bool _hasOperations;
-    ClassList _bases;
-    int _compactId;
 };
 
 // ----------------------------------------------------------------------
@@ -773,22 +846,6 @@ public:
 private:
 
     const TypePtr _underlying;
-};
-
-// ----------------------------------------------------------------------
-// Proxy
-// ----------------------------------------------------------------------
-
-class Proxy : public Optional
-{
-public:
-
-    Proxy(const ClassDeclPtr&);
-
-    bool usesClasses() const override;
-    size_t minWireSize() const override;
-    std::string getTagFormat() const override;
-    ClassDeclPtr _class() const;
 };
 
 // ----------------------------------------------------------------------
@@ -1091,6 +1148,8 @@ public:
     bool ignRedefs() const;
     bool allowIcePrefix() const;
     bool allowUnderscore() const;
+    bool compatMode() const;
+    void checkType(const TypePtr&);
 
     void setComment(const std::string&);
     void addToComment(const std::string&);

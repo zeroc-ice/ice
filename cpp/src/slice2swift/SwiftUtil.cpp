@@ -19,7 +19,7 @@ using namespace IceUtilInternal;
 namespace
 {
 
-const std::array<std::string, 18> builtinTable =
+const std::array<std::string, 17> builtinTable =
 {
     "Swift.Bool",
     "Swift.UInt8",
@@ -36,8 +36,7 @@ const std::array<std::string, 18> builtinTable =
     "Swift.Float",
     "Swift.Double",
     "Swift.String",
-    "Ice.Disp",         // Object
-    "Ice.ObjectPrx",    // ObjectPrx
+    "Ice.ObjectPrx",    // Object
     "Ice.Value"         // Value
 };
 
@@ -194,11 +193,9 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
 ModulePtr
 Slice::getTopLevelModule(const TypePtr& type)
 {
-    assert(ProxyPtr::dynamicCast(type) || ContainedPtr::dynamicCast(type));
-
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    return getTopLevelModule(proxy ? ContainedPtr::dynamicCast(proxy->_class()) :
-                                     ContainedPtr::dynamicCast(type));
+    auto contained = ContainedPtr::dynamicCast(unwrapIfOptional(type));
+    assert(contained);
+    return getTopLevelModule(contained);
 }
 
 void
@@ -771,7 +768,7 @@ SwiftGenerator::writeOpDocSummary(IceUtilInternal::Output& out,
 }
 
 void
-SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p, const string& swiftModule)
+SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 
@@ -819,7 +816,7 @@ SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const ClassDe
 }
 
 void
-SwiftGenerator::writeServantDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p, const string& swiftModule)
+SwiftGenerator::writeServantDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 
@@ -1008,10 +1005,12 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
 }
 
 void
-SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type,
+SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& constType,
                                    const SyntaxTreeBasePtr& valueType, const string& value,
                                    const StringList&, const string& swiftModule, bool optional)
 {
+    TypePtr type = unwrapIfOptional(constType);
+
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
     if(constant)
     {
@@ -1053,73 +1052,41 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& 
 }
 
 string
-SwiftGenerator::typeToString(const TypePtr& type,
-                             const ContainedPtr& toplevel,
-                             const StringList& metadata,
-                             bool optional)
+SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, const StringList& metadata)
 {
     if(!type)
     {
         return "";
     }
 
-    string t = "";
+    bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
+
+    if (auto optional = OptionalPtr::dynamicCast(type))
+    {
+        return typeToString(optional->underlying(), toplevel, metadata) + (nonnull ? "" : "?");
+    }
+
     //
     // The current module where the type is being used
     //
     string currentModule = getSwiftModule(getTopLevelModule(toplevel));
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
 
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindObject)
-        {
-            t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
-        }
-        else
-        {
-            t = getUnqualified(builtinTable[builtin->kind()], currentModule);
-        }
+        return getUnqualified(builtinTable[builtin->kind()], currentModule);
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     ContainedPtr cont = ContainedPtr::dynamicCast(type);
 
-    if(cl)
+    if (proxy)
     {
-        if(cl->isInterface())
-        {
-            t = fixIdent(getUnqualified(builtinTable[Builtin::KindValue], currentModule));
-        }
-        else
-        {
-            t += fixIdent(getUnqualified(getAbsoluteImpl(cl), currentModule));
-        }
-    }
-    else if(prx)
-    {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            t = getUnqualified(getAbsoluteImpl(prx->_class(), "", "Prx"), currentModule);
-        }
-        else
-        {
-            t = getUnqualified("Ice.ObjectPrx", currentModule);
-        }
-    }
-    else if(cont)
-    {
-        t = fixIdent(getUnqualified(getAbsoluteImpl(cont), currentModule));
+        return getUnqualified(getAbsoluteImpl(proxy, "", "Prx"), currentModule);
     }
 
-    if(!nonnull && (optional || isNullableType(type)))
-    {
-        t += "?";
-    }
-    return t;
+    assert(cont);
+    return fixIdent(getUnqualified(getAbsoluteImpl(cont), currentModule));
 }
 
 string
@@ -1131,20 +1098,15 @@ SwiftGenerator::getAbsolute(const TypePtr& type)
         return builtinTable[builtin->kind()];
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        return getAbsoluteImpl(proxy->_class(), "", "Prx");
+        return getAbsoluteImpl(proxy, "", "Prx");
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(type);
-    if(cont)
-    {
-        return getAbsoluteImpl(cont);
-    }
-
-    assert(false);
-    return "???";
+    assert(cont);
+    return getAbsoluteImpl(cont);
 }
 
 string
@@ -1160,9 +1122,15 @@ SwiftGenerator::getAbsolute(const ClassDefPtr& cl)
 }
 
 string
-SwiftGenerator::getAbsolute(const ProxyPtr& prx)
+SwiftGenerator::getAbsolute(const InterfaceDeclPtr& proxy)
 {
-    return getAbsoluteImpl(prx->_class(), "", "Prx");
+    return getAbsoluteImpl(proxy, "", "Prx");
+}
+
+string
+SwiftGenerator::getAbsolute(const InterfaceDefPtr& interface)
+{
+    return getAbsoluteImpl(interface);
 }
 
 string
@@ -1245,41 +1213,11 @@ SwiftGenerator::getTagFormat(const TypePtr& type)
 }
 
 bool
-SwiftGenerator::isNullableType(const TypePtr& type)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindValue:
-            {
-                return true;
-            }
-            default:
-            {
-                return false;
-            }
-        }
-    }
-
-    return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
-}
-
-bool
-SwiftGenerator::isProxyType(const TypePtr& p)
-{
-    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    return (builtin && builtin->kind() == Builtin::KindObjectProxy) || ProxyPtr::dynamicCast(p);
-}
-
-bool
 SwiftGenerator::isClassType(const TypePtr& p)
 {
-    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    return (builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(p);
+    TypePtr type = unwrapIfOptional(p);
+    const BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    return (builtin && builtin->kind() == Builtin::KindValue) || ClassDeclPtr::dynamicCast(type);
 }
 
 bool
@@ -1372,7 +1310,7 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
         {
             DataMemberPtr m = *i;
             out << (fixIdent(m->name()) + ": " +
-                    typeToString(m->type(), p, m->getMetaData(), m->tagged()));
+                    typeToString(m->type(), p, m->getMetaData()));
         }
 
         out << epar;
@@ -1411,7 +1349,7 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
         const string defaultValue = member->defaultValue();
 
         const string memberName = fixIdent(member->name());
-        string memberType = typeToString(type, p, member->getMetaData(), member->tagged());
+        string memberType = typeToString(type, p, member->getMetaData());
 
         //
         // If the member type is equal to the member name, create a local type alias
@@ -1459,13 +1397,16 @@ SwiftGenerator::usesMarshalHelper(const TypePtr& type)
 }
 
 void
-SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
-                                          const TypePtr& type,
+SwiftGenerator::writeMarshalUnmarshalCode(Output& out,
+                                          const TypePtr& constType,
                                           const ContainedPtr& p,
                                           const string& param,
                                           bool marshal,
                                           int tag)
 {
+    // TODO: rework this code
+    TypePtr type = unwrapIfOptional(constType);
+
     string swiftModule = getSwiftModule(getTopLevelModule(p));
     string stream = StructPtr::dynamicCast(p) ? "self" : marshal ? "ostr" : "istr";
 
@@ -1493,7 +1434,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         switch(builtin->kind())
         {
-            case Builtin::KindObjectProxy:
+            case Builtin::KindObject:
             {
                 if(marshal)
                 {
@@ -1511,7 +1452,6 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 break;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 if(marshal)
@@ -1548,38 +1488,32 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            if(cl->isInterface())
+            if (tag >= 0)
             {
-                out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 }";
+                args += ", value: ";
             }
-            else
+            string memberType = getUnqualified(getAbsolute(type), swiftModule);
+            string memberName;
+            const string memberPrefix = "self.";
+            if (param.find(memberPrefix) == 0)
             {
-                if(tag >= 0)
-                {
-                    args += ", value: ";
-                }
-                string memberType = getUnqualified(getAbsolute(type), swiftModule);
-                string memberName;
-                const string memberPrefix = "self.";
-                if(param.find(memberPrefix) == 0)
-                {
-                    memberName = param.substr(memberPrefix.size());
-                }
+                memberName = param.substr(memberPrefix.size());
+            }
 
-                string alias;
-                //
-                // If the member type is equal to the member name, create a local type alias
-                // to avoid ambiguity.
-                //
-                if(memberType == memberName)
-                {
-                    ModulePtr m = getTopLevelModule(type);
-                    alias =  m->name() + "_" + memberType;
-                    out << nl << "typealias " << alias << " = " << memberType;
-                }
-                args += (alias.empty() ? memberType : alias) + ".self";
-                out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 " << "}";
+            string alias;
+            //
+            // If the member type is equal to the member name, create a local type alias
+            // to avoid ambiguity.
+            //
+            if (memberType == memberName)
+            {
+                ModulePtr m = getTopLevelModule(type);
+                alias = m->name() + "_" + memberType;
+                out << nl << "typealias " << alias << " = " << memberType;
             }
+            args += (alias.empty() ? memberType : alias) + ".self";
+            out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 "
+                << "}";
         }
         return;
     }
@@ -1598,8 +1532,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
+    if(InterfaceDeclPtr::dynamicCast(type))
     {
         if(marshal)
         {
@@ -1612,15 +1545,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 args += ", type: ";
             }
 
-            ClassDefPtr def = prx->_class()->definition();
-            if(!def || def->isAbstract())
-            {
-                args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
-            }
-            else
-            {
-                args += getUnqualified("Ice.ObjectPrx", swiftModule) + ".self";
-            }
+            args += getUnqualified(getAbsolute(type), swiftModule) + ".self";
             out << nl << param << " = try " << stream << ".read(" << args << ")";
         }
         return;
@@ -1814,7 +1739,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         {
             os << paramLabel("returnValue", outParams) << ": ";
         }
-        os << typeToString(returnType, op, op->getMetaData(), op->returnIsTagged());
+        os << typeToString(returnType, op, op->getMetaData());
     }
 
     for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
@@ -1829,7 +1754,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
             os << (*q)->name() << ": ";
         }
 
-        os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->tagged());
+        os << typeToString((*q)->type(), *q, (*q)->getMetaData());
     }
 
     if(returnIsTuple)
@@ -1917,7 +1842,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
                 os << ", ";
             }
 
-            os << typeToString((*q)->type(), *q, (*q)->getMetaData(), (*q)->tagged());
+            os << typeToString((*q)->type(), *q, (*q)->getMetaData());
         }
         if(isTuple)
         {
@@ -1931,8 +1856,8 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 bool
 SwiftGenerator::operationIsAmd(const OperationPtr& op)
 {
-    const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-    return cl->hasMetaData("amd") || op->hasMetaData("amd");
+    const InterfaceDefPtr def = op->interface();
+    return def->hasMetaData("amd") || op->hasMetaData("amd");
 }
 
 ParamInfoList
@@ -1945,7 +1870,7 @@ SwiftGenerator::getAllInParams(const OperationPtr& op)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->tagged());
+        info.typeStr = typeToString(info.type, op, (*p)->getMetaData());
         info.isTagged = (*p)->tagged();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -1995,7 +1920,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.name = (*p)->name();
         info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->getMetaData(), (*p)->tagged());
+        info.typeStr = typeToString(info.type, op, (*p)->getMetaData());
         info.isTagged = (*p)->tagged();
         info.tag = (*p)->tag();
         info.param = *p;
@@ -2007,7 +1932,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
         ParamInfo info;
         info.name = paramLabel("returnValue", params);
         info.type = op->returnType();
-        info.typeStr = typeToString(info.type, op, op->getMetaData(), op->returnIsTagged());
+        info.typeStr = typeToString(info.type, op, op->getMetaData());
         info.isTagged = op->returnIsTagged();
         info.tag = op->returnTag();
         l.push_back(info);
@@ -2632,10 +2557,17 @@ SwiftGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
+bool
+SwiftGenerator::MetaDataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    p->setMetaData(validate(p, p->getMetaData(), p->file(), p->line()));
+    return true;
+}
+
 void
 SwiftGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(p->container());
     StringList metaData = p->getMetaData();
 
     const UnitPtr ut = p->unit();
@@ -2753,7 +2685,13 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const S
             continue;
         }
 
+        if(InterfaceDefPtr::dynamicCast(cont) && s.find("swift:inherits:") == 0)
+        {
+            continue;
+        }
+
         if((ClassDefPtr::dynamicCast(cont) ||
+            InterfaceDefPtr::dynamicCast(cont) ||
             EnumPtr::dynamicCast(cont) ||
             ExceptionPtr::dynamicCast(cont) ||
             OperationPtr::dynamicCast(cont)) && s.find("swift:attribute:") == 0)

@@ -71,7 +71,7 @@ module IceMX
     /// instead of a map because the ID of the metrics is already included
     /// in the Metrics class and using sequences of metrics objects is more
     /// efficient than using dictionaries since lookup is not necessary.
-    sequence<Metrics> MetricsMap;
+    sequence<Metrics?> MetricsMap;
 
     /// A metrics view is a dictionary of metrics map. The key of the
     /// dictionary is the name of the metrics map.

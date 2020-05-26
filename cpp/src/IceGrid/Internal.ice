@@ -113,7 +113,7 @@ module IceGrid
         PropertyDescriptorSeqDict properties;
 
         /// IceBox service names
-        tag(1) Ice::StringSeq services;
+        tag(1) Ice::StringSeq? services;
     }
 
     /// This exception is raised if an adapter is active.
@@ -372,7 +372,7 @@ module IceGrid
 
         /// Set the database observer. Once the observer is subscribed, it
         /// will receive the database and database updates.
-        idempotent void setDatabaseObserver(DatabaseObserver* dbObs, tag(1) StringLongDict serials)
+        idempotent void setDatabaseObserver(DatabaseObserver* dbObs, tag(1) StringLongDict? serials)
             throws ObserverAlreadyRegisteredException, DeploymentException;
 
         /// This method sets the endpoints of the replica. This allows the

@@ -7,7 +7,7 @@ module Test
 
 interface Foo1;
 class Foo1;
-class Foo1 { void op(); }
+class Foo1 {  int x; }
 
 interface Foo2 { void op(); }
 class Foo2;

@@ -56,7 +56,7 @@ class Base
     float f = 5.1;
     double d = 6.2;
     string str = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
-    tag(1) string noDefault;
+    tag(1) string? noDefault;
     int zeroI = 0;
     long zeroL = 0;
     float zeroF = 0;
@@ -87,7 +87,7 @@ exception BaseEx
     float f = 5.1;
     double d = 6.2;
     string str = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
-    tag(1) string noDefault;
+    tag(1) string? noDefault;
     int zeroI = 0;
     long zeroL = 0;
     float zeroF = 0;
@@ -119,7 +119,7 @@ class ClassProperty
     float f = 5.1;
     double d = 6.2;
     string str = "foo bar";
-    tag(1) string noDefault;
+    tag(1) string? noDefault;
     int zeroI = 0;
     long zeroL = 0;
     float zeroF = 0;
@@ -144,7 +144,7 @@ exception ExceptionProperty
     float f = 5.1;
     double d = 6.2;
     string str = "foo bar";
-    tag(1) string noDefault;
+    tag(1) string? noDefault;
     int zeroI = 0;
     long zeroL = 0;
     float zeroF = 0;

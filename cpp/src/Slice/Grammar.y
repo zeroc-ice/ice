@@ -286,7 +286,7 @@ opt_semicolon
 opt_semicolon
 | interface_decl
 {
-    assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
+    assert($1 == 0 || InterfaceDeclPtr::dynamicCast($1));
 }
 ';'
 | interface_decl
@@ -295,7 +295,7 @@ opt_semicolon
 }
 | interface_def
 {
-    assert($1 == 0 || ClassDefPtr::dynamicCast($1));
+    assert($1 == 0 || InterfaceDefPtr::dynamicCast($1));
 }
 opt_semicolon
 | exception_decl
@@ -679,7 +679,10 @@ optional
 : ICE_OPTIONAL_OPEN ICE_INTEGER_LITERAL ')'
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast($2);
-    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    if (!unit->compatMode())
+    {
+        unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    }
 
     int tag;
     if(i->v < 0 || i->v > Int32Max)
@@ -698,7 +701,10 @@ optional
 | ICE_OPTIONAL_OPEN scoped_name ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
-    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    if (!unit->compatMode())
+    {
+        unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    }
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
@@ -777,14 +783,20 @@ optional
 }
 | ICE_OPTIONAL_OPEN ')'
 {
-    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    if (!unit->compatMode())
+    {
+        unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    }
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
 }
 | ICE_OPTIONAL
 {
-    unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    if (!unit->compatMode())
+    {
+        unit->warning(Deprecated, string("The `optional' keyword is deprecated, use `tag' instead"));
+    }
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     $$ = m;
@@ -799,11 +811,11 @@ tagged_type_id
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
 
-//  OptionalPtr opt = OptionalPtr::dynamicCast(ts->v.first);
-//  if(!opt)
-//  {
-//      unit->error("Only optional types can be tagged.");
-//  }
+    OptionalPtr optional = OptionalPtr::dynamicCast(ts->v.first);
+    if (!optional)
+    {
+       unit->error("Only optional types can be tagged.");
+    }
 
     m->type = ts->v.first;
     m->name = ts->v.second;
@@ -814,9 +826,20 @@ tagged_type_id
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
 
-    // Infer the type to be optional for backwards compatability.
-    m->type = new Optional(ts->v.first);
-    m->name = ts->v.second;
+    OptionalPtr optional = OptionalPtr::dynamicCast(ts->v.first);
+
+    if (optional)
+    {
+        // Use the optional directly.
+        m->type = ts->v.first;
+        m->name = ts->v.second;
+    }
+    else
+    {
+        // Infer the type to be optional for backwards compatibility.
+        m->type = new Optional(ts->v.first);
+        m->name = ts->v.second;
+    }
     $$ = m;
 }
 | type_id
@@ -1080,7 +1103,7 @@ class_decl
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v, false);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v);
     $$ = cl;
 }
 ;
@@ -1088,17 +1111,12 @@ class_decl
 // ----------------------------------------------------------------------
 class_def
 // ----------------------------------------------------------------------
-: class_id class_extends implements
+: class_id class_extends
 {
     ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     ClassDefPtr base = ClassDefPtr::dynamicCast($2);
-    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($3);
-    if(base)
-    {
-        bases->v.push_front(base);
-    }
-    ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, false, bases->v);
+    ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
     if(cl)
     {
         cont->checkIntroduced(ident->v, cl);
@@ -1112,10 +1130,10 @@ class_def
 }
 '{' class_exports '}'
 {
-    if($4)
+    if($3)
     {
         unit->popContainer();
-        $$ = $4;
+        $$ = $3;
     }
     else
     {
@@ -1136,7 +1154,7 @@ class_extends
     if(!types.empty())
     {
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-        if(!cl || cl->isInterface())
+        if(!cl)
         {
             string msg = "`";
             msg += scoped->v;
@@ -1175,19 +1193,6 @@ extends
 }
 | ':'
 {
-}
-;
-
-// ----------------------------------------------------------------------
-implements
-// ----------------------------------------------------------------------
-: ICE_IMPLEMENTS interface_list
-{
-    $$ = $2;
-}
-| %empty
-{
-    $$ = new ClassListTok;
 }
 ;
 
@@ -1399,21 +1404,30 @@ return_type
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
 
-//  OptionalPtr opt = OptionalPtr::dynamicCast($2);
-//  if(!opt)
-//  {
-//      unit->error("Only optional types can be tagged.");
-//  }
+    OptionalPtr optional = OptionalPtr::dynamicCast($2);
+    if (!optional)
+    {
+        unit->error("Only optional types can be tagged.");
+    }
 
-    m->type = TypePtr::dynamicCast($2);
+    m->type = optional;
     $$ = m;
 }
 | optional type
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast($1);
 
-    // Infer the type to be optional for backwards compatability.
-    m->type = new Optional(TypePtr::dynamicCast($2));
+    OptionalPtr optional = OptionalPtr::dynamicCast($2);
+
+    if (optional)
+    {
+        m->type = optional;
+    }
+    else
+    {
+        // Infer the type to be optional for backwards compatibility.
+        m->type = new Optional(TypePtr::dynamicCast($2));
+    }
     $$ = m;
 }
 | type
@@ -1436,13 +1450,13 @@ operation_preamble
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    if(interface)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
+        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
-            cl->checkIntroduced(name, op);
+            interface->checkIntroduced(name, op);
             unit->pushContainer(op);
             $$ = op;
         }
@@ -1460,14 +1474,14 @@ operation_preamble
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    if(interface)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
+        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
                                                 Operation::Idempotent);
         if(op)
         {
-            cl->checkIntroduced(name, op);
+            interface->checkIntroduced(name, op);
             unit->pushContainer(op);
             $$ = op;
         }
@@ -1485,10 +1499,10 @@ operation_preamble
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($1);
     string name = StringTokPtr::dynamicCast($2)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    if(interface)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
+        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag);
         if(op)
         {
             unit->pushContainer(op);
@@ -1509,10 +1523,10 @@ operation_preamble
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast($2);
     string name = StringTokPtr::dynamicCast($3)->v;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if(cl)
+    InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(unit->currentContainer());
+    if(interface)
     {
-        OperationPtr op = cl->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
+        OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged, returnType->tag,
                                                 Operation::Idempotent);
         if(op)
         {
@@ -1581,7 +1595,6 @@ throws
 class_export
 // ----------------------------------------------------------------------
 : data_member
-| operation
 ;
 
 // ----------------------------------------------------------------------
@@ -1606,7 +1619,7 @@ interface_decl
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v, true);
+    InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
     cont->checkIntroduced(ident->v, cl);
     $$ = cl;
 }
@@ -1619,13 +1632,13 @@ interface_def
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($2);
-    ClassDefPtr cl = cont->createClassDef(ident->v, -1, true, bases->v);
-    if(cl)
+    InterfaceListTokPtr bases = InterfaceListTokPtr::dynamicCast($2);
+    InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
+    if(interface)
     {
-        cont->checkIntroduced(ident->v, cl);
-        unit->pushContainer(cl);
-        $$ = cl;
+        cont->checkIntroduced(ident->v, interface);
+        unit->pushContainer(interface);
+        $$ = interface;
     }
     else
     {
@@ -1651,78 +1664,78 @@ interface_list
 // ----------------------------------------------------------------------
 : scoped_name ',' interface_list
 {
-    ClassListTokPtr intfs = ClassListTokPtr::dynamicCast($3);
+    InterfaceListTokPtr intfs = InterfaceListTokPtr::dynamicCast($3);
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-    if(!cl || !cl->isInterface())
-    {
-        string msg = "`";
-        msg += scoped->v;
-        msg += "' is not an interface";
-        unit->error(msg);
-    }
-    else
-    {
-        ClassDefPtr def = cl->definition();
-        if(!def)
+        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(types.front());
+        if(!interface)
         {
-        string msg = "`";
-        msg += scoped->v;
-        msg += "' has been declared but not defined";
-        unit->error(msg);
+            string msg = "`";
+            msg += scoped->v;
+            msg += "' is not an interface";
+            unit->error(msg);
         }
         else
         {
-            cont->checkIntroduced(scoped->v);
-        intfs->v.push_front(def);
+            InterfaceDefPtr def = interface->definition();
+            if(!def)
+            {
+                string msg = "`";
+                msg += scoped->v;
+                msg += "' has been declared but not defined";
+                unit->error(msg);
+            }
+            else
+            {
+                cont->checkIntroduced(scoped->v);
+                intfs->v.push_front(def);
+            }
         }
-    }
     }
     $$ = intfs;
 }
 | scoped_name
 {
-    ClassListTokPtr intfs = new ClassListTok;
+    InterfaceListTokPtr intfs = new InterfaceListTok;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
     if(!types.empty())
     {
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-    if(!cl || !cl->isInterface())
-    {
-        string msg = "`";
-        msg += scoped->v;
-        msg += "' is not an interface";
-        unit->error(msg); // $$ is a dummy
-    }
-    else
-    {
-        ClassDefPtr def = cl->definition();
-        if(!def)
+        InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(types.front());
+        if(!interface)
         {
-        string msg = "`";
-        msg += scoped->v;
-        msg += "' has been declared but not defined";
-        unit->error(msg); // $$ is a dummy
+            string msg = "`";
+            msg += scoped->v;
+            msg += "' is not an interface";
+            unit->error(msg); // $$ is a dummy
         }
         else
         {
-            cont->checkIntroduced(scoped->v);
-        intfs->v.push_front(def);
+            InterfaceDefPtr def = interface->definition();
+            if(!def)
+            {
+                string msg = "`";
+                msg += scoped->v;
+                msg += "' has been declared but not defined";
+                unit->error(msg); // $$ is a dummy
+            }
+            else
+            {
+                cont->checkIntroduced(scoped->v);
+                intfs->v.push_front(def);
+            }
         }
-    }
     }
     $$ = intfs;
 }
 | ICE_OBJECT
 {
     unit->error("illegal inheritance from type Object");
-    $$ = new ClassListTok; // Dummy
+    $$ = new InterfaceListTok; // Dummy
 }
 | ICE_VALUE
 {
@@ -1740,7 +1753,7 @@ interface_extends
 }
 | %empty
 {
-    $$ = new ClassListTok;
+    $$ = new InterfaceListTok;
 }
 ;
 
@@ -2178,21 +2191,48 @@ builtin
 | ICE_FLOAT {}
 | ICE_DOUBLE {}
 | ICE_STRING {}
-| ICE_OBJECT {}
-| ICE_VALUE {}
 
 // ----------------------------------------------------------------------
 type
 // ----------------------------------------------------------------------
 : ICE_OBJECT '*'
 {
-    // TODO: equivalent to ICE_OBJECT ? above, need to merge KindObject / KindObjectProxy
-    $$ = unit->builtin(Builtin::KindObjectProxy);
+    $$ = unit->optionalBuiltin(Builtin::KindObject);
+}
+| ICE_OBJECT '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindObject);
+}
+| ICE_VALUE '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindValue);
 }
 | builtin '?'
 {
     StringTokPtr typeName = StringTokPtr::dynamicCast($1);
     $$ = unit->optionalBuiltin(Builtin::kindFromString(typeName->v).value());
+}
+| ICE_OBJECT
+{
+    if (unit->compatMode())
+    {
+        $$ = unit->optionalBuiltin(Builtin::KindValue);
+    }
+    else
+    {
+        $$ = unit->builtin(Builtin::KindObject);
+    }
+}
+| ICE_VALUE
+{
+    if (unit->compatMode())
+    {
+        $$ = unit->optionalBuiltin(Builtin::KindValue);
+    }
+    else
+    {
+        $$ = unit->builtin(Builtin::KindValue);
+    }
 }
 | builtin
 {
@@ -2211,7 +2251,14 @@ type
             YYERROR; // Can't continue, jump to next yyerrok
         }
         cont->checkIntroduced(scoped->v);
-        $$ = types.front();
+        if (ClassDeclPtr::dynamicCast(types.front()) && unit->compatMode())
+        {
+            $$ = new Optional(types.front());
+        }
+        else
+        {
+            $$ = types.front();
+        }
     }
     else
     {
@@ -2220,7 +2267,6 @@ type
 }
 | scoped_name '*'
 {
-    // TODO: keep '*' only as an alias for T? where T = interface
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     if(cont)
@@ -2232,17 +2278,17 @@ type
         }
         for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
         {
-            ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-            if(!cl)
+            InterfaceDeclPtr interface = InterfaceDeclPtr::dynamicCast(*p);
+            if(!interface)
             {
                 string msg = "`";
                 msg += scoped->v;
-                msg += "' must be class or interface";
+                msg += "' must be an interface";
                 unit->error(msg);
                 YYERROR; // Can't continue, jump to next yyerrok
             }
             cont->checkIntroduced(scoped->v);
-            *p = new Proxy(cl);
+            *p = new Optional(interface);
         }
         $$ = types.front();
     }

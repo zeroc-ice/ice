@@ -37,7 +37,7 @@ using namespace IceUtilInternal;
 namespace
 {
 
-const std::array<std::string, 18> builtinSuffixTable =
+const std::array<std::string, 17> builtinSuffixTable =
 {
     "Bool",
     "Byte",
@@ -54,7 +54,6 @@ const std::array<std::string, 18> builtinSuffixTable =
     "Float",
     "Double",
     "String",
-    "Object",
     "Proxy",
     "Object"
 };
@@ -146,9 +145,11 @@ lookupKwd(const string& name)
 }
 
 string
-Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
+Slice::JsGenerator::getModuleMetadata(const TypePtr& constType)
 {
-    static const std::array<std::string, 18> builtinModuleTable =
+    TypePtr type = unwrapIfOptional(constType);
+
+    static const std::array<std::string, 17> builtinModuleTable =
     {
         "",           // bool
         "",           // byte
@@ -165,9 +166,8 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
         "",           // float
         "",           // double
         "",           // string
-        "ice",        // Ice.Value
         "ice",        // Ice.ObjectPrx
-        "ice"         // Ice.Object
+        "ice"         // Ice.Value
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -176,9 +176,7 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
         return builtinModuleTable[builtin->kind()];
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    return getModuleMetadata(proxy ? ContainedPtr::dynamicCast(proxy->_class()) :
-                                     ContainedPtr::dynamicCast(type));
+    return getModuleMetadata(ContainedPtr::dynamicCast(type));
 }
 
 string
@@ -195,8 +193,9 @@ Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
 }
 
 bool
-Slice::JsGenerator::isClassType(const TypePtr& type)
+Slice::JsGenerator::isClassType(const TypePtr& constType)
 {
+    TypePtr type = unwrapIfOptional(constType);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     return (builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type);
 }
@@ -241,24 +240,20 @@ Slice::JsGenerator::fixId(const ContainedPtr& cont)
 }
 
 string
-Slice::JsGenerator::importPrefix(const TypePtr& type,
+Slice::JsGenerator::importPrefix(const TypePtr& constType,
                                  const ContainedPtr& toplevel,
                                  const vector<pair<string, string> >& imports)
 {
+    TypePtr type = unwrapIfOptional(constType);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
         return typeToString(type, toplevel, imports, true);
     }
-    else if(ProxyPtr::dynamicCast(type))
-    {
-        ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-        return importPrefix(ContainedPtr::dynamicCast(proxy->_class()), toplevel, imports);
-    }
     else if(ContainedPtr::dynamicCast(type))
     {
-        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-        if(cl && cl->isInterface())
+        InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+        if(proxy)
         {
             return "iceNS0.";
         }
@@ -357,18 +352,20 @@ Slice::JsGenerator::getUnqualified(const string& type, const string& scope, cons
 }
 
 string
-Slice::JsGenerator::typeToString(const TypePtr& type,
+Slice::JsGenerator::typeToString(const TypePtr& constType,
                                  const ContainedPtr& toplevel,
                                  const vector<pair<string, string> >& imports,
                                  bool typescript,
                                  bool definition)
 {
+    TypePtr type = unwrapIfOptional(constType);
+
     if(!type)
     {
         return "void";
     }
 
-    static const std::array<std::string, 18> typeScriptBuiltinTable =
+    static const std::array<std::string, 17> typeScriptBuiltinTable =
     {
         "boolean",          // bool
         "number",           // byte
@@ -385,12 +382,11 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         "number",           // float
         "number",           // double
         "string",
-        "Ice.Object",
         "Ice.ObjectPrx",
         "Ice.Value"
     };
 
-    static const std::array<std::string, 18> javaScriptBuiltinTable =
+    static const std::array<std::string, 17> javaScriptBuiltinTable =
     {
         "Boolean",          // bool
         "Number",           // byte
@@ -407,7 +403,6 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         "Number",           // float
         "Number",           // double
         "String",
-        "Ice.Value",
         "Ice.ObjectPrx",
         "Ice.Value"
     };
@@ -417,13 +412,12 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     {
         if(typescript)
         {
-            auto kind = (builtin->kind() == Builtin::KindObject) ? Builtin::KindValue : builtin->kind();
             ostringstream os;
             if(getModuleMetadata(type) == "ice" && getModuleMetadata(toplevel) != "ice")
             {
                 os << "iceNS0.";
             }
-            os << getUnqualified(typeScriptBuiltinTable[kind], toplevel->scope(), "iceNS0.");
+            os << getUnqualified(typeScriptBuiltinTable[builtin->kind()], toplevel->scope(), "iceNS0.");
             return os.str();
         }
         else
@@ -439,26 +433,12 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         ostringstream os;
         if(typescript)
         {
-            if(cl->isInterface())
-            {
-                prefix = importPrefix("Ice.Value", toplevel);
-            }
-            else
-            {
-                prefix = importPrefix(ContainedPtr::dynamicCast(cl), toplevel, imports);
-            }
+            prefix = importPrefix(ContainedPtr::dynamicCast(cl), toplevel, imports);
         }
         os << prefix;
         if(!prefix.empty() && typescript)
         {
-            if(cl->isInterface())
-            {
-                os << getUnqualified("Ice.Value", toplevel->scope(), prefix);
-            }
-            else
-            {
-                os << getUnqualified(fixId(cl->scoped()), toplevel->scope(), prefix);
-            }
+            os << getUnqualified(fixId(cl->scoped()), toplevel->scope(), prefix);
         }
         else
         {
@@ -467,39 +447,28 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         return os.str();
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
         ostringstream os;
-        ClassDefPtr def = proxy->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            string prefix;
-            if(typescript)
-            {
-                prefix = importPrefix(ContainedPtr::dynamicCast(proxy->_class()), toplevel, imports);
-                os << prefix;
-            }
+        InterfaceDefPtr def = proxy->definition();
 
-            if(prefix.empty() && typescript)
-            {
-                os << getUnqualified(fixId(proxy->_class()->scoped() + "Prx"), toplevel->scope(), prefix);
-            }
-            else
-            {
-                os << fixId(proxy->_class()->scoped() + "Prx");
-            }
+        string prefix;
+        if (typescript)
+        {
+            prefix = importPrefix(ContainedPtr::dynamicCast(proxy), toplevel, imports);
+            os << prefix;
+        }
+
+        if (prefix.empty() && typescript)
+        {
+            os << getUnqualified(fixId(proxy->scoped() + "Prx"), toplevel->scope(), prefix);
         }
         else
         {
-            if(getModuleMetadata(toplevel) != "ice")
-            {
-                os << "iceNS0.";
-            }
-            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
-                                 toplevel->scope(),
-                                 getModuleMetadata(toplevel));
+            os << fixId(proxy->scoped() + "Prx");
         }
+
         return os.str();
     }
 
@@ -569,17 +538,19 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
         return os.str();
     }
 
+    assert(0);
     return "???";
 }
 
 string
-Slice::JsGenerator::typeToString(const TypePtr& type,
+Slice::JsGenerator::typeToString(const TypePtr& constType,
                                  const ContainedPtr& toplevel,
                                  const std::vector<std::pair<std::string, std::string> >& imports,
                                  bool typeScript,
                                  bool definition,
                                  bool usealias)
 {
+    TypePtr type = unwrapIfOptional(constType);
     string t = typeToString(type, toplevel, imports, typeScript, definition);
     if(usealias)
     {
@@ -652,11 +623,13 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
 }
 
 void
-Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
-                                              const TypePtr& type,
+Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out,
+                                              const TypePtr& constType,
                                               const string& param,
                                               bool marshal)
 {
+    TypePtr type = unwrapIfOptional(constType);
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     // Builtin types that use classes are handled by isClassType below.
     if(builtin && !builtin->usesClasses())
@@ -685,7 +658,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    if(ProxyPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
+    if(InterfaceDeclPtr::dynamicCast(type) || StructPtr::dynamicCast(type))
     {
         if(marshal)
         {
@@ -728,12 +701,13 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output &out,
 }
 
 void
-Slice::JsGenerator::writeTaggedMarshalUnmarshalCode(Output &out,
-                                                      const TypePtr& type,
+Slice::JsGenerator::writeTaggedMarshalUnmarshalCode(Output& out,
+                                                      const TypePtr& constType,
                                                       const string& param,
                                                       int tag,
                                                       bool marshal)
 {
+    TypePtr type = unwrapIfOptional(constType);
     string stream = marshal ? "ostr" : "istr";
 
     if(isClassType(type))
@@ -774,12 +748,13 @@ Slice::JsGenerator::writeTaggedMarshalUnmarshalCode(Output &out,
 }
 
 std::string
-Slice::JsGenerator::getHelper(const TypePtr& type)
+Slice::JsGenerator::getHelper(const TypePtr& constType)
 {
+    TypePtr type = unwrapIfOptional(constType);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        if(builtin->kind() == Builtin::KindObjectProxy)
+        if(builtin->kind() == Builtin::KindObject)
         {
             return "Ice.ObjectPrx";
         }
@@ -799,18 +774,10 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
         return typeToString(type);
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    if(proxy)
     {
-        ClassDefPtr def = prx->_class()->definition();
-        if(!def || def->isAbstract())
-        {
-            return typeToString(type);
-        }
-        else
-        {
-            return "Ice.ObjectPrx";
-        }
+        return typeToString(type);
     }
 
     if(SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type))

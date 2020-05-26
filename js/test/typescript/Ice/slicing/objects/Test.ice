@@ -5,6 +5,7 @@
 #pragma once
 
 [[js:es6-module]]
+[[3.7]]
 
 module Test
 {

@@ -47,7 +47,7 @@ using namespace IceUtilInternal;
 namespace
 {
 
-const std::array<std::string, 18> builtinSuffixTable =
+const std::array<std::string, 17> builtinSuffixTable =
 {
     "Bool",
     "Byte",
@@ -64,7 +64,6 @@ const std::array<std::string, 18> builtinSuffixTable =
     "Float",
     "Double",
     "String",
-    "Value",
     "Proxy",
     "Value",
 };
@@ -346,9 +345,11 @@ getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const s
 }
 
 string
-typeToString(const TypePtr& type)
+typeToString(const TypePtr& constType)
 {
-    static const std::array<std::string, 18> builtinTable =
+    TypePtr type = unwrapIfOptional(constType);
+
+    static const std::array<std::string, 17> builtinTable =
     {
         "logical",
         "uint8",
@@ -365,7 +366,6 @@ typeToString(const TypePtr& type)
         "single",
         "double",
         "char",
-        "Ice.Object", // Object
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value" // Value
     };
@@ -387,10 +387,10 @@ typeToString(const TypePtr& type)
         return getAbsolute(cl);
     }
 
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
     if(proxy)
     {
-        return getAbsolute(proxy->_class(), "", "Prx");
+        return getAbsolute(proxy, "", "Prx");
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -454,7 +454,6 @@ dictionaryTypeToString(const TypePtr& type, bool key)
                 return typeToString(type);
             }
             case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
                 assert(!key);
@@ -482,13 +481,14 @@ dictionaryTypeToString(const TypePtr& type, bool key)
 bool
 declarePropertyType(const TypePtr& type, bool optional)
 {
-    if(optional || SequencePtr::dynamicCast(type) || ProxyPtr::dynamicCast(type) || ClassDeclPtr::dynamicCast(type))
+    if(optional || SequencePtr::dynamicCast(type) || OptionalPtr::dynamicCast(type) ||
+       ClassDeclPtr::dynamicCast(type) || InterfaceDeclPtr::dynamicCast(type))
     {
         return false;
     }
 
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    if(b && (b->usesClasses() || b->kind() == Builtin::KindObjectProxy))
+    if(b && (b->usesClasses() || b->kind() == Builtin::KindObject))
     {
         return false;
     }
@@ -497,8 +497,9 @@ declarePropertyType(const TypePtr& type, bool optional)
 }
 
 string
-constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
+constantValue(const TypePtr& constType, const SyntaxTreeBasePtr& valueType, const string& value)
 {
+    TypePtr type = unwrapIfOptional(constType);
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
     if(constant)
     {
@@ -544,7 +545,7 @@ defaultValue(const DataMemberPtr& m)
     }
     else
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(m->type());
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(unwrapIfOptional(m->type()));
         if(builtin)
         {
             switch(builtin->kind())
@@ -568,7 +569,6 @@ defaultValue(const DataMemberPtr& m)
                 case Builtin::KindDouble:
                     return "0";
                 case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                     return "[]";
             }
@@ -613,24 +613,27 @@ defaultValue(const DataMemberPtr& m)
 }
 
 bool
-isClass(const TypePtr& type)
+isClass(const TypePtr& constType)
 {
+    TypePtr type = unwrapIfOptional(constType);
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     return (b && b->usesClasses()) || cl;
 }
 
 bool
-isProxy(const TypePtr& type)
+isProxy(const TypePtr& constType)
 {
+    TypePtr type = unwrapIfOptional(constType);
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-    ProxyPtr p = ProxyPtr::dynamicCast(type);
-    return (b && b->kind() == Builtin::KindObjectProxy) || p;
+    InterfaceDeclPtr p = InterfaceDeclPtr::dynamicCast(type);
+    return (b && b->kind() == Builtin::KindObject) || p;
 }
 
 bool
-needsConversion(const TypePtr& type)
+needsConversion(const TypePtr& constType)
 {
+    TypePtr type = unwrapIfOptional(constType);
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
@@ -661,9 +664,10 @@ needsConversion(const TypePtr& type)
 }
 
 void
-convertValueType(IceUtilInternal::Output& out, const string& dest, const string& src, const TypePtr& type,
+convertValueType(IceUtilInternal::Output& out, const string& dest, const string& src, const TypePtr& constType,
                  bool optional)
 {
+    TypePtr type = unwrapIfOptional(constType);
     assert(needsConversion(type));
 
     if(optional)
@@ -1428,7 +1432,7 @@ writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool asyn
 }
 
 void
-writeProxyDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p)
+writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p)
 {
     DocElements doc = parseComment(p);
 
@@ -1569,6 +1573,7 @@ public:
     CodeVisitor(const string&);
 
     virtual bool visitClassDefStart(const ClassDefPtr&);
+    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
     virtual bool visitExceptionStart(const ExceptionPtr&);
     virtual bool visitStructStart(const StructPtr&);
     virtual void visitSequence(const SequencePtr&);
@@ -1636,48 +1641,70 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
-    ClassList bases = p->bases();
-    const OperationList allOps = p->allOperations();
     const string self = name == "obj" ? "this" : "obj";
 
-    if(!p->isInterface())
+    ClassDefPtr base = p->base();
+
+    IceUtilInternal::Output out;
+    openClass(abs, _dir, out);
+
+    writeDocSummary(out, p);
+    writeCopyright(out, p->file());
+
+    out << nl << "classdef ";
+    out << name;
+    if(base)
     {
-        ClassDefPtr base;
-        if(!bases.empty() && !bases.front()->isInterface())
+        out << " < " << getAbsolute(base);
+    }
+    else
+    {
+        out << " < Ice.Value";
+    }
+
+    out.inc();
+
+    const DataMemberList members = p->dataMembers();
+    if(!members.empty())
+    {
+        if(p->hasMetaData("protected"))
         {
-            base = bases.front();
-        }
-
-        IceUtilInternal::Output out;
-        openClass(abs, _dir, out);
-
-        writeDocSummary(out, p);
-        writeCopyright(out, p->file());
-
-        out << nl << "classdef ";
-        out << name;
-        if(base)
-        {
-            out << " < " << getAbsolute(base);
+            //
+            // All members are protected.
+            //
+            out << nl << "properties(Access=protected)";
+            out.inc();
+            for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            {
+                writeMemberDoc(out, *q);
+                out << nl << fixIdent((*q)->name());
+                if(declarePropertyType((*q)->type(), (*q)->tagged()))
+                {
+                    out << " " << typeToString((*q)->type());
+                }
+            }
+            out.dec();
+            out << nl << "end";
         }
         else
         {
-            out << " < Ice.Value";
-        }
-
-        out.inc();
-
-        const DataMemberList members = p->dataMembers();
-        if(!members.empty())
-        {
-            if(p->hasMetaData("protected"))
+            DataMemberList prot, pub;
+            for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
             {
-                //
-                // All members are protected.
-                //
-                out << nl << "properties(Access=protected)";
+                if((*q)->hasMetaData("protected"))
+                {
+                    prot.push_back(*q);
+                }
+                else
+                {
+                    pub.push_back(*q);
+                }
+            }
+            if(!pub.empty())
+            {
+                out << nl << "properties";
                 out.inc();
-                for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+                for(DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
                 {
                     writeMemberDoc(out, *q);
                     out << nl << fixIdent((*q)->name());
@@ -1689,880 +1716,839 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out.dec();
                 out << nl << "end";
             }
-            else
+            if(!prot.empty())
             {
-                DataMemberList prot, pub;
-                for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+                out << nl << "properties(Access=protected)";
+                out.inc();
+                for(DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
                 {
-                    if((*q)->hasMetaData("protected"))
+                    writeMemberDoc(out, *q);
+                    out << nl << fixIdent((*q)->name());
+                    if(declarePropertyType((*q)->type(), (*q)->tagged()))
                     {
-                        prot.push_back(*q);
-                    }
-                    else
-                    {
-                        pub.push_back(*q);
+                        out << " " << typeToString((*q)->type());
                     }
                 }
-                if(!pub.empty())
-                {
-                    out << nl << "properties";
-                    out.inc();
-                    for(DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
-                    {
-                        writeMemberDoc(out, *q);
-                        out << nl << fixIdent((*q)->name());
-                        if(declarePropertyType((*q)->type(), (*q)->tagged()))
-                        {
-                            out << " " << typeToString((*q)->type());
-                        }
-                    }
-                    out.dec();
-                    out << nl << "end";
-                }
-                if(!prot.empty())
-                {
-                    out << nl << "properties(Access=protected)";
-                    out.inc();
-                    for(DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
-                    {
-                        writeMemberDoc(out, *q);
-                        out << nl << fixIdent((*q)->name());
-                        if(declarePropertyType((*q)->type(), (*q)->tagged()))
-                        {
-                            out << " " << typeToString((*q)->type());
-                        }
-                    }
-                    out.dec();
-                    out << nl << "end";
-                }
+                out.dec();
+                out << nl << "end";
             }
         }
+    }
 
-        const bool basePreserved = p->inheritsMetaData("preserve-slice");
-        const bool preserved = p->hasMetaData("preserve-slice");
+    const bool basePreserved = p->inheritsMetaData("preserve-slice");
+    const bool preserved = p->hasMetaData("preserve-slice");
 
-        MemberInfoList allMembers;
-        collectClassMembers(p, allMembers, false);
+    MemberInfoList allMembers;
+    collectClassMembers(p, allMembers, false);
 
-        out << nl << "methods";
-        out.inc();
+    out << nl << "methods";
+    out.inc();
 
-        //
-        // Constructor
-        //
-        if(!allMembers.empty())
+    //
+    // Constructor
+    //
+    if(!allMembers.empty())
+    {
+        vector<string> allNames;
+        for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            vector<string> allNames;
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-            {
-                allNames.push_back(q->fixedName);
-            }
-            out << nl << "function " << self << " = " << name << spar << allNames << epar;
-            out.inc();
-            out << nl << "if nargin == 0";
-            out.inc();
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-            {
-                out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
-            }
-            out.dec();
-            out << nl << "end";
-            if(base)
-            {
-                out << nl << self << " = " << self << "@" << getAbsolute(base) << spar;
-                for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-                {
-                    if(q->inherited)
-                    {
-                        out << q->fixedName;
-                    }
-                }
-                out << epar << ';';
-            }
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-            {
-                if(!q->inherited)
-                {
-                    out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
-                }
-            }
-            out.dec();
-            out << nl << "end";
+            allNames.push_back(q->fixedName);
         }
-
-        out << nl << "function id = ice_id(obj)";
+        out << nl << "function " << self << " = " << name << spar << allNames << epar;
         out.inc();
-        out << nl << "id = obj.ice_staticId();";
+        out << nl << "if nargin == 0";
+        out.inc();
+        for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
+        }
         out.dec();
         out << nl << "end";
+        if(base)
+        {
+            out << nl << self << " = " << self << "@" << getAbsolute(base) << spar;
+            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            {
+                if(q->inherited)
+                {
+                    out << q->fixedName;
+                }
+            }
+            out << epar << ';';
+        }
+        for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            if(!q->inherited)
+            {
+                out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
+            }
+        }
+        out.dec();
+        out << nl << "end";
+    }
+
+    out << nl << "function id = ice_id(obj)";
+    out.inc();
+    out << nl << "id = obj.ice_staticId();";
+    out.dec();
+    out << nl << "end";
+
+    if(preserved && !basePreserved)
+    {
+        out << nl << "function r = ice_getSlicedData(obj)";
+        out.inc();
+        out << nl << "r = obj.iceSlicedData_;";
+        out.dec();
+        out << nl << "end";
+    }
+
+    out.dec();
+    out << nl << "end";
+
+    DataMemberList convertMembers;
+    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    {
+        if(needsConversion((*d)->type()))
+        {
+            convertMembers.push_back(*d);
+        }
+    }
+
+    if((preserved && !basePreserved) || !convertMembers.empty())
+    {
+        out << nl << "methods(Hidden=true)";
+        out.inc();
 
         if(preserved && !basePreserved)
         {
-            out << nl << "function r = ice_getSlicedData(obj)";
+            out << nl << "function iceWrite(obj, os)";
             out.inc();
-            out << nl << "r = obj.iceSlicedData_;";
+            out << nl << "os.startValue(obj.iceSlicedData_);";
+            out << nl << "obj.iceWriteImpl(os);";
+            out << nl << "os.endValue();";
+            out.dec();
+            out << nl << "end";
+            out << nl << "function iceRead(obj, is)";
+            out.inc();
+            out << nl << "is.startValue();";
+            out << nl << "obj.iceReadImpl(is);";
+            out << nl << "obj.iceSlicedData_ = is.endValue(true);";
+            out.dec();
+            out << nl << "end";
+        }
+
+        if(!convertMembers.empty())
+        {
+            out << nl << "function r = iceDelayPostUnmarshal(~)";
+            out.inc();
+            out << nl << "r = true;";
+            out.dec();
+            out << nl << "end";
+            out << nl << "function icePostUnmarshal(obj)";
+            out.inc();
+            for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
+            {
+                string m = "obj." + fixIdent((*d)->name());
+                convertValueType(out, m, m, (*d)->type(), (*d)->tagged());
+            }
+            if(base)
+            {
+                out << nl << "icePostUnmarshal@" << getAbsolute(base) << "(obj);";
+            }
             out.dec();
             out << nl << "end";
         }
 
         out.dec();
         out << nl << "end";
+    }
 
-        DataMemberList convertMembers;
-        for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    out << nl << "methods(Access=protected)";
+    out.inc();
+
+    const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
+
+    out << nl << "function iceWriteImpl(obj, os)";
+    out.inc();
+    out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false")
+        << ");";
+    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    {
+        if(!(*d)->tagged())
         {
-            if(needsConversion((*d)->type()))
-            {
-                convertMembers.push_back(*d);
-            }
+            marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
         }
-
-        if((preserved && !basePreserved) || !convertMembers.empty())
-        {
-            out << nl << "methods(Hidden=true)";
-            out.inc();
-
-            if(preserved && !basePreserved)
-            {
-                out << nl << "function iceWrite(obj, os)";
-                out.inc();
-                out << nl << "os.startValue(obj.iceSlicedData_);";
-                out << nl << "obj.iceWriteImpl(os);";
-                out << nl << "os.endValue();";
-                out.dec();
-                out << nl << "end";
-                out << nl << "function iceRead(obj, is)";
-                out.inc();
-                out << nl << "is.startValue();";
-                out << nl << "obj.iceReadImpl(is);";
-                out << nl << "obj.iceSlicedData_ = is.endValue(true);";
-                out.dec();
-                out << nl << "end";
-            }
-
-            if(!convertMembers.empty())
-            {
-                out << nl << "function r = iceDelayPostUnmarshal(~)";
-                out.inc();
-                out << nl << "r = true;";
-                out.dec();
-                out << nl << "end";
-                out << nl << "function icePostUnmarshal(obj)";
-                out.inc();
-                for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
-                {
-                    string m = "obj." + fixIdent((*d)->name());
-                    convertValueType(out, m, m, (*d)->type(), (*d)->tagged());
-                }
-                if(base)
-                {
-                    out << nl << "icePostUnmarshal@" << getAbsolute(base) << "(obj);";
-                }
-                out.dec();
-                out << nl << "end";
-            }
-
-            out.dec();
-            out << nl << "end";
-        }
-
-        out << nl << "methods(Access=protected)";
-        out.inc();
-
-        const DataMemberList taggedMembers = p->sortedTaggedDataMembers();
-
-        out << nl << "function iceWriteImpl(obj, os)";
-        out.inc();
-        out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false")
-            << ");";
-        for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
-        {
-            if(!(*d)->tagged())
-            {
-                marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
-            }
-        }
-        for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
-        {
-            marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
-        }
-        out << nl << "os.endSlice();";
-        if(base)
-        {
-            out << nl << "iceWriteImpl@" << getAbsolute(base) << "(obj, os);";
-        }
-        out.dec();
-        out << nl << "end";
-        out << nl << "function iceReadImpl(obj, is)";
-        out.inc();
-        out << nl << "is.startSlice();";
-        for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
-        {
-            if(!(*d)->tagged())
-            {
-                if(isClass((*d)->type()))
-                {
-                    unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
-                }
-                else
-                {
-                    unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
-                }
-            }
-        }
-        for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
+    }
+    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
+    {
+        marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+    }
+    out << nl << "os.endSlice();";
+    if(base)
+    {
+        out << nl << "iceWriteImpl@" << getAbsolute(base) << "(obj, os);";
+    }
+    out.dec();
+    out << nl << "end";
+    out << nl << "function iceReadImpl(obj, is)";
+    out.inc();
+    out << nl << "is.startSlice();";
+    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    {
+        if(!(*d)->tagged())
         {
             if(isClass((*d)->type()))
             {
-                unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true,
-                          (*d)->tag());
+                unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
             }
             else
             {
-                unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+                unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
             }
         }
-        out << nl << "is.endSlice();";
-        if(base)
+    }
+    for(DataMemberList::const_iterator d = taggedMembers.begin(); d != taggedMembers.end(); ++d)
+    {
+        if(isClass((*d)->type()))
         {
-            out << nl << "iceReadImpl@" << getAbsolute(base) << "(obj, is);";
+            unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true,
+                      (*d)->tag());
         }
-        out.dec();
-        out << nl << "end";
-
-        DataMemberList classMembers = p->classDataMembers();
-        if(!classMembers.empty())
+        else
         {
-            //
-            // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
-            // instance is eventually unmarshaled.
-            //
-            for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
-            {
-                string m = fixIdent((*d)->name());
-                out << nl << "function iceSetMember_" << m << "(obj, v)";
-                out.inc();
-                out << nl << "obj." << m << " = v;";
-                out.dec();
-                out << nl << "end";
-            }
+            unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
         }
+    }
+    out << nl << "is.endSlice();";
+    if(base)
+    {
+        out << nl << "iceReadImpl@" << getAbsolute(base) << "(obj, is);";
+    }
+    out.dec();
+    out << nl << "end";
 
-        out.dec();
-        out << nl << "end";
-
-        out << nl << "methods(Static)";
-        out.inc();
-        out << nl << "function id = ice_staticId()";
-        out.inc();
-        out << nl << "id = '" << scoped << "';";
-        out.dec();
-        out << nl << "end";
-        out.dec();
-        out << nl << "end";
-
-        if(preserved && !basePreserved)
+    DataMemberList classMembers = p->classDataMembers();
+    if(!classMembers.empty())
+    {
+        //
+        // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
+        // instance is eventually unmarshaled.
+        //
+        for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
         {
-            out << nl << "properties(Access=protected)";
+            string m = fixIdent((*d)->name());
+            out << nl << "function iceSetMember_" << m << "(obj, v)";
             out.inc();
-            out << nl << "iceSlicedData_";
+            out << nl << "obj." << m << " = v;";
             out.dec();
             out << nl << "end";
         }
+    }
+
+    out.dec();
+    out << nl << "end";
+
+    out << nl << "methods(Static)";
+    out.inc();
+    out << nl << "function id = ice_staticId()";
+    out.inc();
+    out << nl << "id = '" << scoped << "';";
+    out.dec();
+    out << nl << "end";
+    out.dec();
+    out << nl << "end";
+
+    if(preserved && !basePreserved)
+    {
+        out << nl << "properties(Access=protected)";
+        out.inc();
+        out << nl << "iceSlicedData_";
+        out.dec();
+        out << nl << "end";
+    }
+
+    out.dec();
+    out << nl << "end";
+    out << nl;
+
+    out.close();
+
+    if(p->compactId() >= 0)
+    {
+        ostringstream ostr;
+        ostr << "IceCompactId.TypeId_" << p->compactId();
+
+        openClass(ostr.str(), _dir, out);
+
+        out << nl << "classdef TypeId_" << p->compactId();
+        out.inc();
+
+        out << nl << "properties(Constant)";
+        out.inc();
+        out << nl << "typeId = '" << scoped << "'";
+        out.dec();
+        out << nl << "end";
 
         out.dec();
         out << nl << "end";
         out << nl;
 
         out.close();
+    }
+    return false;
+}
 
-        if(p->compactId() >= 0)
+bool
+CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    const string name = fixIdent(p->name());
+    const string scoped = p->scoped();
+    const string abs = getAbsolute(p);
+    const OperationList allOps = p->allOperations();
+    const string self = name == "obj" ? "this" : "obj";
+    InterfaceList bases = p->bases();
+
+    //
+    // Generate proxy class.
+    //
+
+    const string prxName = p->name() + "Prx";
+    const string prxAbs = getAbsolute(p, "", "Prx");
+
+    InterfaceList prxBases = bases;
+    IceUtilInternal::Output out;
+    openClass(prxAbs, _dir, out);
+
+    writeProxyDocSummary(out, p);
+    writeCopyright(out, p->file());
+
+    out << nl << "classdef " << prxName << " < ";
+    if(!prxBases.empty())
+    {
+        for(InterfaceList::const_iterator q = prxBases.begin(); q != prxBases.end(); ++q)
         {
-            ostringstream ostr;
-            ostr << "IceCompactId.TypeId_" << p->compactId();
-
-            openClass(ostr.str(), _dir, out);
-
-            out << nl << "classdef TypeId_" << p->compactId();
-            out.inc();
-
-            out << nl << "properties(Constant)";
-            out.inc();
-            out << nl << "typeId = '" << scoped << "'";
-            out.dec();
-            out << nl << "end";
-
-            out.dec();
-            out << nl << "end";
-            out << nl;
-
-            out.close();
+            if(q != prxBases.begin())
+            {
+                out << " & ";
+            }
+            out << getAbsolute(*q, "", "Prx");
         }
     }
-
-    if(p->isInterface() || (!p->isInterface() && !allOps.empty()))
+    else
     {
-        //
-        // Generate proxy class.
-        //
+        out << "Ice.ObjectPrx";
+    }
 
-        const string prxName = p->name() + "Prx";
-        const string prxAbs = getAbsolute(p, "", "Prx");
+    out.inc();
 
-        ClassList prxBases = bases;
-        //
-        // For proxy purposes, we can ignore a base class if it has no operations.
-        //
-        if(!prxBases.empty() && !prxBases.front()->isInterface() && prxBases.front()->allOperations().empty())
+    out << nl << "methods";
+    out.inc();
+
+    //
+    // Operations.
+    //
+    bool hasExceptions = false;
+    const OperationList ops = p->operations();
+    for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    {
+        OperationPtr op = *q;
+        ParamInfoList requiredInParams, taggedInParams;
+        getInParams(op, requiredInParams, taggedInParams);
+        ParamInfoList requiredOutParams, taggedOutParams;
+        getOutParams(op, requiredOutParams, taggedOutParams);
+        const ParamInfoList allInParams = getAllInParams(op);
+        const ParamInfoList allOutParams = getAllOutParams(op);
+        const bool twowayOnly = op->returnsData();
+        const ExceptionList exceptions = op->throws();
+
+        if(!exceptions.empty())
         {
-            prxBases.pop_front();
+            hasExceptions = true;
         }
 
-        IceUtilInternal::Output out;
-        openClass(prxAbs, _dir, out);
-
-        writeProxyDocSummary(out, p);
-        writeCopyright(out, p->file());
-
-        out << nl << "classdef " << prxName << " < ";
-        if(!prxBases.empty())
+        //
+        // Ensure no parameter is named "obj".
+        //
+        string self = "obj";
+        for(ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
         {
-            for(ClassList::const_iterator q = prxBases.begin(); q != prxBases.end(); ++q)
+            if(r->fixedName == "obj")
             {
-                if(q != prxBases.begin())
-                {
-                    out << " & ";
-                }
-                out << getAbsolute(*q, "", "Prx");
+                self = "obj_";
             }
+        }
+        for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        {
+            if(r->fixedName == "obj")
+            {
+                self = "obj_";
+            }
+        }
+
+        //
+        // Synchronous method.
+        //
+        out << nl << "function ";
+        if(allOutParams.size() > 1)
+        {
+            out << "[";
+            for(ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
+            {
+                if(r != allOutParams.begin())
+                {
+                    out << ", ";
+                }
+                out << r->fixedName;
+            }
+            out << "] = ";
+        }
+        else if(allOutParams.size() == 1)
+        {
+            out << allOutParams.begin()->fixedName << " = ";
+        }
+        out << fixOp(op->name()) << spar;
+
+        out << self;
+        for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        {
+            out << r->fixedName;
+        }
+        out << "varargin"; // For the optional context
+        out << epar;
+        out.inc();
+
+        writeOpDocSummary(out, op, false);
+
+        if(!allInParams.empty())
+        {
+            if(op->format() == DefaultFormat)
+            {
+                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+            }
+            else
+            {
+                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
+            }
+            for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+            {
+                marshal(out, "os_", r->fixedName, r->type, false, 0);
+            }
+            for(ParamInfoList::const_iterator r = taggedInParams.begin(); r != taggedInParams.end(); ++r)
+            {
+                marshal(out, "os_", r->fixedName, r->type, r->isTagged, r->tag);
+            }
+            if(op->sendsClasses(false))
+            {
+                out << nl << "os_.writePendingValues();";
+            }
+            out << nl << self << ".iceEndWriteParams(os_);";
+        }
+
+        out << nl;
+        if(!allOutParams.empty())
+        {
+            out << "is_ = ";
+        }
+        out << self << ".iceInvoke('" << op->name() << "', "
+            << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false")
+            << ", " << (allInParams.empty() ? "[]" : "os_") << ", " << (!allOutParams.empty() ? "true" : "false");
+        if(exceptions.empty())
+        {
+            out << ", {}";
         }
         else
         {
-            out << "Ice.ObjectPrx";
+            out << ", " << prxAbs << "." << op->name() << "_ex_";
+        }
+        out << ", varargin{:});";
+
+        if(twowayOnly && !allOutParams.empty())
+        {
+            out << nl << "is_.startEncapsulation();";
+            //
+            // To unmarshal results:
+            //
+            // * unmarshal all required out parameters
+            // * unmarshal the required return value (if any)
+            // * unmarshal all tagged out parameters (this includes a tagged return value)
+            //
+            ParamInfoList classParams;
+            ParamInfoList convertParams;
+            for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            {
+                if(r->param)
+                {
+                    string name;
+                    if(isClass(r->type))
+                    {
+                        out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
+                        name = "@(v) " + r->fixedName + "_h_.set(v)";
+                        classParams.push_back(*r);
+                    }
+                    else
+                    {
+                        name = r->fixedName;
+                    }
+                    unmarshal(out, "is_", name, r->type, false, -1);
+
+                    if(needsConversion(r->type))
+                    {
+                        convertParams.push_back(*r);
+                    }
+                }
+            }
+            //
+            // Now do the required return value if necessary.
+            //
+            if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
+            {
+                ParamInfoList::const_iterator r = requiredOutParams.begin();
+                string name;
+                if(isClass(r->type))
+                {
+                    out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
+                    name = "@(v) " + r->fixedName + "_h_.set(v)";
+                    classParams.push_back(*r);
+                }
+                else
+                {
+                    name = r->fixedName;
+                }
+                unmarshal(out, "is_", name, r->type, false, -1);
+
+                if(needsConversion(r->type))
+                {
+                    convertParams.push_back(*r);
+                }
+            }
+            //
+            // Now unmarshal all tagged out parameters. They are already sorted by tag.
+            //
+            for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
+            {
+                string name;
+                if(isClass(r->type))
+                {
+                    out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
+                    name = "@(v) " + r->fixedName + "_h_.set(v)";
+                    classParams.push_back(*r);
+                }
+                else
+                {
+                    name = r->fixedName;
+                }
+                unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
+
+                if(needsConversion(r->type))
+                {
+                    convertParams.push_back(*r);
+                }
+            }
+            if(op->returnsClasses(false))
+            {
+                out << nl << "is_.readPendingValues();";
+            }
+            out << nl << "is_.endEncapsulation();";
+            //
+            // After calling readPendingValues(), all callback functions have been invoked.
+            // Now we need to collect the values.
+            //
+            for(ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
+            {
+                out << nl << r->fixedName << " = " << r->fixedName << "_h_.value;";
+            }
+
+            for(ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
+            {
+                convertValueType(out, r->fixedName, r->fixedName, r->type, r->isTagged);
+            }
         }
 
-        out.inc();
-
-        out << nl << "methods";
-        out.inc();
+        out.dec();
+        out << nl << "end";
 
         //
-        // Operations.
+        // Asynchronous method.
         //
-        bool hasExceptions = false;
-        const OperationList ops = p->operations();
+        out << nl << "function r_ = " << op->name() << "Async" << spar;
+        out << self;
+        for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        {
+            out << r->fixedName;
+        }
+        out << "varargin"; // For the optional context
+        out << epar;
+        out.inc();
+
+        writeOpDocSummary(out, op, true);
+
+        if(!allInParams.empty())
+        {
+            if(op->format() == DefaultFormat)
+            {
+                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+            }
+            else
+            {
+                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
+            }
+            for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+            {
+                marshal(out, "os_", r->fixedName, r->type, false, 0);
+            }
+            for(ParamInfoList::const_iterator r = taggedInParams.begin(); r != taggedInParams.end(); ++r)
+            {
+                marshal(out, "os_", r->fixedName, r->type, r->isTagged, r->tag);
+            }
+            if(op->sendsClasses(false))
+            {
+                out << nl << "os_.writePendingValues();";
+            }
+            out << nl << self << ".iceEndWriteParams(os_);";
+        }
+
+        if(twowayOnly && !allOutParams.empty())
+        {
+            out << nl << "function varargout = unmarshal(is_)";
+            out.inc();
+            out << nl << "is_.startEncapsulation();";
+            //
+            // To unmarshal results:
+            //
+            // * unmarshal all required out parameters
+            // * unmarshal the required return value (if any)
+            // * unmarshal all tagged out parameters (this includes an tagged return value)
+            //
+            for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            {
+                if(r->param)
+                {
+                    string name;
+                    if(isClass(r->type))
+                    {
+                        out << nl << r->fixedName << " = IceInternal.ValueHolder();";
+                        name = "@(v) " + r->fixedName + ".set(v)";
+                    }
+                    else
+                    {
+                        name = r->fixedName;
+                    }
+                    unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
+                }
+            }
+            //
+            // Now do the required return value if necessary.
+            //
+            if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
+            {
+                ParamInfoList::const_iterator r = requiredOutParams.begin();
+                string name;
+                if(isClass(r->type))
+                {
+                    out << nl << r->fixedName << " = IceInternal.ValueHolder();";
+                    name = "@(v) " + r->fixedName + ".set(v)";
+                }
+                else
+                {
+                    name = r->fixedName;
+                }
+                unmarshal(out, "is_", name, r->type, false, -1);
+            }
+            //
+            // Now unmarshal all tagged out parameters. They are already sorted by tag.
+            //
+            for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
+            {
+                string name;
+                if(isClass(r->type))
+                {
+                    out << nl << r->fixedName << " = IceInternal.ValueHolder();";
+                    name = "@(v) " + r->fixedName + ".set(v)";
+                }
+                else
+                {
+                    name = r->fixedName;
+                }
+                unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
+            }
+            if(op->returnsClasses(false))
+            {
+                out << nl << "is_.readPendingValues();";
+            }
+            out << nl << "is_.endEncapsulation();";
+            for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            {
+                if(isClass(r->type))
+                {
+                    out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
+                }
+                else if(needsConversion(r->type))
+                {
+                    ostringstream dest;
+                    dest << "varargout{" << r->pos << "}";
+                    convertValueType(out, dest.str(), r->fixedName, r->type, r->isTagged);
+                }
+                else
+                {
+                    out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
+                }
+            }
+            for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
+            {
+                if(isClass(r->type))
+                {
+                    out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
+                }
+                else if(needsConversion(r->type))
+                {
+                    ostringstream dest;
+                    dest << "varargout{" << r->pos << "}";
+                    convertValueType(out, dest.str(), r->fixedName, r->type, r->isTagged);
+                }
+                else
+                {
+                    out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
+                }
+            }
+            out.dec();
+            out << nl << "end";
+        }
+
+        out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', "
+            << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false") << ", "
+            << (allInParams.empty() ? "[]" : "os_") << ", " << allOutParams.size() << ", "
+            << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
+        if(exceptions.empty())
+        {
+            out << ", {}";
+        }
+        else
+        {
+            out << ", " << prxAbs << "." << op->name() << "_ex_";
+        }
+        out << ", varargin{:});";
+
+        out.dec();
+        out << nl << "end";
+    }
+
+    out.dec();
+    out << nl << "end";
+
+    out << nl << "methods(Static)";
+    out.inc();
+    out << nl << "function id = ice_staticId()";
+    out.inc();
+    out << nl << "id = '" << scoped << "';";
+    out.dec();
+    out << nl << "end";
+    out << nl << "function r = ice_read(is)";
+    out.inc();
+    out << nl << "r = is.readProxy('" << prxAbs << "');";
+    out.dec();
+    out << nl << "end";
+    out << nl << "function r = checkedCast(p, varargin)";
+    out.inc();
+    out << nl << "% checkedCast   Contacts the remote server to verify that the object implements this type.";
+    out << nl << "%   Raises a local exception if a communication error occurs. You can optionally supply a";
+    out << nl << "%   facet name and a context map.";
+    out << nl << "%";
+    out << nl << "% Parameters:";
+    out << nl << "%   p - The proxy to be cast.";
+    out << nl << "%   facet - The optional name of the desired facet.";
+    out << nl << "%   context - The optional context map to send with the invocation.";
+    out << nl << "%";
+    out << nl << "% Returns (" << prxAbs << ") - A proxy for this type, or an empty array if the object"
+        << " does not support this type.";
+    out << nl << "r = Ice.ObjectPrx.iceCheckedCast(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
+        << "', varargin{:});";
+    out.dec();
+    out << nl << "end";
+    out << nl << "function r = uncheckedCast(p, varargin)";
+    out.inc();
+    out << nl << "% uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.";
+    out << nl << "%   You can optionally specify a facet name.";
+    out << nl << "%";
+    out << nl << "% Parameters:";
+    out << nl << "%   p - The proxy to be cast.";
+    out << nl << "%   facet - The optional name of the desired facet.";
+    out << nl << "%";
+    out << nl << "% Returns (" << prxAbs << ") - A proxy for this type.";
+    out << nl << "r = Ice.ObjectPrx.iceUncheckedCast(p, '" << prxAbs << "', varargin{:});";
+    out.dec();
+    out << nl << "end";
+    out.dec();
+    out << nl << "end";
+
+    //
+    // Constructor.
+    //
+    out << nl << "methods(Hidden=true)";
+    out.inc();
+    out << nl << "function obj = " << prxName << "(communicator, encoding, impl, bytes)";
+    out.inc();
+
+    if(bases.empty())
+    {
+        out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
+    }
+    else
+    {
+        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        {
+            out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
+        }
+    }
+    out.dec();
+    out << nl << "end";
+    out.dec();
+    out << nl << "end";
+
+    if(hasExceptions)
+    {
+        //
+        // Generate a constant property for each operation that throws user exceptions. The property is
+        // a cell array containing the class names of the exceptions.
+        //
+        out << nl << "properties(Constant,Access=private)";
+        out.inc();
         for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
-            ParamInfoList requiredInParams, taggedInParams;
-            getInParams(op, requiredInParams, taggedInParams);
-            ParamInfoList requiredOutParams, taggedOutParams;
-            getOutParams(op, requiredOutParams, taggedOutParams);
-            const ParamInfoList allInParams = getAllInParams(op);
-            const ParamInfoList allOutParams = getAllOutParams(op);
-            const bool twowayOnly = op->returnsData();
-            const ExceptionList exceptions = op->throws();
+            ExceptionList exceptions = op->throws();
+            exceptions.sort();
+            exceptions.unique();
 
+            //
+            // Arrange exceptions into most-derived to least-derived order. If we don't
+            // do this, a base exception handler can appear before a derived exception
+            // handler, causing compiler warnings and resulting in the base exception
+            // being marshaled instead of the derived exception.
+            //
+            exceptions.sort(Slice::DerivedToBaseCompare());
             if(!exceptions.empty())
             {
-                hasExceptions = true;
-            }
-
-            //
-            // Ensure no parameter is named "obj".
-            //
-            string self = "obj";
-            for(ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
-            {
-                if(r->fixedName == "obj")
+                out << nl << op->name() << "_ex_ = { ";
+                for(ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
                 {
-                    self = "obj_";
-                }
-            }
-            for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
-            {
-                if(r->fixedName == "obj")
-                {
-                    self = "obj_";
-                }
-            }
-
-            //
-            // Synchronous method.
-            //
-            out << nl << "function ";
-            if(allOutParams.size() > 1)
-            {
-                out << "[";
-                for(ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
-                {
-                    if(r != allOutParams.begin())
+                    if(e != exceptions.begin())
                     {
                         out << ", ";
                     }
-                    out << r->fixedName;
+                    out << "'" + getAbsolute(*e) + "'";
                 }
-                out << "] = ";
-            }
-            else if(allOutParams.size() == 1)
-            {
-                out << allOutParams.begin()->fixedName << " = ";
-            }
-            out << fixOp(op->name()) << spar;
-
-            out << self;
-            for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
-            {
-                out << r->fixedName;
-            }
-            out << "varargin"; // For the optional context
-            out << epar;
-            out.inc();
-
-            writeOpDocSummary(out, op, false);
-
-            if(!allInParams.empty())
-            {
-                if(op->format() == DefaultFormat)
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
-                }
-                else
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
-                }
-                for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
-                {
-                    marshal(out, "os_", r->fixedName, r->type, false, 0);
-                }
-                for(ParamInfoList::const_iterator r = taggedInParams.begin(); r != taggedInParams.end(); ++r)
-                {
-                    marshal(out, "os_", r->fixedName, r->type, r->isTagged, r->tag);
-                }
-                if(op->sendsClasses(false))
-                {
-                    out << nl << "os_.writePendingValues();";
-                }
-                out << nl << self << ".iceEndWriteParams(os_);";
-            }
-
-            out << nl;
-            if(!allOutParams.empty())
-            {
-                out << "is_ = ";
-            }
-            out << self << ".iceInvoke('" << op->name() << "', "
-                << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false")
-                << ", " << (allInParams.empty() ? "[]" : "os_") << ", " << (!allOutParams.empty() ? "true" : "false");
-            if(exceptions.empty())
-            {
-                out << ", {}";
-            }
-            else
-            {
-                out << ", " << prxAbs << "." << op->name() << "_ex_";
-            }
-            out << ", varargin{:});";
-
-            if(twowayOnly && !allOutParams.empty())
-            {
-                out << nl << "is_.startEncapsulation();";
-                //
-                // To unmarshal results:
-                //
-                // * unmarshal all required out parameters
-                // * unmarshal the required return value (if any)
-                // * unmarshal all tagged out parameters (this includes a tagged return value)
-                //
-                ParamInfoList classParams;
-                ParamInfoList convertParams;
-                for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
-                {
-                    if(r->param)
-                    {
-                        string name;
-                        if(isClass(r->type))
-                        {
-                            out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
-                            name = "@(v) " + r->fixedName + "_h_.set(v)";
-                            classParams.push_back(*r);
-                        }
-                        else
-                        {
-                            name = r->fixedName;
-                        }
-                        unmarshal(out, "is_", name, r->type, false, -1);
-
-                        if(needsConversion(r->type))
-                        {
-                            convertParams.push_back(*r);
-                        }
-                    }
-                }
-                //
-                // Now do the required return value if necessary.
-                //
-                if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
-                {
-                    ParamInfoList::const_iterator r = requiredOutParams.begin();
-                    string name;
-                    if(isClass(r->type))
-                    {
-                        out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
-                        name = "@(v) " + r->fixedName + "_h_.set(v)";
-                        classParams.push_back(*r);
-                    }
-                    else
-                    {
-                        name = r->fixedName;
-                    }
-                    unmarshal(out, "is_", name, r->type, false, -1);
-
-                    if(needsConversion(r->type))
-                    {
-                        convertParams.push_back(*r);
-                    }
-                }
-                //
-                // Now unmarshal all tagged out parameters. They are already sorted by tag.
-                //
-                for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
-                {
-                    string name;
-                    if(isClass(r->type))
-                    {
-                        out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
-                        name = "@(v) " + r->fixedName + "_h_.set(v)";
-                        classParams.push_back(*r);
-                    }
-                    else
-                    {
-                        name = r->fixedName;
-                    }
-                    unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
-
-                    if(needsConversion(r->type))
-                    {
-                        convertParams.push_back(*r);
-                    }
-                }
-                if(op->returnsClasses(false))
-                {
-                    out << nl << "is_.readPendingValues();";
-                }
-                out << nl << "is_.endEncapsulation();";
-                //
-                // After calling readPendingValues(), all callback functions have been invoked.
-                // Now we need to collect the values.
-                //
-                for(ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
-                {
-                    out << nl << r->fixedName << " = " << r->fixedName << "_h_.value;";
-                }
-
-                for(ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
-                {
-                    convertValueType(out, r->fixedName, r->fixedName, r->type, r->isTagged);
-                }
-            }
-
-            out.dec();
-            out << nl << "end";
-
-            //
-            // Asynchronous method.
-            //
-            out << nl << "function r_ = " << op->name() << "Async" << spar;
-            out << self;
-            for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
-            {
-                out << r->fixedName;
-            }
-            out << "varargin"; // For the optional context
-            out << epar;
-            out.inc();
-
-            writeOpDocSummary(out, op, true);
-
-            if(!allInParams.empty())
-            {
-                if(op->format() == DefaultFormat)
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
-                }
-                else
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
-                }
-                for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
-                {
-                    marshal(out, "os_", r->fixedName, r->type, false, 0);
-                }
-                for(ParamInfoList::const_iterator r = taggedInParams.begin(); r != taggedInParams.end(); ++r)
-                {
-                    marshal(out, "os_", r->fixedName, r->type, r->isTagged, r->tag);
-                }
-                if(op->sendsClasses(false))
-                {
-                    out << nl << "os_.writePendingValues();";
-                }
-                out << nl << self << ".iceEndWriteParams(os_);";
-            }
-
-            if(twowayOnly && !allOutParams.empty())
-            {
-                out << nl << "function varargout = unmarshal(is_)";
-                out.inc();
-                out << nl << "is_.startEncapsulation();";
-                //
-                // To unmarshal results:
-                //
-                // * unmarshal all required out parameters
-                // * unmarshal the required return value (if any)
-                // * unmarshal all tagged out parameters (this includes an tagged return value)
-                //
-                for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
-                {
-                    if(r->param)
-                    {
-                        string name;
-                        if(isClass(r->type))
-                        {
-                            out << nl << r->fixedName << " = IceInternal.ValueHolder();";
-                            name = "@(v) " + r->fixedName + ".set(v)";
-                        }
-                        else
-                        {
-                            name = r->fixedName;
-                        }
-                        unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
-                    }
-                }
-                //
-                // Now do the required return value if necessary.
-                //
-                if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
-                {
-                    ParamInfoList::const_iterator r = requiredOutParams.begin();
-                    string name;
-                    if(isClass(r->type))
-                    {
-                        out << nl << r->fixedName << " = IceInternal.ValueHolder();";
-                        name = "@(v) " + r->fixedName + ".set(v)";
-                    }
-                    else
-                    {
-                        name = r->fixedName;
-                    }
-                    unmarshal(out, "is_", name, r->type, false, -1);
-                }
-                //
-                // Now unmarshal all tagged out parameters. They are already sorted by tag.
-                //
-                for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
-                {
-                    string name;
-                    if(isClass(r->type))
-                    {
-                        out << nl << r->fixedName << " = IceInternal.ValueHolder();";
-                        name = "@(v) " + r->fixedName + ".set(v)";
-                    }
-                    else
-                    {
-                        name = r->fixedName;
-                    }
-                    unmarshal(out, "is_", name, r->type, r->isTagged, r->tag);
-                }
-                if(op->returnsClasses(false))
-                {
-                    out << nl << "is_.readPendingValues();";
-                }
-                out << nl << "is_.endEncapsulation();";
-                for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
-                {
-                    if(isClass(r->type))
-                    {
-                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
-                    }
-                    else if(needsConversion(r->type))
-                    {
-                        ostringstream dest;
-                        dest << "varargout{" << r->pos << "}";
-                        convertValueType(out, dest.str(), r->fixedName, r->type, r->isTagged);
-                    }
-                    else
-                    {
-                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
-                    }
-                }
-                for(ParamInfoList::const_iterator r = taggedOutParams.begin(); r != taggedOutParams.end(); ++r)
-                {
-                    if(isClass(r->type))
-                    {
-                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
-                    }
-                    else if(needsConversion(r->type))
-                    {
-                        ostringstream dest;
-                        dest << "varargout{" << r->pos << "}";
-                        convertValueType(out, dest.str(), r->fixedName, r->type, r->isTagged);
-                    }
-                    else
-                    {
-                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
-                    }
-                }
-                out.dec();
-                out << nl << "end";
-            }
-
-            out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', "
-                << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false") << ", "
-                << (allInParams.empty() ? "[]" : "os_") << ", " << allOutParams.size() << ", "
-                << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
-            if(exceptions.empty())
-            {
-                out << ", {}";
-            }
-            else
-            {
-                out << ", " << prxAbs << "." << op->name() << "_ex_";
-            }
-            out << ", varargin{:});";
-
-            out.dec();
-            out << nl << "end";
-        }
-
-        out.dec();
-        out << nl << "end";
-
-        out << nl << "methods(Static)";
-        out.inc();
-        out << nl << "function id = ice_staticId()";
-        out.inc();
-        out << nl << "id = '" << scoped << "';";
-        out.dec();
-        out << nl << "end";
-        out << nl << "function r = ice_read(is)";
-        out.inc();
-        out << nl << "r = is.readProxy('" << prxAbs << "');";
-        out.dec();
-        out << nl << "end";
-        out << nl << "function r = checkedCast(p, varargin)";
-        out.inc();
-        out << nl << "% checkedCast   Contacts the remote server to verify that the object implements this type.";
-        out << nl << "%   Raises a local exception if a communication error occurs. You can optionally supply a";
-        out << nl << "%   facet name and a context map.";
-        out << nl << "%";
-        out << nl << "% Parameters:";
-        out << nl << "%   p - The proxy to be cast.";
-        out << nl << "%   facet - The optional name of the desired facet.";
-        out << nl << "%   context - The optional context map to send with the invocation.";
-        out << nl << "%";
-        out << nl << "% Returns (" << prxAbs << ") - A proxy for this type, or an empty array if the object"
-            << " does not support this type.";
-        out << nl << "r = Ice.ObjectPrx.iceCheckedCast(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
-            << "', varargin{:});";
-        out.dec();
-        out << nl << "end";
-        out << nl << "function r = uncheckedCast(p, varargin)";
-        out.inc();
-        out << nl << "% uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.";
-        out << nl << "%   You can optionally specify a facet name.";
-        out << nl << "%";
-        out << nl << "% Parameters:";
-        out << nl << "%   p - The proxy to be cast.";
-        out << nl << "%   facet - The optional name of the desired facet.";
-        out << nl << "%";
-        out << nl << "% Returns (" << prxAbs << ") - A proxy for this type.";
-        out << nl << "r = Ice.ObjectPrx.iceUncheckedCast(p, '" << prxAbs << "', varargin{:});";
-        out.dec();
-        out << nl << "end";
-        out.dec();
-        out << nl << "end";
-
-        //
-        // Constructor.
-        //
-        out << nl << "methods(Hidden=true)";
-        out.inc();
-        out << nl << "function obj = " << prxName << "(communicator, encoding, impl, bytes)";
-        out.inc();
-
-        ClassDefPtr base;
-        if(!bases.empty() && !bases.front()->isInterface())
-        {
-            base = bases.front();
-        }
-
-        if(bases.empty() || (bases.size() == 1 && base && base->allOperations().empty()))
-        {
-            out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
-        }
-        else
-        {
-            if(base && base->allOperations().empty())
-            {
-                bases.pop_front();
-            }
-
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-            {
-                out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
+                out << " }";
             }
         }
         out.dec();
         out << nl << "end";
-        out.dec();
-        out << nl << "end";
-
-        if(hasExceptions)
-        {
-            //
-            // Generate a constant property for each operation that throws user exceptions. The property is
-            // a cell array containing the class names of the exceptions.
-            //
-            out << nl << "properties(Constant,Access=private)";
-            out.inc();
-            for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
-            {
-                OperationPtr op = *q;
-                ExceptionList exceptions = op->throws();
-                exceptions.sort();
-                exceptions.unique();
-
-                //
-                // Arrange exceptions into most-derived to least-derived order. If we don't
-                // do this, a base exception handler can appear before a derived exception
-                // handler, causing compiler warnings and resulting in the base exception
-                // being marshaled instead of the derived exception.
-                //
-                exceptions.sort(Slice::DerivedToBaseCompare());
-                if(!exceptions.empty())
-                {
-                    out << nl << op->name() << "_ex_ = { ";
-                    for(ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
-                    {
-                        if(e != exceptions.begin())
-                        {
-                            out << ", ";
-                        }
-                        out << "'" + getAbsolute(*e) + "'";
-                    }
-                    out << " }";
-                }
-            }
-            out.dec();
-            out << nl << "end";
-        }
-
-        out.dec();
-        out << nl << "end";
-        out << nl;
-
-        out.close();
     }
+
+    out.dec();
+    out << nl << "end";
+    out << nl;
+
+    out.close();
     return false;
 }
 
@@ -2994,10 +2980,10 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 void
 CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    const TypePtr content = p->type();
+    const TypePtr content = unwrapIfOptional(p->type());
 
     const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
-    if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
+    if(b && !b->usesClasses() && b->kind() != Builtin::KindObject)
     {
         return;
     }
@@ -3666,10 +3652,9 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 void
 CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
 {
-    ClassList bases = p->bases();
-    if(!bases.empty() && !bases.front()->isInterface())
+    if(p->base())
     {
-        collectClassMembers(bases.front(), allMembers, true);
+        collectClassMembers(p->base(), allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();
@@ -3850,9 +3835,10 @@ CodeVisitor::getFormatType(FormatType type)
 }
 
 void
-CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
+CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& constType,
                      bool isTagged, int tag)
 {
+    TypePtr type = unwrapIfOptional(constType);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
@@ -3868,8 +3854,8 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    if(proxy)
     {
         if(isTagged)
         {
@@ -3943,10 +3929,10 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        const TypePtr content = seq->type();
+        const TypePtr content = unwrapIfOptional(seq->type());
         const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
 
-        if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
+        if(b && !b->usesClasses() && b->kind() != Builtin::KindObject)
         {
             out << nl << stream << ".write" << builtinSuffixTable[b->kind()] << "Seq";
             if(isTagged)
@@ -3976,9 +3962,10 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
 }
 
 void
-CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
+CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& constType,
                        bool isTagged, int tag)
 {
+    TypePtr type = unwrapIfOptional(constType);
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
@@ -4009,36 +3996,22 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         return;
     }
 
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
+    InterfaceDeclPtr proxy = InterfaceDeclPtr::dynamicCast(type);
+    if(proxy)
     {
-        if(prx->_class()->isInterface() || !prx->_class()->definition()->allOperations().empty())
+        const string typeS = getAbsolute(proxy, "", "Prx");
+        if(isTagged)
         {
-            const string typeS = getAbsolute(prx->_class(), "", "Prx");
-            if(isTagged)
-            {
-                out << nl << "if " << stream << ".readOptional(" << tag << ", " << getTagFormat(type) << ")";
-                out.inc();
-                out << nl << stream << ".skip(4);";
-                out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
-                out.dec();
-                out << nl << "end";
-            }
-            else
-            {
-                out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
-            }
+            out << nl << "if " << stream << ".readOptional(" << tag << ", " << getTagFormat(type) << ")";
+            out.inc();
+            out << nl << stream << ".skip(4);";
+            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
+            out.dec();
+            out << nl << "end";
         }
         else
         {
-            if(isTagged)
-            {
-                out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ");";
-            }
-            else
-            {
-                out << nl << v << " = " << stream << ".readProxy();";
-            }
+            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
         }
         return;
     }
@@ -4046,7 +4019,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        const string cls = cl->isInterface() ? "Ice.Value" : getAbsolute(cl);
+        const string cls = getAbsolute(cl);
         if(isTagged)
         {
             out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", '" << cls << "');";
@@ -4105,10 +4078,10 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        const TypePtr content = seq->type();
+        const TypePtr content = unwrapIfOptional(seq->type());
         const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
 
-        if(b && !b->usesClasses() && b->kind() != Builtin::KindObjectProxy)
+        if(b && !b->usesClasses() && b->kind() != Builtin::KindObject)
         {
             out << nl << v << " = " << stream << ".read" << builtinSuffixTable[b->kind()] << "Seq";
             if(isTagged)

@@ -16,7 +16,7 @@ public:
 
     JsVisitor(::IceUtilInternal::Output&,
               const std::vector<std::pair<std::string, std::string> >& imports =
-                    std::vector<std::pair<std::string, std::string> >());
+                std::vector<std::pair<std::string, std::string> >());
     virtual ~JsVisitor();
 
     std::vector<std::pair<std::string, std::string> > imports() const;
@@ -76,6 +76,7 @@ private:
         RequireVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitOperation(const OperationPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
@@ -91,15 +92,15 @@ private:
         bool _es6modules;
         bool _seenClass;
         bool _seenCompactId;
+        bool _seenInterface;
         bool _seenOperation;
         bool _seenStruct;
         bool _seenUserException;
-        bool _seenLocalException;
         bool _seenEnum;
         bool _seenObjectSeq;
-        bool _seenObjectProxySeq;
+        bool _seenValueSeq;
         bool _seenObjectDict;
-        bool _seenObjectProxyDict;
+        bool _seenValueDict;
         std::vector<std::string> _includePaths;
     };
 
@@ -112,6 +113,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -150,6 +152,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -175,6 +178,7 @@ private:
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitSequence(const SequencePtr&);
@@ -200,6 +204,7 @@ private:
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);

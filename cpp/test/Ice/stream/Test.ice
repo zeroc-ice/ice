@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <Ice/BuiltinSequences.ice>
 
 module Test
@@ -37,8 +39,8 @@ class OptionalClass
 {
     bool bo;
     byte by;
-    tag(1) short sh;
-    tag(2) int i;
+    tag(1) short? sh;
+    tag(2) int? i;
 }
 
 sequence<MyEnum> MyEnumS;

@@ -15,8 +15,6 @@ sequence<Mod> Seq;
 dictionary<int, Mod> Dict;
 interface BarIntf : Mod { void op(); }
 class BarClass1 : Mod { long l; }
-class BarClass2 implements Module1, Module2, Module3 { long l; }
-class BarClass3 : Mod implements Module1, Module2, Module3 { long l; }
 
 }
 
@@ -29,7 +27,7 @@ struct S
 
 interface I
 {
-    E foo(E e1; E e2);
+    E foo(E e1, E e2);
     void op();
 }
 

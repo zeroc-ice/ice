@@ -36,7 +36,6 @@ struct ParamInfo
     std::string name;
     TypePtr type;
     std::string typeStr;
-    bool nullable;
     bool tagged;
     int tag;
     ParamDeclPtr param; // 0 == return value
@@ -50,8 +49,8 @@ struct ParamInfo
 bool normalizeCase(const ContainedPtr&);
 std::string operationName(const OperationPtr&);
 std::string paramName(const ParamInfo&);
-std::string interfaceName(const ProxyPtr&);
-std::string interfaceName(const ClassDefPtr&);
+std::string interfaceName(const InterfaceDeclPtr&);
+std::string interfaceName(const InterfaceDefPtr&);
 std::string dataMemberName(const ParamInfo&);
 std::string dataMemberName(const DataMemberPtr&);
 
@@ -61,12 +60,11 @@ std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);
 
-bool isNullable(const TypePtr&);
 bool isCollectionType(const TypePtr&);
-bool isProxyType(const TypePtr&);
+bool isInterfaceType(const TypePtr&);
 bool isClassType(const TypePtr&);
-bool isValueType(const TypePtr&);
-bool isReferenceType(const TypePtr&);
+bool isValueType(const TypePtr&); // value with C# "struct" meaning
+bool isReferenceType(const TypePtr&); // opposite of value
 bool isMappedToReadOnlyMemory(const SequencePtr& seq);
 
 std::list<ParamInfo> getAllInParams(const OperationPtr&, bool readOnly, const std::string& prefix = "");
@@ -106,8 +104,7 @@ public:
     //
     static void validateMetaData(const UnitPtr&);
 
-    static std::string typeToString(const TypePtr& type, const std::string& package, bool optional = false,
-                                    bool readOnly = false);
+    static std::string typeToString(const TypePtr& type, const std::string& package, bool readOnly = false);
 
 protected:
 
@@ -124,10 +121,10 @@ protected:
     void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
                             const std::string& = "istr");
 
-    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, const std::string&,
+    void writeTaggedMarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, bool, const std::string&,
                                 const std::string&, int, const std::string& = "ostr");
-    void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
-                                    int, const DataMemberPtr&, const std::string& = "istr");
+    void writeTaggedUnmarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, const std::string&,
+                                  const std::string&, int, const DataMemberPtr&, const std::string& = "istr");
 
     std::string sequenceMarshalCode(const SequencePtr&, const std::string&, const std::string&, const std::string&);
     std::string sequenceUnmarshalCode(const SequencePtr&, const std::string&, const std::string&);

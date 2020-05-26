@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[3.7]]
+
 #include <Ice/Context.ice>
 
 [[cs:typeid-namespace:ZeroC.Ice.operations.AMD.TypeId]]
