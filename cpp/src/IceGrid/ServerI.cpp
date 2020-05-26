@@ -1187,7 +1187,8 @@ ServerI::load(const shared_ptr<InternalServerDescriptor>& desc, const string& re
             {
                 adapters.insert({ adapter.first, adapter.second->getProxy() });
             }
-            response(_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout)); }
+            response(_this, adapters, secondsToInt(_activationTimeout), secondsToInt(_deactivationTimeout));
+        }
         else if(_state == InternalServerState::Active)
         {
             _load->addCallback(response, exception); // Must be called before startRuntimePropertiesUpdate!
@@ -1482,6 +1483,10 @@ ServerI::activate()
             {
                 _node->getMasterNodeSession()->waitForApplicationUpdateAsync(desc->uuid, desc->revision,
                     [self = shared_from_this()]
+                    {
+                        self->waitForApplicationUpdateCompleted();
+                    },
+                    [self = shared_from_this()](exception_ptr)
                     {
                         self->waitForApplicationUpdateCompleted();
                     });

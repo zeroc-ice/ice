@@ -833,7 +833,8 @@ NodeI::loadServer(shared_ptr<InternalServerDescriptor> descriptor, string replic
 
             try
             {
-                command = server->load(descriptor, replicaName, noRestart, move(response), move(exception));
+                // Don't std::move response/exception as we may need to loop and call again load.
+                command = server->load(descriptor, replicaName, noRestart, response, exception);
             }
             catch(const Ice::ObjectNotExistException&)
             {

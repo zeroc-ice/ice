@@ -140,10 +140,11 @@ class IceGridRegistry(ProcessFromBinDir, Server):
     def teardown(self, current, success):
         Server.teardown(self, current, success)
         # Remove the database directory tree
-        try:
-            shutil.rmtree(self.dbdir)
-        except:
-            pass
+        if success or current.driver.isInterrupted():
+            try:
+                shutil.rmtree(self.dbdir)
+            except:
+                pass
 
     def getProps(self, current):
         props = {
@@ -233,6 +234,11 @@ class IceGridTestCase(TestCase):
 
     def setupClientSide(self, current):
         if self.application:
+            try:
+                self.runadmin(current, "application remove Test", quiet=True)
+            except:
+                pass
+
             javaHome = os.environ.get("JAVA_HOME", None)
             serverProps = Server().getProps(current)
             variables = {
@@ -261,7 +267,7 @@ class IceGridTestCase(TestCase):
             self.runadmin(current, "application add {0} {1} {2}".format(application, varStr, targets))
 
     def teardownClientSide(self, current, success):
-        if self.application:
+        if (success or current.driver.isInterrupted()) and self.application:
             self.runadmin(current, "application remove Test")
 
         for p in self.icegridnode + self.icegridregistry:
