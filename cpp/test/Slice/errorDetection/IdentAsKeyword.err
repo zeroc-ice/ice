@@ -64,20 +64,3 @@ IdentAsKeyword.ice:74: `i8': an interface can only be defined at module scope
 IdentAsKeyword.ice:76: `i9': an interface can only be defined at module scope
 IdentAsKeyword.ice:77: `i10': an interface can only be defined at module scope
 IdentAsKeyword.ice:79: `true': an interface can only be defined at module scope
-IdentAsKeyword.ice:81: illegal leading underscore in identifier `_a'
-IdentAsKeyword.ice:81: `_a': an interface can only be defined at module scope
-IdentAsKeyword.ice:82: illegal leading underscore in identifier `_true'
-IdentAsKeyword.ice:82: `_true': an interface can only be defined at module scope
-IdentAsKeyword.ice:83: illegal leading underscore in identifier `_true'
-IdentAsKeyword.ice:83: `_true': an interface can only be defined at module scope
-IdentAsKeyword.ice:85: illegal trailing underscore in identifier `b_'
-IdentAsKeyword.ice:85: `b_': an interface can only be defined at module scope
-IdentAsKeyword.ice:87: illegal double underscore in identifier `b__c'
-IdentAsKeyword.ice:87: `b__c': an interface can only be defined at module scope
-IdentAsKeyword.ice:88: illegal double underscore in identifier `b___c'
-IdentAsKeyword.ice:88: `b___c': an interface can only be defined at module scope
-IdentAsKeyword.ice:90: illegal underscore in identifier `a_b'
-IdentAsKeyword.ice:90: `a_b': an interface can only be defined at module scope
-IdentAsKeyword.ice:91: illegal underscore in identifier `a_b_c'
-IdentAsKeyword.ice:91: `a_b_c': an interface can only be defined at module scope
-IdentAsKeyword.ice:93: syntax error
