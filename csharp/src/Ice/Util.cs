@@ -58,14 +58,8 @@ namespace ZeroC.Ice
 
         private static readonly object _processLoggerMutex = new object();
         private static ILogger? _processLogger = null;
-    }
-}
 
-namespace IceInternal
-{
-    public sealed class Util
-    {
-        public static ITransportPluginFacade GetTransportPluginFacade(ZeroC.Ice.Communicator communicator) =>
+        public static ITransportPluginFacade GetTransportPluginFacade(Communicator communicator) =>
             new TransportPluginFacade(communicator);
 
         public static ThreadPriority StringToThreadPriority(string? s)

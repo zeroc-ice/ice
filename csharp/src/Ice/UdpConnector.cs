@@ -2,11 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
 using System.Net;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     internal sealed class UdpConnector : IConnector
     {

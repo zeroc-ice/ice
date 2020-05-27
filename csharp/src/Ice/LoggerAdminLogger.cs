@@ -7,9 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-using ZeroC.Ice;
-
-namespace IceInternal
+namespace ZeroC.Ice
 {
     internal interface ILoggerAdminLogger : ILogger
     {

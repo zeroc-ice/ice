@@ -4,7 +4,7 @@
 
 namespace ZeroC.IceSSL
 {
-    internal class Acceptor : IceInternal.IAcceptor
+    internal class Acceptor : Ice.IAcceptor
     {
         public void Close() => _delegate.Close();
 
@@ -14,7 +14,7 @@ namespace ZeroC.IceSSL
             return _endpoint;
         }
 
-        public bool StartAccept(IceInternal.AsyncCallback callback, object state)
+        public bool StartAccept(Ice.AsyncCallback callback, object state)
         {
             //
             // The plug-in may not be fully initialized.
@@ -28,7 +28,7 @@ namespace ZeroC.IceSSL
 
         public void FinishAccept() => _delegate.FinishAccept();
 
-        public IceInternal.ITransceiver Accept() => new Transceiver(_instance, _delegate.Accept(), _adapterName, true);
+        public Ice.ITransceiver Accept() => new Transceiver(_instance, _delegate.Accept(), _adapterName, true);
 
         public string Transport() => _delegate.Transport();
 
@@ -36,7 +36,7 @@ namespace ZeroC.IceSSL
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 
-        internal Acceptor(Endpoint endpoint, Instance instance, IceInternal.IAcceptor del, string adapterName)
+        internal Acceptor(Endpoint endpoint, Instance instance, Ice.IAcceptor del, string adapterName)
         {
             _endpoint = endpoint;
             _delegate = del;
@@ -54,7 +54,7 @@ namespace ZeroC.IceSSL
         }
 
         private Endpoint _endpoint;
-        private readonly IceInternal.IAcceptor _delegate;
+        private readonly Ice.IAcceptor _delegate;
         private readonly Instance _instance;
         private readonly string _adapterName;
     }

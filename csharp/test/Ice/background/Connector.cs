@@ -4,9 +4,9 @@
 
 using ZeroC.Ice;
 
-internal class Connector : IceInternal.IConnector
+internal class Connector : IConnector
 {
-    public IceInternal.ITransceiver Connect()
+    public ITransceiver Connect()
     {
         _configuration.CheckConnectException();
         return new Transceiver(_connector.Connect());
@@ -17,7 +17,7 @@ internal class Connector : IceInternal.IConnector
     //
     // Only for use by Endpoint
     //
-    internal Connector(IceInternal.IConnector connector)
+    internal Connector(IConnector connector)
     {
         _configuration = Configuration.GetInstance();
         _connector = connector;
@@ -41,6 +41,6 @@ internal class Connector : IceInternal.IConnector
 
     public override int GetHashCode() => _connector.GetHashCode();
 
-    private readonly IceInternal.IConnector _connector;
+    private readonly IConnector _connector;
     private readonly Configuration _configuration;
 }

@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-internal class Acceptor : IceInternal.IAcceptor
+using ZeroC.Ice;
+
+internal class Acceptor : IAcceptor
 {
     public void Close()
     {
@@ -15,7 +17,7 @@ internal class Acceptor : IceInternal.IAcceptor
         return _endpoint;
     }
 
-    public bool StartAccept(IceInternal.AsyncCallback callback, object state)
+    public bool StartAccept(AsyncCallback callback, object state)
     {
         return _acceptor.StartAccept(callback, state);
     }
@@ -25,7 +27,7 @@ internal class Acceptor : IceInternal.IAcceptor
         _acceptor.FinishAccept();
     }
 
-    public IceInternal.ITransceiver Accept()
+    public ITransceiver Accept()
     {
         return new Transceiver(_acceptor.Accept());
     }
@@ -45,12 +47,12 @@ internal class Acceptor : IceInternal.IAcceptor
         return _acceptor.ToDetailedString();
     }
 
-    internal Acceptor(Endpoint endpoint, IceInternal.IAcceptor acceptor)
+    internal Acceptor(Endpoint endpoint, IAcceptor acceptor)
     {
         _endpoint = endpoint;
         _acceptor = acceptor;
     }
 
     private Endpoint _endpoint;
-    private IceInternal.IAcceptor _acceptor;
+    private IAcceptor _acceptor;
 }

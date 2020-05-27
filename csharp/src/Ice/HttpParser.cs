@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     public sealed class WebSocketException : System.Exception
     {

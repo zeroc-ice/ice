@@ -113,7 +113,7 @@ namespace ZeroC.IceLocatorDiscovery
         public ILocatorRegistryPrx? GetRegistry(Current current) => null;
     }
 
-    internal class LocatorI : IObject, IceInternal.ITimerTask
+    internal class LocatorI : IObject, ITimerTask
     {
         public LocatorI(string name, ILookupPrx lookup, Communicator communicator, string instanceName,
             ILocatorPrx voidLocator)
@@ -360,7 +360,7 @@ namespace ZeroC.IceLocatorDiscovery
                 {
                     _ = request.Invoke(_locator);
                 }
-                else if (request != null && IceInternal.Time.CurrentMonotonicTimeMillis() < _nextRetry)
+                else if (request != null && Time.CurrentMonotonicTimeMillis() < _nextRetry)
                 {
                     _ = request.Invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
                 }
@@ -553,14 +553,14 @@ namespace ZeroC.IceLocatorDiscovery
                     }
                     _pendingRequests.Clear();
                 }
-                _nextRetry = IceInternal.Time.CurrentMonotonicTimeMillis() + _retryDelay;
+                _nextRetry = Ice.Time.CurrentMonotonicTimeMillis() + _retryDelay;
             }
         }
 
         private readonly ILookupPrx _lookup;
         private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups = new Dictionary<ILookupPrx, ILookupReplyPrx?>();
         private readonly int _timeout;
-        private readonly IceInternal.Timer _timer;
+        private readonly Ice.Timer _timer;
         private readonly int _traceLevel;
         private readonly int _retryCount;
         private readonly int _retryDelay;
@@ -619,8 +619,8 @@ namespace ZeroC.IceLocatorDiscovery
             string lookupEndpoints = _communicator.GetProperty($"{_name}.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
-                int ipVersion = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-                List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, ipVersion);
+                int ipVersion = ipv4 && !preferIPv6 ? Network.EnableIPv4 : Network.EnableIPv6;
+                List<string> interfaces = Network.GetInterfacesForMulticast(intf, ipVersion);
                 foreach (string p in interfaces)
                 {
                     if (p != interfaces[0])

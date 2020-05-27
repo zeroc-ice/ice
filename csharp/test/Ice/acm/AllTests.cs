@@ -227,11 +227,11 @@ namespace ZeroC.Ice.acm
         {
             lock (this)
             {
-                long now = IceInternal.Time.CurrentMonotonicTimeMillis();
+                long now = Time.CurrentMonotonicTimeMillis();
                 while (!Closed)
                 {
                     Monitor.Wait(this, 30000);
-                    if (IceInternal.Time.CurrentMonotonicTimeMillis() - now > 30000)
+                    if (Time.CurrentMonotonicTimeMillis() - now > 30000)
                     {
                         TestHelper.Assert(false); // Waited for more than 30s for close, something's wrong.
                         throw new Exception();

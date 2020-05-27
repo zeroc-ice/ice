@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     // TODO: refactor and eliminate these exceptions
     public sealed class WSProtocolException : Exception
@@ -772,7 +771,7 @@ namespace IceInternal
             value = _parser.GetHeader("Sec-WebSocket-Protocol", true);
             if (value != null)
             {
-                string[]? protocols = IceUtilInternal.StringUtil.SplitString(value, ",");
+                string[]? protocols = StringUtil.SplitString(value, ",");
                 if (protocols == null)
                 {
                     throw new WebSocketException($"invalid value `{value}' for WebSocket protocol");

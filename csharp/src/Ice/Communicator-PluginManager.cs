@@ -276,7 +276,7 @@ namespace ZeroC.Ice
                 //
                 try
                 {
-                    args = IceUtilInternal.Options.Split(pluginSpec);
+                    args = Options.Split(pluginSpec);
                 }
                 catch (FormatException ex)
                 {

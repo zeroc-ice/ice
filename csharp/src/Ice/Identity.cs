@@ -50,7 +50,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    name = IceUtilInternal.StringUtil.UnescapeString(s, 0, s.Length, "/");
+                    name = StringUtil.UnescapeString(s, 0, s.Length, "/");
                 }
                 catch (ArgumentException ex)
                 {
@@ -62,7 +62,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    category = IceUtilInternal.StringUtil.UnescapeString(s, 0, slash, "/");
+                    category = StringUtil.UnescapeString(s, 0, slash, "/");
                 }
                 catch (ArgumentException ex)
                 {
@@ -73,7 +73,7 @@ namespace ZeroC.Ice
                 {
                     try
                     {
-                        name = IceUtilInternal.StringUtil.UnescapeString(s, slash + 1, s.Length, "/");
+                        name = StringUtil.UnescapeString(s, slash + 1, s.Length, "/");
                     }
                     catch (ArgumentException ex)
                     {
@@ -115,12 +115,12 @@ namespace ZeroC.Ice
         {
             if (string.IsNullOrEmpty(Category))
             {
-                return IceUtilInternal.StringUtil.EscapeString(Name, "/", mode);
+                return StringUtil.EscapeString(Name, "/", mode);
             }
             else
             {
-                return IceUtilInternal.StringUtil.EscapeString(Category, "/", mode) + '/' +
-                       IceUtilInternal.StringUtil.EscapeString(Name, "/", mode);
+                return StringUtil.EscapeString(Category, "/", mode) + '/' +
+                       StringUtil.EscapeString(Name, "/", mode);
             }
         }
     }

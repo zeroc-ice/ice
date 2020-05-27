@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,9 +11,11 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
+using ZeroC.Ice;
+
 namespace ZeroC.IceSSL
 {
-    internal sealed class Transceiver : IceInternal.ITransceiver
+    internal sealed class Transceiver : ITransceiver
     {
         public Socket? Fd() => _delegate.Fd();
 
@@ -23,7 +24,7 @@ namespace ZeroC.IceSSL
             if (!_isConnected)
             {
                 int status = _delegate.Initialize(ref readBuffer, writeBuffer);
-                if (status != IceInternal.SocketOperation.None)
+                if (status != SocketOperation.None)
                 {
                     return status;
                 }
@@ -33,7 +34,7 @@ namespace ZeroC.IceSSL
             Socket? fd = _delegate.Fd();
             Debug.Assert(fd != null);
 
-            IceInternal.Network.SetBlock(fd, true); // SSL requires a blocking socket
+            Network.SetBlock(fd, true); // SSL requires a blocking socket
 
             //
             // For timeouts to work properly, we need to receive/send
@@ -42,8 +43,8 @@ namespace ZeroC.IceSSL
             // connection timeout could easily be triggered when
             // receiving/sending large messages.
             //
-            _maxSendPacketSize = Math.Max(512, IceInternal.Network.GetSendBufferSize(fd));
-            _maxRecvPacketSize = Math.Max(512, IceInternal.Network.GetRecvBufferSize(fd));
+            _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(fd));
+            _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(fd));
 
             if (_sslStream == null)
             {
@@ -56,7 +57,7 @@ namespace ZeroC.IceSSL
                 }
                 catch (IOException ex)
                 {
-                    if (IceInternal.Network.ConnectionLost(ex))
+                    if (Network.ConnectionLost(ex))
                     {
                         throw new Ice.ConnectionLostException(ex);
                     }
@@ -65,7 +66,7 @@ namespace ZeroC.IceSSL
                         throw new Ice.TransportException(ex);
                     }
                 }
-                return IceInternal.SocketOperation.Connect;
+                return SocketOperation.Connect;
             }
 
             Debug.Assert(_sslStream.IsAuthenticated);
@@ -78,7 +79,7 @@ namespace ZeroC.IceSSL
             {
                 _instance.TraceStream(_sslStream, ToString());
             }
-            return IceInternal.SocketOperation.None;
+            return SocketOperation.None;
         }
 
         public int Closing(bool initiator, System.Exception? ex) => _delegate.Closing(initiator, ex);
@@ -104,13 +105,13 @@ namespace ZeroC.IceSSL
 
         // Force caller to use asynchronous write.
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset) =>
-            offset < buffer.GetByteCount() ? IceInternal.SocketOperation.Write : IceInternal.SocketOperation.None;
+            offset < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.None;
 
         // Force caller to use asynchronous read.
         public int Read(ref ArraySegment<byte> buffer, ref int offset) =>
-            offset < buffer.Count ? IceInternal.SocketOperation.Read : IceInternal.SocketOperation.None;
+            offset < buffer.Count ? SocketOperation.Read : SocketOperation.None;
 
-        public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, IceInternal.AsyncCallback callback, object state)
+        public bool StartRead(ref ArraySegment<byte> buffer, ref int offset, Ice.AsyncCallback callback, object state)
         {
             if (!_isConnected)
             {
@@ -131,11 +132,11 @@ namespace ZeroC.IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.ConnectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     throw new ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.Timeout(ex))
+                if (Network.Timeout(ex))
                 {
                     throw new Ice.ConnectionTimeoutException();
                 }
@@ -175,11 +176,11 @@ namespace ZeroC.IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.ConnectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     throw new ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.Timeout(ex))
+                if (Network.Timeout(ex))
                 {
                     throw new Ice.ConnectionTimeoutException();
                 }
@@ -192,7 +193,7 @@ namespace ZeroC.IceSSL
         }
 
         public bool
-        StartWrite(IList<ArraySegment<byte>> buffer, int offset, IceInternal.AsyncCallback cb, object state, out bool completed)
+        StartWrite(IList<ArraySegment<byte>> buffer, int offset, Ice.AsyncCallback cb, object state, out bool completed)
         {
             if (!_isConnected)
             {
@@ -226,11 +227,11 @@ namespace ZeroC.IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.ConnectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     throw new ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.Timeout(ex))
+                if (Network.Timeout(ex))
                 {
                     throw new Ice.ConnectionTimeoutException();
                 }
@@ -274,11 +275,11 @@ namespace ZeroC.IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.ConnectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     throw new ConnectionLostException(ex);
                 }
-                if (IceInternal.Network.Timeout(ex))
+                if (Network.Timeout(ex))
                 {
                     throw new Ice.ConnectionTimeoutException();
                 }
@@ -315,7 +316,7 @@ namespace ZeroC.IceSSL
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal Transceiver(Instance instance, IceInternal.ITransceiver del, string hostOrAdapterName, bool incoming)
+        internal Transceiver(Instance instance, ITransceiver del, string hostOrAdapterName, bool incoming)
         {
             _instance = instance;
             _delegate = del;
@@ -334,7 +335,7 @@ namespace ZeroC.IceSSL
             _verifyPeer = _instance.Communicator.GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
         }
 
-        private bool StartAuthenticate(IceInternal.AsyncCallback callback, object state)
+        private bool StartAuthenticate(Ice.AsyncCallback callback, object state)
         {
             Debug.Assert(_sslStream != null);
             try
@@ -376,7 +377,7 @@ namespace ZeroC.IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.ConnectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     //
                     // This situation occurs when connectToSelf is called; the "remote" end
@@ -413,7 +414,7 @@ namespace ZeroC.IceSSL
             }
             catch (IOException ex)
             {
-                if (IceInternal.Network.ConnectionLost(ex))
+                if (Network.ConnectionLost(ex))
                 {
                     //
                     // This situation occurs when connectToSelf is called; the "remote" end
@@ -698,7 +699,7 @@ namespace ZeroC.IceSSL
                 {
                     chain.Dispose();
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                 }
             }
@@ -727,7 +728,7 @@ namespace ZeroC.IceSSL
         public int GetRecvPacketSize(int length) => _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
         private readonly Instance _instance;
-        private readonly IceInternal.ITransceiver _delegate;
+        private readonly ITransceiver _delegate;
         private readonly string? _host;
         private readonly string? _adapterName;
         private readonly bool _incoming;
@@ -737,8 +738,8 @@ namespace ZeroC.IceSSL
         private bool _authenticated;
         private IAsyncResult? _writeResult;
         private IAsyncResult? _readResult;
-        private IceInternal.AsyncCallback? _readCallback;
-        private IceInternal.AsyncCallback? _writeCallback;
+        private Ice.AsyncCallback? _readCallback;
+        private Ice.AsyncCallback? _writeCallback;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
         private string? _cipher;

@@ -2,16 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
-    public class CollocatedRequestHandler : IRequestHandler
+    internal class CollocatedRequestHandler : IRequestHandler
     {
         public
         CollocatedRequestHandler(Reference reference, ObjectAdapter adapter)

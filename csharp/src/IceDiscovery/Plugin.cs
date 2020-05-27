@@ -52,8 +52,8 @@ namespace ZeroC.IceDiscovery
             string lookupEndpoints = _communicator.GetProperty("IceDiscovery.Lookup") ?? "";
             if (lookupEndpoints.Length == 0)
             {
-                int ipVersion = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
-                List<string> interfaces = IceInternal.Network.GetInterfacesForMulticast(intf, ipVersion);
+                int ipVersion = ipv4 && !preferIPv6 ? Network.EnableIPv4 : Network.EnableIPv6;
+                List<string> interfaces = Network.GetInterfacesForMulticast(intf, ipVersion);
                 foreach (string p in interfaces)
                 {
                     if (p != interfaces[0])

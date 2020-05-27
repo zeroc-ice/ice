@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     public interface IOutgoingAsyncCompletionCallback
     {
@@ -327,8 +326,8 @@ namespace IceInternal
     {
         public OutgoingRequestFrame RequestFrame { get; protected set; }
         public IncomingResponseFrame? ResponseFrame { get; protected set; }
-        public abstract void InvokeRemote(Connection connection, bool compress, bool response);
-        public abstract void InvokeCollocated(CollocatedRequestHandler handler);
+        internal abstract void InvokeRemote(Connection connection, bool compress, bool response);
+        internal abstract void InvokeCollocated(CollocatedRequestHandler handler);
 
         public override List<ArraySegment<byte>> GetRequestData(int requestId) =>
             Ice1Definitions.GetRequestData(RequestFrame, requestId);
@@ -634,13 +633,13 @@ namespace IceInternal
             }
         }
 
-        public override void InvokeRemote(Connection connection, bool compress, bool response)
+        internal override void InvokeRemote(Connection connection, bool compress, bool response)
         {
             CachedConnection = connection;
             connection.SendAsyncRequest(this, compress, response);
         }
 
-        public override void InvokeCollocated(CollocatedRequestHandler handler)
+        internal override void InvokeCollocated(CollocatedRequestHandler handler)
         {
             // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
             if (IsOneway || Proxy.IceReference.InvocationTimeout != -1)
@@ -730,7 +729,7 @@ namespace IceInternal
         public ProxyGetConnection(IObjectPrx prx, IOutgoingAsyncCompletionCallback completionCallback)
             : base(prx, completionCallback, null!) => IsIdempotent = false;
 
-        public override void InvokeRemote(Connection connection, bool compress, bool response)
+        internal override void InvokeRemote(Connection connection, bool compress, bool response)
         {
             CachedConnection = connection;
             if (ResponseImpl(false, true, true))
@@ -739,7 +738,7 @@ namespace IceInternal
             }
         }
 
-        public override void InvokeCollocated(CollocatedRequestHandler handler)
+        internal override void InvokeCollocated(CollocatedRequestHandler handler)
         {
             if (ResponseImpl(false, true, true))
             {

@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -134,7 +132,7 @@ namespace ZeroC.Ice
         // Creates an endpoint from a string.
         internal static Endpoint Parse(string endpointString, Communicator communicator, bool oaEndpoint)
         {
-            string[]? args = IceUtilInternal.StringUtil.SplitString(endpointString, " \t\r\n");
+            string[]? args = StringUtil.SplitString(endpointString, " \t\r\n");
             if (args == null)
             {
                 throw new FormatException($"mismatched quote in endpoint `{endpointString}'");

@@ -6,11 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-using ZeroC.Ice;
-
-namespace IceInternal
+namespace ZeroC.Ice
 {
-    public sealed class ACMConfig
+    internal sealed class ACMConfig
     {
         internal ACMConfig(bool server)
         {
@@ -81,7 +79,7 @@ namespace IceInternal
         ACM GetACM();
     }
 
-    public class FactoryACMMonitor : IACMMonitor
+    internal class FactoryACMMonitor : IACMMonitor
     {
         internal class Change
         {
@@ -109,7 +107,7 @@ namespace IceInternal
                 {
                     //
                     // Ensure all the connections have been cleared, it's important to wait here
-                    // to prevent the timer destruction in IceInternal::Instance::destroy.
+                    // to prevent the timer destruction in Instance::destroy.
                     //
                     while (_connections.Count > 0)
                     {

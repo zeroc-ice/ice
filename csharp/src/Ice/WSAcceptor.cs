@@ -2,9 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
-namespace IceInternal
+namespace ZeroC.Ice
 {
     internal class WSAcceptor : IAcceptor
     {
