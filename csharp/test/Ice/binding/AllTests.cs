@@ -51,11 +51,6 @@ namespace ZeroC.Ice.binding
             }
         }
 
-        private class StringComparator : IComparer<string>
-        {
-            public int Compare(string l, string r) => l.CompareTo(r);
-        };
-
         public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();

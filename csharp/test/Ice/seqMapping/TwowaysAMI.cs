@@ -593,26 +593,6 @@ namespace ZeroC.Ice.seqMapping
         }
     }
 
-    public class ValueComparer<T> : IEqualityComparer<T>
-    {
-        public bool Equals(T x, T y)
-        {
-            if (ReferenceEquals(x, y))
-            {
-                return true;
-            }
-
-            if (x == null || y == null)
-            {
-                return false;
-            }
-
-            return x.Equals(y);
-        }
-
-        public int GetHashCode(T obj) => obj!.GetHashCode();
-    }
-
     public class CVComparer : IEqualityComparer<AnyClass?>
     {
         public bool Equals(AnyClass? x, AnyClass? y)
