@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public class CertificateVerifier : ZeroC.IceSSL.ICertificateVerifier
+public class CertificateVerifier : ZeroC.Ice.ICertificateVerifier
 {
     public CertificateVerifier() => reset();
 
-    public bool Verify(ZeroC.IceSSL.ConnectionInfo info)
+    public bool Verify(ZeroC.Ice.SslConnectionInfo info)
     {
         _hadCert = info.Certs != null;
         _invoked = true;

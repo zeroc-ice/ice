@@ -64,7 +64,7 @@ namespace ZeroC.Ice.info
                         tcpEndpoint.Type == EndpointType.WS && !tcpEndpoint.IsSecure ||
                         tcpEndpoint.Type == EndpointType.WSS && tcpEndpoint.IsSecure);
                 TestHelper.Assert(tcpEndpoint.Type == EndpointType.TCP && endpoint is TcpEndpoint ||
-                        tcpEndpoint.Type == EndpointType.SSL && endpoint is IceSSL.Endpoint ||
+                        tcpEndpoint.Type == EndpointType.SSL && endpoint is SslEndpoint ||
                         tcpEndpoint.Type == EndpointType.WS && endpoint is WSEndpoint ||
                         tcpEndpoint.Type == EndpointType.WSS && endpoint is WSEndpoint);
 

@@ -5,11 +5,11 @@
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
-namespace ZeroC.IceSSL
+namespace ZeroC.Ice
 {
-    internal class Instance : Ice.TransportInstance
+    internal class SslInstance : TransportInstance
     {
-        internal Instance(SSLEngine engine, Ice.EndpointType type, string transport)
+        internal SslInstance(SSLEngine engine, EndpointType type, string transport)
             : base(engine.Communicator(), type, transport, true) => _engine = engine;
 
         internal SSLEngine Engine() => _engine;
@@ -29,7 +29,7 @@ namespace ZeroC.IceSSL
         internal void TraceStream(System.Net.Security.SslStream stream, string connInfo) =>
             _engine.TraceStream(stream, connInfo);
 
-        internal void VerifyPeer(ConnectionInfo info, string desc) => _engine.VerifyPeer(info, desc);
+        internal void VerifyPeer(SslConnectionInfo info, string desc) => _engine.VerifyPeer(info, desc);
 
         private readonly SSLEngine _engine;
     }

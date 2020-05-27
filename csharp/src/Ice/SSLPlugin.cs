@@ -5,12 +5,10 @@
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
 
-using ZeroC.Ice;
-
-namespace ZeroC.IceSSL
+namespace ZeroC.Ice
 {
     /// <summary>Plug-in factories must implement this interface.</summary>
-    public sealed class PluginFactory : IPluginFactory
+    public sealed class SslPluginFactory : IPluginFactory
     {
         /// <summary>Returns a new plug-in.</summary>
         /// <param name="communicator">The communicator for the plug-in.</param>
@@ -18,10 +16,10 @@ namespace ZeroC.IceSSL
         /// <param name="args">The arguments that are specified in the plug-in's configuration.</param>
         /// <returns>The new plug-in. null can be returned to indicate that a general error occurred. Alternatively,
         /// create can throw an exception to provide more detailed information.</returns>
-        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new SslPlugin(communicator);
 
         public static void Register(bool loadOnInitialize) =>
-            Communicator.RegisterPluginFactory("IceSSL", new PluginFactory(), loadOnInitialize);
+            Communicator.RegisterPluginFactory("IceSSL", new SslPluginFactory(), loadOnInitialize);
     }
 
     /// <summary>The ICertificateVerifier allows an application to customize the certificate verification process.
@@ -32,7 +30,7 @@ namespace ZeroC.IceSSL
         /// the connection.</summary>
         /// <param name="info">The connection info associated with the connection being verify.</param>
         /// <returns>Return true to allow the connection, or false to reject it.</returns>
-        bool Verify(ConnectionInfo info);
+        bool Verify(SslConnectionInfo info);
     }
 
     /// <summary>The IPasswordCallback interface provides application a way of supplying the plug-in with passwords;
@@ -52,9 +50,9 @@ namespace ZeroC.IceSSL
         SecureString GetImportPassword(string file);
     }
 
-    public sealed class Plugin : IPlugin
+    public sealed class SslPlugin : IPlugin
     {
-        internal Plugin(Communicator communicator)
+        internal SslPlugin(Communicator communicator)
         {
             ITransportPluginFacade facade = Util.GetTransportPluginFacade(communicator);
 
@@ -63,7 +61,7 @@ namespace ZeroC.IceSSL
             //
             // SSL based on TCP
             //
-            var instance = new Instance(_engine, EndpointType.SSL, "ssl");
+            var instance = new SslInstance(_engine, EndpointType.SSL, "ssl");
             facade.AddEndpointFactory(new EndpointFactoryI(instance, EndpointType.TCP));
         }
 
