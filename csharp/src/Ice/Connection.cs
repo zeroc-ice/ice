@@ -799,6 +799,13 @@ namespace ZeroC.Ice
         {
             if (_outgoingMessages.Count > 0)
             {
+                int requestId = _outgoingMessages.First!.Value.RequestId;
+                if (requestId > 0 && !_requests.ContainsKey(requestId))
+                {
+                    // Response for message was already received, no need to notify the message of the failure
+                    // since it's done already.
+                    _outgoingMessages.RemoveFirst();
+                }
                 foreach (OutgoingMessage o in _outgoingMessages)
                 {
                     if (o.OutAsync != null && o.OutAsync.Exception(_exception!))
