@@ -64,3 +64,4 @@ IdentAsKeyword.ice:74: `i8': an interface can only be defined at module scope
 IdentAsKeyword.ice:76: `i9': an interface can only be defined at module scope
 IdentAsKeyword.ice:77: `i10': an interface can only be defined at module scope
 IdentAsKeyword.ice:79: `true': an interface can only be defined at module scope
+IdentAsKeyword.ice:81: syntax error
