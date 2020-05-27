@@ -8,7 +8,7 @@
 [[cpp:header-ext:h]]
 [[cpp:include:IceGrid/Config.h]]
 
-[[suppress-warnings:reserved-identifiers]]
+[[suppress-warning:reserved-identifiers]]
 [[normalize-case]]
 [[js:module:ice]]
 

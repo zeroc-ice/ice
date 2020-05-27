@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[[suppress-warnings:reserved-identifiers]]
+[[suppress-warning:reserved-identifiers]]
 
 module and
 {

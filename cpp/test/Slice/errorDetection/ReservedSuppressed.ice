@@ -3,7 +3,7 @@
 //
 
 // All warnings should be suppressed and this file shouldn't emit any warnings.
-[[suppress-warnings:reserved-identifiers]]
+[[suppress-warning:reserved-identifiers]]
 
 #include <include/IcePrefix.ice>
 
