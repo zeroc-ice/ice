@@ -47,16 +47,16 @@ module all::good::here {}
 module an::iceberg::ahead {}
 module aPtr::okay::bPrx::fine::cHelper {}
 
-interface _a;           // Illegal leading underscore
-interface _true;        // Illegal leading underscore
-interface \_true;       // Illegal leading underscore
+module _a {}           // Illegal leading underscore
+module _true {}        // Illegal leading underscore
+module \_true {}       // Illegal leading underscore
 
-interface b_;           // Illegal trailing underscore
+module b_ {}           // Illegal trailing underscore
 
-interface b__c;         // Illegal double underscores
-interface b___c;        // Illegal double underscores
+module b__c {}         // Illegal double underscores
+module b___c {}        // Illegal double underscores
 
-interface _a_;          // Illegal underscores
-interface a_b;          // Illegal underscore
-interface a_b_c;        // Illegal underscores
-interface _a__b__;      // Illegal underscores
+module _a_ {}          // Illegal underscores
+module a_b {}          // Illegal underscore
+module a_b_c {}        // Illegal underscores
+module _a__b__ {}      // Illegal underscores
