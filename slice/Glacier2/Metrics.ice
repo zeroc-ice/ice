@@ -9,7 +9,7 @@
 [[cpp:header-ext:h]]
 [[cpp:include:Glacier2/Config.h]]
 
-[[ice-prefix]]
+[[suppress-warnings:reserved-identifiers]]
 [[normalize-case]]
 [[js:module:ice]]
 

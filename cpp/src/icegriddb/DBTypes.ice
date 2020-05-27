@@ -6,7 +6,7 @@
 
 #include <IceGrid/Admin.ice>
 
-[[ice-prefix]]
+[[suppress-warnings:reserved-identifiers]]
 [[cpp:header-ext:h]]
 
 module IceGrid
