@@ -314,6 +314,10 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(InvalidMetaData);
                 }
+                else if(s == "reserved-identifiers")
+                {
+                    _suppressedWarnings.insert(ReservedIdentifiers);
+                }
                 else
                 {
                     warning(InvalidMetaData, "", "", string("invalid category `") + s +
