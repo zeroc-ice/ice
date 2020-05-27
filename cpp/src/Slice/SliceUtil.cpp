@@ -454,7 +454,7 @@ Slice::splitScopedName(const string& scoped)
     return ids;
 }
 
-bool
+void
 Slice::checkIdentifier(const string& id)
 {
     // check whether the identifier is scoped
@@ -470,15 +470,15 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
-    bool isValid = true;
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
         if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
         {
-            unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-            isValid = false;
+            unit->warning(ReservedIdentifiers, "`" + suffixBlacklist[i] +
+                                               "' suffix is reserved by Ice: the identifier `" + name +
+                                               "' may conflict with generated code");
         }
     }
 
@@ -486,45 +486,31 @@ Slice::checkIdentifier(const string& id)
     size_t index = name.find('_');
     if(index == 0)
     {
-        unit->error("illegal leading underscore in identifier `" + name + "'");
-        isValid = false;
+        unit->warning(ReservedIdentifiers, "leading underscores are reserved by Ice: the identifier `" + name +
+                                           "' may conflict with generated code");
     }
     else if(name.rfind('_') == (name.size() - 1))
     {
-        unit->error("illegal trailing underscore in identifier `" + name + "'");
-        isValid = false;
+        unit->warning(ReservedIdentifiers, "trailing underscores are reserved by Ice: the identifier `" + name +
+                                           "' may conflict with generated code");
     }
     else if(name.find("__") != string::npos)
     {
-        unit->error("illegal double underscore in identifier `" + name + "'");
-        isValid = false;
+        unit->warning(ReservedIdentifiers, "double underscores are reserved by Ice: the identifier `" + name +
+                                           "' may conflict with generated code");
     }
     else if(index != string::npos && unit->currentIncludeLevel() == 0)
     {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
-        {
-            unit->error("illegal underscore in identifier `" + name + "'");
-            isValid = false;
-        }
+        unit->warning(ReservedIdentifiers, "underscores are reserved by Ice: the identifier `" + name +
+                                           "' may conflict with generated code");
     }
 
     // Check the identifier for illegal ice prefixes
-    if(unit->currentIncludeLevel() == 0 && name.size() > 2)
+    if(unit->currentIncludeLevel() == 0 && ciequals(name.substr(0, 3), "ice"))
     {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no 'ice-prefix' metadata
-        {
-            if(ciequals(name.substr(0, 3), "ice"))
-            {
-                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-                isValid = false;
-            }
-        }
+        unit->warning(ReservedIdentifiers, "`" + name.substr(0, 3) + "' prefix is reserved by Ice: the identifier `" +
+                                           name + "' may conflict with generated code");
     }
-    return isValid;
 }
 
 bool
