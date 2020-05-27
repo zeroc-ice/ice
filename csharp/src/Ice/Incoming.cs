@@ -4,10 +4,10 @@
 
 using System;
 using System.Diagnostics;
-using ZeroC.Ice;
+
 using ZeroC.Ice.Instrumentation;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     internal static class Incoming
     {
@@ -43,7 +43,7 @@ namespace IceInternal
 
             output.Append("dispatch exception:");
             output.Append("\nidentity: ").Append(current.Identity.ToString(current.Adapter.Communicator.ToStringMode));
-            output.Append("\nfacet: ").Append(IceUtilInternal.StringUtil.EscapeString(current.Facet, "",
+            output.Append("\nfacet: ").Append(StringUtil.EscapeString(current.Facet, "",
                 current.Adapter.Communicator.ToStringMode));
             output.Append("\noperation: ").Append(current.Operation);
             if (current.Connection != null)

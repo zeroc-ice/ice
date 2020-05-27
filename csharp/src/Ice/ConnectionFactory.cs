@@ -2,17 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-using ZeroC.Ice.Instrumentation;
-
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IceInternal
+using ZeroC.Ice.Instrumentation;
+
+namespace ZeroC.Ice
 {
-    public class MultiDictionary<TKey, TValue> : Dictionary<TKey, ICollection<TValue>> where TKey : notnull
+    internal class MultiDictionary<TKey, TValue> : Dictionary<TKey, ICollection<TValue>> where TKey : notnull
     {
         public void
         Add(TKey key, TValue value)
@@ -37,7 +36,7 @@ namespace IceInternal
         }
     }
 
-    public sealed class OutgoingConnectionFactory
+    internal sealed class OutgoingConnectionFactory
     {
         public interface ICreateConnectionCallback
         {

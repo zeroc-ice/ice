@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using IceInternal;
+using ZeroC.Ice;
 
 namespace ZeroC.IceMX
 {

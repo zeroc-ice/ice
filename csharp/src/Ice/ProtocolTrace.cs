@@ -122,7 +122,7 @@ namespace ZeroC.Ice
                 s.Append("\nfacet = ");
                 if (facet.Length > 0)
                 {
-                    s.Append(IceUtilInternal.StringUtil.EscapeString(facet, "", toStringMode));
+                    s.Append(StringUtil.EscapeString(facet, "", toStringMode));
                 }
 
                 s.Append("\noperation = ");

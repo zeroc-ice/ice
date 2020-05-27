@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
-using IceUtilInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +19,7 @@ namespace ZeroC.Ice
         internal interface IGetConnectionCallback
         {
             void SetConnection(Connection connection, bool compress);
-            void SetException(System.Exception ex);
+            void SetException(Exception ex);
         }
 
         internal static readonly IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
@@ -366,7 +364,7 @@ namespace ZeroC.Ice
             int beg;
             int end = 0;
 
-            beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
+            beg = StringUtil.FindFirstNotOf(s, delim, end);
             if (beg == -1)
             {
                 throw new FormatException($"no non-whitespace characters found in `{s}'");
@@ -374,14 +372,14 @@ namespace ZeroC.Ice
 
             // Extract the identity, which may be enclosed in single or double quotation marks.
             string identityString;
-            end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
+            end = StringUtil.CheckQuote(s, beg);
             if (end == -1)
             {
                 throw new FormatException($"mismatched quotes around identity in `{s} '");
             }
             else if (end == 0)
             {
-                end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
+                end = StringUtil.FindFirstOf(s, delim + ":@", beg);
                 if (end == -1)
                 {
                     end = s.Length;
@@ -411,7 +409,7 @@ namespace ZeroC.Ice
 
             while (true)
             {
-                beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
+                beg = StringUtil.FindFirstNotOf(s, delim, end);
                 if (beg == -1)
                 {
                     break;
@@ -422,7 +420,7 @@ namespace ZeroC.Ice
                     break;
                 }
 
-                end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
+                end = StringUtil.FindFirstOf(s, delim + ":@", beg);
                 if (end == -1)
                 {
                     end = s.Length;
@@ -442,21 +440,21 @@ namespace ZeroC.Ice
                 // Check for the presence of an option argument. The argument may be enclosed in single or double
                 // quotation marks.
                 string? argument = null;
-                int argumentBeg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end);
+                int argumentBeg = StringUtil.FindFirstNotOf(s, delim, end);
                 if (argumentBeg != -1)
                 {
                     char ch = s[argumentBeg];
                     if (ch != '@' && ch != ':' && ch != '-')
                     {
                         beg = argumentBeg;
-                        end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
+                        end = StringUtil.CheckQuote(s, beg);
                         if (end == -1)
                         {
                             throw new FormatException($"mismatched quotes around value for {option} option in `{s}'");
                         }
                         else if (end == 0)
                         {
-                            end = IceUtilInternal.StringUtil.FindFirstOf(s, delim + ":@", beg);
+                            end = StringUtil.FindFirstOf(s, delim + ":@", beg);
                             if (end == -1)
                             {
                                 end = s.Length;
@@ -479,7 +477,7 @@ namespace ZeroC.Ice
                         {
                             throw new FormatException($"no argument provided for -f option in `{s}'");
                         }
-                        facet = IceUtilInternal.StringUtil.UnescapeString(argument, 0, argument.Length, "");
+                        facet = StringUtil.UnescapeString(argument, 0, argument.Length, "");
                         break;
 
                     case 't':
@@ -627,21 +625,21 @@ namespace ZeroC.Ice
             }
             else if (s[beg] == '@')
             {
-                beg = IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, beg + 1);
+                beg = StringUtil.FindFirstNotOf(s, delim, beg + 1);
                 if (beg == -1)
                 {
                     throw new FormatException($"missing adapter id in `{s}'");
                 }
 
                 string adapterstr;
-                end = IceUtilInternal.StringUtil.CheckQuote(s, beg);
+                end = StringUtil.CheckQuote(s, beg);
                 if (end == -1)
                 {
                     throw new FormatException($"mismatched quotes around adapter id in `{s}'");
                 }
                 else if (end == 0)
                 {
-                    end = IceUtilInternal.StringUtil.FindFirstOf(s, delim, beg);
+                    end = StringUtil.FindFirstOf(s, delim, beg);
                     if (end == -1)
                     {
                         end = s.Length;
@@ -655,13 +653,13 @@ namespace ZeroC.Ice
                     end++; // Skip trailing quote
                 }
 
-                if (end != s.Length && IceUtilInternal.StringUtil.FindFirstNotOf(s, delim, end) != -1)
+                if (end != s.Length && StringUtil.FindFirstNotOf(s, delim, end) != -1)
                 {
                     throw new FormatException(
                         $"invalid trailing characters after `{s.Substring(0, end + 1)}' in `{s}'");
                 }
 
-                adapterId = IceUtilInternal.StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
+                adapterId = StringUtil.UnescapeString(adapterstr, 0, adapterstr.Length, "");
 
                 if (adapterId.Length == 0)
                 {

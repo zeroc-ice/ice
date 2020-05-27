@@ -4,9 +4,9 @@
 
 namespace ZeroC.IceSSL
 {
-    internal sealed class Connector : IceInternal.IConnector
+    internal sealed class Connector : Ice.IConnector
     {
-        public IceInternal.ITransceiver Connect()
+        public Ice.ITransceiver Connect()
         {
             //
             // The plug-in may not be fully initialized.
@@ -24,7 +24,7 @@ namespace ZeroC.IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal Connector(Instance instance, IceInternal.IConnector del, string host)
+        internal Connector(Instance instance, Ice.IConnector del, string host)
         {
             _instance = instance;
             _delegate = del;
@@ -52,7 +52,7 @@ namespace ZeroC.IceSSL
         public override int GetHashCode() => _delegate.GetHashCode();
 
         private readonly Instance _instance;
-        private readonly IceInternal.IConnector _delegate;
+        private readonly Ice.IConnector _delegate;
         private readonly string _host;
     }
 }

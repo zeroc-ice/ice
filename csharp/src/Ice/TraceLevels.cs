@@ -2,11 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
-namespace IceInternal
+namespace ZeroC.Ice
 {
-    public sealed class TraceLevels
+    internal sealed class TraceLevels
     {
         internal TraceLevels(Communicator communicator)
         {

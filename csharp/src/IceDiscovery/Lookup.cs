@@ -70,7 +70,7 @@ namespace ZeroC.IceDiscovery
         protected T Id;
     }
 
-    internal class AdapterRequest : Request<string>, IceInternal.ITimerTask
+    internal class AdapterRequest : Request<string>, ITimerTask
     {
         public AdapterRequest(Lookup lookup, string id, int retryCount)
             : base(lookup, id, retryCount) => _start = DateTime.Now.Ticks;
@@ -158,7 +158,7 @@ namespace ZeroC.IceDiscovery
         private long _latency;
     }
 
-    internal class ObjectRequest : Request<Identity>, IceInternal.ITimerTask
+    internal class ObjectRequest : Request<Identity>, ITimerTask
     {
         public ObjectRequest(Lookup lookup, Identity id, int retryCount)
             : base(lookup, id, retryCount)
@@ -493,7 +493,7 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal IceInternal.Timer Timer() => _timer;
+        internal Timer Timer() => _timer;
 
         internal int LatencyMultiplier() => _latencyMultiplier;
 
@@ -505,7 +505,7 @@ namespace ZeroC.IceDiscovery
         private readonly int _latencyMultiplier;
         private readonly string _domainId;
 
-        private readonly IceInternal.Timer _timer;
+        private readonly Timer _timer;
         private bool _warnOnce = true;
         private readonly Dictionary<Identity, ObjectRequest> _objectRequests = new Dictionary<Identity, ObjectRequest>();
         private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();

@@ -759,7 +759,7 @@ namespace ZeroC.IceBox
 
                 try
                 {
-                    Args = IceUtilInternal.Options.Split(value);
+                    Args = Options.Split(value);
                 }
                 catch (FormatException ex)
                 {

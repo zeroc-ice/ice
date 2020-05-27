@@ -4,7 +4,7 @@
 
 using System.Diagnostics;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     public sealed class Time
     {

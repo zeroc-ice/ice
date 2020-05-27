@@ -3,9 +3,8 @@
 //
 
 using System.Threading.Tasks;
-using ZeroC.Ice;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     public interface IAcceptor
     {

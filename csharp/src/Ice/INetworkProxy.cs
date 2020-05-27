@@ -1,7 +1,7 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using ZeroC.Ice;
+
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     public interface INetworkProxy
     {
@@ -64,7 +64,7 @@ namespace IceInternal
         int GetIPVersion();
     }
 
-    public sealed class SOCKSNetworkProxy : INetworkProxy
+    internal sealed class SOCKSNetworkProxy : INetworkProxy
     {
         public SOCKSNetworkProxy(string host, int port)
         {
@@ -145,7 +145,7 @@ namespace IceInternal
         private readonly EndPoint? _address;
     }
 
-    public sealed class HTTPNetworkProxy : INetworkProxy
+    internal sealed class HTTPNetworkProxy : INetworkProxy
     {
         public HTTPNetworkProxy(string host, int port)
         {

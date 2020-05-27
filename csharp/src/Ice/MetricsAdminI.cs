@@ -2,16 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-using ZeroC.IceMX;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace IceInternal
+using ZeroC.IceMX;
+
+namespace ZeroC.Ice
 {
     internal interface IMetricsMap
     {
@@ -640,7 +639,7 @@ namespace IceInternal
                 bool valid = false;
                 foreach (string suffix in _suffixes)
                 {
-                    if (IceUtilInternal.StringUtil.Match(prop, prefix + suffix, false))
+                    if (StringUtil.Match(prop, prefix + suffix, false))
                     {
                         valid = true;
                         break;

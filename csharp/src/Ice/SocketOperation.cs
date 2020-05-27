@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     public static class SocketOperation
     {

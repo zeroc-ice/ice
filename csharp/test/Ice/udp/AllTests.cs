@@ -34,10 +34,10 @@ namespace ZeroC.Ice.udp
             {
                 lock (this)
                 {
-                    long end = IceInternal.Time.CurrentMonotonicTimeMillis() + timeout;
+                    long end = Time.CurrentMonotonicTimeMillis() + timeout;
                     while (_replies < expectedReplies)
                     {
-                        int delay = (int)(end - IceInternal.Time.CurrentMonotonicTimeMillis());
+                        int delay = (int)(end - Time.CurrentMonotonicTimeMillis());
                         if (delay > 0)
                         {
                             System.Threading.Monitor.Wait(this, delay);

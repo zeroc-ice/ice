@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace IceUtilInternal
+namespace ZeroC.Ice
 {
-    public sealed class Options
+    public static class Options
     {
         public enum State
         {

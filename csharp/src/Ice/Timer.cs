@@ -12,10 +12,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     public interface ITimerTask
     {
@@ -144,7 +143,7 @@ namespace IceInternal
                 Debug.Assert(obsv != null);
                 _observer = obsv.GetThreadObserver("Communicator",
                                                    _thread.Name!,
-                                                   ZeroC.Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                   Instrumentation.ThreadState.ThreadStateIdle,
                                                    _observer);
                 if (_observer != null)
                 {

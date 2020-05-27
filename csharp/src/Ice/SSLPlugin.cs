@@ -56,7 +56,7 @@ namespace ZeroC.IceSSL
     {
         internal Plugin(Communicator communicator)
         {
-            IceInternal.ITransportPluginFacade facade = IceInternal.Util.GetTransportPluginFacade(communicator);
+            ITransportPluginFacade facade = Util.GetTransportPluginFacade(communicator);
 
             _engine = new SSLEngine(facade);
 

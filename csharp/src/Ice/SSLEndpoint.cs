@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ZeroC.Ice;
+
 namespace ZeroC.IceSSL
 {
     /// <summary> Endpoint represents a TLS layer over another endpoint.</summary>
@@ -17,7 +19,7 @@ namespace ZeroC.IceSSL
         public override bool IsSecure => _delegate.IsSecure;
 
         public override int Timeout => _delegate.Timeout;
-        public override Ice.EndpointType Type => _delegate.Type;
+        public override EndpointType Type => _delegate.Type;
         public override Ice.Endpoint Underlying => _delegate;
 
         private readonly Ice.Endpoint _delegate;
@@ -55,7 +57,7 @@ namespace ZeroC.IceSSL
             }
         }
 
-        public override void IceWritePayload(Ice.OutputStream ostr) => _delegate.IceWritePayload(ostr);
+        public override void IceWritePayload(OutputStream ostr) => _delegate.IceWritePayload(ostr);
 
         public override Ice.Endpoint NewCompressionFlag(bool compressionFlag) =>
             compressionFlag == _delegate.HasCompressionFlag ? this :
@@ -68,19 +70,19 @@ namespace ZeroC.IceSSL
         public override Ice.Endpoint NewTimeout(int timeout) =>
         timeout == _delegate.Timeout ? this : new Endpoint(_instance, _delegate.NewTimeout(timeout));
 
-        public override async ValueTask<IEnumerable<IceInternal.IConnector>>
-            ConnectorsAsync(Ice.EndpointSelectionType endptSelection)
+        public override async ValueTask<IEnumerable<IConnector>>
+            ConnectorsAsync(EndpointSelectionType endptSelection)
         {
             string host = "";
             for (Ice.Endpoint? p = _delegate; p != null; p = p.Underlying)
             {
-                if (p is Ice.IPEndpoint ipEndpoint)
+                if (p is IPEndpoint ipEndpoint)
                 {
                     host = ipEndpoint.Host;
                     break;
                 }
             }
-            IEnumerable<IceInternal.IConnector> connectors =
+            IEnumerable<IConnector> connectors =
                 await _delegate.ConnectorsAsync(endptSelection).ConfigureAwait(false);
             return connectors.Select(item => new Connector(_instance, item, host));
         }
@@ -98,10 +100,10 @@ namespace ZeroC.IceSSL
         public override IEnumerable<Ice.Endpoint> ExpandIfWildcard() =>
             _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
-        public override IceInternal.IAcceptor GetAcceptor(string adapterName) =>
+        public override IAcceptor GetAcceptor(string adapterName) =>
             new Acceptor(this, _instance, _delegate.GetAcceptor(adapterName)!, adapterName);
 
-        public override IceInternal.ITransceiver? GetTransceiver() => null;
+        public override ITransceiver? GetTransceiver() => null;
 
         internal Endpoint GetEndpoint(Ice.Endpoint del) => del == _delegate ? this : new Endpoint(_instance, del);
 
@@ -112,7 +114,7 @@ namespace ZeroC.IceSSL
         }
     }
 
-    internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
+    internal sealed class EndpointFactoryI : EndpointFactoryWithUnderlying
     {
         private readonly Instance _instance;
 
@@ -120,7 +122,7 @@ namespace ZeroC.IceSSL
             : base(instance, type) =>
             _instance = instance;
 
-        public override IceInternal.IEndpointFactory CloneWithUnderlying(IceInternal.TransportInstance inst,
+        public override IEndpointFactory CloneWithUnderlying(TransportInstance inst,
             Ice.EndpointType underlying) =>
             new EndpointFactoryI(new Instance(_instance.Engine(), inst.Type, inst.Transport), underlying);
 

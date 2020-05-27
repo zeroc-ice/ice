@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -993,7 +992,7 @@ namespace ZeroC.Ice
             var endpoints = new List<Endpoint>();
             while (end < endpts.Length)
             {
-                beg = IceUtilInternal.StringUtil.FindFirstNotOf(endpts, delim, end);
+                beg = StringUtil.FindFirstNotOf(endpts, delim, end);
                 if (beg == -1)
                 {
                     if (endpoints.Count != 0)

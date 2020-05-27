@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
 using ZeroC.IceMX;
 using System;
@@ -22,11 +21,11 @@ namespace ZeroC.IceMX
     }
 }
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
-    public class ObserverWithDelegate<T, O> : Observer<T>
+    internal class ObserverWithDelegate<T, O> : Observer<T>
         where T : Metrics, new()
-        where O : class, ZeroC.Ice.Instrumentation.IObserver
+        where O : class, IObserver
     {
         public override void
         Attach()
@@ -81,7 +80,7 @@ namespace IceInternal
         protected O? Delegate;
     }
 
-    public class ObserverFactoryWithDelegate<T, OImpl, O> : ObserverFactory<T, OImpl>
+    internal class ObserverFactoryWithDelegate<T, OImpl, O> : ObserverFactory<T, OImpl>
         where T : Metrics, new()
         where OImpl : ObserverWithDelegate<T, O>, O, new()
         where O : class, IObserver
@@ -709,11 +708,11 @@ namespace IceInternal
         private readonly string _id;
     }
 
-    public class ObserverWithDelegateI : ObserverWithDelegate<Metrics, IObserver>
+    internal class ObserverWithDelegateI : ObserverWithDelegate<Metrics, IObserver>
     {
     }
 
-    public class ConnectionObserverI : ObserverWithDelegate<ConnectionMetrics, IConnectionObserver>,
+    internal class ConnectionObserverI : ObserverWithDelegate<ConnectionMetrics, IConnectionObserver>,
         IConnectionObserver
     {
         public void SentBytes(int num)
@@ -744,7 +743,7 @@ namespace IceInternal
         private int _receivedBytes;
     }
 
-    public class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, IDispatchObserver>, IDispatchObserver
+    internal class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, IDispatchObserver>, IDispatchObserver
     {
         public void
         RemoteException()
@@ -768,7 +767,7 @@ namespace IceInternal
         private void RemoteException(DispatchMetrics v) => ++v.UserException;
     }
 
-    public class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, IRemoteObserver>, IRemoteObserver
+    internal class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, IRemoteObserver>, IRemoteObserver
     {
         public void Reply(int size)
         {
@@ -780,7 +779,7 @@ namespace IceInternal
         }
     }
 
-    public class CollocatedObserverI : ObserverWithDelegate<CollocatedMetrics, ICollocatedObserver>,
+    internal class CollocatedObserverI : ObserverWithDelegate<CollocatedMetrics, ICollocatedObserver>,
         ICollocatedObserver
     {
         public void Reply(int size)
@@ -793,7 +792,7 @@ namespace IceInternal
         }
     }
 
-    public class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, IInvocationObserver>,
+    internal class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, IInvocationObserver>,
         IInvocationObserver
     {
         public void
@@ -843,10 +842,9 @@ namespace IceInternal
         private void RemoteException(InvocationMetrics v) => ++v.UserException;
     }
 
-    public class ThreadObserverI : ObserverWithDelegate<ThreadMetrics, IThreadObserver>, IThreadObserver
+    internal class ThreadObserverI : ObserverWithDelegate<ThreadMetrics, IThreadObserver>, IThreadObserver
     {
-        public void StateChanged(ZeroC.Ice.Instrumentation.ThreadState oldState,
-            ZeroC.Ice.Instrumentation.ThreadState newState)
+        public void StateChanged(Instrumentation.ThreadState oldState, Instrumentation.ThreadState newState)
         {
             _oldState = oldState;
             _newState = newState;

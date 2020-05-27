@@ -2,16 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
-    public sealed class StreamSocket
+    internal sealed class StreamSocket
     {
         public StreamSocket(TransportInstance instance, INetworkProxy? proxy, EndPoint addr, IPAddress? sourceAddr)
         {

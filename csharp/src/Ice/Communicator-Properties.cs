@@ -91,7 +91,7 @@ namespace ZeroC.Ice
                 if (_properties.TryGetValue(name, out PropertyValue? pv))
                 {
                     pv.Used = true;
-                    return IceUtilInternal.StringUtil.SplitString(pv.Val, ", \t\r\n");
+                    return StringUtil.SplitString(pv.Val, ", \t\r\n");
                 }
                 return null;
             }

@@ -6,11 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-using ZeroC.Ice;
-
-namespace IceUtilInternal
+namespace ZeroC.Ice
 {
-    public static class StringUtil
+    internal static class StringUtil
     {
         //
         // Return the index of the first character in str to

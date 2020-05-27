@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace IceInternal
+namespace ZeroC.Ice
 {
     internal sealed class LoggerAdmin : ILoggerAdmin
     {

@@ -7,9 +7,9 @@ using ZeroC.Ice;
 using System.Collections.Generic;
 using Test;
 
-internal class EndpointFactory : IceInternal.IEndpointFactory
+internal class EndpointFactory : IEndpointFactory
 {
-    internal EndpointFactory(IceInternal.IEndpointFactory factory)
+    internal EndpointFactory(IEndpointFactory factory)
     {
         _factory = factory;
     }
@@ -43,10 +43,7 @@ internal class EndpointFactory : IceInternal.IEndpointFactory
     {
     }
 
-    public IceInternal.IEndpointFactory Clone(IceInternal.TransportInstance instance)
-    {
-        return this;
-    }
+    public IEndpointFactory Clone(TransportInstance instance) => this;
 
-    private IceInternal.IEndpointFactory _factory;
+    private IEndpointFactory _factory;
 }

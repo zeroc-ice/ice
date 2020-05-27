@@ -8,9 +8,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-using ZeroC.Ice;
-
-namespace IceInternal
+namespace ZeroC.Ice
 {
     // TODO: Benoit: Remove with the transport refactoring
     public delegate void AsyncCallback(object state);

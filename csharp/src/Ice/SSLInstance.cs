@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace ZeroC.IceSSL
 {
-    internal class Instance : IceInternal.TransportInstance
+    internal class Instance : Ice.TransportInstance
     {
         internal Instance(SSLEngine engine, Ice.EndpointType type, string transport)
             : base(engine.Communicator(), type, transport, true) => _engine = engine;

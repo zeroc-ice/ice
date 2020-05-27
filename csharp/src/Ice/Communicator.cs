@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -202,7 +201,7 @@ namespace ZeroC.Ice
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
         private int _state;
-        private readonly IceInternal.Timer _timer;
+        private readonly Timer _timer;
 
         private readonly IDictionary<string, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<string, IEndpointFactory>();
@@ -686,8 +685,7 @@ namespace ZeroC.Ice
                 //
                 try
                 {
-                    _timer = new IceInternal.Timer(this, IceInternal.Util.StringToThreadPriority(
-                                                   GetProperty("Ice.ThreadPriority")));
+                    _timer = new Timer(this, Util.StringToThreadPriority(GetProperty("Ice.ThreadPriority")));
                 }
                 catch (Exception ex)
                 {
@@ -1161,7 +1159,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public IceInternal.Timer Timer()
+        public Timer Timer()
         {
             lock (this)
             {

@@ -104,18 +104,18 @@ internal class Endpoint : ZeroC.Ice.Endpoint
         }
     }
 
-    public override IceInternal.IAcceptor GetAcceptor(string adapterName)
+    public override IAcceptor GetAcceptor(string adapterName)
     {
         var acceptor = _endpoint.GetAcceptor(adapterName);
         TestHelper.Assert(acceptor != null);
         return new Acceptor(this, acceptor);
     }
 
-    public override async ValueTask<IEnumerable<IceInternal.IConnector>>
+    public override async ValueTask<IEnumerable<IConnector>>
         ConnectorsAsync(EndpointSelectionType selType)
     {
         _configuration.CheckConnectorsException();
-        IEnumerable<IceInternal.IConnector> connectors = await _endpoint.ConnectorsAsync(selType).ConfigureAwait(false);
+        IEnumerable<IConnector> connectors = await _endpoint.ConnectorsAsync(selType).ConfigureAwait(false);
         return connectors.Select(item => new Connector(item));
     }
 
@@ -132,9 +132,9 @@ internal class Endpoint : ZeroC.Ice.Endpoint
     public override IEnumerable<ZeroC.Ice.Endpoint> ExpandIfWildcard() =>
         _endpoint.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
-    public override IceInternal.ITransceiver? GetTransceiver()
+    public override ITransceiver? GetTransceiver()
     {
-        IceInternal.ITransceiver? transceiver = _endpoint.GetTransceiver();
+        ITransceiver? transceiver = _endpoint.GetTransceiver();
         if (transceiver != null)
         {
             return new Transceiver(transceiver);
