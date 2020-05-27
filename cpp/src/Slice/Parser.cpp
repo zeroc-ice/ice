@@ -6032,28 +6032,15 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                        const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(bool ignRedefs, bool all, const StringList& defaultFileMetadata)
 {
-    return new Unit(ignRedefs, all, allowIcePrefix, allowUnderscore, defaultFileMetadata);
+    return new Unit(ignRedefs, all, defaultFileMetadata);
 }
 
 bool
 Slice::Unit::ignRedefs() const
 {
     return _ignRedefs;
-}
-
-bool
-Slice::Unit::allowIcePrefix() const
-{
-    return _allowIcePrefix;
-}
-
-bool
-Slice::Unit::allowUnderscore() const
-{
-    return _allowUnderscore;
 }
 
 bool
@@ -6622,14 +6609,11 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                  const StringList& defaultFileMetadata) :
+Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultFileMetadata) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
-    _allowIcePrefix(allowIcePrefix),
-    _allowUnderscore(allowUnderscore),
     _defaultFileMetaData(defaultFileMetadata),
     _errors(0),
     _currentIncludeLevel(0)

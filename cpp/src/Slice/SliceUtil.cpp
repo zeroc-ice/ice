@@ -499,7 +499,7 @@ Slice::checkIdentifier(const string& id)
         unit->error("illegal double underscore in identifier `" + name + "'");
         isValid = false;
     }
-    else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
+    else if(index != string::npos && unit->currentIncludeLevel() == 0)
     {
         DefinitionContextPtr dc = unit->currentDefinitionContext();
         assert(dc);
@@ -511,7 +511,7 @@ Slice::checkIdentifier(const string& id)
     }
 
     // Check the identifier for illegal ice prefixes
-    if(unit->currentIncludeLevel() == 0 && !unit->allowIcePrefix() && name.size() > 2)
+    if(unit->currentIncludeLevel() == 0 && name.size() > 2)
     {
         DefinitionContextPtr dc = unit->currentDefinitionContext();
         assert(dc);

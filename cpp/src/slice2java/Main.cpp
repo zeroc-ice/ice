@@ -73,10 +73,6 @@ usage(const string& n)
         "--impl                   Generate sample implementations.\n"
         "--meta META              Define global metadata directive META.\n"
         "--list-generated         Emit list of generated files in XML format.\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
-        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
-        "--underscore             Allow underscores in Slice identifiers\n"
-        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
@@ -98,8 +94,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
@@ -160,10 +154,6 @@ compile(const vector<string>& argv)
     string dependFile = opts.optArg("depend-file");
 
     bool debug = opts.isSet("debug");
-
-    bool ice = opts.isSet("ice");
-
-    bool underscore = opts.isSet("underscore");
 
     bool listGenerated = opts.isSet("list-generated");
 
@@ -231,7 +221,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+            UnitPtr u = Unit::createUnit(false, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -282,7 +272,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr p = Unit::createUnit(false, false, ice, underscore, globalMetadata);
+                UnitPtr p = Unit::createUnit(false, false, globalMetadata);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())
