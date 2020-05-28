@@ -1,11 +1,9 @@
-ReservedSuppressed.ice:34: constant `ice' differs only in capitalization from constant `Ice'
-Reserved.ice:47: illegal identifier: `_a', leading underscores are reserved by Ice
-Reserved.ice:48: illegal identifier: `_true', leading underscores are reserved by Ice
-Reserved.ice:49: illegal identifier: `_true', leading underscores are reserved by Ice
-Reserved.ice:51: illegal identifier: `b_', trailing underscores are reserved by Ice
-Reserved.ice:53: illegal identifier: `b__c', double underscores are reserved by Ice
-Reserved.ice:54: illegal identifier: `b___c', double underscores are reserved by Ice
-Reserved.ice:56: illegal identifier: `_a_', leading underscores are reserved by Ice
-Reserved.ice:57: warning: underscores are reserved by Ice: the identifier `a_b' may conflict with generated code
-Reserved.ice:58: warning: underscores are reserved by Ice: the identifier `a_b_c' may conflict with generated code
-Reserved.ice:59: illegal identifier: `_a__b__', leading underscores are reserved by Ice
+ReservedSuppressed.ice:33: constant `ice' differs only in capitalization from constant `Ice'
+ReservedSuppressed.ice:49: illegal identifier: `_a', leading underscores are reserved by Ice
+ReservedSuppressed.ice:50: illegal identifier: `_true', leading underscores are reserved by Ice
+ReservedSuppressed.ice:51: illegal identifier: `_true', leading underscores are reserved by Ice
+ReservedSuppressed.ice:53: illegal identifier: `b_', trailing underscores are reserved by Ice
+ReservedSuppressed.ice:55: illegal identifier: `b__c', double underscores are reserved by Ice
+ReservedSuppressed.ice:56: illegal identifier: `b___c', double underscores are reserved by Ice
+ReservedSuppressed.ice:58: illegal identifier: `_a_', leading underscores are reserved by Ice
+ReservedSuppressed.ice:61: illegal identifier: `_a__b__', leading underscores are reserved by Ice
