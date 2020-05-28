@@ -261,8 +261,8 @@ namespace ZeroC.Ice
             Logger = logger ?? Util.GetProcessLogger();
             Observer = observer;
 
-            _classFactoryNamespaces = new string[] { "Ice.ClassFactory" };
-            _remoteExceptionFactoryNamespaces = new string[] { "Ice.RemoteExceptionFactory" };
+            _classFactoryNamespaces = new string[] { "ZeroC.Ice.ClassFactory" };
+            _remoteExceptionFactoryNamespaces = new string[] { "ZeroC.Ice.RemoteExceptionFactory" };
             if (typeIdNamespaces != null)
             {
                 _classFactoryNamespaces = _classFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
