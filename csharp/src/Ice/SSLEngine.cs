@@ -12,9 +12,9 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace ZeroC.Ice
 {
-    internal class SSLEngine
+    internal class SslEngine
     {
-        internal SSLEngine(ITransportPluginFacade facade)
+        internal SslEngine(ITransportPluginFacade facade)
         {
             _communicator = facade.Communicator;
             _logger = _communicator.Logger;

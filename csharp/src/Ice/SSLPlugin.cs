@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         {
             ITransportPluginFacade facade = Util.GetTransportPluginFacade(communicator);
 
-            _engine = new SSLEngine(facade);
+            _engine = new SslEngine(facade);
 
             //
             // SSL based on TCP
@@ -104,6 +104,6 @@ namespace ZeroC.Ice
         /// <returns>The password callback (null if not set).</returns>
         public IPasswordCallback? GetPasswordCallback() => _engine.GetPasswordCallback();
 
-        private readonly SSLEngine _engine;
+        private readonly SslEngine _engine;
     }
 }

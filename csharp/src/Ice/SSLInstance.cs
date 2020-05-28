@@ -9,10 +9,10 @@ namespace ZeroC.Ice
 {
     internal class SslInstance : TransportInstance
     {
-        internal SslInstance(SSLEngine engine, EndpointType type, string transport)
+        internal SslInstance(SslEngine engine, EndpointType type, string transport)
             : base(engine.Communicator(), type, transport, true) => _engine = engine;
 
-        internal SSLEngine Engine() => _engine;
+        internal SslEngine Engine() => _engine;
 
         internal int SecurityTraceLevel() => _engine.SecurityTraceLevel();
 
@@ -31,6 +31,6 @@ namespace ZeroC.Ice
 
         internal void VerifyPeer(SslConnectionInfo info, string desc) => _engine.VerifyPeer(info, desc);
 
-        private readonly SSLEngine _engine;
+        private readonly SslEngine _engine;
     }
 }
