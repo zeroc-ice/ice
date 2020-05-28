@@ -754,12 +754,12 @@ public:
 
     InterfaceDefPtr interface() const;
 
-    // The "in" bit sequence length with the 2.0 encoding, which corresponds to the number of in-parameters with
-    // optional types that are not class/proxy and that are not tagged.
+    // The "in" bit sequence length. It corresponds to the number of in-parameters with optional types that are not
+    // class/proxy and that are not tagged.
     size_t inBitSequenceLength() const;
 
-    // The "return" bit sequence length with the 2.0 encoding, which corresponds to the number of return parameters with
-    // optional types that are not class/proxy and that are not tagged.
+    // The "return" bit sequence length. It corresponds to the number of return parameters with optional types that are
+    // not class/proxy and that are not tagged.
     size_t returnBitSequenceLength() const;
 
     TypePtr returnType() const;
