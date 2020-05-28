@@ -16,7 +16,7 @@ internal sealed class SSLServer : IServer
     {
         try
         {
-            var info = (ZeroC.IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
+            var info = (SslConnectionInfo)current.Connection!.GetConnectionInfo();
             TestHelper.Assert(info.Certs == null);
         }
         catch (Exception)
@@ -30,7 +30,7 @@ internal sealed class SSLServer : IServer
     {
         try
         {
-            var info = (ZeroC.IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
+            var info = (SslConnectionInfo)current.Connection!.GetConnectionInfo();
             TestHelper.Assert(info.Verified);
             TestHelper.Assert(info.Certs != null &&
                 info.Certs.Length == 2 &&
@@ -48,7 +48,7 @@ internal sealed class SSLServer : IServer
     {
         try
         {
-            var info = (ZeroC.IceSSL.ConnectionInfo)current.Connection!.GetConnectionInfo();
+            var info = (SslConnectionInfo)current.Connection!.GetConnectionInfo();
             TestHelper.Assert(info.Cipher != null && info.Cipher.Equals(cipher));
         }
         catch (Exception)

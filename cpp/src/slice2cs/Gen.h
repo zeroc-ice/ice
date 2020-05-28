@@ -58,7 +58,9 @@ protected:
     enum ParamDir { InParam, OutParam };
     void writeParamDocComment(const OperationPtr&, const CommentInfo&, ParamDir);
 
-    void openNamespace(const ModulePtr&);
+    // Generates the corresponding namespace. When prefix is empty and the internal namespace stack is empty, lookup
+    // the prefix using cs:namespace metadata.
+    void openNamespace(const ModulePtr& module, std::string prefix = "");
     void closeNamespace();
 
     ::IceUtilInternal::Output& _out;

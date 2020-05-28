@@ -4,17 +4,17 @@
 
 using System.Security.Cryptography.X509Certificates;
 
-namespace ZeroC.IceSSL
+namespace ZeroC.Ice
 {
-    public class ConnectionInfo : Ice.ConnectionInfo
+    public class SslConnectionInfo : ConnectionInfo
     {
         public string? Cipher;
         public X509Certificate2[]? Certs;
         public bool Verified;
 
-        public ConnectionInfo() => Cipher = "";
+        public SslConnectionInfo() => Cipher = "";
 
-        public ConnectionInfo(Ice.ConnectionInfo underlying,
+        public SslConnectionInfo(ConnectionInfo underlying,
                               bool incoming,
                               string adapterName,
                               string connectionId,

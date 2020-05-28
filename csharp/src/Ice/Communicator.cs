@@ -261,8 +261,8 @@ namespace ZeroC.Ice
             Logger = logger ?? Util.GetProcessLogger();
             Observer = observer;
 
-            _classFactoryNamespaces = new string[] { "Ice.ClassFactory" };
-            _remoteExceptionFactoryNamespaces = new string[] { "Ice.RemoteExceptionFactory" };
+            _classFactoryNamespaces = new string[] { "ZeroC.Ice.ClassFactory" };
+            _remoteExceptionFactoryNamespaces = new string[] { "ZeroC.Ice.RemoteExceptionFactory" };
             if (typeIdNamespaces != null)
             {
                 _classFactoryNamespaces = _classFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
@@ -685,7 +685,7 @@ namespace ZeroC.Ice
                 //
                 try
                 {
-                    _timer = new Timer(this, Util.StringToThreadPriority(GetProperty("Ice.ThreadPriority")));
+                    _timer = new Timer(this);
                 }
                 catch (Exception ex)
                 {

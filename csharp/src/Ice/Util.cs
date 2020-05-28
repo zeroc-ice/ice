@@ -61,38 +61,5 @@ namespace ZeroC.Ice
 
         public static ITransportPluginFacade GetTransportPluginFacade(Communicator communicator) =>
             new TransportPluginFacade(communicator);
-
-        public static ThreadPriority StringToThreadPriority(string? s)
-        {
-            if (string.IsNullOrEmpty(s))
-            {
-                return ThreadPriority.Normal;
-            }
-            if (s.StartsWith("ThreadPriority.", StringComparison.Ordinal))
-            {
-                s = s.Substring("ThreadPriority.".Length, s.Length);
-            }
-            if (s.Equals("Lowest"))
-            {
-                return ThreadPriority.Lowest;
-            }
-            else if (s.Equals("BelowNormal"))
-            {
-                return ThreadPriority.BelowNormal;
-            }
-            else if (s.Equals("Normal"))
-            {
-                return ThreadPriority.Normal;
-            }
-            else if (s.Equals("AboveNormal"))
-            {
-                return ThreadPriority.AboveNormal;
-            }
-            else if (s.Equals("Highest"))
-            {
-                return ThreadPriority.Highest;
-            }
-            return ThreadPriority.Normal;
-        }
     }
 }

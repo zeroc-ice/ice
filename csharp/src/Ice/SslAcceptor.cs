@@ -2,19 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.IceSSL
+namespace ZeroC.Ice
 {
-    internal class Acceptor : Ice.IAcceptor
+    internal class SslAcceptor : IAcceptor
     {
         public void Close() => _delegate.Close();
 
-        public Ice.Endpoint Listen()
+        public Endpoint Listen()
         {
             _endpoint = _endpoint.GetEndpoint(_delegate.Listen());
             return _endpoint;
         }
 
-        public bool StartAccept(Ice.AsyncCallback callback, object state)
+        public bool StartAccept(AsyncCallback callback, object state)
         {
             //
             // The plug-in may not be fully initialized.
@@ -28,7 +28,7 @@ namespace ZeroC.IceSSL
 
         public void FinishAccept() => _delegate.FinishAccept();
 
-        public Ice.ITransceiver Accept() => new Transceiver(_instance, _delegate.Accept(), _adapterName, true);
+        public ITransceiver Accept() => new SslTransceiver(_instance, _delegate.Accept(), _adapterName, true);
 
         public string Transport() => _delegate.Transport();
 
@@ -36,7 +36,7 @@ namespace ZeroC.IceSSL
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 
-        internal Acceptor(Endpoint endpoint, Instance instance, Ice.IAcceptor del, string adapterName)
+        internal SslAcceptor(SslEndpoint endpoint, SslInstance instance, IAcceptor del, string adapterName)
         {
             _endpoint = endpoint;
             _delegate = del;
@@ -49,13 +49,13 @@ namespace ZeroC.IceSSL
             System.Security.Cryptography.X509Certificates.X509Certificate2Collection? certs = instance.Certs();
             if (certs == null || certs.Count == 0)
             {
-                throw new Ice.SecurityException("IceSSL: certificate required for server endpoint");
+                throw new SecurityException("IceSSL: certificate required for server endpoint");
             }
         }
 
-        private Endpoint _endpoint;
-        private readonly Ice.IAcceptor _delegate;
-        private readonly Instance _instance;
+        private SslEndpoint _endpoint;
+        private readonly IAcceptor _delegate;
+        private readonly SslInstance _instance;
         private readonly string _adapterName;
     }
 }

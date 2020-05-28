@@ -8,11 +8,11 @@ using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace ZeroC.IceSSL
+namespace ZeroC.Ice
 {
-    internal sealed class TrustManager
+    internal sealed class SslTrustManager
     {
-        internal TrustManager(Ice.Communicator communicator)
+        internal SslTrustManager(Communicator communicator)
         {
             Debug.Assert(communicator != null);
             _communicator = communicator;
@@ -50,7 +50,7 @@ namespace ZeroC.IceSSL
             }
         }
 
-        internal bool Verify(IceSSL.ConnectionInfo info, string desc)
+        internal bool Verify(SslConnectionInfo info, string desc)
         {
             List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
                 accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -306,7 +306,7 @@ namespace ZeroC.IceSSL
             }
         }
 
-        private readonly Ice.Communicator _communicator;
+        private readonly Communicator _communicator;
         private readonly int _traceLevel;
 
         private readonly List<List<RFC2253.RDNPair>> _rejectAll = new List<List<RFC2253.RDNPair>>();
