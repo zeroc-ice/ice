@@ -685,7 +685,7 @@ namespace ZeroC.Ice
                 //
                 try
                 {
-                    _timer = new Timer(this, Util.StringToThreadPriority(GetProperty("Ice.ThreadPriority")));
+                    _timer = new Timer(this);
                 }
                 catch (Exception ex)
                 {

@@ -120,7 +120,7 @@ namespace ZeroC.Ice
         //
         // Only for use by Instance.
         //
-        internal Timer(Communicator communicator, ThreadPriority priority = ThreadPriority.Normal)
+        internal Timer(Communicator communicator)
         {
             _communicator = communicator;
             string? threadName = _communicator.GetProperty("Ice.ProgramName");
@@ -132,7 +132,6 @@ namespace ZeroC.Ice
             _thread = new Thread(new ThreadStart(Run));
             _thread.IsBackground = true;
             _thread.Name = $"{threadName}Ice.Timer";
-            _thread.Priority = priority;
             _thread.Start();
         }
 
