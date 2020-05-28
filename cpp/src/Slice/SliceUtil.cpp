@@ -454,7 +454,7 @@ Slice::splitScopedName(const string& scoped)
     return ids;
 }
 
-void
+bool
 Slice::checkIdentifier(const string& id)
 {
     // check whether the identifier is scoped
@@ -470,6 +470,9 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
+    // Validity is only determined by invalid syntax that triggers errors, not warnings.
+    bool isValid = true;
+
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
@@ -482,35 +485,36 @@ Slice::checkIdentifier(const string& id)
         }
     }
 
-    // check the identifier for illegal underscores
-    size_t index = name.find('_');
-    if(index == 0)
-    {
-        unit->warning(ReservedIdentifiers, "leading underscores are reserved by Ice: the identifier `" + name +
-                                           "' may conflict with generated code");
-    }
-    else if(name.rfind('_') == (name.size() - 1))
-    {
-        unit->warning(ReservedIdentifiers, "trailing underscores are reserved by Ice: the identifier `" + name +
-                                           "' may conflict with generated code");
-    }
-    else if(name.find("__") != string::npos)
-    {
-        unit->warning(ReservedIdentifiers, "double underscores are reserved by Ice: the identifier `" + name +
-                                           "' may conflict with generated code");
-    }
-    else if(index != string::npos && unit->currentIncludeLevel() == 0)
-    {
-        unit->warning(ReservedIdentifiers, "underscores are reserved by Ice: the identifier `" + name +
-                                           "' may conflict with generated code");
-    }
-
     // Check the identifier for illegal ice prefixes
     if(unit->currentIncludeLevel() == 0 && ciequals(name.substr(0, 3), "ice"))
     {
         unit->warning(ReservedIdentifiers, "`" + name.substr(0, 3) + "' prefix is reserved by Ice: the identifier `" +
                                            name + "' may conflict with generated code");
     }
+
+    // check the identifier for illegal underscores
+    size_t index = name.find('_');
+    if(index == 0)
+    {
+        unit->error("illegal identifier: `" + name + "', leading underscores are reserved by Ice");
+        isValid = false;
+    }
+    else if(name.rfind('_') == (name.size() - 1))
+    {
+        unit->error("illegal identifier: `" + name + "', trailing underscores are reserved by Ice");
+        isValid = false;
+    }
+    else if(name.find("__") != string::npos)
+    {
+        unit->error("illegal identifier: `" + name + "', double underscores are reserved by Ice");
+        isValid = false;
+    }
+    else if(index != string::npos && unit->currentIncludeLevel() == 0)
+    {
+        unit->warning(ReservedIdentifiers, "underscores are reserved by Ice: the identifier `" + name +
+                                           "' may conflict with generated code");
+    }
+    return isValid;
 }
 
 bool

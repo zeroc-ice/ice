@@ -49,7 +49,7 @@ std::vector<std::string>
 splitScopedName(const std::string&);
 
 // Checks an identifier for illegal syntax and reports any that is present.
-void
+bool
 checkIdentifier(const std::string&);
 
 bool

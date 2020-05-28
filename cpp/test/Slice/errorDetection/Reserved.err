@@ -20,13 +20,13 @@ Reserved.ice:44: warning: `ice' prefix is reserved by Ice: the identifier `icebe
 Reserved.ice:45: warning: `Ptr' suffix is reserved by Ice: the identifier `aPtr' may conflict with generated code
 Reserved.ice:45: warning: `Prx' suffix is reserved by Ice: the identifier `bPrx' may conflict with generated code
 Reserved.ice:45: warning: `Helper' suffix is reserved by Ice: the identifier `cHelper' may conflict with generated code
-Reserved.ice:47: warning: leading underscores are reserved by Ice: the identifier `_a' may conflict with generated code
-Reserved.ice:48: warning: leading underscores are reserved by Ice: the identifier `_true' may conflict with generated code
-Reserved.ice:49: warning: leading underscores are reserved by Ice: the identifier `_true' may conflict with generated code
-Reserved.ice:51: warning: trailing underscores are reserved by Ice: the identifier `b_' may conflict with generated code
-Reserved.ice:53: warning: double underscores are reserved by Ice: the identifier `b__c' may conflict with generated code
-Reserved.ice:54: warning: double underscores are reserved by Ice: the identifier `b___c' may conflict with generated code
-Reserved.ice:56: warning: leading underscores are reserved by Ice: the identifier `_a_' may conflict with generated code
+Reserved.ice:47: illegal identifier: `_a', leading underscores are reserved by Ice
+Reserved.ice:48: illegal identifier: `_true', leading underscores are reserved by Ice
+Reserved.ice:49: illegal identifier: `_true', leading underscores are reserved by Ice
+Reserved.ice:51: illegal identifier: `b_', trailing underscores are reserved by Ice
+Reserved.ice:53: illegal identifier: `b__c', double underscores are reserved by Ice
+Reserved.ice:54: illegal identifier: `b___c', double underscores are reserved by Ice
+Reserved.ice:56: illegal identifier: `_a_', leading underscores are reserved by Ice
 Reserved.ice:57: warning: underscores are reserved by Ice: the identifier `a_b' may conflict with generated code
 Reserved.ice:58: warning: underscores are reserved by Ice: the identifier `a_b_c' may conflict with generated code
-Reserved.ice:59: warning: leading underscores are reserved by Ice: the identifier `_a__b__' may conflict with generated code
+Reserved.ice:59: illegal identifier: `_a__b__', leading underscores are reserved by Ice
