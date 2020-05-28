@@ -10,13 +10,11 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-using ZeroC.Ice;
-
-namespace ZeroC.IceSSL
+namespace ZeroC.Ice
 {
-    internal class SSLEngine
+    internal class SslEngine
     {
-        internal SSLEngine(ITransportPluginFacade facade)
+        internal SslEngine(ITransportPluginFacade facade)
         {
             _communicator = facade.Communicator;
             _logger = _communicator.Logger;
@@ -24,7 +22,7 @@ namespace ZeroC.IceSSL
             _securityTraceLevel = _communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             _securityTraceCategory = "Security";
             _initialized = false;
-            _trustManager = new TrustManager(_communicator);
+            _trustManager = new SslTrustManager(_communicator);
         }
 
         internal void Initialize()
@@ -34,7 +32,7 @@ namespace ZeroC.IceSSL
                 return;
             }
 
-            Ice.Communicator ic = Communicator();
+            Communicator ic = Communicator();
             //
             // Check for a default directory. We look in this directory for
             // files mentioned in the configuration.
@@ -363,7 +361,7 @@ namespace ZeroC.IceSSL
 
         internal IPasswordCallback? GetPasswordCallback() => _passwordCallback;
 
-        internal Ice.Communicator Communicator() => _facade.Communicator;
+        internal Communicator Communicator() => _facade.Communicator;
 
         internal int SecurityTraceLevel() => _securityTraceLevel;
 
@@ -397,7 +395,7 @@ namespace ZeroC.IceSSL
             _logger.Trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void VerifyPeer(ConnectionInfo info, string desc)
+        internal void VerifyPeer(SslConnectionInfo info, string desc)
         {
             if (_verifyDepthMax > 0 && info.Certs != null && info.Certs.Length > _verifyDepthMax)
             {
@@ -408,7 +406,7 @@ namespace ZeroC.IceSSL
                 {
                     _logger.Trace(_securityTraceCategory, msg);
                 }
-                throw new Ice.SecurityException(msg);
+                throw new SecurityException(msg);
             }
 
             if (!_trustManager.Verify(info, desc))
@@ -420,7 +418,7 @@ namespace ZeroC.IceSSL
                     _logger.Trace(_securityTraceCategory, msg);
                 }
 
-                throw new Ice.SecurityException($"IceSSL: {msg}");
+                throw new SecurityException($"IceSSL: {msg}");
             }
 
             if (_verifier != null && !_verifier.Verify(info))
@@ -432,7 +430,7 @@ namespace ZeroC.IceSSL
                     _logger.Trace(_securityTraceCategory, msg);
                 }
 
-                throw new Ice.SecurityException($"IceSSL: {msg}");
+                throw new SecurityException($"IceSSL: {msg}");
             }
         }
 
@@ -810,6 +808,6 @@ namespace ZeroC.IceSSL
         private X509Certificate2Collection? _caCerts;
         private ICertificateVerifier? _verifier;
         private IPasswordCallback? _passwordCallback;
-        private readonly TrustManager _trustManager;
+        private readonly SslTrustManager _trustManager;
     }
 }

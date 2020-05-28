@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.IceSSL
+namespace ZeroC.Ice
 {
-    internal sealed class Connector : Ice.IConnector
+    internal sealed class SslConnector : IConnector
     {
-        public Ice.ITransceiver Connect()
+        public ITransceiver Connect()
         {
             //
             // The plug-in may not be fully initialized.
@@ -16,15 +16,15 @@ namespace ZeroC.IceSSL
                 throw new System.InvalidOperationException("IceSSL: plug-in is not initialized");
             }
 
-            return new Transceiver(_instance, _delegate.Connect(), _host, false);
+            return new SslTransceiver(_instance, _delegate.Connect(), _host, false);
         }
 
-        public Ice.EndpointType Type() => _delegate.Type();
+        public EndpointType Type() => _delegate.Type();
 
         //
         // Only for use by EndpointI.
         //
-        internal Connector(Instance instance, Ice.IConnector del, string host)
+        internal SslConnector(SslInstance instance, IConnector del, string host)
         {
             _instance = instance;
             _delegate = del;
@@ -33,7 +33,7 @@ namespace ZeroC.IceSSL
 
         public override bool Equals(object? obj)
         {
-            if (!(obj is Connector))
+            if (!(obj is SslConnector))
             {
                 return false;
             }
@@ -43,7 +43,7 @@ namespace ZeroC.IceSSL
                 return true;
             }
 
-            var p = (Connector)obj;
+            var p = (SslConnector)obj;
             return _delegate.Equals(p._delegate);
         }
 
@@ -51,8 +51,8 @@ namespace ZeroC.IceSSL
 
         public override int GetHashCode() => _delegate.GetHashCode();
 
-        private readonly Instance _instance;
-        private readonly Ice.IConnector _delegate;
+        private readonly SslInstance _instance;
+        private readonly IConnector _delegate;
         private readonly string _host;
     }
 }
