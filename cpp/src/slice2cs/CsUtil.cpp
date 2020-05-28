@@ -502,28 +502,6 @@ Slice::resultTask(const OperationPtr& op, const string& ns, bool dispatch)
 }
 
 bool
-Slice::isClassType(const TypePtr& type)
-{
-    if(ClassDeclPtr::dynamicCast(type))
-    {
-        return true;
-    }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return builtin && builtin->usesClasses();
-}
-
-bool
-Slice::isInterfaceType(const TypePtr& type)
-{
-    if(InterfaceDeclPtr::dynamicCast(type))
-    {
-        return true;
-    }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return builtin && builtin->kind() == Builtin::KindObject;
-}
-
-bool
 Slice::isCollectionType(const TypePtr& type)
 {
     return SequencePtr::dynamicCast(type) || DictionaryPtr::dynamicCast(type);
@@ -768,27 +746,46 @@ Slice::getNames(const list<ParamInfo>& params, function<string (const ParamInfo&
 }
 
 string
-Slice::CsGenerator::outputStreamWriter(const TypePtr& constTtype, const string& scope, bool forNestedType)
+Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope, bool forNestedType)
 {
-    TypePtr type = unwrapIfOptional(constTtype);
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObject)
+    if (auto optional = OptionalPtr::dynamicCast(type))
+    {
+        // Expected for proxy and class types.
+        TypePtr underlying = optional->underlying();
+        if (underlying->isInterfaceType())
+        {
+            out << typeToString(underlying->unit()->builtin(Builtin::KindObject), scope) << ".IceWriterFromOptional";
+        }
+        else
+        {
+            assert(underlying->isClassType());
+            out << typeToString(underlying, scope) << ".IceWriterFromOptional";
+        }
+    }
+    else if (type->isInterfaceType())
+    {
+        out << typeToString(type->unit()->builtin(Builtin::KindObject), scope) << ".IceWriter";
+    }
+    else if (type->isClassType())
+    {
+        out << typeToString(type, scope) << ".IceWriter";
+    }
+    else if (auto builtin = BuiltinPtr::dynamicCast(type))
     {
         out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()];
     }
-    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
+    else if (DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
     {
         out << helperName(type, scope) << ".IceWriter";
     }
-    else if (SequencePtr seq = SequencePtr::dynamicCast(type))
+    else if (auto seq = SequencePtr::dynamicCast(type))
     {
         if (isMappedToReadOnlyMemory(seq))
         {
             builtin = BuiltinPtr::dynamicCast(seq->type());
-            out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()] <<
-                (forNestedType ? "Array" : "Sequence");
+            out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()]
+                << (forNestedType ? "Array" : "Sequence");
         }
         else
         {
@@ -804,58 +801,95 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& constTtype, const string& 
 
 void
 Slice::CsGenerator::writeMarshalCode(Output& out,
-                                     const TypePtr& constType,
+                                     const TypePtr& type,
+                                     int& bitSequenceIndex,
                                      bool forNestedType,
                                      const string& scope,
                                      const string& param,
                                      const string& stream)
 {
-    // TODO: for now, we handle marshaling of Optional<T> like T
-    TypePtr type = unwrapIfOptional(constType);
+    if (auto optional = OptionalPtr::dynamicCast(type))
+    {
+        TypePtr underlying = optional->underlying();
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    StructPtr st = StructPtr::dynamicCast(type);
-
-    if(builtin || isInterfaceType(type) || isClassType(type))
-    {
-        auto kind = builtin ? builtin->kind() : isInterfaceType(type) ? Builtin::KindObject : Builtin::KindValue;
-        out << nl << stream << ".Write" << builtinSuffixTable[kind] << "(" << param << ");";
-    }
-    else if(st)
-    {
-        out << nl << param << ".IceWrite(" << stream << ");";
-    }
-    else if (seq && isMappedToReadOnlyMemory(seq))
-    {
-        out << nl << stream;
-        if (forNestedType)
+        if (underlying->isInterfaceType())
         {
-            out << ".WriteFixedSizeNumericArray(" << param << ");";
+            // does not use bit sequence
+            out << nl << stream << ".WriteOptionalProxy(" << param << ");";
+        }
+        else if (underlying->isClassType())
+        {
+            // does not use bit sequence
+            out << nl << stream << ".WriteOptionalClass(" << param << ");";
         }
         else
         {
-            out << ".WriteFixedSizeNumericSequence(" << param << ".Span);";
+            assert(bitSequenceIndex >= 0);
+            out << nl << "if (" << param << " != null)";
+            out << sb;
+            string nonNullParam = param + (isReferenceType(underlying) ? "" : ".Value");
+            writeMarshalCode(out, underlying, bitSequenceIndex, forNestedType, scope, nonNullParam, stream);
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << "bitSequence[" << bitSequenceIndex++ << "] = false;";
+            out << eb;
         }
     }
     else
     {
-        out << nl << helperName(type, scope) << ".Write(" << stream << ", " << param << ");";
+        if (type->isInterfaceType())
+        {
+            out << nl << stream << ".WriteProxy(" << param << ");";
+        }
+        else if (type->isClassType())
+        {
+            out << nl << stream << ".WriteClass(" << param << ");";
+        }
+        else if (auto builtin = BuiltinPtr::dynamicCast(type))
+        {
+            out << nl << stream << ".Write" << builtinSuffixTable[builtin->kind()] << "(" << param << ");";
+        }
+        else if (auto st = StructPtr::dynamicCast(type))
+        {
+            out << nl << param << ".IceWrite(" << stream << ");";
+        }
+        else if (auto seq = SequencePtr::dynamicCast(type); seq && isMappedToReadOnlyMemory(seq))
+        {
+            out << nl << stream;
+            if (forNestedType)
+            {
+                out << ".WriteFixedSizeNumericArray(" << param << ");";
+            }
+            else
+            {
+                out << ".WriteFixedSizeNumericSequence(" << param << ".Span);";
+            }
+        }
+        else
+        {
+            out << nl << helperName(type, scope) << ".Write(" << stream << ", " << param << ");";
+        }
     }
 }
 
 string
-Slice::CsGenerator::inputStreamReader(const TypePtr& constType, const string& scope)
+Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
 {
-    TypePtr type = unwrapIfOptional(constType);
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
-    if(builtin && !builtin->usesClasses() && builtin->kind() != Builtin::KindObject)
+    if (auto optional = OptionalPtr::dynamicCast(type))
+    {
+        TypePtr underlying = optional->underlying();
+        // Expected for classes and proxies
+        assert(underlying->isClassType() || underlying->isInterfaceType());
+        out << typeToString(underlying, scope) << ".IceReaderIntoOptional";
+    }
+    else if (auto builtin = BuiltinPtr::dynamicCast(type); builtin && !builtin->usesClasses() &&
+                builtin->kind() != Builtin::KindObject)
     {
         out << "ZeroC.Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()];
     }
-    else if (SequencePtr seq = SequencePtr::dynamicCast(type))
+    else if (auto seq = SequencePtr::dynamicCast(type))
     {
         if (isMappedToReadOnlyMemory(seq))
         {
@@ -867,7 +901,7 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& constType, const string& sc
             out << helperName(type, scope) << ".IceReader";
         }
     }
-    else if(DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
+    else if (DictionaryPtr::dynamicCast(type) || EnumPtr::dynamicCast(type))
     {
         out << helperName(type, scope) << ".IceReader";
     }
@@ -880,45 +914,79 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& constType, const string& sc
 
 void
 Slice::CsGenerator::writeUnmarshalCode(Output &out,
-                                       const TypePtr& constType,
+                                       const TypePtr& type,
+                                       int& bitSequenceIndex,
                                        const string& scope,
                                        const string& param,
                                        const string& stream)
 {
-    // TODO: for now, we handle unmarshaling of Optional<T> like T
-    TypePtr type = unwrapIfOptional(constType);
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    StructPtr st = StructPtr::dynamicCast(type);
-
     out << param << " = ";
-    if(isClassType(type))
+    auto optional = OptionalPtr::dynamicCast(type);
+    TypePtr underlying = optional ? optional->underlying() : type;
+
+    if (optional)
     {
-        out << stream << ".ReadClass<" << typeToString(type, scope) << ">();";
+        if (underlying->isInterfaceType())
+        {
+            // does not use bit sequence
+            out << stream << ".ReadOptionalProxy(" << typeToString(underlying, scope) << ".Factory);";
+            return;
+        }
+        else if (underlying->isClassType())
+        {
+            // does not use bit sequence
+            out << stream << ".ReadOptionalClass<" << typeToString(underlying, scope) << ">();";
+            return;
+        }
+        else
+        {
+            assert(bitSequenceIndex >= 0);
+            out << "bitSequence[" << bitSequenceIndex++ << "] ? ";
+            // and keep going
+        }
     }
-    else if(isInterfaceType(type))
+
+    if (underlying->isInterfaceType())
     {
-        out << stream << ".ReadProxy(" << typeToString(type, scope) << ".Factory);";
+        assert(!optional);
+        out << stream << ".ReadProxy(" << typeToString(underlying, scope) << ".Factory)";
     }
-    else if(builtin)
+    else if (underlying->isClassType())
     {
-        out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "();";
+        assert(!optional);
+        out << stream << ".ReadClass<" << typeToString(underlying, scope) << ">()";
     }
-    else if(st)
+    else if (auto builtin = BuiltinPtr::dynamicCast(underlying))
     {
-        out << "new " << getUnqualified(st, scope) << "(" << stream << ");";
+        out << stream << ".Read" << builtinSuffixTable[builtin->kind()] << "()";
     }
-    else if (seq && isMappedToReadOnlyMemory(seq))
+    else if (auto st = StructPtr::dynamicCast(underlying))
     {
-        out << stream << ".ReadFixedSizeNumericArray<" << typeToString(seq->type(), scope) << ">();";
+        out << "new " << getUnqualified(st, scope) << "(" << stream << ")";
+    }
+    else if (auto seq = SequencePtr::dynamicCast(underlying); seq && isMappedToReadOnlyMemory(seq))
+    {
+        out << stream << ".ReadFixedSizeNumericArray<" << typeToString(seq->type(), scope) << ">()";
     }
     else
     {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+        auto constructed = ConstructedPtr::dynamicCast(type);
         assert(constructed);
-        out << helperName(type, scope) << ".Read" << constructed->name() << "(" << stream << ");";
+        out << helperName(type, scope) << ".Read" << constructed->name() << "(" << stream << ")";
     }
+
+    if (optional)
+    {
+        if (isReferenceType(underlying))
+        {
+            out << " : null";
+        }
+        else
+        {
+            out << " : (" << typeToString(underlying, scope) << "?)null";
+        }
+    }
+    out << ";";
 }
 
 void
@@ -938,9 +1006,9 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
-    if(builtin || isInterfaceType(type) || isClassType(type))
+    if(builtin || type->isInterfaceType() || type->isClassType())
     {
-        auto kind = builtin ? builtin->kind() : isInterfaceType(type) ? Builtin::KindObject : Builtin::KindValue;
+        auto kind = builtin ? builtin->kind() : type->isInterfaceType() ? Builtin::KindObject : Builtin::KindValue;
         out << nl << stream << ".WriteTagged" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
     }
     else if(st)
@@ -1049,11 +1117,11 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
 
     const string stream = customStream.empty() ? "istr" : customStream;
 
-    if (isClassType(type))
+    if (type->isClassType())
     {
         out << stream << ".ReadTaggedClass<" << typeToString(type, scope) << ">(" << tag << ")";
     }
-    else if (isInterfaceType(type))
+    else if (type->isInterfaceType())
     {
         out << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope)
             << ".Factory)";
@@ -1133,7 +1201,6 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
                                         const string& stream)
 {
     TypePtr type = seq->type();
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     ostringstream out;
     if (isMappedToReadOnlyMemory(seq))
     {
@@ -1221,36 +1288,39 @@ Slice::CsGenerator::writeConstantValue(Output& out, const TypePtr& type, const S
     }
     else
     {
-        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-        if (bp)
+        TypePtr underlying = unwrapIfOptional(type);
+
+        if (auto builtin = BuiltinPtr::dynamicCast(underlying))
         {
-            if (bp->kind() == Builtin::KindString)
+            switch (builtin->kind())
             {
-                out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
-            }
-            else if (bp->kind() == Builtin::KindUShort || bp->kind() == Builtin::KindUInt ||
-                     bp->kind() == Builtin::KindVarUInt)
-            {
-                out << value << "U";
-            }
-            else if (bp->kind() == Builtin::KindLong || bp->kind() == Builtin::KindVarLong)
-            {
-                out << value << "L";
-            }
-            else if (bp->kind() == Builtin::KindULong || bp->kind() == Builtin::KindVarULong)
-            {
-                out << value << "UL";
-            }
-            else if (bp->kind() == Builtin::KindFloat)
-            {
-                out << value << "F";
-            }
-            else
-            {
-                out << value;
+                case Builtin::KindString:
+                    out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v\0", "", UCN, 0) << "\"";
+                    break;
+                case Builtin::KindUShort:
+                case Builtin::KindUInt:
+                case Builtin::KindVarUInt:
+                    out << value << "U";
+                    break;
+                case Builtin::KindLong:
+                case Builtin::KindVarLong:
+                    out << value << "L";
+                    break;
+                case Builtin::KindULong:
+                case Builtin::KindVarULong:
+                    out << value << "UL";
+                    break;
+                case Builtin::KindFloat:
+                    out << value << "F";
+                    break;
+                case Builtin::KindDouble:
+                    out << value << "D";
+                    break;
+                default:
+                    out << value;
             }
         }
-        else if (EnumPtr::dynamicCast(type))
+        else if (EnumPtr::dynamicCast(underlying))
         {
             EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
             assert(lte);

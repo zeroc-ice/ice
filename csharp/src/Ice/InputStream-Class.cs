@@ -74,17 +74,38 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Reads a class instance from the stream.</summary>
-        /// <returns>The class instance, or null.</returns>
-        public T? ReadClass<T>() where T : AnyClass
+        /// <returns>The class instance read from the stream.</returns>
+        public T ReadClass<T>() where T : AnyClass
         {
             AnyClass? obj = ReadAnyClass();
+            if (obj is T result)
+            {
+                return result;
+            }
+
             if (obj == null)
             {
-                return null;
+                throw new InvalidDataException("read a null class instance, but expected a non-null instance");
             }
-            else if (obj is T)
+            else
             {
-                return (T)obj;
+                throw new InvalidDataException(@$"read instance of type `{obj.GetType().FullName
+                    }' but expected instance of type `{typeof(T).FullName}'");
+            }
+        }
+
+        /// <summary>Reads an optional class instance from the stream.</summary>
+        /// <returns>The class instance read from the stream, or null.</returns>
+        public T? ReadOptionalClass<T>() where T : AnyClass
+        {
+            AnyClass? obj = ReadAnyClass();
+            if (obj is T result)
+            {
+                return result;
+            }
+            else if (obj == null)
+            {
+                return null;
             }
             else
             {
@@ -99,13 +120,13 @@ namespace ZeroC.Ice
         public T? ReadTaggedClass<T>(int tag) where T : AnyClass
         {
             AnyClass? obj = ReadTaggedAnyClass(tag);
-            if (obj == null)
+            if (obj is T result)
+            {
+                return result;
+            }
+            else if (obj == null)
             {
                 return null;
-            }
-            else if (obj is T)
-            {
-                return (T)obj;
             }
             else
             {

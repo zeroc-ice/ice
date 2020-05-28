@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 namespace ZeroC.Ice
 {
@@ -281,6 +282,7 @@ namespace ZeroC.Ice
             }
             else
             {
+                // (segN, segN.Count) points to the same byte as (segN + 1, 0)
                 _currentSegment = _segmentList[++_tail.Segment];
                 _currentSegment[0] = v;
                 _tail.Offset = 1;
@@ -500,9 +502,9 @@ namespace ZeroC.Ice
             WriteByteSpan(MemoryMarshal.AsBytes(v));
         }
 
-        /// <summary>Writes a proxy to the stream.</summary>
-        /// <param name="v">The proxy to write.</param>
-        public void WriteProxy<T>(T? v) where T : class, IObjectPrx
+        /// <summary>Writes an optional proxy to the stream.</summary>
+        /// <param name="v">The proxy to write, or null.</param>
+        public void WriteOptionalProxy<T>(T? v) where T : class, IObjectPrx
         {
             if (v != null)
             {
@@ -513,6 +515,10 @@ namespace ZeroC.Ice
                 Identity.Empty.IceWrite(this);
             }
         }
+
+        /// <summary>Writes a proxy to the stream.</summary>
+        /// <param name="v">The proxy to write. This proxy cannot be null.</param>
+        public void WriteProxy<T>(T v) where T : class, IObjectPrx => v.IceWrite(this);
 
         /// <summary>Writes a sequence to the stream.</summary>
         /// <param name="v">The sequence to write.</param>
@@ -1014,6 +1020,60 @@ namespace ZeroC.Ice
         // Other methods
         //
 
+        /// <summary>Writes a sequence of bits to the stream, and returns this sequence backed by the stream's buffer.
+        /// </summary>
+        /// <param name="bitLength">The minimum number of bits in the sequence.</param>
+        /// <returns>The bit sequence, with all bits set. The actual length of the sequence is a multiple of 8.
+        /// </returns>
+        public BitSequence WriteBitSequence(int bitLength)
+        {
+            Debug.Assert(bitLength > 0);
+            int size = (bitLength >> 3) + ((bitLength & 0x07) != 0 ? 1 : 0);
+
+            Position startPos = _tail;
+            bool patchStartPos = (startPos.Offset == _currentSegment.Count);
+
+            int remaining = _capacity - Size;
+            if (size > remaining)
+            {
+                int segmentSize = Math.Max(DefaultSegmentSize, _currentSegment.Count * 2);
+                segmentSize = Math.Max(size - remaining, segmentSize);
+                byte[] buffer = new byte[segmentSize];
+                _segmentList.Add(buffer);
+                _currentSegment = buffer;
+                _tail.Segment++;
+                _tail.Offset = size - remaining;
+                Size += size;
+            }
+            else
+            {
+                _tail.Offset += size;
+                Size += size;
+            }
+
+            if (patchStartPos)
+            {
+                // Move startPos to the first byte of the next segment
+                startPos.Segment++;
+                startPos.Offset = 0;
+            }
+
+            if (startPos.Segment == _tail.Segment)
+            {
+                var span = _currentSegment.AsSpan(startPos.Offset, _tail.Offset - startPos.Offset);
+                span.Fill(255);
+                return new BitSequence(span);
+            }
+            else
+            {
+                var firstSpan = _segmentList[startPos.Segment].AsSpan(startPos.Offset);
+                var secondSpan = _currentSegment.AsSpan(0, _tail.Offset);
+                firstSpan.Fill(255);
+                secondSpan.Fill(255);
+                return new BitSequence(firstSpan, secondSpan);
+            }
+        }
+
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         // Constructor for protocol frame header and other non-encapsulated data.
@@ -1247,7 +1307,7 @@ namespace ZeroC.Ice
                 size = Math.Max(n - remaining, size);
                 byte[] buffer = new byte[size];
                 _segmentList.Add(buffer);
-                if (_segmentList.Count == 1)
+                if (_segmentList.Count == 1) // TODO: missing comment. This occurs only when _currentSegment is empty?
                 {
                     _currentSegment = buffer;
                 }
@@ -1291,6 +1351,8 @@ namespace ZeroC.Ice
             }
             else
             {
+                // (segN, segN.Count) points to the same bytes as (segN + 1, 0)
+                Debug.Assert(pos.Offset == segment.Count);
                 segment = _segmentList[pos.Segment + 1];
                 segment[0] = v;
             }

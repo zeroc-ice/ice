@@ -400,11 +400,17 @@ namespace ZeroC.Ice
             return value;
         }
 
+        /// <summary>Reads an optional proxy from the stream.</summary>
+        /// <param name="factory">The proxy factory used to create the typed proxy.</param>
+        /// <returns>The proxy read from the stream, or null.</returns>
+        public T? ReadOptionalProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            Reference.Read(this) is Reference reference ? factory(reference) : null;
+
         /// <summary>Reads a proxy from the stream.</summary>
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
-        /// <returns>The proxy read from the stream.</returns>
-        public T? ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            Reference.Read(this) is Reference reference ? factory(reference) : null;
+        /// <returns>The proxy read from the stream; this proxy cannot be null.</returns>
+        public T ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
+            ReadOptionalProxy(factory) ?? throw new InvalidDataException("read null for a non-optional proxy");
 
         /// <summary>Reads a sequence from the stream.</summary>
         /// <param name="minElementSize">The minimum size of each element of the sequence, in bytes.</param>
@@ -766,8 +772,19 @@ namespace ZeroC.Ice
         }
 
         //
-        // Internal and private methods
+        // Other methods
         //
+
+        /// <summary>Reads a bit sequence from the stream.</summary>
+        /// <param name="bitLength">The minimum number of bits in the sequence.</param>
+        /// <returns>The read-only bit sequence read from the stream.</returns>
+        public ReadOnlyBitSequence ReadBitSequence(int bitLength)
+        {
+            int size = (bitLength >> 3) + ((bitLength & 0x07) != 0 ? 1 : 0);
+            var bitSequence = new ReadOnlyBitSequence(_buffer.AsSpan(_pos, size));
+            _pos += size;
+            return bitSequence;
+        }
 
         internal static string Read11String(ArraySegment<byte> buffer)
         {

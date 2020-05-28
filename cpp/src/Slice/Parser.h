@@ -337,7 +337,9 @@ class Type : public virtual SyntaxTreeBase
 public:
 
     virtual std::string typeId() const = 0;
-    virtual bool usesClasses() const = 0;
+    virtual bool usesClasses() const = 0; // TODO: can we remove this method?
+    virtual bool isClassType() const { return false; }
+    virtual bool isInterfaceType() const { return false; }
     virtual size_t minWireSize() const = 0;
     virtual std::string getTagFormat() const = 0;
     virtual bool isVariableLength() const = 0;
@@ -378,6 +380,8 @@ public:
 
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
+    virtual bool isClassType() const { return _kind == KindValue; }
+    virtual bool isInterfaceType() const { return _kind == KindObject; }
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
@@ -391,7 +395,7 @@ public:
     std::string kindAsString() const;
     static std::optional<Kind> kindFromString(std::string_view);
 
-    inline static const std::array<std::string, 18> builtinTable =
+    inline static const std::array<std::string, 17> builtinTable =
     {
         "bool",
         "byte",
@@ -620,6 +624,7 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
+    virtual bool isClassType() const { return true; }
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
@@ -699,6 +704,7 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
+    virtual bool isInterfaceType() const { return true; }
     virtual size_t minWireSize() const;
     virtual std::string getTagFormat() const;
     virtual bool isVariableLength() const;
@@ -747,6 +753,15 @@ public:
     };
 
     InterfaceDefPtr interface() const;
+
+    // The "in" bit sequence length with the 2.0 encoding, which corresponds to the number of in-parameters with
+    // optional types that are not class/proxy and that are not tagged.
+    size_t inBitSequenceLength() const;
+
+    // The "return" bit sequence length with the 2.0 encoding, which corresponds to the number of return parameters with
+    // optional types that are not class/proxy and that are not tagged.
+    size_t returnBitSequenceLength() const;
+
     TypePtr returnType() const;
     bool returnIsTagged() const;
     int returnTag() const;

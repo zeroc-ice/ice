@@ -5472,6 +5472,57 @@ Slice::Operation::interface() const
     return InterfaceDefPtr::dynamicCast(_container);
 }
 
+size_t
+Slice::Operation::inBitSequenceLength() const
+{
+    size_t length = 0;
+    for (const auto& p : inParameters())
+    {
+        if (!p->tagged())
+        {
+            if (auto optional = OptionalPtr::dynamicCast(p->type()))
+            {
+                if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+                {
+                    length++;
+                }
+            }
+        }
+    }
+    return length;
+}
+
+size_t
+Slice::Operation::returnBitSequenceLength() const
+{
+    size_t length = 0;
+    for (const auto& p : outParameters())
+    {
+        if (!p->tagged())
+        {
+            if (auto optional = OptionalPtr::dynamicCast(p->type()))
+            {
+                if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+                {
+                    length++;
+                }
+            }
+        }
+    }
+
+    if (_returnType && !_returnIsTagged)
+    {
+        if (auto optional = OptionalPtr::dynamicCast(_returnType))
+        {
+            if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
+            {
+                length++;
+            }
+        }
+    }
+    return length;
+}
+
 TypePtr
 Slice::Operation::returnType() const
 {
