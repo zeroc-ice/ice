@@ -489,6 +489,10 @@ namespace ZeroC.Ice
                     return _delegate.StartRead(ref _readBuffer, ref _readBufferOffset, callback, state);
                 }
             }
+            else if (_state == StateClosed)
+            {
+                throw new ConnectionLostException();
+            }
 
             if (PreRead(buffer, ref offset))
             {
@@ -586,6 +590,10 @@ namespace ZeroC.Ice
                 {
                     return _delegate.StartWrite(_writeBuffer, _writeBufferOffset, callback, state, out completed);
                 }
+            }
+            else if (_state == StateClosed)
+            {
+                throw new ConnectionLostException();
             }
 
             int size = buf.GetByteCount();
