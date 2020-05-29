@@ -144,17 +144,6 @@ namespace ZeroC.Ice
 
         public ToStringMode ToStringMode { get; }
 
-        /// <summary>Returns the Ice version in the form A.B.C, where A indicates the major version, B indicates the
-        /// minor version, and C indicates the patch level.</summary>
-        /// <returns>The Ice version.</returns>
-        public static string StringVersion => "4.0.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
-
-        /// <summary>Returns the Ice version as an integer in the form A.BB.CC, where A indicates the major version,
-        /// BB indicates the minor version, and CC indicates the patch level. For example, for Ice 3.3.1, the returned
-        /// value is 30301.</summary>
-        /// <returns>The Ice version.</returns>
-        public static int IntVersion => 40000; // AABBCC, with AA=major, BB=minor, CC=patch
-
         internal int ClassGraphDepthMax { get; }
         internal ACMConfig ClientACM { get; }
         internal int MessageSizeMax { get; }
@@ -269,7 +258,7 @@ namespace ZeroC.Ice
                             string[]? typeIdNamespaces = null)
         {
             _state = StateActive;
-            Logger = logger ?? GetProcessLogger();
+            Logger = logger ?? Runtime.Logger;
             Observer = observer;
 
             _classFactoryNamespaces = new string[] { "ZeroC.Ice.ClassFactory" };
@@ -365,7 +354,7 @@ namespace ZeroC.Ice
                     {
                         Logger = new FileLogger(programName, logfile);
                     }
-                    else if (GetProcessLogger() is Logger)
+                    else if (Runtime.Logger is Logger)
                     {
                         //
                         // Ice.ConsoleListener is enabled by default.
@@ -988,7 +977,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    GetProcessLogger().Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
+                    Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
                 }
             }
 
