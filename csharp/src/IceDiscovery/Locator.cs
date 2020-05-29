@@ -58,7 +58,7 @@ namespace ZeroC.IceDiscovery
         }
 
         public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
-                                             Current current)
+            Current current)
         {
             lock (this)
             {
@@ -89,8 +89,8 @@ namespace ZeroC.IceDiscovery
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current)
-            => new ValueTask(Task.CompletedTask);
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) =>
+            new ValueTask(Task.CompletedTask);
 
         internal IObjectPrx? FindAdapter(string adapterId, out bool isReplicaGroup)
         {
@@ -151,8 +151,9 @@ namespace ZeroC.IceDiscovery
                         prx.Clone(adapterId: entry.Key).IcePing();
                         adapterIds.Add(entry.Key);
                     }
-                    catch (System.Exception)
+                    catch
                     {
+                        // Ignore.
                     }
                 }
                 if (adapterIds.Count == 0)
@@ -164,8 +165,9 @@ namespace ZeroC.IceDiscovery
                             prx.Clone(adapterId: entry.Key).IcePing();
                             adapterIds.Add(entry.Key);
                         }
-                        catch (System.Exception)
+                        catch
                         {
+                            // Ignore.
                         }
                     }
                 }

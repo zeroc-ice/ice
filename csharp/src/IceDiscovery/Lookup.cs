@@ -126,9 +126,7 @@ namespace ZeroC.IceDiscovery
             IObjectPrx? proxy = _registry.FindObject(id);
             if (proxy != null)
             {
-                //
                 // Reply to the mulicast request using the given proxy.
-                //
                 try
                 {
                     Debug.Assert(reply != null);
@@ -151,15 +149,13 @@ namespace ZeroC.IceDiscovery
             IObjectPrx? proxy = _registry.FindAdapter(adapterId, out bool isReplicaGroup);
             if (proxy != null)
             {
-                //
                 // Reply to the multicast request using the given proxy.
-                //
                 try
                 {
                     Debug.Assert(reply != null);
                     reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
                 }
-                catch (Exception)
+                catch
                 {
                     // Ignore.
                 }
@@ -176,10 +172,8 @@ namespace ZeroC.IceDiscovery
             _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
             Timer = lookup.Communicator.Timer();
 
-            //
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
-            //
             var single = new Endpoint[1];
             foreach (Endpoint endpt in lookup.Endpoints)
             {
@@ -200,7 +194,7 @@ namespace ZeroC.IceDiscovery
 
                 if (request.Exception())
                 {
-                    if (_warnOnce)
+                    if (_warnOnce) // TODO remove this _warnOnce setting?
                     {
                         var s = new StringBuilder();
                         s.Append("failed to lookup adapter `");
@@ -235,8 +229,9 @@ namespace ZeroC.IceDiscovery
                         Timer.Schedule(request, _timeout);
                         return;
                     }
-                    catch (Exception)
+                    catch
                     {
+                        // Ignore.
                     }
                 }
 
@@ -264,7 +259,7 @@ namespace ZeroC.IceDiscovery
                         request.Invoke(_domainId, _lookups);
                         Timer.Schedule(request, _timeout);
                     }
-                    catch (Exception)
+                    catch
                     {
                         request.Finished(null);
                         _adapterRequests.Remove(adapterId);
@@ -292,7 +287,7 @@ namespace ZeroC.IceDiscovery
                         request.Invoke(_domainId, _lookups);
                         Timer.Schedule(request, _timeout);
                     }
-                    catch (Exception)
+                    catch
                     {
                         request.Finished(null);
                         _objectRequests.Remove(id);
@@ -343,7 +338,7 @@ namespace ZeroC.IceDiscovery
 
                 if (request.Exception())
                 {
-                    if (_warnOnce)
+                    if (_warnOnce) // TODO remove this _warnOnce setting?
                     {
                         var s = new StringBuilder();
                         s.Append("failed to lookup object `");
@@ -378,8 +373,9 @@ namespace ZeroC.IceDiscovery
                         Timer.Schedule(request, _timeout);
                         return;
                     }
-                    catch (Exception)
+                    catch
                     {
+                        // Ignore.
                     }
                 }
 

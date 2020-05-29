@@ -13,9 +13,9 @@ namespace ZeroC.IceDiscovery
     {
         private readonly Communicator _communicator;
         private ILocatorPrx? _defaultLocator;
-        private ObjectAdapter? _multicastAdapter;
         private ILocatorPrx? _locator;
         private ObjectAdapter? _locatorAdapter;
+        private ObjectAdapter? _multicastAdapter;
         private ObjectAdapter? _replyAdapter;
 
         public void Destroy()
@@ -125,9 +125,9 @@ namespace ZeroC.IceDiscovery
 
     public sealed class PluginFactory : IPluginFactory
     {
-        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
-
         public static void Register(bool loadOnInitialize) =>
             Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
+
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
     }
 }
