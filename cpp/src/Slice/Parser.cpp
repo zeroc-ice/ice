@@ -316,7 +316,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 }
                 else if(s == "reserved-identifier")
                 {
-                    _suppressedWarnings.insert(ReservedIdentifiers);
+                    _suppressedWarnings.insert(ReservedIdentifier);
                 }
                 else
                 {
@@ -1279,6 +1279,8 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return 0;
     }
 
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
     {
         return 0;
@@ -1341,6 +1343,8 @@ Slice::Container::createClassDecl(const string& name)
         return 0;
     }
 
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
     {
         return 0;
@@ -1429,6 +1433,8 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         return 0;
     }
 
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
     {
         return 0;
@@ -1493,6 +1499,8 @@ Slice::Container::createInterfaceDecl(const string& name)
         return 0;
     }
 
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
     {
         return 0;

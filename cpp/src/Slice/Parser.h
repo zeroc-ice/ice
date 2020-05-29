@@ -87,7 +87,7 @@ enum WarningCategory
     All,
     Deprecated,
     InvalidMetaData,
-    ReservedIdentifiers
+    ReservedIdentifier
 };
 
 class GrammarBase;
