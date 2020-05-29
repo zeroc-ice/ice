@@ -1,32 +1,30 @@
-Reserved.ice:22: warning: `Prx' suffix is reserved by Ice: the identifier `Prx' may conflict with generated code
-Reserved.ice:23: warning: `Prx' suffix is reserved by Ice: the identifier `abcPrx' may conflict with generated code
-Reserved.ice:24: warning: `Ptr' suffix is reserved by Ice: the identifier `Ptr' may conflict with generated code
-Reserved.ice:25: warning: `Ptr' suffix is reserved by Ice: the identifier `abcPtr' may conflict with generated code
-Reserved.ice:26: warning: `Helper' suffix is reserved by Ice: the identifier `Helper' may conflict with generated code
-Reserved.ice:27: warning: `Helper' suffix is reserved by Ice: the identifier `abcHelper' may conflict with generated code
-Reserved.ice:28: warning: `Holder' suffix is reserved by Ice: the identifier `Holder' may conflict with generated code
-Reserved.ice:29: warning: `Holder' suffix is reserved by Ice: the identifier `abcHolder' may conflict with generated code
-Reserved.ice:30: warning: `Ice' prefix is reserved by Ice: the identifier `Ice' may conflict with generated code
-Reserved.ice:31: constant `ice' differs only in capitalization from constant `Ice'
-Reserved.ice:32: warning: `ice' prefix is reserved by Ice: the identifier `icea' may conflict with generated code
-Reserved.ice:33: warning: `Ice' prefix is reserved by Ice: the identifier `Iceblah' may conflict with generated code
-Reserved.ice:34: warning: `Ice' prefix is reserved by Ice: the identifier `IceFoo' may conflict with generated code
-Reserved.ice:35: warning: `ice' prefix is reserved by Ice: the identifier `icecream' may conflict with generated code
-Reserved.ice:36: warning: `ICE' prefix is reserved by Ice: the identifier `ICEpick' may conflict with generated code
-Reserved.ice:37: warning: `iCE' prefix is reserved by Ice: the identifier `iCEaxe' may conflict with generated code
-Reserved.ice:40: warning: `Ice' prefix is reserved by Ice: the identifier `Ice' may conflict with generated code
-Reserved.ice:41: warning: `Ice' prefix is reserved by Ice: the identifier `IceFoo' may conflict with generated code
-Reserved.ice:44: warning: `ice' prefix is reserved by Ice: the identifier `iceberg' may conflict with generated code
-Reserved.ice:45: warning: `Ptr' suffix is reserved by Ice: the identifier `aPtr' may conflict with generated code
-Reserved.ice:45: warning: `Prx' suffix is reserved by Ice: the identifier `bPrx' may conflict with generated code
-Reserved.ice:45: warning: `Helper' suffix is reserved by Ice: the identifier `cHelper' may conflict with generated code
-Reserved.ice:47: illegal identifier: `_a', leading underscores are reserved by Ice
-Reserved.ice:48: illegal identifier: `_true', leading underscores are reserved by Ice
-Reserved.ice:49: illegal identifier: `_true', leading underscores are reserved by Ice
-Reserved.ice:51: illegal identifier: `b_', trailing underscores are reserved by Ice
-Reserved.ice:53: illegal identifier: `b__c', double underscores are reserved by Ice
-Reserved.ice:54: illegal identifier: `b___c', double underscores are reserved by Ice
-Reserved.ice:56: illegal identifier: `_a_', leading underscores are reserved by Ice
-Reserved.ice:57: warning: underscores are reserved by Ice: the identifier `a_b' may conflict with generated code
-Reserved.ice:58: warning: underscores are reserved by Ice: the identifier `a_b_c' may conflict with generated code
-Reserved.ice:59: illegal identifier: `_a__b__', leading underscores are reserved by Ice
+Reserved.ice:21: warning: identifiers with a `Prx' suffix are reserved by Ice: using `Prx' as an identifier may result in name collisions in the generated code
+Reserved.ice:22: warning: identifiers with a `Prx' suffix are reserved by Ice: using `abcPrx' as an identifier may result in name collisions in the generated code
+Reserved.ice:23: warning: identifiers with a `Ptr' suffix are reserved by Ice: using `Ptr' as an identifier may result in name collisions in the generated code
+Reserved.ice:24: warning: identifiers with a `Ptr' suffix are reserved by Ice: using `abcPtr' as an identifier may result in name collisions in the generated code
+Reserved.ice:25: warning: identifiers with a `Helper' suffix are reserved by Ice: using `Helper' as an identifier may result in name collisions in the generated code
+Reserved.ice:26: warning: identifiers with a `Helper' suffix are reserved by Ice: using `abcHelper' as an identifier may result in name collisions in the generated code
+Reserved.ice:27: warning: identifiers with an `Ice' prefix are reserved by Ice: using `Ice' as an identifier may result in name collisions in the generated code
+Reserved.ice:28: constant `ice' differs only in capitalization from constant `Ice'
+Reserved.ice:29: warning: identifiers with an `ice' prefix are reserved by Ice: using `icea' as an identifier may result in name collisions in the generated code
+Reserved.ice:30: warning: identifiers with an `Ice' prefix are reserved by Ice: using `Iceblah' as an identifier may result in name collisions in the generated code
+Reserved.ice:31: warning: identifiers with an `Ice' prefix are reserved by Ice: using `IceFoo' as an identifier may result in name collisions in the generated code
+Reserved.ice:32: warning: identifiers with an `ice' prefix are reserved by Ice: using `icecream' as an identifier may result in name collisions in the generated code
+Reserved.ice:33: warning: identifiers with an `ICE' prefix are reserved by Ice: using `ICEpick' as an identifier may result in name collisions in the generated code
+Reserved.ice:34: warning: identifiers with an `iCE' prefix are reserved by Ice: using `iCEaxe' as an identifier may result in name collisions in the generated code
+Reserved.ice:37: warning: identifiers with an `Ice' prefix are reserved by Ice: using `Ice' as an identifier may result in name collisions in the generated code
+Reserved.ice:38: warning: identifiers with an `Ice' prefix are reserved by Ice: using `IceFoo' as an identifier may result in name collisions in the generated code
+Reserved.ice:41: warning: identifiers with an `ice' prefix are reserved by Ice: using `iceberg' as an identifier may result in name collisions in the generated code
+Reserved.ice:42: warning: identifiers with a `Ptr' suffix are reserved by Ice: using `aPtr' as an identifier may result in name collisions in the generated code
+Reserved.ice:42: warning: identifiers with a `Prx' suffix are reserved by Ice: using `bPrx' as an identifier may result in name collisions in the generated code
+Reserved.ice:42: warning: identifiers with a `Helper' suffix are reserved by Ice: using `cHelper' as an identifier may result in name collisions in the generated code
+Reserved.ice:44: illegal leading underscore in identifier `_a'
+Reserved.ice:45: illegal leading underscore in identifier `_true'
+Reserved.ice:46: illegal leading underscore in identifier `_true'
+Reserved.ice:48: illegal trailing underscore in identifier `b_'
+Reserved.ice:50: illegal double underscore in identifier `b__c'
+Reserved.ice:51: illegal double underscore in identifier `b___c'
+Reserved.ice:53: illegal leading underscore in identifier `_a_'
+Reserved.ice:54: warning: identifiers with underscores are reserved by Ice: using `a_b' as an identifier may result in name collisions in the generated code
+Reserved.ice:55: warning: identifiers with underscores are reserved by Ice: using `a_b_c' as an identifier may result in name collisions in the generated code
+Reserved.ice:56: illegal leading underscore in identifier `_a__b__'

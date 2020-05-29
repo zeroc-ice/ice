@@ -481,14 +481,14 @@ Slice::checkIdentifier(const string& id)
         {
             unit->warning(ReservedIdentifier, "identifiers with a `" + suffixBlacklist[i] +
                                               "' suffix are reserved by Ice: using `" + name +
-                                              "' as an idenfitier may result in name collisions in the generated code");
+                                              "' as an identifier may result in name collisions in the generated code");
         }
     }
 
     // Check the identifier for illegal ice prefixes
     if(ciequals(name.substr(0, 3), "ice"))
     {
-        unit->warning(ReservedIdentifier, "identifiers with an `" + name.substr() +
+        unit->warning(ReservedIdentifier, "identifiers with an `" + name.substr(0, 3) +
                                           "' prefix are reserved by Ice: using `" + name +
                                           "' as an identifier may result in name collisions in the generated code");
     }
