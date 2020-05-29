@@ -9,16 +9,27 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
-    public sealed class PluginFactory : IPluginFactory
+    internal sealed class Plugin : IPlugin
     {
-        public IPlugin
-        Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
-    }
+        private readonly Communicator _communicator;
+        private ILocatorPrx? _defaultLocator;
+        private ILocatorPrx? _locator;
+        private ObjectAdapter? _locatorAdapter;
+        private ObjectAdapter? _multicastAdapter;
+        private ObjectAdapter? _replyAdapter;
 
-    public sealed class Plugin : IPlugin
-    {
-        public
-        Plugin(Communicator communicator) => _communicator = communicator;
+        public void Destroy()
+        {
+            _multicastAdapter?.Destroy();
+            _replyAdapter?.Destroy();
+            _locatorAdapter?.Destroy();
+
+            if (IObjectPrx.Equals(_communicator.DefaultLocator, _locator))
+            {
+                // Restore original default locator proxy, if the user didn't change it in the meantime
+                _communicator.DefaultLocator = _defaultLocator;
+            }
+        }
 
         public void Initialize()
         {
@@ -79,15 +90,14 @@ namespace ZeroC.IceDiscovery
             _replyAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Reply");
             _locatorAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Locator");
 
-            //
             // Setup locatory registry.
-            //
             var locatorRegistry = new LocatorRegistry(_communicator);
             ILocatorRegistryPrx locatorRegistryPrx =
                 _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
 
             ILookupPrx lookupPrx = ILookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
-                clearRouter: true, collocationOptimized: false); // No colloc optimization or router for the multicast proxy!
+                clearRouter: true,
+                collocationOptimized: false); // No collocated optimization or router for the multicast proxy!
 
             //
             // Add lookup and lookup reply Ice objects
@@ -100,9 +110,7 @@ namespace ZeroC.IceDiscovery
             lookup.SetLookupReply(_replyAdapter.CreateProxy("dummy", ILookupReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram));
 
-            //
             // Setup locator on the communicator.
-            //
             _locator = _locatorAdapter.AddWithUUID(new Locator(lookup, locatorRegistryPrx), ILocatorPrx.Factory);
             _defaultLocator = _communicator.DefaultLocator;
             _communicator.DefaultLocator = _locator;
@@ -112,32 +120,14 @@ namespace ZeroC.IceDiscovery
             _locatorAdapter.Activate();
         }
 
-        public void Destroy()
-        {
-            _multicastAdapter?.Destroy();
-            _replyAdapter?.Destroy();
-            _locatorAdapter?.Destroy();
-
-            if (IObjectPrx.Equals(_communicator.DefaultLocator, _locator))
-            {
-                // Restore original default locator proxy, if the user didn't change it in the meantime
-                _communicator.DefaultLocator = _defaultLocator;
-            }
-        }
-
-        private readonly Communicator _communicator;
-        private ObjectAdapter? _multicastAdapter;
-        private ObjectAdapter? _replyAdapter;
-        private ObjectAdapter? _locatorAdapter;
-        private ILocatorPrx? _locator;
-        private ILocatorPrx? _defaultLocator;
+        internal Plugin(Communicator communicator) => _communicator = communicator;
     }
 
-    public static class Util
+    public sealed class PluginFactory : IPluginFactory
     {
-        // TODO replace with static Register method in the factory class
-        public static void
-        RegisterIceDiscovery(bool loadOnInitialize) =>
+        public static void Register(bool loadOnInitialize) =>
             Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
+
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
     }
 }
