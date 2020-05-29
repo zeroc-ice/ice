@@ -274,19 +274,8 @@ namespace ZeroC.Ice
         public void WriteByte(byte v)
         {
             Expand(1);
-            int offset = _tail.Offset;
-            if (offset < _currentSegment.Count)
-            {
-                _currentSegment[offset] = v;
-                _tail.Offset++;
-            }
-            else
-            {
-                // (segN, segN.Count) points to the same byte as (segN + 1, 0)
-                _currentSegment = _segmentList[++_tail.Segment];
-                _currentSegment[0] = v;
-                _tail.Offset = 1;
-            }
+            _currentSegment[_tail.Offset] = v;
+            _tail.Offset++;
             Size++;
         }
 
@@ -1030,46 +1019,27 @@ namespace ZeroC.Ice
             Debug.Assert(bitLength > 0);
             int size = (bitLength >> 3) + ((bitLength & 0x07) != 0 ? 1 : 0);
 
-            Position startPos = _tail;
-            bool patchStartPos = (startPos.Offset == _currentSegment.Count);
+            Expand(size);
 
-            int remaining = _capacity - Size;
-            if (size > remaining)
+            int remaining = _currentSegment.Count - _tail.Offset;
+            if (size <= remaining)
             {
-                int segmentSize = Math.Max(DefaultSegmentSize, _currentSegment.Count * 2);
-                segmentSize = Math.Max(size - remaining, segmentSize);
-                byte[] buffer = new byte[segmentSize];
-                _segmentList.Add(buffer);
-                _currentSegment = buffer;
-                _tail.Segment++;
-                _tail.Offset = size - remaining;
-                Size += size;
-            }
-            else
-            {
+                // Expand above ensures _tail.Offset is not _currentSegment.Count.
+                Span<byte> span = _currentSegment.AsSpan(_tail.Offset, size);
+                span.Fill(255);
                 _tail.Offset += size;
                 Size += size;
-            }
-
-            if (patchStartPos)
-            {
-                // Move startPos to the first byte of the next segment
-                startPos.Segment++;
-                startPos.Offset = 0;
-            }
-
-            if (startPos.Segment == _tail.Segment)
-            {
-                var span = _currentSegment.AsSpan(startPos.Offset, _tail.Offset - startPos.Offset);
-                span.Fill(255);
                 return new BitSequence(span);
             }
             else
             {
-                var firstSpan = _segmentList[startPos.Segment].AsSpan(startPos.Offset);
-                var secondSpan = _currentSegment.AsSpan(0, _tail.Offset);
+                Span<byte> firstSpan = _currentSegment.AsSpan(_tail.Offset);
                 firstSpan.Fill(255);
+                _currentSegment = _segmentList[^1];
+                Span<byte> secondSpan = _currentSegment.AsSpan(0, size - remaining);
                 secondSpan.Fill(255);
+                _tail.Offset = size - remaining;
+                Size += size;
                 return new BitSequence(firstSpan, secondSpan);
             }
         }
@@ -1296,7 +1266,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Expands the stream to make room for more data. If the bytes remaining in the stream are not enough
-        /// to hold the given number of bytes allocate new byte array.</summary>
+        /// to hold the given number of bytes, allocates a new byte array. The caller should then consume the new bytes
+        /// immediately; calling Expand repeatedly is not supported.</summary>
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
         private void Expand(int n)
         {
@@ -1307,12 +1278,24 @@ namespace ZeroC.Ice
                 size = Math.Max(n - remaining, size);
                 byte[] buffer = new byte[size];
                 _segmentList.Add(buffer);
-                if (_segmentList.Count == 1) // TODO: missing comment. This occurs only when _currentSegment is empty?
+                if (_segmentList.Count == 1) // First Expand for a new OutputStream constructed with no buffer.
                 {
+                    Debug.Assert(_currentSegment.Count == 0);
                     _currentSegment = buffer;
+                }
+                else if (remaining == 0)
+                {
+                    // Patch _tail to point to the first byte in the new buffer.
+                    Debug.Assert(_tail.Offset == _currentSegment.Count);
+                    _currentSegment = buffer;
+                    _tail.Segment++;
+                    _tail.Offset = 0;
                 }
                 _capacity += buffer.Length;
             }
+
+            // Once Expand returns, _tail points to a writeable byte.
+            Debug.Assert(_tail.Offset < _currentSegment.Count);
         }
 
         /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the current
@@ -1351,7 +1334,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                // (segN, segN.Count) points to the same bytes as (segN + 1, 0)
+                // (segN, segN.Count) points to the same byte as (segN + 1, 0)
                 Debug.Assert(pos.Offset == segment.Count);
                 segment = _segmentList[pos.Segment + 1];
                 segment[0] = v;

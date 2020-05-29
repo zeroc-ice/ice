@@ -216,7 +216,7 @@ namespace ZeroC.Ice
             if (v != null)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class);
-                WriteOptionalClass(v);
+                WriteClass(v);
             }
         }
 
