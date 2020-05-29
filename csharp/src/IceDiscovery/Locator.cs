@@ -10,6 +10,25 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
+    internal class Locator : ILocator
+    {
+        private readonly Lookup _lookup;
+        private readonly ILocatorRegistryPrx _registry;
+
+        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapterId, Current current) =>
+            _lookup.FindAdapter(adapterId);
+
+        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
+
+        public ILocatorRegistryPrx? GetRegistry(Current current) => _registry;
+
+        internal Locator(Lookup lookup, ILocatorRegistryPrx registry)
+        {
+            _lookup = lookup;
+            _registry = registry;
+        }
+    }
+
     internal class LocatorRegistry : ILocatorRegistry
     {
         private readonly Dictionary<string, IObjectPrx> _adapters = new Dictionary<string, IObjectPrx>();
@@ -17,6 +36,61 @@ namespace ZeroC.IceDiscovery
         private readonly Dictionary<string, HashSet<string>> _replicaGroups =
             new Dictionary<string, HashSet<string>>();
         private readonly IObjectPrx _wellKnownProxy;
+
+        public LocatorRegistry(Communicator com) =>
+            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
+                clearLocator: true, clearRouter: true, collocationOptimized: true);
+
+        public ValueTask SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
+        {
+            lock (_mutex)
+            {
+                if (proxy != null)
+                {
+                    _adapters.Add(adapterId, proxy);
+                }
+                else
+                {
+                    _adapters.Remove(adapterId);
+                }
+            }
+            return new ValueTask(Task.CompletedTask);
+        }
+
+        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
+                                             Current current)
+        {
+            lock (this)
+            {
+                HashSet<string>? adapterIds;
+                if (proxy != null)
+                {
+                    _adapters.Add(adapterId, proxy);
+                    if (!_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                    {
+                        adapterIds = new HashSet<string>();
+                        _replicaGroups.Add(replicaGroupId, adapterIds);
+                    }
+                    adapterIds.Add(adapterId);
+                }
+                else
+                {
+                    _adapters.Remove(adapterId);
+                    if (_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
+                    {
+                        adapterIds.Remove(adapterId);
+                        if (adapterIds.Count == 0)
+                        {
+                            _replicaGroups.Remove(replicaGroupId);
+                        }
+                    }
+                }
+            }
+            return new ValueTask(Task.CompletedTask);
+        }
+
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current)
+            => new ValueTask(Task.CompletedTask);
 
         internal IObjectPrx? FindAdapter(string adapterId, out bool isReplicaGroup)
         {
@@ -104,79 +178,5 @@ namespace ZeroC.IceDiscovery
                 return prx.Clone(adapterId: adapterIds.Shuffle().First());
             }
         }
-
-        public LocatorRegistry(Communicator com) =>
-            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
-                clearLocator: true, clearRouter: true, collocationOptimized: true);
-
-        public ValueTask SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
-        {
-            lock (_mutex)
-            {
-                if (proxy != null)
-                {
-                    _adapters.Add(adapterId, proxy);
-                }
-                else
-                {
-                    _adapters.Remove(adapterId);
-                }
-            }
-            return new ValueTask(Task.CompletedTask);
-        }
-
-        public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
-                                             Current current)
-        {
-            lock (this)
-            {
-                HashSet<string>? adapterIds;
-                if (proxy != null)
-                {
-                    _adapters.Add(adapterId, proxy);
-                    if (!_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
-                    {
-                        adapterIds = new HashSet<string>();
-                        _replicaGroups.Add(replicaGroupId, adapterIds);
-                    }
-                    adapterIds.Add(adapterId);
-                }
-                else
-                {
-                    _adapters.Remove(adapterId);
-                    if (_replicaGroups.TryGetValue(replicaGroupId, out adapterIds))
-                    {
-                        adapterIds.Remove(adapterId);
-                        if (adapterIds.Count == 0)
-                        {
-                            _replicaGroups.Remove(replicaGroupId);
-                        }
-                    }
-                }
-            }
-            return new ValueTask(Task.CompletedTask);
-        }
-
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current)
-            => new ValueTask(Task.CompletedTask);
-    }
-
-    internal class Locator : ILocator
-    {
-        private readonly Lookup _lookup;
-        private readonly ILocatorRegistryPrx _registry;
-
-        public Locator(Lookup lookup, ILocatorRegistryPrx registry)
-        {
-            _lookup = lookup;
-            _registry = registry;
-        }
-
-        public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapterId, Current current) =>
-            _lookup.FindAdapter(adapterId);
-
-        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
-
-        public ILocatorRegistryPrx? GetRegistry(Current current) => _registry;
     }
 }

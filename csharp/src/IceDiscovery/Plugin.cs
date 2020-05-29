@@ -9,14 +9,6 @@ using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
-    public sealed class PluginFactory : IPluginFactory
-    {
-        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
-
-        public static void Register(bool loadOnInitialize) =>
-            Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
-    }
-
     internal sealed class Plugin : IPlugin
     {
         private readonly Communicator _communicator;
@@ -25,8 +17,6 @@ namespace ZeroC.IceDiscovery
         private ILocatorPrx? _locator;
         private ObjectAdapter? _locatorAdapter;
         private ObjectAdapter? _replyAdapter;
-
-        public Plugin(Communicator communicator) => _communicator = communicator;
 
         public void Destroy()
         {
@@ -129,5 +119,15 @@ namespace ZeroC.IceDiscovery
             _replyAdapter.Activate();
             _locatorAdapter.Activate();
         }
+
+        internal Plugin(Communicator communicator) => _communicator = communicator;
+    }
+
+    public sealed class PluginFactory : IPluginFactory
+    {
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new Plugin(communicator);
+
+        public static void Register(bool loadOnInitialize) =>
+            Communicator.RegisterPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
     }
 }
