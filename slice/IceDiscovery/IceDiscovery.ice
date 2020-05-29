@@ -7,7 +7,7 @@
 [[cpp:doxygen:include:IceDiscovery/IceDiscovery.h]]
 [[cpp:header-ext:h]]
 
-[[ice-prefix]]
+[[suppress-warning:reserved-identifier]]
 [[normalize-case]]
 [[js:module:ice]]
 

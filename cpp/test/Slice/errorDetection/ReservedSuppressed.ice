@@ -2,7 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <include/IcePrefix.ice>        // No warnings should be caused by this file
+[[suppress-warning:reserved-identifier]]
+
+#include <include/IcePrefix.ice>
 
 module OK
 {
@@ -54,18 +56,3 @@ module _a_ {}          // Illegal underscores
 module a_b {}          // Illegal underscore
 module a_b_c {}        // Illegal underscores
 module _a__b__ {}      // Illegal underscores
-
-// Ensure that warnings can be suppressed with local metadata.
-
-[suppress-warning:reserved-identifier]
-module suppressed
-{
-const long PrxA = 0;
-const long APrxA = 0;
-const long prxB = 0;
-const long Bprx = 0;
-const long prx = 0;
-const long PtrA = 0;
-const long HelperA = 0;
-const long aIce = 0;
-}

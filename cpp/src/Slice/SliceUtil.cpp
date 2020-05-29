@@ -470,16 +470,27 @@ Slice::checkIdentifier(const string& id)
         name = id;
     }
 
+    // Validity is only determined by invalid syntax that triggers errors, not warnings.
     bool isValid = true;
+
     // check the identifier for reserved suffixes
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
+    static const string suffixBlacklist[] = { "Helper", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
         if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
         {
-            unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-            isValid = false;
+            unit->warning(ReservedIdentifier, "identifiers with a `" + suffixBlacklist[i] +
+                                              "' suffix are reserved by Ice: using `" + name +
+                                              "' as an identifier may result in name collisions in the generated code");
         }
+    }
+
+    // Check the identifier for illegal ice prefixes
+    if(ciequals(name.substr(0, 3), "ice"))
+    {
+        unit->warning(ReservedIdentifier, "identifiers with an `" + name.substr(0, 3) +
+                                          "' prefix are reserved by Ice: using `" + name +
+                                          "' as an identifier may result in name collisions in the generated code");
     }
 
     // check the identifier for illegal underscores
@@ -499,30 +510,10 @@ Slice::checkIdentifier(const string& id)
         unit->error("illegal double underscore in identifier `" + name + "'");
         isValid = false;
     }
-    else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
+    else if(index != string::npos)
     {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' file metadata
-        {
-            unit->error("illegal underscore in identifier `" + name + "'");
-            isValid = false;
-        }
-    }
-
-    // Check the identifier for illegal ice prefixes
-    if(unit->currentIncludeLevel() == 0 && !unit->allowIcePrefix() && name.size() > 2)
-    {
-        DefinitionContextPtr dc = unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no 'ice-prefix' metadata
-        {
-            if(ciequals(name.substr(0, 3), "ice"))
-            {
-                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-                isValid = false;
-            }
-        }
+        unit->warning(ReservedIdentifier, "identifiers with underscores are reserved by Ice: using `" + name +
+                                          "' as an identifier may result in name collisions in the generated code");
     }
     return isValid;
 }

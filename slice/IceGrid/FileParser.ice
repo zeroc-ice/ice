@@ -9,7 +9,7 @@
 [[cpp:header-ext:h]]
 [[cpp:include:IceGrid/Config.h]]
 
-[[ice-prefix]]
+[[suppress-warning:reserved-identifier]]
 [[normalize-case]]
 [[js:module:ice]]
 

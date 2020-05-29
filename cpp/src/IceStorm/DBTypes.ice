@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[ice-prefix]]
+[[suppress-warning:reserved-identifier]]
 [[cpp:header-ext:h]]
 
 #include <IceStorm/SubscriberRecord.ice>

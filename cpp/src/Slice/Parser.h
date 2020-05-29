@@ -86,7 +86,8 @@ enum WarningCategory
 {
     All,
     Deprecated,
-    InvalidMetaData
+    InvalidMetaData,
+    ReservedIdentifier
 };
 
 class GrammarBase;
@@ -1158,11 +1159,9 @@ class Unit : public virtual Container
 {
 public:
 
-    static UnitPtr createUnit(bool, bool, bool, bool, const StringList& = StringList());
+    static UnitPtr createUnit(bool, bool, const StringList& = StringList());
 
     bool ignRedefs() const;
-    bool allowIcePrefix() const;
-    bool allowUnderscore() const;
     bool compatMode() const;
     void checkType(const TypePtr&);
 
@@ -1227,13 +1226,11 @@ public:
 
 private:
 
-    Unit(bool, bool, bool, bool, const StringList&);
+    Unit(bool, bool, const StringList&);
     static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
     bool _all;
-    bool _allowIcePrefix;
-    bool _allowUnderscore;
     StringList _defaultFileMetaData;
     int _errors;
     std::string _currentComment;

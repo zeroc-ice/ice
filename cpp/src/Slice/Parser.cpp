@@ -314,6 +314,10 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(InvalidMetaData);
                 }
+                else if(s == "reserved-identifier")
+                {
+                    _suppressedWarnings.insert(ReservedIdentifier);
+                }
                 else
                 {
                     warning(InvalidMetaData, "", "", string("invalid category `") + s +
@@ -1275,9 +1279,9 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name);
-    isIllegal |= !checkForGlobalDef(name, "class");
-    if(isIllegal)
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
+    if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
     {
         return 0;
     }
@@ -1339,9 +1343,9 @@ Slice::Container::createClassDecl(const string& name)
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name);
-    isIllegal |= !checkForGlobalDef(name, "class");
-    if(isIllegal)
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
+    if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
     {
         return 0;
     }
@@ -1429,9 +1433,9 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name);
-    isIllegal |= !checkForGlobalDef(name, "interface");
-    if (isIllegal)
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
+    if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
     {
         return 0;
     }
@@ -1495,9 +1499,9 @@ Slice::Container::createInterfaceDecl(const string& name)
         return 0;
     }
 
-    bool isIllegal = !checkIdentifier(name);
-    isIllegal |= !checkForGlobalDef(name, "interface");
-    if (isIllegal)
+    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
+    // and skip the second check, so we use '|' here instead, which will never short-circuit.
+    if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
     {
         return 0;
     }
@@ -1561,11 +1565,11 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         return 0;
     }
 
-    checkIdentifier(name); // Don't return here -- we create the exception anyway
+    checkIdentifier(name); // Don't return here -- we create the exception anyway.
 
     if(nt == Real)
     {
-        checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway
+        checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway.
     }
 
     ExceptionPtr p = new Exception(this, name, base);
@@ -6083,28 +6087,15 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                        const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(bool ignRedefs, bool all, const StringList& defaultFileMetadata)
 {
-    return new Unit(ignRedefs, all, allowIcePrefix, allowUnderscore, defaultFileMetadata);
+    return new Unit(ignRedefs, all, defaultFileMetadata);
 }
 
 bool
 Slice::Unit::ignRedefs() const
 {
     return _ignRedefs;
-}
-
-bool
-Slice::Unit::allowIcePrefix() const
-{
-    return _allowIcePrefix;
-}
-
-bool
-Slice::Unit::allowUnderscore() const
-{
-    return _allowUnderscore;
 }
 
 bool
@@ -6673,14 +6664,11 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
-                  const StringList& defaultFileMetadata) :
+Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultFileMetadata) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
-    _allowIcePrefix(allowIcePrefix),
-    _allowUnderscore(allowUnderscore),
     _defaultFileMetaData(defaultFileMetadata),
     _errors(0),
     _currentIncludeLevel(0)

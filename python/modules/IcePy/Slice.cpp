@@ -62,8 +62,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
     opts.addOpt("", "all");
 
     vector<string> files;
@@ -91,8 +89,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     vector<string> cppArgs;
     Ice::StringSeq includePaths;
     bool debug = false;
-    bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
-    bool underscore = opts.isSet("underscore");
     bool all = false;
     if(opts.isSet("D"))
     {
@@ -136,7 +132,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return 0;
         }
 
-        UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, underscore);
+        UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all);
         int parseStatus = u->parse(file, cppHandle, debug);
 
         if(!icecpp->close() || parseStatus == EXIT_FAILURE)

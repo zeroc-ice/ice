@@ -77,10 +77,6 @@ usage(const string& n)
         "--impl                   Generate sample implementations.\n"
         "--dll-export SYMBOL      Use SYMBOL for DLL exports\n"
         "                         deprecated: use instead [[\"cpp:dll-export:SYMBOL\"]] metadata.\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
-        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
-        "--underscore             Allow underscores in Slice identifiers\n"
-        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
@@ -106,8 +102,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "ice");
-    opts.addOpt("", "underscore");
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> args;
@@ -180,10 +174,6 @@ compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
-    bool ice = opts.isSet("ice");
-
-    bool underscore = opts.isSet("underscore");
-
     if(args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
@@ -241,7 +231,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+            UnitPtr u = Unit::createUnit(false, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
 
             string ext = headerExtension;
@@ -299,7 +289,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, false, ice, underscore);
+                UnitPtr u = Unit::createUnit(false, false);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())
