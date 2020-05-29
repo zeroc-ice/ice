@@ -55,7 +55,7 @@ module a_b {}          // Illegal underscore
 module a_b_c {}        // Illegal underscores
 module _a__b__ {}      // Illegal underscores
 
-// Ensure that warnings can still be suppressed with local metadata.
+// Ensure that warnings can be suppressed with local metadata.
 
 [suppress-warning:reserved-identifier]
 module suppressed
