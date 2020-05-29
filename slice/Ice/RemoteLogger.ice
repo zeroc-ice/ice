@@ -11,7 +11,7 @@
 [[cpp:header-ext:h]]
 [[cpp:include:list]]
 
-[[suppress-warning:reserved-identifiers]]
+[[suppress-warning:reserved-identifier]]
 [[normalize-case]]
 [[js:module:ice]]
 

@@ -314,7 +314,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(InvalidMetaData);
                 }
-                else if(s == "reserved-identifiers")
+                else if(s == "reserved-identifier")
                 {
                     _suppressedWarnings.insert(ReservedIdentifiers);
                 }

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-[[suppress-warning:reserved-identifiers]]
+[[suppress-warning:reserved-identifier]]
 [[java:package:test.Slice.escape]]
 
 module Clash

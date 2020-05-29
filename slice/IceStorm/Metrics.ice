@@ -9,7 +9,7 @@
 [[cpp:header-ext:h]]
 [[cpp:include:IceStorm/Config.h]]
 
-[[suppress-warning:reserved-identifiers]]
+[[suppress-warning:reserved-identifier]]
 [[normalize-case]]
 [[python:pkgdir:IceStorm]]
 

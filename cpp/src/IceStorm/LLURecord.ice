@@ -4,7 +4,7 @@
 
 #pragma once
 
-[[suppress-warning:reserved-identifiers]]
+[[suppress-warning:reserved-identifier]]
 [[cpp:header-ext:h]]
 
 module IceStormElection

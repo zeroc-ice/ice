@@ -10,7 +10,7 @@
 
 [[normalize-case]]
 
-[[suppress-warning:reserved-identifiers]]
+[[suppress-warning:reserved-identifier]]
 
 [[js:module:ice]]
 
