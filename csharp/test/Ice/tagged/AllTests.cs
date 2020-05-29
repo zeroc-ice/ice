@@ -321,27 +321,27 @@ namespace ZeroC.Ice.tagged
             factory.setEnabled(true);
             OutputStream os = new OutputStream(communicator);
             os.StartEncapsulation();
-            os.WriteClass(oo1);
+            os.WriteOptionalClass(oo1);
             os.EndEncapsulation();
             byte[] inEncaps = os.Finished();
             byte[] outEncaps;
             test(initial.Invoke("pingPong", idempotent: false, inEncaps, out outEncaps));
             InputStream
             responseFrame.InputStream.StartEncapsulation();
-            ReadClassCallbackI cb = new ReadClassCallbackI();
-            responseFrame.InputStream.ReadClass(cb.invoke);
+            ReadOptionalClassCallbackI cb = new ReadOptionalClassCallbackI();
+            responseFrame.InputStream.ReadOptionalClass(cb.invoke);
             responseFrame.InputStream.EndEncapsulation();
             test(cb.obj != null && cb.obj is TestClassReader);
 
             os = new OutputStream(communicator);
             os.StartEncapsulation();
-            os.WriteClass(mo1);
+            os.WriteOptionalClass(mo1);
             os.EndEncapsulation();
             inEncaps = os.Finished();
             test(initial.Invoke("pingPong", idempotent: false, inEncaps, out outEncaps));
 
             responseFrame.InputStream.StartEncapsulation();
-            responseFrame.InputStream.ReadClass(cb.invoke);
+            responseFrame.InputStream.ReadOptionalClass(cb.invoke);
             responseFrame.InputStream.EndEncapsulation();
             test(cb.obj != null && cb.obj is TestClassReader);
             factory.setEnabled(false);
@@ -422,13 +422,13 @@ namespace ZeroC.Ice.tagged
             factory.setEnabled(true);
             os = new OutputStream(communicator);
             os.StartEncapsulation();
-            os.WriteClass(mc);
+            os.WriteOptionalClass(mc);
             os.EndEncapsulation();
             inEncaps = os.Finished();
             test(initial.Invoke("pingPong", idempotent: false, inEncaps, out outEncaps));
 
             responseFrame.InputStream.StartEncapsulation();
-            responseFrame.InputStream.ReadClass(cb.invoke);
+            responseFrame.InputStream.ReadOptionalClass(cb.invoke);
             responseFrame.InputStream.EndEncapsulation();
             test(cb.obj != null && cb.obj is TestClassReader);
             factory.setEnabled(false);
@@ -462,13 +462,13 @@ namespace ZeroC.Ice.tagged
                 factory.setEnabled(true);
                 os = new OutputStream(communicator);
                 os.StartEncapsulation();
-                os.WriteClass(b);
+                os.WriteOptionalClass(b);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 test(initial.Invoke("pingPong", idempotent: false, inEncaps, out outEncaps));
 
                 responseFrame.InputStream.StartEncapsulation();
-                responseFrame.InputStream.ReadClass(cb.invoke);
+                responseFrame.InputStream.ReadOptionalClass(cb.invoke);
                 responseFrame.InputStream.EndEncapsulation();
                 test(cb.obj != null);
                 factory.setEnabled(false);
@@ -493,13 +493,13 @@ namespace ZeroC.Ice.tagged
                 factory.setEnabled(true);
                 os = new OutputStream(communicator);
                 os.StartEncapsulation();
-                os.WriteClass(f);
+                os.WriteOptionalClass(f);
                 os.EndEncapsulation();
                 inEncaps = os.Finished();
                 responseFrame.InputStream = new InputStream(communicator, inEncaps);
                 responseFrame.InputStream.StartEncapsulation();
-                ReadClassCallbackI rocb = new ReadClassCallbackI();
-                responseFrame.InputStream.ReadClass(rocb.invoke);
+                ReadOptionalClassCallbackI rocb = new ReadOptionalClassCallbackI();
+                responseFrame.InputStream.ReadOptionalClass(rocb.invoke);
                 responseFrame.InputStream.EndEncapsulation();
                 factory.setEnabled(false);
                 rf = ((FClassReader)rocb.obj).getF();
@@ -954,16 +954,16 @@ namespace ZeroC.Ice.tagged
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.WriteTagged(1, TaggedFormat.Class);
-                ostr.WriteClass(f);
+                ostr.WriteOptionalClass(f);
                 ostr.WriteTagged(2, TaggedFormat.Class);
-                ostr.WriteClass(f.ae);
+                ostr.WriteOptionalClass(f.ae);
                 ostr.EndEncapsulation();
                 var inEncaps = ostr.ToArray();
 
                 var istr = new InputStream(communicator, inEncaps);
                 istr.StartEncapsulation();
                 test(istr.ReadTagged(2, TaggedFormat.Class));
-                var a = istr.ReadClass<A>();
+                var a = istr.ReadOptionalClass<A>();
                 istr.EndEncapsulation();
                 test(a != null && a.requiredA == 56);*/
             }
@@ -1580,14 +1580,15 @@ namespace ZeroC.Ice.tagged
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntOneTaggedDict", idempotent: false,
                     format: null, context: null, p1,
                     (OutputStream ostr, Dictionary<int, OneTagged?>? p1) =>
-                        ostr.WriteTaggedDictionary(2, p1, (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteClass(v)));
+                        ostr.WriteTaggedDictionary(
+                            2, p1, (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteOptionalClass(v)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedVariableSizeEntryDictionary(1, 5, istr => istr.ReadInt(),
-                                                                     istr => istr.ReadClass<OneTagged>()),
+                                                                     istr => istr.ReadOptionalClass<OneTagged>()),
                         istr.ReadTaggedVariableSizeEntryDictionary(3, 5, istr => istr.ReadInt(),
-                                                                         istr => istr.ReadClass<OneTagged>())));
+                                                                         istr => istr.ReadOptionalClass<OneTagged>())));
                 TestHelper.Assert(p2![1]!.a == 58);
                 TestHelper.Assert(p3![1]!.a == 58);
             }

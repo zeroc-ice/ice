@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
@@ -10,8 +11,19 @@ namespace ZeroC.Ice
     [Serializable]
     public abstract class AnyClass
     {
-        public static readonly InputStreamReader<AnyClass?> IceReader = (istr) => istr.ReadClass<AnyClass>();
-        public static readonly OutputStreamWriter<AnyClass?> IceWriter = (ostr, value) => ostr.WriteClass(value);
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<AnyClass> IceReader = (istr) => istr.ReadClass<AnyClass>();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<AnyClass?> IceReaderIntoOptional =
+            (istr) => istr.ReadOptionalClass<AnyClass>();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<AnyClass> IceWriter = (ostr, value) => ostr.WriteClass(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<AnyClass?> IceWriterFromOptional =
+            (ostr, value) => ostr.WriteOptionalClass(value);
 
         protected virtual SlicedData? IceSlicedData
         {

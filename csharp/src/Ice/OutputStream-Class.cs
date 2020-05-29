@@ -146,15 +146,13 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Writes a class instance to the stream.</summary>
-        /// <param name="v">The class instance to write.</param>
-        public void WriteClass(AnyClass? v)
+        /// <param name="v">The class instance to write. This instance cannot be null.</param>
+        public void WriteClass(AnyClass v)
         {
             Debug.Assert(InEncapsulation);
-            if (v == null)
-            {
-                WriteSize(0);
-            }
-            else if (_current != null && _format == FormatType.Sliced)
+            Debug.Assert(v != null);
+
+            if (_current != null && _format == FormatType.Sliced)
             {
                 // If writing an instance within a slice and using the sliced format, write an index of that slice's
                 // indirection table.
@@ -193,6 +191,21 @@ namespace ZeroC.Ice
 
             v.Write(this);
             Pop(null);
+        }
+
+        /// <summary>Writes a class instance to the stream, or null.</summary>
+        /// <param name="v">The class instance to write, or null</param>
+        public void WriteOptionalClass(AnyClass? v)
+        {
+            Debug.Assert(InEncapsulation);
+            if (v == null)
+            {
+                WriteSize(0);
+            }
+            else
+            {
+                WriteClass(v);
+            }
         }
 
         /// <summary>Writes a tagged class instance to the stream.</summary>

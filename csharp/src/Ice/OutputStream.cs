@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 namespace ZeroC.Ice
 {
@@ -273,18 +274,8 @@ namespace ZeroC.Ice
         public void WriteByte(byte v)
         {
             Expand(1);
-            int offset = _tail.Offset;
-            if (offset < _currentSegment.Count)
-            {
-                _currentSegment[offset] = v;
-                _tail.Offset++;
-            }
-            else
-            {
-                _currentSegment = _segmentList[++_tail.Segment];
-                _currentSegment[0] = v;
-                _tail.Offset = 1;
-            }
+            _currentSegment[_tail.Offset] = v;
+            _tail.Offset++;
             Size++;
         }
 
@@ -500,9 +491,9 @@ namespace ZeroC.Ice
             WriteByteSpan(MemoryMarshal.AsBytes(v));
         }
 
-        /// <summary>Writes a proxy to the stream.</summary>
-        /// <param name="v">The proxy to write.</param>
-        public void WriteProxy<T>(T? v) where T : class, IObjectPrx
+        /// <summary>Writes an optional proxy to the stream.</summary>
+        /// <param name="v">The proxy to write, or null.</param>
+        public void WriteOptionalProxy<T>(T? v) where T : class, IObjectPrx
         {
             if (v != null)
             {
@@ -513,6 +504,10 @@ namespace ZeroC.Ice
                 Identity.Empty.IceWrite(this);
             }
         }
+
+        /// <summary>Writes a proxy to the stream.</summary>
+        /// <param name="v">The proxy to write. This proxy cannot be null.</param>
+        public void WriteProxy<T>(T v) where T : class, IObjectPrx => v.IceWrite(this);
 
         /// <summary>Writes a sequence to the stream.</summary>
         /// <param name="v">The sequence to write.</param>
@@ -1014,6 +1009,41 @@ namespace ZeroC.Ice
         // Other methods
         //
 
+        /// <summary>Writes a sequence of bits to the stream, and returns this sequence backed by the stream's buffer.
+        /// </summary>
+        /// <param name="bitLength">The minimum number of bits in the sequence.</param>
+        /// <returns>The bit sequence, with all bits set. The actual length of the sequence is a multiple of 8.
+        /// </returns>
+        public BitSequence WriteBitSequence(int bitLength)
+        {
+            Debug.Assert(bitLength > 0);
+            int size = (bitLength >> 3) + ((bitLength & 0x07) != 0 ? 1 : 0);
+
+            Expand(size);
+
+            int remaining = _currentSegment.Count - _tail.Offset;
+            if (size <= remaining)
+            {
+                // Expand above ensures _tail.Offset is not _currentSegment.Count.
+                Span<byte> span = _currentSegment.AsSpan(_tail.Offset, size);
+                span.Fill(255);
+                _tail.Offset += size;
+                Size += size;
+                return new BitSequence(span);
+            }
+            else
+            {
+                Span<byte> firstSpan = _currentSegment.AsSpan(_tail.Offset);
+                firstSpan.Fill(255);
+                _currentSegment = _segmentList[++_tail.Segment];
+                _tail.Offset = size - remaining;
+                Size += size;
+                Span<byte> secondSpan = _currentSegment.AsSpan(0, _tail.Offset);
+                secondSpan.Fill(255);
+                return new BitSequence(firstSpan, secondSpan);
+            }
+        }
+
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
         // Constructor for protocol frame header and other non-encapsulated data.
@@ -1236,7 +1266,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Expands the stream to make room for more data. If the bytes remaining in the stream are not enough
-        /// to hold the given number of bytes allocate new byte array.</summary>
+        /// to hold the given number of bytes, allocates a new byte array. The caller should then consume the new bytes
+        /// immediately; calling Expand repeatedly is not supported.</summary>
         /// <param name="n">The number of bytes to accommodate in the stream.</param>
         private void Expand(int n)
         {
@@ -1247,12 +1278,24 @@ namespace ZeroC.Ice
                 size = Math.Max(n - remaining, size);
                 byte[] buffer = new byte[size];
                 _segmentList.Add(buffer);
-                if (_segmentList.Count == 1)
+                if (_segmentList.Count == 1) // First Expand for a new OutputStream constructed with no buffer.
                 {
+                    Debug.Assert(_currentSegment.Count == 0);
                     _currentSegment = buffer;
+                }
+                else if (remaining == 0)
+                {
+                    // Patch _tail to point to the first byte in the new buffer.
+                    Debug.Assert(_tail.Offset == _currentSegment.Count);
+                    _currentSegment = buffer;
+                    _tail.Segment++;
+                    _tail.Offset = 0;
                 }
                 _capacity += buffer.Length;
             }
+
+            // Once Expand returns, _tail points to a writeable byte.
+            Debug.Assert(_tail.Offset < _currentSegment.Count);
         }
 
         /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the current
@@ -1291,6 +1334,8 @@ namespace ZeroC.Ice
             }
             else
             {
+                // (segN, segN.Count) points to the same byte as (segN + 1, 0)
+                Debug.Assert(pos.Offset == segment.Count);
                 segment = _segmentList[pos.Segment + 1];
                 segment[0] = v;
             }
@@ -1384,20 +1429,19 @@ namespace ZeroC.Ice
             Size += length;
             int offset = _tail.Offset;
             int remaining = _currentSegment.Count - offset;
-            if (remaining > 0)
+            Debug.Assert(remaining > 0); // guaranteed by Expand
+
+            int sz = Math.Min(length, remaining);
+            if (length > remaining)
             {
-                int sz = Math.Min(length, remaining);
-                if (length > remaining)
-                {
-                    span.Slice(0, remaining).CopyTo(_currentSegment.AsSpan(offset, sz));
-                }
-                else
-                {
-                    span.CopyTo(_currentSegment.AsSpan(offset, length));
-                }
-                _tail.Offset += sz;
-                length -= sz;
+                span.Slice(0, remaining).CopyTo(_currentSegment.AsSpan(offset, sz));
             }
+            else
+            {
+                span.CopyTo(_currentSegment.AsSpan(offset, length));
+            }
+            _tail.Offset += sz;
+            length -= sz;
 
             if (length > 0)
             {

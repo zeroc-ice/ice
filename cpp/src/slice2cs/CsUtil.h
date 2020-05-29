@@ -61,8 +61,6 @@ std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);
 
 bool isCollectionType(const TypePtr&);
-bool isInterfaceType(const TypePtr&);
-bool isClassType(const TypePtr&);
 bool isValueType(const TypePtr&); // value with C# "struct" meaning
 bool isReferenceType(const TypePtr&); // opposite of value
 bool isMappedToReadOnlyMemory(const SequencePtr& seq);
@@ -114,11 +112,11 @@ protected:
     // Generate code to marshal or unmarshal a type
     //
     std::string outputStreamWriter(const TypePtr&, const std::string&, bool);
-    void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, const std::string&, const std::string&,
-                          const std::string& = "ostr");
+    void writeMarshalCode(::IceUtilInternal::Output&, const TypePtr&, int&, bool, const std::string&,
+                          const std::string&, const std::string& = "ostr");
 
     std::string inputStreamReader(const TypePtr&, const std::string&);
-    void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+    void writeUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, int&, const std::string&, const std::string&,
                             const std::string& = "istr");
 
     void writeTaggedMarshalCode(::IceUtilInternal::Output&, const OptionalPtr&, bool, const std::string&,

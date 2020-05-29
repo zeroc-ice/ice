@@ -74,17 +74,23 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Reads a class instance from the stream.</summary>
-        /// <returns>The class instance, or null.</returns>
-        public T? ReadClass<T>() where T : AnyClass
+        /// <returns>The class instance read from the stream.</returns>
+        public T ReadClass<T>() where T : AnyClass =>
+            ReadOptionalClass<T>() ??
+                throw new InvalidDataException("read a null class instance, but expected a non-null instance");
+
+        /// <summary>Reads an optional class instance from the stream.</summary>
+        /// <returns>The class instance read from the stream, or null.</returns>
+        public T? ReadOptionalClass<T>() where T : AnyClass
         {
             AnyClass? obj = ReadAnyClass();
-            if (obj == null)
+            if (obj is T result)
+            {
+                return result;
+            }
+            else if (obj == null)
             {
                 return null;
-            }
-            else if (obj is T)
-            {
-                return (T)obj;
             }
             else
             {
@@ -99,13 +105,13 @@ namespace ZeroC.Ice
         public T? ReadTaggedClass<T>(int tag) where T : AnyClass
         {
             AnyClass? obj = ReadTaggedAnyClass(tag);
-            if (obj == null)
+            if (obj is T result)
+            {
+                return result;
+            }
+            else if (obj == null)
             {
                 return null;
-            }
-            else if (obj is T)
-            {
-                return (T)obj;
             }
             else
             {

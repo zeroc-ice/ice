@@ -29,11 +29,20 @@ namespace ZeroC.Ice
     /// </summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<IObjectPrx?> IceReader = (istr) => istr.ReadProxy(Factory);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<IObjectPrx?> IceWriter = (ostr, value) => ostr.WriteProxy(value);
+        public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoOptional =
+            (istr) => istr.ReadOptionalProxy(Factory);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<IObjectPrx> IceWriter = (ostr, value) => ostr.WriteProxy(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromOptional =
+            (ostr, value) => ostr.WriteOptionalProxy(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Reference IceReference { get; }
