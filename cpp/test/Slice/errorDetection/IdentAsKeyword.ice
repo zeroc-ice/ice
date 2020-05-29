@@ -5,7 +5,7 @@
 module Test
 {
 
-INTERFACE i { void op(); }
+interface INTERFACE { void op(); }
 
 exception Void {}
 exception int {}
@@ -15,8 +15,8 @@ struct double { long l; }
 
 struct s1 { long Int; }
 struct s2 { long byte; }
-struct s3 { short Int; byte b; }
-struct s4 { float byte; byte b; }
+struct s3 { byte b; short Int; }
+struct s4 { byte b; float byte; }
 
 class inTERface;
 class interface;
@@ -27,9 +27,6 @@ class module { long l; }
 class C { long extendS; }
 class C { long extends; }
 class D { long extends; }
-
-interface local;
-interface Local;
 
 interface Object { void op(); }
 interface object { void op(); }
@@ -54,9 +51,6 @@ dictionary<long, OUT> d4;
 
 dictionary<void, void> d5;
 dictionary<VOID, VOID> d6;
-
-enum local { a, b }
-enum LOCAL { c, e }
 
 enum e1 { long, byte, foo }
 enum e2 { LONG, BYTE, bar } // Ok as of 3.7
