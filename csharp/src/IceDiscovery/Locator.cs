@@ -16,9 +16,9 @@ namespace ZeroC.IceDiscovery
         private readonly ILocatorRegistryPrx _registry;
 
         public ValueTask<IObjectPrx?> FindAdapterByIdAsync(string adapterId, Current current) =>
-            _lookup.FindAdapter(adapterId);
+            _lookup.FindAdapterAsync(adapterId);
 
-        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObject(id);
+        public ValueTask<IObjectPrx?> FindObjectByIdAsync(Identity id, Current current) => _lookup.FindObjectAsync(id);
 
         public ILocatorRegistryPrx? GetRegistry(Current current) => _registry;
 
@@ -54,7 +54,7 @@ namespace ZeroC.IceDiscovery
                     _adapters.Remove(adapterId);
                 }
             }
-            return new ValueTask(Task.CompletedTask);
+            return new ValueTask();
         }
 
         public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
@@ -86,7 +86,7 @@ namespace ZeroC.IceDiscovery
                     }
                 }
             }
-            return new ValueTask(Task.CompletedTask);
+            return new ValueTask();
         }
 
         public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) =>

@@ -89,11 +89,11 @@ namespace ZeroC.IceDiscovery
 
         private void SendResponse(IObjectPrx? proxy)
         {
-            foreach (TaskCompletionSource<IObjectPrx?> cb in Callbacks)
+            foreach (TaskCompletionSource<IObjectPrx?> cb in Sources)
             {
                 cb.SetResult(proxy);
             }
-            Callbacks.Clear();
+            Sources.Clear();
         }
     }
 
@@ -241,7 +241,7 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal ValueTask<IObjectPrx?> FindAdapter(string adapterId)
+        internal ValueTask<IObjectPrx?> FindAdapterAsync(string adapterId)
         {
             lock (_mutex)
             {
@@ -269,7 +269,7 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal ValueTask<IObjectPrx?> FindObject(Identity id)
+        internal ValueTask<IObjectPrx?> FindObjectAsync(Identity id)
         {
             lock (_mutex)
             {
@@ -432,11 +432,11 @@ namespace ZeroC.IceDiscovery
 
         public override void Finished(IObjectPrx? proxy)
         {
-            foreach (TaskCompletionSource<IObjectPrx?> cb in Callbacks)
+            foreach (TaskCompletionSource<IObjectPrx?> source in Sources)
             {
-                cb.SetResult(proxy);
+                source.SetResult(proxy);
             }
-            Callbacks.Clear();
+            Sources.Clear();
         }
 
         public void RunTimerTask() => Lookup.ObjectRequestTimedOut(this);
@@ -465,16 +465,16 @@ namespace ZeroC.IceDiscovery
         public T Id { get; }
         public string RequestId { get; }
 
-        protected List<TaskCompletionSource<IObjectPrx?>> Callbacks = new List<TaskCompletionSource<IObjectPrx?>>();
+        protected List<TaskCompletionSource<IObjectPrx?>> Sources = new List<TaskCompletionSource<IObjectPrx?>>();
         protected int FailureCount;
         protected Lookup Lookup;
         protected int LookupCount;
         protected int RetryCount;
 
-        public bool AddCallback(TaskCompletionSource<IObjectPrx?> cb)
+        public bool AddCallback(TaskCompletionSource<IObjectPrx?> source)
         {
-            Callbacks.Add(cb);
-            return Callbacks.Count == 1;
+            Sources.Add(source);
+            return Sources.Count == 1;
         }
 
         public bool Exception()
