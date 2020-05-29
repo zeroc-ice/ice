@@ -65,7 +65,7 @@ namespace ZeroC.Ice
     {
         internal void AddRetryTask(ProxyOutgoingAsyncBase outAsync, int interval)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -80,7 +80,7 @@ namespace ZeroC.Ice
 
         internal void DestroyRetryQueue()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_state == StateDestroyInProgress);
                 var keep = new Dictionary<RetryTask, object?>();
@@ -98,21 +98,21 @@ namespace ZeroC.Ice
                 _requests = keep;
                 while (_requests.Count > 0)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    System.Threading.Monitor.Wait(_mutex);
                 }
             }
         }
 
         internal void RemoveRetryTask(RetryTask task)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_requests.Remove(task))
                 {
                     if (_state > StateActive && _requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
-                        System.Threading.Monitor.Pulse(this);
+                        System.Threading.Monitor.Pulse(_mutex);
                     }
                 }
             }
@@ -120,7 +120,7 @@ namespace ZeroC.Ice
 
         internal bool CancelRetryTask(RetryTask task)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_requests.Remove(task))
                 {
@@ -131,7 +131,7 @@ namespace ZeroC.Ice
                     else if (_requests.Count == 0)
                     {
                         // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
-                        System.Threading.Monitor.Pulse(this);
+                        System.Threading.Monitor.Pulse(_mutex);
                     }
                 }
                 return false;

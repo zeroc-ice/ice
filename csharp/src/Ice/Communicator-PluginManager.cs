@@ -9,15 +9,10 @@ using System.Linq;
 
 namespace ZeroC.Ice
 {
-    /// <summary>
-    /// Applications implement this interface to provide a plug-in factory
-    /// to the Ice run time.
-    /// </summary>
+    /// <summary>Applications implement this interface to provide a plug-in factory to the Ice run time.</summary>
     public interface IPluginFactory
     {
-        /// <summary>
-        /// Called by the Ice run time to create a new plug-in.
-        /// </summary>
+        /// <summary>Called by the Ice run time to create a new plug-in.</summary>
         ///
         /// <param name="communicator">The communicator that is in the process of being initialized.</param>
         /// <param name="name">The name of the plug-in.</param>
@@ -59,7 +54,7 @@ namespace ZeroC.Ice
                     initializedPlugins.Add(plugin);
                 }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 //
                 // Destroy the plug-ins that have been successfully initialized, in the
@@ -72,7 +67,7 @@ namespace ZeroC.Ice
                     {
                         p.Destroy();
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                         // Ignore.
                     }
@@ -86,7 +81,7 @@ namespace ZeroC.Ice
 
         public string[] GetPlugins()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -99,7 +94,7 @@ namespace ZeroC.Ice
 
         public IPlugin? GetPlugin(string name)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -112,7 +107,7 @@ namespace ZeroC.Ice
 
         public void AddPlugin(string name, IPlugin plugin)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {

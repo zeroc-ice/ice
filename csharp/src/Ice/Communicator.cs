@@ -189,6 +189,7 @@ namespace ZeroC.Ice
         private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
+        private readonly object _mutex = new object();
 
         private bool _isShutdown = false;
         private static bool _oneOffDone = false;
@@ -276,8 +277,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                // clone properties as we don't want to modify the properties given to
-                // this constructor
+                // clone properties as we don't want to modify the properties given to this constructor
                 properties = new Dictionary<string, string>(properties);
             }
 
@@ -292,8 +292,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        // TODO: this join is not sufficient to create a string
-                        // compatible with GetPropertyAsList
+                        // TODO: this join is not sufficient to create a string compatible with GetPropertyAsList
                         properties[key] = string.Join(",", values);
                     }
                 }
@@ -672,17 +671,8 @@ namespace ZeroC.Ice
                     }
                 }
 
-                //
-                // Set observer updater
-                //
-                if (Observer != null)
-                {
-                    Observer.SetObserverUpdater(new ObserverUpdater(this));
-                }
+                Observer?.SetObserverUpdater(new ObserverUpdater(this));
 
-                //
-                // Create threads.
-                //
                 try
                 {
                     _timer = new Timer(this);
@@ -716,7 +706,7 @@ namespace ZeroC.Ice
                 //
                 // Show process id if requested (but only once).
                 //
-                lock (this)
+                lock (_mutex)
                 {
                     if (!_printProcessIdDone && (GetPropertyAsBool("Ice.PrintProcessId") ?? false))
                     {
@@ -755,7 +745,7 @@ namespace ZeroC.Ice
 
         public void AddAdminFacet(string facet, IObject servant)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -801,7 +791,7 @@ namespace ZeroC.Ice
         /// </returns>
         public IObjectPrx CreateAdmin(ObjectAdapter? adminAdapter, Identity adminIdentity)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -850,7 +840,7 @@ namespace ZeroC.Ice
                     // (can't call again getAdmin() after fixing the problem)
                     // since all the facets (servants) in the adapter are lost
                     _adminAdapter.Destroy();
-                    lock (this)
+                    lock (_mutex)
                     {
                         _adminAdapter = null;
                     }
@@ -870,7 +860,7 @@ namespace ZeroC.Ice
         /// </summary>
         public void Destroy()
         {
-            lock (this)
+            lock (_mutex)
             {
                 //
                 // If destroy is in progress, wait for it to be done. This
@@ -879,7 +869,7 @@ namespace ZeroC.Ice
                 //
                 while (_state == StateDestroyInProgress)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 if (_state == StateDestroyed)
@@ -964,7 +954,7 @@ namespace ZeroC.Ice
             // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
             //
             List<(string Name, IPlugin Plugin)> plugins;
-            lock (this)
+            lock (_mutex)
             {
                 plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
             }
@@ -982,13 +972,13 @@ namespace ZeroC.Ice
                 }
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 _adminAdapter = null;
                 _adminFacets.Clear();
 
                 _state = StateDestroyed;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
 
             {
@@ -1011,7 +1001,7 @@ namespace ZeroC.Ice
         /// null if no facet is registered with the given name.</returns>
         public IObject? FindAdminFacet(string facet)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -1035,7 +1025,7 @@ namespace ZeroC.Ice
         /// </returns>
         public Dictionary<string, IObject> FindAllAdminFacets()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -1063,7 +1053,7 @@ namespace ZeroC.Ice
             ObjectAdapter adminAdapter;
             Identity adminIdentity;
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -1112,7 +1102,7 @@ namespace ZeroC.Ice
                 // (can't call again getAdmin() after fixing the problem)
                 // since all the facets (servants) in the adapter are lost
                 adminAdapter.Destroy();
-                lock (this)
+                lock (_mutex)
                 {
                     _adminAdapter = null;
                 }
@@ -1123,13 +1113,11 @@ namespace ZeroC.Ice
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>
-        /// Check whether the communicator has been shut down.
-        /// </summary>
+        /// <summary>Check whether the communicator has been shut down.</summary>
         /// <returns>True if the communicator has been shut down; false otherwise.</returns>
         public bool IsShutdown()
         {
-            lock (this)
+            lock (_mutex) // TODO do we need this lock, isn't _isShutdown assignment atomic?
             {
                 return _isShutdown;
             }
@@ -1140,7 +1128,7 @@ namespace ZeroC.Ice
         /// <returns>The admin facet servant that was just removed, or null if the facet was not found.</returns>
         public IObject? RemoveAdminFacet(string facet)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_adminFacets.TryGetValue(facet, out IObject? result))
                 {
@@ -1161,7 +1149,7 @@ namespace ZeroC.Ice
 
         public Timer Timer()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -1333,7 +1321,7 @@ namespace ZeroC.Ice
 
         internal OutgoingConnectionFactory OutgoingConnectionFactory()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_state == StateDestroyed)
                 {
@@ -1451,7 +1439,7 @@ namespace ZeroC.Ice
                 _outgoingConnectionFactory.UpdateConnectionObservers();
 
                 ObjectAdapter[] adapters;
-                lock (this)
+                lock (_mutex)
                 {
                     adapters = _adapters.ToArray();
                 }
@@ -1489,7 +1477,7 @@ namespace ZeroC.Ice
 
         private void AddAllAdminFacets()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_adminAdapter != null);
                 foreach (KeyValuePair<string, IObject> entry in _adminFacets)
