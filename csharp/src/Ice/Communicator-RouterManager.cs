@@ -25,7 +25,7 @@ namespace ZeroC.Ice
 
         public void Destroy()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _clientEndpoints = System.Array.Empty<Endpoint>();
                 _adapter = null;
@@ -258,11 +258,12 @@ namespace ZeroC.Ice
             }
         }
 
-        private IReadOnlyList<Endpoint>? _clientEndpoints;
         private ObjectAdapter? _adapter;
-        private readonly HashSet<Identity> _identities = new HashSet<Identity>();
+        private IReadOnlyList<Endpoint>? _clientEndpoints;
         private readonly List<Identity> _evictedIdentities = new List<Identity>();
         private bool _hasRoutingTable;
+        private readonly HashSet<Identity> _identities = new HashSet<Identity>();
+        private readonly object _mutex = new object();
     }
 
     public sealed partial class Communicator

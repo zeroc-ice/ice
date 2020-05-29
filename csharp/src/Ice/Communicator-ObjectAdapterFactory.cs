@@ -18,7 +18,7 @@ namespace ZeroC.Ice
         public void Shutdown()
         {
             ObjectAdapter[] adapters;
-            lock (this)
+            lock (_mutex)
             {
                 // Ignore shutdown requests if the communicator is already shut down.
                 if (_isShutdown)
@@ -28,7 +28,7 @@ namespace ZeroC.Ice
 
                 adapters = _adapters.ToArray();
                 _isShutdown = true;
-                Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
 
             // Deactivate outside the lock to avoid deadlocks.
@@ -49,12 +49,12 @@ namespace ZeroC.Ice
         public void WaitForShutdown()
         {
             ObjectAdapter[] adapters;
-            lock (this)
+            lock (_mutex)
             {
                 // First we wait for communicator shut down.
                 while (!_isShutdown)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 adapters = _adapters.ToArray();
@@ -162,7 +162,7 @@ namespace ZeroC.Ice
         internal void RemoveObjectAdapter(ObjectAdapter adapter)
         {
             // Called by the object adapter to remove itself once destroyed.
-            lock (this)
+            lock (_mutex)
             {
                 if (_isShutdown)
                 {
@@ -185,7 +185,7 @@ namespace ZeroC.Ice
                 throw new ArgumentException("the empty string is not a valid object adapter name", nameof(name));
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_isShutdown)
                 {
@@ -209,7 +209,7 @@ namespace ZeroC.Ice
             try
             {
                 adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router);
-                lock (this)
+                lock (_mutex)
                 {
                     if (_isShutdown)
                     {
@@ -228,7 +228,7 @@ namespace ZeroC.Ice
 
                 if (name != null)
                 {
-                    lock (this)
+                    lock (_mutex)
                     {
                         _adapterNamesInUse.Remove(name);
                     }
@@ -240,7 +240,7 @@ namespace ZeroC.Ice
         private ObjectAdapter? FindObjectAdapter(Reference reference)
         {
             List<ObjectAdapter> adapters;
-            lock (this)
+            lock (_mutex)
             {
                 if (_isShutdown)
                 {
@@ -271,7 +271,7 @@ namespace ZeroC.Ice
         private void DestroyAllObjectAdapters()
         {
             ObjectAdapter[] adapters;
-            lock (this)
+            lock (_mutex)
             {
                 adapters = _adapters.ToArray();
             }
@@ -281,7 +281,7 @@ namespace ZeroC.Ice
                 adapter.Destroy();
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 _adapters.Clear();
             }

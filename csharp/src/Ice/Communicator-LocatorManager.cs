@@ -112,6 +112,7 @@ namespace ZeroC.Ice
         {
             protected readonly LocatorInfo LocatorInfo;
             protected readonly Reference Ref;
+            protected readonly object _mutex = new object();
 
             private readonly List<RequestCallback> _callbacks = new List<RequestCallback>();
             private Exception? _exception;
@@ -131,7 +132,7 @@ namespace ZeroC.Ice
             internal void AddCallback(Reference reference, Reference? wellKnownRef, int ttl, IGetEndpointsCallback? cb)
             {
                 var callback = new RequestCallback(reference, ttl, cb);
-                lock (this)
+                lock (_mutex)
                 {
                     if (!_response && _exception == null)
                     {
@@ -163,12 +164,12 @@ namespace ZeroC.Ice
 
             internal void Response(IObjectPrx? proxy)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     LocatorInfo.FinishRequest(Ref, _wellKnownRefs, proxy, false);
                     _response = true;
                     _proxy = proxy;
-                    Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
                 foreach (RequestCallback callback in _callbacks)
                 {
@@ -176,13 +177,13 @@ namespace ZeroC.Ice
                 }
             }
 
-            internal void Exception(System.Exception ex)
+            internal void Exception(Exception ex)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     LocatorInfo.FinishRequest(Ref, _wellKnownRefs, null, ex is RemoteException);
                     _exception = ex;
-                    Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
                 foreach (RequestCallback callback in _callbacks)
                 {
@@ -268,7 +269,7 @@ namespace ZeroC.Ice
 
         internal void Destroy()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _locatorRegistry = null;
                 _table.Clear();
@@ -292,7 +293,7 @@ namespace ZeroC.Ice
 
         internal ILocatorRegistryPrx? GetLocatorRegistry()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_locatorRegistry != null)
                 {
@@ -309,7 +310,7 @@ namespace ZeroC.Ice
                 return null;
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 //
                 // The locator registry can't be located. We use ordered
@@ -519,7 +520,7 @@ namespace ZeroC.Ice
                 communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_adapterRequests.TryGetValue(reference.AdapterId, out Request? request))
                 {
@@ -543,7 +544,7 @@ namespace ZeroC.Ice
                 communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_objectRequests.TryGetValue(reference.Identity, out Request? request))
                 {
@@ -583,7 +584,7 @@ namespace ZeroC.Ice
                     _table.RemoveAdapterEndpoints(reference.AdapterId);
                 }
 
-                lock (this)
+                lock (_mutex)
                 {
                     Debug.Assert(_adapterRequests.ContainsKey(reference.AdapterId));
                     _adapterRequests.Remove(reference.AdapterId);
@@ -604,7 +605,7 @@ namespace ZeroC.Ice
                     _table.RemoveObjectReference(reference.Identity);
                 }
 
-                lock (this)
+                lock (_mutex)
                 {
                     Debug.Assert(_objectRequests.ContainsKey(reference.Identity));
                     _objectRequests.Remove(reference.Identity);
@@ -617,6 +618,7 @@ namespace ZeroC.Ice
         private readonly bool _background;
 
         private readonly Dictionary<string, Request> _adapterRequests = new Dictionary<string, Request>();
+        private readonly object _mutex = new object();
         private readonly Dictionary<Identity, Request> _objectRequests = new Dictionary<Identity, Request>();
     }
 
@@ -686,7 +688,7 @@ namespace ZeroC.Ice
     {
         internal void Clear()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _adapterEndpointsTable.Clear();
                 _objectTable.Clear();
@@ -701,7 +703,7 @@ namespace ZeroC.Ice
                 return null;
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_adapterEndpointsTable.TryGetValue(adapter,
                     out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
@@ -716,7 +718,7 @@ namespace ZeroC.Ice
 
         internal void AddAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTimeMillis(), endpoints);
             }
@@ -724,7 +726,7 @@ namespace ZeroC.Ice
 
         internal IReadOnlyList<Endpoint>? RemoveAdapterEndpoints(string adapter)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_adapterEndpointsTable.TryGetValue(adapter,
                     out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
@@ -744,7 +746,7 @@ namespace ZeroC.Ice
                 return null;
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_objectTable.TryGetValue(id, out (long Time, Reference Reference) entry))
                 {
@@ -758,7 +760,7 @@ namespace ZeroC.Ice
 
         internal void AddObjectReference(Identity id, Reference reference)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _objectTable[id] = (Time.CurrentMonotonicTimeMillis(), reference);
             }
@@ -766,7 +768,7 @@ namespace ZeroC.Ice
 
         internal Reference? RemoveObjectReference(Identity id)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_objectTable.TryGetValue(id, out (long Time, Reference Reference) entry))
                 {
@@ -804,6 +806,7 @@ namespace ZeroC.Ice
 
         private readonly Dictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)> _adapterEndpointsTable =
             new Dictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)>();
+        private readonly object _mutex = new object();
         private readonly Dictionary<Identity, (long Time, Reference Reference)> _objectTable =
             new Dictionary<Identity, (long Time, Reference Reference)>();
     }
