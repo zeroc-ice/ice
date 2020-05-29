@@ -1035,11 +1035,11 @@ namespace ZeroC.Ice
             {
                 Span<byte> firstSpan = _currentSegment.AsSpan(_tail.Offset);
                 firstSpan.Fill(255);
-                _currentSegment = _segmentList[^1];
-                Span<byte> secondSpan = _currentSegment.AsSpan(0, size - remaining);
-                secondSpan.Fill(255);
+                _currentSegment = _segmentList[++_tail.Segment];
                 _tail.Offset = size - remaining;
                 Size += size;
+                Span<byte> secondSpan = _currentSegment.AsSpan(0, _tail.Offset);
+                secondSpan.Fill(255);
                 return new BitSequence(firstSpan, secondSpan);
             }
         }
@@ -1429,20 +1429,19 @@ namespace ZeroC.Ice
             Size += length;
             int offset = _tail.Offset;
             int remaining = _currentSegment.Count - offset;
-            if (remaining > 0)
+            Debug.Assert(remaining > 0); // guaranteed by Expand
+
+            int sz = Math.Min(length, remaining);
+            if (length > remaining)
             {
-                int sz = Math.Min(length, remaining);
-                if (length > remaining)
-                {
-                    span.Slice(0, remaining).CopyTo(_currentSegment.AsSpan(offset, sz));
-                }
-                else
-                {
-                    span.CopyTo(_currentSegment.AsSpan(offset, length));
-                }
-                _tail.Offset += sz;
-                length -= sz;
+                span.Slice(0, remaining).CopyTo(_currentSegment.AsSpan(offset, sz));
             }
+            else
+            {
+                span.CopyTo(_currentSegment.AsSpan(offset, length));
+            }
+            _tail.Offset += sz;
+            length -= sz;
 
             if (length > 0)
             {

@@ -75,24 +75,9 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a class instance from the stream.</summary>
         /// <returns>The class instance read from the stream.</returns>
-        public T ReadClass<T>() where T : AnyClass
-        {
-            AnyClass? obj = ReadAnyClass();
-            if (obj is T result)
-            {
-                return result;
-            }
-
-            if (obj == null)
-            {
+        public T ReadClass<T>() where T : AnyClass =>
+            ReadOptionalClass<T>() ??
                 throw new InvalidDataException("read a null class instance, but expected a non-null instance");
-            }
-            else
-            {
-                throw new InvalidDataException(@$"read instance of type `{obj.GetType().FullName
-                    }' but expected instance of type `{typeof(T).FullName}'");
-            }
-        }
 
         /// <summary>Reads an optional class instance from the stream.</summary>
         /// <returns>The class instance read from the stream, or null.</returns>
