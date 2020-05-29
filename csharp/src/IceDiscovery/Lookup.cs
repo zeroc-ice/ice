@@ -193,6 +193,22 @@ namespace ZeroC.IceDiscovery
 
     internal class Lookup : ILookup
     {
+        private readonly Dictionary<string, AdapterRequest> _adapterRequests =
+            new Dictionary<string, AdapterRequest>();
+        private readonly string _domainId;
+        private readonly int _latencyMultiplier;
+        private readonly ILookupPrx _lookup;
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups =
+            new Dictionary<ILookupPrx, ILookupReplyPrx?>();
+        private readonly object _mutex = new object();
+        private readonly Dictionary<Identity, ObjectRequest> _objectRequests =
+            new Dictionary<Identity, ObjectRequest>();
+        private readonly LocatorRegistry _registry;
+        private readonly int _retryCount;
+        private readonly int _timeout;
+        private readonly Timer _timer;
+        private bool _warnOnce = true;
+
         public Lookup(LocatorRegistry registry, ILookupPrx lookup, Communicator communicator)
         {
             _registry = registry;
@@ -207,7 +223,7 @@ namespace ZeroC.IceDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             //
-            var single = new Ice.Endpoint[1];
+            var single = new Endpoint[1];
             foreach (Endpoint endpt in lookup.Endpoints)
             {
                 single[0] = endpt;
@@ -261,7 +277,7 @@ namespace ZeroC.IceDiscovery
                     Debug.Assert(reply != null);
                     reply.FoundObjectByIdAsync(id, proxy);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     // Ignore.
                 }
@@ -286,7 +302,7 @@ namespace ZeroC.IceDiscovery
                     Debug.Assert(reply != null);
                     reply.FoundAdapterByIdAsync(adapterId, proxy, isReplicaGroup);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     // Ignore.
                 }
@@ -295,7 +311,7 @@ namespace ZeroC.IceDiscovery
 
         internal ValueTask<IObjectPrx?> FindObject(Identity id)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (!_objectRequests.TryGetValue(id, out ObjectRequest? request))
                 {
@@ -311,7 +327,7 @@ namespace ZeroC.IceDiscovery
                         request.Invoke(_domainId, _lookups);
                         _timer.Schedule(request, _timeout);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                         request.Finished(null);
                         _objectRequests.Remove(id);
@@ -323,7 +339,7 @@ namespace ZeroC.IceDiscovery
 
         internal ValueTask<IObjectPrx?> FindAdapter(string adapterId)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (!_adapterRequests.TryGetValue(adapterId, out AdapterRequest? request))
                 {
@@ -339,7 +355,7 @@ namespace ZeroC.IceDiscovery
                         request.Invoke(_domainId, _lookups);
                         _timer.Schedule(request, _timeout);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                         request.Finished(null);
                         _adapterRequests.Remove(adapterId);
@@ -351,7 +367,7 @@ namespace ZeroC.IceDiscovery
 
         internal void FoundObject(Identity id, string requestId, IObjectPrx proxy)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_objectRequests.TryGetValue(id, out ObjectRequest? request) && request.GetRequestId() == requestId)
                 {
@@ -365,7 +381,7 @@ namespace ZeroC.IceDiscovery
 
         internal void FoundAdapter(string adapterId, string requestId, IObjectPrx proxy, bool isReplicaGroup)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest? request) && request.GetRequestId() == requestId)
                 {
@@ -381,7 +397,7 @@ namespace ZeroC.IceDiscovery
 
         internal void ObjectRequestTimedOut(ObjectRequest request)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest? r) || r != request)
                 {
@@ -396,7 +412,7 @@ namespace ZeroC.IceDiscovery
                         _timer.Schedule(request, _timeout);
                         return;
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                     }
                 }
@@ -409,7 +425,7 @@ namespace ZeroC.IceDiscovery
 
         internal void ObjectRequestException(ObjectRequest request, Exception ex)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (!_objectRequests.TryGetValue(request.GetId(), out ObjectRequest? r) || r != request)
                 {
@@ -438,7 +454,7 @@ namespace ZeroC.IceDiscovery
 
         internal void AdapterRequestTimedOut(AdapterRequest request)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest? r) || r != request)
                 {
@@ -453,7 +469,7 @@ namespace ZeroC.IceDiscovery
                         _timer.Schedule(request, _timeout);
                         return;
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                     }
                 }
@@ -466,7 +482,7 @@ namespace ZeroC.IceDiscovery
 
         internal void AdapterRequestException(AdapterRequest request, Exception ex)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (!_adapterRequests.TryGetValue(request.GetId(), out AdapterRequest? r) || r != request)
                 {
@@ -496,23 +512,12 @@ namespace ZeroC.IceDiscovery
         internal Timer Timer() => _timer;
 
         internal int LatencyMultiplier() => _latencyMultiplier;
-
-        private readonly LocatorRegistry _registry;
-        private readonly ILookupPrx _lookup;
-        private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups = new Dictionary<ILookupPrx, ILookupReplyPrx?>();
-        private readonly int _timeout;
-        private readonly int _retryCount;
-        private readonly int _latencyMultiplier;
-        private readonly string _domainId;
-
-        private readonly Timer _timer;
-        private bool _warnOnce = true;
-        private readonly Dictionary<Identity, ObjectRequest> _objectRequests = new Dictionary<Identity, ObjectRequest>();
-        private readonly Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     }
 
     internal class LookupReply : ILookupReply
     {
+        private readonly Lookup _lookup;
+
         public LookupReply(Lookup lookup) => _lookup = lookup;
 
         public void FoundObjectById(Identity id, IObjectPrx? proxy, Current c)
@@ -520,7 +525,5 @@ namespace ZeroC.IceDiscovery
 
         public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current c) =>
             _lookup.FoundAdapter(adapterId, c.Identity.Name, proxy!, isReplicaGroup); // proxy cannot be null
-
-        private readonly Lookup _lookup;
     }
 }
