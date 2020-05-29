@@ -474,7 +474,7 @@ Slice::checkIdentifier(const string& id)
     bool isValid = true;
 
     // check the identifier for reserved suffixes
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
+    static const string suffixBlacklist[] = { "Helper", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
         if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
@@ -486,7 +486,7 @@ Slice::checkIdentifier(const string& id)
     }
 
     // Check the identifier for illegal ice prefixes
-    if(unit->currentIncludeLevel() == 0 && ciequals(name.substr(0, 3), "ice"))
+    if(ciequals(name.substr(0, 3), "ice"))
     {
         unit->warning(ReservedIdentifier, "identifiers with an `" + name.substr() +
                                           "' prefix are reserved by Ice: using `" + name +
@@ -510,10 +510,10 @@ Slice::checkIdentifier(const string& id)
         unit->error("illegal double underscore in identifier `" + name + "'");
         isValid = false;
     }
-    else if(index != string::npos && unit->currentIncludeLevel() == 0)
+    else if(index != string::npos)
     {
         unit->warning(ReservedIdentifier, "identifiers with underscores are reserved by Ice: using `" + name +
-                                           "' as an identifier may result in name collisions in the generated code");
+                                          "' as an identifier may result in name collisions in the generated code");
     }
     return isValid;
 }
