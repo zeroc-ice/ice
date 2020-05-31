@@ -4303,8 +4303,20 @@ Slice::Optional::usesClasses() const
 size_t
 Slice::Optional::minWireSize() const
 {
-    // TODO: should be 2 for proxies with the 1.1 encoding
-    return 1;
+    // Should only be called for classes and proxies.
+    if (_underlying->isClassType())
+    {
+        return 1;
+    }
+    else if (_underlying->isInterfaceType())
+    {
+        return 2;
+    }
+    else
+    {
+        assert(0);
+        return 0;
+    }
 }
 
 string

@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Optional
@@ -53,5 +54,9 @@ namespace ZeroC.Ice.Test.Optional
             TestHelper.Assert(i2 == null || i2 == i1);
             return i2;
         }
+
+        public IEnumerable<int?> OpOptIntSeq(int?[] i1, Current current) => i1;
+
+        public IEnumerable<int?>? OpTaggedOptIntSeq(int?[]? i1, Current current) => i1;
     }
 }

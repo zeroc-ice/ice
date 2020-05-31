@@ -14,6 +14,11 @@ module ZeroC::Ice::Test::Optional
         int x;
     }
 
+    sequence<C> CSeq;
+    sequence<C?> OptCSeq;
+    sequence<int> IntSeq;
+    sequence<int?> OptIntSeq;
+
     interface Test
     {
         void shutdown();
@@ -33,5 +38,8 @@ module ZeroC::Ice::Test::Optional
 
         Value? opAnyClass(Value i1, Value? i2);
         C? opC(C i1, C? i2);
+
+        OptIntSeq opOptIntSeq(OptIntSeq i1);
+        tag(1) OptIntSeq? opTaggedOptIntSeq(tag(2) OptIntSeq? i1);
     }
 }

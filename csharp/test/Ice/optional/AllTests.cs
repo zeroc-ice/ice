@@ -149,6 +149,14 @@ namespace ZeroC.Ice.Test.Optional
 
             output.WriteLine("ok");
 
+            output.Write("testing operations with sequence<T?> parameters... ");
+            int?[] intSeq = new int?[] { 1, -5, null, 19, -35000 };
+            TestHelper.Assert(test.OpOptIntSeq(intSeq).SequenceEqual(intSeq));
+
+            TestHelper.Assert(test.OpTaggedOptIntSeq(intSeq)!.SequenceEqual(intSeq));
+            TestHelper.Assert(test.OpTaggedOptIntSeq(null) == null);
+            output.WriteLine("ok");
+
             return test;
         }
     }
