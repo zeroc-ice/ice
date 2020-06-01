@@ -19,10 +19,7 @@ namespace ZeroC.Ice
                 }
                 return _processLogger;
             }
-            set
-            {
-                _processLogger = value;
-            }
+            set => _processLogger = value;
         }
 
         /// <summary>Returns the Ice version as an integer in the form A.BB.CC, where A indicates the major version,
