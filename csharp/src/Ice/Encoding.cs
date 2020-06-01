@@ -109,7 +109,7 @@ namespace ZeroC.Ice
             if (!IsSupported)
             {
                 throw new NotSupportedException(
-                    $"Ice encoding `{this}' is not supported by this Ice runtime ({Util.StringVersion()})");
+                    $"Ice encoding `{this}' is not supported by this Ice runtime ({Runtime.StringVersion})");
             }
         }
     }

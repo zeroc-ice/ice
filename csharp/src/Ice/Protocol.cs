@@ -29,7 +29,7 @@ namespace ZeroC.Ice
                 Protocol.Ice1 => Encoding.V1_1,
                 Protocol.Ice2 => Encoding.V2_0,
                 _ => throw new NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
-                    }' is not supported by this Ice runtime ({Util.StringVersion()})")
+                    }' is not supported by this Ice runtime ({Runtime.StringVersion})")
             };
 
         /// <summary>Checks if this protocol is supported by the Ice runtime. If not supported, throws
@@ -41,7 +41,7 @@ namespace ZeroC.Ice
             if (protocol != Protocol.Ice1)
             {
                 throw new NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
-                    }' is not supported by this Ice runtime ({Util.StringVersion()})");
+                    }' is not supported by this Ice runtime ({Runtime.StringVersion})");
             }
         }
 

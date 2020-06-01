@@ -662,7 +662,7 @@ namespace ZeroC.Ice
                     message.Append("\n    ");
                     message.Append(p);
                 }
-                ZeroC.Ice.Util.GetProcessLogger().Warning(message.ToString());
+                Runtime.Logger.Warning(message.ToString());
             }
         }
 

@@ -259,7 +259,7 @@ namespace ZeroC.Ice
                             string[]? typeIdNamespaces = null)
         {
             _state = StateActive;
-            Logger = logger ?? Util.GetProcessLogger();
+            Logger = logger ?? Runtime.Logger;
             Observer = observer;
 
             _classFactoryNamespaces = new string[] { "ZeroC.Ice.ClassFactory" };
@@ -353,7 +353,7 @@ namespace ZeroC.Ice
                     {
                         Logger = new FileLogger(programName, logfile);
                     }
-                    else if (Util.GetProcessLogger() is Logger)
+                    else if (Runtime.Logger is Logger)
                     {
                         //
                         // Ice.ConsoleListener is enabled by default.
@@ -967,8 +967,7 @@ namespace ZeroC.Ice
                 }
                 catch (Exception ex)
                 {
-                    Util.GetProcessLogger().Warning(
-                        $"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
+                    Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
                 }
             }
 

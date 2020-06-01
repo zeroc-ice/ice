@@ -62,7 +62,7 @@ namespace ZeroC.IceBox
                 }
                 else if (arg.Equals("-v") || arg.Equals("--version"))
                 {
-                    Console.Out.WriteLine(Ice.Util.StringVersion());
+                    Console.Out.WriteLine(Ice.Runtime.StringVersion);
                     return 0;
                 }
                 else
