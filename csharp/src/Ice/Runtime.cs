@@ -13,21 +13,15 @@ namespace ZeroC.Ice
         {
             get
             {
-                lock (_processLoggerMutex)
+                if (_processLogger == null)
                 {
-                    if (_processLogger == null)
-                    {
-                        _processLogger = new ConsoleLogger(AppDomain.CurrentDomain.FriendlyName);
-                    }
-                    return _processLogger;
+                    _processLogger = new ConsoleLogger(AppDomain.CurrentDomain.FriendlyName);
                 }
+                return _processLogger;
             }
             set
             {
-                lock (_processLoggerMutex)
-                {
-                    _processLogger = value;
-                }
+                _processLogger = value;
             }
         }
 
@@ -35,14 +29,13 @@ namespace ZeroC.Ice
         /// BB indicates the minor version, and CC indicates the patch level. For example, for Ice 3.3.1, the returned
         /// value is 30301.</summary>
         /// <returns>The Ice version.</returns>
-        public static int IntVersion => 40000; // AABBCC, with AA=major, BB=minor, CC=patch
+        public const int IntVersion = 40000; // AABBCC, with AA=major, BB=minor, CC=patch
 
         /// <summary>Returns the Ice version in the form A.B.C, where A indicates the major version, B indicates the
         /// minor version, and C indicates the patch level.</summary>
         /// <returns>The Ice version.</returns>
-        public static string StringVersion => "4.0.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
+        public const string StringVersion = "4.0.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
 
-        private static ILogger? _processLogger = null;
-        private static readonly object _processLoggerMutex = new object();
+        private static volatile ILogger? _processLogger = null;
     }
 }
