@@ -30,7 +30,6 @@ namespace ZeroC.Ice
         public static readonly InputStreamReader<bool> IceReaderIntoBool =
             istr => istr.ReadBool();
 
-        // TODO: rename to IceReaderIntoArrayOfBool etc.
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<bool[]> IceReaderIntoBoolArray =
             istr => istr.ReadFixedSizeNumericValueArray<bool>();
@@ -364,9 +363,7 @@ namespace ZeroC.Ice
             return array;
         }
 
-        /// <summary>Reads a sequence of optional types from the stream and returns an array. These types correspond to
-        /// C# reference types other than mapped Slice classes and proxies, for example string, Dictionary{int},
-        /// Array{long}.</summary>
+        /// <summary>Reads a sequence of optional/nullable elements from the stream and returns an array.</summary>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
         public T?[] ReadOptionalElementArray<T>(InputStreamReader<T> reader) where T : class
@@ -377,8 +374,7 @@ namespace ZeroC.Ice
             return array;
         }
 
-        /// <summary>Reads a sequence of optional types from the stream and returns an array. These types correspond to
-        /// value types such as int, struct, enum.</summary>
+        /// <summary>Reads a sequence of optional/nullable values from the stream and returns an array.</summary>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
         public T?[] ReadOptionalValueArray<T>(InputStreamReader<T> reader) where T : struct
