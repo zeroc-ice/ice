@@ -11,22 +11,25 @@ namespace ZeroC.Ice
             //
             // The plug-in may not be fully initialized.
             //
-            if (!_instance.Initialized())
+            if (!_engine.Initialized())
             {
                 throw new System.InvalidOperationException("IceSSL: plug-in is not initialized");
             }
 
-            return new SslTransceiver(_instance, _delegate.Connect(), _host, false);
+            return new SslTransceiver(_communicator, _engine, _delegate.Connect(), _host, false);
         }
 
-        public EndpointType Type() => _delegate.Type();
+        public EndpointType Type => _delegate.Type;
+
+        public string Transport => _delegate.Transport;
 
         //
         // Only for use by EndpointI.
         //
-        internal SslConnector(SslInstance instance, IConnector del, string host)
+        internal SslConnector(Communicator communicator, SslEngine engine, IConnector del, string host)
         {
-            _instance = instance;
+            _communicator = communicator;
+            _engine = engine;
             _delegate = del;
             _host = host;
         }
@@ -51,7 +54,8 @@ namespace ZeroC.Ice
 
         public override int GetHashCode() => _delegate.GetHashCode();
 
-        private readonly SslInstance _instance;
+        private readonly Communicator _communicator;
+        private readonly SslEngine _engine;
         private readonly IConnector _delegate;
         private readonly string _host;
     }

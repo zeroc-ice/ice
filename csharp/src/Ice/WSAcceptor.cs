@@ -18,9 +18,9 @@ namespace ZeroC.Ice
 
         public void FinishAccept() => _delegate.FinishAccept();
 
-        public ITransceiver Accept() => new WSTransceiver(_instance, _delegate.Accept());
+        public ITransceiver Accept() => new WSTransceiver(_communicator, _delegate.Accept());
 
-        public string Transport() => _delegate.Transport();
+        public string Transport => _delegate.Transport;
 
         public override string ToString() => _delegate.ToString();
 
@@ -28,15 +28,15 @@ namespace ZeroC.Ice
 
         public IAcceptor GetDelegate() => _delegate;
 
-        internal WSAcceptor(WSEndpoint endpoint, TransportInstance instance, IAcceptor del)
+        internal WSAcceptor(WSEndpoint endpoint, Communicator communicator, IAcceptor del)
         {
             _endpoint = endpoint;
-            _instance = instance;
+            _communicator = communicator;
             _delegate = del;
         }
 
         private WSEndpoint _endpoint;
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private readonly IAcceptor _delegate;
     }
 }

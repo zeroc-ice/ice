@@ -278,9 +278,10 @@ namespace ZeroC.Ice
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if (_instance.TraceLevel >= 1)
+                if (_communicator.TraceLevels.Network >= 1)
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Transport()} socket\n{this}");
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        $"connected {Transport} socket\n{this}");
                 }
             }
 
@@ -404,9 +405,10 @@ namespace ZeroC.Ice
                 Debug.Assert(connected);
                 _state = StateConnected; // We're connected now
 
-                if (_instance.TraceLevel >= 1)
+                if (_communicator.TraceLevels.Network >= 1)
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory, $"connected {Transport()} socket\n{this}");
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        $"connected {Transport} socket\n{this}");
                 }
             }
 
@@ -542,7 +544,7 @@ namespace ZeroC.Ice
             return;
         }
 
-        public string Transport() => _instance.Transport;
+        public string Transport { get; }
 
         public ConnectionInfo GetInfo()
         {
@@ -633,7 +635,7 @@ namespace ZeroC.Ice
             if (_mcastAddr == null)
             {
                 intfs = Network.GetHostsForEndpointExpand(Network.EndpointAddressToString(_addr),
-                                                          _instance.IPVersion, true);
+                                                          _communicator.IPVersion, true);
             }
             else
             {
@@ -655,10 +657,11 @@ namespace ZeroC.Ice
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(TransportInstance instance, EndPoint addr, IPAddress? sourceAddr, string mcastInterface,
-                                int mcastTtl)
+        internal UdpTransceiver(Communicator communicator, string transport, EndPoint addr, IPAddress? sourceAddr,
+            string mcastInterface, int mcastTtl)
         {
-            _instance = instance;
+            _communicator = communicator;
+            Transport = transport;
             _addr = addr;
             if (sourceAddr != null)
             {
@@ -704,11 +707,12 @@ namespace ZeroC.Ice
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(UdpEndpoint endpoint, TransportInstance instance, string host, int port,
-                                string mcastInterface, bool connect)
+        internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator, string transport, string host,
+            int port, string mcastInterface, bool connect)
         {
             _endpoint = endpoint;
-            _instance = instance;
+            _communicator = communicator;
+            Transport = transport;
             _state = connect ? StateNeedConnect : StateNotConnected;
             _mcastInterface = mcastInterface;
             _incoming = true;
@@ -716,7 +720,7 @@ namespace ZeroC.Ice
 
             try
             {
-                _addr = Network.GetAddressForServerEndpoint(host, port, instance.IPVersion, instance.PreferIPv6);
+                _addr = Network.GetAddressForServerEndpoint(host, port, communicator.IPVersion, communicator.PreferIPv6);
 
                 _readEventArgs = new SocketAsyncEventArgs();
                 _readEventArgs.RemoteEndPoint = _addr;
@@ -726,7 +730,7 @@ namespace ZeroC.Ice
                 _writeEventArgs.RemoteEndPoint = _addr;
                 _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
 
-                _fd = Network.CreateServerSocket(true, _addr.AddressFamily, instance.IPVersion);
+                _fd = Network.CreateServerSocket(true, _addr.AddressFamily, communicator.IPVersion);
                 SetBufSize(-1, -1);
                 Network.SetBlock(_fd, false);
             }
@@ -780,14 +784,14 @@ namespace ZeroC.Ice
                 //
                 if (sizeRequested == -1)
                 {
-                    sizeRequested = _instance.Communicator.GetPropertyAsInt(prop) ?? dfltSize;
+                    sizeRequested = _communicator.GetPropertyAsInt(prop) ?? dfltSize;
                 }
                 //
                 // Check for sanity.
                 //
                 if (sizeRequested < (UdpOverhead + Ice1Definitions.HeaderSize))
                 {
-                    _instance.Logger.Warning($"Invalid {prop} value of {sizeRequested} adjusted to {dfltSize}");
+                    _communicator.Logger.Warning($"Invalid {prop} value of {sizeRequested} adjusted to {dfltSize}");
                     sizeRequested = dfltSize;
                 }
 
@@ -818,20 +822,20 @@ namespace ZeroC.Ice
                     //
                     if (sizeSet < sizeRequested)
                     {
-                        BufSizeWarnInfo winfo = _instance.GetBufSizeWarn(EndpointType.UDP);
+                        BufSizeWarnInfo winfo = _communicator.GetBufSizeWarn(EndpointType.UDP);
                         if ((isSnd && (!winfo.SndWarn || winfo.SndSize != sizeRequested)) ||
                            (!isSnd && (!winfo.RcvWarn || winfo.RcvSize != sizeRequested)))
                         {
-                            _instance.Logger.Warning(
+                            _communicator.Logger.Warning(
                                 $"UDP {direction} buffer size: requested size of {sizeRequested} adjusted to {sizeSet}");
 
                             if (isSnd)
                             {
-                                _instance.SetSndBufSizeWarn(EndpointType.UDP, sizeRequested);
+                                _communicator.SetSndBufSizeWarn(EndpointType.UDP, sizeRequested);
                             }
                             else
                             {
-                                _instance.SetRcvBufSizeWarn(EndpointType.UDP, sizeRequested);
+                                _communicator.SetRcvBufSizeWarn(EndpointType.UDP, sizeRequested);
                             }
                         }
                     }
@@ -860,7 +864,7 @@ namespace ZeroC.Ice
         }
 
         private UdpEndpoint? _endpoint;
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private int _state;
         private readonly bool _incoming;
         private int _rcvSize;

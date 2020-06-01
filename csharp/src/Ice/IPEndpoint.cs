@@ -18,19 +18,19 @@ namespace ZeroC.Ice
         public override string ConnectionId { get; } = "";
 
         /// <summary>The hostname of this IP endpoint.</summary>
-        // TODO: convert to a get-only property.
-        public readonly string Host;
-        public override bool IsSecure => Instance.Secure;
+        public string Host { get; }
+        public override bool IsSecure => false;
 
         /// <summary>The port number of this IP endpoint.</summary>
-        // TODO: convert to a get-only property.
-        public readonly int Port;
+        public int Port { get; }
 
         /// <summary>The source address of this IP endpoint.</summary>
         public IPAddress? SourceAddress { get; }
-        public override EndpointType Type => Instance.Type;
+        public override EndpointType Type { get; }
 
-        protected readonly TransportInstance Instance;
+        public override string Transport { get; }
+
+        protected readonly Communicator Communicator;
 
         public override bool Equals(Endpoint? other)
         {
@@ -171,12 +171,12 @@ namespace ZeroC.Ice
 
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
         {
-            Instrumentation.IObserver? observer = Instance.Communicator.Observer?.GetEndpointLookupObserver(this);
+            Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
             observer?.Attach();
             try
             {
-                INetworkProxy? networkProxy = Instance.Communicator.NetworkProxy;
-                int ipVersion = Instance.Communicator.IPVersion;
+                INetworkProxy? networkProxy = Communicator.NetworkProxy;
+                int ipVersion = Communicator.IPVersion;
                 if (networkProxy != null)
                 {
                     networkProxy = await networkProxy.ResolveHostAsync(ipVersion).ConfigureAwait(false);
@@ -187,7 +187,7 @@ namespace ZeroC.Ice
                 }
 
                 IEnumerable<IPEndPoint> addrs = await Network.GetAddressesForClientEndpointAsync(Host, Port, ipVersion,
-                    endptSelection, Instance.Communicator.PreferIPv6).ConfigureAwait(false);
+                    endptSelection, Communicator.PreferIPv6).ConfigureAwait(false);
                 return addrs.Select(item => CreateConnector(item, networkProxy));
             }
             catch (Exception ex)
@@ -216,9 +216,9 @@ namespace ZeroC.Ice
 
             IEnumerable<IPEndPoint> addresses = Network.GetAddresses(Host,
                                                                      Port,
-                                                                     Instance.IPVersion,
+                                                                     Communicator.IPVersion,
                                                                      EndpointSelectionType.Ordered,
-                                                                     Instance.PreferIPv6);
+                                                                     Communicator.PreferIPv6);
 
             if (addresses.Count() == 1)
             {
@@ -234,7 +234,7 @@ namespace ZeroC.Ice
 
         public override IEnumerable<Endpoint> ExpandIfWildcard()
         {
-            List<string> hosts = Network.GetHostsForEndpointExpand(Host, Instance.IPVersion, false);
+            List<string> hosts = Network.GetHostsForEndpointExpand(Host, Communicator.IPVersion, false);
             if (hosts.Count == 0)
             {
                 return new Endpoint[] { this };
@@ -245,27 +245,34 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected IPEndpoint(TransportInstance instance, string host, int port, IPAddress? sourceAddress,
+        private protected IPEndpoint(Communicator communicator, string transport, EndpointType type, string host,
+            int port, IPAddress? sourceAddress,
             string connectionId)
         {
-            Instance = instance;
+            Communicator = communicator;
+            Transport = transport;
+            Type = type;
             Host = host;
             Port = port;
             SourceAddress = sourceAddress;
             ConnectionId = connectionId;
         }
 
-        private protected IPEndpoint(TransportInstance instance, InputStream s)
+        private protected IPEndpoint(Communicator communicator, string transport, EndpointType type, InputStream s)
         {
-            Instance = instance;
+            Communicator = communicator;
+            Transport = transport;
+            Type = type;
             Host = s.ReadString();
             Port = s.ReadInt();
         }
 
-        private protected IPEndpoint(TransportInstance instance, string endpointString,
-                                     Dictionary<string, string?> options, bool oaEndpoint)
+        private protected IPEndpoint(Communicator communicator, string transport, EndpointType type,
+            string endpointString, Dictionary<string, string?> options, bool oaEndpoint)
         {
-            Instance = instance;
+            Communicator = communicator;
+            Transport = transport;
+            Type = type;
 
             if (options.TryGetValue("-h", out string? argument))
             {
@@ -281,7 +288,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Host = Instance.DefaultHost;
+                Host = Communicator.DefaultHost ?? "";
             }
 
             if (options.TryGetValue("-p", out argument))

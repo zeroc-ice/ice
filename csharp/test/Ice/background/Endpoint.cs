@@ -41,6 +41,8 @@ internal class Endpoint : ZeroC.Ice.Endpoint
         }
     }
 
+    public override string Transport => $"test-{_endpoint.Transport}";
+
     public override int GetHashCode() => _endpoint.GetHashCode();
 
     public override string ToString() => $"test-{_endpoint}";

@@ -6,13 +6,14 @@ namespace ZeroC.Ice
 {
     internal sealed class WSConnector : IConnector
     {
-        public ITransceiver Connect() => new WSTransceiver(_instance, _delegate.Connect(), _host, _resource);
+        public ITransceiver Connect() => new WSTransceiver(_communicator, _delegate.Connect(), _host, _resource);
 
-        public EndpointType Type() => _delegate.Type();
+        public EndpointType Type => _delegate.Type;
+        public string Transport => _delegate.Transport;
 
-        internal WSConnector(TransportInstance instance, IConnector del, string host, string resource)
+        internal WSConnector(Communicator communicator, IConnector del, string host, string resource)
         {
-            _instance = instance;
+            _communicator = communicator;
             _delegate = del;
             _host = host;
             _resource = resource;
@@ -48,7 +49,7 @@ namespace ZeroC.Ice
 
         public override int GetHashCode() => _delegate.GetHashCode();
 
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private readonly IConnector _delegate;
         private readonly string _host;
         private readonly string _resource;

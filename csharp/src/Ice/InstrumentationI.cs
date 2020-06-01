@@ -129,8 +129,8 @@ namespace ZeroC.Ice
             r.Add("endpointCompress", cl.GetMethod("GetEndpoint")!, cli.GetProperty("HasCompressionFlag")!);
 
             cli = typeof(IPEndpoint);
-            r.Add("endpointHost", cl.GetMethod("GetEndpoint")!, cli.GetField("Host")!);
-            r.Add("endpointPort", cl.GetMethod("GetEndpoint")!, cli.GetField("Port")!);
+            r.Add("endpointHost", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Host")!);
+            r.Add("endpointPort", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Port")!);
         }
 
         public static void

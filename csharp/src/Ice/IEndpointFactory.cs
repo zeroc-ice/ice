@@ -10,42 +10,41 @@ namespace ZeroC.Ice
     public interface IEndpointFactory
     {
         void Initialize();
-        EndpointType Type();
-        string Transport();
+        EndpointType Type { get; }
+        string Transport { get; }
         Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint);
         Endpoint Read(InputStream s);
         void Destroy();
 
-        IEndpointFactory Clone(TransportInstance instance);
+        IEndpointFactory Clone(string transport, EndpointType type);
     }
 
     public abstract class EndpointFactoryWithUnderlying : IEndpointFactory
     {
-        protected readonly TransportInstance Instance;
-        private readonly EndpointType _type;
+        public EndpointType Type { get; }
+        public string Transport { get; }
+
+        protected readonly Communicator Communicator;
+        private readonly EndpointType _underlyingType;
         private IEndpointFactory? _underlying;
 
         public void Initialize()
         {
             // Get the endpoint factory for the underlying type and clone it with our transport instance.
-            IEndpointFactory? factory = Instance.GetEndpointFactory(_type);
+            IEndpointFactory? factory = Communicator.IceFindEndpointFactory(_underlyingType);
             if (factory != null)
             {
-                _underlying = factory.Clone(Instance);
+                _underlying = factory.Clone(Transport, Type);
                 _underlying.Initialize();
             }
         }
-
-        public EndpointType Type() => Instance.Type;
-
-        public string Transport() => Instance!.Transport;
 
         public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint)
         {
             if (_underlying == null)
             {
                 throw new InvalidOperationException(
-                    $"cannot create a {Instance.Transport} endpoint without a factory for {_type}");
+                    $"cannot create a {Transport} endpoint without a factory for {_underlyingType}");
             }
 
             Endpoint underlyingEndpoint = _underlying.Create(endpointString, options, oaEndpoint);
@@ -56,21 +55,26 @@ namespace ZeroC.Ice
             if (_underlying == null)
             {
                 throw new InvalidOperationException(
-                    $"cannot create a {Instance.Transport} endpoint without a factory for {_type}");
+                    $"cannot create a {Transport} endpoint without a factory for {_underlyingType}");
             }
             return ReadWithUnderlying(_underlying.Read(istr), istr);
         }
 
         public void Destroy() => _underlying?.Destroy();
 
-        public IEndpointFactory Clone(TransportInstance instance) => CloneWithUnderlying(instance, _type);
+        public IEndpointFactory Clone(string transport, EndpointType type) =>
+            CloneWithUnderlying(transport, type, _underlyingType);
 
-        public abstract IEndpointFactory CloneWithUnderlying(TransportInstance instance, EndpointType type);
+        public abstract IEndpointFactory CloneWithUnderlying(
+            string transport, EndpointType type, EndpointType underlyingType);
 
-        protected EndpointFactoryWithUnderlying(TransportInstance instance, EndpointType type)
+        protected EndpointFactoryWithUnderlying(Communicator communicator, string transport, EndpointType type,
+            EndpointType underlyingType)
         {
-            Instance = instance;
-            _type = type;
+            Communicator = communicator;
+            Transport = transport;
+            Type = type;
+            _underlyingType = underlyingType;
         }
 
         protected abstract Endpoint CreateWithUnderlying(Endpoint underlying,

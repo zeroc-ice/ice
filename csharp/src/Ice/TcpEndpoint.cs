@@ -98,13 +98,16 @@ namespace ZeroC.Ice
 
         public override Endpoint NewTimeout(int timeout) =>
             timeout == Timeout ? this :
-                new TcpEndpoint(Instance, Host, Port, SourceAddress, timeout, ConnectionId, HasCompressionFlag);
+                new TcpEndpoint(Communicator, Transport, Type, Host, Port, SourceAddress, timeout, ConnectionId,
+                    HasCompressionFlag);
 
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
             compressionFlag == HasCompressionFlag ? this :
-                new TcpEndpoint(Instance, Host, Port, SourceAddress, Timeout, ConnectionId, compressionFlag);
+                new TcpEndpoint(Communicator, Transport, Type, Host, Port, SourceAddress, Timeout, ConnectionId,
+                    compressionFlag);
 
-        public override IAcceptor GetAcceptor(string adapterName) => new TcpAcceptor(this, Instance, Host, Port);
+        public override IAcceptor GetAcceptor(string adapterName) =>
+            new TcpAcceptor(this, Communicator, Transport, Host, Port);
         public override ITransceiver? GetTransceiver() => null;
 
         internal TcpEndpoint GetEndpoint(TcpAcceptor acceptor)
@@ -116,28 +119,29 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new TcpEndpoint(Instance, Host, port, SourceAddress, Timeout, ConnectionId, HasCompressionFlag);
+                return new TcpEndpoint(Communicator, Transport, Type, Host, port, SourceAddress, Timeout,
+                    ConnectionId, HasCompressionFlag);
             }
         }
 
-        internal TcpEndpoint(TransportInstance instance, string host, int port, IPAddress? sourceAddress,
-                             int timeout, string connectionId, bool compressionFlag) :
-            base(instance, host, port, sourceAddress, connectionId)
+        internal TcpEndpoint(Communicator communicator, string transport, EndpointType type, string host,
+            int port, IPAddress? sourceAddress, int timeout, string connectionId, bool compressionFlag) :
+            base(communicator, transport, type, host, port, sourceAddress, connectionId)
         {
             Timeout = timeout;
             HasCompressionFlag = compressionFlag;
         }
 
-        internal TcpEndpoint(TransportInstance instance, InputStream s) :
-            base(instance, s)
+        internal TcpEndpoint(Communicator communicator, string transport, EndpointType type, InputStream istr) :
+            base(communicator, transport, type, istr)
         {
-            Timeout = s.ReadInt();
-            HasCompressionFlag = s.ReadBool();
+            Timeout = istr.ReadInt();
+            HasCompressionFlag = istr.ReadBool();
         }
 
-        internal TcpEndpoint(TransportInstance instance, string endpointString, Dictionary<string, string?> options,
-                             bool oaEndpoint)
-            : base(instance, endpointString, options, oaEndpoint)
+        internal TcpEndpoint(Communicator communicator, string transport, EndpointType type, string endpointString,
+            Dictionary<string, string?> options, bool oaEndpoint)
+            : base(communicator, transport, type, endpointString, options, oaEndpoint)
         {
             if (options.TryGetValue("-t", out string? argument))
             {
@@ -169,7 +173,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Timeout = Instance.DefaultTimeout;
+                Timeout = Communicator.DefaultTimeout;
             }
 
             if (options.TryGetValue("-z", out argument))
@@ -185,15 +189,19 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(Instance, addr, proxy, SourceAddress, Timeout, ConnectionId);
+            new TcpConnector(Communicator, Transport, Type, addr, proxy, SourceAddress, Timeout, ConnectionId);
 
         private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId) =>
-            new TcpEndpoint(Instance, host, port, SourceAddress, Timeout, connectionId, HasCompressionFlag);
+            new TcpEndpoint(Communicator, Transport, Type, host, port, SourceAddress, Timeout,
+                connectionId, HasCompressionFlag);
     }
 
     internal sealed class TcpEndpointFactory : IEndpointFactory
     {
-        private readonly TransportInstance _instance;
+        public EndpointType Type { get; }
+        public string Transport { get; }
+
+        private Communicator Communicator { get; }
 
         public void Initialize()
         {
@@ -202,15 +210,19 @@ namespace ZeroC.Ice
         {
         }
 
-        public EndpointType Type() => _instance.Type;
-        public string Transport() => _instance.Transport;
-
         public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
-            new TcpEndpoint(_instance, endpointString, options, oaEndpoint);
+            new TcpEndpoint(Communicator, Transport, Type, endpointString, options, oaEndpoint);
 
-        public Endpoint Read(InputStream s) => new TcpEndpoint(_instance, s);
-        public IEndpointFactory Clone(TransportInstance instance) => new TcpEndpointFactory(instance);
+        public Endpoint Read(InputStream s) => new TcpEndpoint(Communicator, Transport, Type, s);
+        public IEndpointFactory Clone(string transport, EndpointType type) =>
+            new TcpEndpointFactory(Communicator, transport, type);
 
-        internal TcpEndpointFactory(TransportInstance instance) => _instance = instance;
+        internal TcpEndpointFactory(Communicator communicator, string transport, EndpointType type)
+        {
+            Communicator = communicator;
+            Transport = transport;
+            Type = type;
+        }
+
     }
 }

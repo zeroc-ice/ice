@@ -12,6 +12,7 @@ namespace ZeroC.Ice
         //
         ITransceiver Connect();
 
-        EndpointType Type();
+        EndpointType Type { get; }
+        string Transport { get; }
     }
 }

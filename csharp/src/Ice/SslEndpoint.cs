@@ -18,10 +18,12 @@ namespace ZeroC.Ice
 
         public override int Timeout => _delegate.Timeout;
         public override EndpointType Type => _delegate.Type;
+        public override string Transport => _delegate.Transport;
         public override Endpoint Underlying => _delegate;
 
         private readonly Endpoint _delegate;
-        private readonly SslInstance _instance;
+        private readonly SslEngine _engine;
+        private readonly Communicator _communicator;
 
         public override bool Equals(Endpoint? other)
         {
@@ -59,14 +61,14 @@ namespace ZeroC.Ice
 
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
             compressionFlag == _delegate.HasCompressionFlag ? this :
-                new SslEndpoint(_instance, _delegate.NewCompressionFlag(compressionFlag));
+                new SslEndpoint(_communicator, _engine, _delegate.NewCompressionFlag(compressionFlag));
 
         public override Endpoint NewConnectionId(string connectionId) =>
             connectionId == _delegate.ConnectionId ? this :
-                new SslEndpoint(_instance, _delegate.NewConnectionId(connectionId));
+                new SslEndpoint(_communicator, _engine, _delegate.NewConnectionId(connectionId));
 
         public override Endpoint NewTimeout(int timeout) =>
-        timeout == _delegate.Timeout ? this : new SslEndpoint(_instance, _delegate.NewTimeout(timeout));
+            timeout == _delegate.Timeout ? this : new SslEndpoint(_communicator, _engine, _delegate.NewTimeout(timeout));
 
         public override async ValueTask<IEnumerable<IConnector>>
             ConnectorsAsync(EndpointSelectionType endptSelection)
@@ -82,7 +84,7 @@ namespace ZeroC.Ice
             }
             IEnumerable<IConnector> connectors =
                 await _delegate.ConnectorsAsync(endptSelection).ConfigureAwait(false);
-            return connectors.Select(item => new SslConnector(_instance, item, host));
+            return connectors.Select(item => new SslConnector(_communicator, _engine, item, host));
         }
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
@@ -99,35 +101,44 @@ namespace ZeroC.Ice
             _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
 
         public override IAcceptor GetAcceptor(string adapterName) =>
-            new SslAcceptor(this, _instance, _delegate.GetAcceptor(adapterName)!, adapterName);
+            new SslAcceptor(this, _communicator, _engine, _delegate.GetAcceptor(adapterName)!, adapterName);
 
         public override ITransceiver? GetTransceiver() => null;
 
-        internal SslEndpoint GetEndpoint(Endpoint del) => del == _delegate ? this : new SslEndpoint(_instance, del);
+        internal SslEndpoint GetEndpoint(Endpoint del) =>
+            del == _delegate ? this : new SslEndpoint(_communicator, _engine, del);
 
-        internal SslEndpoint(SslInstance instance, Endpoint del)
+        internal SslEndpoint(Communicator communicator, SslEngine engine, Endpoint del)
         {
-            _instance = instance;
+            _communicator = communicator;
+            _engine = engine;
             _delegate = del;
         }
     }
 
-    internal sealed class EndpointFactoryI : EndpointFactoryWithUnderlying
+    internal sealed class SslEndpointFactory : EndpointFactoryWithUnderlying
     {
-        private readonly SslInstance _instance;
+        private SslEngine SslEngine { get; }
 
-        public EndpointFactoryI(SslInstance instance, EndpointType type)
-            : base(instance, type) =>
-            _instance = instance;
+        public SslEndpointFactory(
+            Communicator communicator,
+            SslEngine engine,
+            string transport,
+            EndpointType type,
+            EndpointType underlying)
+            : base(communicator, transport, type, underlying) => SslEngine = engine;
 
-        public override IEndpointFactory CloneWithUnderlying(TransportInstance inst,
+        public override IEndpointFactory CloneWithUnderlying(
+            string transport,
+            EndpointType type,
             EndpointType underlying) =>
-            new EndpointFactoryI(new SslInstance(_instance.Engine(), inst.Type, inst.Transport), underlying);
+            new SslEndpointFactory(Communicator, SslEngine, transport, type, underlying);
 
         protected override Endpoint CreateWithUnderlying(Endpoint underlying, string endpointString,
-            Dictionary<string, string?> options, bool oaEndpoint) => new SslEndpoint(_instance, underlying);
+            Dictionary<string, string?> options, bool oaEndpoint) =>
+            new SslEndpoint(Communicator, SslEngine, underlying);
 
         protected override Endpoint ReadWithUnderlying(Endpoint underlying, InputStream istr) =>
-            new SslEndpoint(_instance, underlying);
+            new SslEndpoint(Communicator, SslEngine, underlying);
     }
 }

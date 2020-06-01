@@ -10,13 +10,12 @@ internal class Plugin : IPlugin
 
     public void Initialize()
     {
-        ITransportPluginFacade facade = Util.GetTransportPluginFacade(_communicator);
         for (short s = 0; s < 100; ++s)
         {
-            IEndpointFactory? factory = facade.GetEndpointFactory((EndpointType)s);
+            IEndpointFactory? factory = _communicator.IceFindEndpointFactory((EndpointType)s);
             if (factory != null)
             {
-                facade.AddEndpointFactory(new EndpointFactory(factory));
+                _communicator.IceAddEndpointFactory(new EndpointFactory(factory));
             }
         }
     }

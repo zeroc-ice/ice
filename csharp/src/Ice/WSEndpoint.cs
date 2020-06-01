@@ -24,9 +24,10 @@ namespace ZeroC.Ice
         public string Resource { get; }
         public override int Timeout => _delegate.Timeout;
         public override EndpointType Type => _delegate.Type;
+        public override string Transport => _delegate.Transport;
         public override Endpoint? Underlying => _delegate;
 
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private readonly Endpoint _delegate;
 
         public override bool Equals(Endpoint? other)
@@ -94,15 +95,15 @@ namespace ZeroC.Ice
         }
 
         public override Endpoint NewTimeout(int timeout) =>
-            timeout == _delegate.Timeout ? this : new WSEndpoint(_instance, _delegate.NewTimeout(timeout), Resource);
+            timeout == _delegate.Timeout ? this : new WSEndpoint(_communicator, _delegate.NewTimeout(timeout), Resource);
 
         public override Endpoint NewConnectionId(string connectionId) =>
             connectionId == _delegate.ConnectionId ? this :
-                new WSEndpoint(_instance, _delegate.NewConnectionId(connectionId), Resource);
+                new WSEndpoint(_communicator, _delegate.NewConnectionId(connectionId), Resource);
 
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
             compressionFlag == _delegate.HasCompressionFlag ? this :
-                new WSEndpoint(_instance, _delegate.NewCompressionFlag(compressionFlag), Resource);
+                new WSEndpoint(_communicator, _delegate.NewCompressionFlag(compressionFlag), Resource);
 
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
         {
@@ -116,7 +117,7 @@ namespace ZeroC.Ice
                 }
             }
             IEnumerable<IConnector> connectors = await _delegate.ConnectorsAsync(endptSelection).ConfigureAwait(false);
-            return connectors.Select(item => new WSConnector(_instance, item, host, Resource));
+            return connectors.Select(item => new WSConnector(_communicator, item, host, Resource));
         }
 
         public override IEnumerable<Endpoint> ExpandIfWildcard() =>
@@ -137,25 +138,25 @@ namespace ZeroC.Ice
         {
             IAcceptor? acceptor = _delegate.GetAcceptor(adapterName);
             Debug.Assert(acceptor != null);
-            return new WSAcceptor(this, _instance, acceptor);
+            return new WSAcceptor(this, _communicator, acceptor);
         }
 
         public override ITransceiver? GetTransceiver() => null;
 
         internal WSEndpoint GetEndpoint(Endpoint del) =>
-            del == _delegate ? this : new WSEndpoint(_instance, del, Resource);
+            del == _delegate ? this : new WSEndpoint(_communicator, del, Resource);
 
-        internal WSEndpoint(TransportInstance instance, Endpoint del, string res)
+        internal WSEndpoint(Communicator communicator, Endpoint del, string res)
         {
-            _instance = instance;
+            _communicator = communicator;
             _delegate = del;
             Resource = res;
         }
 
-        internal WSEndpoint(TransportInstance instance, Endpoint del, string endpointString,
+        internal WSEndpoint(Communicator communicator, Endpoint del, string endpointString,
                             Dictionary<string, string?> options)
         {
-            _instance = instance;
+            _communicator = communicator;
             _delegate = del;
 
             if (options.TryGetValue("-r", out string? argument))
@@ -171,9 +172,9 @@ namespace ZeroC.Ice
             }
         }
 
-        internal WSEndpoint(TransportInstance instance, Endpoint del, InputStream istr)
+        internal WSEndpoint(Communicator communicator, Endpoint del, InputStream istr)
         {
-            _instance = instance;
+            _communicator = communicator;
             _delegate = del;
 
             Resource = istr.ReadString();
@@ -182,18 +183,20 @@ namespace ZeroC.Ice
 
     internal class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
-        public override IEndpointFactory CloneWithUnderlying(TransportInstance instance, EndpointType underlying) =>
-            new WSEndpointFactory(instance, underlying);
+        public override IEndpointFactory CloneWithUnderlying(
+            string transport, EndpointType type, EndpointType underlying) =>
+            new WSEndpointFactory(Communicator, transport, type, underlying);
 
         protected override Endpoint CreateWithUnderlying(Endpoint underlying, string endpointString,
             Dictionary<string, string?> options, bool oaEndpoint) =>
-            new WSEndpoint(Instance, underlying, endpointString, options);
+            new WSEndpoint(Communicator, underlying, endpointString, options);
 
-        protected override Endpoint ReadWithUnderlying(Endpoint underlying, InputStream s) =>
-            new WSEndpoint(Instance, underlying, s);
+        protected override Endpoint ReadWithUnderlying(Endpoint underlying, InputStream istr) =>
+            new WSEndpoint(Communicator, underlying, istr);
 
-        internal WSEndpointFactory(TransportInstance instance, EndpointType type)
-            : base(instance, type)
+        internal WSEndpointFactory(Communicator communicator, string transport, EndpointType type,
+            EndpointType underlying)
+            : base(communicator, transport, type, underlying)
         {
         }
     }

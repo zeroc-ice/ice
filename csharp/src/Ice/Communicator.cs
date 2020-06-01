@@ -572,14 +572,10 @@ namespace ZeroC.Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
-                AddEndpointFactory(new TcpEndpointFactory(
-                    new TransportInstance(this, EndpointType.TCP, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(
-                    new TransportInstance(this, EndpointType.UDP, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(
-                    new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
-                AddEndpointFactory(new WSEndpointFactory(
-                    new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
+                IceAddEndpointFactory(new TcpEndpointFactory(this, "tcp", EndpointType.TCP));
+                IceAddEndpointFactory(new UdpEndpointFactory(this, "udp", EndpointType.UDP));
+                IceAddEndpointFactory(new WSEndpointFactory(this, "ws", EndpointType.WS, EndpointType.TCP));
+                IceAddEndpointFactory(new WSEndpointFactory(this, "wss", EndpointType.WSS, EndpointType.SSL));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -1159,11 +1155,10 @@ namespace ZeroC.Ice
         }
 
         // Registers an endpoint factory.
-        // TODO: make public and add Ice prefix when removing ITransportPluginFacade.
-        internal void AddEndpointFactory(IEndpointFactory factory)
+        public void IceAddEndpointFactory(IEndpointFactory factory)
         {
-            _typeToEndpointFactory.Add(factory.Type(), factory);
-            _transportToEndpointFactory.Add(factory.Transport(), factory);
+            _typeToEndpointFactory.Add(factory.Type, factory);
+            _transportToEndpointFactory.Add(factory.Transport, factory);
         }
 
         internal int CheckRetryAfterException(System.Exception ex, Reference reference, ref int cnt)
@@ -1289,11 +1284,11 @@ namespace ZeroC.Ice
         }
 
         // Finds an endpoint factory previously registered using AddEndpointFactory.
-        internal IEndpointFactory? FindEndpointFactory(string transport) =>
+        public IEndpointFactory? IceFindEndpointFactory(string transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
          // Finds an endpoint factory previously registered using AddEndpointFactory.
-        internal IEndpointFactory? FindEndpointFactory(EndpointType type) =>
+        public IEndpointFactory? IceFindEndpointFactory(EndpointType type) =>
             _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
 
         internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)

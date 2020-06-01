@@ -132,13 +132,13 @@ namespace ZeroC.Ice
 
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
             compressionFlag == HasCompressionFlag ? this :
-                new UdpEndpoint(Instance, Host, Port, SourceAddress, McastInterface, McastTtl, _connect, ConnectionId,
-                    compressionFlag);
+                new UdpEndpoint(Communicator, Transport, Type, Host, Port, SourceAddress, McastInterface,
+                    McastTtl, _connect, ConnectionId, compressionFlag);
 
         public override IAcceptor? GetAcceptor(string adapterName) => null;
 
         public override ITransceiver GetTransceiver() =>
-            new UdpTransceiver(this, Instance, Host, Port, McastInterface, _connect);
+            new UdpTransceiver(this, Communicator, Transport, Host, Port, McastInterface, _connect);
 
         internal UdpEndpoint GetEndpoint(UdpTransceiver transceiver)
         {
@@ -149,14 +149,15 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new UdpEndpoint(Instance, Host, port, SourceAddress, McastInterface, McastTtl, _connect,
-                                       ConnectionId, HasCompressionFlag);
+                return new UdpEndpoint(Communicator, Transport, Type, Host, port, SourceAddress, McastInterface,
+                    McastTtl, _connect, ConnectionId, HasCompressionFlag);
             }
         }
 
-        internal UdpEndpoint(TransportInstance instance, string host, int port, IPAddress? sourceAddress,
-            string mcastInterface, int mttl, bool connect, string connectionId, bool compressionFlag) :
-            base(instance, host, port, sourceAddress, connectionId)
+        internal UdpEndpoint(Communicator communicator, string transport, EndpointType type, string host, int port,
+            IPAddress? sourceAddress, string mcastInterface, int mttl, bool connect, string connectionId,
+            bool compressionFlag)
+            : base(communicator, transport, type, host, port, sourceAddress, connectionId)
         {
             McastInterface = mcastInterface;
             McastTtl = mttl;
@@ -164,16 +165,16 @@ namespace ZeroC.Ice
             HasCompressionFlag = compressionFlag;
         }
 
-        internal UdpEndpoint(TransportInstance instance, InputStream s)
-            : base(instance, s)
+        internal UdpEndpoint(Communicator communicator, string transport, EndpointType type, InputStream istr)
+            : base(communicator, transport, type, istr)
         {
             _connect = false;
-            HasCompressionFlag = s.ReadBool();
+            HasCompressionFlag = istr.ReadBool();
         }
 
-        internal UdpEndpoint(TransportInstance instance, string endpointString, Dictionary<string, string?> options,
-                             bool oaEndpoint)
-            : base(instance, endpointString, options, oaEndpoint)
+        internal UdpEndpoint(Communicator communicator, string transport, EndpointType type, string endpointString,
+            Dictionary<string, string?> options, bool oaEndpoint)
+            : base(communicator, transport, type, endpointString, options, oaEndpoint)
         {
             if (options.TryGetValue("-c", out string? argument))
             {
@@ -240,16 +241,20 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Instance, addr, SourceAddress, McastInterface, McastTtl, ConnectionId);
+            new UdpConnector(Communicator, Transport, Type, addr, SourceAddress, McastInterface, McastTtl,
+                ConnectionId);
 
         private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId) =>
-            new UdpEndpoint(Instance, host, port, SourceAddress, McastInterface, McastTtl, _connect, connectionId,
-                            HasCompressionFlag);
+            new UdpEndpoint(Communicator, Transport, Type, host, port, SourceAddress, McastInterface, McastTtl,
+                _connect, connectionId, HasCompressionFlag);
     }
 
     internal sealed class UdpEndpointFactory : IEndpointFactory
     {
-        private readonly TransportInstance _instance;
+        public EndpointType Type { get; }
+        public string Transport { get; }
+
+        private readonly Communicator _communicator;
 
         public void Initialize()
         {
@@ -259,16 +264,18 @@ namespace ZeroC.Ice
         {
         }
 
-        public EndpointType Type() => _instance.Type;
-
-        public string Transport() => _instance.Transport;
-
         public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
-            new UdpEndpoint(_instance, endpointString, options, oaEndpoint);
+            new UdpEndpoint(_communicator, Transport, Type, endpointString, options, oaEndpoint);
 
-        public Endpoint Read(InputStream s) => new UdpEndpoint(_instance, s);
-        public IEndpointFactory Clone(TransportInstance instance) => new UdpEndpointFactory(instance);
+        public Endpoint Read(InputStream istr) => new UdpEndpoint(_communicator, Transport, Type, istr);
+        public IEndpointFactory Clone(string transport, EndpointType type) =>
+            new UdpEndpointFactory(_communicator, transport, type);
 
-        internal UdpEndpointFactory(TransportInstance instance) => _instance = instance;
+        internal UdpEndpointFactory(Communicator communicator, string transport, EndpointType type)
+        {
+            _communicator = communicator;
+            Transport = transport;
+            Type = type;
+        }
     }
 }

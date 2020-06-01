@@ -19,7 +19,7 @@ namespace ZeroC.Ice
             //
             // The plug-in may not be fully initialized.
             //
-            if (!_instance.Initialized())
+            if (!_engine.Initialized())
             {
                 throw new System.InvalidOperationException("IceSSL: plug-in is not initialized");
             }
@@ -28,25 +28,28 @@ namespace ZeroC.Ice
 
         public void FinishAccept() => _delegate.FinishAccept();
 
-        public ITransceiver Accept() => new SslTransceiver(_instance, _delegate.Accept(), _adapterName, true);
+        public ITransceiver Accept() =>
+            new SslTransceiver(_communicator, _engine, _delegate.Accept(), _adapterName, true);
 
-        public string Transport() => _delegate.Transport();
+        public string Transport => _delegate.Transport;
 
         public override string ToString() => _delegate.ToString();
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 
-        internal SslAcceptor(SslEndpoint endpoint, SslInstance instance, IAcceptor del, string adapterName)
+        internal SslAcceptor(SslEndpoint endpoint, Communicator communicator, SslEngine engine, IAcceptor del,
+            string adapterName)
         {
+            _communicator = communicator;
             _endpoint = endpoint;
             _delegate = del;
-            _instance = instance;
+            _engine = engine;
             _adapterName = adapterName;
 
             //
             // .NET requires that a certificate be supplied.
             //
-            System.Security.Cryptography.X509Certificates.X509Certificate2Collection? certs = instance.Certs();
+            System.Security.Cryptography.X509Certificates.X509Certificate2Collection? certs = _engine.Certs();
             if (certs == null || certs.Count == 0)
             {
                 throw new SecurityException("IceSSL: certificate required for server endpoint");
@@ -55,7 +58,8 @@ namespace ZeroC.Ice
 
         private SslEndpoint _endpoint;
         private readonly IAcceptor _delegate;
-        private readonly SslInstance _instance;
+        private readonly Communicator _communicator;
+        private readonly SslEngine _engine;
         private readonly string _adapterName;
     }
 }
