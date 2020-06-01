@@ -58,5 +58,9 @@ namespace ZeroC.Ice.Test.Optional
         public IEnumerable<int?> OpOptIntSeq(int?[] i1, Current current) => i1;
 
         public IEnumerable<int?>? OpTaggedOptIntSeq(int?[]? i1, Current current) => i1;
+
+        public IEnumerable<string?> OpOptStringSeq(string?[] i1, Current current) => i1;
+
+        public IEnumerable<string?>? OpTaggedOptStringSeq(string?[]? i1, Current current) => i1;
     }
 }
