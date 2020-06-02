@@ -55,10 +55,8 @@ namespace ZeroC.Ice
         internal SslPlugin(Communicator communicator)
         {
             _engine = new SslEngine(communicator);
-
-            // SSL based on TCP
-            communicator.IceAddEndpointFactory(
-                new SslEndpointFactory(communicator, _engine, "ssl", EndpointType.SSL, EndpointType.TCP));
+            communicator.IceAddEndpointFactory(new SslEndpointFactory(communicator, _engine));
+            communicator.IceAddEndpointFactory(new WSSEndpointFactory(communicator, _engine));
         }
 
         public void Initialize() => _engine.Initialize();

@@ -10,7 +10,7 @@ namespace ZeroC.Ice
 
         public Endpoint Listen()
         {
-            _endpoint = _endpoint.GetEndpoint(_delegate.Listen());
+            _endpoint = (SslEndpoint)_delegate.Listen();
             return _endpoint;
         }
 
@@ -36,6 +36,7 @@ namespace ZeroC.Ice
         public override string ToString() => _delegate.ToString();
 
         public string ToDetailedString() => _delegate.ToDetailedString();
+        public int EffectivePort() => _delegate.EffectivePort();
 
         internal SslAcceptor(SslEndpoint endpoint, Communicator communicator, SslEngine engine, IAcceptor del,
             string adapterName)

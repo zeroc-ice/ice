@@ -3,27 +3,18 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
 
 namespace ZeroC.Ice
 {
     /// <summary> Endpoint represents a TLS layer over another endpoint.</summary>
-    public sealed class SslEndpoint : Endpoint
+    public class SslEndpoint : TcpEndpoint
     {
-        public override string ConnectionId => _delegate.ConnectionId;
-        public override bool HasCompressionFlag => _delegate.HasCompressionFlag;
-        public override bool IsDatagram => _delegate.IsDatagram;
-        public override bool IsSecure => _delegate.IsSecure;
+        public override bool IsSecure => true;
+        public override EndpointType Type => EndpointType.SSL;
+        public override string Transport => "ssl";
 
-        public override int Timeout => _delegate.Timeout;
-        public override EndpointType Type => _delegate.Type;
-        public override string Transport => _delegate.Transport;
-        public override Endpoint Underlying => _delegate;
-
-        private readonly Endpoint _delegate;
-        private readonly SslEngine _engine;
-        private readonly Communicator _communicator;
+        private protected SslEngine SslEngine { get; }
 
         public override bool Equals(Endpoint? other)
         {
@@ -31,114 +22,53 @@ namespace ZeroC.Ice
             {
                 return true;
             }
-            if (other is SslEndpoint sslEndpoint)
-            {
-                return _delegate.Equals(sslEndpoint._delegate);
-            }
-            else
-            {
-                return false;
-            }
+            return other is SslEndpoint && base.Equals(other);
         }
 
-        public override int GetHashCode() => _delegate.GetHashCode();
-
-        public override string OptionsToString() => _delegate.OptionsToString();
-
-        public override bool Equivalent(Endpoint endpoint)
-        {
-            if (endpoint is SslEndpoint sslEndpoint)
-            {
-                return _delegate.Equivalent(sslEndpoint._delegate);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public override void IceWritePayload(OutputStream ostr) => _delegate.IceWritePayload(ostr);
-
-        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
-            compressionFlag == _delegate.HasCompressionFlag ? this :
-                new SslEndpoint(_communicator, _engine, _delegate.NewCompressionFlag(compressionFlag));
-
-        public override Endpoint NewConnectionId(string connectionId) =>
-            connectionId == _delegate.ConnectionId ? this :
-                new SslEndpoint(_communicator, _engine, _delegate.NewConnectionId(connectionId));
-
-        public override Endpoint NewTimeout(int timeout) =>
-            timeout == _delegate.Timeout ? this : new SslEndpoint(_communicator, _engine, _delegate.NewTimeout(timeout));
-
-        public override async ValueTask<IEnumerable<IConnector>>
-            ConnectorsAsync(EndpointSelectionType endptSelection)
-        {
-            string host = "";
-            for (Endpoint? p = _delegate; p != null; p = p.Underlying)
-            {
-                if (p is IPEndpoint ipEndpoint)
-                {
-                    host = ipEndpoint.Host;
-                    break;
-                }
-            }
-            IEnumerable<IConnector> connectors =
-                await _delegate.ConnectorsAsync(endptSelection).ConfigureAwait(false);
-            return connectors.Select(item => new SslConnector(_communicator, _engine, item, host));
-        }
-
-        public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publish)
-        {
-            var endpoints = _delegate.ExpandHost(out publish).Select(endpoint => GetEndpoint(endpoint));
-            if (publish != null)
-            {
-                publish = GetEndpoint(publish);
-            }
-            return endpoints;
-        }
-
-        public override IEnumerable<Endpoint> ExpandIfWildcard() =>
-            _delegate.ExpandIfWildcard().Select(endpoint => GetEndpoint(endpoint));
+        public override bool Equivalent(Endpoint endpoint) => endpoint is SslEndpoint && base.Equivalent(endpoint);
 
         public override IAcceptor GetAcceptor(string adapterName) =>
-            new SslAcceptor(this, _communicator, _engine, _delegate.GetAcceptor(adapterName)!, adapterName);
+            new SslAcceptor(this, Communicator, SslEngine, base.GetAcceptor(adapterName)!, adapterName);
 
         public override ITransceiver? GetTransceiver() => null;
 
-        internal SslEndpoint GetEndpoint(Endpoint del) =>
-            del == _delegate ? this : new SslEndpoint(_communicator, _engine, del);
+        internal SslEndpoint(SslEngine engine, Communicator communicator, string host, int port, IPAddress? sourceAddress,
+            int timeout, string connectionId, bool compressionFlag)
+            : base(communicator, host, port, sourceAddress, timeout, connectionId, compressionFlag) =>
+            SslEngine = engine;
 
-        internal SslEndpoint(Communicator communicator, SslEngine engine, Endpoint del)
-        {
-            _communicator = communicator;
-            _engine = engine;
-            _delegate = del;
-        }
+        internal SslEndpoint(SslEngine engine, Communicator communicator, InputStream istr)
+            : base(communicator, istr) => SslEngine = engine;
+
+        internal SslEndpoint(SslEngine engine, Communicator communicator, string endpointString,
+            Dictionary<string, string?> options, bool oaEndpoint)
+            : base(communicator, endpointString, options, oaEndpoint) => SslEngine = engine;
+
+        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
+            new SslConnector(Communicator, SslEngine, base.CreateConnector(addr, proxy), Host);
+
+        private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
+            bool compressionFlag, int timeout) =>
+            new SslEndpoint(SslEngine, Communicator, host, port, SourceAddress, timeout, connectionId,
+                compressionFlag);
     }
 
-    internal sealed class SslEndpointFactory : EndpointFactoryWithUnderlying
+    internal sealed class SslEndpointFactory : IEndpointFactory
     {
+        public EndpointType Type => EndpointType.SSL;
+        public string Transport => "ssl";
+
         private SslEngine SslEngine { get; }
+        private Communicator Communicator { get; }
 
-        public SslEndpointFactory(
-            Communicator communicator,
-            SslEngine engine,
-            string transport,
-            EndpointType type,
-            EndpointType underlying)
-            : base(communicator, transport, type, underlying) => SslEngine = engine;
+        public SslEndpointFactory(Communicator communicator, SslEngine engine)
+        {
+            Communicator = communicator;
+            SslEngine = engine;
+        }
 
-        public override IEndpointFactory CloneWithUnderlying(
-            string transport,
-            EndpointType type,
-            EndpointType underlying) =>
-            new SslEndpointFactory(Communicator, SslEngine, transport, type, underlying);
-
-        protected override Endpoint CreateWithUnderlying(Endpoint underlying, string endpointString,
-            Dictionary<string, string?> options, bool oaEndpoint) =>
-            new SslEndpoint(Communicator, SslEngine, underlying);
-
-        protected override Endpoint ReadWithUnderlying(Endpoint underlying, InputStream istr) =>
-            new SslEndpoint(Communicator, SslEngine, underlying);
+        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
+            new SslEndpoint(SslEngine, Communicator, endpointString, options, oaEndpoint);
+        public Endpoint Read(InputStream istr) => new SslEndpoint(SslEngine, Communicator, istr);
     }
 }

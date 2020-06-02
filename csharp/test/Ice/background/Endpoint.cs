@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,8 +23,8 @@ internal class Endpoint : ZeroC.Ice.Endpoint
     public override EndpointType Type => (EndpointType)(TYPE_BASE + (short)_endpoint.Type);
 
     internal static short TYPE_BASE = 100;
-    private ZeroC.Ice.Endpoint _endpoint;
-    private Configuration _configuration;
+    private readonly ZeroC.Ice.Endpoint _endpoint;
+    private readonly Configuration _configuration;
 
     public override bool Equals(ZeroC.Ice.Endpoint? other)
     {

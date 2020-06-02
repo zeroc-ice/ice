@@ -64,9 +64,6 @@ namespace ZeroC.Ice
 
         public abstract string Transport { get; }
 
-        /// <summary>The underlying endpoint.</summary>
-        public virtual Endpoint? Underlying => null;
-
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {
             if (ReferenceEquals(lhs, rhs))

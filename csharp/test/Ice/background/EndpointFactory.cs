@@ -11,10 +11,6 @@ internal class EndpointFactory : IEndpointFactory
 {
     internal EndpointFactory(IEndpointFactory factory) => _factory = factory;
 
-    public void Initialize()
-    {
-    }
-
     public EndpointType Type => (EndpointType)(Endpoint.TYPE_BASE + (short)_factory.Type);
 
     public string Transport => "test-" + _factory.Transport;
@@ -30,11 +26,5 @@ internal class EndpointFactory : IEndpointFactory
         return endpoint;
     }
 
-    public void Destroy()
-    {
-    }
-
-    public IEndpointFactory Clone(string Transport, EndpointType type) => this;
-
-    private IEndpointFactory _factory;
+    private readonly IEndpointFactory _factory;
 }

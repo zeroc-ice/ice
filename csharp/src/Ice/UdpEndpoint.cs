@@ -24,6 +24,11 @@ namespace ZeroC.Ice
         public int McastTtl { get; } = -1;
 
         public override int Timeout => -1;
+
+        public override EndpointType Type => EndpointType.UDP;
+
+        public override string Transport => "udp";
+
         private readonly bool _connect;
         private int _hashCode = 0;
 
@@ -130,11 +135,6 @@ namespace ZeroC.Ice
 
         public override Endpoint NewTimeout(int timeout) => this;
 
-        public override Endpoint NewCompressionFlag(bool compressionFlag) =>
-            compressionFlag == HasCompressionFlag ? this :
-                new UdpEndpoint(Communicator, Transport, Type, Host, Port, SourceAddress, McastInterface,
-                    McastTtl, _connect, ConnectionId, compressionFlag);
-
         public override IAcceptor? GetAcceptor(string adapterName) => null;
 
         public override ITransceiver GetTransceiver() =>
@@ -149,15 +149,14 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new UdpEndpoint(Communicator, Transport, Type, Host, port, SourceAddress, McastInterface,
-                    McastTtl, _connect, ConnectionId, HasCompressionFlag);
+                return new UdpEndpoint(Communicator, Host, port, SourceAddress, McastInterface, McastTtl, _connect,
+                    ConnectionId, HasCompressionFlag);
             }
         }
 
-        internal UdpEndpoint(Communicator communicator, string transport, EndpointType type, string host, int port,
-            IPAddress? sourceAddress, string mcastInterface, int mttl, bool connect, string connectionId,
-            bool compressionFlag)
-            : base(communicator, transport, type, host, port, sourceAddress, connectionId)
+        internal UdpEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress,
+            string mcastInterface, int mttl, bool connect, string connectionId, bool compressionFlag)
+            : base(communicator, host, port, sourceAddress, connectionId)
         {
             McastInterface = mcastInterface;
             McastTtl = mttl;
@@ -165,16 +164,14 @@ namespace ZeroC.Ice
             HasCompressionFlag = compressionFlag;
         }
 
-        internal UdpEndpoint(Communicator communicator, string transport, EndpointType type, InputStream istr)
-            : base(communicator, transport, type, istr)
+        internal UdpEndpoint(Communicator communicator, InputStream istr) : base(communicator, istr)
         {
             _connect = false;
             HasCompressionFlag = istr.ReadBool();
         }
 
-        internal UdpEndpoint(Communicator communicator, string transport, EndpointType type, string endpointString,
-            Dictionary<string, string?> options, bool oaEndpoint)
-            : base(communicator, transport, type, endpointString, options, oaEndpoint)
+        internal UdpEndpoint(Communicator communicator, string endpointString, Dictionary<string, string?> options,
+            bool oaEndpoint) : base(communicator, endpointString, options, oaEndpoint)
         {
             if (options.TryGetValue("-c", out string? argument))
             {
@@ -244,38 +241,24 @@ namespace ZeroC.Ice
             new UdpConnector(Communicator, Transport, Type, addr, SourceAddress, McastInterface, McastTtl,
                 ConnectionId);
 
-        private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId) =>
-            new UdpEndpoint(Communicator, Transport, Type, host, port, SourceAddress, McastInterface, McastTtl,
-                _connect, connectionId, HasCompressionFlag);
+        private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
+            bool compressionFlag, int timeout) =>
+            new UdpEndpoint(Communicator, host, port, SourceAddress, McastInterface, McastTtl, _connect,
+                connectionId, compressionFlag);
     }
 
     internal sealed class UdpEndpointFactory : IEndpointFactory
     {
-        public EndpointType Type { get; }
-        public string Transport { get; }
+        public EndpointType Type => EndpointType.UDP;
+        public string Transport => "udp";
 
-        private readonly Communicator _communicator;
-
-        public void Initialize()
-        {
-        }
-
-        public void Destroy()
-        {
-        }
+        private Communicator Communicator { get; }
 
         public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
-            new UdpEndpoint(_communicator, Transport, Type, endpointString, options, oaEndpoint);
+            new UdpEndpoint(Communicator, endpointString, options, oaEndpoint);
 
-        public Endpoint Read(InputStream istr) => new UdpEndpoint(_communicator, Transport, Type, istr);
-        public IEndpointFactory Clone(string transport, EndpointType type) =>
-            new UdpEndpointFactory(_communicator, transport, type);
+        public Endpoint Read(InputStream istr) => new UdpEndpoint(Communicator, istr);
 
-        internal UdpEndpointFactory(Communicator communicator, string transport, EndpointType type)
-        {
-            _communicator = communicator;
-            Transport = transport;
-            Type = type;
-        }
+        internal UdpEndpointFactory(Communicator communicator) => Communicator = communicator;
     }
 }

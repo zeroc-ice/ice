@@ -38,7 +38,7 @@ namespace ZeroC.Ice
                 _fd = null;
                 throw;
             }
-            _endpoint = _endpoint.GetEndpoint(this);
+            _endpoint = (TcpEndpoint)_endpoint.GetEndpoint(this);
             return _endpoint;
         }
 
@@ -112,7 +112,7 @@ namespace ZeroC.Ice
             return s.ToString();
         }
 
-        internal int EffectivePort() => _addr.Port;
+        public int EffectivePort() => _addr.Port;
 
         internal TcpAcceptor(TcpEndpoint endpoint, Communicator communicator, string transport, string host, int port)
         {

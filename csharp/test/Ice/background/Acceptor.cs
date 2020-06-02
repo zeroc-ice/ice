@@ -28,6 +28,7 @@ internal class Acceptor : IAcceptor
     public override string ToString() => _acceptor.ToString();
 
     public string ToDetailedString() => _acceptor.ToDetailedString();
+    public int EffectivePort() => _acceptor.EffectivePort();
 
     internal Acceptor(Endpoint endpoint, IAcceptor acceptor)
     {

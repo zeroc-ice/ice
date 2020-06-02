@@ -572,10 +572,9 @@ namespace ZeroC.Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
-                IceAddEndpointFactory(new TcpEndpointFactory(this, "tcp", EndpointType.TCP));
-                IceAddEndpointFactory(new UdpEndpointFactory(this, "udp", EndpointType.UDP));
-                IceAddEndpointFactory(new WSEndpointFactory(this, "ws", EndpointType.WS, EndpointType.TCP));
-                IceAddEndpointFactory(new WSEndpointFactory(this, "wss", EndpointType.WSS, EndpointType.SSL));
+                IceAddEndpointFactory(new TcpEndpointFactory(this));
+                IceAddEndpointFactory(new UdpEndpointFactory(this));
+                IceAddEndpointFactory(new WSEndpointFactory(this));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -588,13 +587,6 @@ namespace ZeroC.Ice
                 // Load plug-ins.
                 //
                 LoadPlugins(ref args);
-
-                // Initialize the endpoint factories once all the plugins are loaded. This gives the opportunity for the
-                // endpoint factories to find underlying factories.
-                foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
-                {
-                    factory.Initialize();
-                }
 
                 //
                 // Create Admin facets, if enabled.
@@ -924,10 +916,6 @@ namespace ZeroC.Ice
                 _locatorTableMap.Clear();
             }
 
-            foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
-            {
-                factory.Destroy();
-            }
             _typeToEndpointFactory.Clear();
             _transportToEndpointFactory.Clear();
 

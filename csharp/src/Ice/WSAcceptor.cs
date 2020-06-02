@@ -10,7 +10,7 @@ namespace ZeroC.Ice
 
         public Endpoint Listen()
         {
-            _endpoint = _endpoint.GetEndpoint(_delegate.Listen());
+            _endpoint = (IPEndpoint)_delegate.Listen();
             return _endpoint;
         }
 
@@ -26,6 +26,8 @@ namespace ZeroC.Ice
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 
+        public int EffectivePort() => _delegate.EffectivePort();
+
         public IAcceptor GetDelegate() => _delegate;
 
         internal WSAcceptor(WSEndpoint endpoint, Communicator communicator, IAcceptor del)
@@ -35,7 +37,14 @@ namespace ZeroC.Ice
             _delegate = del;
         }
 
-        private WSEndpoint _endpoint;
+        internal WSAcceptor(WSSEndpoint endpoint, Communicator communicator, IAcceptor del)
+        {
+            _endpoint = endpoint;
+            _communicator = communicator;
+            _delegate = del;
+        }
+
+        private IPEndpoint _endpoint;
         private readonly Communicator _communicator;
         private readonly IAcceptor _delegate;
     }
