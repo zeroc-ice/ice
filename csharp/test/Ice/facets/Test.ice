@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.facets]
-module Test
+module ZeroC::Ice::Test::Facets
 {
 
 interface Empty

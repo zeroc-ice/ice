@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.objects
+namespace ZeroC.Ice.Test.Objects
 {
-    public sealed class F2 : Test.IF2
+    public sealed class F2 : IF2
     {
         public void op(Current current)
         {

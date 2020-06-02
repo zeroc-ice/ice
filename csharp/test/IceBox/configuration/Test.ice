@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-module Test
+module ZeroC::IceBox::Test::Configuration
 {
 
 interface TestIntf

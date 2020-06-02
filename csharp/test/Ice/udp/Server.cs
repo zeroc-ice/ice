@@ -6,7 +6,7 @@ using System;
 using System.Text;
 using Test;
 
-namespace ZeroC.Ice.udp
+namespace ZeroC.Ice.Test.UDP
 {
     public class Server : TestHelper
     {
@@ -79,6 +79,6 @@ namespace ZeroC.Ice.udp
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

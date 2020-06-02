@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.timeout
+namespace ZeroC.Ice.Test.Timeout
 {
     public class Server : TestHelper
     {
@@ -39,6 +39,6 @@ namespace ZeroC.Ice.timeout
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

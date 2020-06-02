@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.perf
+namespace ZeroC.Ice.Test.Perf
 {
     public class Collocated : TestHelper
     {

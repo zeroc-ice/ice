@@ -5,7 +5,7 @@
 using Test;
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.acm
+namespace ZeroC.Ice.Test.ACM
 {
     public class Server : TestHelper
     {

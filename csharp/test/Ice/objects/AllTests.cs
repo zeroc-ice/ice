@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.objects.Test
+namespace ZeroC.Ice.Test.Objects
 {
     public partial class IBase
     {
@@ -203,7 +203,7 @@ namespace ZeroC.Ice.objects.Test
 
             output.Write("testing recursive type... ");
             output.Flush();
-            var top = new Test.Recursive();
+            var top = new Recursive();
             var p = top;
             int depth = 0;
             try
@@ -259,8 +259,8 @@ namespace ZeroC.Ice.objects.Test
             }
             catch (InvalidDataException ex)
             {
-                TestHelper.Assert(ex.Message.Contains("Test.AlsoEmpty"));
-                TestHelper.Assert(ex.Message.Contains("Test.Empty"));
+                TestHelper.Assert(ex.Message.Contains("ZeroC.Ice.Test.Objects.AlsoEmpty"));
+                TestHelper.Assert(ex.Message.Contains("ZeroC.Ice.Test.Objects.Empty"));
             }
             catch (System.Exception ex)
             {

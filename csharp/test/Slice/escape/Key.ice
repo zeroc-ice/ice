@@ -4,6 +4,9 @@
 
 #pragma once
 
+module ZeroC::Slice::Test::Escape
+{
+
 module abstract
 {
 
@@ -110,7 +113,7 @@ exception BaseMethods
 }
 
 const int protected = 0;
-const int public = 0;
+const int public = 1;
 
 //
 // System as inner module.
@@ -136,6 +139,8 @@ module System
 interface Test
 {
     void op();
+}
+
 }
 
 }

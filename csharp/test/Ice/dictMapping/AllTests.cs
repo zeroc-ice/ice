@@ -5,17 +5,17 @@
 using System.IO;
 using Test;
 
-namespace ZeroC.Ice.dictMapping
+namespace ZeroC.Ice.Test.DictMapping
 {
     public class AllTests
     {
-        public static Test.IMyClassPrx allTests(TestHelper helper, bool collocated)
+        public static IMyClassPrx allTests(TestHelper helper, bool collocated)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             TextWriter output = helper.GetWriter();
 
-            var cl = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
 
             output.Write("testing twoway operations... ");
             output.Flush();

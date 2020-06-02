@@ -4,22 +4,26 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Test;
 
-public class Client : Test.TestHelper
+namespace ZeroC.IceGrid.Test.Simple
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        using var communicator = Initialize(ref args,
-            new Dictionary<string, string> { ["Ice.Default.Encoding"] = "1.1" });
-        if (args.Any(v => v.Equals("--with-deploy")))
+        public override void Run(string[] args)
         {
-            AllTests.allTestsWithDeploy(this);
+            using var communicator = Initialize(ref args,
+                new Dictionary<string, string> { ["Ice.Default.Encoding"] = "1.1" });
+            if (args.Any(v => v.Equals("--with-deploy")))
+            {
+                AllTests.allTestsWithDeploy(this);
+            }
+            else
+            {
+                AllTests.allTests(this);
+            }
         }
-        else
-        {
-            AllTests.allTests(this);
-        }
-    }
 
-    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+    }
 }

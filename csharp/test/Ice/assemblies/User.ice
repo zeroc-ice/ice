@@ -3,7 +3,7 @@
 
 [[3.7]]
 
-module User
+module ZeroC::Ice::Test::Assemblies::User
 {
     class UserInfo
     {
@@ -11,6 +11,6 @@ module User
 
     interface Registry
     {
-        UserInfo getUserInfo(string id, Core::Data data);
+        UserInfo getUserInfo(string id, ZeroC::Ice::Test::Assemblies::Core::Data data);
     }
 }

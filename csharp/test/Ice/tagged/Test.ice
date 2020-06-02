@@ -6,10 +6,7 @@
 
 [[3.7]]
 
-[[cs:typeid-namespace:ZeroC.Ice.tagged.TypeId]]
-
-[cs:namespace:ZeroC.Ice.tagged]
-module Test
+module ZeroC::Ice::Test::Tagged
 {
 
 class OneTagged
@@ -68,7 +65,7 @@ sequence<FixedStruct> FixedStructSeq;
 sequence<VarStruct> VarStructSeq;
 sequence<OneTagged> OneTaggedSeq;
 
-[clr:serializable:ZeroC.Ice.tagged.Test.SerializableClass]
+[clr:serializable:ZeroC.Ice.Test.Tagged.SerializableClass]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;

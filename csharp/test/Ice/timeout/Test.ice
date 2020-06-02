@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.timeout]
-module Test
+module ZeroC::Ice::Test::Timeout
 {
 
 sequence<byte> ByteSeq;

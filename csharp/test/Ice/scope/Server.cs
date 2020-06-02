@@ -2,11 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.scope.Test;
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.scope
+namespace ZeroC.Ice.Test.Scope
 {
     public class Server : TestHelper
     {
@@ -35,48 +34,48 @@ namespace ZeroC.Ice.scope
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
-        private class I2 : Test.Inner.II
+        private class I2 : Inner.II
         {
-            public (Test.Inner.Inner2.S, Test.Inner.Inner2.S)
-            opS(Test.Inner.Inner2.S s1, Current current) => (s1, s1);
+            public (Inner.Inner2.S, Inner.Inner2.S)
+            opS(Inner.Inner2.S s1, Current current) => (s1, s1);
 
-            public (IEnumerable<Test.Inner.Inner2.S>, IEnumerable<Test.Inner.Inner2.S>)
-            opSSeq(Test.Inner.Inner2.S[] s1, Current current) => (s1, s1);
+            public (IEnumerable<Inner.Inner2.S>, IEnumerable<Inner.Inner2.S>)
+            opSSeq(Inner.Inner2.S[] s1, Current current) => (s1, s1);
 
-            public (IReadOnlyDictionary<string, Test.Inner.Inner2.S>, IReadOnlyDictionary<string, Test.Inner.Inner2.S>)
-            opSMap(Dictionary<string, Test.Inner.Inner2.S> s1, Current current) => (s1, s1);
+            public (IReadOnlyDictionary<string, Inner.Inner2.S>, IReadOnlyDictionary<string, Inner.Inner2.S>)
+            opSMap(Dictionary<string, Inner.Inner2.S> s1, Current current) => (s1, s1);
 
-            public (Test.Inner.Inner2.C?, Test.Inner.Inner2.C?)
-            opC(Test.Inner.Inner2.C? c1, Current current) => (c1, c1);
+            public (Inner.Inner2.C?, Inner.Inner2.C?)
+            opC(Inner.Inner2.C? c1, Current current) => (c1, c1);
 
-            public (IEnumerable<Test.Inner.Inner2.C?>, IEnumerable<Test.Inner.Inner2.C?>)
-            opCSeq(Test.Inner.Inner2.C?[] c1, Current current) => (c1, c1);
+            public (IEnumerable<Inner.Inner2.C?>, IEnumerable<Inner.Inner2.C?>)
+            opCSeq(Inner.Inner2.C?[] c1, Current current) => (c1, c1);
 
-            public (IReadOnlyDictionary<string, Test.Inner.Inner2.C?>, IReadOnlyDictionary<string, Test.Inner.Inner2.C?>)
-            opCMap(Dictionary<string, Test.Inner.Inner2.C?> c1, Current current) => (c1, c1);
+            public (IReadOnlyDictionary<string, Inner.Inner2.C?>, IReadOnlyDictionary<string, Inner.Inner2.C?>)
+            opCMap(Dictionary<string, Inner.Inner2.C?> c1, Current current) => (c1, c1);
 
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
 
-        private class I3 : Test.Inner.Inner2.II
+        private class I3 : Inner.Inner2.II
         {
-            public (Test.Inner.Inner2.S, Test.Inner.Inner2.S)
-            opS(Test.Inner.Inner2.S s1, Current current) => (s1, s1);
+            public (Inner.Inner2.S, Inner.Inner2.S)
+            opS(Inner.Inner2.S s1, Current current) => (s1, s1);
 
-            public (IEnumerable<Test.Inner.Inner2.S>, IEnumerable<Test.Inner.Inner2.S>)
-            opSSeq(Test.Inner.Inner2.S[] s1, Current current) => (s1, s1);
+            public (IEnumerable<Inner.Inner2.S>, IEnumerable<Inner.Inner2.S>)
+            opSSeq(Inner.Inner2.S[] s1, Current current) => (s1, s1);
 
-            public (IReadOnlyDictionary<string, Test.Inner.Inner2.S>, IReadOnlyDictionary<string, Test.Inner.Inner2.S>)
-            opSMap(Dictionary<string, Test.Inner.Inner2.S> s1, Current current) => (s1, s1);
+            public (IReadOnlyDictionary<string, Inner.Inner2.S>, IReadOnlyDictionary<string, Inner.Inner2.S>)
+            opSMap(Dictionary<string, Inner.Inner2.S> s1, Current current) => (s1, s1);
 
-            public (Test.Inner.Inner2.C?, Test.Inner.Inner2.C?)
-            opC(Test.Inner.Inner2.C? c1, Current current) => (c1, c1);
+            public (Inner.Inner2.C?, Inner.Inner2.C?)
+            opC(Inner.Inner2.C? c1, Current current) => (c1, c1);
 
-            public (IEnumerable<Test.Inner.Inner2.C?>, IEnumerable<Test.Inner.Inner2.C?>)
-            opCSeq(Test.Inner.Inner2.C?[] c1, Current current) => (c1, c1);
+            public (IEnumerable<Inner.Inner2.C?>, IEnumerable<Inner.Inner2.C?>)
+            opCSeq(Inner.Inner2.C?[] c1, Current current) => (c1, c1);
 
-            public (IReadOnlyDictionary<string, Test.Inner.Inner2.C?>, IReadOnlyDictionary<string, Test.Inner.Inner2.C?>)
-            opCMap(Dictionary<string, Test.Inner.Inner2.C?> c1, Current current) => (c1, c1);
+            public (IReadOnlyDictionary<string, Inner.Inner2.C?>, IReadOnlyDictionary<string, Inner.Inner2.C?>)
+            opCMap(Dictionary<string, Inner.Inner2.C?> c1, Current current) => (c1, c1);
 
             public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
         }
@@ -102,8 +101,7 @@ namespace ZeroC.Ice.scope
 
         public override void Run(string[] args)
         {
-            using Communicator communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "ZeroC.Ice.scope.TypeId" });
+            using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("i1", new I1());

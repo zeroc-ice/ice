@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.binding]
-module Test
+module ZeroC::Ice::Test::Binding
 {
 
 interface TestIntf

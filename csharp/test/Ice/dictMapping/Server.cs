@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.dictMapping
+namespace ZeroC.Ice.Test.DictMapping
 {
     public class Server : TestHelper
     {

@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.ami
+namespace ZeroC.Ice.Test.AMI
 {
-    public class TestIntf : Test.ITestIntf
+    public class TestIntf : ITestIntf
     {
         public void
         op(Current current)
@@ -17,7 +17,7 @@ namespace ZeroC.Ice.ami
 
         public int opWithResult(Current current) => 15;
 
-        public void opWithUE(Current current) => throw new Test.TestIntfException();
+        public void opWithUE(Current current) => throw new TestIntfException();
 
         public void
         opWithPayload(byte[] seq, Current current)
@@ -25,7 +25,7 @@ namespace ZeroC.Ice.ami
         }
 
         public void
-        close(Test.CloseMode mode, Current current) => current.Connection!.Close((ConnectionClose)(int)mode);
+        close(CloseMode mode, Current current) => current.Connection!.Close((ConnectionClose)(int)mode);
 
         public void sleep(int ms, Current current) => Thread.Sleep(ms);
 
@@ -70,8 +70,8 @@ namespace ZeroC.Ice.ami
             }
         }
 
-        private Test.ITestIntfPrx Self(Current current) =>
-            current.Adapter.CreateProxy(current.Identity, Test.ITestIntfPrx.Factory);
+        private ITestIntfPrx Self(Current current) =>
+            current.Adapter.CreateProxy(current.Identity, ITestIntfPrx.Factory);
 
         public ValueTask startDispatchAsync(Current current)
         {
@@ -114,7 +114,7 @@ namespace ZeroC.Ice.ami
         private TaskCompletionSource<object?>? _pending = null;
     }
 
-    public class TestIntf2 : Test.Outer.Inner.ITestIntf
+    public class TestIntf2 : Outer.Inner.ITestIntf
     {
         public (int, int) op(int i, Current current) => (i, i);
     }

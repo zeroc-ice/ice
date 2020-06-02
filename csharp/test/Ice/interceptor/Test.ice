@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.interceptor]
-module Test
+module ZeroC::Ice::Test::Interceptor
 {
 
 exception InvalidInputException

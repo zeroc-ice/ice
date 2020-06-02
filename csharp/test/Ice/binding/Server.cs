@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.binding
+namespace ZeroC.Ice.Test.Binding
 {
     public class Server : TestHelper
     {

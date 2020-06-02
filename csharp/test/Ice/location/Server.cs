@@ -5,7 +5,7 @@
 using Test;
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.location
+namespace ZeroC.Ice.Test.Location
 {
     public class Server : TestHelper
     {

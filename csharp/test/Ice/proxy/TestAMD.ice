@@ -6,8 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[cs:namespace:ZeroC.Ice.proxy.AMD]
-module Test
+module ZeroC::Ice::Test::Proxy::AMD
 {
 
 [amd] interface MyClass

@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.timeout
+namespace ZeroC.Ice.Test.Timeout
 {
     public class Client : TestHelper
     {
@@ -31,6 +31,6 @@ namespace ZeroC.Ice.timeout
             AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

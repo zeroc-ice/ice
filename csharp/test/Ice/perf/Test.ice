@@ -4,8 +4,7 @@
 
 #pragma once
 
-["cs:namespace:ZeroC.Ice.perf"]
-module Test
+module ZeroC::Ice::Test::Perf
 {
 
 sequence<byte> ByteSeq;

@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.objects
+namespace ZeroC.Ice.Test.Objects
 {
     public class Server : TestHelper
     {
@@ -12,8 +12,7 @@ namespace ZeroC.Ice.objects
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
-            using var communicator = Initialize(properties,
-                typeIdNamespaces: new string[] { "ZeroC.Ice.objects.TypeId" });
+            using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("initial", new Initial(adapter));

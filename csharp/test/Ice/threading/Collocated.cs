@@ -3,12 +3,11 @@
 //
 
 using Test;
-using ZeroC.Ice.threading.Test;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.threading
+namespace ZeroC.Ice.Test.Threading
 {
     public class Collocated : TestHelper
     {

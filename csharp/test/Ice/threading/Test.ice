@@ -4,8 +4,7 @@
 
 #pragma once
 
-["cs:namespace:ZeroC.Ice.threading"]
-module Test
+module ZeroC::Ice::Test::Threading
 {
 
 exception TestFailedException

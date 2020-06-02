@@ -8,10 +8,7 @@
 
 #include <Ice/Identity.ice>
 
-[[cs:typeid-namespace:ZeroC.Ice.objects.TypeId]]
-
-[cs:namespace:ZeroC.Ice.objects]
-module Test
+module ZeroC::Ice::Test::Objects
 {
 
 class IdentityWrapper
@@ -88,7 +85,7 @@ module Inner
 
 class A
 {
-    ::Test::A theA;
+    ZeroC::Ice::Test::Objects::A theA;
 }
 
 exception Ex
@@ -101,7 +98,7 @@ module Sub
 
 class A
 {
-    ::Test::Inner::A theA;
+    ZeroC::Ice::Test::Objects::Inner::A theA;
 }
 
 exception Ex

@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ZeroC.Ice.proxy
+namespace ZeroC.Ice.Test.Proxy
 {
-    public sealed class MyDerivedClass : Test.IMyDerivedClass
+    public sealed class MyDerivedClass : IMyDerivedClass
     {
         public IObjectPrx? echo(IObjectPrx? obj, Current c) => obj;
 
@@ -18,7 +18,7 @@ namespace ZeroC.Ice.proxy
         public bool IceIsA(string typeId, Current current)
         {
             _ctx = current.Context;
-            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
+            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
         private Dictionary<string, string>? _ctx;

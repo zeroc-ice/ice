@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.adapterDeactivation]
-module Test
+module ZeroC::Ice::Test::AdapterDeactivation
 {
 
 interface TestIntf

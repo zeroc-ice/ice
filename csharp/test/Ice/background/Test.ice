@@ -6,7 +6,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-module Test
+module ZeroC::Ice::Test::Background
 {
 
 interface Background

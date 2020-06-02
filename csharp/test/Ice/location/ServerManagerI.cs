@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.location
+namespace ZeroC.Ice.Test.Location
 {
-    public class ServerManager : Test.IServerManager
+    public class ServerManager : IServerManager
     {
         internal ServerManager(ServerLocatorRegistry registry, TestHelper helper)
         {
@@ -51,10 +51,8 @@ namespace ZeroC.Ice.location
                 ObjectAdapter? adapter2 = null;
                 try
                 {
-                    serverCommunicator.SetProperty("TestAdapter.Endpoints",
-                                                                _helper.GetTestEndpoint(_nextPort++));
-                    serverCommunicator.SetProperty("TestAdapter2.Endpoints",
-                                                                _helper.GetTestEndpoint(_nextPort++));
+                    serverCommunicator.SetProperty("TestAdapter.Endpoints", _helper.GetTestEndpoint(_nextPort++));
+                    serverCommunicator.SetProperty("TestAdapter2.Endpoints", _helper.GetTestEndpoint(_nextPort++));
 
                     adapter = serverCommunicator.CreateObjectAdapter("TestAdapter");
                     adapter2 = serverCommunicator.CreateObjectAdapter("TestAdapter2");

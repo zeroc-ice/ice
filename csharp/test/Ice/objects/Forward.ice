@@ -4,10 +4,7 @@
 
 #pragma once
 
-[[cs:typeid-namespace:ZeroC.Ice.objects.TypeId]]
-[cs:namespace:ZeroC.Ice.objects]
-
-module Test
+module ZeroC::Ice::Test::Objects
 {
 
 class F1

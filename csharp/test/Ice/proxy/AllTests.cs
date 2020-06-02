@@ -6,11 +6,11 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.proxy
+namespace ZeroC.Ice.Test.Proxy
 {
     public class AllTests
     {
-        public static Test.IMyClassPrx allTests(TestHelper helper)
+        public static IMyClassPrx allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -803,16 +803,16 @@ namespace ZeroC.Ice.proxy
 
             output.Write("testing checked cast... ");
             output.Flush();
-            var cl = Test.IMyClassPrx.CheckedCast(baseProxy);
+            var cl = IMyClassPrx.CheckedCast(baseProxy);
             TestHelper.Assert(cl != null);
-            var derived = Test.IMyDerivedClassPrx.CheckedCast(cl);
+            var derived = IMyDerivedClassPrx.CheckedCast(cl);
             TestHelper.Assert(derived != null);
             TestHelper.Assert(cl.Equals(baseProxy));
             TestHelper.Assert(derived.Equals(baseProxy));
             TestHelper.Assert(cl.Equals(derived));
             try
             {
-                Test.IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet", IObjectPrx.Factory));
+                IMyDerivedClassPrx.CheckedCast(cl.Clone(facet: "facet", IObjectPrx.Factory));
                 TestHelper.Assert(false);
             }
             catch (ObjectNotExistException)
@@ -829,7 +829,7 @@ namespace ZeroC.Ice.proxy
             c = new Dictionary<string, string>();
             c["one"] = "hello";
             c["two"] = "world";
-            cl = Test.IMyClassPrx.CheckedCast(baseProxy, c);
+            cl = IMyClassPrx.CheckedCast(baseProxy, c);
             Dictionary<string, string> c2 = cl!.getContext();
             TestHelper.Assert(c.DictionaryEqual(c2));
             output.WriteLine("ok");
@@ -841,7 +841,7 @@ namespace ZeroC.Ice.proxy
                 if (connection != null)
                 {
                     TestHelper.Assert(!cl.IsFixed);
-                    Test.IMyClassPrx prx = cl.Clone(fixedConnection: connection);
+                    IMyClassPrx prx = cl.Clone(fixedConnection: connection);
                     TestHelper.Assert(prx.IsFixed);
                     prx.IcePing();
                     TestHelper.Assert(cl.Clone("facet", IObjectPrx.Factory, fixedConnection: connection).Facet.Equals("facet"));
@@ -873,7 +873,7 @@ namespace ZeroC.Ice.proxy
 
             output.Write("testing encoding versioning... ");
             string ref13 = "test -e 1.3:" + helper.GetTestEndpoint(0);
-            var cl13 = Test.IMyClassPrx.Parse(ref13, communicator);
+            var cl13 = IMyClassPrx.Parse(ref13, communicator);
             try
             {
                 cl13.IcePing();
@@ -888,7 +888,7 @@ namespace ZeroC.Ice.proxy
             output.Write("testing protocol versioning... ");
             output.Flush();
             string ref3 = "test -p 3:" + helper.GetTestEndpoint(0);
-            var cl3 = Test.IMyClassPrx.Parse(ref3, communicator);
+            var cl3 = IMyClassPrx.Parse(ref3, communicator);
             try
             {
                 cl3.IcePing();

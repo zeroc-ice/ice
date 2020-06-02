@@ -4,23 +4,23 @@
 
 using Test;
 
-namespace ZeroC.Ice.inheritance
+namespace ZeroC.Ice.Test.Inheritance
 {
     public class AllTests
     {
-        public static Test.IInitialPrx allTests(global::Test.TestHelper helper)
+        public static IInitialPrx allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             System.IO.TextWriter output = helper.GetWriter();
-            var initial = Test.IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
+            var initial = IInitialPrx.Parse($"initial:{helper.GetTestEndpoint(0)}", communicator);
 
             output.Write("getting proxies for interface hierarchy... ");
             output.Flush();
-            Test.MA.IIAPrx? ia = initial.iaop();
-            Test.MB.IIB1Prx? ib1 = initial.ib1op();
-            Test.MB.IIB2Prx? ib2 = initial.ib2op();
-            Test.MA.IICPrx? ic = initial.icop();
+            MA.IIAPrx? ia = initial.iaop();
+            MB.IIB1Prx? ib1 = initial.ib1op();
+            MB.IIB2Prx? ib2 = initial.ib2op();
+            MA.IICPrx? ic = initial.icop();
             TestHelper.Assert(ia != null);
             TestHelper.Assert(ib1 != null);
             TestHelper.Assert(ib2 != null);
@@ -34,10 +34,10 @@ namespace ZeroC.Ice.inheritance
 
             output.Write("invoking proxy operations on interface hierarchy... ");
             output.Flush();
-            Test.MA.IIAPrx? iao;
-            Test.MB.IIB1Prx? ib1o;
-            Test.MB.IIB2Prx? ib2o;
-            Test.MA.IICPrx? ico;
+            MA.IIAPrx? iao;
+            MB.IIB1Prx? ib1o;
+            MB.IIB2Prx? ib2o;
+            MA.IICPrx? ico;
 
             iao = ia.iaop(ia);
             TestHelper.Assert(iao!.Equals(ia));

@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using ZeroC.Ice.seqMapping.AMD.Test;
-
-namespace ZeroC.Ice.seqMapping.AMD
+namespace ZeroC.Ice.Test.SeqMapping.AMD
 {
     public sealed class MyClass : IMyClass
     {

@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-using ZeroC.Ice.interceptor.Test;
-
-namespace ZeroC.Ice.interceptor
+namespace ZeroC.Ice.Test.Interceptor
 {
     public class RetryException : Exception
     {
@@ -184,7 +182,7 @@ namespace ZeroC.Ice.interceptor
 
         public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
 
-        private void TestInterceptorExceptions(Test.IMyObjectPrx prx)
+        private void TestInterceptorExceptions(IMyObjectPrx prx)
         {
             var exceptions = new List<(string operation, string kind)>
             {

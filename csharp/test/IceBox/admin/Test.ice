@@ -7,8 +7,7 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
-[[java:package:test.IceBox.admin]]
-module Test
+module ZeroC::IceBox::Test::Admin
 {
 
 interface TestFacet

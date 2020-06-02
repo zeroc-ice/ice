@@ -2,11 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.inheritance.Test;
-using ZeroC.Ice.inheritance.Test.MA;
-using ZeroC.Ice.inheritance.Test.MB;
+using ZeroC.Ice.Test.Inheritance.MA;
+using ZeroC.Ice.Test.Inheritance.MB;
 
-namespace ZeroC.Ice.inheritance
+namespace ZeroC.Ice.Test.Inheritance
 {
     public sealed class InitialI : IInitial
     {

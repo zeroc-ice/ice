@@ -6,8 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[cs:namespace:ZeroC.Ice.info]
-module Test
+module ZeroC::Ice::Test::Info
 {
 
 interface TestIntf

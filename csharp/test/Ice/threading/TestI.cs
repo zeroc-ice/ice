@@ -4,9 +4,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using ZeroC.Ice.threading.Test;
 
-namespace ZeroC.Ice.threading
+namespace ZeroC.Ice.Test.Threading
 {
     public sealed class TestIntf : ITestIntf
     {

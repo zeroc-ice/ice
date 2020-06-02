@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.inheritance]
-module Test
+module ZeroC::Ice::Test::Inheritance
 {
 
 module MA

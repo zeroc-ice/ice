@@ -5,7 +5,7 @@
 using System.IO;
 using Test;
 
-namespace ZeroC.Ice.defaultValue
+namespace ZeroC.Ice.Test.DefaultValue
 {
     public class AllTests
     {
@@ -16,7 +16,7 @@ namespace ZeroC.Ice.defaultValue
             output.Flush();
 
             {
-                var v = new Test.Base();
+                var v = new Base();
                 TestHelper.Assert(!v.boolFalse);
                 TestHelper.Assert(v.boolTrue);
                 TestHelper.Assert(v.b == 1);
@@ -36,7 +36,7 @@ namespace ZeroC.Ice.defaultValue
             }
 
             {
-                var v = new Test.Derived();
+                var v = new Derived();
                 TestHelper.Assert(!v.boolFalse);
                 TestHelper.Assert(v.boolTrue);
                 TestHelper.Assert(v.b == 1);
@@ -46,12 +46,12 @@ namespace ZeroC.Ice.defaultValue
                 TestHelper.Assert(v.f == 5.1F);
                 TestHelper.Assert(v.d == 6.2);
                 TestHelper.Assert(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-                TestHelper.Assert(v.c1 == Test.Color.red);
-                TestHelper.Assert(v.c2 == Test.Color.green);
-                TestHelper.Assert(v.c3 == Test.Color.blue);
-                TestHelper.Assert(v.nc1 == Test.Nested.Color.red);
-                TestHelper.Assert(v.nc2 == Test.Nested.Color.green);
-                TestHelper.Assert(v.nc3 == Test.Nested.Color.blue);
+                TestHelper.Assert(v.c1 == Color.red);
+                TestHelper.Assert(v.c2 == Color.green);
+                TestHelper.Assert(v.c3 == Color.blue);
+                TestHelper.Assert(v.nc1 == Nested.Color.red);
+                TestHelper.Assert(v.nc2 == Nested.Color.green);
+                TestHelper.Assert(v.nc3 == Nested.Color.blue);
                 TestHelper.Assert(v.noDefault == null);
                 TestHelper.Assert(v.zeroI == 0);
                 TestHelper.Assert(v.zeroL == 0);
@@ -62,7 +62,7 @@ namespace ZeroC.Ice.defaultValue
             }
 
             {
-                var v = new Test.BaseEx();
+                var v = new BaseEx();
                 TestHelper.Assert(!v.boolFalse);
                 TestHelper.Assert(v.boolTrue);
                 TestHelper.Assert(v.b == 1);
@@ -82,7 +82,7 @@ namespace ZeroC.Ice.defaultValue
             }
 
             {
-                var v = new Test.DerivedEx();
+                var v = new DerivedEx();
                 TestHelper.Assert(!v.boolFalse);
                 TestHelper.Assert(v.boolTrue);
                 TestHelper.Assert(v.b == 1);
@@ -93,12 +93,12 @@ namespace ZeroC.Ice.defaultValue
                 TestHelper.Assert(v.d == 6.2);
                 TestHelper.Assert(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
                 TestHelper.Assert(v.noDefault == null);
-                TestHelper.Assert(v.c1 == Test.Color.red);
-                TestHelper.Assert(v.c2 == Test.Color.green);
-                TestHelper.Assert(v.c3 == Test.Color.blue);
-                TestHelper.Assert(v.nc1 == Test.Nested.Color.red);
-                TestHelper.Assert(v.nc2 == Test.Nested.Color.green);
-                TestHelper.Assert(v.nc3 == Test.Nested.Color.blue);
+                TestHelper.Assert(v.c1 == Color.red);
+                TestHelper.Assert(v.c2 == Color.green);
+                TestHelper.Assert(v.c3 == Color.blue);
+                TestHelper.Assert(v.nc1 == Nested.Color.red);
+                TestHelper.Assert(v.nc2 == Nested.Color.green);
+                TestHelper.Assert(v.nc3 == Nested.Color.blue);
                 TestHelper.Assert(v.zeroI == 0);
                 TestHelper.Assert(v.zeroL == 0);
                 TestHelper.Assert(v.zeroF == 0);
@@ -108,7 +108,7 @@ namespace ZeroC.Ice.defaultValue
             }
 
             {
-                var v = new Test.ClassProperty();
+                var v = new ClassProperty();
                 TestHelper.Assert(!v.boolFalse);
                 TestHelper.Assert(v.boolTrue);
                 TestHelper.Assert(v.b == 1);
@@ -128,7 +128,7 @@ namespace ZeroC.Ice.defaultValue
             }
 
             {
-                var v = new Test.ExceptionProperty();
+                var v = new ExceptionProperty();
                 TestHelper.Assert(!v.boolFalse);
                 TestHelper.Assert(v.boolTrue);
                 TestHelper.Assert(v.b == 1);

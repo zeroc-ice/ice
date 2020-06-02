@@ -4,7 +4,7 @@
 
 #pragma once
 
-module Test
+module ZeroC::IceSSL::Test::Configuration
 {
 
 interface Server

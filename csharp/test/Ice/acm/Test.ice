@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.acm]
-module Test
+module ZeroC::Ice::Test::ACM
 {
 
 interface TestIntf

@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.adapterDeactivation
+namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public class Client : TestHelper
     {

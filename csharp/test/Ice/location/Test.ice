@@ -6,8 +6,7 @@
 
 #include <Ice/Locator.ice>
 
-[cs:namespace:ZeroC.Ice.location]
-module Test
+module ZeroC::Ice::Test::Location
 {
 
 interface TestLocatorRegistry : ::Ice::LocatorRegistry

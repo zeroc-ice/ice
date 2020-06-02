@@ -8,9 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice.threading.Test;
 
-namespace ZeroC.Ice.threading
+namespace ZeroC.Ice.Test.Threading
 {
     public class AllTests
     {

@@ -8,10 +8,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[cs:typeid-namespace:ZeroC.Ice.serialize.TypeId]]
-
-[cs:namespace:ZeroC.Ice.serialize]
-module Test
+module ZeroC::Ice::Test::Serialize
 {
 
 enum MyEnum

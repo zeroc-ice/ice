@@ -6,7 +6,7 @@
 
 [[3.7]]
 
-module Test
+module ZeroC::Ice::Test::Hash
 {
 
 exception BaseException
@@ -75,13 +75,13 @@ struct ColorPalette
 class Pen
 {
     int thickness;
-    Test::Color color;
+    Color color;
 }
 
 struct Draw
 {
-    Test::Color backgroundColor;
-    Test::Pen pen;
+    Color backgroundColor;
+    Pen pen;
     bool shared;
 }
 

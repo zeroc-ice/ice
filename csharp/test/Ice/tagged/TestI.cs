@@ -5,26 +5,26 @@
 using System;
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.tagged
+namespace ZeroC.Ice.Test.Tagged
 {
-    public class Initial : Test.IInitial
+    public class Initial : IInitial
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public AnyClass? pingPong(AnyClass? obj, Current current) => obj;
 
-        public void opTaggedException(int? a, string? b, Test.OneTagged? o, Current current) =>
-            throw new Test.TaggedException(false, a, b, o);
+        public void opTaggedException(int? a, string? b, OneTagged? o, Current current) =>
+            throw new TaggedException(false, a, b, o);
 
-        public void opDerivedException(int? a, string? b, Test.OneTagged? o, Current current) =>
-            throw new Test.DerivedException(false, a, b, o, b, o);
+        public void opDerivedException(int? a, string? b, OneTagged? o, Current current) =>
+            throw new DerivedException(false, a, b, o, b, o);
 
         public void opRequiredException(int? a,
                                         string? b,
-                                        Test.OneTagged? o,
+                                        OneTagged? o,
                                         Current current)
         {
-            Test.RequiredException e = new Test.RequiredException();
+            RequiredException e = new RequiredException();
             e.a = a;
             e.b = b;
             e.o = o;
@@ -56,15 +56,15 @@ namespace ZeroC.Ice.tagged
 
         public (string?, string?) opString(string? p1, Current current) => (p1, p1);
 
-        public (Test.MyEnum?, Test.MyEnum?) opMyEnum(Test.MyEnum? p1, Current current) => (p1, p1);
+        public (MyEnum?, MyEnum?) opMyEnum(MyEnum? p1, Current current) => (p1, p1);
 
-        public (Test.SmallStruct?, Test.SmallStruct?) opSmallStruct(Test.SmallStruct? p1, Current current) => (p1, p1);
+        public (SmallStruct?, SmallStruct?) opSmallStruct(SmallStruct? p1, Current current) => (p1, p1);
 
-        public (Test.FixedStruct?, Test.FixedStruct?) opFixedStruct(Test.FixedStruct? p1, Current current) => (p1, p1);
+        public (FixedStruct?, FixedStruct?) opFixedStruct(FixedStruct? p1, Current current) => (p1, p1);
 
-        public (Test.VarStruct?, Test.VarStruct?) opVarStruct(Test.VarStruct? p1, Current current) => (p1, p1);
+        public (VarStruct?, VarStruct?) opVarStruct(VarStruct? p1, Current current) => (p1, p1);
 
-        public (Test.OneTagged?, Test.OneTagged?) opOneTagged(Test.OneTagged? p1, Current current) => (p1, p1);
+        public (OneTagged?, OneTagged?) opOneTagged(OneTagged? p1, Current current) => (p1, p1);
 
         public (ReadOnlyMemory<byte>, ReadOnlyMemory<byte>) opByteSeq(byte[]? p1, Current current) => (p1, p1);
         public (IEnumerable<byte>?, IEnumerable<byte>?) opByteList(List<byte>? p1, Current current) => (p1, p1);
@@ -90,22 +90,22 @@ namespace ZeroC.Ice.tagged
         public (IEnumerable<string>?, IEnumerable<string>?) opStringSeq(string[]? p1, Current current) => (p1, p1);
         public (IEnumerable<string>?, IEnumerable<string>?) opStringList(List<string>? p1, Current current) => (p1, p1);
 
-        public (IEnumerable<Test.SmallStruct>?, IEnumerable<Test.SmallStruct>?) opSmallStructSeq(Test.SmallStruct[]? p1, Current current) =>
+        public (IEnumerable<SmallStruct>?, IEnumerable<SmallStruct>?) opSmallStructSeq(SmallStruct[]? p1, Current current) =>
             (p1, p1);
 
-        public (IEnumerable<Test.SmallStruct>?, IEnumerable<Test.SmallStruct>?)
-        opSmallStructList(List<Test.SmallStruct>? p1, Current current) => (p1, p1);
+        public (IEnumerable<SmallStruct>?, IEnumerable<SmallStruct>?)
+        opSmallStructList(List<SmallStruct>? p1, Current current) => (p1, p1);
 
-        public (IEnumerable<Test.FixedStruct>?, IEnumerable<Test.FixedStruct>?)
-        opFixedStructSeq(Test.FixedStruct[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<FixedStruct>?, IEnumerable<FixedStruct>?)
+        opFixedStructSeq(FixedStruct[]? p1, Current current) => (p1, p1);
 
-        public (IEnumerable<Test.FixedStruct>?, IEnumerable<Test.FixedStruct>?)
-        opFixedStructList(LinkedList<Test.FixedStruct>? p1, Current current) => (p1, p1);
+        public (IEnumerable<FixedStruct>?, IEnumerable<FixedStruct>?)
+        opFixedStructList(LinkedList<FixedStruct>? p1, Current current) => (p1, p1);
 
-        public (IEnumerable<Test.VarStruct>?, IEnumerable<Test.VarStruct>?) opVarStructSeq(Test.VarStruct[]? p1, Current current) => (p1, p1);
+        public (IEnumerable<VarStruct>?, IEnumerable<VarStruct>?) opVarStructSeq(VarStruct[]? p1, Current current) => (p1, p1);
 
-        public (Test.SerializableClass?, Test.SerializableClass?)
-        opSerializable(Test.SerializableClass? p1, Current current) => (p1, p1);
+        public (SerializableClass?, SerializableClass?)
+        opSerializable(SerializableClass? p1, Current current) => (p1, p1);
 
         public (IReadOnlyDictionary<int, int>?, IReadOnlyDictionary<int, int>?)
         opIntIntDict(Dictionary<int, int>? p1, Current current) => (p1, p1);
@@ -113,51 +113,51 @@ namespace ZeroC.Ice.tagged
         public (IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?)
         opStringIntDict(Dictionary<string, int>? p1, Current current) => (p1, p1);
 
-        public (IReadOnlyDictionary<int, Test.OneTagged?>?, IReadOnlyDictionary<int, Test.OneTagged?>?)
-        opIntOneTaggedDict(Dictionary<int, Test.OneTagged?>? p1, Current current) => (p1, p1);
+        public (IReadOnlyDictionary<int, OneTagged?>?, IReadOnlyDictionary<int, OneTagged?>?)
+        opIntOneTaggedDict(Dictionary<int, OneTagged?>? p1, Current current) => (p1, p1);
 
-        public void opClassAndUnknownTagged(Test.A? p, Current current)
+        public void opClassAndUnknownTagged(A? p, Current current)
         {
         }
 
-        public void sendTaggedClass(bool req, Test.OneTagged? o, Current current)
+        public void sendTaggedClass(bool req, OneTagged? o, Current current)
         {
         }
 
-        public Test.OneTagged? returnTaggedClass(bool req, Current current) => new Test.OneTagged(53);
+        public OneTagged? returnTaggedClass(bool req, Current current) => new OneTagged(53);
 
-        public Test.G? opG(Test.G? g, Current current) => g;
+        public G? opG(G? g, Current current) => g;
 
         public void opVoid(Current current)
         {
         }
 
-        public Test.IInitial.OpMStruct1MarshaledReturnValue
-        opMStruct1(Current current) => new Test.IInitial.OpMStruct1MarshaledReturnValue(new Test.SmallStruct(), current);
+        public IInitial.OpMStruct1MarshaledReturnValue
+        opMStruct1(Current current) => new IInitial.OpMStruct1MarshaledReturnValue(new SmallStruct(), current);
 
-        public Test.IInitial.OpMStruct2MarshaledReturnValue
-        opMStruct2(Test.SmallStruct? p1, Current current) =>
-            new Test.IInitial.OpMStruct2MarshaledReturnValue(p1, p1, current);
+        public IInitial.OpMStruct2MarshaledReturnValue
+        opMStruct2(SmallStruct? p1, Current current) =>
+            new IInitial.OpMStruct2MarshaledReturnValue(p1, p1, current);
 
-        public Test.IInitial.OpMSeq1MarshaledReturnValue
-        opMSeq1(Current current) => new Test.IInitial.OpMSeq1MarshaledReturnValue(new string[0], current);
+        public IInitial.OpMSeq1MarshaledReturnValue
+        opMSeq1(Current current) => new IInitial.OpMSeq1MarshaledReturnValue(new string[0], current);
 
-        public Test.IInitial.OpMSeq2MarshaledReturnValue
-        opMSeq2(string[]? p1, Current current) => new Test.IInitial.OpMSeq2MarshaledReturnValue(p1, p1, current);
+        public IInitial.OpMSeq2MarshaledReturnValue
+        opMSeq2(string[]? p1, Current current) => new IInitial.OpMSeq2MarshaledReturnValue(p1, p1, current);
 
-        public Test.IInitial.OpMDict1MarshaledReturnValue
+        public IInitial.OpMDict1MarshaledReturnValue
         opMDict1(Current current) =>
-            new Test.IInitial.OpMDict1MarshaledReturnValue(new Dictionary<string, int>(), current);
+            new IInitial.OpMDict1MarshaledReturnValue(new Dictionary<string, int>(), current);
 
-        public Test.IInitial.OpMDict2MarshaledReturnValue
+        public IInitial.OpMDict2MarshaledReturnValue
         opMDict2(Dictionary<string, int>? p1, Current current) =>
-            new Test.IInitial.OpMDict2MarshaledReturnValue(p1, p1, current);
+            new IInitial.OpMDict2MarshaledReturnValue(p1, p1, current);
 
-        public Test.IInitial.OpMG1MarshaledReturnValue
-        opMG1(Current current) => new Test.IInitial.OpMG1MarshaledReturnValue(new Test.G(), current);
+        public IInitial.OpMG1MarshaledReturnValue
+        opMG1(Current current) => new IInitial.OpMG1MarshaledReturnValue(new G(), current);
 
-        public Test.IInitial.OpMG2MarshaledReturnValue
-        opMG2(Test.G? p1, Current current) => new Test.IInitial.OpMG2MarshaledReturnValue(p1, p1, current);
+        public IInitial.OpMG2MarshaledReturnValue
+        opMG2(G? p1, Current current) => new IInitial.OpMG2MarshaledReturnValue(p1, p1, current);
 
         public bool supportsRequiredParams(Current current) => false;
 

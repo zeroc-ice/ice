@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.invoke]
-module Test
+module ZeroC::Ice::Test::Invoke
 {
 
 exception MyException

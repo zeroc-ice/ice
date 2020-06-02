@@ -6,8 +6,7 @@
 
 #include <Ice/Context.ice>
 
-[cs:namespace:ZeroC.Ice.proxy]
-module Test
+module ZeroC::Ice::Test::Proxy
 {
 
 interface MyClass

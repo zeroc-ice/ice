@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.dictMapping.AMD
+namespace ZeroC.Ice.Test.DictMapping.AMD
 {
-    public sealed class MyClass : Test.IMyClass
+    public sealed class MyClass : IMyClass
     {
         public ValueTask shutdownAsync(Current current)
         {

@@ -4,9 +4,9 @@
 
 using Test;
 
-namespace ZeroC.Ice.location
+namespace ZeroC.Ice.Test.Location
 {
-    public class TestIntf : Test.ITestIntf
+    public class TestIntf : ITestIntf
     {
         internal TestIntf(ObjectAdapter adapter1, ObjectAdapter adapter2, ServerLocatorRegistry registry)
         {
@@ -19,11 +19,11 @@ namespace ZeroC.Ice.location
 
         public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
 
-        public Test.IHelloPrx getHello(Current current) =>
-            _adapter1.CreateIndirectProxy("hello", Test.IHelloPrx.Factory);
+        public IHelloPrx getHello(Current current) =>
+            _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);
 
-        public Test.IHelloPrx getReplicatedHello(Current current) =>
-            _adapter1.CreateProxy("hello", Test.IHelloPrx.Factory);
+        public IHelloPrx getReplicatedHello(Current current) =>
+            _adapter1.CreateProxy("hello", IHelloPrx.Factory);
 
         public void migrateHello(Current current)
         {

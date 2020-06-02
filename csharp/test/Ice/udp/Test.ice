@@ -6,8 +6,7 @@
 
 #include <Ice/Identity.ice>
 
-[cs:namespace:ZeroC.Ice.udp]
-module Test
+module ZeroC::Ice::Test::UDP
 {
 
 interface PingReply

@@ -7,8 +7,7 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
-[cs:namespace:ZeroC.Ice.admin]
-module Test
+module ZeroC::Ice::Test::Admin
 {
 
 interface RemoteCommunicator

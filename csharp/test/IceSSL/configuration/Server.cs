@@ -5,23 +5,26 @@
 using System;
 using Test;
 
-public class Server : TestHelper
+namespace ZeroC.IceSSL.Test.Configuration
 {
-    public override void Run(string[] args)
+    public class Server : TestHelper
     {
-        using var communicator = Initialize(ref args);
-        if (args.Length < 1)
+        public override void Run(string[] args)
         {
-            throw new ArgumentException("Usage: server testdir");
+            using var communicator = Initialize(ref args);
+            if (args.Length < 1)
+            {
+                throw new ArgumentException("Usage: server testdir");
+            }
+
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
+            ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
+            adapter.Activate();
+
+            communicator.WaitForShutdown();
         }
 
-        communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
-        ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
-        adapter.Activate();
-
-        communicator.WaitForShutdown();
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
-
-    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

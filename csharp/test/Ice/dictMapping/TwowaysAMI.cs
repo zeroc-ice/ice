@@ -6,7 +6,7 @@ using Test;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ZeroC.Ice.dictMapping
+namespace ZeroC.Ice.Test.DictMapping
 {
     public static class DictionaryExtension
     {
@@ -93,7 +93,7 @@ namespace ZeroC.Ice.dictMapping
             private bool _called;
         }
 
-        internal static void twowaysAMI(Test.IMyClassPrx p)
+        internal static void twowaysAMI(IMyClassPrx p)
         {
             {
                 var i = new Dictionary<int, int>

@@ -7,29 +7,32 @@ using Test;
 
 using ZeroC.Ice;
 
-public class Server : TestHelper
+namespace ZeroC.IceDiscovery.Test.Simple
 {
-    public override void Run(string[] args)
+    public class Server : TestHelper
     {
-        using var communicator = Initialize(ref args);
-        int num = 0;
-        try
+        public override void Run(string[] args)
         {
-            num = int.Parse(args[0]);
+            using var communicator = Initialize(ref args);
+            int num = 0;
+            try
+            {
+                num = int.Parse(args[0]);
+            }
+            catch (FormatException)
+            {
+            }
+
+            communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num));
+            communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
+
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
+            adapter.Add($"controller{num}", new Controller());
+            adapter.Activate();
+
+            communicator.WaitForShutdown();
         }
-        catch (FormatException)
-        {
-        }
 
-        communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num));
-        communicator.SetProperty("ControlAdapter.AdapterId", $"control{num}");
-
-        ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
-        adapter.Add($"controller{num}", new Controller());
-        adapter.Activate();
-
-        communicator.WaitForShutdown();
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
-
-    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

@@ -7,8 +7,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-[cs:namespace:ZeroC.Ice.ami]
-module Test
+module ZeroC::Ice::Test::AMI
 {
 
 exception TestIntfException

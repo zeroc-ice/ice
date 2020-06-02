@@ -5,8 +5,7 @@
 #pragma once
 [[normalize-case]]
 
-[cs:namespace:ZeroC.Ice.DefaultServant]
-module Test
+module ZeroC::Ice::Test::DefaultServant
 {
     interface MyObject
     {

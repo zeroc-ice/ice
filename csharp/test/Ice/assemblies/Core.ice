@@ -1,4 +1,5 @@
-module Core
+
+module ZeroC::Ice::Test::Assemblies::Core
 {
     struct Data
     {

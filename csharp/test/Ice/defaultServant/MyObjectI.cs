@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.DefaultServant
+namespace ZeroC.Ice.Test.DefaultServant
 {
-    public sealed class MyObject : Test.IMyObject
+    public sealed class MyObject : IMyObject
     {
         public void IcePing(Current current)
         {

@@ -4,8 +4,7 @@
 
 #pragma once
 
-[[java:package:test.Glacier2.sessionHelper]]
-module Test
+module ZeroC::Glacier2::Test::SessionHelper
 {
 
 exception CallbackException

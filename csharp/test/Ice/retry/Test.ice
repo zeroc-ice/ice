@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.retry]
-module Test
+module ZeroC::Ice::Test::Retry
 {
 
 exception SystemFailure

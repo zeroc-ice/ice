@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.proxy.AMD
+namespace ZeroC.Ice.Test.Proxy.AMD
 {
-    public sealed class MyDerivedClass : Test.IMyDerivedClass
+    public sealed class MyDerivedClass : IMyDerivedClass
     {
         public ValueTask<IObjectPrx?> echoAsync(IObjectPrx? obj, Current c)
             => new ValueTask<IObjectPrx?>(obj);
@@ -26,7 +26,7 @@ namespace ZeroC.Ice.proxy.AMD
         public bool IceIsA(string typeId, Current current)
         {
             _ctx = current.Context;
-            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
+            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(typeId);
         }
 
         private IReadOnlyDictionary<string, string>? _ctx;

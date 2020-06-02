@@ -2,12 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.binding
+using Test;
+
+namespace ZeroC.Ice.Test.Binding
 {
-    public class RemoteCommunicator : Test.IRemoteCommunicator
+    public class RemoteCommunicator : IRemoteCommunicator
     {
-        public Test.IRemoteObjectAdapterPrx
-        createObjectAdapter(string name, string endpts, Current current)
+        public IRemoteObjectAdapterPrx createObjectAdapter(string name, string endpts, Current current)
         {
             int retry = 5;
             while (true)
@@ -18,12 +19,12 @@ namespace ZeroC.Ice.binding
                     string endpoints = endpts;
                     if (endpoints.IndexOf("-p") < 0)
                     {
-                        endpoints = global::Test.TestHelper.GetTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
+                        endpoints = TestHelper.GetTestEndpoint(communicator.GetProperties(), _nextPort++, endpoints);
                     }
 
                     ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, endpoints);
                     return current.Adapter.AddWithUUID(
-                        new RemoteObjectAdapter(adapter), Test.IRemoteObjectAdapterPrx.Factory);
+                        new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
                 }
                 catch (TransportException)
                 {
@@ -36,7 +37,7 @@ namespace ZeroC.Ice.binding
         }
 
         // Collocated call.
-        public void deactivateObjectAdapter(Test.IRemoteObjectAdapterPrx? adapter, Current current) =>
+        public void deactivateObjectAdapter(IRemoteObjectAdapterPrx? adapter, Current current) =>
             adapter!.deactivate();
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

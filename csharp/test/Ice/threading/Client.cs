@@ -3,10 +3,9 @@
 //
 
 using Test;
-using ZeroC.Ice.threading.Test;
 using System;
 
-namespace ZeroC.Ice.threading
+namespace ZeroC.Ice.Test.Threading
 {
     public class Client : TestHelper
     {

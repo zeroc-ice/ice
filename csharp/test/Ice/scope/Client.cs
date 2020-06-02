@@ -4,14 +4,13 @@
 
 using Test;
 
-namespace ZeroC.Ice.scope
+namespace ZeroC.Ice.Test.Scope
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
-            using var communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "ZeroC.Ice.scope.TypeId" });
+            using var communicator = Initialize(ref args);
             var output = GetWriter();
             output.Write("test using same type name in different Slice modules... ");
             output.Flush();

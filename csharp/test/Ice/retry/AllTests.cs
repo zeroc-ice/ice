@@ -6,7 +6,7 @@ using System;
 using System.Threading;
 using Test;
 
-namespace ZeroC.Ice.retry
+namespace ZeroC.Ice.Test.Retry
 {
     public class AllTests
     {
@@ -40,7 +40,7 @@ namespace ZeroC.Ice.retry
             private bool _called;
         }
 
-        public static Test.IRetryPrx
+        public static IRetryPrx
         allTests(TestHelper helper, Communicator communicator, Communicator communicator2, string rf)
         {
             Instrumentation.testInvocationReset();
@@ -54,9 +54,9 @@ namespace ZeroC.Ice.retry
 
             output.Write("testing checked cast... ");
             output.Flush();
-            Test.IRetryPrx? retry1 = Test.IRetryPrx.CheckedCast(base1);
+            IRetryPrx? retry1 = IRetryPrx.CheckedCast(base1);
             TestHelper.Assert(retry1 != null && retry1.Equals(base1));
-            Test.IRetryPrx? retry2 = Test.IRetryPrx.CheckedCast(base2);
+            IRetryPrx? retry2 = IRetryPrx.CheckedCast(base2);
             TestHelper.Assert(retry2 != null && retry2.Equals(base2));
             output.WriteLine("ok");
 
@@ -189,7 +189,7 @@ namespace ZeroC.Ice.retry
                 retry1.opSystemException();
                 TestHelper.Assert(false);
             }
-            catch (Test.SystemFailure)
+            catch (SystemFailure)
             {
             }
             Instrumentation.testInvocationCount(1);
@@ -202,7 +202,7 @@ namespace ZeroC.Ice.retry
             }
             catch (AggregateException ex)
             {
-                TestHelper.Assert(ex.InnerException is Test.SystemFailure);
+                TestHelper.Assert(ex.InnerException is SystemFailure);
             }
             Instrumentation.testInvocationCount(1);
             Instrumentation.testFailureCount(0);
@@ -213,7 +213,7 @@ namespace ZeroC.Ice.retry
                 output.Write("testing invocation timeout and retries... ");
                 output.Flush();
 
-                retry2 = Test.IRetryPrx.Parse(retry1.ToString()!, communicator2);
+                retry2 = IRetryPrx.Parse(retry1.ToString()!, communicator2);
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
@@ -229,7 +229,7 @@ namespace ZeroC.Ice.retry
                 try
                 {
                     // No more than 2 retries before timeout kicks-in
-                    Test.IRetryPrx prx = retry2.Clone(invocationTimeout: 500);
+                    IRetryPrx prx = retry2.Clone(invocationTimeout: 500);
                     prx.opIdempotentAsync(4).Wait();
                     TestHelper.Assert(false);
                 }

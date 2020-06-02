@@ -4,8 +4,7 @@
 
 #pragma once
 
-[[java:package:test.IceDiscovery.simple]]
-module Test
+module ZeroC::IceDiscovery::Test::Simple
 {
 
 interface TestIntf

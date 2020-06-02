@@ -4,7 +4,7 @@
 
 #pragma once
 
-module Test
+module ZeroC::IceGrid::Test::Simple
 {
 
 interface TestIntf

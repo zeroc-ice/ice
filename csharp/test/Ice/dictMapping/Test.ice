@@ -4,8 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.dictMapping]
-module Test
+module ZeroC::Ice::Test::DictMapping
 {
 
 dictionary<int, int> NV;

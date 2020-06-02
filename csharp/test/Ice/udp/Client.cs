@@ -4,9 +4,11 @@
 
 using System;
 
-namespace ZeroC.Ice.udp
+using Test;
+
+namespace ZeroC.Ice.Test.UDP
 {
-    public class Client : global::Test.TestHelper
+    public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
@@ -28,10 +30,10 @@ namespace ZeroC.Ice.udp
 
             for (int i = 0; i < num; ++i)
             {
-                Test.ITestIntfPrx.Parse("control:" + GetTestEndpoint(i, "tcp"), communicator).shutdown();
+                ITestIntfPrx.Parse("control:" + GetTestEndpoint(i, "tcp"), communicator).shutdown();
             }
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }
