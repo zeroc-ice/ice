@@ -195,7 +195,7 @@ namespace ZeroC.Ice
 
         /// <summary>Writes a class instance to the stream, or null.</summary>
         /// <param name="v">The class instance to write, or null</param>
-        public void WriteOptionalClass(AnyClass? v)
+        public void WriteNullableClass(AnyClass? v)
         {
             Debug.Assert(InEncapsulation);
             if (v == null)

@@ -755,12 +755,12 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
         TypePtr underlying = optional->underlying();
         if (underlying->isInterfaceType())
         {
-            out << typeToString(underlying->unit()->builtin(Builtin::KindObject), scope) << ".IceWriterFromOptional";
+            out << typeToString(underlying->unit()->builtin(Builtin::KindObject), scope) << ".IceWriterFromNullable";
         }
         else
         {
             assert(underlying->isClassType());
-            out << typeToString(underlying, scope) << ".IceWriterFromOptional";
+            out << typeToString(underlying, scope) << ".IceWriterFromNullable";
         }
     }
     else if (type->isInterfaceType())
@@ -815,12 +815,12 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
         if (underlying->isInterfaceType())
         {
             // does not use bit sequence
-            out << nl << stream << ".WriteOptionalProxy(" << param << ");";
+            out << nl << stream << ".WriteNullableProxy(" << param << ");";
         }
         else if (underlying->isClassType())
         {
             // does not use bit sequence
-            out << nl << stream << ".WriteOptionalClass(" << param << ");";
+            out << nl << stream << ".WriteNullableClass(" << param << ");";
         }
         else
         {
@@ -859,11 +859,11 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
             out << nl << stream;
             if (forNestedType)
             {
-                out << ".WriteFixedSizeNumericValueArray(" << param << ");";
+                out << ".WriteArray(" << param << ");";
             }
             else
             {
-                out << ".WriteFixedSizeNumericValueSequence(" << param << ".Span);";
+                out << ".WriteSequence(" << param << ".Span);";
             }
         }
         else
@@ -882,7 +882,7 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
         TypePtr underlying = optional->underlying();
         // Expected for classes and proxies
         assert(underlying->isClassType() || underlying->isInterfaceType());
-        out << typeToString(underlying, scope) << ".IceReaderIntoOptional";
+        out << typeToString(underlying, scope) << ".IceReaderIntoNullable";
     }
     else if (auto builtin = BuiltinPtr::dynamicCast(type); builtin && !builtin->usesClasses() &&
                 builtin->kind() != Builtin::KindObject)
@@ -929,13 +929,13 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
         if (underlying->isInterfaceType())
         {
             // does not use bit sequence
-            out << stream << ".ReadOptionalProxy(" << typeToString(underlying, scope) << ".Factory);";
+            out << stream << ".ReadNullableProxy(" << typeToString(underlying, scope) << ".Factory);";
             return;
         }
         else if (underlying->isClassType())
         {
             // does not use bit sequence
-            out << stream << ".ReadOptionalClass<" << typeToString(underlying, scope) << ">();";
+            out << stream << ".ReadNullableClass<" << typeToString(underlying, scope) << ">();";
             return;
         }
         else
@@ -966,7 +966,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if (auto seq = SequencePtr::dynamicCast(underlying); seq && isMappedToReadOnlyMemory(seq))
     {
-        out << stream << ".ReadFixedSizeNumericValueArray<" << typeToString(seq->type(), scope) << ">()";
+        out << stream << ".ReadArray<" << typeToString(seq->type(), scope) << ">()";
     }
     else
     {
@@ -1033,11 +1033,11 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
             out << nl << stream;
             if (isDataMember)
             {
-                out << ".WriteTaggedFixedSizeNumericValueArray(" << tag << ", " << param;
+                out << ".WriteTaggedArray(" << tag << ", " << param;
             }
             else
             {
-                out << ".WriteTaggedFixedSizeNumericValueSequence(" << tag << ", " << param << ".Span";
+                out << ".WriteTaggedSequence(" << tag << ", " << param << ".Span";
             }
             out << ");";
         }
@@ -1049,8 +1049,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
                  optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
         {
             TypePtr underlying = optional->underlying();
-            out << nl << stream << ".WriteTaggedOptional" << (isValueType(underlying) ? "Value" : "Element")
-                << "Sequence(" << tag << ", " << param;
+            out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param << ", ofNullables: true";
             if (!StructPtr::dynamicCast(underlying))
             {
                 out << ", " << outputStreamWriter(underlying, scope, true);
@@ -1145,9 +1144,9 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     }
     else if (st)
     {
-        out << stream << ".ReadTagged"
-            << (st->isVariableLength() ? "Variable" : "Fixed") << "SizeStruct(" << tag << ", "
-            << inputStreamReader(st, scope) << ")";
+        out << stream << ".ReadTaggedStruct(" << tag << ", fixedSize: "
+            << (st->isVariableLength() ? "false" : "true")
+            << ", " << inputStreamReader(st, scope) << ")";
     }
     else if (en)
     {
@@ -1160,7 +1159,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         const TypePtr elementType = seq->type();
         if (isMappedToReadOnlyMemory(seq))
         {
-            out << stream << ".ReadTaggedFixedSizeNumericValueArray<" <<
+            out << stream << ".ReadTaggedArray<" <<
                 typeToString(elementType, scope) << ">(" << tag << ")";
         }
         else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
@@ -1173,18 +1172,19 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                 optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
             {
                 TypePtr underlying = optional->underlying();
-                out << stream << ".ReadTaggedOptional" << (isValueType(underlying) ? "Value" : "Element")
-                    << "Sequence(" << tag << ", " << inputStreamReader(elementType, scope)
+                out << stream << ".ReadTaggedSequence(" << tag << ", "
+                    << (isValueType(underlying) ? "ofNullableValues: true, " : "")
+                    << inputStreamReader(elementType, scope)
                     << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope)
                     << "> " << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)"
                     << " : null";
             }
             else
             {
-                out << stream << ".ReadTagged"
-                    << (elementType->isVariableLength() ? "VariableSizeElement" : "FixedSizeValue") << "Sequence("
-                    << tag << ", " << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
-                    << elementType->minWireSize() << ", " << inputStreamReader(elementType, scope)
+                out << stream << ".ReadTaggedSequence("
+                    << tag << ", minElementSize: " << elementType->minWireSize() << ", fixedSize: "
+                    << (elementType->isVariableLength() ? "false" : "true")
+                    << ", " << inputStreamReader(elementType, scope)
                     << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope)
                     << "> " << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)"
                     << " : null";
@@ -1196,15 +1196,15 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                 optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
             {
                 TypePtr underlying = optional->underlying();
-                out << stream << ".ReadTaggedOptional" << (isValueType(underlying) ? "Value" : "Element")
-                    << "Array(" << tag << ", " << inputStreamReader(underlying, scope) << ")";
+                out << stream << ".ReadTaggedArray(" << tag << ", "
+                    << (isValueType(underlying) ? "ofNullableValues: true, " : "")
+                    << inputStreamReader(underlying, scope) << ")";
             }
             else
             {
-                out << stream << ".ReadTagged"
-                    << (elementType->isVariableLength() ? "VariableSizeElement" : "FixedSizeValue") << "Array("
-                    << tag << ", " << (elementType->isVariableLength() ? "minElementSize: " : "elementSize: ")
-                    << elementType->minWireSize() <<  ", " << inputStreamReader(elementType, scope) << ")";
+                out << stream << ".ReadTaggedArray(" << tag << ", minElementSize: " << elementType->minWireSize()
+                    << ", fixedSize: " << (elementType->isVariableLength() ? "false" : "true")
+                    << ", " << inputStreamReader(elementType, scope) << ")";
             }
         }
     }
@@ -1218,10 +1218,10 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         bool fixedSize = !keyType->isVariableLength() && !valueType->isVariableLength();
         bool sorted = d->findMetaDataWithPrefix("cs:generic:") == "SortedDictionary";
 
-        out << stream << ".ReadTagged" << (fixedSize ? "Fixed" : "Variable") << "SizeEntry"
-            << (sorted ? "Sorted" : "") << "Dictionary(" << tag << ", "
-            << (fixedSize ? "entrySize: " : "minEntrySize: ") << keyType->minWireSize() + valueType->minWireSize()
-            << ", " << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ")";
+        out << stream << ".ReadTagged" << (sorted ? "Sorted" : "") << "Dictionary(" << tag
+            << ", minEntrySize: " << keyType->minWireSize() + valueType->minWireSize()
+            << ", fixedSize: " << (fixedSize ? "true" : "false") << ", "
+            << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ")";
     }
 
     if (hasDefaultValue)
@@ -1241,7 +1241,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
 
     if (isMappedToReadOnlyMemory(seq))
     {
-        out << stream << ".WriteFixedSizeNumericValueSequence(" << param << ".Span)";
+        out << stream << ".WriteSequence(" << param << ".Span)";
     }
     else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
     {
@@ -1251,7 +1251,7 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
              optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
     {
         TypePtr underlying = optional->underlying();
-        out << stream << ".WriteOptional" << (isValueType(underlying) ? "Value" : "Element") << "Sequence(" << param;
+        out << stream << ".WriteSequence(" << param << ", ofNullables: true";
         if (!StructPtr::dynamicCast(underlying))
         {
             out << ", " << outputStreamWriter(underlying, scope, true);
@@ -1288,13 +1288,13 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     {
         if (builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength())
         {
-            out << stream << ".ReadFixedSizeNumericValueArray<" << typeToString(builtin, scope) << ">()";
+            out << stream << ".ReadArray<" << typeToString(builtin, scope) << ">()";
         }
         else if (auto optional = OptionalPtr::dynamicCast(type);
                  optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
         {
             TypePtr underlying = optional->underlying();
-            out << stream << ".ReadOptional" << (isValueType(underlying) ? "Value" : "Element") << "Array("
+            out << stream << ".ReadArray(" << (isValueType(underlying) ? "ofNullableValues: true, " : "")
                 << inputStreamReader(underlying, scope) << ")";
         }
         else
@@ -1315,14 +1315,14 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         {
             // We always read an array even when mapped to a collection, as it's expected to be faster than unmarshaling
             // the collection elements one by one.
-            out << stream << ".ReadFixedSizeNumericValueArray<" << typeToString(builtin, scope) << ">()";
+            out << stream << ".ReadArray<" << typeToString(builtin, scope) << ">()";
         }
         else if (auto optional = OptionalPtr::dynamicCast(type);
                  optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
         {
             TypePtr underlying = optional->underlying();
-            out << stream << ".ReadOptional" << (isValueType(underlying) ? "Value" : "Element")
-                << "Sequence(" << inputStreamReader(underlying, scope) << ")";
+            out << stream << ".ReadSequence(" << (isValueType(underlying) ? "ofNullableValues: true, " : "")
+                << inputStreamReader(underlying, scope) << ")";
         }
         else
         {

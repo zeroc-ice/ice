@@ -76,12 +76,12 @@ namespace ZeroC.Ice
         /// <summary>Reads a class instance from the stream.</summary>
         /// <returns>The class instance read from the stream.</returns>
         public T ReadClass<T>() where T : AnyClass =>
-            ReadOptionalClass<T>() ??
+            ReadNullableClass<T>() ??
                 throw new InvalidDataException("read a null class instance, but expected a non-null instance");
 
-        /// <summary>Reads an optional class instance from the stream.</summary>
+        /// <summary>Reads a nullable class instance from the stream.</summary>
         /// <returns>The class instance read from the stream, or null.</returns>
-        public T? ReadOptionalClass<T>() where T : AnyClass
+        public T? ReadNullableClass<T>() where T : AnyClass
         {
             AnyClass? obj = ReadAnyClass();
             if (obj is T result)
