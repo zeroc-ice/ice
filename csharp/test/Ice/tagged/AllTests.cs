@@ -1020,11 +1020,11 @@ namespace ZeroC.Ice.tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opByteSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
+                    (OutputStream ostr, byte[]? p1) => ostr.WriteTaggedFixedSizeNumericValueArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<byte>(1), istr.ReadTaggedFixedSizeNumericArray<byte>(3)));
+                    (istr.ReadTaggedFixedSizeNumericValueArray<byte>(1), istr.ReadTaggedFixedSizeNumericValueArray<byte>(3)));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
@@ -1052,11 +1052,11 @@ namespace ZeroC.Ice.tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opBoolSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
+                    (OutputStream ostr, bool[]? p1) => ostr.WriteTaggedFixedSizeNumericValueArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<bool>(1), istr.ReadTaggedFixedSizeNumericArray<bool>(3)));
+                    (istr.ReadTaggedFixedSizeNumericValueArray<bool>(1), istr.ReadTaggedFixedSizeNumericValueArray<bool>(3)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
@@ -1084,11 +1084,11 @@ namespace ZeroC.Ice.tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opShortSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, short[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
+                    (OutputStream ostr, short[]? p1) => ostr.WriteTaggedFixedSizeNumericValueArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<short>(1), istr.ReadTaggedFixedSizeNumericArray<short>(3)));
+                    (istr.ReadTaggedFixedSizeNumericValueArray<short>(1), istr.ReadTaggedFixedSizeNumericValueArray<short>(3)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
@@ -1115,11 +1115,11 @@ namespace ZeroC.Ice.tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opIntSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, int[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
+                    (OutputStream ostr, int[]? p1) => ostr.WriteTaggedFixedSizeNumericValueArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<int>(1), istr.ReadTaggedFixedSizeNumericArray<int>(3)));
+                    (istr.ReadTaggedFixedSizeNumericValueArray<int>(1), istr.ReadTaggedFixedSizeNumericValueArray<int>(3)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
@@ -1146,11 +1146,11 @@ namespace ZeroC.Ice.tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opLongSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, long[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
+                    (OutputStream ostr, long[]? p1) => ostr.WriteTaggedFixedSizeNumericValueArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<long>(1), istr.ReadTaggedFixedSizeNumericArray<long>(3)));
+                    (istr.ReadTaggedFixedSizeNumericValueArray<long>(1), istr.ReadTaggedFixedSizeNumericValueArray<long>(3)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
@@ -1177,11 +1177,11 @@ namespace ZeroC.Ice.tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opFloatSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, float[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
+                    (OutputStream ostr, float[]? p1) => ostr.WriteTaggedFixedSizeNumericValueArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<float>(1), istr.ReadTaggedFixedSizeNumericArray<float>(3)));
+                    (istr.ReadTaggedFixedSizeNumericValueArray<float>(1), istr.ReadTaggedFixedSizeNumericValueArray<float>(3)));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
@@ -1208,11 +1208,11 @@ namespace ZeroC.Ice.tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opDoubleSeq", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, double[]? p1) => ostr.WriteTaggedFixedSizeNumericArray(2, p1));
+                    (OutputStream ostr, double[]? p1) => ostr.WriteTaggedFixedSizeNumericValueArray(2, p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeNumericArray<double>(1), istr.ReadTaggedFixedSizeNumericArray<double>(3)));
+                    (istr.ReadTaggedFixedSizeNumericValueArray<double>(1), istr.ReadTaggedFixedSizeNumericValueArray<double>(3)));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
@@ -1278,8 +1278,8 @@ namespace ZeroC.Ice.tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeElementArray(1, 1, istr => new SmallStruct(istr)),
-                        istr.ReadTaggedFixedSizeElementArray(3, 1, istr => new SmallStruct(istr))));
+                    (istr.ReadTaggedFixedSizeValueArray(1, 1, istr => new SmallStruct(istr)),
+                        istr.ReadTaggedFixedSizeValueArray(3, 1, istr => new SmallStruct(istr))));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
@@ -1318,11 +1318,11 @@ namespace ZeroC.Ice.tagged
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         List<SmallStruct>? list1 =
-                            istr.ReadTaggedFixedSizeElementSequence(1, 1, istr => new SmallStruct(istr)) is
+                            istr.ReadTaggedFixedSizeValueSequence(1, 1, istr => new SmallStruct(istr)) is
                                 ICollection<SmallStruct> collection1 ? new List<SmallStruct>(collection1) : null;
 
                         List<SmallStruct>? list2 =
-                            istr.ReadTaggedFixedSizeElementSequence(3, 1, istr => new SmallStruct(istr)) is
+                            istr.ReadTaggedFixedSizeValueSequence(3, 1, istr => new SmallStruct(istr)) is
                                 ICollection<SmallStruct> collection2 ? new List<SmallStruct>(collection2) : null;
 
                         return (list1, list2);
@@ -1359,8 +1359,8 @@ namespace ZeroC.Ice.tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedFixedSizeElementArray(1, 4, istr => new FixedStruct(istr)),
-                        istr.ReadTaggedFixedSizeElementArray(3, 4, istr => new FixedStruct(istr))));
+                    (istr.ReadTaggedFixedSizeValueArray(1, 4, istr => new FixedStruct(istr)),
+                        istr.ReadTaggedFixedSizeValueArray(3, 4, istr => new FixedStruct(istr))));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
@@ -1399,11 +1399,11 @@ namespace ZeroC.Ice.tagged
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     {
                         LinkedList<FixedStruct>? list1 =
-                            istr.ReadTaggedFixedSizeElementSequence(1, 4, istr => new FixedStruct(istr)) is
+                            istr.ReadTaggedFixedSizeValueSequence(1, 4, istr => new FixedStruct(istr)) is
                                 ICollection<FixedStruct> collection1 ? new LinkedList<FixedStruct>(collection1) : null;
 
                         LinkedList<FixedStruct>? list2 =
-                            istr.ReadTaggedFixedSizeElementSequence(3, 4, istr => new FixedStruct(istr)) is
+                            istr.ReadTaggedFixedSizeValueSequence(3, 4, istr => new FixedStruct(istr)) is
                                 ICollection<FixedStruct> collection2 ? new LinkedList<FixedStruct>(collection2) : null;
 
                         return (list1, list2);

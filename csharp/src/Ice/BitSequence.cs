@@ -8,6 +8,7 @@ using System.Text;
 namespace ZeroC.Ice
 {
     /// <summary>Presents one or two <see cref="Span{T}"/> of bytes as a continuous sequence of bits.</summary>
+    // BitSequence must be a ref struct as it holds two Span<byte>, and Span<T> is a ref struct.
     public readonly ref struct BitSequence
     {
         /// <summary>The first underlying span of bytes.</summary>
