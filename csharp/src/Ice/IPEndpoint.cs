@@ -12,9 +12,6 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-
-    public delegate IConnector ConnectorFactory(EndPoint addr, INetworkProxy? proxy);
-
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
     public abstract class IPEndpoint : Endpoint
     {

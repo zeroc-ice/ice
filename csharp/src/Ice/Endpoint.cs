@@ -59,9 +59,9 @@ namespace ZeroC.Ice
         /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
         public abstract int Timeout { get; }
 
-        /// <summary>The EndpointType of this endpoint.</summary>
+        /// <summary>The <see cref="EndpointType">type</see> of this endpoint.</summary>
         public abstract EndpointType Type { get; }
-
+        /// <summary>The endpoint's transport unique name.</summary>
         public abstract string Transport { get; }
 
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)

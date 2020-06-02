@@ -26,8 +26,6 @@ namespace ZeroC.Ice
 
         public string ToDetailedString() => _delegate.ToDetailedString();
 
-        public int EffectivePort() => _delegate.EffectivePort();
-
         public IAcceptor GetDelegate() => _delegate;
 
         internal WSAcceptor(WSEndpoint endpoint, Communicator communicator, IAcceptor del)

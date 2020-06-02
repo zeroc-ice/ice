@@ -36,7 +36,6 @@ namespace ZeroC.Ice
         public override string ToString() => _delegate.ToString();
 
         public string ToDetailedString() => _delegate.ToDetailedString();
-        public int EffectivePort() => _delegate.EffectivePort();
 
         internal SslAcceptor(SslEndpoint endpoint, Communicator communicator, SslEngine engine, IAcceptor del,
             string adapterName)

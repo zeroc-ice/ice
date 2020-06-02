@@ -38,7 +38,7 @@ namespace ZeroC.Ice
                 _fd = null;
                 throw;
             }
-            _endpoint = (TcpEndpoint)_endpoint.GetEndpoint(this);
+            _endpoint = _endpoint.GetEndpoint(this);
             return _endpoint;
         }
 

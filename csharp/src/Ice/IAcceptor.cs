@@ -17,8 +17,6 @@ namespace ZeroC.Ice
         string ToString();
         string ToDetailedString();
 
-        int EffectivePort();
-
         // TODO: temporary hack, it will be removed with the transport refactoring
         Task<ITransceiver> AcceptAsync()
         {

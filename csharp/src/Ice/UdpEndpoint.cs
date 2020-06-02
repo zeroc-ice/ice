@@ -24,10 +24,8 @@ namespace ZeroC.Ice
         public int McastTtl { get; } = -1;
 
         public override int Timeout => -1;
-
-        public override EndpointType Type => EndpointType.UDP;
-
         public override string Transport => "udp";
+        public override EndpointType Type => EndpointType.UDP;
 
         private readonly bool _connect;
         private int _hashCode = 0;
@@ -249,8 +247,8 @@ namespace ZeroC.Ice
 
     internal sealed class UdpEndpointFactory : IEndpointFactory
     {
-        public EndpointType Type => EndpointType.UDP;
         public string Transport => "udp";
+        public EndpointType Type => EndpointType.UDP;
 
         private Communicator Communicator { get; }
 
