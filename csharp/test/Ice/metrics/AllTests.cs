@@ -808,7 +808,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             dm1 = (DispatchMetrics)map["opWithUserException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
-            TestHelper.Assert(dm1.Size == 38 && dm1.ReplySize == 27);
+            TestHelper.Assert(dm1.Size == 38 && dm1.ReplySize == 30);
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
@@ -993,7 +993,7 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
             rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize == 54);
+            //TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize == 60);
             TestHelper.Assert(im1.UserException == 2);
 
             im1 = (InvocationMetrics)map["opWithLocalException"];
