@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -355,35 +356,20 @@ namespace ZeroC.Ice
         /// <param name="minElementSize">The minimum size of each element of the sequence, in bytes.</param>
         /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T[] ReadArray<T>(int minElementSize, InputStreamReader<T> reader)
-        {
-            ICollection<T> collection = ReadSequence(minElementSize, reader);
-            var array = new T[collection.Count];
-            collection.CopyTo(array, 0);
-            return array;
-        }
+        public T[] ReadArray<T>(int minElementSize, InputStreamReader<T> reader) =>
+            ReadSequence(minElementSize, reader).ToArray();
 
         /// <summary>Reads a sequence of optional/nullable elements from the stream and returns an array.</summary>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T?[] ReadOptionalElementArray<T>(InputStreamReader<T> reader) where T : class
-        {
-            ICollection<T?> collection = ReadOptionalElementSequence(reader);
-            var array = new T?[collection.Count];
-            collection.CopyTo(array, 0);
-            return array;
-        }
+        public T?[] ReadOptionalElementArray<T>(InputStreamReader<T> reader) where T : class =>
+            ReadOptionalElementSequence(reader).ToArray();
 
         /// <summary>Reads a sequence of optional/nullable values from the stream and returns an array.</summary>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T?[] ReadOptionalValueArray<T>(InputStreamReader<T> reader) where T : struct
-        {
-            ICollection<T?> collection = ReadOptionalValueSequence(reader);
-            var array = new T?[collection.Count];
-            collection.CopyTo(array, 0);
-            return array;
-        }
+        public T?[] ReadOptionalValueArray<T>(InputStreamReader<T> reader) where T : struct =>
+            ReadOptionalValueSequence(reader).ToArray();
 
         /// <summary>Reads a dictionary from the stream.</summary>
         /// <param name="minEntrySize">The minimum size of each entry of the dictionary, in bytes.</param>
@@ -653,19 +639,7 @@ namespace ZeroC.Ice
         /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
         /// <returns>The sequence read from the stream as an array, or null.</returns>
         public T[]? ReadTaggedFixedSizeValueArray<T>(int tag, int elementSize, InputStreamReader<T> reader)
-            where T : struct
-        {
-            if (ReadTaggedFixedSizeValueSequence(tag, elementSize, reader) is ICollection<T> collection)
-            {
-                var array = new T[collection.Count];
-                collection.CopyTo(array, 0);
-                return array;
-            }
-            else
-            {
-                return null;
-            }
-        }
+            where T : struct => ReadTaggedFixedSizeValueSequence(tag, elementSize, reader)?.ToArray();
 
         /// <summary>Reads a tagged proxy from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -712,20 +686,8 @@ namespace ZeroC.Ice
         /// <param name="tag">The tag.</param>
         /// <param name="reader">The input stream reader used to read each non-null element of the array.</param>
         /// <returns>The array read from the stream, or null.</returns>
-        public T?[]? ReadTaggedOptionalElementArray<T>(int tag, InputStreamReader<T> reader)
-            where T : class
-        {
-            if (ReadTaggedOptionalElementSequence(tag, reader) is ICollection<T?> collection)
-            {
-                var array = new T?[collection.Count];
-                collection.CopyTo(array, 0);
-                return array;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        public T?[]? ReadTaggedOptionalElementArray<T>(int tag, InputStreamReader<T> reader) where T : class =>
+            ReadTaggedOptionalElementSequence(tag, reader)?.ToArray();
 
         /// <summary>Reads a tagged sequence of optional elements from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -749,20 +711,8 @@ namespace ZeroC.Ice
         /// <param name="tag">The tag.</param>
         /// <param name="reader">The input stream reader used to read each non-null value of the array.</param>
         /// <returns>The array read from the stream, or null.</returns>
-        public T?[]? ReadTaggedOptionalValueArray<T>(int tag, InputStreamReader<T> reader)
-            where T : struct
-        {
-            if (ReadTaggedOptionalValueSequence(tag, reader) is ICollection<T?> collection)
-            {
-                var array = new T?[collection.Count];
-                collection.CopyTo(array, 0);
-                return array;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        public T?[]? ReadTaggedOptionalValueArray<T>(int tag, InputStreamReader<T> reader) where T : struct =>
+            ReadTaggedOptionalValueSequence(tag, reader)?.ToArray();
 
         /// <summary>Reads a tagged sequence of optional values from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -793,19 +743,8 @@ namespace ZeroC.Ice
         /// <param name="minElementSize">The minimum size of each element, in bytes.</param>
         /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
         /// <returns>The sequence read from the stream as an array, or null.</returns>
-        public T[]? ReadTaggedVariableSizeElementArray<T>(int tag, int minElementSize, InputStreamReader<T> reader)
-        {
-            if (ReadTaggedVariableSizeElementSequence(tag, minElementSize, reader) is ICollection<T> collection)
-            {
-                var array = new T[collection.Count];
-                collection.CopyTo(array, 0);
-                return array;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        public T[]? ReadTaggedVariableSizeElementArray<T>(int tag, int minElementSize, InputStreamReader<T> reader) =>
+            ReadTaggedVariableSizeElementSequence(tag, minElementSize, reader)?.ToArray();
 
         /// <summary>Reads a tagged sequence of variable-size elements from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -1398,20 +1337,21 @@ namespace ZeroC.Ice
             {
                 get
                 {
-                    if (_pos == 0 || _pos > Count)
+                    if (Pos == 0 || Pos > Count)
                     {
                         throw new InvalidOperationException();
                     }
                     return _current;
                 }
+
+                protected set => _current = value;
             }
 
             object? IEnumerator.Current => Current;
             public bool IsReadOnly => true;
-            protected readonly InputStream _inputStream;
-            protected int _pos = 0;
-
-            protected T _current;
+            protected readonly InputStream InputStream;
+            protected int Pos = 0;
+            private T _current;
             private bool _enumeratorRetrieved = false;
 
             public IEnumerator<T> GetEnumerator()
@@ -1454,7 +1394,7 @@ namespace ZeroC.Ice
 #pragma warning restore CS8618
             {
                 Count = istr.ReadAndCheckSeqSize(minElementSize);
-                _inputStream = istr;
+                InputStream = istr;
             }
         }
 
@@ -1471,10 +1411,10 @@ namespace ZeroC.Ice
 
             public override bool MoveNext()
             {
-                if (_pos < Count)
+                if (Pos < Count)
                 {
-                    _current = _reader(_inputStream);
-                    _pos++;
+                    Current = _reader(InputStream);
+                    Pos++;
                     return true;
                 }
                 else
@@ -1500,10 +1440,10 @@ namespace ZeroC.Ice
 
             public override bool MoveNext()
             {
-                if (_pos < Count)
+                if (Pos < Count)
                 {
                     var bitSequence = new ReadOnlyBitSequence(_bitSequenceMemory.Span);
-                    _current = bitSequence[_pos++] ? _reader(_inputStream) : null;
+                    Current = bitSequence[Pos++] ? _reader(InputStream) : null;
                     return true;
                 }
                 else
@@ -1528,10 +1468,10 @@ namespace ZeroC.Ice
 
             public override bool MoveNext()
             {
-                if (_pos < Count)
+                if (Pos < Count)
                 {
                     var bitSequence = new ReadOnlyBitSequence(_bitSequenceMemory.Span);
-                    _current = bitSequence[_pos++] ? _reader(_inputStream) : (T?)null;
+                    Current = bitSequence[Pos++] ? _reader(InputStream) : (T?)null;
                     return true;
                 }
                 else

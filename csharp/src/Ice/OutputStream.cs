@@ -900,8 +900,8 @@ namespace ZeroC.Ice
         /// <summary>Writes a tagged array of fixed-size numeric values to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The array to write.</param>
-        public void WriteTaggedFixedSizeNumericValueArray<T>(int tag, T[]? v) where T : struct
-            => WriteTaggedFixedSizeNumericValueSequence(tag, new ReadOnlySpan<T>(v));
+        public void WriteTaggedFixedSizeNumericValueArray<T>(int tag, T[]? v) where T : struct =>
+            WriteTaggedFixedSizeNumericValueSequence(tag, new ReadOnlySpan<T>(v));
 
         /// <summary>Writes a tagged sequence of fixed-size numeric values to the stream.</summary>
         /// <param name="tag">The tag.</param>
