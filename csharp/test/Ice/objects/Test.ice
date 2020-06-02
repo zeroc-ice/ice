@@ -8,6 +8,7 @@
 
 #include <Ice/Identity.ice>
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Objects
 {
 

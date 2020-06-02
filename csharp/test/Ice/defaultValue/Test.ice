@@ -7,9 +7,7 @@
 //
 // Suppress warnings
 //
-
-[[suppress-warning:invalid-metadata, deprecated]] // deprecated for enumerator references
-
+[suppress-warning:invalid-metadata, deprecated, reserved-identifier] // deprecated for enumerator references
 module ZeroC::Ice::Test::DefaultValue
 {
 

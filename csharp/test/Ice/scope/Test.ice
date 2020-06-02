@@ -6,6 +6,7 @@
 
 [[3.7]]
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Scope
 {
     struct S
@@ -146,6 +147,7 @@ module ZeroC::Ice::Test::Scope
     }
 }
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Scope::Inner::Test::Inner2
 {
     interface I

@@ -4,6 +4,7 @@
 
 #pragma once
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::ACM
 {
 

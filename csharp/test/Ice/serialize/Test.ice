@@ -8,6 +8,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Serialize
 {
 

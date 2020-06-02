@@ -4,6 +4,7 @@
 
 #pragma once
 
+[suppress-warning:reserved-identifier]
 module ZeroC::IceSSL::Test::Configuration
 {
 

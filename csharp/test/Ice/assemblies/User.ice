@@ -3,6 +3,7 @@
 
 [[3.7]]
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Assemblies::User
 {
     class UserInfo

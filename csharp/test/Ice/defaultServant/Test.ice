@@ -5,6 +5,7 @@
 #pragma once
 [[normalize-case]]
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::DefaultServant
 {
     interface MyObject

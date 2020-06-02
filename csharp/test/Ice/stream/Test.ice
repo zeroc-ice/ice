@@ -6,13 +6,9 @@
 
 [[3.7]]
 
-//
-// Suppress invalid metadata warnings
-//
-[[suppress-warning:invalid-metadata]]
-
 #include <Ice/BuiltinSequences.ice>
 
+[suppress-warning:invalid-metadata, reserved-identifier]
 module ZeroC::Ice::Test::Stream
 {
 

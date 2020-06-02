@@ -4,6 +4,7 @@
 
 #pragma once
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Objects
 {
 
@@ -17,4 +18,4 @@ interface F2
     void op();
 }
 
-};
+}

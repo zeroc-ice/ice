@@ -7,6 +7,7 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
+[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Admin
 {
 
