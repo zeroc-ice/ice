@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.Test.Proxy.AMD
+namespace ZeroC.Ice.Test.AMD.Proxy
 {
     public class Server : TestHelper
     {

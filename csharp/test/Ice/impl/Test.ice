@@ -6,7 +6,11 @@
 
 #include <Ice/Context.ice>
 
-module Test
+// 'Test.ice' and 'TestAMD.ice' need to generate code into separate namespaces, but with identical type-ids. So we use
+// the 'cs:namespace' metadata here to place the AMD code into a separate AMD namespace, instead of another module;
+// Which would result in differing type-ids.
+[cs:namespace:ZeroC.Ice.Test]
+module Impl
 {
 
 enum MyEnum
@@ -122,8 +126,8 @@ interface MyClass
     BoolS opBoolS(BoolS p1, BoolS p2,
                   out BoolS p3);
 
-    LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
-                          out ::Test::ShortS p4, out IntS p5, out LongS p6);
+    LongS opShortIntLongS(ShortS p1, IntS p2, LongS p3,
+                          out ShortS p4, out IntS p5, out LongS p6);
 
     DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
                            out FloatS p3, out DoubleS p4);

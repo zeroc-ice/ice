@@ -5,18 +5,17 @@
 using Test;
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.exceptions
+namespace ZeroC.Ice.Test.Exceptions
 {
     public class Collocated : TestHelper
     {
         public override void Run(string[] args)
         {
-            string[] typeIdNamespaces = new string[] { "ZeroC.Ice.exceptions.TypeId" };
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.MessageSizeMax"] = "10"; // 10KB max
-            using Communicator communicator = Initialize(properties, typeIdNamespaces: typeIdNamespaces);
+            using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("thrower", new Thrower());

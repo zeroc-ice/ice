@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.Test.SeqMapping.AMD
+namespace ZeroC.Ice.Test.AMD.SeqMapping
 {
     public class Server : TestHelper
     {

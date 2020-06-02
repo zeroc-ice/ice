@@ -8,7 +8,8 @@
 
 #include <Test.ice>
 
-module Test
+[cs:namespace:ZeroC.Ice.Test]
+module Slicing::Objects
 {
 
 class CUnknown : SBase

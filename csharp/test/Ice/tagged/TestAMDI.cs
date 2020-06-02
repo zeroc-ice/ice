@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.Test.Tagged.AMD
+namespace ZeroC.Ice.Test.AMD.Tagged
 {
     public class Initial : IInitial
     {
@@ -137,8 +137,8 @@ namespace ZeroC.Ice.Test.Tagged.AMD
         public ValueTask<(IEnumerable<VarStruct>?, IEnumerable<VarStruct>?)> opVarStructSeqAsync(
             VarStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<VarStruct>);
 
-        public ValueTask<(SerializableClass?, SerializableClass?)>
-        opSerializableAsync(SerializableClass? p1, Current current) => MakeValueTask((p1, p1));
+        public ValueTask<(ZeroC.Ice.Test.Tagged.SerializableClass?, ZeroC.Ice.Test.Tagged.SerializableClass?)>
+        opSerializableAsync(ZeroC.Ice.Test.Tagged.SerializableClass? p1, Current current) => MakeValueTask((p1, p1));
 
         public ValueTask<(IReadOnlyDictionary<int, int>?, IReadOnlyDictionary<int, int>?)>
         opIntIntDictAsync(Dictionary<int, int>? p1, Current current) => ToReturnValue(p1);

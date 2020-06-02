@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.Test.Proxy.AMD
+namespace ZeroC.Ice.Test.AMD.Proxy
 {
     public sealed class MyDerivedClass : IMyDerivedClass
     {

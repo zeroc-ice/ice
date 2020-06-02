@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.operations
+namespace ZeroC.Ice.Test.Operations
 {
     public class Oneways
     {
-        internal static void oneways(Test.IMyClassPrx p)
+        internal static void oneways(IMyClassPrx p)
         {
             p = p.Clone(oneway: true);
             p.IcePing();

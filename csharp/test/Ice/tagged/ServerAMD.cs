@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.Test.Tagged.AMD
+namespace ZeroC.Ice.Test.AMD.Tagged
 {
     public class Server : TestHelper
     {

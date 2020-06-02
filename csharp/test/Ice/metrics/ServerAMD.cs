@@ -7,7 +7,7 @@ using Test;
 
 using ZeroC.Ice;
 
-namespace ZeroC.Ice.Test.Metrics
+namespace ZeroC.Ice.Test.AMD.Metrics
 {
     public class Server : TestHelper
     {

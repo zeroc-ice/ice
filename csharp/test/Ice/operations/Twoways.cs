@@ -7,104 +7,104 @@ using System.Collections.Generic;
 using System.Linq;
 using Test;
 
-namespace ZeroC.Ice.operations
+namespace ZeroC.Ice.Test.Operations
 {
     public class Twoways
     {
-        internal static void twoways(TestHelper helper, Test.IMyClassPrx p)
+        internal static void twoways(TestHelper helper, IMyClassPrx p)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             string[] literals = p.opStringLiterals();
 
-            TestHelper.Assert(Test.Constants.s0.Equals("\\") &&
-                    Test.Constants.s0.Equals(Test.Constants.sw0) &&
-                    Test.Constants.s0.Equals(literals[0]) &&
-                    Test.Constants.s0.Equals(literals[11]));
+            TestHelper.Assert(Constants.s0.Equals("\\") &&
+                    Constants.s0.Equals(Constants.sw0) &&
+                    Constants.s0.Equals(literals[0]) &&
+                    Constants.s0.Equals(literals[11]));
 
-            TestHelper.Assert(Test.Constants.s1.Equals("A") &&
-                    Test.Constants.s1.Equals(Test.Constants.sw1) &&
-                    Test.Constants.s1.Equals(literals[1]) &&
-                    Test.Constants.s1.Equals(literals[12]));
+            TestHelper.Assert(Constants.s1.Equals("A") &&
+                    Constants.s1.Equals(Constants.sw1) &&
+                    Constants.s1.Equals(literals[1]) &&
+                    Constants.s1.Equals(literals[12]));
 
-            TestHelper.Assert(Test.Constants.s2.Equals("Ice") &&
-                    Test.Constants.s2.Equals(Test.Constants.sw2) &&
-                    Test.Constants.s2.Equals(literals[2]) &&
-                    Test.Constants.s2.Equals(literals[13]));
+            TestHelper.Assert(Constants.s2.Equals("Ice") &&
+                    Constants.s2.Equals(Constants.sw2) &&
+                    Constants.s2.Equals(literals[2]) &&
+                    Constants.s2.Equals(literals[13]));
 
-            TestHelper.Assert(Test.Constants.s3.Equals("A21") &&
-                    Test.Constants.s3.Equals(Test.Constants.sw3) &&
-                    Test.Constants.s3.Equals(literals[3]) &&
-                    Test.Constants.s3.Equals(literals[14]));
+            TestHelper.Assert(Constants.s3.Equals("A21") &&
+                    Constants.s3.Equals(Constants.sw3) &&
+                    Constants.s3.Equals(literals[3]) &&
+                    Constants.s3.Equals(literals[14]));
 
-            TestHelper.Assert(Test.Constants.s4.Equals("\\u0041 \\U00000041") &&
-                    Test.Constants.s4.Equals(Test.Constants.sw4) &&
-                    Test.Constants.s4.Equals(literals[4]) &&
-                    Test.Constants.s4.Equals(literals[15]));
+            TestHelper.Assert(Constants.s4.Equals("\\u0041 \\U00000041") &&
+                    Constants.s4.Equals(Constants.sw4) &&
+                    Constants.s4.Equals(literals[4]) &&
+                    Constants.s4.Equals(literals[15]));
 
-            TestHelper.Assert(Test.Constants.s5.Equals("\u00FF") &&
-                    Test.Constants.s5.Equals(Test.Constants.sw5) &&
-                    Test.Constants.s5.Equals(literals[5]) &&
-                    Test.Constants.s5.Equals(literals[16]));
+            TestHelper.Assert(Constants.s5.Equals("\u00FF") &&
+                    Constants.s5.Equals(Constants.sw5) &&
+                    Constants.s5.Equals(literals[5]) &&
+                    Constants.s5.Equals(literals[16]));
 
-            TestHelper.Assert(Test.Constants.s6.Equals("\u03FF") &&
-                    Test.Constants.s6.Equals(Test.Constants.sw6) &&
-                    Test.Constants.s6.Equals(literals[6]) &&
-                    Test.Constants.s6.Equals(literals[17]));
+            TestHelper.Assert(Constants.s6.Equals("\u03FF") &&
+                    Constants.s6.Equals(Constants.sw6) &&
+                    Constants.s6.Equals(literals[6]) &&
+                    Constants.s6.Equals(literals[17]));
 
-            TestHelper.Assert(Test.Constants.s7.Equals("\u05F0") &&
-                    Test.Constants.s7.Equals(Test.Constants.sw7) &&
-                    Test.Constants.s7.Equals(literals[7]) &&
-                    Test.Constants.s7.Equals(literals[18]));
+            TestHelper.Assert(Constants.s7.Equals("\u05F0") &&
+                    Constants.s7.Equals(Constants.sw7) &&
+                    Constants.s7.Equals(literals[7]) &&
+                    Constants.s7.Equals(literals[18]));
 
-            TestHelper.Assert(Test.Constants.s8.Equals("\U00010000") &&
-                    Test.Constants.s8.Equals(Test.Constants.sw8) &&
-                    Test.Constants.s8.Equals(literals[8]) &&
-                    Test.Constants.s8.Equals(literals[19]));
+            TestHelper.Assert(Constants.s8.Equals("\U00010000") &&
+                    Constants.s8.Equals(Constants.sw8) &&
+                    Constants.s8.Equals(literals[8]) &&
+                    Constants.s8.Equals(literals[19]));
 
-            TestHelper.Assert(Test.Constants.s9.Equals("\U0001F34C") &&
-                    Test.Constants.s9.Equals(Test.Constants.sw9) &&
-                    Test.Constants.s9.Equals(literals[9]) &&
-                    Test.Constants.s9.Equals(literals[20]));
+            TestHelper.Assert(Constants.s9.Equals("\U0001F34C") &&
+                    Constants.s9.Equals(Constants.sw9) &&
+                    Constants.s9.Equals(literals[9]) &&
+                    Constants.s9.Equals(literals[20]));
 
-            TestHelper.Assert(Test.Constants.s10.Equals("\u0DA7") &&
-                    Test.Constants.s10.Equals(Test.Constants.sw10) &&
-                    Test.Constants.s10.Equals(literals[10]) &&
-                    Test.Constants.s10.Equals(literals[21]));
+            TestHelper.Assert(Constants.s10.Equals("\u0DA7") &&
+                    Constants.s10.Equals(Constants.sw10) &&
+                    Constants.s10.Equals(literals[10]) &&
+                    Constants.s10.Equals(literals[21]));
 
-            TestHelper.Assert(Test.Constants.ss0.Equals("\'\"\u003f\\\a\b\f\n\r\t\v\u0006") &&
-                    Test.Constants.ss0.Equals(Test.Constants.ss1) &&
-                    Test.Constants.ss0.Equals(Test.Constants.ss2) &&
-                    Test.Constants.ss0.Equals(literals[22]) &&
-                    Test.Constants.ss0.Equals(literals[23]) &&
-                    Test.Constants.ss0.Equals(literals[24]));
+            TestHelper.Assert(Constants.ss0.Equals("\'\"\u003f\\\a\b\f\n\r\t\v\u0006") &&
+                    Constants.ss0.Equals(Constants.ss1) &&
+                    Constants.ss0.Equals(Constants.ss2) &&
+                    Constants.ss0.Equals(literals[22]) &&
+                    Constants.ss0.Equals(literals[23]) &&
+                    Constants.ss0.Equals(literals[24]));
 
-            TestHelper.Assert(Test.Constants.ss3.Equals("\\\\U\\u\\") &&
-                    Test.Constants.ss3.Equals(literals[25]));
+            TestHelper.Assert(Constants.ss3.Equals("\\\\U\\u\\") &&
+                    Constants.ss3.Equals(literals[25]));
 
-            TestHelper.Assert(Test.Constants.ss4.Equals("\\A\\") &&
-                Test.Constants.ss4.Equals(literals[26]));
+            TestHelper.Assert(Constants.ss4.Equals("\\A\\") &&
+                Constants.ss4.Equals(literals[26]));
 
-            TestHelper.Assert(Test.Constants.ss5.Equals("\\u0041\\") &&
-                    Test.Constants.ss5.Equals(literals[27]));
+            TestHelper.Assert(Constants.ss5.Equals("\\u0041\\") &&
+                    Constants.ss5.Equals(literals[27]));
 
-            TestHelper.Assert(Test.Constants.su0.Equals(Test.Constants.su1) &&
-                    Test.Constants.su0.Equals(Test.Constants.su2) &&
-                    Test.Constants.su0.Equals(literals[28]) &&
-                    Test.Constants.su0.Equals(literals[29]) &&
-                    Test.Constants.su0.Equals(literals[30]));
+            TestHelper.Assert(Constants.su0.Equals(Constants.su1) &&
+                    Constants.su0.Equals(Constants.su2) &&
+                    Constants.su0.Equals(literals[28]) &&
+                    Constants.su0.Equals(literals[29]) &&
+                    Constants.su0.Equals(literals[30]));
 
             p.IcePing();
 
-            TestHelper.Assert(p.IceIsA("::Test::MyClass"));
-            TestHelper.Assert(p.IceId().Equals("::Test::MyDerivedClass"));
+            TestHelper.Assert(p.IceIsA("::Operations::MyClass"));
+            TestHelper.Assert(p.IceId().Equals("::Operations::MyDerivedClass"));
 
             {
                 string[] ids = p.IceIds();
                 TestHelper.Assert(ids.Length == 3);
                 TestHelper.Assert(ids[0].Equals("::Ice::Object"));
-                TestHelper.Assert(ids[1].Equals("::Test::MyClass"));
-                TestHelper.Assert(ids[2].Equals("::Test::MyDerivedClass"));
+                TestHelper.Assert(ids[1].Equals("::Operations::MyClass"));
+                TestHelper.Assert(ids[2].Equals("::Operations::MyDerivedClass"));
             }
 
             {
@@ -271,18 +271,18 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                Test.MyEnum e;
-                Test.MyEnum r;
+                MyEnum e;
+                MyEnum r;
 
-                (r, e) = p.opMyEnum(Test.MyEnum.enum2);
-                TestHelper.Assert(e == Test.MyEnum.enum2);
-                TestHelper.Assert(r == Test.MyEnum.enum3);
+                (r, e) = p.opMyEnum(MyEnum.enum2);
+                TestHelper.Assert(e == MyEnum.enum2);
+                TestHelper.Assert(r == MyEnum.enum3);
             }
 
             {
-                Test.IMyClassPrx? c1;
-                Test.IMyClassPrx? c2;
-                Test.IMyClassPrx? r;
+                IMyClassPrx? c1;
+                IMyClassPrx? c2;
+                IMyClassPrx? r;
 
                 (r, c1, c2) = p.opMyClass(p);
                 ProxyIdentityFacetComparer comparer;
@@ -311,40 +311,40 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                Test.Structure si1 = new Test.Structure();
+                Structure si1 = new Structure();
                 si1.p = p;
-                si1.e = Test.MyEnum.enum3;
-                si1.s = new Test.AnotherStruct();
+                si1.e = MyEnum.enum3;
+                si1.s = new AnotherStruct();
                 si1.s.s = "abc";
-                Test.Structure si2 = new Test.Structure();
+                Structure si2 = new Structure();
                 si2.p = null;
-                si2.e = Test.MyEnum.enum2;
-                si2.s = new Test.AnotherStruct();
+                si2.e = MyEnum.enum2;
+                si2.s = new AnotherStruct();
                 si2.s.s = "def";
 
                 var (rso, so) = p.opStruct(si1, si2);
                 TestHelper.Assert(rso.p == null);
-                TestHelper.Assert(rso.e == Test.MyEnum.enum2);
+                TestHelper.Assert(rso.e == MyEnum.enum2);
                 TestHelper.Assert(rso.s.s.Equals("def"));
                 TestHelper.Assert(so.p!.Equals(p));
-                TestHelper.Assert(so.e == Test.MyEnum.enum3);
+                TestHelper.Assert(so.e == MyEnum.enum3);
                 TestHelper.Assert(so.s.s.Equals("a new string"));
                 so.p.opVoid();
 
                 //
                 // Test marshalling of null structs and structs with null members.
                 //
-                si1 = new Test.Structure();
-                si1.s = new Test.AnotherStruct("");
-                si2 = new Test.Structure();
-                si2.s = new Test.AnotherStruct("");
+                si1 = new Structure();
+                si1.s = new AnotherStruct("");
+                si2 = new Structure();
+                si2.s = new AnotherStruct("");
 
                 (rso, so) = p.opStruct(si1, si2);
                 TestHelper.Assert(rso.p == null);
-                TestHelper.Assert(rso.e == Test.MyEnum.enum1);
+                TestHelper.Assert(rso.e == MyEnum.enum1);
                 TestHelper.Assert(rso.s.s.Equals(""));
                 TestHelper.Assert(so.p == null);
-                TestHelper.Assert(so.e == Test.MyEnum.enum1);
+                TestHelper.Assert(so.e == MyEnum.enum1);
                 TestHelper.Assert(so.s.s.Equals("a new string"));
             }
 
@@ -932,62 +932,62 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var di1 = new Dictionary<string, Test.MyEnum>();
-                di1["abc"] = Test.MyEnum.enum1;
-                di1[""] = Test.MyEnum.enum2;
-                var di2 = new Dictionary<string, Test.MyEnum>();
-                di2["abc"] = Test.MyEnum.enum1;
-                di2["qwerty"] = Test.MyEnum.enum3;
-                di2["Hello!!"] = Test.MyEnum.enum2;
+                var di1 = new Dictionary<string, MyEnum>();
+                di1["abc"] = MyEnum.enum1;
+                di1[""] = MyEnum.enum2;
+                var di2 = new Dictionary<string, MyEnum>();
+                di2["abc"] = MyEnum.enum1;
+                di2["qwerty"] = MyEnum.enum3;
+                di2["Hello!!"] = MyEnum.enum2;
 
                 var (ro, _do) = p.opStringMyEnumD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
-                TestHelper.Assert(ro["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro["qwerty"] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[""] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro["abc"] == MyEnum.enum1);
+                TestHelper.Assert(ro["qwerty"] == MyEnum.enum3);
+                TestHelper.Assert(ro[""] == MyEnum.enum2);
+                TestHelper.Assert(ro["Hello!!"] == MyEnum.enum2);
             }
 
             {
-                var di1 = new Dictionary<Test.MyEnum, string>();
-                di1[Test.MyEnum.enum1] = "abc";
-                var di2 = new Dictionary<Test.MyEnum, string>();
-                di2[Test.MyEnum.enum2] = "Hello!!";
-                di2[Test.MyEnum.enum3] = "qwerty";
+                var di1 = new Dictionary<MyEnum, string>();
+                di1[MyEnum.enum1] = "abc";
+                var di2 = new Dictionary<MyEnum, string>();
+                di2[MyEnum.enum2] = "Hello!!";
+                di2[MyEnum.enum3] = "qwerty";
 
                 var (ro, _do) = p.opMyEnumStringD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 3);
-                TestHelper.Assert(ro[Test.MyEnum.enum1].Equals("abc"));
-                TestHelper.Assert(ro[Test.MyEnum.enum2].Equals("Hello!!"));
-                TestHelper.Assert(ro[Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(ro[MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(ro[MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(ro[MyEnum.enum3].Equals("qwerty"));
             }
 
             {
-                var s11 = new Test.MyStruct(1, 1);
-                var s12 = new Test.MyStruct(1, 2);
-                var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di1[s11] = Test.MyEnum.enum1;
-                di1[s12] = Test.MyEnum.enum2;
+                var s11 = new MyStruct(1, 1);
+                var s12 = new MyStruct(1, 2);
+                var di1 = new Dictionary<MyStruct, MyEnum>();
+                di1[s11] = MyEnum.enum1;
+                di1[s12] = MyEnum.enum2;
 
-                var s22 = new Test.MyStruct(2, 2);
-                var s23 = new Test.MyStruct(2, 3);
-                var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di2[s11] = Test.MyEnum.enum1;
-                di2[s22] = Test.MyEnum.enum3;
-                di2[s23] = Test.MyEnum.enum2;
+                var s22 = new MyStruct(2, 2);
+                var s23 = new MyStruct(2, 3);
+                var di2 = new Dictionary<MyStruct, MyEnum>();
+                di2[s11] = MyEnum.enum1;
+                di2[s22] = MyEnum.enum3;
+                di2[s23] = MyEnum.enum2;
 
                 var (ro, _do) = p.opMyStructMyEnumD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
-                TestHelper.Assert(ro[s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[s12] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro[s22] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[s11] == MyEnum.enum1);
+                TestHelper.Assert(ro[s12] == MyEnum.enum2);
+                TestHelper.Assert(ro[s22] == MyEnum.enum3);
+                TestHelper.Assert(ro[s23] == MyEnum.enum2);
             }
 
             {
@@ -1239,18 +1239,18 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var dsi1 = new Dictionary<string, Test.MyEnum>[2];
-                var dsi2 = new Dictionary<string, Test.MyEnum>[1];
+                var dsi1 = new Dictionary<string, MyEnum>[2];
+                var dsi2 = new Dictionary<string, MyEnum>[1];
 
-                var di1 = new Dictionary<string, Test.MyEnum>();
-                di1["abc"] = Test.MyEnum.enum1;
-                di1[""] = Test.MyEnum.enum2;
-                var di2 = new Dictionary<string, Test.MyEnum>();
-                di2["abc"] = Test.MyEnum.enum1;
-                di2["qwerty"] = Test.MyEnum.enum3;
-                di2["Hello!!"] = Test.MyEnum.enum2;
-                var di3 = new Dictionary<string, Test.MyEnum>();
-                di3["Goodbye"] = Test.MyEnum.enum1;
+                var di1 = new Dictionary<string, MyEnum>();
+                di1["abc"] = MyEnum.enum1;
+                di1[""] = MyEnum.enum2;
+                var di2 = new Dictionary<string, MyEnum>();
+                di2["abc"] = MyEnum.enum1;
+                di2["qwerty"] = MyEnum.enum3;
+                di2["Hello!!"] = MyEnum.enum2;
+                var di3 = new Dictionary<string, MyEnum>();
+                di3["Goodbye"] = MyEnum.enum1;
 
                 dsi1[0] = di1;
                 dsi1[1] = di2;
@@ -1260,36 +1260,36 @@ namespace ZeroC.Ice.operations
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
-                TestHelper.Assert(ro[0]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[0]["qwerty"] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[0]["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[0]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(ro[0]["qwerty"] == MyEnum.enum3);
+                TestHelper.Assert(ro[0]["Hello!!"] == MyEnum.enum2);
                 TestHelper.Assert(ro[1].Count == 2);
-                TestHelper.Assert(ro[1]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[1][""] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[1]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(ro[1][""] == MyEnum.enum2);
 
                 TestHelper.Assert(_do.Length == 3);
                 TestHelper.Assert(_do[0].Count == 1);
-                TestHelper.Assert(_do[0]["Goodbye"] == Test.MyEnum.enum1);
+                TestHelper.Assert(_do[0]["Goodbye"] == MyEnum.enum1);
                 TestHelper.Assert(_do[1].Count == 2);
-                TestHelper.Assert(_do[1]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[1][""] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[1]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(_do[1][""] == MyEnum.enum2);
                 TestHelper.Assert(_do[2].Count == 3);
-                TestHelper.Assert(_do[2]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[2]["qwerty"] == Test.MyEnum.enum3);
-                TestHelper.Assert(_do[2]["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[2]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(_do[2]["qwerty"] == MyEnum.enum3);
+                TestHelper.Assert(_do[2]["Hello!!"] == MyEnum.enum2);
             }
 
             {
-                var dsi1 = new Dictionary<Test.MyEnum, string>[2];
-                var dsi2 = new Dictionary<Test.MyEnum, string>[1];
+                var dsi1 = new Dictionary<MyEnum, string>[2];
+                var dsi2 = new Dictionary<MyEnum, string>[1];
 
-                var di1 = new Dictionary<Test.MyEnum, string>();
-                di1[Test.MyEnum.enum1] = "abc";
-                var di2 = new Dictionary<Test.MyEnum, string>();
-                di2[Test.MyEnum.enum2] = "Hello!!";
-                di2[Test.MyEnum.enum3] = "qwerty";
-                var di3 = new Dictionary<Test.MyEnum, string>();
-                di3[Test.MyEnum.enum1] = "Goodbye";
+                var di1 = new Dictionary<MyEnum, string>();
+                di1[MyEnum.enum1] = "abc";
+                var di2 = new Dictionary<MyEnum, string>();
+                di2[MyEnum.enum2] = "Hello!!";
+                di2[MyEnum.enum3] = "qwerty";
+                var di3 = new Dictionary<MyEnum, string>();
+                di3[MyEnum.enum1] = "Goodbye";
 
                 dsi1[0] = di1;
                 dsi1[1] = di2;
@@ -1299,40 +1299,40 @@ namespace ZeroC.Ice.operations
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 2);
-                TestHelper.Assert(ro[0][Test.MyEnum.enum2].Equals("Hello!!"));
-                TestHelper.Assert(ro[0][Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(ro[0][MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(ro[0][MyEnum.enum3].Equals("qwerty"));
                 TestHelper.Assert(ro[1].Count == 1);
-                TestHelper.Assert(ro[1][Test.MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(ro[1][MyEnum.enum1].Equals("abc"));
 
                 TestHelper.Assert(_do.Length == 3);
                 TestHelper.Assert(_do[0].Count == 1);
-                TestHelper.Assert(_do[0][Test.MyEnum.enum1].Equals("Goodbye"));
+                TestHelper.Assert(_do[0][MyEnum.enum1].Equals("Goodbye"));
                 TestHelper.Assert(_do[1].Count == 1);
-                TestHelper.Assert(_do[1][Test.MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(_do[1][MyEnum.enum1].Equals("abc"));
                 TestHelper.Assert(_do[2].Count == 2);
-                TestHelper.Assert(_do[2][Test.MyEnum.enum2].Equals("Hello!!"));
-                TestHelper.Assert(_do[2][Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(_do[2][MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(_do[2][MyEnum.enum3].Equals("qwerty"));
             }
 
             {
-                var dsi1 = new Dictionary<Test.MyStruct, Test.MyEnum>[2];
-                var dsi2 = new Dictionary<Test.MyStruct, Test.MyEnum>[1];
+                var dsi1 = new Dictionary<MyStruct, MyEnum>[2];
+                var dsi2 = new Dictionary<MyStruct, MyEnum>[1];
 
-                var s11 = new Test.MyStruct(1, 1);
-                var s12 = new Test.MyStruct(1, 2);
-                var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di1[s11] = Test.MyEnum.enum1;
-                di1[s12] = Test.MyEnum.enum2;
+                var s11 = new MyStruct(1, 1);
+                var s12 = new MyStruct(1, 2);
+                var di1 = new Dictionary<MyStruct, MyEnum>();
+                di1[s11] = MyEnum.enum1;
+                di1[s12] = MyEnum.enum2;
 
-                var s22 = new Test.MyStruct(2, 2);
-                var s23 = new Test.MyStruct(2, 3);
-                var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di2[s11] = Test.MyEnum.enum1;
-                di2[s22] = Test.MyEnum.enum3;
-                di2[s23] = Test.MyEnum.enum2;
+                var s22 = new MyStruct(2, 2);
+                var s23 = new MyStruct(2, 3);
+                var di2 = new Dictionary<MyStruct, MyEnum>();
+                di2[s11] = MyEnum.enum1;
+                di2[s22] = MyEnum.enum3;
+                di2[s23] = MyEnum.enum2;
 
-                var di3 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di3[s23] = Test.MyEnum.enum3;
+                var di3 = new Dictionary<MyStruct, MyEnum>();
+                di3[s23] = MyEnum.enum3;
 
                 dsi1[0] = di1;
                 dsi1[1] = di2;
@@ -1342,23 +1342,23 @@ namespace ZeroC.Ice.operations
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
-                TestHelper.Assert(ro[0][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[0][s22] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[0][s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[0][s11] == MyEnum.enum1);
+                TestHelper.Assert(ro[0][s22] == MyEnum.enum3);
+                TestHelper.Assert(ro[0][s23] == MyEnum.enum2);
                 TestHelper.Assert(ro[1].Count == 2);
-                TestHelper.Assert(ro[1][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[1][s12] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[1][s11] == MyEnum.enum1);
+                TestHelper.Assert(ro[1][s12] == MyEnum.enum2);
 
                 TestHelper.Assert(_do.Length == 3);
                 TestHelper.Assert(_do[0].Count == 1);
-                TestHelper.Assert(_do[0][s23] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[0][s23] == MyEnum.enum3);
                 TestHelper.Assert(_do[1].Count == 2);
-                TestHelper.Assert(_do[1][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[1][s12] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[1][s11] == MyEnum.enum1);
+                TestHelper.Assert(_do[1][s12] == MyEnum.enum2);
                 TestHelper.Assert(_do[2].Count == 3);
-                TestHelper.Assert(_do[2][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[2][s22] == Test.MyEnum.enum3);
-                TestHelper.Assert(_do[2][s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[2][s11] == MyEnum.enum1);
+                TestHelper.Assert(_do[2][s22] == MyEnum.enum3);
+                TestHelper.Assert(_do[2][s23] == MyEnum.enum2);
             }
 
             {
@@ -1704,34 +1704,34 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var sdi1 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
-                var sdi2 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+                var sdi1 = new Dictionary<MyEnum, MyEnum[]>();
+                var sdi2 = new Dictionary<MyEnum, MyEnum[]>();
 
-                var si1 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2 };
-                var si2 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum2 };
-                var si3 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum3 };
+                var si1 = new MyEnum[] { MyEnum.enum1, MyEnum.enum1, MyEnum.enum2 };
+                var si2 = new MyEnum[] { MyEnum.enum1, MyEnum.enum2 };
+                var si3 = new MyEnum[] { MyEnum.enum3, MyEnum.enum3 };
 
-                sdi1[Test.MyEnum.enum3] = si1;
-                sdi1[Test.MyEnum.enum2] = si2;
-                sdi2[Test.MyEnum.enum1] = si3;
+                sdi1[MyEnum.enum3] = si1;
+                sdi1[MyEnum.enum2] = si2;
+                sdi2[MyEnum.enum1] = si3;
 
                 var (ro, _do) = p.opMyEnumMyEnumSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
-                TestHelper.Assert(_do[Test.MyEnum.enum1].Length == 2);
-                TestHelper.Assert(_do[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
-                TestHelper.Assert(_do[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[MyEnum.enum1].Length == 2);
+                TestHelper.Assert(_do[MyEnum.enum1][0] == MyEnum.enum3);
+                TestHelper.Assert(_do[MyEnum.enum1][1] == MyEnum.enum3);
                 TestHelper.Assert(ro.Count == 3);
-                TestHelper.Assert(ro[Test.MyEnum.enum3].Length == 3);
-                TestHelper.Assert(ro[Test.MyEnum.enum3][0] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[Test.MyEnum.enum3][1] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[Test.MyEnum.enum3][2] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro[Test.MyEnum.enum2].Length == 2);
-                TestHelper.Assert(ro[Test.MyEnum.enum2][0] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[Test.MyEnum.enum2][1] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro[Test.MyEnum.enum1].Length == 2);
-                TestHelper.Assert(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro[MyEnum.enum3].Length == 3);
+                TestHelper.Assert(ro[MyEnum.enum3][0] == MyEnum.enum1);
+                TestHelper.Assert(ro[MyEnum.enum3][1] == MyEnum.enum1);
+                TestHelper.Assert(ro[MyEnum.enum3][2] == MyEnum.enum2);
+                TestHelper.Assert(ro[MyEnum.enum2].Length == 2);
+                TestHelper.Assert(ro[MyEnum.enum2][0] == MyEnum.enum1);
+                TestHelper.Assert(ro[MyEnum.enum2][1] == MyEnum.enum2);
+                TestHelper.Assert(ro[MyEnum.enum1].Length == 2);
+                TestHelper.Assert(ro[MyEnum.enum1][0] == MyEnum.enum3);
+                TestHelper.Assert(ro[MyEnum.enum1][1] == MyEnum.enum3);
             }
 
             {
@@ -1784,7 +1784,7 @@ namespace ZeroC.Ice.operations
                 communicator.CurrentContext["two"] = "TWO";
                 communicator.CurrentContext["three"] = "THREE";
 
-                var p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                var p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
                 TestHelper.Assert(p3.opContext().DictionaryEqual(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
@@ -1810,7 +1810,7 @@ namespace ZeroC.Ice.operations
                 TestHelper.Assert(communicator.DefaultContext != prxContext); // it's a copy
                 TestHelper.Assert(communicator.DefaultContext.DictionaryEqual(prxContext));
 
-                p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
 
                 communicator.CurrentContext.Clear();
@@ -1831,7 +1831,7 @@ namespace ZeroC.Ice.operations
                 p.opOneway();
                 TestHelper.Assert(false);
             }
-            catch (Test.SomeException)
+            catch (SomeException)
             {
                 // expected
             }
@@ -1855,27 +1855,27 @@ namespace ZeroC.Ice.operations
                 TestHelper.Assert(p.opStringS2(Array.Empty<string>()).Length == 0);
                 TestHelper.Assert(p.opByteBoolD2(new Dictionary<byte, bool>()).Count == 0);
 
-                var d = Test.IMyDerivedClassPrx.UncheckedCast(p);
-                var s = new Test.MyStruct1();
+                var d = IMyDerivedClassPrx.UncheckedCast(p);
+                var s = new MyStruct1();
                 s.tesT = "MyStruct1.s";
                 s.myClass = null;
                 s.myStruct1 = "MyStruct1.myStruct1";
                 s = d.opMyStruct1(s);
-                TestHelper.Assert(s.tesT.Equals("MyStruct1.s"));
+                TestHelper.Assert(s.Equals("MyStruct1.s"));
                 TestHelper.Assert(s.myClass == null);
                 TestHelper.Assert(s.myStruct1.Equals("MyStruct1.myStruct1"));
-                Test.MyClass1? c = new Test.MyClass1("MyClass1.testT", null, "MyClass1.myClass1");
+                MyClass1? c = new MyClass1("MyClass1.testT", null, "MyClass1.myClass1");
                 c = d.opMyClass1(c);
                 TestHelper.Assert(c != null);
-                TestHelper.Assert(c.tesT.Equals("MyClass1.testT"));
+                TestHelper.Assert(c.Equals("MyClass1.testT"));
                 TestHelper.Assert(c.myClass == null);
                 TestHelper.Assert(c.myClass1.Equals("MyClass1.myClass1"));
             }
 
             {
                 var p1 = p.opMStruct1();
-                p1.e = Test.MyEnum.enum3;
-                Test.Structure p2, p3;
+                p1.e = MyEnum.enum3;
+                Structure p2, p3;
                 (p3, p2) = p.opMStruct2(p1);
                 TestHelper.Assert(p2.Equals(p1) && p3.Equals(p1));
             }

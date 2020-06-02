@@ -6,7 +6,11 @@
 
 #include <Ice/Context.ice>
 
-module ZeroC::Ice::Test::Proxy::AMD
+// 'Test.ice' and 'TestAMD.ice' need to generate code into separate namespaces, but with identical type-ids. So we use
+// the 'cs:namespace' metadata here to place the AMD code into a separate AMD namespace, instead of another module;
+// Which would result in differing type-ids.
+[cs:namespace:ZeroC.Ice.Test.AMD]
+module Proxy
 {
 
 [amd] interface MyClass

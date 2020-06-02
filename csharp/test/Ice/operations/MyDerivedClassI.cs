@@ -7,15 +7,15 @@ using System.Linq;
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.operations
+namespace ZeroC.Ice.Test.Operations
 {
-    public sealed class MyDerivedClass : Test.IMyDerivedClass, IObject
+    public sealed class MyDerivedClass : IMyDerivedClass, IObject
     {
         // Override the Object "pseudo" operations to verify the operation mode.
         public bool IceIsA(string id, Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
+            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
         public void IcePing(Current current) => TestHelper.Assert(current.IsIdempotent);
@@ -23,13 +23,13 @@ namespace ZeroC.Ice.operations
         public IEnumerable<string> IceIds(Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
+            return typeof(IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string IceId(Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(Test.IMyDerivedClass).GetIceTypeId()!;
+            return typeof(IMyDerivedClass).GetIceTypeId()!;
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
@@ -186,13 +186,13 @@ namespace ZeroC.Ice.operations
             return (r, p1);
         }
 
-        public (Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?) opMyClass(Test.IMyClassPrx? p1,
+        public (IMyClassPrx?, IMyClassPrx?, IMyClassPrx?) opMyClass(IMyClassPrx? p1,
             Current current) =>
-            (current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory),
+            (current.Adapter.CreateProxy(current.Identity, IMyClassPrx.Factory),
             p1,
-            current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory));
+            current.Adapter.CreateProxy("noSuchIdentity", IMyClassPrx.Factory));
 
-        public (Test.MyEnum, Test.MyEnum) opMyEnum(Test.MyEnum p1, Current current) => (Test.MyEnum.enum3, p1);
+        public (MyEnum, MyEnum) opMyEnum(MyEnum p1, Current current) => (MyEnum.enum3, p1);
 
         public (IReadOnlyDictionary<short, int>, IReadOnlyDictionary<short, int>) opShortIntD(Dictionary<short, int> p1,
             Dictionary<short, int> p2, Current current)
@@ -334,25 +334,25 @@ namespace ZeroC.Ice.operations
 
         public (string, string) opString(string p1, string p2, Current current) => (p1 + " " + p2, p2 + " " + p1);
 
-        public (IReadOnlyDictionary<string, Test.MyEnum>, IReadOnlyDictionary<string, Test.MyEnum>) opStringMyEnumD(
-            Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
+        public (IReadOnlyDictionary<string, MyEnum>, IReadOnlyDictionary<string, MyEnum>) opStringMyEnumD(
+            Dictionary<string, MyEnum> p1, Dictionary<string, MyEnum> p2, Current current)
         {
-            var r = new Dictionary<string, Test.MyEnum>();
-            foreach (KeyValuePair<string, Test.MyEnum> e in p1)
+            var r = new Dictionary<string, MyEnum>();
+            foreach (KeyValuePair<string, MyEnum> e in p1)
             {
                 r[e.Key] = e.Value;
             }
-            foreach (KeyValuePair<string, Test.MyEnum> e in p2)
+            foreach (KeyValuePair<string, MyEnum> e in p2)
             {
                 r[e.Key] = e.Value;
             }
             return (r, p1);
         }
 
-        public (IReadOnlyDictionary<Test.MyEnum, string>, IReadOnlyDictionary<Test.MyEnum, string>) opMyEnumStringD(
-            Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
+        public (IReadOnlyDictionary<MyEnum, string>, IReadOnlyDictionary<MyEnum, string>) opMyEnumStringD(
+            Dictionary<MyEnum, string> p1, Dictionary<MyEnum, string> p2, Current current)
         {
-            var r = new Dictionary<Test.MyEnum, string>();
+            var r = new Dictionary<MyEnum, string>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
@@ -364,11 +364,11 @@ namespace ZeroC.Ice.operations
             return (r, p1);
         }
 
-        public (IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>, IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>)
-        opMyStructMyEnumD(Dictionary<Test.MyStruct, Test.MyEnum> p1, Dictionary<Test.MyStruct, Test.MyEnum> p2,
+        public (IReadOnlyDictionary<MyStruct, MyEnum>, IReadOnlyDictionary<MyStruct, MyEnum>)
+        opMyStructMyEnumD(Dictionary<MyStruct, MyEnum> p1, Dictionary<MyStruct, MyEnum> p2,
             Current current)
         {
-            var r = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            var r = new Dictionary<MyStruct, MyEnum>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
@@ -470,14 +470,14 @@ namespace ZeroC.Ice.operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<string, Test.MyEnum>>, IEnumerable<Dictionary<string, Test.MyEnum>>)
-        opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Current current)
+        public (IEnumerable<Dictionary<string, MyEnum>>, IEnumerable<Dictionary<string, MyEnum>>)
+        opStringMyEnumDS(Dictionary<string, MyEnum>[] p1, Dictionary<string, MyEnum>[] p2, Current current)
         {
-            var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
+            var p3 = new Dictionary<string, MyEnum>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-            var r = new Dictionary<string, Test.MyEnum>[p1.Length];
+            var r = new Dictionary<string, MyEnum>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -485,16 +485,16 @@ namespace ZeroC.Ice.operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<Test.MyEnum, string>>, IEnumerable<Dictionary<Test.MyEnum, string>>)
-        opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] p1,
-                         Dictionary<Test.MyEnum, string>[] p2,
+        public (IEnumerable<Dictionary<MyEnum, string>>, IEnumerable<Dictionary<MyEnum, string>>)
+        opMyEnumStringDS(Dictionary<MyEnum, string>[] p1,
+                         Dictionary<MyEnum, string>[] p2,
                             Current current)
         {
-            var p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
+            var p3 = new Dictionary<MyEnum, string>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-            var r = new Dictionary<Test.MyEnum, string>[p1.Length];
+            var r = new Dictionary<MyEnum, string>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -502,17 +502,17 @@ namespace ZeroC.Ice.operations
             return (r, p3);
         }
 
-        public (IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>,
-                IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>)
-        opMyStructMyEnumDS(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
-            Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
+        public (IEnumerable<Dictionary<MyStruct, MyEnum>>,
+                IEnumerable<Dictionary<MyStruct, MyEnum>>)
+        opMyStructMyEnumDS(Dictionary<MyStruct, MyEnum>[] p1,
+            Dictionary<MyStruct, MyEnum>[] p2,
             Current current)
         {
-            var p3 = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length + p2.Length];
+            var p3 = new Dictionary<MyStruct, MyEnum>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-            var r = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length];
+            var r = new Dictionary<MyStruct, MyEnum>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -690,13 +690,13 @@ namespace ZeroC.Ice.operations
             return (r, p2);
         }
 
-        public (IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>, IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>)
+        public (IReadOnlyDictionary<MyEnum, MyEnum[]>, IReadOnlyDictionary<MyEnum, MyEnum[]>)
         opMyEnumMyEnumSD(
-            Dictionary<Test.MyEnum, Test.MyEnum[]> p1,
-            Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
+            Dictionary<MyEnum, MyEnum[]> p1,
+            Dictionary<MyEnum, MyEnum[]> p2,
             Current ice)
         {
-            var r = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+            var r = new Dictionary<MyEnum, MyEnum[]>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
@@ -810,7 +810,7 @@ namespace ZeroC.Ice.operations
             return (r, p3);
         }
 
-        public (Test.Structure, Test.Structure) opStruct(Test.Structure p1, Test.Structure p2, Current current)
+        public (Structure, Structure) opStruct(Structure p1, Structure p2, Current current)
         {
             var p3 = p1;
             p3.s.s = "a new string";
@@ -820,10 +820,10 @@ namespace ZeroC.Ice.operations
         public void opIdempotent(Current current) => TestHelper.Assert(current.IsIdempotent);
 
         // "return" exception when called two-way, otherwise succeeds.
-        public void opOneway(Current current) => throw new Test.SomeException();
+        public void opOneway(Current current) => throw new SomeException();
 
         // "return" exception when called two-way, otherwise succeeds.
-        public void opOnewayMetadata(Current current) => throw new Test.SomeException();
+        public void opOnewayMetadata(Current current) => throw new SomeException();
 
         public void opDerived(Current current)
         {
@@ -856,71 +856,71 @@ namespace ZeroC.Ice.operations
         public IReadOnlyDictionary<byte, bool> opByteBoolD2(Dictionary<byte, bool> opByteBoolD2, Current current) =>
             opByteBoolD2;
 
-        public Test.MyClass1? opMyClass1(Test.MyClass1? c, Current current) => c;
+        public MyClass1? opMyClass1(MyClass1? c, Current current) => c;
 
-        public Test.MyStruct1 opMyStruct1(Test.MyStruct1 s, Current current) => s;
+        public MyStruct1 opMyStruct1(MyStruct1 s, Current current) => s;
 
         public IEnumerable<string> opStringLiterals(Current current)
         {
             return new string[]
                 {
-                        Test.Constants.s0,
-                        Test.Constants.s1,
-                        Test.Constants.s2,
-                        Test.Constants.s3,
-                        Test.Constants.s4,
-                        Test.Constants.s5,
-                        Test.Constants.s6,
-                        Test.Constants.s7,
-                        Test.Constants.s8,
-                        Test.Constants.s9,
-                        Test.Constants.s10,
+                        Constants.s0,
+                        Constants.s1,
+                        Constants.s2,
+                        Constants.s3,
+                        Constants.s4,
+                        Constants.s5,
+                        Constants.s6,
+                        Constants.s7,
+                        Constants.s8,
+                        Constants.s9,
+                        Constants.s10,
 
-                        Test.Constants.sw0,
-                        Test.Constants.sw1,
-                        Test.Constants.sw2,
-                        Test.Constants.sw3,
-                        Test.Constants.sw4,
-                        Test.Constants.sw5,
-                        Test.Constants.sw6,
-                        Test.Constants.sw7,
-                        Test.Constants.sw8,
-                        Test.Constants.sw9,
-                        Test.Constants.sw10,
+                        Constants.sw0,
+                        Constants.sw1,
+                        Constants.sw2,
+                        Constants.sw3,
+                        Constants.sw4,
+                        Constants.sw5,
+                        Constants.sw6,
+                        Constants.sw7,
+                        Constants.sw8,
+                        Constants.sw9,
+                        Constants.sw10,
 
-                        Test.Constants.ss0,
-                        Test.Constants.ss1,
-                        Test.Constants.ss2,
-                        Test.Constants.ss3,
-                        Test.Constants.ss4,
-                        Test.Constants.ss5,
+                        Constants.ss0,
+                        Constants.ss1,
+                        Constants.ss2,
+                        Constants.ss3,
+                        Constants.ss4,
+                        Constants.ss5,
 
-                        Test.Constants.su0,
-                        Test.Constants.su1,
-                        Test.Constants.su2
+                        Constants.su0,
+                        Constants.su1,
+                        Constants.su2
                 };
         }
 
         public IEnumerable<string> opWStringLiterals(Current current) => opStringLiterals(current);
 
-        public Test.IMyClass.OpMStruct1MarshaledReturnValue opMStruct1(Current current) =>
-            new Test.IMyClass.OpMStruct1MarshaledReturnValue(
-                new Test.Structure(null, Test.MyEnum.enum1, new Test.AnotherStruct("")), current);
+        public IMyClass.OpMStruct1MarshaledReturnValue opMStruct1(Current current) =>
+            new IMyClass.OpMStruct1MarshaledReturnValue(
+                new Structure(null, MyEnum.enum1, new AnotherStruct("")), current);
 
-        public Test.IMyClass.OpMStruct2MarshaledReturnValue opMStruct2(Test.Structure p1, Current current) =>
-            new Test.IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);
+        public IMyClass.OpMStruct2MarshaledReturnValue opMStruct2(Structure p1, Current current) =>
+            new IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);
 
-        public Test.IMyClass.OpMSeq1MarshaledReturnValue opMSeq1(Current current) =>
-            new Test.IMyClass.OpMSeq1MarshaledReturnValue(new string[0], current);
+        public IMyClass.OpMSeq1MarshaledReturnValue opMSeq1(Current current) =>
+            new IMyClass.OpMSeq1MarshaledReturnValue(new string[0], current);
 
-        public Test.IMyClass.OpMSeq2MarshaledReturnValue opMSeq2(string[] p1, Current current) =>
-            new Test.IMyClass.OpMSeq2MarshaledReturnValue(p1, p1, current);
+        public IMyClass.OpMSeq2MarshaledReturnValue opMSeq2(string[] p1, Current current) =>
+            new IMyClass.OpMSeq2MarshaledReturnValue(p1, p1, current);
 
-        public Test.IMyClass.OpMDict1MarshaledReturnValue opMDict1(Current current) =>
-            new Test.IMyClass.OpMDict1MarshaledReturnValue(new Dictionary<string, string>(), current);
+        public IMyClass.OpMDict1MarshaledReturnValue opMDict1(Current current) =>
+            new IMyClass.OpMDict1MarshaledReturnValue(new Dictionary<string, string>(), current);
 
-        public Test.IMyClass.OpMDict2MarshaledReturnValue opMDict2(Dictionary<string, string> p1, Current current) =>
-            new Test.IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
+        public IMyClass.OpMDict2MarshaledReturnValue opMDict2(Dictionary<string, string> p1, Current current) =>
+            new IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
 
         private int _opByteSOnewayCallCount = 0;
     }
