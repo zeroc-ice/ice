@@ -1146,7 +1146,7 @@ namespace ZeroC.Ice
         public void IceAddEndpointFactory(IEndpointFactory factory)
         {
             _typeToEndpointFactory.Add(factory.Type, factory);
-            _transportToEndpointFactory.Add(factory.Transport, factory);
+            _transportToEndpointFactory.Add(factory.Name, factory);
         }
 
         internal int CheckRetryAfterException(System.Exception ex, Reference reference, ref int cnt)

@@ -25,7 +25,6 @@ namespace ZeroC.Ice
 
         public override int Timeout => -1;
         public override EndpointType Type { get; }
-        public override string Transport => "";
 
         private int _hashCode = 0; // 0 is a special value that means not initialized.
 

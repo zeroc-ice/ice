@@ -61,8 +61,6 @@ namespace ZeroC.Ice
 
         /// <summary>The <see cref="EndpointType">type</see> of this endpoint.</summary>
         public abstract EndpointType Type { get; }
-        /// <summary>The endpoint's transport unique name.</summary>
-        public abstract string Transport { get; }
 
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {

@@ -17,7 +17,6 @@ internal class Endpoint : ZeroC.Ice.Endpoint
     public override bool IsDatagram => _endpoint.IsDatagram;
 
     public override bool IsSecure => _endpoint.IsSecure;
-    public override string Name => _endpoint.Name;
 
     public override int Timeout => _endpoint.Timeout;
     public override EndpointType Type => (EndpointType)(TYPE_BASE + (short)_endpoint.Type);
@@ -41,8 +40,6 @@ internal class Endpoint : ZeroC.Ice.Endpoint
             return false;
         }
     }
-
-    public override string Transport => $"test-{_endpoint.Transport}";
 
     public override int GetHashCode() => _endpoint.GetHashCode();
 

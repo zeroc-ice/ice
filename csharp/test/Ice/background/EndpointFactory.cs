@@ -13,7 +13,7 @@ internal class EndpointFactory : IEndpointFactory
 
     public EndpointType Type => (EndpointType)(Endpoint.TYPE_BASE + (short)_factory.Type);
 
-    public string Transport => "test-" + _factory.Transport;
+    public string Name => "test-" + _factory.Name;
 
     public ZeroC.Ice.Endpoint Create(string endpointString, Dictionary<string, string?> options, bool server) =>
         new Endpoint(_factory.Create(endpointString, options, server)!);

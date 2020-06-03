@@ -12,7 +12,6 @@ namespace ZeroC.Ice
     {
         public override bool IsSecure => true;
         public override EndpointType Type => EndpointType.SSL;
-        public override string Transport => "ssl";
 
         private protected SslEngine SslEngine { get; }
 
@@ -61,7 +60,7 @@ namespace ZeroC.Ice
     internal sealed class SslEndpointFactory : IEndpointFactory
     {
         public EndpointType Type => EndpointType.SSL;
-        public string Transport => "ssl";
+        public string Name => "ssl";
 
         private SslEngine SslEngine { get; }
         private Communicator Communicator { get; }

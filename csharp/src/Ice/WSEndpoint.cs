@@ -15,7 +15,6 @@ namespace ZeroC.Ice
         /// GET in the WebSocket upgrade request.</summary>
         public string Resource { get; }
         public override EndpointType Type => EndpointType.WS;
-        public override string Transport => "ws";
 
         public override bool Equals(Endpoint? other)
         {
@@ -107,7 +106,6 @@ namespace ZeroC.Ice
         // TODO: better description
         public string Resource { get; }
         public override EndpointType Type => EndpointType.WSS;
-        public override string Transport => "wss";
 
         public override bool Equals(Endpoint? other)
         {
@@ -199,7 +197,7 @@ namespace ZeroC.Ice
         private Communicator Communicator { get; }
         internal WSEndpointFactory(Communicator communicator) => Communicator = communicator;
 
-        public string Transport => "ws";
+        public string Name => "ws";
         public EndpointType Type => EndpointType.WS;
 
         public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
@@ -217,7 +215,7 @@ namespace ZeroC.Ice
             SslEngine = engine;
         }
 
-        public string Transport => "wss";
+        public string Name => "wss";
         public EndpointType Type => EndpointType.WSS;
 
         public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>

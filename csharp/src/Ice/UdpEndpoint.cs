@@ -24,7 +24,6 @@ namespace ZeroC.Ice
         public int McastTtl { get; } = -1;
 
         public override int Timeout => -1;
-        public override string Transport => "udp";
         public override EndpointType Type => EndpointType.UDP;
 
         private readonly bool _connect;
@@ -136,7 +135,7 @@ namespace ZeroC.Ice
         public override IAcceptor? GetAcceptor(string adapterName) => null;
 
         public override ITransceiver GetTransceiver() =>
-            new UdpTransceiver(this, Communicator, Transport, Host, Port, McastInterface, _connect);
+            new UdpTransceiver(this, Communicator, Name, Host, Port, McastInterface, _connect);
 
         internal UdpEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress,
             string mcastInterface, int mttl, bool connect, string connectionId, bool compressionFlag)
@@ -222,7 +221,7 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Communicator, Transport, Type, addr, SourceAddress, McastInterface, McastTtl,
+            new UdpConnector(Communicator, Name, Type, addr, SourceAddress, McastInterface, McastTtl,
                 ConnectionId);
 
         private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
@@ -233,7 +232,7 @@ namespace ZeroC.Ice
 
     internal sealed class UdpEndpointFactory : IEndpointFactory
     {
-        public string Transport => "udp";
+        public string Name => "udp";
         public EndpointType Type => EndpointType.UDP;
 
         private Communicator Communicator { get; }

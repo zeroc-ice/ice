@@ -17,8 +17,6 @@ namespace ZeroC.Ice
         public override bool IsDatagram => false;
         public override bool HasCompressionFlag { get; }
         public override int Timeout { get; }
-
-        public override string Transport => "tcp";
         public override EndpointType Type => EndpointType.TCP;
 
         private int _hashCode = 0;
@@ -103,7 +101,7 @@ namespace ZeroC.Ice
             timeout == Timeout ? this : CreateEndpoint(Host, Port, ConnectionId, HasCompressionFlag, timeout);
 
         public override IAcceptor GetAcceptor(string adapterName) =>
-            new TcpAcceptor(this, Communicator, Transport, Host, Port, adapterName);
+            new TcpAcceptor(this, Communicator, Name, Host, Port, adapterName);
         public override ITransceiver? GetTransceiver() => null;
 
         internal TcpEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress, int timeout,
@@ -169,7 +167,7 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(this, Communicator, Transport, Type, addr, proxy, SourceAddress, Timeout, ConnectionId);
+            new TcpConnector(this, Communicator, Name, Type, addr, proxy, SourceAddress, Timeout, ConnectionId);
         private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
             bool compressionFlag, int timeout) =>
             new TcpEndpoint(Communicator, host, port, SourceAddress, timeout, connectionId, compressionFlag);
@@ -184,7 +182,7 @@ namespace ZeroC.Ice
     internal sealed class TcpEndpointFactory : IEndpointFactory
     {
         public EndpointType Type => EndpointType.TCP;
-        public string Transport => "tcp";
+        public string Name => "tcp";
 
         private Communicator Communicator { get; }
 
