@@ -916,7 +916,7 @@ namespace ZeroC.Ice
             (int size, Encoding encoding) = ReadEncapsulationHeader();
 
             Endpoint endpoint;
-            if (encoding.IsSupported && Communicator.FindEndpointFactory(type) is IEndpointFactory factory)
+            if (encoding.IsSupported && Communicator.IceFindEndpointFactory(type) is IEndpointFactory factory)
             {
                 Encoding oldEncoding = Encoding;
                 ArraySegment<byte> oldBuffer = _buffer;

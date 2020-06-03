@@ -9,17 +9,30 @@ namespace ZeroC.Ice
     internal sealed class TcpConnector : IConnector
     {
         public ITransceiver Connect() =>
-            new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
+            _endpoint.CreateTransceiver(Transport,
+                new StreamSocket(_communicator, _proxy, _addr, _sourceAddr), null);
 
-        public EndpointType Type() => _instance.Type;
+        public EndpointType Type { get; }
+        public string Transport { get; }
 
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(TransportInstance instance, EndPoint addr, INetworkProxy? proxy, IPAddress? sourceAddr,
-                              int timeout, string connectionId)
+        internal TcpConnector(
+            TcpEndpoint endpoint,
+            Communicator communicator,
+            string transport,
+            EndpointType type,
+            EndPoint addr,
+            INetworkProxy? proxy,
+            IPAddress? sourceAddr,
+            int timeout,
+            string connectionId)
         {
-            _instance = instance;
+            _endpoint = endpoint;
+            _communicator = communicator;
+            Transport = transport;
+            Type = type;
             _addr = addr;
             _proxy = proxy;
             _sourceAddr = sourceAddr;
@@ -65,6 +78,11 @@ namespace ZeroC.Ice
                 return false;
             }
 
+            if (!_endpoint.Equals(p._endpoint))
+            {
+                return false;
+            }
+
             return _addr.Equals(p._addr);
         }
 
@@ -72,7 +90,8 @@ namespace ZeroC.Ice
 
         public override int GetHashCode() => _hashCode;
 
-        private readonly TransportInstance _instance;
+        private readonly TcpEndpoint _endpoint;
+        private readonly Communicator _communicator;
         private readonly EndPoint _addr;
         private readonly INetworkProxy? _proxy;
         private readonly IPAddress? _sourceAddr;

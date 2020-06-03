@@ -71,16 +71,16 @@ namespace ZeroC.Ice
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            _instance.VerifyPeer((SslConnectionInfo)GetInfo(), ToString());
+            _engine.VerifyPeer((SslConnectionInfo)GetInfo(), ToString());
 
-            if (_instance.SecurityTraceLevel() >= 1)
+            if (_engine.SecurityTraceLevel() >= 1)
             {
-                _instance.TraceStream(_sslStream, ToString());
+                _engine.TraceStream(_sslStream, ToString());
             }
             return SocketOperation.None;
         }
 
-        public int Closing(bool initiator, System.Exception? ex) => _delegate.Closing(initiator, ex);
+        public int Closing(bool initiator, Exception? ex) => _delegate.Closing(initiator, ex);
 
         public void Close()
         {
@@ -289,7 +289,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public string Transport() => _delegate.Transport();
+        public string Transport => _delegate.Transport;
 
         public ConnectionInfo GetInfo()
         {
@@ -314,9 +314,11 @@ namespace ZeroC.Ice
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal SslTransceiver(SslInstance instance, ITransceiver del, string hostOrAdapterName, bool incoming)
+        internal SslTransceiver(Communicator communicator, SslEngine engine, ITransceiver del,
+            string hostOrAdapterName, bool incoming)
         {
-            _instance = instance;
+            _communicator = communicator;
+            _engine = engine;
             _delegate = del;
             _incoming = incoming;
             if (_incoming)
@@ -330,7 +332,7 @@ namespace ZeroC.Ice
 
             _sslStream = null;
 
-            _verifyPeer = _instance.Communicator.GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
+            _verifyPeer = _communicator.GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
         }
 
         private bool StartAuthenticate(AsyncCallback callback, object state)
@@ -345,9 +347,9 @@ namespace ZeroC.Ice
                     // Client authentication.
                     //
                     _writeResult = _sslStream.BeginAuthenticateAsClient(_host,
-                                                                        _instance.Certs(),
-                                                                        _instance.Protocols(),
-                                                                        _instance.CheckCRL() > 0,
+                                                                        _engine.Certs(),
+                                                                        _engine.Protocols(),
+                                                                        _engine.CheckCRL() > 0,
                                                                         WriteCompleted,
                                                                         state);
                 }
@@ -358,7 +360,7 @@ namespace ZeroC.Ice
                     //
                     // Get the certificate collection and select the first one.
                     //
-                    X509Certificate2Collection? certs = _instance.Certs();
+                    X509Certificate2Collection? certs = _engine.Certs();
                     X509Certificate2? cert = null;
                     if (certs != null && certs.Count > 0)
                     {
@@ -367,8 +369,8 @@ namespace ZeroC.Ice
 
                     _writeResult = _sslStream.BeginAuthenticateAsServer(cert,
                                                                         _verifyPeer > 0,
-                                                                        _instance.Protocols(),
-                                                                        _instance.CheckCRL() > 0,
+                                                                        _engine.Protocols(),
+                                                                        _engine.CheckCRL() > 0,
                                                                         WriteCompleted,
                                                                         state);
                 }
@@ -462,15 +464,15 @@ namespace ZeroC.Ice
         private bool ValidationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
                                         SslPolicyErrors policyErrors)
         {
-            var chain = new X509Chain(_instance.Engine().UseMachineContext());
+            var chain = new X509Chain(_engine.UseMachineContext());
             try
             {
-                if (_instance.CheckCRL() == 0)
+                if (_engine.CheckCRL() == 0)
                 {
                     chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
                 }
 
-                X509Certificate2Collection? caCerts = _instance.Engine().CaCerts();
+                X509Certificate2Collection? caCerts = _engine.CaCerts();
                 if (caCerts != null)
                 {
                     //
@@ -492,7 +494,7 @@ namespace ZeroC.Ice
                     {
                         errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
-                    else if (_instance.Engine().CaCerts() != null)
+                    else if (_engine.CaCerts() != null)
                     {
                         X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
                         if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
@@ -534,9 +536,9 @@ namespace ZeroC.Ice
                     {
                         if (_verifyPeer > 1)
                         {
-                            if (_instance.SecurityTraceLevel() >= 1)
+                            if (_engine.SecurityTraceLevel() >= 1)
                             {
-                                _instance.Logger.Trace(_instance.SecurityTraceCategory(),
+                                _communicator.Logger.Trace(_engine.SecurityTraceCategory(),
                                     "SSL certificate validation failed - client certificate not provided");
                             }
                             return false;
@@ -549,16 +551,16 @@ namespace ZeroC.Ice
                 bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
                 if (certificateNameMismatch)
                 {
-                    if (_instance.Engine().GetCheckCertName() && !string.IsNullOrEmpty(_host))
+                    if (_engine.GetCheckCertName() && !string.IsNullOrEmpty(_host))
                     {
-                        if (_instance.SecurityTraceLevel() >= 1)
+                        if (_engine.SecurityTraceLevel() >= 1)
                         {
                             string msg = "SSL certificate validation failed - Hostname mismatch";
                             if (_verifyPeer == 0)
                             {
                                 msg += " (ignored)";
                             }
-                            _instance.Logger.Trace(_instance.SecurityTraceCategory(), msg);
+                            _communicator.Logger.Trace(_engine.SecurityTraceCategory(), msg);
                         }
 
                         if (_verifyPeer > 0)
@@ -583,7 +585,7 @@ namespace ZeroC.Ice
                     int errorCount = 0;
                     foreach (X509ChainStatus status in chain.ChainStatus)
                     {
-                        if (status.Status == X509ChainStatusFlags.UntrustedRoot && _instance.Engine().CaCerts() != null)
+                        if (status.Status == X509ChainStatusFlags.UntrustedRoot && _engine.CaCerts() != null)
                         {
                             //
                             // Untrusted root is OK when using our custom chain engine if
@@ -609,7 +611,7 @@ namespace ZeroC.Ice
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)
                         {
-                            if (_instance.CheckCRL() > 0)
+                            if (_engine.CheckCRL() > 0)
                             {
                                 message += "\ncertificate revoked";
                                 ++errorCount;
@@ -625,7 +627,7 @@ namespace ZeroC.Ice
                             // If a certificate's revocation status cannot be determined, the strictest
                             // policy is to reject the connection.
                             //
-                            if (_instance.CheckCRL() > 1)
+                            if (_engine.CheckCRL() > 1)
                             {
                                 message += "\ncertificate revocation status unknown";
                                 ++errorCount;
@@ -662,23 +664,24 @@ namespace ZeroC.Ice
 
                 if (errors > 0)
                 {
-                    if (_instance.SecurityTraceLevel() >= 1)
+                    if (_engine.SecurityTraceLevel() >= 1)
                     {
                         if (message.Length > 0)
                         {
-                            _instance.Logger.Trace(_instance.SecurityTraceCategory(),
+                            _communicator.Logger.Trace(_engine.SecurityTraceCategory(),
                                 $"SSL certificate validation failed:{message}");
                         }
                         else
                         {
-                            _instance.Logger.Trace(_instance.SecurityTraceCategory(), "SSL certificate validation failed");
+                            _communicator.Logger.Trace(_engine.SecurityTraceCategory(), "SSL certificate validation failed");
                         }
                     }
                     return false;
                 }
-                else if (message.Length > 0 && _instance.SecurityTraceLevel() >= 1)
+                else if (message.Length > 0 && _engine.SecurityTraceLevel() >= 1)
                 {
-                    _instance.Logger.Trace(_instance.SecurityTraceCategory(), $"SSL certificate validation status:{message}");
+                    _communicator.Logger.Trace(_engine.SecurityTraceCategory(),
+                        $"SSL certificate validation status:{message}");
                 }
                 return true;
             }
@@ -725,7 +728,8 @@ namespace ZeroC.Ice
 
         public int GetRecvPacketSize(int length) => _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
 
-        private readonly SslInstance _instance;
+        private readonly Communicator _communicator;
+        private readonly SslEngine _engine;
         private readonly ITransceiver _delegate;
         private readonly string? _host;
         private readonly string? _adapterName;

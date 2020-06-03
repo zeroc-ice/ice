@@ -300,7 +300,7 @@ namespace ZeroC.Ice
             }
         }
 
-        string Transport();
+        string Transport { get; }
         string ToDetailedString();
         ConnectionInfo GetInfo();
         void CheckSendSize(int size);

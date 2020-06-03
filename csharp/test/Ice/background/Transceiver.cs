@@ -174,7 +174,7 @@ internal class Transceiver : ITransceiver
         _transceiver.FinishWrite(buf, ref offset);
     }
 
-    public string Transport() => "test-" + _transceiver.Transport();
+    public string Transport => "test-" + _transceiver.Transport;
 
     public ConnectionInfo GetInfo() => _transceiver.GetInfo();
 

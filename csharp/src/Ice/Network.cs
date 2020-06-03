@@ -899,7 +899,7 @@ namespace ZeroC.Ice
         }
 
         public static void
-        SetTcpBufSize(Socket socket, TransportInstance instance)
+        SetTcpBufSize(Socket socket, Communicator communicator)
         {
             //
             // By default, on Windows we use a 128KB buffer size. On Unix
@@ -910,13 +910,13 @@ namespace ZeroC.Ice
             {
                 dfltBufSize = 128 * 1024;
             }
-            int rcvSize = instance.Communicator.GetPropertyAsInt("Ice.TCP.RcvSize") ?? dfltBufSize;
-            int sndSize = instance.Communicator.GetPropertyAsInt("Ice.TCP.SndSize") ?? dfltBufSize;
-            SetTcpBufSize(socket, rcvSize, sndSize, instance);
+            int rcvSize = communicator.GetPropertyAsInt("Ice.TCP.RcvSize") ?? dfltBufSize;
+            int sndSize = communicator.GetPropertyAsInt("Ice.TCP.SndSize") ?? dfltBufSize;
+            SetTcpBufSize(socket, rcvSize, sndSize, communicator);
         }
 
         public static void
-        SetTcpBufSize(Socket socket, int rcvSize, int sndSize, TransportInstance instance)
+        SetTcpBufSize(Socket socket, int rcvSize, int sndSize, Communicator communicator)
         {
             if (rcvSize > 0)
             {
@@ -931,12 +931,12 @@ namespace ZeroC.Ice
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    BufSizeWarnInfo winfo = instance.GetBufSizeWarn(EndpointType.TCP);
+                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(EndpointType.TCP);
                     if (!winfo.RcvWarn || rcvSize != winfo.RcvSize)
                     {
-                        instance.Logger.Warning(
+                        communicator.Logger.Warning(
                             $"TCP receive buffer size: requested size of {rcvSize} adjusted to {size}");
-                        instance.SetRcvBufSizeWarn(EndpointType.TCP, rcvSize);
+                        communicator.SetRcvBufSizeWarn(EndpointType.TCP, rcvSize);
                     }
                 }
             }
@@ -954,12 +954,12 @@ namespace ZeroC.Ice
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    BufSizeWarnInfo winfo = instance.GetBufSizeWarn(EndpointType.TCP);
+                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(EndpointType.TCP);
                     if (!winfo.SndWarn || sndSize != winfo.SndSize)
                     {
-                        instance.Logger.Warning(
+                        communicator.Logger.Warning(
                             $"TCP send buffer size: requested size of {sndSize} adjusted to {size}");
-                        instance.SetSndBufSizeWarn(EndpointType.TCP, sndSize);
+                        communicator.SetSndBufSizeWarn(EndpointType.TCP, sndSize);
                     }
                 }
             }

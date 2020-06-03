@@ -572,14 +572,9 @@ namespace ZeroC.Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
-                AddEndpointFactory(new TcpEndpointFactory(
-                    new TransportInstance(this, EndpointType.TCP, "tcp", false)));
-                AddEndpointFactory(new UdpEndpointFactory(
-                    new TransportInstance(this, EndpointType.UDP, "udp", false)));
-                AddEndpointFactory(new WSEndpointFactory(
-                    new TransportInstance(this, EndpointType.WS, "ws", false), EndpointType.TCP));
-                AddEndpointFactory(new WSEndpointFactory(
-                    new TransportInstance(this, EndpointType.WSS, "wss", true), EndpointType.SSL));
+                IceAddEndpointFactory(new TcpEndpointFactory(this));
+                IceAddEndpointFactory(new UdpEndpointFactory(this));
+                IceAddEndpointFactory(new WSEndpointFactory(this));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -592,13 +587,6 @@ namespace ZeroC.Ice
                 // Load plug-ins.
                 //
                 LoadPlugins(ref args);
-
-                // Initialize the endpoint factories once all the plugins are loaded. This gives the opportunity for the
-                // endpoint factories to find underlying factories.
-                foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
-                {
-                    factory.Initialize();
-                }
 
                 //
                 // Create Admin facets, if enabled.
@@ -928,10 +916,6 @@ namespace ZeroC.Ice
                 _locatorTableMap.Clear();
             }
 
-            foreach (IEndpointFactory factory in _typeToEndpointFactory.Values)
-            {
-                factory.Destroy();
-            }
             _typeToEndpointFactory.Clear();
             _transportToEndpointFactory.Clear();
 
@@ -1159,11 +1143,10 @@ namespace ZeroC.Ice
         }
 
         // Registers an endpoint factory.
-        // TODO: make public and add Ice prefix when removing ITransportPluginFacade.
-        internal void AddEndpointFactory(IEndpointFactory factory)
+        public void IceAddEndpointFactory(IEndpointFactory factory)
         {
-            _typeToEndpointFactory.Add(factory.Type(), factory);
-            _transportToEndpointFactory.Add(factory.Transport(), factory);
+            _typeToEndpointFactory.Add(factory.Type, factory);
+            _transportToEndpointFactory.Add(factory.Name, factory);
         }
 
         internal int CheckRetryAfterException(System.Exception ex, Reference reference, ref int cnt)
@@ -1288,12 +1271,12 @@ namespace ZeroC.Ice
             return interval;
         }
 
-        // Finds an endpoint factory previously registered using AddEndpointFactory.
-        internal IEndpointFactory? FindEndpointFactory(string transport) =>
+        // Finds an endpoint factory previously registered using IceAddEndpointFactory.
+        public IEndpointFactory? IceFindEndpointFactory(string transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
-         // Finds an endpoint factory previously registered using AddEndpointFactory.
-        internal IEndpointFactory? FindEndpointFactory(EndpointType type) =>
+        // Finds an endpoint factory previously registered using IceAddEndpointFactory.
+        public IEndpointFactory? IceFindEndpointFactory(EndpointType type) =>
             _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
 
         internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)

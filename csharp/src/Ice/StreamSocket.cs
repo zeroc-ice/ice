@@ -12,9 +12,9 @@ namespace ZeroC.Ice
 {
     internal sealed class StreamSocket
     {
-        public StreamSocket(TransportInstance instance, INetworkProxy? proxy, EndPoint addr, IPAddress? sourceAddr)
+        public StreamSocket(Communicator communicator, INetworkProxy? proxy, EndPoint addr, IPAddress? sourceAddr)
         {
-            _instance = instance;
+            _communicator = communicator;
             _proxy = proxy;
             _addr = addr;
             _sourceAddr = sourceAddr;
@@ -22,7 +22,7 @@ namespace ZeroC.Ice
             _state = StateNeedConnect;
 
             Network.SetBlock(_fd, false);
-            Network.SetTcpBufSize(_fd, _instance);
+            Network.SetTcpBufSize(_fd, _communicator);
 
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
@@ -41,9 +41,9 @@ namespace ZeroC.Ice
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));
         }
 
-        public StreamSocket(TransportInstance instance, Socket fd)
+        public StreamSocket(Communicator communicator, Socket fd)
         {
-            _instance = instance;
+            _communicator = communicator;
             _fd = fd;
             _state = StateConnected;
 
@@ -58,7 +58,7 @@ namespace ZeroC.Ice
             }
 
             Network.SetBlock(_fd, false);
-            Network.SetTcpBufSize(_fd, _instance);
+            Network.SetTcpBufSize(_fd, _communicator);
 
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(IoCompleted);
@@ -148,7 +148,7 @@ namespace ZeroC.Ice
         public void SetBufferSize(int rcvSize, int sndSize)
         {
             Debug.Assert(_fd != null);
-            Network.SetTcpBufSize(_fd, rcvSize, sndSize, _instance);
+            Network.SetTcpBufSize(_fd, rcvSize, sndSize, _communicator);
         }
 
         public int Read(ref ArraySegment<byte> buffer, ref int offset)
@@ -552,7 +552,7 @@ namespace ZeroC.Ice
             };
         }
 
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private readonly INetworkProxy? _proxy;
         private readonly EndPoint? _addr;
         private readonly IPAddress? _sourceAddr;

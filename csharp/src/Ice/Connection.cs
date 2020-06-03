@@ -362,7 +362,7 @@ namespace ZeroC.Ice
         /// <summary>Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
         /// </summary>
         /// <returns>The type of the connection.</returns>
-        public string Type() => _transceiver.Transport(); // No mutex lock, _type is immutable.
+        public string Type() => _transceiver.Transport; // No mutex lock, _type is immutable.
 
         internal Connection(Communicator communicator,
                             IACMMonitor? monitor,
