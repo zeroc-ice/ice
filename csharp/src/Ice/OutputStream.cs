@@ -32,7 +32,7 @@ namespace ZeroC.Ice
     /// <typeparam name="T">The type of the value to write (a struct).</typeparam>
     /// <param name="ostr">The output stream to write to.</param>
     /// <param name="value">The value to write to the stream.</param>
-    public delegate void OutputStreamStructWriter<T>(OutputStream ostr, in T value) where T : struct;
+    public delegate void OutputStreamValueWriter<T>(OutputStream ostr, in T value) where T : struct;
 
     /// <summary>Writes data into a byte buffer using the Ice encoding.</summary>
     public sealed partial class OutputStream

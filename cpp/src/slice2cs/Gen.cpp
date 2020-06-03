@@ -1829,7 +1829,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static ZeroC.Ice.OutputStreamStructWriter<" << name << "> IceWriter =>";
+    _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =>";
     _out.inc();
     _out << nl << "(ZeroC.Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
     _out.dec();
@@ -2906,7 +2906,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         if (outParams.size() > 1)
         {
             _out << sp;
-            _out << nl << "private static readonly ZeroC.Ice.OutputStreamStructWriter<" << toTupleType(outParams)
+            _out << nl << "private static readonly ZeroC.Ice.OutputStreamValueWriter<" << toTupleType(outParams)
                  << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in " << toTupleType(outParams) << " value) =>";
             _out << sb;
             writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "value.");
@@ -2929,7 +2929,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 if (!param.tagged && StructPtr::dynamicCast(param.type))
                 {
-                    _out << nl << "private static readonly ZeroC.Ice.OutputStreamStructWriter<" << param.typeStr
+                    _out << nl << "private static readonly ZeroC.Ice.OutputStreamValueWriter<" << param.typeStr
                          << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in "
                          << param.typeStr << " " << param.name << ") =>";
                 }
