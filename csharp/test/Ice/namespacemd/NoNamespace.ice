@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[suppress-warning:reserved-identifier]]
+
 module ZeroC::Ice::Test::NamespaceMD::NoNamespace
 {
 class C1

@@ -5,10 +5,10 @@
 #pragma once
 
 [[3.7]]
+[[suppress-warning:reserved-identifier]]
 
 #include <Ice/BuiltinSequences.ice>
 
-[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::Serialize
 {
 

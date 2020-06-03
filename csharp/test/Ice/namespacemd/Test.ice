@@ -5,11 +5,11 @@
 #pragma once
 
 [[3.7]]
+[[suppress-warning:reserved-identifier]]
 
 #include <Namespace.ice>
 #include <NoNamespace.ice>
 
-[suppress-warning:reserved-identifier]
 module ZeroC::Ice::Test::NamespaceMD
 {
 

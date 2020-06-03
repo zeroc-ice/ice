@@ -4,6 +4,8 @@
 
 #pragma once
 
+[[suppress-warning:reserved-identifier]]
+
 module ZeroC::Glacier2::Test::SessionHelper
 {
 

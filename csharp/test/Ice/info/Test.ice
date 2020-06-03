@@ -6,7 +6,8 @@
 
 #include <Ice/Context.ice>
 
-[suppress-warning:reserved-identifier]
+[[suppress-warning:reserved-identifier]]
+
 module ZeroC::Ice::Test::Info
 {
 

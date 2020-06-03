@@ -4,10 +4,9 @@
 
 #pragma once
 
-//
-// Suppress warnings
-//
-[suppress-warning:invalid-metadata, deprecated, reserved-identifier] // deprecated for enumerator references
+// deprecated for enumerator references
+[[suppress-warning:invalid-metadata, deprecated, reserved-identifier]]
+
 module ZeroC::Ice::Test::DefaultValue
 {
 
