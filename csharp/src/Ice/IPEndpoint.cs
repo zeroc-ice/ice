@@ -241,6 +241,18 @@ namespace ZeroC.Ice
             }
         }
 
+        internal IPEndpoint NewPort(int port)
+        {
+            if (port == Port)
+            {
+                return this;
+            }
+            else
+            {
+                return CreateEndpoint(Host, port, ConnectionId, HasCompressionFlag, Timeout);
+            }
+        }
+
         private protected IPEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress,
             string connectionId)
         {

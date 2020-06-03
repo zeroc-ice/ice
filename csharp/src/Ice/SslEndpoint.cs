@@ -27,9 +27,6 @@ namespace ZeroC.Ice
 
         public override bool Equivalent(Endpoint endpoint) => endpoint is SslEndpoint && base.Equivalent(endpoint);
 
-        public override IAcceptor GetAcceptor(string adapterName) =>
-            new SslAcceptor(this, Communicator, SslEngine, base.GetAcceptor(adapterName)!, adapterName);
-
         public override ITransceiver? GetTransceiver() => null;
 
         internal SslEndpoint(SslEngine engine, Communicator communicator, string host, int port, IPAddress? sourceAddress,
@@ -44,13 +41,21 @@ namespace ZeroC.Ice
             Dictionary<string, string?> options, bool oaEndpoint)
             : base(communicator, endpointString, options, oaEndpoint) => SslEngine = engine;
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new SslConnector(Communicator, SslEngine, base.CreateConnector(addr, proxy), Host);
-
         private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
             bool compressionFlag, int timeout) =>
             new SslEndpoint(SslEngine, Communicator, host, port, SourceAddress, timeout, connectionId,
                 compressionFlag);
+
+        internal override ITransceiver CreateTransceiver(
+            string transport, StreamSocket socket, string? adapterName)
+        {
+            if (!SslEngine.Initialized())
+            {
+                throw new System.InvalidOperationException("IceSSL: plug-in is not initialized");
+            }
+            return new SslTransceiver(Communicator, SslEngine, base.CreateTransceiver(transport, socket, adapterName),
+                adapterName ?? Host, adapterName != null);
+        }
     }
 
     internal sealed class SslEndpointFactory : IEndpointFactory

@@ -1271,11 +1271,11 @@ namespace ZeroC.Ice
             return interval;
         }
 
-        // Finds an endpoint factory previously registered using AddEndpointFactory.
+        // Finds an endpoint factory previously registered using IceAddEndpointFactory.
         public IEndpointFactory? IceFindEndpointFactory(string transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
-         // Finds an endpoint factory previously registered using AddEndpointFactory.
+        // Finds an endpoint factory previously registered using IceAddEndpointFactory.
         public IEndpointFactory? IceFindEndpointFactory(EndpointType type) =>
             _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
 

@@ -4,17 +4,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using System.Text;
 
 namespace ZeroC.Ice
 {
     public sealed class WSEndpoint : TcpEndpoint
     {
-        /// <summary> The resource of the WebSocket endpoint.</summary>
-        // TODO: better description
+        /// <summary>A URI specifying the resource associated with this endpoint. The value is passed as the target for
+        /// GET in the WebSocket upgrade request.</summary>
         public string Resource { get; }
         public override EndpointType Type => EndpointType.WS;
         public override string Transport => "ws";
@@ -58,9 +56,6 @@ namespace ZeroC.Ice
             ostr.WriteString(Resource);
         }
 
-        public override IAcceptor GetAcceptor(string adapterName) =>
-            new WSAcceptor(this, Communicator, base.GetAcceptor(adapterName));
-
         public override ITransceiver? GetTransceiver() => null;
 
         internal WSEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress, int timeout,
@@ -87,12 +82,23 @@ namespace ZeroC.Ice
         internal WSEndpoint(Communicator communicator, InputStream istr) : base(communicator, istr) =>
             Resource = istr.ReadString();
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new WSConnector(Communicator, base.CreateConnector(addr, proxy), Host, Resource);
-
         private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
             bool compressionFlag, int timeout) =>
             new WSEndpoint(Communicator, host, port, SourceAddress, timeout, connectionId, compressionFlag, Resource);
+
+        internal override ITransceiver CreateTransceiver(
+            string transport, StreamSocket socket, string? adapterName)
+        {
+            if (adapterName != null)
+            {
+                return new WSTransceiver(Communicator, base.CreateTransceiver(transport, socket, adapterName));
+            }
+            else
+            {
+                return new WSTransceiver(Communicator, base.CreateTransceiver(transport, socket, adapterName),
+                    Host, Resource);
+            }
+        }
     }
 
     public sealed class WSSEndpoint : SslEndpoint
@@ -142,9 +148,6 @@ namespace ZeroC.Ice
             ostr.WriteString(Resource);
         }
 
-        public override IAcceptor GetAcceptor(string adapterName) =>
-            new WSAcceptor(this, Communicator, base.GetAcceptor(adapterName));
-
         public override ITransceiver? GetTransceiver() => null;
 
         internal WSSEndpoint(SslEngine engine, Communicator communicator, string host, int port, IPAddress? sourceAddress, int timeout,
@@ -176,8 +179,19 @@ namespace ZeroC.Ice
             new WSSEndpoint(SslEngine, Communicator, host, port, SourceAddress, timeout, connectionId,
                 compressionFlag, Resource);
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new WSConnector(Communicator, base.CreateConnector(addr, proxy), Host, Resource);
+        internal override ITransceiver CreateTransceiver(
+            string transport, StreamSocket socket, string? adapterName)
+        {
+            if (adapterName != null)
+            {
+                return new WSTransceiver(Communicator, base.CreateTransceiver(transport, socket, adapterName));
+            }
+            else
+            {
+                return new WSTransceiver(Communicator, base.CreateTransceiver(transport, socket, adapterName),
+                    Host, Resource);
+            }
+        }
     }
 
     internal class WSEndpointFactory : IEndpointFactory

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Text;
 
@@ -102,7 +103,7 @@ namespace ZeroC.Ice
             timeout == Timeout ? this : CreateEndpoint(Host, Port, ConnectionId, HasCompressionFlag, timeout);
 
         public override IAcceptor GetAcceptor(string adapterName) =>
-            new TcpAcceptor(this, Communicator, Transport, Host, Port);
+            new TcpAcceptor(this, Communicator, Transport, Host, Port, adapterName);
         public override ITransceiver? GetTransceiver() => null;
 
         internal TcpEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress, int timeout,
@@ -167,24 +168,17 @@ namespace ZeroC.Ice
             }
         }
 
-        internal TcpEndpoint GetEndpoint(TcpAcceptor acceptor)
-        {
-            int port = acceptor.EffectivePort();
-            if (port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return (TcpEndpoint)CreateEndpoint(Host, port, ConnectionId, HasCompressionFlag, Timeout);
-            }
-        }
-
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(Communicator, Transport, Type, addr, proxy, SourceAddress, Timeout, ConnectionId);
+            new TcpConnector(this, Communicator, Transport, Type, addr, proxy, SourceAddress, Timeout, ConnectionId);
         private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
             bool compressionFlag, int timeout) =>
             new TcpEndpoint(Communicator, host, port, SourceAddress, timeout, connectionId, compressionFlag);
+
+        internal virtual ITransceiver CreateTransceiver(
+            string transport,
+            StreamSocket socket,
+            string? adapterName) =>
+            new TcpTransceiver(transport, socket);
     }
 
     internal sealed class TcpEndpointFactory : IEndpointFactory

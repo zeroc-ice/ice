@@ -38,7 +38,7 @@ namespace ZeroC.Ice
                 _fd = null;
                 throw;
             }
-            _endpoint = _endpoint.GetEndpoint(this);
+            _endpoint = (TcpEndpoint)_endpoint.NewPort(EffectivePort());
             return _endpoint;
         }
 
@@ -90,7 +90,8 @@ namespace ZeroC.Ice
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TcpTransceiver(Transport, new StreamSocket(_communicator, acceptFd));
+            return _endpoint.CreateTransceiver(Transport,
+                new StreamSocket(_communicator, acceptFd), _adapterName);
         }
 
         public string Transport { get; }
@@ -114,8 +115,15 @@ namespace ZeroC.Ice
 
         public int EffectivePort() => _addr.Port;
 
-        internal TcpAcceptor(TcpEndpoint endpoint, Communicator communicator, string transport, string host, int port)
+        internal TcpAcceptor(
+            TcpEndpoint endpoint,
+            Communicator communicator,
+            string transport,
+            string host,
+            int port,
+            string adapterName)
         {
+            _adapterName = adapterName;
             _endpoint = endpoint;
             _communicator = communicator;
             Transport = transport;
@@ -136,6 +144,7 @@ namespace ZeroC.Ice
             }
         }
 
+        private readonly string _adapterName;
         private TcpEndpoint _endpoint;
         private readonly Communicator _communicator;
         private Socket? _fd;

@@ -138,20 +138,6 @@ namespace ZeroC.Ice
         public override ITransceiver GetTransceiver() =>
             new UdpTransceiver(this, Communicator, Transport, Host, Port, McastInterface, _connect);
 
-        internal UdpEndpoint GetEndpoint(UdpTransceiver transceiver)
-        {
-            int port = transceiver.EffectivePort();
-            if (port == Port)
-            {
-                return this;
-            }
-            else
-            {
-                return new UdpEndpoint(Communicator, Host, port, SourceAddress, McastInterface, McastTtl, _connect,
-                    ConnectionId, HasCompressionFlag);
-            }
-        }
-
         internal UdpEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress,
             string mcastInterface, int mttl, bool connect, string connectionId, bool compressionFlag)
             : base(communicator, host, port, sourceAddress, connectionId)
