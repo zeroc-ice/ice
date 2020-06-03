@@ -924,7 +924,7 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                TestHelper.Assert(p.IceIsAAsync("Operations::MyClass").Result);
+                TestHelper.Assert(p.IceIsAAsync("::Operations::MyClass").Result);
             }
 
             {
@@ -932,7 +932,7 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                TestHelper.Assert(p.IceIdAsync().Result.Equals("Operations::MyDerivedClass"));
+                TestHelper.Assert(p.IceIdAsync().Result.Equals("::Operations::MyDerivedClass"));
             }
 
             {

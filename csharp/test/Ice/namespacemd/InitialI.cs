@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.namespacemd
+namespace ZeroC.Ice.Test.NamespaceMD
 {
-    public class Initial : Test.IInitial
+    public class Initial : IInitial
     {
         public NoNamespace.C1 getNoNamespaceC2AsC1(Current current) => new NoNamespace.C2();
 

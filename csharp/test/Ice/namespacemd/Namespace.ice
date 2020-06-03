@@ -4,7 +4,7 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.namespacemd]
+[cs:namespace:ZeroC.Ice.Test.NamespaceMD]
 module WithNamespace
 {
 class C1

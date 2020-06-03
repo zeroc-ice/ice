@@ -1861,13 +1861,13 @@ namespace ZeroC.Ice.Test.Operations
                 s.myClass = null;
                 s.myStruct1 = "MyStruct1.myStruct1";
                 s = d.opMyStruct1(s);
-                TestHelper.Assert(s.Equals("MyStruct1.s"));
+                TestHelper.Assert(s.tesT.Equals("MyStruct1.s"));
                 TestHelper.Assert(s.myClass == null);
                 TestHelper.Assert(s.myStruct1.Equals("MyStruct1.myStruct1"));
                 MyClass1? c = new MyClass1("MyClass1.testT", null, "MyClass1.myClass1");
                 c = d.opMyClass1(c);
                 TestHelper.Assert(c != null);
-                TestHelper.Assert(c.Equals("MyClass1.testT"));
+                TestHelper.Assert(c.tesT.Equals("MyClass1.testT"));
                 TestHelper.Assert(c.myClass == null);
                 TestHelper.Assert(c.myClass1.Equals("MyClass1.myClass1"));
             }

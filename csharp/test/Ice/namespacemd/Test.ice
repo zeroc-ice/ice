@@ -9,8 +9,8 @@
 #include <Namespace.ice>
 #include <NoNamespace.ice>
 
-[cs:namespace:ZeroC.Ice.namespacemd]
-module Test
+[suppress-warning:reserved-identifier]
+module ZeroC::Ice::Test::NamespaceMD
 {
 
 interface Initial

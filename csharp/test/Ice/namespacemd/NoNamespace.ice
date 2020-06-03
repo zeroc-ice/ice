@@ -4,7 +4,7 @@
 
 #pragma once
 
-module NoNamespace
+module ZeroC::Ice::Test::NamespaceMD::NoNamespace
 {
 class C1
 {
