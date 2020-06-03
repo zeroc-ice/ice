@@ -4,8 +4,8 @@
 
 using System;
 using System.Linq;
-using Test;
 using ZeroC.Ice;
+using Test;
 
 namespace ZeroC.IceBox.Test.Configuration
 {

@@ -3,8 +3,8 @@
 //
 
 using System;
-using Test;
 using System.Threading;
+using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {

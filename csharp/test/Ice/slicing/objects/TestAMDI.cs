@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.AMD.Slicing.Objects
 {

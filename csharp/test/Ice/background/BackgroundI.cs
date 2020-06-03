@@ -2,9 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-using ZeroC.Ice;
-
 namespace ZeroC.Ice.Test.Background
 {
     internal class Background : IBackground

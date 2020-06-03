@@ -4,7 +4,6 @@
 
 using System;
 using System.IO;
-
 using Test;
 
 namespace ZeroC.Ice.Test.Logger

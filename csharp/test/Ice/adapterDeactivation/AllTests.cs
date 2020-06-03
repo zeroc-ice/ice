@@ -4,7 +4,6 @@
 
 using System;
 using System.Linq;
-
 using Test;
 
 namespace ZeroC.Ice.Test.AdapterDeactivation

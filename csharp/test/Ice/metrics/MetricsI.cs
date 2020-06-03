@@ -3,9 +3,6 @@
 //
 
 using System;
-using Test;
-
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.Metrics
 {

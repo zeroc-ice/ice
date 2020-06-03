@@ -3,8 +3,6 @@
 //
 
 using System.Collections.Generic;
-
-using ZeroC.Ice;
 using Test;
 
 namespace ZeroC.Ice.Test.Background

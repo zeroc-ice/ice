@@ -4,7 +4,6 @@
 
 using System.Threading.Tasks;
 using Test;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.Echo
 {

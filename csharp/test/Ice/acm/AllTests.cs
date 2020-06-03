@@ -4,11 +4,11 @@
 
 using System;
 using System.Collections.Generic;
-using Test;
 using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.ACM
 {

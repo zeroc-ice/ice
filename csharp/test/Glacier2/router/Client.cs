@@ -4,9 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using Test;
 using ZeroC.Ice;
-using ZeroC.Glacier2;
+using Test;
 
 namespace ZeroC.Glacier2.Test.Router
 {
@@ -32,11 +31,11 @@ namespace ZeroC.Glacier2.Test.Router
                     Console.Out.WriteLine("ok");
                 }
 
-                ZeroC.Glacier2.IRouterPrx? router;
+                IRouterPrx? router;
                 {
                     Console.Out.Write("testing checked cast for router... ");
                     Console.Out.Flush();
-                    router = ZeroC.Glacier2.IRouterPrx.CheckedCast(routerBase);
+                    router = IRouterPrx.CheckedCast(routerBase);
                     Assert(router != null);
                     Console.Out.WriteLine("ok");
                 }

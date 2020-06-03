@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
 namespace ZeroC.Ice.Test.Background
 {
     internal class Acceptor : IAcceptor

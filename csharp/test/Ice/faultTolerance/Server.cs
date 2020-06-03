@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using Test;
 using ZeroC.Ice;
+using Test;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {

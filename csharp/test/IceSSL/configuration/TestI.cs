@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System;
 using System.Collections.Generic;
 using ZeroC.Ice;
+using Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {

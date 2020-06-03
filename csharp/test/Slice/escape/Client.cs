@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Slice.Test.Escape.@abstract;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ZeroC.Slice.Test.Escape.@abstract;
 using Test;
 
 public class Client : TestHelper

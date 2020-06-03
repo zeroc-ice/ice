@@ -3,8 +3,6 @@
 //
 
 using System.Diagnostics;
-using Test;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {

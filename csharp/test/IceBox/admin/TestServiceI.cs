@@ -3,7 +3,6 @@
 //
 
 using ZeroC.Ice;
-using ZeroC.IceBox;
 
 namespace ZeroC.IceBox.Test.Admin
 {

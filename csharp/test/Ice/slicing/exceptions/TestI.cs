@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
 using Test;
 
 namespace ZeroC.Ice.Test.Slicing.Exceptions

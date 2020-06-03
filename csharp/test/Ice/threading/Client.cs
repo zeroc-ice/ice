@@ -2,8 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System;
+using Test;
 
 namespace ZeroC.Ice.Test.Threading
 {

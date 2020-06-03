@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System.Collections.Generic;
 using System.Linq;
+using Test;
 
 namespace ZeroC.Ice.Test.DictMapping
 {

@@ -3,8 +3,8 @@
 //
 
 using System;
-using Test;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.AMD.Exceptions
 {

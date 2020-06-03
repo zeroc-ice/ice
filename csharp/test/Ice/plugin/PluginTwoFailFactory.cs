@@ -3,7 +3,6 @@
 //
 
 using System;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.Plugin
 {

@@ -2,11 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-using ZeroC.IceMX;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using ZeroC.IceMX;
 using Test;
 
 namespace ZeroC.Ice.Test.Metrics

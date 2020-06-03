@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-using ZeroC.Ice;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Test;
 
 namespace ZeroC.Ice.Test.Background
 {

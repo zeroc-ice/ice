@@ -3,7 +3,6 @@
 //
 
 using System.Threading.Tasks;
-
 using Test;
 
 namespace ZeroC.Ice.Test.Interceptor

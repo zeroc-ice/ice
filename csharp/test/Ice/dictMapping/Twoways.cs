@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-
 using Test;
 
 namespace ZeroC.Ice.Test.DictMapping

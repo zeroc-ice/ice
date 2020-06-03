@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using Test;
 
-using ZeroC.Ice;
-
 namespace ZeroC.Ice.Test.FaultTolerance
 {
     public class AllTests

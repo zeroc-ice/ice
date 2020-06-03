@@ -5,8 +5,6 @@
 using System;
 using System.Collections.Generic;
 using Test;
-
-using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice.Test.Metrics

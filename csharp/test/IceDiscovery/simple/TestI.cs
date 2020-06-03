@@ -3,9 +3,8 @@
 //
 
 using System.Collections.Generic;
-using Test;
-
 using ZeroC.Ice;
+using Test;
 
 namespace ZeroC.IceDiscovery.Test.Simple
 {

@@ -5,9 +5,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-
 using Test;
-using ZeroC.Ice;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {

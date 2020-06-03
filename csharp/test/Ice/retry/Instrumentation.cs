@@ -3,9 +3,8 @@
 //
 
 using System.Collections.Generic;
-using Test;
-
 using ZeroC.Ice.Instrumentation;
+using Test;
 
 namespace ZeroC.Ice.Test.Retry
 {

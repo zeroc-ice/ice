@@ -9,8 +9,6 @@ using System.Reflection;
 using System.Collections.Generic;
 using Test;
 
-using ZeroC.Ice;
-
 namespace ZeroC.Ice.Test.Assemblies
 {
     public class Client : TestHelper

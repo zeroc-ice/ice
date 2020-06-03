@@ -1,8 +1,8 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using System.IO;
 
+using System.IO;
 using Test;
 
 namespace ZeroC.Ice.Test.DefaultServant

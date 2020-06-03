@@ -6,8 +6,6 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-using ZeroC.Ice;
-
 namespace ZeroC.Ice.Test.AMD.Metrics
 {
     public sealed class Controller : IController

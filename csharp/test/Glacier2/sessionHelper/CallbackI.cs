@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using ZeroC.Ice;
 
 namespace ZeroC.Glacier2.Test.SessionHelper

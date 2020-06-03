@@ -6,8 +6,6 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-using ZeroC.Ice;
-
 namespace ZeroC.Ice.Test.Plugin
 {
     public static class TestHelper

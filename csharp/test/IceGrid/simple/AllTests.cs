@@ -3,10 +3,8 @@
 //
 
 using System;
-using Test;
-
 using ZeroC.Ice;
-using ZeroC.IceGrid;
+using Test;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
