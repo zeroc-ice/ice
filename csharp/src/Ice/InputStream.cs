@@ -33,7 +33,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<bool[]> IceReaderIntoBoolArray =
-            istr => istr.ReadFixedSizeNumericValueArray<bool>();
+            istr => istr.ReadArray<bool>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<byte> IceReaderIntoByte =
@@ -41,7 +41,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<byte[]> IceReaderIntoByteArray =
-            istr => istr.ReadFixedSizeNumericValueArray<byte>();
+            istr => istr.ReadArray<byte>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<double> IceReaderIntoDouble =
@@ -49,7 +49,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<double[]> IceReaderIntoDoubleArray =
-            istr => istr.ReadFixedSizeNumericValueArray<double>();
+            istr => istr.ReadArray<double>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<float> IceReaderIntoFloat =
@@ -57,7 +57,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<float[]> IceReaderIntoFloatArray =
-            istr => istr.ReadFixedSizeNumericValueArray<float>();
+            istr => istr.ReadArray<float>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int> IceReaderIntoInt =
@@ -65,7 +65,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int[]> IceReaderIntoIntArray =
-            istr => istr.ReadFixedSizeNumericValueArray<int>();
+            istr => istr.ReadArray<int>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<long> IceReaderIntoLong =
@@ -73,7 +73,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<long[]> IceReaderIntoLongArray =
-            istr => istr.ReadFixedSizeNumericValueArray<long>();
+            istr => istr.ReadArray<long>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<short> IceReaderIntoShort =
@@ -81,7 +81,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<short[]> IceReaderIntoShortArray =
-            istr => istr.ReadFixedSizeNumericValueArray<short>();
+            istr => istr.ReadArray<short>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<string> IceReaderIntoString =
@@ -93,7 +93,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<uint[]> IceReaderIntoUIntArray =
-            istr => istr.ReadFixedSizeNumericValueArray<uint>();
+            istr => istr.ReadArray<uint>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<ulong> IceReaderIntoULong =
@@ -101,7 +101,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<ulong[]> IceReaderIntoULongArray =
-            istr => istr.ReadFixedSizeNumericValueArray<ulong>();
+            istr => istr.ReadArray<ulong>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<ushort> IceReaderIntoUShort =
@@ -109,7 +109,7 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<ushort[]> IceReaderIntoUShortArray =
-            istr => istr.ReadFixedSizeNumericValueArray<ushort>();
+            istr => istr.ReadArray<ushort>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<int> IceReaderIntoVarInt =
@@ -352,6 +352,18 @@ namespace ZeroC.Ice
         // Read methods for constructed types except class and exception
         //
 
+        /// <summary>Reads a sequence of fixed-size numeric values from the stream and returns an array.</summary>
+        /// <returns>The sequence read from the stream, as an array.</returns>
+        public T[] ReadArray<T>() where T : struct
+        {
+            int elementSize = Unsafe.SizeOf<T>();
+            var value = new T[ReadAndCheckSeqSize(elementSize)];
+            int byteCount = elementSize * value.Length;
+            _buffer.AsSpan(_pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
+            _pos += byteCount;
+            return value;
+        }
+
         /// <summary>Reads a sequence from the stream and returns an array.</summary>
         /// <param name="minElementSize">The minimum size of each element of the sequence, in bytes.</param>
         /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
@@ -359,17 +371,18 @@ namespace ZeroC.Ice
         public T[] ReadArray<T>(int minElementSize, InputStreamReader<T> reader) =>
             ReadSequence(minElementSize, reader).ToArray();
 
-        /// <summary>Reads a sequence of optional/nullable elements from the stream and returns an array.</summary>
+        /// <summary>Reads a sequence of nullable elements from the stream and returns an array.</summary>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T?[] ReadOptionalElementArray<T>(InputStreamReader<T> reader) where T : class =>
-            ReadOptionalElementSequence(reader).ToArray();
+        public T?[] ReadArray<T>(InputStreamReader<T> reader) where T : class =>
+            ReadSequence(reader).ToArray();
 
-        /// <summary>Reads a sequence of optional/nullable values from the stream and returns an array.</summary>
+        /// <summary>Reads a sequence of nullable values from the stream and returns an array.</summary>
+        /// <param name="ofNullableValues">Must always be true.</param>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T?[] ReadOptionalValueArray<T>(InputStreamReader<T> reader) where T : struct =>
-            ReadOptionalValueSequence(reader).ToArray();
+        public T?[] ReadArray<T>(bool ofNullableValues, InputStreamReader<T> reader) where T : struct =>
+            ReadSequence(ofNullableValues, reader).ToArray();
 
         /// <summary>Reads a dictionary from the stream.</summary>
         /// <param name="minEntrySize">The minimum size of each entry of the dictionary, in bytes.</param>
@@ -396,50 +409,17 @@ namespace ZeroC.Ice
         /// <returns>The enum value (int) read from the stream.</returns>
         public int ReadEnumValue() => ReadSize();
 
-        /// <summary>Reads a sequence of fixed-size numeric values from the stream and returns an array.</summary>
-        /// <returns>The sequence read from the stream, as an array.</returns>
-        public T[] ReadFixedSizeNumericValueArray<T>() where T : struct
-        {
-            int elementSize = Unsafe.SizeOf<T>();
-            var value = new T[ReadAndCheckSeqSize(elementSize)];
-            int byteCount = elementSize * value.Length;
-            _buffer.AsSpan(_pos, byteCount).CopyTo(MemoryMarshal.Cast<T, byte>(value));
-            _pos += byteCount;
-            return value;
-        }
-
-        /// <summary>Reads a sequence of optional elements from the stream. The element type is a reference type,
-        /// however, use <see cref="ReadSequence"/> for reading a sequence of optional class or optional proxy.
-        /// </summary>
-        /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
-        /// <returns>A collection that provides the size of the sequence and allows you read the sequence from the
-        /// the stream. The returned collection does not fully implement ICollection{T?}, in particular you can only
-        /// call GetEnumerator() once on this collection. You would typically use this collection to construct a
-        /// List{T?} or some other generic collection that can be constructed from an IEnumerable{T?}.</returns>
-        public ICollection<T?> ReadOptionalElementSequence<T>(InputStreamReader<T> reader) where T : class =>
-            new OptionalElementCollection<T>(this, reader);
-
-        /// <summary>Reads an optional proxy from the stream.</summary>
+        /// <summary>Reads a nullable proxy from the stream.</summary>
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
         /// <returns>The proxy read from the stream, or null.</returns>
-        public T? ReadOptionalProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
+        public T? ReadNullableProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
             Reference.Read(this) is Reference reference ? factory(reference) : null;
-
-        /// <summary>Reads a sequence of optional values from the stream.</summary>
-        /// <param name="reader">The input stream reader used to read each non-null element (value) of the sequence.
-        /// </param>
-        /// <returns>A collection that provides the size of the sequence and allows you read the sequence from the
-        /// the stream. The returned collection does not fully implement ICollection{T?}, in particular you can only
-        /// call GetEnumerator() once on this collection. You would typically use this collection to construct a
-        /// List{T?} or some other generic collection that can be constructed from an IEnumerable{T?}.</returns>
-        public ICollection<T?> ReadOptionalValueSequence<T>(InputStreamReader<T> reader) where T : struct =>
-            new OptionalValueCollection<T>(this, reader);
 
         /// <summary>Reads a proxy from the stream.</summary>
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
         /// <returns>The proxy read from the stream; this proxy cannot be null.</returns>
         public T ReadProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            ReadOptionalProxy(factory) ?? throw new InvalidDataException("read null for a non-optional proxy");
+            ReadNullableProxy(factory) ?? throw new InvalidDataException("read null for a non-nullable proxy");
 
         /// <summary>Reads a sequence from the stream.</summary>
         /// <param name="minElementSize">The minimum size of each element of the sequence, in bytes.</param>
@@ -450,6 +430,32 @@ namespace ZeroC.Ice
         /// some other generic collection that can be constructed from an IEnumerable{T}.</returns>
         public ICollection<T> ReadSequence<T>(int minElementSize, InputStreamReader<T> reader) =>
             new Collection<T>(this, minElementSize, reader);
+
+        /// <summary>Reads a sequence of nullable elements from the stream. The element type is a reference type.
+        /// </summary>
+        /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
+        /// <returns>A collection that provides the size of the sequence and allows you read the sequence from the
+        /// the stream. The returned collection does not fully implement ICollection{T?}, in particular you can only
+        /// call GetEnumerator() once on this collection. You would typically use this collection to construct a
+        /// List{T?} or some other generic collection that can be constructed from an IEnumerable{T?}.</returns>
+        public ICollection<T?> ReadSequence<T>(InputStreamReader<T> reader) where T : class =>
+            new NullableCollection<T>(this, reader);
+
+        /// <summary>Reads a sequence of nullable values from the stream.</summary>
+        /// <param name="ofNullableValues">Must always be true.</param>
+        /// <param name="reader">The input stream reader used to read each non-null element (value) of the sequence.
+        /// </param>
+        /// <returns>A collection that provides the size of the sequence and allows you read the sequence from the
+        /// the stream. The returned collection does not fully implement ICollection{T?}, in particular you can only
+        /// call GetEnumerator() once on this collection. You would typically use this collection to construct a
+        /// List{T?} or some other generic collection that can be constructed from an IEnumerable{T?}.</returns>
+        public ICollection<T?> ReadSequence<T>(bool ofNullableValues, InputStreamReader<T> reader) where T : struct
+        {
+            // We need the always-true ofNullableValues parameter to avoid ambiguity with
+            // ReadSequence<T>(InputStreamReader<T> reader) where T : class
+            Debug.Assert(ofNullableValues);
+            return new NullableValueCollection<T>(this, reader);
+        }
 
         /// <summary>Reads a serializable object from the stream.</summary>
         /// <returns>The object read from the stream.</returns>
@@ -541,63 +547,10 @@ namespace ZeroC.Ice
         // Read methods for tagged constructed types except class
         //
 
-        /// <summary>Reads a tagged enum from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="reader">The input stream reader used to create and validate the enum.</param>
-        /// <returns>The enum read from the stream, or null.</returns>
-        public T? ReadTaggedEnum<T>(int tag, InputStreamReader<T> reader) where T : struct, Enum =>
-            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Size) ? reader(this) : (T?)null;
-
-        /// <summary>Reads a tagged dictionary with fixed-size entries from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="entrySize">The size of each entry, in bytes.</param>
-        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
-        /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
-        /// <returns>The dictionary read from the stream, or null.</returns>
-        public Dictionary<TKey, TValue>? ReadTaggedFixedSizeEntryDictionary<TKey, TValue>(
-            int tag,
-            int entrySize,
-            InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader) where TKey : notnull
-        {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
-            {
-                SkipSize();
-                return ReadDictionary(entrySize, keyReader, valueReader);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>Reads a tagged sorted dictionary with fixed-size entries from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="entrySize">The size of each entry, in bytes.</param>
-        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
-        /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
-        /// <returns>The sorted dictionary read from the stream, or null.</returns>
-        public SortedDictionary<TKey, TValue>? ReadTaggedFixedSizeEntrySortedDictionary<TKey, TValue>(
-            int tag,
-            int entrySize,
-            InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader) where TKey : notnull
-        {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
-            {
-                SkipSize();
-                return ReadSortedDictionary(entrySize, keyReader, valueReader);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         /// <summary>Reads a tagged sequence of a fixed-size numeric type from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The sequence read from the stream as an array, or null.</returns>
-        public T[]? ReadTaggedFixedSizeNumericValueArray<T>(int tag) where T : struct
+        public T[]? ReadTaggedArray<T>(int tag) where T : struct
         {
             int elementSize = Unsafe.SizeOf<T>();
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
@@ -608,7 +561,7 @@ namespace ZeroC.Ice
                     // parameter) that we skip.
                     SkipSize();
                 }
-                return ReadFixedSizeNumericValueArray<T>();
+                return ReadArray<T>();
             }
             else
             {
@@ -616,30 +569,70 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads a tagged fixed-size struct from the stream.</summary>
+        /// <summary>Reads a tagged array from the stream. The element type can be nullable only if it corresponds to
+        /// a proxy class or mapped Slice class.</summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="reader">The input stream reader used to create and read the struct.</param>
-        /// <returns>The struct T read from the stream, or null.</returns>
-        public T? ReadTaggedFixedSizeStruct<T>(int tag, InputStreamReader<T> reader) where T : struct
-        {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
-            {
-                SkipSize();
-                return reader(this);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>Reads a tagged sequence of fixed-size values from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="elementSize">The size of each value, in bytes.</param>
+        /// <param name="minElementSize">The minimum size of each element, in bytes.</param>
+        /// <param name="fixedSize">True when the element size is fixed; otherwise, false.</param>
         /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
         /// <returns>The sequence read from the stream as an array, or null.</returns>
-        public T[]? ReadTaggedFixedSizeValueArray<T>(int tag, int elementSize, InputStreamReader<T> reader)
-            where T : struct => ReadTaggedFixedSizeValueSequence(tag, elementSize, reader)?.ToArray();
+        public T[]? ReadTaggedArray<T>(int tag, int minElementSize, bool fixedSize, InputStreamReader<T> reader) =>
+            ReadTaggedSequence(tag, minElementSize, fixedSize, reader)?.ToArray();
+
+        /// <summary>Reads a tagged array of nullable elements from the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="reader">The input stream reader used to read each non-null element of the array.</param>
+        /// <returns>The array read from the stream, or null.</returns>
+        public T?[]? ReadTaggedArray<T>(int tag, InputStreamReader<T> reader) where T : class =>
+            ReadTaggedSequence(tag, reader)?.ToArray();
+
+        /// <summary>Reads a tagged array of nullable values from the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="ofNullableValues">Must always be true.</param>
+        /// <param name="reader">The input stream reader used to read each non-null value of the array.</param>
+        /// <returns>The array read from the stream, or null.</returns>
+        public T?[]? ReadTaggedArray<T>(int tag, bool ofNullableValues, InputStreamReader<T> reader) where T : struct =>
+            ReadTaggedSequence(tag, ofNullableValues, reader)?.ToArray();
+
+        /// <summary>Reads a tagged dictionary from the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="minEntrySize">The minimum size of each entry, in bytes.</param>
+        /// <param name="fixedSize">True when the entry size is fixed; otherwise, false.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
+        /// <returns>The dictionary read from the stream, or null.</returns>
+        public Dictionary<TKey, TValue>? ReadTaggedDictionary<TKey, TValue>(
+            int tag,
+            int minEntrySize,
+            bool fixedSize,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader) where TKey : notnull
+        {
+            if (fixedSize)
+            {
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
+                {
+                    SkipSize();
+                    return ReadDictionary(minEntrySize, keyReader, valueReader);
+                }
+            }
+            else
+            {
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+                {
+                    SkipFixedLengthSize();
+                    return ReadDictionary(minEntrySize, keyReader, valueReader);
+                }
+            }
+            return null;
+        }
+
+        /// <summary>Reads a tagged enum from the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="reader">The input stream reader used to create and validate the enum.</param>
+        /// <returns>The enum read from the stream, or null.</returns>
+        public T? ReadTaggedEnum<T>(int tag, InputStreamReader<T> reader) where T : struct, Enum =>
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Size) ? reader(this) : (T?)null;
 
         /// <summary>Reads a tagged proxy from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -658,131 +651,58 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads a tagged sequence of fixed-size values from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="elementSize">The size of each element, in bytes.</param>
-        /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
-        /// <returns>The sequence read from the stream as an ICollection{T}, or null.</returns>
-        public ICollection<T>? ReadTaggedFixedSizeValueSequence<T>(
-            int tag,
-            int elementSize,
-            InputStreamReader<T> reader) where T : struct
-        {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
-            {
-                if (elementSize > 1)
-                {
-                    SkipSize(); // this size represents the number of bytes in the tagged parameter.
-                }
-                return ReadSequence(elementSize, reader);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>Reads a tagged array of optional elements from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="reader">The input stream reader used to read each non-null element of the array.</param>
-        /// <returns>The array read from the stream, or null.</returns>
-        public T?[]? ReadTaggedOptionalElementArray<T>(int tag, InputStreamReader<T> reader) where T : class =>
-            ReadTaggedOptionalElementSequence(tag, reader)?.ToArray();
-
-        /// <summary>Reads a tagged sequence of optional elements from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
-        /// <returns>The sequence read from the stream as an ICollection{T?}, or null.</returns>
-        public ICollection<T?>? ReadTaggedOptionalElementSequence<T>(int tag, InputStreamReader<T> reader)
-            where T : class
-        {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
-            {
-                SkipFixedLengthSize();
-                return ReadOptionalElementSequence(reader);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>Reads a tagged array of optional values from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="reader">The input stream reader used to read each non-null value of the array.</param>
-        /// <returns>The array read from the stream, or null.</returns>
-        public T?[]? ReadTaggedOptionalValueArray<T>(int tag, InputStreamReader<T> reader) where T : struct =>
-            ReadTaggedOptionalValueSequence(tag, reader)?.ToArray();
-
-        /// <summary>Reads a tagged sequence of optional values from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="reader">The input stream reader used to read each non-null value of the sequence.</param>
-        /// <returns>The sequence read from the stream as an ICollection{T?}, or null.</returns>
-        public ICollection<T?>? ReadTaggedOptionalValueSequence<T>(int tag, InputStreamReader<T> reader)
-            where T : struct
-        {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
-            {
-                SkipFixedLengthSize();
-                return ReadOptionalValueSequence(reader);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         /// <summary>Reads a tagged serializable object from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The object read from the stream, or null.</returns>
         public object? ReadTaggedSerializable(int tag) =>
             ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize) ? ReadSerializable() : null;
 
-        /// <summary>Reads a tagged array of variable-size elements from the stream.</summary>
+        /// <summary>Reads a tagged sequence from the stream. The element type can be nullable only if it corresponds to
+        /// a proxy class or mapped Slice class.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="minElementSize">The minimum size of each element, in bytes.</param>
-        /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
-        /// <returns>The sequence read from the stream as an array, or null.</returns>
-        public T[]? ReadTaggedVariableSizeElementArray<T>(int tag, int minElementSize, InputStreamReader<T> reader) =>
-            ReadTaggedVariableSizeElementSequence(tag, minElementSize, reader)?.ToArray();
-
-        /// <summary>Reads a tagged sequence of variable-size elements from the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="minElementSize">The minimum size of each element, in bytes.</param>
+        /// <param name="fixedSize">True when the element size is fixed; otherwise, false.</param>
         /// <param name="reader">The input stream reader used to read each element of the sequence.</param>
         /// <returns>The sequence read from the stream as an ICollection{T}, or null.</returns>
-        public ICollection<T>? ReadTaggedVariableSizeElementSequence<T>(
+        public ICollection<T>? ReadTaggedSequence<T>(
             int tag,
             int minElementSize,
+            bool fixedSize,
             InputStreamReader<T> reader)
         {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            if (fixedSize)
             {
-                SkipFixedLengthSize();
-                return ReadSequence(minElementSize, reader);
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
+                {
+                    if (minElementSize > 1) // this size is optimized-out when elementSize == 1
+                    {
+                        SkipSize();
+                    }
+                    return ReadSequence(minElementSize, reader);
+                }
             }
             else
             {
-                return null;
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+                {
+                    SkipFixedLengthSize();
+                    return ReadSequence(minElementSize, reader);
+                }
             }
+            return null;
         }
 
-        /// <summary>Reads a tagged dictionary with variable-size entries from the stream.</summary>
+        /// <summary>Reads a tagged sequence of nullable elements from the stream.</summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="minEntrySize">The minimum size of each entry, in bytes.</param>
-        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
-        /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
-        /// <returns>The dictionary read from the stream, or null.</returns>
-        public Dictionary<TKey, TValue>? ReadTaggedVariableSizeEntryDictionary<TKey, TValue>(
-            int tag,
-            int minEntrySize,
-            InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader) where TKey : notnull
+        /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
+        /// <returns>The sequence read from the stream as an ICollection{T?}, or null.</returns>
+        public ICollection<T?>? ReadTaggedSequence<T>(int tag, InputStreamReader<T> reader)
+            where T : class
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 SkipFixedLengthSize();
-                return ReadDictionary(minEntrySize, keyReader, valueReader);
+                return ReadSequence(reader);
             }
             else
             {
@@ -790,44 +710,83 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads a tagged sorted dictionary with variable-size entries from the stream.</summary>
+        /// <summary>Reads a tagged sequence of nullable values from the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="ofNullableValues">Must always be true.</param>
+        /// <param name="reader">The input stream reader used to read each non-null value of the sequence.</param>
+        /// <returns>The sequence read from the stream as an ICollection{T?}, or null.</returns>
+        public ICollection<T?>? ReadTaggedSequence<T>(int tag, bool ofNullableValues, InputStreamReader<T> reader)
+            where T : struct
+        {
+            Debug.Assert(ofNullableValues);
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            {
+                SkipFixedLengthSize();
+                return ReadSequence(ofNullableValues, reader);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Reads a tagged sorted dictionary from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="minEntrySize">The minimum size of each entry, in bytes.</param>
+        /// <param name="fixedSize">True when the entry size is fixed; otherwise, false.</param>
         /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
         /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
         /// <returns>The sorted dictionary read from the stream, or null.</returns>
-        public SortedDictionary<TKey, TValue>? ReadTaggedVariableSizeEntrySortedDictionary<TKey, TValue>(
+        public SortedDictionary<TKey, TValue>? ReadTaggedSortedDictionary<TKey, TValue>(
             int tag,
             int minEntrySize,
+            bool fixedSize,
             InputStreamReader<TKey> keyReader,
             InputStreamReader<TValue> valueReader) where TKey : notnull
         {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            if (fixedSize)
             {
-                SkipFixedLengthSize();
-                return ReadSortedDictionary(minEntrySize, keyReader, valueReader);
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
+                {
+                    SkipSize();
+                    return ReadSortedDictionary(minEntrySize, keyReader, valueReader);
+                }
             }
             else
             {
-                return null;
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+                {
+                    SkipFixedLengthSize();
+                    return ReadSortedDictionary(minEntrySize, keyReader, valueReader);
+                }
             }
+            return null;
         }
 
-        /// <summary>Reads a tagged variable-size struct from the stream.</summary>
+        /// <summary>Reads a tagged struct from the stream.</summary>
         /// <param name="tag">The tag.</param>
+        /// <param name="fixedSize">True when the struct has a fixed size on the wire; otherwise, false.</param>
         /// <param name="reader">The input stream reader used to create and read the struct.</param>
         /// <returns>The struct T read from the stream, or null.</returns>
-        public T? ReadTaggedVariableSizeStruct<T>(int tag, InputStreamReader<T> reader) where T : struct
+        public T? ReadTaggedStruct<T>(int tag, bool fixedSize, InputStreamReader<T> reader) where T : struct
         {
-            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            if (fixedSize)
             {
-                SkipFixedLengthSize();
-                return reader(this);
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
+                {
+                    SkipSize();
+                    return reader(this);
+                }
             }
             else
             {
-                return null;
+                if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+                {
+                    SkipFixedLengthSize();
+                    return reader(this);
+                }
             }
+            return null;
         }
 
         //
@@ -1117,7 +1076,7 @@ namespace ZeroC.Ice
         /// sequence. This validation is performed to make sure we do not allocate a large container based on an
         /// invalid encoded size.</summary>
         /// <param name="minElementSize">The minimum encoded size of an element of the sequence, in bytes. This value is
-        /// 0 for sequence of optional types other than mapped Slice classes and proxies.</param>
+        /// 0 for sequence of nullable types other than mapped Slice classes and proxies.</param>
         /// <returns>The number of elements in the sequence.</returns>
         private int ReadAndCheckSeqSize(int minElementSize)
         {
@@ -1426,12 +1385,12 @@ namespace ZeroC.Ice
 
         // Similar to Collection<T>, except we are reading a sequence<T?> where T is a reference type. T here must not
         // correspond to a mapped Slice class or to a proxy class.
-        private sealed class OptionalElementCollection<T> : CollectionBase<T?> where T : class
+        private sealed class NullableCollection<T> : CollectionBase<T?> where T : class
         {
             private readonly ReadOnlyMemory<byte> _bitSequenceMemory;
             private readonly InputStreamReader<T> _reader;
 
-            internal OptionalElementCollection(InputStream istr, InputStreamReader<T> reader)
+            internal NullableCollection(InputStream istr, InputStreamReader<T> reader)
                 : base(istr, 0)
             {
                 _bitSequenceMemory = istr.ReadBitSequenceMemory(Count);
@@ -1454,12 +1413,12 @@ namespace ZeroC.Ice
         }
 
         // Similar to Collection<T>, except we are reading a sequence<T?> where T is a value type.
-        private sealed class OptionalValueCollection<T> : CollectionBase<T?> where T : struct
+        private sealed class NullableValueCollection<T> : CollectionBase<T?> where T : struct
         {
             private readonly ReadOnlyMemory<byte> _bitSequenceMemory;
             private readonly InputStreamReader<T> _reader;
 
-            internal OptionalValueCollection(InputStream istr, InputStreamReader<T> reader)
+            internal NullableValueCollection(InputStream istr, InputStreamReader<T> reader)
                 : base(istr, 0)
             {
                 _bitSequenceMemory = istr.ReadBitSequenceMemory(Count);

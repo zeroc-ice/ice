@@ -5,7 +5,7 @@
 #pragma once
 
 [[normalize-case]]
-[[ice-prefix]]
+[[suppress-warning:reserved-identifier]]
 
 module ZeroC::Ice::Test::Optional
 {

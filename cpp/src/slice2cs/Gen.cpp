@@ -1209,9 +1209,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoOptional =";
+    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
     _out.inc();
-    _out << nl << "istr => istr.ReadOptionalClass<" << name << ">();";
+    _out << nl << "istr => istr.ReadNullableClass<" << name << ">();";
     _out.dec();
 
     // The writer is currently not useful; a future implementation for the 2.0 encoding will use the formal type to
@@ -1223,9 +1223,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "?> IceWriterFromOptional =";
+    _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
     _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteOptionalClass(value);";
+    _out << nl << "(ostr, value) => ostr.WriteNullableClass(value);";
     _out.dec();
 
     _out << sp;
@@ -2250,9 +2250,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoOptional =";
+    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
     _out.inc();
-    _out << nl << "istr => istr.ReadOptionalProxy(Factory);";
+    _out << nl << "istr => istr.ReadNullableProxy(Factory);";
     _out.dec();
 
     _out << sp;
