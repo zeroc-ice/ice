@@ -535,41 +535,43 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a sequence of nullable elements to the stream.</summary>
+        /// <summary>Writes a sequence to the stream. The elements of the sequence are reference types.</summary>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="ofNullables">Must always be true.</param>
+        /// <param name="withBitSequence">True to encode null elements using a bit sequence; otherwise, false.</param>
         /// <param name="writer">The delegate that writes each non-null element to the stream.</param>
-        public void WriteSequence<T>(IEnumerable<T?> v, bool ofNullables, OutputStreamWriter<T> writer) where T : class
+        public void WriteSequence<T>(IEnumerable<T?> v, bool withBitSequence, OutputStreamWriter<T> writer)
+            where T : class
         {
-            // We need the always-true ofNullables parameter only for this overload, to avoid ambiguity with the
-            // unconstrained WriteSequence<T>(IEnumerable<T> v, OutputStreamWriter<T> writer).
-            Debug.Assert(ofNullables);
-
-            int count = v.Count(); // potentially slow Linq Count()
-            WriteSize(count);
-            BitSequence bitSequence = WriteBitSequence(count);
-            int index = 0;
-            foreach (T? item in v)
+            if (withBitSequence)
             {
-                if (item is T value)
+                int count = v.Count(); // potentially slow Linq Count()
+                WriteSize(count);
+                BitSequence bitSequence = WriteBitSequence(count);
+                int index = 0;
+                foreach (T? item in v)
                 {
-                    writer(this, value);
+                    if (item is T value)
+                    {
+                        writer(this, value);
+                    }
+                    else
+                    {
+                        bitSequence[index] = false;
+                    }
+                    index++;
                 }
-                else
-                {
-                    bitSequence[index] = false;
-                }
-                index++;
+            }
+            else
+            {
+                WriteSequence((IEnumerable<T>)v, writer);
             }
         }
 
         /// <summary>Writes a sequence of nullable values to the stream.</summary>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="ofNullables">Must always be true.</param>
         /// <param name="writer">The delegate that writes each non-null value to the stream.</param>
-        public void WriteSequence<T>(IEnumerable<T?> v, bool ofNullables, OutputStreamWriter<T> writer) where T : struct
+        public void WriteSequence<T>(IEnumerable<T?> v, OutputStreamWriter<T> writer) where T : struct
         {
-            Debug.Assert(ofNullables);
             int count = v.Count(); // potentially slow Linq Count()
             WriteSize(count);
             BitSequence bitSequence = WriteBitSequence(count);
@@ -590,10 +592,8 @@ namespace ZeroC.Ice
 
         /// <summary>Writes a sequence of nullable values to the stream. The values are mapped Slice structs.</summary>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="ofNullables">Must always be true.</param>
-        public void WriteSequence<T>(IEnumerable<T?> v, bool ofNullables) where T : struct, IStreamableStruct
+        public void WriteSequence<T>(IEnumerable<T?> v) where T : struct, IStreamableStruct
         {
-            Debug.Assert(ofNullables);
             int count = v.Count(); // potentially slow Linq Count()
             WriteSize(count);
             BitSequence bitSequence = WriteBitSequence(count);
@@ -1050,17 +1050,20 @@ namespace ZeroC.Ice
         /// <summary>Writes a tagged sequence of nullable elements to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="ofNullables">Must always be true.</param>
+        /// <param name="withBitSequence">True to encode null elements using a bit sequence; otherwise, false.</param>
         /// <param name="writer">The delegate that writes each non-null element to the stream.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v, bool ofNullables, OutputStreamWriter<T> writer)
+        public void WriteTaggedSequence<T>(
+            int tag,
+            IEnumerable<T?>? v,
+            bool withBitSequence,
+            OutputStreamWriter<T> writer)
             where T : class
         {
-            Debug.Assert(ofNullables);
             if (v is IEnumerable<T?> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();
-                WriteSequence(value, ofNullables, writer);
+                WriteSequence(value, withBitSequence, writer);
                 EndFixedLengthSize(pos);
             }
         }
@@ -1068,17 +1071,15 @@ namespace ZeroC.Ice
         /// <summary>Writes a tagged sequence of nullable values to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="ofNullables">Must always be true.</param>
         /// <param name="writer">The delegate that writes each non-null element to the stream.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v, bool ofNullables, OutputStreamWriter<T> writer)
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v, OutputStreamWriter<T> writer)
             where T : struct
         {
-            Debug.Assert(ofNullables);
             if (v is IEnumerable<T?> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();
-                WriteSequence(value, ofNullables, writer);
+                WriteSequence(value, writer);
                 EndFixedLengthSize(pos);
             }
         }
@@ -1087,16 +1088,14 @@ namespace ZeroC.Ice
         /// Slice structs.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="ofNullables">Must always be true.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v, bool ofNullables)
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v)
             where T : struct, IStreamableStruct
         {
-            Debug.Assert(ofNullables);
             if (v is IEnumerable<T?> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();
-                WriteSequence(value, ofNullables);
+                WriteSequence(value);
                 EndFixedLengthSize(pos);
             }
         }

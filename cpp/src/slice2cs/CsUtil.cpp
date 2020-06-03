@@ -1049,7 +1049,11 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
                  optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
         {
             TypePtr underlying = optional->underlying();
-            out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param << ", ofNullables: true";
+            out << nl << stream << ".WriteTaggedSequence(" << tag << ", " << param;
+            if (isReferenceType(underlying))
+            {
+                out << ", withBitSequence: true";
+            }
             if (!StructPtr::dynamicCast(underlying))
             {
                 out << ", " << outputStreamWriter(underlying, scope, true);
@@ -1173,7 +1177,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
             {
                 TypePtr underlying = optional->underlying();
                 out << stream << ".ReadTaggedSequence(" << tag << ", "
-                    << (isValueType(underlying) ? "ofNullableValues: true, " : "")
+                    << (isReferenceType(underlying) ? "withBitSequence: true, " : "")
                     << inputStreamReader(elementType, scope)
                     << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope)
                     << "> " << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)"
@@ -1197,7 +1201,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
             {
                 TypePtr underlying = optional->underlying();
                 out << stream << ".ReadTaggedArray(" << tag << ", "
-                    << (isValueType(underlying) ? "ofNullableValues: true, " : "")
+                    << (isReferenceType(underlying) ? "withBitSequence: true, " : "")
                     << inputStreamReader(underlying, scope) << ")";
             }
             else
@@ -1251,7 +1255,11 @@ Slice::CsGenerator::sequenceMarshalCode(const SequencePtr& seq, const string& sc
              optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
     {
         TypePtr underlying = optional->underlying();
-        out << stream << ".WriteSequence(" << param << ", ofNullables: true";
+        out << stream << ".WriteSequence(" << param;
+        if (isReferenceType(underlying))
+        {
+            out << ", withBitSequence: true";
+        }
         if (!StructPtr::dynamicCast(underlying))
         {
             out << ", " << outputStreamWriter(underlying, scope, true);
@@ -1294,7 +1302,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
                  optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
         {
             TypePtr underlying = optional->underlying();
-            out << stream << ".ReadArray(" << (isValueType(underlying) ? "ofNullableValues: true, " : "")
+            out << stream << ".ReadArray(" << (isReferenceType(underlying) ? "withBitSequence: true, " : "")
                 << inputStreamReader(underlying, scope) << ")";
         }
         else
@@ -1321,7 +1329,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
                  optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
         {
             TypePtr underlying = optional->underlying();
-            out << stream << ".ReadSequence(" << (isValueType(underlying) ? "ofNullableValues: true, " : "")
+            out << stream << ".ReadSequence(" << (isReferenceType(underlying) ? "withBitSequence: true, " : "")
                 << inputStreamReader(underlying, scope) << ")";
         }
         else
