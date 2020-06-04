@@ -4,22 +4,45 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
 {
+    internal class AdapterRequest
+    {
+        internal string RequestId { get; }
+        internal TaskCompletionSource<IObjectPrx?> RequestSource { get; }
+        internal long Start { get; }
+
+        internal AdapterRequest()
+        {
+            RequestId = Guid.NewGuid().ToString();
+            RequestSource = new TaskCompletionSource<IObjectPrx?>();
+            Start = DateTime.Now.Ticks;
+        }
+    }
+
+    internal class ObjectRequest
+    {
+        internal string RequestId { get; }
+        internal TaskCompletionSource<IObjectPrx?> RequestSource { get; }
+        internal ObjectRequest()
+        {
+            RequestId = Guid.NewGuid().ToString();
+            RequestSource = new TaskCompletionSource<IObjectPrx?>();
+        }
+    }
+
     internal class Lookup : ILookup
     {
         internal int LatencyMultiplier { get; }
         internal Timer Timer { get; }
 
-        private readonly Dictionary<string, TaskCompletionSource<IObjectPrx?>> _adapterRequests =
-            new Dictionary<string, TaskCompletionSource<IObjectPrx?>>();
+        private readonly Dictionary<string, AdapterRequest> _adapterRequests =
+            new Dictionary<string, AdapterRequest>();
         private readonly Dictionary<string, HashSet<IObjectPrx>> _replicaGroupReplies =
             new Dictionary<string, HashSet<IObjectPrx>>();
         private readonly string _domainId;
@@ -27,8 +50,8 @@ namespace ZeroC.IceDiscovery
         private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups =
             new Dictionary<ILookupPrx, ILookupReplyPrx?>();
         private readonly object _mutex = new object();
-        private readonly Dictionary<Identity, TaskCompletionSource<IObjectPrx?>> _objectRequests =
-            new Dictionary<Identity, TaskCompletionSource<IObjectPrx?>>();
+        private readonly Dictionary<Identity, ObjectRequest> _objectRequests =
+            new Dictionary<Identity, ObjectRequest>();
         private readonly LocatorRegistry _registry;
         private readonly int _retryCount;
         private readonly int _timeout;
@@ -103,29 +126,28 @@ namespace ZeroC.IceDiscovery
 
         internal async ValueTask<IObjectPrx?> FindAdapterAsync(string adapterId)
         {
-            TaskCompletionSource<IObjectPrx?>? requestSource;
+            AdapterRequest? request;
             bool invoke = false;
             lock (_mutex)
             {
-                if (!_adapterRequests.TryGetValue(adapterId, out requestSource))
+                if (!_adapterRequests.TryGetValue(adapterId, out request))
                 {
                     invoke = true;
-                    requestSource = new TaskCompletionSource<IObjectPrx?>();
-                    _adapterRequests.Add(adapterId, requestSource);
+                    request = new AdapterRequest();
+                    _adapterRequests.Add(adapterId, request);
                 }
             }
 
+            int retryCount = _retryCount;
+            int lookupCount = _lookups.Count;
+            int failureCount = 0;
+            var requestId = new Identity(request.RequestId, "");
             while (invoke)
             {
-                int retryCount = _retryCount;
-                int lookupCount = _lookups.Count;
-                int failureCount = 0;
-
                 foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
                 {
                     Debug.Assert(reply != null);
-                    ILookupReplyPrx? lookupReply = reply.Clone(new Identity(adapterId, ""), ILookupReplyPrx.Factory);
-
+                    ILookupReplyPrx? lookupReply = reply.Clone(requestId, ILookupReplyPrx.Factory);
                     try
                     {
                         await lookup.FindAdapterByIdAsync(_domainId, adapterId, lookupReply).ConfigureAwait(false);
@@ -134,67 +156,66 @@ namespace ZeroC.IceDiscovery
                     {
                         lock (_mutex)
                         {
-                            if (_warnOnce)
-                            {
-                                _lookup.Communicator.Logger.Warning(
-                                    $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}':\n{ex}");
-                                _warnOnce = false;
-                            }
+                            _lookup.Communicator.Logger.Warning(
+                                $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}':\n{ex}");
 
                             if (++failureCount == lookupCount)
                             {
-                                requestSource.SetResult(null);
+                                request.RequestSource.SetResult(null);
                                 _adapterRequests.Remove(adapterId);
                             }
                         }
                     }
                 }
-                Task? t = await Task.WhenAny(requestSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
+                Task? t = await Task.WhenAny(request.RequestSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
                 lock (_mutex)
                 {
-                    if (t == requestSource.Task)
+                    if (t == request.RequestSource.Task)
                     {
                         break;
                     }
-                    else if (_replicaGroupReplies.TryGetValue(adapterId, out var value))
+                    else if (_replicaGroupReplies.TryGetValue(request.RequestId, out HashSet<IObjectPrx>? value))
                     {
                         // The request will be completed once the waiting for additional replies expires
                         break;
                     }
-                    else if (retryCount-- == 0)
+                    else if (--retryCount <= 0)
                     {
                         // Request timeout and no more retries
-                        requestSource.SetResult(null);
+                        request.RequestSource.SetResult(null);
                         _adapterRequests.Remove(adapterId);
+                        break;
                     }
                 }
             }
-            return await requestSource.Task.ConfigureAwait(false);
+            return await request.RequestSource.Task.ConfigureAwait(false);
         }
 
         internal async ValueTask<IObjectPrx?> FindObjectAsync(Identity id)
         {
-            TaskCompletionSource<IObjectPrx?>? requestSource;
+            ObjectRequest? request;
             bool invoke = false;
             lock (_mutex)
             {
-                if (!_objectRequests.TryGetValue(id, out requestSource))
+                if (!_objectRequests.TryGetValue(id, out request))
                 {
                     invoke = true;
-                    requestSource = new TaskCompletionSource<IObjectPrx?>();
-                    _objectRequests.Add(id, requestSource);
+                    request = new ObjectRequest();
+                    _objectRequests.Add(id, request);
                 }
             }
 
+            int retryCount = _retryCount;
+            int lookupCount = _lookups.Count;
+            int failureCount = 0;
+
+            var requestId = new Identity(request.RequestId, "");
             while (invoke)
             {
-                int retryCount = _retryCount;
-                int lookupCount = _lookups.Count;
-                int failureCount = 0;
                 foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
                 {
                     Debug.Assert(reply != null);
-                    ILookupReplyPrx? lookupReply = reply.Clone(id, ILookupReplyPrx.Factory);
+                    ILookupReplyPrx? lookupReply = reply.Clone(requestId, ILookupReplyPrx.Factory);
 
                     try
                     {
@@ -213,54 +234,59 @@ namespace ZeroC.IceDiscovery
 
                             if (++failureCount == lookupCount)
                             {
-                                requestSource.SetResult(null);
+                                request.RequestSource.SetResult(null);
                                 _objectRequests.Remove(id);
                             }
                         }
                     }
                 }
-                Task? t = await Task.WhenAny(requestSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
-                if (t == requestSource.Task)
+                Task? t = await Task.WhenAny(request.RequestSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
+                lock (_mutex)
                 {
-                    break;
-                }
-                else if (retryCount-- == 0)
-                {
-                    // Request timeout and no more retries
-                    requestSource.SetResult(null);
-                    lock (_mutex)
+                    if (t == request.RequestSource.Task)
                     {
+                        break;
+                    }
+                    else if (--retryCount <= 0)
+                    {
+                        // Request timeout and no more retries
+                        request.RequestSource.SetResult(null);
                         _objectRequests.Remove(id);
+                        break;
                     }
                 }
             }
-            return await requestSource.Task.ConfigureAwait(false);
+            return await request.RequestSource.Task.ConfigureAwait(false);
         }
 
-        internal void FoundAdapter(string adapterId, IObjectPrx proxy, bool isReplicaGroup)
+        internal void FoundAdapter(string adapterId, string requestId, IObjectPrx proxy, bool isReplicaGroup)
         {
             lock (_mutex)
             {
-                if (_adapterRequests.TryGetValue(adapterId, out TaskCompletionSource<IObjectPrx?>? request))
+                if (_adapterRequests.TryGetValue(adapterId, out AdapterRequest? request) &&
+                    request.RequestId == requestId)
                 {
                     if (isReplicaGroup)
                     {
-                        Console.WriteLine($"Replica group {adapterId} replay");
-                        if (_replicaGroupReplies.TryGetValue(adapterId, out HashSet<IObjectPrx>? proxies))
+                        if (_replicaGroupReplies.TryGetValue(requestId, out HashSet<IObjectPrx>? proxies))
                         {
                             proxies.Add(proxy);
                         }
                         else
                         {
                             proxies = new HashSet<IObjectPrx> { proxy };
-                            _replicaGroupReplies.Add(adapterId, proxies);
-                            int latency = 100 * LatencyMultiplier / 10000;
-                            if (latency == 0)
-                            {
-                                latency = 1;
-                            }
+                            _replicaGroupReplies.Add(requestId, proxies);
+
                             Task.Run(async () =>
                             {
+                                // Delay the completion of the request to give a chance to other members of this
+                                // replica group to reply
+                                int latency =
+                                    (int)((DateTime.Now.Ticks - request.Start) * LatencyMultiplier / 10000.0);
+                                if (latency == 0)
+                                {
+                                    latency = 1;
+                                }
                                 await Task.Delay(latency);
                                 var endpoints = new List<Endpoint>();
                                 IObjectPrx result = proxies.First();
@@ -268,16 +294,15 @@ namespace ZeroC.IceDiscovery
                                 {
                                     endpoints.AddRange(prx.Endpoints);
                                 }
-                                request.SetResult(result.Clone(endpoints: endpoints));
-                                _replicaGroupReplies.Remove(adapterId);
+                                request.RequestSource.SetResult(result.Clone(endpoints: endpoints));
+                                _replicaGroupReplies.Remove(requestId);
                                 _adapterRequests.Remove(adapterId);
                             });
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"found adapter {adapterId} replay");
-                        request.SetResult(proxy);
+                        request.RequestSource.SetResult(proxy);
                         _adapterRequests.Remove(adapterId);
                     }
                 }
@@ -285,13 +310,14 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal void FoundObject(Identity id, IObjectPrx proxy)
+        internal void FoundObject(Identity id, string requestId, IObjectPrx proxy)
         {
             lock (_mutex)
             {
-                if (_objectRequests.TryGetValue(id, out TaskCompletionSource<IObjectPrx?>? requestSource))
+                if (_objectRequests.TryGetValue(id, out ObjectRequest? request) &&
+                    request.RequestId == requestId)
                 {
-                    requestSource.SetResult(proxy);
+                    request.RequestSource.SetResult(proxy);
                     _objectRequests.Remove(id);
                 }
                 // else ignore responses from old requests
@@ -332,10 +358,10 @@ namespace ZeroC.IceDiscovery
 
         public LookupReply(Lookup lookup) => _lookup = lookup;
 
-        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current c) =>
-            _lookup.FoundObject(id, proxy!); // proxy cannot be null
+        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current current) =>
+            _lookup.FoundObject(id, current.Identity.Name, proxy!);
 
-        public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current c) =>
-            _lookup.FoundAdapter(adapterId, proxy!, isReplicaGroup); // proxy cannot be null
+        public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current current) =>
+            _lookup.FoundAdapter(adapterId, current.Identity.Name, proxy!, isReplicaGroup);
     }
 }
