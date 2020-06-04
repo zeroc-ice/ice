@@ -587,7 +587,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                 for (int i = 0; i < sz; ++i)
+                for (int i = 0; i < sz; ++i)
                 {
                     TKey key = keyReader(this);
                     TValue value = valueReader(this);
