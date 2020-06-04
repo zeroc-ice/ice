@@ -164,10 +164,7 @@ namespace ZeroC.Ice
                 }
                 else if (findCertProps.Count > 0)
                 {
-                    //
-                    // If IceSSL.FindCert.* properties are defined, add the selected certificates
-                    // to the collection.
-                    //
+                    // If IceSSL.FindCert.* properties are defined, add the selected certificates to the collection.
                     foreach (KeyValuePair<string, string> entry in findCertProps)
                     {
                         string name = entry.Key;
@@ -346,9 +343,7 @@ namespace ZeroC.Ice
         private static X509Certificate2Collection FindCertificates(string prop, StoreLocation storeLocation,
                                                                    string name, string value)
         {
-            //
             // Open the X509 certificate store.
-            //
             X509Store store;
             try
             {
@@ -368,7 +363,6 @@ namespace ZeroC.Ice
                     ex);
             }
 
-            //
             // Start with all of the certificates in the collection and filter as necessary.
             //
             // - If the value is "*", return all certificates.
@@ -383,7 +377,6 @@ namespace ZeroC.Ice
             //   Thumbprint
             //
             //   A value must be enclosed in single or double quotes if it contains whitespace.
-            //
             var result = new X509Certificate2Collection();
             result.AddRange(store.Certificates);
             try
@@ -398,9 +391,7 @@ namespace ZeroC.Ice
                     int pos;
                     while ((pos = value.IndexOf(':', start)) != -1)
                     {
-                        //
                         // Parse the X509FindType.
-                        //
                         string field = value[start..pos].Trim().ToUpperInvariant();
                         X509FindType findType;
                         if (field.Equals("SUBJECT"))
@@ -436,9 +427,7 @@ namespace ZeroC.Ice
                             throw new FormatException($"IceSSL: unknown key in `{value}'");
                         }
 
-                        //
                         // Parse the argument.
-                        //
                         start = pos + 1;
                         while (start < value.Length && (value[start] == ' ' || value[start] == '\t'))
                         {
@@ -486,11 +475,7 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        //
                         // Execute the query.
-                        //
-                        // TODO: allow user to specify a value for validOnly?
-                        //
                         bool validOnly = false;
                         if (findType == X509FindType.FindBySubjectDistinguishedName ||
                             findType == X509FindType.FindByIssuerDistinguishedName)
@@ -529,33 +514,25 @@ namespace ZeroC.Ice
 
         private static bool IsAbsolutePath(string path)
         {
-            //
             // Skip whitespace
-            //
             path = path.Trim();
 
             if (AssemblyUtil.IsWindows)
             {
-                //
                 // We need at least 3 non-whitespace characters to have an absolute path
-                //
                 if (path.Length < 3)
                 {
                     return false;
                 }
 
-                //
                 // Check for X:\ path ('\' may have been converted to '/')
-                //
                 if ((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
                 {
                     return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
                 }
             }
 
-            //
             // Check for UNC path
-            //
             return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
         }
 
@@ -655,9 +632,7 @@ namespace ZeroC.Ice
                 throw new InvalidConfigurationException($"IceSSL: invalid store name in `{prop}'");
             }
 
-            //
             // Try to convert the name into the StoreName enumeration.
-            //
             try
             {
                 name = (StoreName)Enum.Parse(typeof(StoreName), sname, true);
