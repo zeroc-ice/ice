@@ -480,6 +480,200 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Writes a dictionary to the stream. The dictionary's value type is reference type.</summary>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="withBitSequence">When true, encodes entries with a null value using a bit sequence; otherwise,
+        /// false.</param>
+        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
+        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue?> v,
+            bool withBitSequence,
+            OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : notnull
+            where TValue : class
+        {
+            if (withBitSequence)
+            {
+                int count = v.Count();
+                WriteSize(count);
+                BitSequence bitSequence = WriteBitSequence(count);
+                int index = 0;
+                foreach ((TKey key, TValue? value) in v)
+                {
+                    keyWriter(this, key);
+                    if (value != null)
+                    {
+                        valueWriter(this, value);
+                    }
+                    else
+                    {
+                        bitSequence[index] = false;
+                    }
+                    index++;
+                }
+            }
+            else
+            {
+                WriteDictionary((IReadOnlyDictionary<TKey, TValue>)v, keyWriter, valueWriter);
+            }
+        }
+
+        /// <summary>Writes a dictionary to the stream. The dictionary's value type is nullable value type.
+        /// </summary>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
+        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue?> v,
+            OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : notnull
+            where TValue : struct
+        {
+            int count = v.Count();
+            WriteSize(count);
+            BitSequence bitSequence = WriteBitSequence(count);
+            int index = 0;
+            foreach ((TKey key, TValue? value) in v)
+            {
+                keyWriter(this, key);
+                if (value is TValue actualValue)
+                {
+                    valueWriter(this, actualValue);
+                }
+                else
+                {
+                    bitSequence[index] = false;
+                }
+                index++;
+            }
+        }
+
+        /// <summary>Writes a dictionary to the stream. The dictionary's key is a mapped Slice struct and the
+        /// dictionary's value type is a reference type.</summary>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="withBitSequence">When true, encodes entries with a null value using a bit sequence; otherwise,
+        /// false.</param>
+        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue?> v,
+            bool withBitSequence,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : struct, IStreamableStruct
+            where TValue : class
+        {
+            if (withBitSequence)
+            {
+                int count = v.Count();
+                WriteSize(count);
+                BitSequence bitSequence = WriteBitSequence(count);
+                int index = 0;
+                foreach ((TKey key, TValue? value) in v)
+                {
+                    key.IceWrite(this);
+                    if (value != null)
+                    {
+                        valueWriter(this, value);
+                    }
+                    else
+                    {
+                        bitSequence[index] = false;
+                    }
+                    index++;
+                }
+            }
+            else
+            {
+                WriteDictionary((IReadOnlyDictionary<TKey, TValue>)v, valueWriter);
+            }
+        }
+
+        /// <summary>Writes a dictionary to the stream. The dictionary's key is a mapped Slice struct and the
+        /// dictionary's value type is a nullable value type.</summary>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue?> v,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : struct, IStreamableStruct
+            where TValue : struct
+        {
+            int count = v.Count();
+            WriteSize(count);
+            BitSequence bitSequence = WriteBitSequence(count);
+            int index = 0;
+            foreach ((TKey key, TValue? value) in v)
+            {
+                key.IceWrite(this);
+                if (value is TValue actualValue)
+                {
+                    valueWriter(this, actualValue);
+                }
+                else
+                {
+                    bitSequence[index] = false;
+                }
+                index++;
+            }
+        }
+
+        /// <summary>Writes a dictionary to the stream. The dictionary's value is a nullable mapped Slice struct.
+        /// </summary>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue?> v,
+            OutputStreamWriter<TKey> keyWriter)
+            where TKey : notnull
+            where TValue : struct, IStreamableStruct
+        {
+            int count = v.Count();
+            WriteSize(count);
+            BitSequence bitSequence = WriteBitSequence(count);
+            int index = 0;
+            foreach ((TKey key, TValue? value) in v)
+            {
+                keyWriter(this, key);
+                if (value is TValue actualValue)
+                {
+                    actualValue.IceWrite(this);
+                }
+                else
+                {
+                    bitSequence[index] = false;
+                }
+                index++;
+            }
+        }
+
+        /// <summary>Writes a dictionary to the stream. Both the dictionary's key and value are mapped Slice structs,
+        /// and the values are nullable.</summary>
+        /// <param name="v">The dictionary to write.</param>
+        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue?> v)
+            where TKey : struct, IStreamableStruct
+            where TValue : struct, IStreamableStruct
+        {
+            int count = v.Count();
+            WriteSize(count);
+            BitSequence bitSequence = WriteBitSequence(count);
+            int index = 0;
+            foreach ((TKey key, TValue? value) in v)
+            {
+                key.IceWrite(this);
+                if (value is TValue actualValue)
+                {
+                    actualValue.IceWrite(this);
+                }
+                else
+                {
+                    bitSequence[index] = false;
+                }
+                index++;
+            }
+        }
+
         /// <summary>Writes an enumerator to the stream.</summary>
         /// <param name="v">The enumerator's int value.</param>
         public void WriteEnum(int v) => WriteSize(v);
@@ -902,6 +1096,138 @@ namespace ZeroC.Ice
             where TValue : struct, IStreamableStruct
         {
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteDictionary(dict);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged dictionary to the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="withBitSequence">When true, encodes entries with a null value using a bit sequence; otherwise,
+        /// false.</param>
+        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
+        /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue?>? v,
+            bool withBitSequence,
+            OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : notnull
+            where TValue : class
+        {
+            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteDictionary(dict, withBitSequence, keyWriter, valueWriter);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged dictionary to the stream. The dictionary's value type is a nullable value type.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
+        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue?>? v,
+            OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : notnull
+            where TValue : struct
+        {
+            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteDictionary(dict, keyWriter, valueWriter);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged dictionary to the stream. The dictionary's key is a mapped Slice struct.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="withBitSequence">When true, encodes entries with a null value using a bit sequence; otherwise,
+        /// false.</param>
+        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue?>? v,
+            bool withBitSequence,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : struct, IStreamableStruct
+            where TValue : class
+        {
+            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteDictionary(dict, withBitSequence, valueWriter);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged dictionary to the stream. The dictionary's key is a mapped Slice struct,
+        /// and the dictionary's value type is a nullable value type.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="valueWriter">The delegate that writes each non-null value to the stream.</param>
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue?>? v,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : struct, IStreamableStruct
+            where TValue : struct
+        {
+            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteDictionary(dict, valueWriter);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged dictionary to the stream. The dictionary's value is a nullable mapped Slice struct.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The dictionary to write.</param>
+        /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue?>? v,
+            OutputStreamWriter<TKey> keyWriter)
+            where TKey : notnull
+            where TValue : struct, IStreamableStruct
+        {
+            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteDictionary(dict, keyWriter);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged dictionary to the stream. Both the dictionary's key and value are mapped Slice
+        /// structs, and the value's type is nullable.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The dictionary to write.</param>
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue?>? v)
+            where TKey : struct, IStreamableStruct
+            where TValue : struct, IStreamableStruct
+        {
+            if (v is IReadOnlyDictionary<TKey, TValue?> dict)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();

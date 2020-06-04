@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Test;
@@ -162,6 +163,20 @@ namespace ZeroC.Ice.Test.Optional
 
             output.WriteLine("ok");
 
+            output.Write("testing operations with dictionary<K, V?> parameters... ");
+            Dictionary<int, int?> intIntDict = new Dictionary<int, int?> { { 1, -5 }, { 3, null }, { 5, 19 },
+                { 7, -35000 }};
+            TestHelper.Assert(test.OpIntOptIntDict(intIntDict).DictionaryEqual(intIntDict));
+            TestHelper.Assert(test.OpTaggedIntOptIntDict(intIntDict)!.DictionaryEqual(intIntDict));
+            TestHelper.Assert(test.OpTaggedIntOptIntDict(null) == null);
+
+            Dictionary<int, string?> intStringDict = new Dictionary<int, string?> { { 1, "foo" }, { 3, "test" },
+                { 5, null }, { 7, "bar" }};
+            TestHelper.Assert(test.OpIntOptStringDict(intStringDict).DictionaryEqual(intStringDict));
+            TestHelper.Assert(test.OpTaggedIntOptStringDict(intStringDict)!.DictionaryEqual(intStringDict));
+            TestHelper.Assert(test.OpTaggedIntOptStringDict(null) == null);
+
+            output.WriteLine("ok");
             return test;
         }
     }

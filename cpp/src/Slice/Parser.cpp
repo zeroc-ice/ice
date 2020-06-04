@@ -4307,7 +4307,6 @@ Slice::Optional::usesClasses() const
 size_t
 Slice::Optional::minWireSize() const
 {
-    // Should only be called for classes and proxies.
     if (_underlying->isClassType())
     {
         return 1;
@@ -4318,7 +4317,6 @@ Slice::Optional::minWireSize() const
     }
     else
     {
-        assert(0);
         return 0;
     }
 }

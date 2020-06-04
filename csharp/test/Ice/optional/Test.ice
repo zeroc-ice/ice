@@ -17,6 +17,9 @@ module ZeroC::Ice::Test::Optional
     sequence<int?> OptIntSeq;
     sequence<string?> OptStringSeq;
 
+    dictionary<int, int?> IntOptIntDict;
+    dictionary<int, string?> IntOptStringDict;
+
     interface Test
     {
         void shutdown();
@@ -42,5 +45,11 @@ module ZeroC::Ice::Test::Optional
 
         OptStringSeq opOptStringSeq(OptStringSeq i1);
         tag(1) OptStringSeq? opTaggedOptStringSeq(tag(2) OptStringSeq? i1);
+
+        IntOptIntDict opIntOptIntDict(IntOptIntDict i1);
+        tag(1) IntOptIntDict? opTaggedIntOptIntDict(tag(2) IntOptIntDict? i1);
+
+        IntOptStringDict opIntOptStringDict(IntOptStringDict i1);
+        tag(1) IntOptStringDict? opTaggedIntOptStringDict(tag(2) IntOptStringDict? i1);
     }
 }

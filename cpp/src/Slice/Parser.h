@@ -858,6 +858,7 @@ public:
     std::string getTagFormat() const override;
     bool isVariableLength() const override;
     TypePtr underlying() const { return _underlying; }
+    bool encodedUsingBitSequence() const { return minWireSize() == 0; }
 
 private:
 
