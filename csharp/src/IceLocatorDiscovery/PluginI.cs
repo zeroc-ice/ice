@@ -15,8 +15,8 @@ namespace ZeroC.IceLocatorDiscovery
 {
     public sealed class PluginFactory : IPluginFactory
     {
-        public Ice.IPlugin Create(Communicator communicator, string name, string[] args) =>
-            new PluginI(name, communicator);
+        public Ice.IPlugin
+        Create(Communicator communicator, string name, string[] args) => new PluginI(name, communicator);
     }
 
     public interface IPlugin : Ice.IPlugin
@@ -66,29 +66,29 @@ namespace ZeroC.IceLocatorDiscovery
             }
         }
 
-        private void Exception(Exception ex)
+        private void Exception(System.Exception ex)
         {
             try
             {
                 throw ex;
             }
-            catch (DispatchException exc)
+            catch (Ice.DispatchException exc)
             {
                 SetException(exc);
             }
-            catch (NoEndpointException)
+            catch (Ice.NoEndpointException)
             {
-                SetException(new ObjectNotExistException(_current));
+                SetException(new Ice.ObjectNotExistException(_current));
             }
-            catch (ObjectAdapterDeactivatedException)
+            catch (Ice.ObjectAdapterDeactivatedException)
             {
-                SetException(new ObjectNotExistException(_current));
+                SetException(new Ice.ObjectNotExistException(_current));
             }
-            catch (CommunicatorDestroyedException)
+            catch (Ice.CommunicatorDestroyedException)
             {
-                SetException(new ObjectNotExistException(_current));
+                SetException(new Ice.ObjectNotExistException(_current));
             }
-            catch (Exception exc)
+            catch (System.Exception exc)
             {
                 _exception = exc;
                 _locator.Invoke(_locatorPrx, this); // Retry with new locator proxy
