@@ -372,17 +372,17 @@ namespace ZeroC.Ice
             ReadSequence(minElementSize, reader).ToArray();
 
         /// <summary>Reads a sequence of nullable elements from the stream and returns an array.</summary>
+        /// <param name="withBitSequence">True when null elements are encoded using a bit sequence; otherwise, false.
+        /// </param>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T?[] ReadArray<T>(InputStreamReader<T> reader) where T : class =>
-            ReadSequence(reader).ToArray();
+        public T?[] ReadArray<T>(bool withBitSequence, InputStreamReader<T> reader) where T : class =>
+            ReadSequence(withBitSequence, reader).ToArray();
 
         /// <summary>Reads a sequence of nullable values from the stream and returns an array.</summary>
-        /// <param name="ofNullableValues">Must always be true.</param>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream, as an array.</returns>
-        public T?[] ReadArray<T>(bool ofNullableValues, InputStreamReader<T> reader) where T : struct =>
-            ReadSequence(ofNullableValues, reader).ToArray();
+        public T?[] ReadArray<T>(InputStreamReader<T> reader) where T : struct => ReadSequence(reader).ToArray();
 
         /// <summary>Reads a dictionary from the stream.</summary>
         /// <param name="minEntrySize">The minimum size of each entry of the dictionary, in bytes.</param>
@@ -433,29 +433,25 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a sequence of nullable elements from the stream. The element type is a reference type.
         /// </summary>
+        /// <param name="withBitSequence">True when null elements are encoded using a bit sequence; otherwise, false.
+        /// </param>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>A collection that provides the size of the sequence and allows you read the sequence from the
         /// the stream. The returned collection does not fully implement ICollection{T?}, in particular you can only
         /// call GetEnumerator() once on this collection. You would typically use this collection to construct a
         /// List{T?} or some other generic collection that can be constructed from an IEnumerable{T?}.</returns>
-        public ICollection<T?> ReadSequence<T>(InputStreamReader<T> reader) where T : class =>
-            new NullableCollection<T>(this, reader);
+        public ICollection<T?> ReadSequence<T>(bool withBitSequence, InputStreamReader<T> reader) where T : class =>
+            withBitSequence ? new NullableCollection<T>(this, reader) : (ICollection<T?>)ReadSequence(1, reader);
 
         /// <summary>Reads a sequence of nullable values from the stream.</summary>
-        /// <param name="ofNullableValues">Must always be true.</param>
         /// <param name="reader">The input stream reader used to read each non-null element (value) of the sequence.
         /// </param>
         /// <returns>A collection that provides the size of the sequence and allows you read the sequence from the
         /// the stream. The returned collection does not fully implement ICollection{T?}, in particular you can only
         /// call GetEnumerator() once on this collection. You would typically use this collection to construct a
         /// List{T?} or some other generic collection that can be constructed from an IEnumerable{T?}.</returns>
-        public ICollection<T?> ReadSequence<T>(bool ofNullableValues, InputStreamReader<T> reader) where T : struct
-        {
-            // We need the always-true ofNullableValues parameter to avoid ambiguity with
-            // ReadSequence<T>(InputStreamReader<T> reader) where T : class
-            Debug.Assert(ofNullableValues);
-            return new NullableValueCollection<T>(this, reader);
-        }
+        public ICollection<T?> ReadSequence<T>(InputStreamReader<T> reader) where T : struct =>
+            new NullableValueCollection<T>(this, reader);
 
         /// <summary>Reads a serializable object from the stream.</summary>
         /// <returns>The object read from the stream.</returns>
@@ -581,18 +577,19 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a tagged array of nullable elements from the stream.</summary>
         /// <param name="tag">The tag.</param>
+        /// <param name="withBitSequence">True when null elements are encoded using a bit sequence; otherwise, false.
+        /// </param>
         /// <param name="reader">The input stream reader used to read each non-null element of the array.</param>
         /// <returns>The array read from the stream, or null.</returns>
-        public T?[]? ReadTaggedArray<T>(int tag, InputStreamReader<T> reader) where T : class =>
-            ReadTaggedSequence(tag, reader)?.ToArray();
+        public T?[]? ReadTaggedArray<T>(int tag, bool withBitSequence, InputStreamReader<T> reader) where T : class =>
+            ReadTaggedSequence(tag, withBitSequence, reader)?.ToArray();
 
         /// <summary>Reads a tagged array of nullable values from the stream.</summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="ofNullableValues">Must always be true.</param>
         /// <param name="reader">The input stream reader used to read each non-null value of the array.</param>
         /// <returns>The array read from the stream, or null.</returns>
-        public T?[]? ReadTaggedArray<T>(int tag, bool ofNullableValues, InputStreamReader<T> reader) where T : struct =>
-            ReadTaggedSequence(tag, ofNullableValues, reader)?.ToArray();
+        public T?[]? ReadTaggedArray<T>(int tag, InputStreamReader<T> reader) where T : struct =>
+            ReadTaggedSequence(tag, reader)?.ToArray();
 
         /// <summary>Reads a tagged dictionary from the stream.</summary>
         /// <param name="tag">The tag.</param>
@@ -694,15 +691,17 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a tagged sequence of nullable elements from the stream.</summary>
         /// <param name="tag">The tag.</param>
+        /// <param name="withBitSequence">True when null elements are encoded using a bit sequence; otherwise, false.
+        /// </param>
         /// <param name="reader">The input stream reader used to read each non-null element of the sequence.</param>
         /// <returns>The sequence read from the stream as an ICollection{T?}, or null.</returns>
-        public ICollection<T?>? ReadTaggedSequence<T>(int tag, InputStreamReader<T> reader)
+        public ICollection<T?>? ReadTaggedSequence<T>(int tag, bool withBitSequence, InputStreamReader<T> reader)
             where T : class
         {
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 SkipFixedLengthSize();
-                return ReadSequence(reader);
+                return ReadSequence(withBitSequence, reader);
             }
             else
             {
@@ -712,17 +711,15 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a tagged sequence of nullable values from the stream.</summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="ofNullableValues">Must always be true.</param>
         /// <param name="reader">The input stream reader used to read each non-null value of the sequence.</param>
         /// <returns>The sequence read from the stream as an ICollection{T?}, or null.</returns>
-        public ICollection<T?>? ReadTaggedSequence<T>(int tag, bool ofNullableValues, InputStreamReader<T> reader)
+        public ICollection<T?>? ReadTaggedSequence<T>(int tag, InputStreamReader<T> reader)
             where T : struct
         {
-            Debug.Assert(ofNullableValues);
             if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
             {
                 SkipFixedLengthSize();
-                return ReadSequence(ofNullableValues, reader);
+                return ReadSequence(reader);
             }
             else
             {
