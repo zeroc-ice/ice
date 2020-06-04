@@ -32,7 +32,7 @@ namespace ZeroC.Ice
     /// <typeparam name="T">The type of the value to write (a struct).</typeparam>
     /// <param name="ostr">The output stream to write to.</param>
     /// <param name="value">The value to write to the stream.</param>
-    public delegate void OutputStreamStructWriter<T>(OutputStream ostr, in T value) where T : struct;
+    public delegate void OutputStreamValueWriter<T>(OutputStream ostr, in T value) where T : struct;
 
     /// <summary>Writes data into a byte buffer using the Ice encoding.</summary>
     public sealed partial class OutputStream
@@ -66,11 +66,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<bool[]> IceWriterFromBoolArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<bool>> IceWriterFromBoolSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<byte> IceWriterFromByte =
@@ -78,11 +78,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<byte[]> IceWriterFromByteArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<byte>> IceWriterFromByteSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<double> IceWriterFromDouble =
@@ -90,11 +90,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<double[]> IceWriterFromDoubleArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<double>> IceWriterFromDoubleSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<float> IceWriterFromFloat =
@@ -102,11 +102,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<float[]> IceWriterFromFloatArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<float>> IceWriterFromFloatSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<int> IceWriterFromInt =
@@ -114,11 +114,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<int[]> IceWriterFromIntArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<int>> IceWriterFromIntSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<long> IceWriterFromLong =
@@ -126,11 +126,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<long[]> IceWriterFromLongArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<long>> IceWriterFromLongSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<short> IceWriterFromShort =
@@ -138,11 +138,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<short[]> IceWriterFromShortArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<short>> IceWriterFromShortSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<string> IceWriterFromString =
@@ -154,11 +154,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<uint[]> IceWriterFromUIntArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<uint>> IceWriterFromUIntSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ulong> IceWriterFromULong =
@@ -166,11 +166,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ulong[]> IceWriterFromULongArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<ulong>> IceWriterFromULongSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ushort> IceWriterFromUShort =
@@ -178,11 +178,11 @@ namespace ZeroC.Ice
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ushort[]> IceWriterFromUShortArray =
-            (ostr, value) => ostr.WriteFixedSizeNumericArray(value);
+            (ostr, value) => ostr.WriteArray(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<ReadOnlyMemory<ushort>> IceWriterFromUShortSequence =
-            (ostr, value) => ostr.WriteFixedSizeNumericSequence(value.Span);
+            (ostr, value) => ostr.WriteSequence(value.Span);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<int> IceWriterFromVarInt =
@@ -410,13 +410,19 @@ namespace ZeroC.Ice
         // Write methods for constructed types except class and exception
         //
 
+        /// <summary>Writes an array of fixed-size numeric values, such as int and long, to the stream.</summary>
+        /// <param name="v">The array of numeric values.</param>
+        public void WriteArray<T>(T[] v) where T : struct => WriteSequence(new ReadOnlySpan<T>(v));
+
         /// <summary>Writes a dictionary to the stream.</summary>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v,
-                                                  OutputStreamWriter<TKey> keyWriter,
-                                                  OutputStreamWriter<TValue> valueWriter) where TKey : notnull
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue> v,
+            OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
+            where TKey : notnull
         {
             WriteSize(v.Count);
             foreach ((TKey key, TValue value) in v)
@@ -429,8 +435,9 @@ namespace ZeroC.Ice
         /// <summary>Writes a dictionary to the stream. The dictionary's key is a mapped Slice struct.</summary>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v,
-                                                  OutputStreamWriter<TValue> valueWriter)
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue> v,
+            OutputStreamWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
         {
             WriteSize(v.Count);
@@ -444,8 +451,9 @@ namespace ZeroC.Ice
         /// <summary>Writes a dictionary to the stream. The dictionary's value is a mapped Slice struct.</summary>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> v,
-                                                  OutputStreamWriter<TKey> keyWriter)
+        public void WriteDictionary<TKey, TValue>(
+            IReadOnlyDictionary<TKey, TValue> v,
+            OutputStreamWriter<TKey> keyWriter)
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
@@ -476,24 +484,9 @@ namespace ZeroC.Ice
         /// <param name="v">The enumerator's int value.</param>
         public void WriteEnum(int v) => WriteSize(v);
 
-        /// <summary>Writes an array of fixed-size numeric type, such as int and long, to the stream.</summary>
-        /// <param name="v">The array of numeric types.</param>
-        public void WriteFixedSizeNumericArray<T>(T[] v) where T : struct =>
-            WriteFixedSizeNumericSequence(new ReadOnlySpan<T>(v));
-
-        /// <summary>Writes a sequence of fixed-size numeric type, such as int and long, to the stream.</summary>
-        /// <param name="v">The sequence of numeric types represented by a ReadOnlySpan.</param>
-        // This method works because (as long as) there is no padding in the memory representation of the
-        // ReadOnlySpan.
-        public void WriteFixedSizeNumericSequence<T>(ReadOnlySpan<T> v) where T : struct
-        {
-            WriteSize(v.Length);
-            WriteByteSpan(MemoryMarshal.AsBytes(v));
-        }
-
-        /// <summary>Writes an optional proxy to the stream.</summary>
+        /// <summary>Writes a nullable proxy to the stream.</summary>
         /// <param name="v">The proxy to write, or null.</param>
-        public void WriteOptionalProxy<T>(T? v) where T : class, IObjectPrx
+        public void WriteNullableProxy<T>(T? v) where T : class, IObjectPrx
         {
             if (v != null)
             {
@@ -509,6 +502,16 @@ namespace ZeroC.Ice
         /// <param name="v">The proxy to write. This proxy cannot be null.</param>
         public void WriteProxy<T>(T v) where T : class, IObjectPrx => v.IceWrite(this);
 
+        /// <summary>Writes a sequence of fixed-size numeric values, such as int and long, to the stream.</summary>
+        /// <param name="v">The sequence of numeric values represented by a ReadOnlySpan.</param>
+        // This method works because (as long as) there is no padding in the memory representation of the
+        // ReadOnlySpan.
+        public void WriteSequence<T>(ReadOnlySpan<T> v) where T : struct
+        {
+            WriteSize(v.Length);
+            WriteByteSpan(MemoryMarshal.AsBytes(v));
+        }
+
         /// <summary>Writes a sequence to the stream.</summary>
         /// <param name="v">The sequence to write.</param>
         /// <param name="writer">The delegate that writes each element to the stream.</param>
@@ -523,13 +526,89 @@ namespace ZeroC.Ice
 
         /// <summary>Writes a sequence to the stream. Elements of the sequence are mapped Slice structs.</summary>
         /// <param name="v">The sequence to write.</param>
-        public void WriteSequence<T>(IEnumerable<T> v)
-            where T : struct, IStreamableStruct
+        public void WriteSequence<T>(IEnumerable<T> v) where T : struct, IStreamableStruct
         {
             WriteSize(v.Count()); // potentially slow Linq Count()
             foreach (T item in v)
             {
                 item.IceWrite(this);
+            }
+        }
+
+        /// <summary>Writes a sequence to the stream. The elements of the sequence are reference types.</summary>
+        /// <param name="v">The sequence to write.</param>
+        /// <param name="withBitSequence">True to encode null elements using a bit sequence; otherwise, false.</param>
+        /// <param name="writer">The delegate that writes each non-null element to the stream.</param>
+        public void WriteSequence<T>(IEnumerable<T?> v, bool withBitSequence, OutputStreamWriter<T> writer)
+            where T : class
+        {
+            if (withBitSequence)
+            {
+                int count = v.Count(); // potentially slow Linq Count()
+                WriteSize(count);
+                BitSequence bitSequence = WriteBitSequence(count);
+                int index = 0;
+                foreach (T? item in v)
+                {
+                    if (item is T value)
+                    {
+                        writer(this, value);
+                    }
+                    else
+                    {
+                        bitSequence[index] = false;
+                    }
+                    index++;
+                }
+            }
+            else
+            {
+                WriteSequence((IEnumerable<T>)v, writer);
+            }
+        }
+
+        /// <summary>Writes a sequence of nullable values to the stream.</summary>
+        /// <param name="v">The sequence to write.</param>
+        /// <param name="writer">The delegate that writes each non-null value to the stream.</param>
+        public void WriteSequence<T>(IEnumerable<T?> v, OutputStreamWriter<T> writer) where T : struct
+        {
+            int count = v.Count(); // potentially slow Linq Count()
+            WriteSize(count);
+            BitSequence bitSequence = WriteBitSequence(count);
+            int index = 0;
+            foreach (T? item in v)
+            {
+                if (item is T value)
+                {
+                    writer(this, value);
+                }
+                else
+                {
+                    bitSequence[index] = false;
+                }
+                index++;
+            }
+        }
+
+        /// <summary>Writes a sequence of nullable values to the stream. The values are mapped Slice structs.</summary>
+        /// <param name="v">The sequence to write.</param>
+        public void WriteSequence<T>(IEnumerable<T?> v) where T : struct, IStreamableStruct
+        {
+            int count = v.Count(); // potentially slow Linq Count()
+            WriteSize(count);
+            BitSequence bitSequence = WriteBitSequence(count);
+            int index = 0;
+            foreach (T? item in v)
+            {
+                if (item is T value)
+                {
+                    value.IceWrite(this);
+                }
+                else
+                {
+                    bitSequence[index] = false;
+                }
+                index++;
             }
         }
 
@@ -651,17 +730,24 @@ namespace ZeroC.Ice
         // Write methods for tagged constructed types except class
         //
 
+        /// <summary>Writes a tagged array of fixed-size numeric values to the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The array to write.</param>
+        public void WriteTaggedArray<T>(int tag, T[]? v) where T : struct =>
+            WriteTaggedSequence(tag, new ReadOnlySpan<T>(v));
+
         /// <summary>Writes a tagged dictionary with fixed-size entries to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int entrySize,
-                                                        OutputStreamWriter<TKey> keyWriter,
-                                                        OutputStreamWriter<TValue> valueWriter)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v,
+            int entrySize,
+            OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
             where TKey : notnull
         {
             Debug.Assert(entrySize > 1);
@@ -680,10 +766,11 @@ namespace ZeroC.Ice
         /// <param name="v">The dictionary to write.</param>
         /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int entrySize,
-                                                        OutputStreamWriter<TValue> valueWriter)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v,
+            int entrySize,
+            OutputStreamWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
         {
             Debug.Assert(entrySize > 1);
@@ -702,10 +789,11 @@ namespace ZeroC.Ice
         /// <param name="v">The dictionary to write.</param>
         /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int entrySize,
-                                                        OutputStreamWriter<TKey> keyWriter)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v,
+            int entrySize,
+            OutputStreamWriter<TKey> keyWriter)
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
@@ -724,9 +812,10 @@ namespace ZeroC.Ice
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="entrySize">The size of each entry (key + value), in bytes.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        int entrySize)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v,
+            int entrySize)
             where TKey : struct, IStreamableStruct
             where TValue : struct, IStreamableStruct
         {
@@ -745,10 +834,11 @@ namespace ZeroC.Ice
         /// <param name="v">The dictionary to write.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        OutputStreamWriter<TKey> keyWriter,
-                                                        OutputStreamWriter<TValue> valueWriter)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v,
+            OutputStreamWriter<TKey> keyWriter,
+            OutputStreamWriter<TValue> valueWriter)
             where TKey : notnull
         {
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
@@ -765,9 +855,10 @@ namespace ZeroC.Ice
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="valueWriter">The delegate that writes each value to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        OutputStreamWriter<TValue> valueWriter)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v,
+            OutputStreamWriter<TValue> valueWriter)
             where TKey : struct, IStreamableStruct
         {
             if (v is IReadOnlyDictionary<TKey, TValue> dict)
@@ -784,9 +875,10 @@ namespace ZeroC.Ice
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
         /// <param name="keyWriter">The delegate that writes each key to the stream.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v,
-                                                        OutputStreamWriter<TKey> keyWriter)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v,
+            OutputStreamWriter<TKey> keyWriter)
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
@@ -803,8 +895,9 @@ namespace ZeroC.Ice
         /// value are mapped Slice structs.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The dictionary to write.</param>
-        public void WriteTaggedDictionary<TKey, TValue>(int tag,
-                                                        IReadOnlyDictionary<TKey, TValue>? v)
+        public void WriteTaggedDictionary<TKey, TValue>(
+            int tag,
+            IReadOnlyDictionary<TKey, TValue>? v)
             where TKey : struct, IStreamableStruct
             where TValue : struct, IStreamableStruct
         {
@@ -829,33 +922,6 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged array of fixed-size numeric type to the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The array to write.</param>
-        public void WriteTaggedFixedSizeNumericArray<T>(int tag, T[]? v) where T : struct
-            => WriteTaggedFixedSizeNumericSequence(tag, new ReadOnlySpan<T>(v));
-
-        /// <summary>Writes a tagged sequence of fixed-size numeric type to the stream.</summary>
-        /// <param name="tag">The tag.</param>
-        /// <param name="v">The sequence to write.</param>
-        public void WriteTaggedFixedSizeNumericSequence<T>(int tag, ReadOnlySpan<T> v) where T : struct
-        {
-            // A null T[]? or List<T>? is implicitly converted into a default aka null ReadOnlyMemory<T> or
-            // ReadOnlySpan<T>. Furthermore, the span of a default ReadOnlyMemory<T> is a default ReadOnlySpan<T>, which
-            // is distinct from the span of an empty sequence. This is why the "v != null" below works correctly.
-            if (v != null)
-            {
-                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
-                int elementSize = Unsafe.SizeOf<T>();
-                if (elementSize > 1)
-                {
-                    // This size is redundant and optimized out by the encoding when elementSize is 1.
-                    WriteSize(v.Length == 0 ? 1 : (v.Length * elementSize) + GetSizeLength(v.Length));
-                }
-                WriteFixedSizeNumericSequence(v);
-            }
-        }
-
         /// <summary>Writes a tagged proxy to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The proxy to write.</param>
@@ -870,12 +936,49 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged sequence of fixed-size elements to the stream.</summary>
+        /// <summary>Writes a tagged sequence of fixed-size numeric values to the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The sequence to write.</param>
+        public void WriteTaggedSequence<T>(int tag, ReadOnlySpan<T> v) where T : struct
+        {
+            // A null T[]? or List<T>? is implicitly converted into a default aka null ReadOnlyMemory<T> or
+            // ReadOnlySpan<T>. Furthermore, the span of a default ReadOnlyMemory<T> is a default ReadOnlySpan<T>, which
+            // is distinct from the span of an empty sequence. This is why the "v != null" below works correctly.
+            if (v != null)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize);
+                int elementSize = Unsafe.SizeOf<T>();
+                if (elementSize > 1)
+                {
+                    // This size is redundant and optimized out by the encoding when elementSize is 1.
+                    WriteSize(v.Length == 0 ? 1 : (v.Length * elementSize) + GetSizeLength(v.Length));
+                }
+                WriteSequence(v);
+            }
+        }
+
+        /// <summary>Writes a tagged sequence of variable-size elements to the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The sequence to write.</param>
+        /// <param name="writer">The delegate that writes each element to the stream.</param>
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v, OutputStreamWriter<T> writer)
+        {
+            if (v is IEnumerable<T> value)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteSequence(value, writer);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged sequence of fixed-size values to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
         /// <param name="elementSize">The fixed size of each element of the sequence, in bytes.</param>
         /// <param name="writer">The delegate that writes each element to the stream.</param>
         public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v, int elementSize, OutputStreamWriter<T> writer)
+            where T : struct
         {
             Debug.Assert(elementSize > 0);
             if (v is IEnumerable<T> value)
@@ -898,14 +1001,27 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged sequence of fixed-size elements to the stream. Elements of the sequence are
+        /// <summary>Writes a tagged sequence of variable-size values to the stream. Elements of the sequence are
+        /// mapped Slice structs.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The sequence to write.</param>
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v) where T : struct, IStreamableStruct
+        {
+            if (v is IEnumerable<T> value)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteSequence(value);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged sequence of fixed-size values to the stream. Elements of the sequence are
         /// mapped Slice structs.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
         /// <param name="elementSize">The fixed size of each element of the sequence, in bytes.</param>
-        public void WriteTaggedSequence<T>(int tag,
-                                           IEnumerable<T>? v,
-                                           int elementSize)
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v, int elementSize)
             where T : struct, IStreamableStruct
         {
             Debug.Assert(elementSize > 0);
@@ -931,13 +1047,35 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged sequence of variable-size elements to the stream.</summary>
+        /// <summary>Writes a tagged sequence of nullable elements to the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
-        /// <param name="writer">The delegate that writes each element to the stream.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v, OutputStreamWriter<T> writer)
+        /// <param name="withBitSequence">True to encode null elements using a bit sequence; otherwise, false.</param>
+        /// <param name="writer">The delegate that writes each non-null element to the stream.</param>
+        public void WriteTaggedSequence<T>(
+            int tag,
+            IEnumerable<T?>? v,
+            bool withBitSequence,
+            OutputStreamWriter<T> writer)
+            where T : class
         {
-            if (v is IEnumerable<T> value)
+            if (v is IEnumerable<T?> value)
+            {
+                WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
+                Position pos = StartFixedLengthSize();
+                WriteSequence(value, withBitSequence, writer);
+                EndFixedLengthSize(pos);
+            }
+        }
+
+        /// <summary>Writes a tagged sequence of nullable values to the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="v">The sequence to write.</param>
+        /// <param name="writer">The delegate that writes each non-null element to the stream.</param>
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v, OutputStreamWriter<T> writer)
+            where T : struct
+        {
+            if (v is IEnumerable<T?> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();
@@ -946,14 +1084,14 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged sequence of variable-size elements to the stream. Elements of the sequence are
-        /// mapped Slice structs.</summary>
+        /// <summary>Writes a tagged sequence of nullable values to the stream. Elements of the sequence are mapped
+        /// Slice structs.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The sequence to write.</param>
-        public void WriteTaggedSequence<T>(int tag, IEnumerable<T>? v)
+        public void WriteTaggedSequence<T>(int tag, IEnumerable<T?>? v)
             where T : struct, IStreamableStruct
         {
-            if (v is IEnumerable<T> value)
+            if (v is IEnumerable<T?> value)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize);
                 Position pos = StartFixedLengthSize();
@@ -1481,7 +1619,7 @@ namespace ZeroC.Ice
             WriteByte(encoding.Minor);
         }
 
-        /// <summary>Writes a fixed-size numeric to the stream.</summary>
+        /// <summary>Writes a fixed-size numeric value to the stream.</summary>
         /// <param name="v">The numeric value to write to the stream.</param>
         private void WriteFixedSizeNumeric<T>(T v) where T : struct
         {

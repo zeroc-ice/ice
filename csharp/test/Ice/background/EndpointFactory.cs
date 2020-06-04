@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Background
     {
         internal EndpointFactory(IEndpointFactory factory) => _factory = factory;
 
-        public EndpointType Type() => (EndpointType)(Endpoint.TYPE_BASE + (short)_factory.Type());
+        public EndpointType Type => (EndpointType)(Endpoint.TYPE_BASE + (short)_factory.Type);
 
         public string Name => "test-" + _factory.Name;
 

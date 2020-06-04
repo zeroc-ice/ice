@@ -69,7 +69,7 @@ namespace ZeroC.Ice
         public static OutgoingResponseFrame WithReturnValue<T>(Current current,
                                                                FormatType? format,
                                                                in T value,
-                                                               OutputStreamStructWriter<T> writer)
+                                                               OutputStreamValueWriter<T> writer)
             where T : struct
         {
             var response = new OutgoingResponseFrame(current.Encoding);

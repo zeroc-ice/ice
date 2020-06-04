@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -814,7 +815,7 @@ namespace ZeroC.Ice
                         IEnumerable<IConnector> ctrs = await endpoint.ConnectorsAsync(_selType).ConfigureAwait(false);
                         _connectors.AddRange(ctrs.Select(item => new ConnectorInfo(item, endpoint)));
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         exception = ex;
                         _factory.HandleException(ex, _hasMore || (i + 1) < endpoints.Count);

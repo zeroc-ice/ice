@@ -16,6 +16,7 @@ namespace ZeroC.Ice
     {
         public ReadOnlyMemory<byte> Bytes { get; }
         public override string ConnectionId => "";
+
         public Encoding Encoding { get; }
         public override bool HasCompressionFlag => false;
         public override bool IsDatagram => false;

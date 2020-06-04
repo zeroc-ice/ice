@@ -9,17 +9,20 @@ namespace ZeroC.Ice
     internal sealed class UdpConnector : IConnector
     {
         public ITransceiver Connect() =>
-            new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
+            new UdpTransceiver(_communicator, Transport, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
 
-        public EndpointType Type() => _instance.Type;
+        public EndpointType Type { get; }
+        public string Transport { get; }
 
         //
         // Only for use by UdpEndpointI
         //
-        internal UdpConnector(TransportInstance instance, EndPoint addr, IPAddress? sourceAddr, string mcastInterface,
-                              int mcastTtl, string connectionId)
+        internal UdpConnector(Communicator communicator, string transport, EndpointType type, EndPoint addr,
+            IPAddress? sourceAddr, string mcastInterface, int mcastTtl, string connectionId)
         {
-            _instance = instance;
+            _communicator = communicator;
+            Transport = transport;
+            Type = type;
             _addr = addr;
             _sourceAddr = sourceAddr;
             _mcastInterface = mcastInterface;
@@ -78,7 +81,7 @@ namespace ZeroC.Ice
 
         public override int GetHashCode() => _hashCode;
 
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private readonly EndPoint _addr;
         private readonly IPAddress? _sourceAddr;
         private readonly string _mcastInterface;

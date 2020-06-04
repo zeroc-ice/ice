@@ -1209,9 +1209,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoOptional =";
+    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
     _out.inc();
-    _out << nl << "istr => istr.ReadOptionalClass<" << name << ">();";
+    _out << nl << "istr => istr.ReadNullableClass<" << name << ">();";
     _out.dec();
 
     // The writer is currently not useful; a future implementation for the 2.0 encoding will use the formal type to
@@ -1223,9 +1223,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "?> IceWriterFromOptional =";
+    _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
     _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteOptionalClass(value);";
+    _out << nl << "(ostr, value) => ostr.WriteNullableClass(value);";
     _out.dec();
 
     _out << sp;
@@ -1829,7 +1829,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static ZeroC.Ice.OutputStreamStructWriter<" << name << "> IceWriter =>";
+    _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =>";
     _out.inc();
     _out << nl << "(ZeroC.Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
     _out.dec();
@@ -2250,9 +2250,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoOptional =";
+    _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
     _out.inc();
-    _out << nl << "istr => istr.ReadOptionalProxy(Factory);";
+    _out << nl << "istr => istr.ReadNullableProxy(Factory);";
     _out.dec();
 
     _out << sp;
@@ -2906,7 +2906,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
         if (outParams.size() > 1)
         {
             _out << sp;
-            _out << nl << "private static readonly ZeroC.Ice.OutputStreamStructWriter<" << toTupleType(outParams)
+            _out << nl << "private static readonly ZeroC.Ice.OutputStreamValueWriter<" << toTupleType(outParams)
                  << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in " << toTupleType(outParams) << " value) =>";
             _out << sb;
             writeMarshalParams(operation, requiredOutParams, taggedOutParams, "ostr", "value.");
@@ -2929,7 +2929,7 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
             {
                 if (!param.tagged && StructPtr::dynamicCast(param.type))
                 {
-                    _out << nl << "private static readonly ZeroC.Ice.OutputStreamStructWriter<" << param.typeStr
+                    _out << nl << "private static readonly ZeroC.Ice.OutputStreamValueWriter<" << param.typeStr
                          << "> " << writer << " = (ZeroC.Ice.OutputStream ostr, in "
                          << param.typeStr << " " << param.name << ") =>";
                 }

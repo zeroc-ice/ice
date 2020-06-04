@@ -59,11 +59,8 @@ namespace ZeroC.Ice
         /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
         public abstract int Timeout { get; }
 
-        /// <summary>The EndpointType of this endpoint.</summary>
+        /// <summary>The <see cref="EndpointType">type</see> of this endpoint.</summary>
         public abstract EndpointType Type { get; }
-
-        /// <summary>The underlying endpoint.</summary>
-        public virtual Endpoint? Underlying => null;
 
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {
@@ -178,7 +175,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (communicator.FindEndpointFactory(transport) is IEndpointFactory factory)
+            if (communicator.IceFindEndpointFactory(transport) is IEndpointFactory factory)
             {
                 Endpoint endpoint = factory.Create(endpointString, options, oaEndpoint);
                 if (options.Count > 0)
@@ -201,7 +198,7 @@ namespace ZeroC.Ice
                 }
 
                 if (opaqueEndpoint.Encoding.IsSupported &&
-                    communicator.FindEndpointFactory(opaqueEndpoint.Type) != null)
+                    communicator.IceFindEndpointFactory(opaqueEndpoint.Type) != null)
                 {
                     // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
                     // unmarshal it from this buffer.

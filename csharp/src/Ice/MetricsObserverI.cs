@@ -54,11 +54,7 @@ namespace ZeroC.IceMX
                         }
                         catch (ArgumentException)
                         {
-                            if (obj is Ice.Endpoint endpoint)
-                            {
-                                obj = endpoint.Underlying;
-                            }
-                            else if (obj is Ice.ConnectionInfo connectionInfo)
+                            if (obj is Ice.ConnectionInfo connectionInfo)
                             {
                                 obj = connectionInfo.Underlying;
                             }

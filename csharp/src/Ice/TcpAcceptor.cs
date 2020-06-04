@@ -38,7 +38,7 @@ namespace ZeroC.Ice
                 _fd = null;
                 throw;
             }
-            _endpoint = _endpoint.GetEndpoint(this);
+            _endpoint = (TcpEndpoint)_endpoint.NewPort(EffectivePort());
             return _endpoint;
         }
 
@@ -90,10 +90,11 @@ namespace ZeroC.Ice
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return new TcpTransceiver(_instance, new StreamSocket(_instance, acceptFd));
+            return _endpoint.CreateTransceiver(Transport,
+                new StreamSocket(_communicator, acceptFd), _adapterName);
         }
 
-        public string Transport() => _instance.Transport;
+        public string Transport { get; }
 
         public override string ToString() => Network.AddrToString(_addr);
 
@@ -103,7 +104,7 @@ namespace ZeroC.Ice
             s.Append(ToString());
 
             List<string> intfs =
-                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), _instance.IPVersion, true);
+                Network.GetHostsForEndpointExpand(_addr.Address.ToString(), _communicator.IPVersion, true);
             if (intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
@@ -112,21 +113,29 @@ namespace ZeroC.Ice
             return s.ToString();
         }
 
-        internal int EffectivePort() => _addr.Port;
+        public int EffectivePort() => _addr.Port;
 
-        internal TcpAcceptor(TcpEndpoint endpoint, TransportInstance instance, string host, int port)
+        internal TcpAcceptor(
+            TcpEndpoint endpoint,
+            Communicator communicator,
+            string transport,
+            string host,
+            int port,
+            string adapterName)
         {
+            _adapterName = adapterName;
             _endpoint = endpoint;
-            _instance = instance;
-            _backlog = instance.Communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511;
+            _communicator = communicator;
+            Transport = transport;
+            _backlog = communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511;
 
             try
             {
-                int ipVersion = _instance.IPVersion;
-                _addr = (IPEndPoint)Network.GetAddressForServerEndpoint(host, port, ipVersion, _instance.PreferIPv6);
+                int ipVersion = _communicator.IPVersion;
+                _addr = Network.GetAddressForServerEndpoint(host, port, ipVersion, _communicator.PreferIPv6);
                 _fd = Network.CreateServerSocket(false, _addr.AddressFamily, ipVersion);
                 Network.SetBlock(_fd, false);
-                Network.SetTcpBufSize(_fd, _instance);
+                Network.SetTcpBufSize(_fd, _communicator);
             }
             catch (Exception)
             {
@@ -135,8 +144,9 @@ namespace ZeroC.Ice
             }
         }
 
+        private readonly string _adapterName;
         private TcpEndpoint _endpoint;
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private Socket? _fd;
         private Socket? _acceptFd;
         private Exception? _acceptError;

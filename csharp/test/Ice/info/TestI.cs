@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Info
         {
             if (endpoint is IPEndpoint)
             {
-                return (IPEndpoint)e;
+                return (IPEndpoint)endpoint;
             }
             return null;
         }

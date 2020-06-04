@@ -50,7 +50,7 @@ namespace ZeroC.Ice
         public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset) =>
             _stream.FinishWrite(buffer, ref offset);
 
-        public string Transport() => _instance.Transport;
+        public string Transport { get; }
 
         public ConnectionInfo GetInfo()
         {
@@ -83,13 +83,12 @@ namespace ZeroC.Ice
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(TransportInstance instance, StreamSocket stream)
+        internal TcpTransceiver(string transport, StreamSocket stream)
         {
-            _instance = instance;
+            Transport = transport;
             _stream = stream;
         }
 
-        private readonly TransportInstance _instance;
         private readonly StreamSocket _stream;
     }
 }

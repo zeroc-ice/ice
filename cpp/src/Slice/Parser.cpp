@@ -473,8 +473,8 @@ Slice::Builtin::minWireSize() const
         case KindFloat: return 4;
         case KindDouble: return 8;
         case KindString: return 1; // at least one byte for an empty string.
-        case KindObject: return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
-        case KindValue: return 1; // at least one byte (to marshal an index instead of an instance).
+        case KindObject: return 3; // at least a 1-character identity name (2 bytes) + empty identity category (1 byte).
+        case KindValue: return 1; // at least one byte to marshal an index instead of an instance.
     }
     throw logic_error("");
 }
@@ -3371,7 +3371,7 @@ Slice::ClassDecl::usesClasses() const
 size_t
 Slice::ClassDecl::minWireSize() const
 {
-    return 1; // At least four bytes for an instance, if the instance is marshaled as an index.
+    return 1; // Can be a single byte when the instance is marshaled as an index.
 }
 
 string
@@ -3811,7 +3811,7 @@ Slice::InterfaceDecl::usesClasses() const
 size_t
 Slice::InterfaceDecl::minWireSize() const
 {
-    return 2; // a null proxy is encoded on 2 bytes
+    return 3; // See Object
 }
 
 string
@@ -4307,8 +4307,20 @@ Slice::Optional::usesClasses() const
 size_t
 Slice::Optional::minWireSize() const
 {
-    // TODO: should be 2 for proxies with the 1.1 encoding
-    return 1;
+    // Should only be called for classes and proxies.
+    if (_underlying->isClassType())
+    {
+        return 1;
+    }
+    else if (_underlying->isInterfaceType())
+    {
+        return 2;
+    }
+    else
+    {
+        assert(0);
+        return 0;
+    }
 }
 
 string

@@ -14,11 +14,10 @@ namespace ZeroC.Ice
 {
     internal class SslEngine
     {
-        internal SslEngine(ITransportPluginFacade facade)
+        internal SslEngine(Communicator communicator)
         {
-            _communicator = facade.Communicator;
+            _communicator = communicator;
             _logger = _communicator.Logger;
-            _facade = facade;
             _securityTraceLevel = _communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             _securityTraceCategory = "Security";
             _initialized = false;
@@ -94,7 +93,7 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException("IceSSL: certificate verifier already installed");
                 }
 
-                Type? cls = _facade.FindType(certVerifierClass);
+                Type? cls = AssemblyUtil.FindType(certVerifierClass);
                 if (cls == null)
                 {
                     throw new InvalidConfigurationException(
@@ -123,7 +122,7 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException("IceSSL: password callback already installed");
                 }
 
-                Type? cls = _facade.FindType(passwordCallbackClass);
+                Type? cls = AssemblyUtil.FindType(passwordCallbackClass);
                 if (cls == null)
                 {
                     throw new InvalidConfigurationException(
@@ -361,7 +360,7 @@ namespace ZeroC.Ice
 
         internal IPasswordCallback? GetPasswordCallback() => _passwordCallback;
 
-        internal Communicator Communicator() => _facade.Communicator;
+        internal Communicator Communicator() => _communicator;
 
         internal int SecurityTraceLevel() => _securityTraceLevel;
 
@@ -794,7 +793,6 @@ namespace ZeroC.Ice
 
         private readonly Communicator _communicator;
         private readonly ILogger _logger;
-        private readonly ITransportPluginFacade _facade;
         private readonly int _securityTraceLevel;
         private readonly string _securityTraceCategory;
         private bool _initialized;

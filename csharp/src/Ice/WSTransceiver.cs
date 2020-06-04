@@ -141,7 +141,7 @@ namespace ZeroC.Ice
                             //
                             // Enlarge the buffer and try to read more.
                             //
-                            if (_readBufferOffset + 1024 > _instance.MessageSizeMax)
+                            if (_readBufferOffset + 1024 > _communicator.MessageSizeMax)
                             {
                                 throw new WSMemoryLimitException();
                             }
@@ -217,37 +217,39 @@ namespace ZeroC.Ice
                 _state = StateOpened;
                 _nextState = StateOpened;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                if (_instance.TraceLevel >= 2)
+                if (_communicator.TraceLevels.Network >= 2)
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory,
-                        $"{Transport()} connection HTTP upgrade request failed\n{this}\n{ex}");
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        $"{Transport} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
             }
 
-            if (_instance.TraceLevel >= 1)
+            if (_communicator.TraceLevels.Network >= 1)
             {
                 if (_incoming)
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory,
-                        $"accepted {Transport()} connection HTTP upgrade request\n{this}");
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        $"accepted {Transport} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
-                    _instance.Logger.Trace(_instance.TraceCategory, $"{Transport()} connection HTTP upgrade request accepted\n{this}");
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        $"{Transport} connection HTTP upgrade request accepted\n{this}");
                 }
             }
 
             return SocketOperation.None;
         }
 
-        public int Closing(bool initiator, System.Exception? reason)
+        public int Closing(bool initiator, Exception? reason)
         {
-            if (_instance.TraceLevel >= 1)
+            if (_communicator.TraceLevels.Network >= 1)
             {
-                _instance.Logger.Trace(_instance.TraceCategory, $"gracefully closing {Transport()} connection\n{this}");
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                    $"gracefully closing {Transport} connection\n{this}");
             }
 
             int s = _nextState == StateOpened ? _state : _nextState;
@@ -654,7 +656,7 @@ namespace ZeroC.Ice
             PostWrite(size, ref offset, SocketOperation.None);
         }
 
-        public string Transport() => _instance.Transport;
+        public string Transport => _delegate.Transport;
 
         public ConnectionInfo GetInfo()
         {
@@ -673,8 +675,8 @@ namespace ZeroC.Ice
         public string ToDetailedString() => _delegate.ToDetailedString();
 
         internal
-        WSTransceiver(TransportInstance instance, ITransceiver del, string host, string resource) :
-            this(instance, del)
+        WSTransceiver(Communicator communicator, ITransceiver del, string host, string resource) :
+            this(communicator, del)
         {
             _host = host;
             _resource = resource;
@@ -686,9 +688,9 @@ namespace ZeroC.Ice
             Debug.Assert(_readBufferSize > 256);
         }
 
-        internal WSTransceiver(TransportInstance instance, ITransceiver del)
+        internal WSTransceiver(Communicator communicator, ITransceiver del)
         {
-            _instance = instance;
+            _communicator = communicator;
             _delegate = del;
             _state = StateInitializeDelegate;
             _parser = new HttpParser();
@@ -1090,12 +1092,12 @@ namespace ZeroC.Ice
                         case OP_DATA: // Data frame
                         case OP_CONT: // Continuation frame
                             {
-                                if (_instance.TraceLevel >= 2)
+                                if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _instance.Logger.Trace(_instance.TraceCategory, "received " + Transport() +
-                                                             (_readOpCode == OP_DATA ? " data" : " continuation") +
-                                                             " frame with payload length of " + _readPayloadLength +
-                                                             " bytes\n" + ToString());
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                        "received " + Transport + (_readOpCode == OP_DATA ? " data" : " continuation") +
+                                        " frame with payload length of " + _readPayloadLength +
+                                        " bytes\n" + ToString());
                                 }
 
                                 if (_readPayloadLength <= 0)
@@ -1109,10 +1111,10 @@ namespace ZeroC.Ice
                             }
                         case OP_CLOSE: // Connection close
                             {
-                                if (_instance.TraceLevel >= 2)
+                                if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _instance.Logger.Trace(_instance.TraceCategory,
-                                        $"received {Transport()} connection close frame\n{this}");
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                        $"received {Transport} connection close frame\n{this}");
                                 }
 
                                 _readState = ReadStateControlFrame;
@@ -1145,20 +1147,20 @@ namespace ZeroC.Ice
                             }
                         case OP_PING:
                             {
-                                if (_instance.TraceLevel >= 2)
+                                if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _instance.Logger.Trace(_instance.TraceCategory,
-                                        $"received {Transport()} connection ping frame\n{this}");
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                        $"received {Transport} connection ping frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
                             }
                         case OP_PONG: // Pong
                             {
-                                if (_instance.TraceLevel >= 2)
+                                if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _instance.Logger.Trace(_instance.TraceCategory,
-                                        $"received {Transport()} connection pong frame\n{this}");
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                        $"received {Transport} connection pong frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
@@ -1394,27 +1396,27 @@ namespace ZeroC.Ice
                 {
                     if (_state == StatePingPending)
                     {
-                        if (_instance.TraceLevel >= 2)
+                        if (_communicator.TraceLevels.Network >= 2)
                         {
-                            _instance.Logger.Trace(_instance.TraceCategory,
-                                $"sent {Transport()} connection ping frame\n{this}");
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                $"sent {Transport} connection ping frame\n{this}");
                         }
                     }
                     else if (_state == StatePongPending)
                     {
-                        if (_instance.TraceLevel >= 2)
+                        if (_communicator.TraceLevels.Network >= 2)
                         {
-                            _instance.Logger.Trace(_instance.TraceCategory,
-                                $"sent {Transport()} connection pong frame\n{this}");
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                $"sent {Transport} connection pong frame\n{this}");
                         }
                     }
                     else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
                             (_state == StateClosingResponsePending && _closingInitiator))
                     {
-                        if (_instance.TraceLevel >= 2)
+                        if (_communicator.TraceLevels.Network >= 2)
                         {
-                            _instance.Logger.Trace(_instance.TraceCategory,
-                                $"sent {Transport()} connection close frame\n{this}");
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                $"sent {Transport} connection close frame\n{this}");
                         }
 
                         if (_state == StateClosingRequestPending && !_closingInitiator)
@@ -1563,7 +1565,7 @@ namespace ZeroC.Ice
             _writeBufferOffset = 0;
         }
 
-        private readonly TransportInstance _instance;
+        private readonly Communicator _communicator;
         private readonly ITransceiver _delegate;
         private readonly string _host;
         private string _resource;

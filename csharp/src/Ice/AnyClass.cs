@@ -15,15 +15,15 @@ namespace ZeroC.Ice
         public static readonly InputStreamReader<AnyClass> IceReader = (istr) => istr.ReadClass<AnyClass>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<AnyClass?> IceReaderIntoOptional =
-            (istr) => istr.ReadOptionalClass<AnyClass>();
+        public static readonly InputStreamReader<AnyClass?> IceReaderIntoNullable =
+            (istr) => istr.ReadNullableClass<AnyClass>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<AnyClass> IceWriter = (ostr, value) => ostr.WriteClass(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<AnyClass?> IceWriterFromOptional =
-            (ostr, value) => ostr.WriteOptionalClass(value);
+        public static readonly OutputStreamWriter<AnyClass?> IceWriterFromNullable =
+            (ostr, value) => ostr.WriteNullableClass(value);
 
         protected virtual SlicedData? IceSlicedData
         {

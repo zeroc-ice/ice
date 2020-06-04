@@ -34,15 +34,15 @@ namespace ZeroC.Ice
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoOptional =
-            (istr) => istr.ReadOptionalProxy(Factory);
+        public static readonly InputStreamReader<IObjectPrx?> IceReaderIntoNullable =
+            (istr) => istr.ReadNullableProxy(Factory);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<IObjectPrx> IceWriter = (ostr, value) => ostr.WriteProxy(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromOptional =
-            (ostr, value) => ostr.WriteOptionalProxy(value);
+        public static readonly OutputStreamWriter<IObjectPrx?> IceWriterFromNullable =
+            (ostr, value) => ostr.WriteNullableProxy(value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Reference IceReference { get; }
