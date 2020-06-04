@@ -1031,10 +1031,6 @@ namespace ZeroC.Ice.proxy
 
             if (!(communicator.GetPropertyAsBool("Ice.IPv6") ?? false))
             {
-                // Working?
-                bool ssl = communicator.GetProperty("Ice.Default.Transport") == "ssl";
-                bool tcp = communicator.GetProperty("Ice.Default.Transport") == "tcp";
-
                 // Two legal TCP endpoints expressed as opaque endpoints
                 p1 = IObjectPrx.Parse("test -e 1.1:" + "" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
@@ -1046,15 +1042,7 @@ namespace ZeroC.Ice.proxy
                 p1 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
                     communicator);
                 pstr = p1.ToString()!;
-                if (ssl)
-                {
-                    TestHelper.Assert(pstr.Equals("test -t -p ice1 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
-                }
-                else if (tcp)
-                {
-                    TestHelper.Assert(pstr.Equals(
-                        "test -t -p ice1 -e 1.1:opaque -t 2 -e 1.1 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.1 -v abch"));
-                }
+                TestHelper.Assert(pstr.Equals("test -t -p ice1 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
             }
 
             output.WriteLine("ok");

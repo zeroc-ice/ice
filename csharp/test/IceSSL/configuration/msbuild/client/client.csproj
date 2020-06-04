@@ -9,8 +9,6 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../AllTests.cs" />
-    <Compile Include="../../CertificateVerifierI.cs" />
-    <Compile Include="../../PasswordCallbackI.cs" />
     <Compile Include="../../Client.cs" />
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>

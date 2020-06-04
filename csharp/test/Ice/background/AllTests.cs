@@ -491,11 +491,7 @@ public class AllTests
             background.op();
             TestHelper.Assert(false);
         }
-        catch (ConnectionLostException)
-        {
-            ctl.initializeException(false);
-        }
-        catch (SecurityException)
+        catch (TransportException)
         {
             ctl.initializeException(false);
         }

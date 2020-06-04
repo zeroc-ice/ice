@@ -321,26 +321,6 @@ namespace ZeroC.Ice
         }
     }
 
-    /// <summary>This exception reports a failure in the security subsystem.</summary>
-    [Serializable]
-    public class SecurityException : TransportException
-    {
-        public SecurityException(string message)
-            : base(message)
-        {
-        }
-
-        public SecurityException(Exception innerException)
-            : base(innerException)
-        {
-        }
-
-        protected SecurityException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
     /// <summary>This exception reports that data (bytes) received by Ice are not in an expected format.</summary>
     [Serializable]
     public class InvalidDataException : Exception
