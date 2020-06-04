@@ -161,7 +161,7 @@ private:
 
     private:
 
-        const bool _generateAsync;
+        const bool _generateAllAsync;
     };
 
     class ImplVisitor : public CsVisitor

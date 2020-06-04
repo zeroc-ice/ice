@@ -2581,8 +2581,8 @@ Slice::Gen::ProxyVisitor::writeOutgoingRequestReader(const OperationPtr& operati
     }
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out, bool generateAsync) :
-    CsVisitor(out), _generateAsync(generateAsync)
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out, bool generateAllAsync) :
+    CsVisitor(out), _generateAllAsync(generateAllAsync)
 {
 }
 
@@ -2608,7 +2608,7 @@ bool
 Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
-    string name = interfaceName(p) + (_generateAsync ? "Async" : "");
+    string name = interfaceName(p) + (_generateAllAsync ? "Async" : "");
     string ns = getNamespace(p);
 
     _out << sp;
@@ -2625,7 +2625,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for(InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
         {
-            _out << getUnqualified(getNamespace(*q) + "." + (interfaceName(*q) + (_generateAsync ? "Async" : "")), ns);
+            _out << getUnqualified(getNamespace(*q) + "." + (interfaceName(*q) + (_generateAllAsync ? "Async" : "")), ns);
             if(++q != bases.end())
             {
                 _out << ", ";
@@ -2750,7 +2750,7 @@ Slice::Gen::DispatcherVisitor::writeMethodDeclaration(const OperationPtr& operat
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
     string ns = getNamespace(interface);
     string deprecateReason = getDeprecateReason(operation, interface, "operation");
-    bool amd = _generateAsync || interface->hasMetaData("amd") || operation->hasMetaData("amd");
+    bool amd = _generateAllAsync || interface->hasMetaData("amd") || operation->hasMetaData("amd");
     const string name = fixId(operationName(operation) + (amd ? "Async" : ""));
     list<ParamInfo> inParams = getAllInParams(operation, false);
 
@@ -2780,7 +2780,7 @@ void
 Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
 {
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(operation->container());
-    bool amd = _generateAsync || interface->hasMetaData("amd") || operation->hasMetaData("amd");
+    bool amd = _generateAllAsync || interface->hasMetaData("amd") || operation->hasMetaData("amd");
     string ns = getNamespace(interface);
     string opName = operationName(operation);
     string name = fixId(opName + (amd ? "Async" : ""));
