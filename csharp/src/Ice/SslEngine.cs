@@ -12,7 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace ZeroC.Ice
 {
-    /// <summary>he ICertificateVerifier allows an application to customize the certificate verification process.
+    /// <summary>The ICertificateVerifier allows an application to customize the certificate verification process.
     /// Return true to allow a connection using the provided certificate information, or false to reject the
     /// connection.</summary>
     /// <param name="info">The connection info associated with the connection being verify.</param>
