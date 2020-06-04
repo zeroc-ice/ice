@@ -4,33 +4,37 @@
 
 using System;
 using System.Reflection;
+using Test;
 
 [assembly: AssemblyTitle("IceTest")]
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : Test.TestHelper
+namespace ZeroC.Ice.Test.Impl
 {
-    public override void run(string[] args)
+    public class Server : TestHelper
     {
-        using (var communicator = initialize(ref args))
+        public override void run(string[] args)
         {
-            //
-            // We don't want connection warnings because of the timeout test.
-            //
-            communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
+            using (var communicator = initialize(ref args))
+            {
+                //
+                // We don't want connection warnings because of the timeout test.
+                //
+                communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
 
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(Ice.Util.stringToIdentity("test"), new Test.MyDerivedClassI());
-            adapter.activate();
+                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter.add(Ice.Util.stringToIdentity("test"), new MyDerivedClassI());
+                adapter.activate();
 
-            communicator.waitForShutdown();
+                communicator.waitForShutdown();
+            }
         }
-    }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
+        public static int Main(string[] args)
+        {
+            return TestDriver.runTest<Server>(args);
+        }
     }
 }

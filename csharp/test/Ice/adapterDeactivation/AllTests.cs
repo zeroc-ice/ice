@@ -4,14 +4,13 @@
 
 using System;
 using System.Linq;
-
 using Test;
 
-namespace ZeroC.Ice.adapterDeactivation
+namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public class AllTests
     {
-        public static Test.ITestIntfPrx allTests(TestHelper helper)
+        public static ITestIntfPrx allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -24,7 +23,7 @@ namespace ZeroC.Ice.adapterDeactivation
 
             output.Write("testing checked cast... ");
             output.Flush();
-            var obj = Test.ITestIntfPrx.CheckedCast(baseprx);
+            var obj = ITestIntfPrx.CheckedCast(baseprx);
             TestHelper.Assert(obj != null);
             TestHelper.Assert(obj.Equals(baseprx));
             output.WriteLine("ok");

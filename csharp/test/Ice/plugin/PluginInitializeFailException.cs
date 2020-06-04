@@ -2,9 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-public class PluginInitializeFailException : System.Exception
+namespace ZeroC.Ice.Test.Plugin
 {
-    public PluginInitializeFailException() : base("PluginInitializeFailException")
+    public class PluginInitializeFailException : System.Exception
     {
+        public PluginInitializeFailException() : base("PluginInitializeFailException")
+        {
+        }
     }
 }

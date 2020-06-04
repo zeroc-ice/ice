@@ -2,77 +2,78 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System.Collections.Generic;
-using ZeroC.Ice;
 
-internal class BackgroundController : IBackgroundController
+namespace ZeroC.Ice.Test.Background
 {
-    public void pauseCall(string opName, Current current)
+    internal class BackgroundController : IBackgroundController
     {
-        lock (this)
+        public void pauseCall(string opName, Current current)
         {
-            _pausedCalls.Add(opName);
-        }
-    }
-
-    public void resumeCall(string opName, Current current)
-    {
-        lock (this)
-        {
-            _pausedCalls.Remove(opName);
-            System.Threading.Monitor.PulseAll(this);
-        }
-    }
-
-    internal void checkCallPause(Current current)
-    {
-        lock (this)
-        {
-            while (_pausedCalls.Contains(current.Operation))
+            lock (this)
             {
-                System.Threading.Monitor.Wait(this);
-                break;
+                _pausedCalls.Add(opName);
             }
         }
-    }
 
-    public void initializeException(bool enable, Current current)
-    {
-        _configuration.InitializeException(enable ? new TransportException("") : null);
-    }
+        public void resumeCall(string opName, Current current)
+        {
+            lock (this)
+            {
+                _pausedCalls.Remove(opName);
+                System.Threading.Monitor.PulseAll(this);
+            }
+        }
 
-    public void readReady(bool enable, Current current)
-    {
-        _configuration.ReadReady(enable);
-    }
+        internal void checkCallPause(Current current)
+        {
+            lock (this)
+            {
+                while (_pausedCalls.Contains(current.Operation))
+                {
+                    System.Threading.Monitor.Wait(this);
+                    break;
+                }
+            }
+        }
 
-    public void readException(bool enable, Current current)
-    {
-        _configuration.ReadException(enable ? new TransportException("") : null);
-    }
+        public void initializeException(bool enable, Current current)
+        {
+            _configuration.InitializeException(enable ? new TransportException("") : null);
+        }
 
-    public void writeReady(bool enable, Current current)
-    {
-        _configuration.WriteReady(enable);
-    }
+        public void readReady(bool enable, Current current)
+        {
+            _configuration.ReadReady(enable);
+        }
 
-    public void writeException(bool enable, Current current)
-    {
-        _configuration.WriteException(enable ? new TransportException("") : null);
-    }
+        public void readException(bool enable, Current current)
+        {
+            _configuration.ReadException(enable ? new TransportException("") : null);
+        }
 
-    public void buffered(bool enable, Current current)
-    {
-        _configuration.Buffered(enable);
-    }
+        public void writeReady(bool enable, Current current)
+        {
+            _configuration.WriteReady(enable);
+        }
 
-    internal BackgroundController(ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-        _configuration = Configuration.GetInstance();
+        public void writeException(bool enable, Current current)
+        {
+            _configuration.WriteException(enable ? new TransportException("") : null);
+        }
+
+        public void buffered(bool enable, Current current)
+        {
+            _configuration.Buffered(enable);
+        }
+
+        internal BackgroundController(ObjectAdapter adapter)
+        {
+            _adapter = adapter;
+            _configuration = Configuration.GetInstance();
+        }
+        private ObjectAdapter _adapter;
+        private Configuration _configuration;
+        private HashSet<string> _pausedCalls = new HashSet<string>();
     }
-    private ObjectAdapter _adapter;
-    private Configuration _configuration;
-    private HashSet<string> _pausedCalls = new HashSet<string>();
 }

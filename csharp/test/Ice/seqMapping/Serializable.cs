@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Serialize
+namespace ZeroC.Ice.Test.SeqMapping.Serialize
 {
     [Serializable]
     public class Small // Fewer than 254 bytes with a BinaryFormatter.

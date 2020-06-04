@@ -4,8 +4,9 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.enums]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Enums
 {
 
 const byte ByteConst1 = 10;

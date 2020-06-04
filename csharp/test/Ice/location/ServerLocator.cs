@@ -4,9 +4,9 @@
 
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.location
+namespace ZeroC.Ice.Test.Location
 {
-    public class ServerLocator : Test.ITestLocator
+    public class ServerLocator : ITestLocator
     {
         public ServerLocator(ServerLocatorRegistry registry, ILocatorRegistryPrx registryPrx)
         {

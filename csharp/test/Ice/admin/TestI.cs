@@ -4,16 +4,16 @@
 
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.admin
+namespace ZeroC.Ice.Test.Admin
 {
-    public class TestFacet : Test.ITestFacet
+    public class TestFacet : ITestFacet
     {
         public void op(Current current)
         {
         }
     }
 
-    public class RemoteCommunicator : Test.IRemoteCommunicator
+    public class RemoteCommunicator : IRemoteCommunicator
     {
         private volatile IReadOnlyDictionary<string, string>? _changes;
         private readonly Communicator _communicator;
@@ -45,9 +45,9 @@ namespace ZeroC.Ice.admin
         public void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
     }
 
-    public class RemoteCommunicatorFactoryI : Test.IRemoteCommunicatorFactory
+    public class RemoteCommunicatorFactoryI : IRemoteCommunicatorFactory
     {
-        public Test.IRemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Current current)
+        public IRemoteCommunicatorPrx createCommunicator(Dictionary<string, string> props, Current current)
         {
             //
             // Prepare the property set using the given properties.
@@ -85,7 +85,7 @@ namespace ZeroC.Ice.admin
                 admin.Updated += (_, updates) => servant.Updated(updates);
             }
 
-            return current.Adapter.AddWithUUID(servant, Test.IRemoteCommunicatorPrx.Factory);
+            return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
         }
 
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();

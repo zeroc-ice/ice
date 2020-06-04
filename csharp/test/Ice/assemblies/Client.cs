@@ -9,36 +9,37 @@ using System.Reflection;
 using System.Collections.Generic;
 using Test;
 
-using ZeroC.Ice;
-
-public class Client : TestHelper
+namespace ZeroC.Ice.Test.Assemblies
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        Console.Out.Write("testing preloading assemblies... ");
-        Console.Out.Flush();
-        var info = new User.UserInfo();
-
-        Dictionary<string, string> properties = CreateTestProperties(ref args);
-        properties["Ice.PreloadAssemblies"] = "0";
-
-        string assembly =
-            $"{Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase))}/core.dll";
-
-        using (Communicator communicator = Initialize(properties))
+        public override void Run(string[] args)
         {
-            Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
-                e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
-        }
-        properties["Ice.PreloadAssemblies"] = "1";
-        using (Communicator communicator = Initialize(properties))
-        {
-            Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
-                e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
+            Console.Out.Write("testing preloading assemblies... ");
+            Console.Out.Flush();
+            var info = new User.UserInfo();
+
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.PreloadAssemblies"] = "0";
+
+            string assembly =
+                $"{Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase))}/core.dll";
+
+            using (Communicator communicator = Initialize(properties))
+            {
+                Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
+                    e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
+            }
+            properties["Ice.PreloadAssemblies"] = "1";
+            using (Communicator communicator = Initialize(properties))
+            {
+                Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
+                    e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
+            }
+
+            Console.Out.WriteLine("ok");
         }
 
-        Console.Out.WriteLine("ok");
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
-
-    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }

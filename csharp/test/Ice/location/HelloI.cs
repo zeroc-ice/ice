@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.location
+namespace ZeroC.Ice.Test.Location
 {
-    public class Hello : Test.IHello
+    public class Hello : IHello
     {
         public void sayHello(Current current)
         {

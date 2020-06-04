@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.ami.Test;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.ami
+namespace ZeroC.Ice.Test.AMI
 {
     public class AllTests
     {
@@ -114,7 +113,7 @@ namespace ZeroC.Ice.ami
             private readonly Thread _thread;
         }
 
-        public static void allTests(global::Test.TestHelper helper, bool collocated)
+        public static void allTests(TestHelper helper, bool collocated)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -128,14 +127,14 @@ namespace ZeroC.Ice.ami
             {
                 var ctx = new Dictionary<string, string>();
 
-                TestHelper.Assert(p.IceIsAAsync("::Test::TestIntf").Result);
-                TestHelper.Assert(p.IceIsAAsync("::Test::TestIntf", ctx).Result);
+                TestHelper.Assert(p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf").Result);
+                TestHelper.Assert(p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf", ctx).Result);
 
                 p.IcePingAsync().Wait();
                 p.IcePingAsync(ctx).Wait();
 
-                TestHelper.Assert(p.IceIdAsync().Result.Equals("::Test::TestIntf"));
-                TestHelper.Assert(p.IceIdAsync(ctx).Result.Equals("::Test::TestIntf"));
+                TestHelper.Assert(p.IceIdAsync().Result.Equals("::ZeroC::Ice::Test::AMI::TestIntf"));
+                TestHelper.Assert(p.IceIdAsync(ctx).Result.Equals("::ZeroC::Ice::Test::AMI::TestIntf"));
 
                 TestHelper.Assert(p.IceIdsAsync().Result.Length == 2);
                 TestHelper.Assert(p.IceIdsAsync(ctx).Result.Length == 2);
@@ -158,7 +157,7 @@ namespace ZeroC.Ice.ami
                 }
                 catch (AggregateException ae)
                 {
-                    ae.Handle(ex => ex is Test.TestIntfException);
+                    ae.Handle(ex => ex is TestIntfException);
                 }
 
                 try
@@ -168,7 +167,7 @@ namespace ZeroC.Ice.ami
                 }
                 catch (AggregateException ae)
                 {
-                    ae.Handle(ex => ex is Test.TestIntfException);
+                    ae.Handle(ex => ex is TestIntfException);
                 }
             }
             output.WriteLine("ok");
@@ -180,16 +179,16 @@ namespace ZeroC.Ice.ami
                     {
                         var ctx = new Dictionary<string, string>();
 
-                        TestHelper.Assert(await p.IceIsAAsync("::Test::TestIntf"));
-                        TestHelper.Assert(await p.IceIsAAsync("::Test::TestIntf", ctx));
+                        TestHelper.Assert(await p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf"));
+                        TestHelper.Assert(await p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf", ctx));
 
                         await p.IcePingAsync();
                         await p.IcePingAsync(ctx);
 
                         string id = await p.IceIdAsync();
-                        TestHelper.Assert(id.Equals("::Test::TestIntf"));
+                        TestHelper.Assert(id.Equals("::ZeroC::Ice::Test::AMI::TestIntf"));
                         id = await p.IceIdAsync(ctx);
-                        TestHelper.Assert(id.Equals("::Test::TestIntf"));
+                        TestHelper.Assert(id.Equals("::ZeroC::Ice::Test::AMI::TestIntf"));
 
                         string[] ids = await p.IceIdsAsync();
                         TestHelper.Assert(ids.Length == 2);
@@ -238,17 +237,17 @@ namespace ZeroC.Ice.ami
             {
                 var ctx = new Dictionary<string, string>();
 
-                p.IceIsAAsync("::Test::TestIntf").ContinueWith(previous => TestHelper.Assert(previous.Result)).Wait();
+                p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf").ContinueWith(previous => TestHelper.Assert(previous.Result)).Wait();
 
-                p.IceIsAAsync("::Test::TestIntf", ctx).ContinueWith(previous => TestHelper.Assert(previous.Result)).Wait();
+                p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf", ctx).ContinueWith(previous => TestHelper.Assert(previous.Result)).Wait();
 
                 p.IcePingAsync().ContinueWith(previous => previous.Wait()).Wait();
 
                 p.IcePingAsync(ctx).ContinueWith(previous => previous.Wait()).Wait();
 
-                p.IceIdAsync().ContinueWith(previous => TestHelper.Assert(previous.Result.Equals("::Test::TestIntf"))).Wait();
+                p.IceIdAsync().ContinueWith(previous => TestHelper.Assert(previous.Result.Equals("::ZeroC::Ice::Test::AMI::TestIntf"))).Wait();
 
-                p.IceIdAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result.Equals("::Test::TestIntf"))).Wait();
+                p.IceIdAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result.Equals("::ZeroC::Ice::Test::AMI::TestIntf"))).Wait();
 
                 p.IceIdsAsync().ContinueWith(previous => TestHelper.Assert(previous.Result.Length == 2)).Wait();
 
@@ -274,7 +273,7 @@ namespace ZeroC.Ice.ami
                         }
                         catch (AggregateException ae)
                         {
-                            ae.Handle(ex => ex is Test.TestIntfException);
+                            ae.Handle(ex => ex is TestIntfException);
                         }
                     }).Wait();
 
@@ -286,7 +285,7 @@ namespace ZeroC.Ice.ami
                         }
                         catch (AggregateException ae)
                         {
-                            ae.Handle(ex => ex is Test.TestIntfException);
+                            ae.Handle(ex => ex is TestIntfException);
                         }
                     }).Wait();
             }
@@ -336,7 +335,7 @@ namespace ZeroC.Ice.ami
 
                 try
                 {
-                    i.IceIsAAsync("::Test::TestIntf").Wait();
+                    i.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf").Wait();
                     TestHelper.Assert(false);
                 }
                 catch (NoEndpointException)
@@ -371,7 +370,7 @@ namespace ZeroC.Ice.ami
                 }
 
                 // Ensures no exception is called when response is received
-                TestHelper.Assert(p.IceIsAAsync("::Test::TestIntf").Result);
+                TestHelper.Assert(p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf").Result);
                 p.opAsync().Wait();
                 p.opWithResultAsync().Wait();
 
@@ -466,7 +465,7 @@ namespace ZeroC.Ice.ami
                         await p.opWithUEAsyncDispatchAsync();
                         TestHelper.Assert(false);
                     }
-                    catch (Test.TestIntfException)
+                    catch (TestIntfException)
                     {
                     }
                 }
@@ -636,7 +635,7 @@ namespace ZeroC.Ice.ami
                     cb = new CallbackBase();
                     con.SetCloseCallback(_ => cb.Called());
                     t = p.sleepAsync(100);
-                    p.close(Test.CloseMode.Gracefully); // Close is delayed until sleep completes.
+                    p.close(CloseMode.Gracefully); // Close is delayed until sleep completes.
                     cb.Check();
                     t.Wait();
                 }
@@ -688,7 +687,7 @@ namespace ZeroC.Ice.ami
             output.Write("testing result struct... ");
             output.Flush();
             {
-                var q = Test.Outer.Inner.ITestIntfPrx.Parse($"test2:{helper.GetTestEndpoint(0)}", communicator);
+                var q = Outer.Inner.ITestIntfPrx.Parse($"test2:{helper.GetTestEndpoint(0)}", communicator);
                 q.opAsync(1).ContinueWith(t =>
                     {
                         (int ReturnValue, int j) = t.Result;

@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.exceptions
+namespace ZeroC.Ice.Test.Exceptions
 {
-    public sealed class Empty : Test.IEmpty
+    public sealed class Empty : IEmpty
     {
     }
 }

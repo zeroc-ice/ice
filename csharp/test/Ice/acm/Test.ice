@@ -4,8 +4,9 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.acm]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::ACM
 {
 
 interface TestIntf

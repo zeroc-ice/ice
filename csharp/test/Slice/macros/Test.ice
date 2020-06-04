@@ -20,7 +20,7 @@
 #   define NODEFAULT(X) /**/
 #endif
 
-module Test
+module ZeroC::Slice::Test::Macros
 {
 
 class Default

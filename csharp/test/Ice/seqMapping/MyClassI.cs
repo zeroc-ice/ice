@@ -5,9 +5,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.seqMapping
+namespace ZeroC.Ice.Test.SeqMapping
 {
-    public sealed class MyClass : Test.IMyClass
+    public sealed class MyClass : IMyClass
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
@@ -105,61 +105,61 @@ namespace ZeroC.Ice.seqMapping
 
         public (IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>) opSObjectPrxS(Stack<IObjectPrx?> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.S>, IEnumerable<Test.S>) opAStructS(Test.S[] i, Current current) => (i, i);
+        public (IEnumerable<S>, IEnumerable<S>) opAStructS(S[] i, Current current) => (i, i);
 
-        public (IEnumerable<Test.S>, IEnumerable<Test.S>) opLStructS(List<Test.S> i, Current current) => (i, i);
+        public (IEnumerable<S>, IEnumerable<S>) opLStructS(List<S> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.S>, IEnumerable<Test.S>) opKStructS(LinkedList<Test.S> i, Current current) => (i, i);
+        public (IEnumerable<S>, IEnumerable<S>) opKStructS(LinkedList<S> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.S>, IEnumerable<Test.S>) opQStructS(Queue<Test.S> i, Current current) => (i, i);
+        public (IEnumerable<S>, IEnumerable<S>) opQStructS(Queue<S> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.S>, IEnumerable<Test.S>) opSStructS(Stack<Test.S> i, Current current) => (i, i);
+        public (IEnumerable<S>, IEnumerable<S>) opSStructS(Stack<S> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.SD>, IEnumerable<Test.SD>) opAStructSD(Test.SD[] i, Current current) => (i, i);
+        public (IEnumerable<SD>, IEnumerable<SD>) opAStructSD(SD[] i, Current current) => (i, i);
 
-        public (IEnumerable<Test.SD>, IEnumerable<Test.SD>) opLStructSD(List<Test.SD> i, Current current) => (i, i);
+        public (IEnumerable<SD>, IEnumerable<SD>) opLStructSD(List<SD> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.SD>, IEnumerable<Test.SD>) opKStructSD(LinkedList<Test.SD> i, Current current) => (i, i);
+        public (IEnumerable<SD>, IEnumerable<SD>) opKStructSD(LinkedList<SD> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.SD>, IEnumerable<Test.SD>) opQStructSD(Queue<Test.SD> i, Current current) => (i, i);
+        public (IEnumerable<SD>, IEnumerable<SD>) opQStructSD(Queue<SD> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.SD>, IEnumerable<Test.SD>) opSStructSD(Stack<Test.SD> i, Current current) => (i, i);
+        public (IEnumerable<SD>, IEnumerable<SD>) opSStructSD(Stack<SD> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.CV?>, IEnumerable<Test.CV?>) opACVS(Test.CV?[] i, Current current) => (i, i);
+        public (IEnumerable<CV?>, IEnumerable<CV?>) opACVS(CV?[] i, Current current) => (i, i);
 
-        public (IEnumerable<Test.CV?>, IEnumerable<Test.CV?>) opLCVS(List<Test.CV?> i, Current current) => (i, i);
+        public (IEnumerable<CV?>, IEnumerable<CV?>) opLCVS(List<CV?> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.CR?>, IEnumerable<Test.CR?>) opACRS(Test.CR?[] i, Current current) => (i, i);
+        public (IEnumerable<CR?>, IEnumerable<CR?>) opACRS(CR?[] i, Current current) => (i, i);
 
-        public (IEnumerable<Test.CR?>, IEnumerable<Test.CR?>) opLCRS(List<Test.CR?> i, Current current) => (i, i);
+        public (IEnumerable<CR?>, IEnumerable<CR?>) opLCRS(List<CR?> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.En>, IEnumerable<Test.En>) opAEnS(Test.En[] i, Current current) => (i, i);
+        public (IEnumerable<En>, IEnumerable<En>) opAEnS(En[] i, Current current) => (i, i);
 
-        public (IEnumerable<Test.En>, IEnumerable<Test.En>) opLEnS(List<Test.En> i, Current current) => (i, i);
+        public (IEnumerable<En>, IEnumerable<En>) opLEnS(List<En> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.En>, IEnumerable<Test.En>) opKEnS(LinkedList<Test.En> i, Current current) => (i, i);
+        public (IEnumerable<En>, IEnumerable<En>) opKEnS(LinkedList<En> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.En>, IEnumerable<Test.En>) opQEnS(Queue<Test.En> i, Current current) => (i, i);
+        public (IEnumerable<En>, IEnumerable<En>) opQEnS(Queue<En> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.En>, IEnumerable<Test.En>) opSEnS(Stack<Test.En> i, Current current) => (i, i);
+        public (IEnumerable<En>, IEnumerable<En>) opSEnS(Stack<En> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>) opAIPrxS(Test.IIPrx?[] i, Current current) => (i, i);
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opAIPrxS(IIPrx?[] i, Current current) => (i, i);
 
-        public (IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>) opLIPrxS(List<Test.IIPrx?> i, Current current) => (i, i);
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opLIPrxS(List<IIPrx?> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>) opKIPrxS(LinkedList<Test.IIPrx?> i, Current current) => (i, i);
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opKIPrxS(LinkedList<IIPrx?> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>) opQIPrxS(Queue<Test.IIPrx?> i, Current current) => (i, i);
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opQIPrxS(Queue<IIPrx?> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.IIPrx?>, IEnumerable<Test.IIPrx?>) opSIPrxS(Stack<Test.IIPrx?> i, Current current) => (i, i);
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opSIPrxS(Stack<IIPrx?> i, Current current) => (i, i);
 
         public (IEnumerable<int>, IEnumerable<int>) opCustomIntS(Custom<int> i, Current current) => (i, i);
 
-        public (IEnumerable<Test.CV?>, IEnumerable<Test.CV?>) opCustomCVS(Custom<Test.CV?> i, Current current) => (i, i);
+        public (IEnumerable<CV?>, IEnumerable<CV?>) opCustomCVS(Custom<CV?> i, Current current) => (i, i);
 
         public (IEnumerable<Custom<int>>, IEnumerable<Custom<int>>) opCustomIntSS(Custom<Custom<int>> i, Current current) => (i, i);
 
-        public (IEnumerable<Custom<Test.CV?>>, IEnumerable<Custom<Test.CV?>>) opCustomCVSS(Custom<Custom<Test.CV?>> i, Current current) => (i, i);
+        public (IEnumerable<Custom<CV?>>, IEnumerable<Custom<CV?>>) opCustomCVSS(Custom<Custom<CV?>> i, Current current) => (i, i);
 
         public (Serialize.Small, Serialize.Small) opSerialSmallCSharp(Serialize.Small i, Current current) => (i, i);
 

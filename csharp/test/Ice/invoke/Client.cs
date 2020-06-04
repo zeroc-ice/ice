@@ -4,14 +4,14 @@
 
 using Test;
 
-namespace ZeroC.Ice.invoke
+namespace ZeroC.Ice.Test.Invoke
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
-            Test.IMyClassPrx myClass = AllTests.allTests(this);
+            IMyClassPrx myClass = AllTests.allTests(this);
             myClass.shutdown();
         }
 

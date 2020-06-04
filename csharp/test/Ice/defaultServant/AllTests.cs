@@ -1,11 +1,11 @@
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-using System.IO;
 
+using System.IO;
 using Test;
 
-namespace ZeroC.Ice.DefaultServant
+namespace ZeroC.Ice.Test.DefaultServant
 {
     public class AllTests
     {
@@ -44,17 +44,17 @@ namespace ZeroC.Ice.DefaultServant
             var identity = new Identity("", "foo");
             string[] names = new string[] { "foo", "bar", "x", "y", "abcdefg" };
 
-            Test.IMyObjectPrx? prx = null;
+            IMyObjectPrx? prx = null;
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], identity.Category);
-                prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
+                prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
                 TestHelper.Assert(prx.GetName() == names[idx]);
             }
 
             identity = new Identity("ObjectNotExist", identity.Category);
-            prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
+            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
             {
                 prx.IcePing();
@@ -79,7 +79,7 @@ namespace ZeroC.Ice.DefaultServant
             for (int idx = 0; idx < 5; idx++)
             {
                 identity = new Identity(names[idx], identity.Category);
-                prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
+                prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
 
                 try
                 {
@@ -107,7 +107,7 @@ namespace ZeroC.Ice.DefaultServant
             removed = oa.RemoveDefaultForCategory("foo");
             TestHelper.Assert(removed == null);
             identity = new Identity(identity.Name, "foo");
-            prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
+            prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
             try
             {
                 prx.IcePing();
@@ -146,7 +146,7 @@ namespace ZeroC.Ice.DefaultServant
             for (int idx = 0; idx < 5; ++idx)
             {
                 identity = new Identity(names[idx], "");
-                prx = oa.CreateProxy(identity, Test.IMyObjectPrx.Factory);
+                prx = oa.CreateProxy(identity, IMyObjectPrx.Factory);
                 prx.IcePing();
                 TestHelper.Assert(prx.GetName() == names[idx]);
             }

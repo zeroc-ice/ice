@@ -2,11 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.exceptions.Test;
 using System;
 using Test;
 
-namespace ZeroC.Ice.exceptions
+namespace ZeroC.Ice.Test.Exceptions
 {
     public class AllTests
     {

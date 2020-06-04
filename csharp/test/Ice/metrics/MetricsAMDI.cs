@@ -6,57 +6,58 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-using ZeroC.Ice;
-
-public sealed class Controller : IController
+namespace ZeroC.Ice.Test.AMD.Metrics
 {
-    public Controller(Func<ObjectAdapter> factory)
+    public sealed class Controller : IController
     {
-        _factory = factory;
-        _adapter = factory();
-        _adapter.Activate();
-    }
+        public Controller(Func<ObjectAdapter> factory)
+        {
+            _factory = factory;
+            _adapter = factory();
+            _adapter.Activate();
+        }
 
-    public void hold(Current current)
+        public void hold(Current current)
+        {
+            _adapter.Destroy();
+            _adapter = _factory(); // Recreate the adapter without activating it
+        }
+
+        public void resume(Current current) => _adapter.Activate();
+
+        private readonly Func<ObjectAdapter> _factory;
+        private ObjectAdapter _adapter;
+    };
+
+    public sealed class Metrics : IMetrics
     {
-        _adapter.Destroy();
-        _adapter = _factory(); // Recreate the adapter without activating it
+        public ValueTask opAsync(Current current) => new ValueTask(Task.CompletedTask);
+
+        public ValueTask failAsync(Current current)
+        {
+            current.Connection!.Close(ConnectionClose.Forcefully);
+            return new ValueTask(Task.CompletedTask);
+        }
+
+        public ValueTask opWithUserExceptionAsync(Current current) => throw new UserEx();
+
+        public ValueTask opWithRequestFailedExceptionAsync(Current current) =>
+            throw new ObjectNotExistException(current);
+
+        public ValueTask opWithLocalExceptionAsync(Current current) =>
+            throw new InvalidConfigurationException("fake");
+
+        public ValueTask
+        opWithUnknownExceptionAsync(Current current) => throw new ArgumentOutOfRangeException();
+
+        public ValueTask opByteSAsync(byte[] bs, Current current) => new ValueTask(Task.CompletedTask);
+
+        public IObjectPrx? getAdmin(Current current)
+        {
+            TestHelper.Assert(current != null);
+            return current.Adapter.Communicator.GetAdmin();
+        }
+
+        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
     }
-
-    public void resume(Current current) => _adapter.Activate();
-
-    private readonly Func<ObjectAdapter> _factory;
-    private ObjectAdapter _adapter;
-};
-
-public sealed class Metrics : IMetrics
-{
-    public ValueTask opAsync(Current current) => new ValueTask(Task.CompletedTask);
-
-    public ValueTask failAsync(Current current)
-    {
-        current.Connection!.Close(ConnectionClose.Forcefully);
-        return new ValueTask(Task.CompletedTask);
-    }
-
-    public ValueTask opWithUserExceptionAsync(Current current) => throw new UserEx();
-
-    public ValueTask opWithRequestFailedExceptionAsync(Current current) =>
-        throw new ObjectNotExistException(current);
-
-    public ValueTask opWithLocalExceptionAsync(Current current) =>
-        throw new InvalidConfigurationException("fake");
-
-    public ValueTask
-    opWithUnknownExceptionAsync(Current current) => throw new ArgumentOutOfRangeException();
-
-    public ValueTask opByteSAsync(byte[] bs, Current current) => new ValueTask(Task.CompletedTask);
-
-    public IObjectPrx? getAdmin(Current current)
-    {
-        TestHelper.Assert(current != null);
-        return current.Adapter.Communicator.GetAdmin();
-    }
-
-    public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 }

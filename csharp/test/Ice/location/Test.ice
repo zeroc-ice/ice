@@ -6,8 +6,9 @@
 
 #include <Ice/Locator.ice>
 
-[cs:namespace:ZeroC.Ice.location]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Location
 {
 
 interface TestLocatorRegistry : ::Ice::LocatorRegistry

@@ -5,18 +5,18 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.invoke
+namespace ZeroC.Ice.Test.Invoke
 {
     public class AllTests
     {
         private const string _testString = "This is a test string";
 
-        public static Test.IMyClassPrx allTests(TestHelper helper)
+        public static IMyClassPrx allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            var cl = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-            Test.IMyClassPrx oneway = cl.Clone(oneway: true);
+            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            IMyClassPrx oneway = cl.Clone(oneway: true);
 
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing Invoke... ");
@@ -68,7 +68,7 @@ namespace ZeroC.Ice.invoke
                 {
                     response.ReadVoidReturnValue();
                 }
-                catch (Test.MyException)
+                catch (MyException)
                 {
                     // expected
                 }
@@ -117,7 +117,7 @@ namespace ZeroC.Ice.invoke
                     response.ReadVoidReturnValue();
                     TestHelper.Assert(false);
                 }
-                catch (Test.MyException)
+                catch (MyException)
                 {
                 }
                 catch (System.Exception)

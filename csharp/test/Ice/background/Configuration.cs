@@ -2,159 +2,162 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-internal class Configuration
+namespace ZeroC.Ice.Test.Background
 {
-    public void ConnectorsException(System.Exception? ex)
+    internal class Configuration
     {
-        lock (this)
+        public void ConnectorsException(System.Exception? ex)
         {
-            _connectorsException = ex;
-        }
-    }
-
-    public void CheckConnectorsException()
-    {
-        lock (this)
-        {
-            if (_connectorsException != null)
+            lock (this)
             {
-                throw _connectorsException;
+                _connectorsException = ex;
             }
         }
-    }
 
-    public void ConnectException(System.Exception? ex)
-    {
-        lock (this)
+        public void CheckConnectorsException()
         {
-            _connectException = ex;
-        }
-    }
-
-    public void CheckConnectException()
-    {
-        lock (this)
-        {
-            if (_connectException != null)
+            lock (this)
             {
-                throw _connectException;
+                if (_connectorsException != null)
+                {
+                    throw _connectorsException;
+                }
             }
         }
-    }
 
-    public void InitializeException(System.Exception? ex)
-    {
-        lock (this)
+        public void ConnectException(System.Exception? ex)
         {
-            _initializeException = ex;
-        }
-    }
-
-    public void CheckInitializeException()
-    {
-        lock (this)
-        {
-            if (_initializeException != null)
+            lock (this)
             {
-                throw _initializeException;
+                _connectException = ex;
             }
         }
-    }
 
-    public void ReadReady(bool ready)
-    {
-        lock (this)
+        public void CheckConnectException()
         {
-            _readReadyCount = ready ? 0 : 10;
-        }
-    }
-
-    public void ReadException(System.Exception? ex)
-    {
-        lock (this)
-        {
-            _readException = ex;
-        }
-    }
-
-    public bool ReadReady()
-    {
-        lock (this)
-        {
-            if (_readReadyCount == 0)
+            lock (this)
             {
-                return true;
-            }
-            --_readReadyCount;
-            return false;
-        }
-    }
-
-    public void CheckReadException()
-    {
-        lock (this)
-        {
-            if (_readException != null)
-            {
-                throw _readException;
+                if (_connectException != null)
+                {
+                    throw _connectException;
+                }
             }
         }
-    }
 
-    public void WriteReady(bool ready)
-    {
-        lock (this)
+        public void InitializeException(System.Exception? ex)
         {
-            _writeReadyCount = ready ? 0 : 10;
-        }
-    }
-
-    public void WriteException(System.Exception? ex)
-    {
-        lock (this)
-        {
-            _writeException = ex;
-        }
-    }
-
-    public bool WriteReady()
-    {
-        lock (this)
-        {
-            if (_writeReadyCount == 0)
+            lock (this)
             {
-                return true;
-            }
-            --_writeReadyCount;
-            return false;
-        }
-    }
-
-    public void CheckWriteException()
-    {
-        lock (this)
-        {
-            if (_writeException != null)
-            {
-                throw _writeException;
+                _initializeException = ex;
             }
         }
+
+        public void CheckInitializeException()
+        {
+            lock (this)
+            {
+                if (_initializeException != null)
+                {
+                    throw _initializeException;
+                }
+            }
+        }
+
+        public void ReadReady(bool ready)
+        {
+            lock (this)
+            {
+                _readReadyCount = ready ? 0 : 10;
+            }
+        }
+
+        public void ReadException(System.Exception? ex)
+        {
+            lock (this)
+            {
+                _readException = ex;
+            }
+        }
+
+        public bool ReadReady()
+        {
+            lock (this)
+            {
+                if (_readReadyCount == 0)
+                {
+                    return true;
+                }
+                --_readReadyCount;
+                return false;
+            }
+        }
+
+        public void CheckReadException()
+        {
+            lock (this)
+            {
+                if (_readException != null)
+                {
+                    throw _readException;
+                }
+            }
+        }
+
+        public void WriteReady(bool ready)
+        {
+            lock (this)
+            {
+                _writeReadyCount = ready ? 0 : 10;
+            }
+        }
+
+        public void WriteException(System.Exception? ex)
+        {
+            lock (this)
+            {
+                _writeException = ex;
+            }
+        }
+
+        public bool WriteReady()
+        {
+            lock (this)
+            {
+                if (_writeReadyCount == 0)
+                {
+                    return true;
+                }
+                --_writeReadyCount;
+                return false;
+            }
+        }
+
+        public void CheckWriteException()
+        {
+            lock (this)
+            {
+                if (_writeException != null)
+                {
+                    throw _writeException;
+                }
+            }
+        }
+
+        public void Buffered(bool b) => _buffered = b;
+
+        public bool Buffered() => _buffered;
+
+        public static Configuration GetInstance() => _instance;
+
+        private System.Exception? _connectorsException;
+        private System.Exception? _connectException;
+        private System.Exception? _initializeException;
+        private int _readReadyCount;
+        private System.Exception? _readException;
+        private int _writeReadyCount;
+        private System.Exception? _writeException;
+        private bool _buffered;
+
+        private static readonly Configuration _instance = new Configuration();
     }
-
-    public void Buffered(bool b) => _buffered = b;
-
-    public bool Buffered() => _buffered;
-
-    public static Configuration GetInstance() => _instance;
-
-    private System.Exception? _connectorsException;
-    private System.Exception? _connectException;
-    private System.Exception? _initializeException;
-    private int _readReadyCount;
-    private System.Exception? _readException;
-    private int _writeReadyCount;
-    private System.Exception? _writeException;
-    private bool _buffered;
-
-    private static readonly Configuration _instance = new Configuration();
 }

@@ -3,14 +3,14 @@
 //
 
 using System;
-using Test;
 using System.Threading.Tasks;
+using Test;
 
-namespace ZeroC.Ice.exceptions.AMD
+namespace ZeroC.Ice.Test.AMD.Exceptions
 {
-    public class ThrowerI : Test.IThrower
+    public class Thrower : IThrower
     {
-        public ThrowerI()
+        public Thrower()
         {
         }
 
@@ -25,18 +25,18 @@ namespace ZeroC.Ice.exceptions.AMD
         supportsAssertExceptionAsync(Current current) => new ValueTask<bool>(false);
 
         public ValueTask
-        throwAasAAsync(int a, Current current) => throw new Test.A(a);
+        throwAasAAsync(int a, Current current) => throw new A(a);
 
         public ValueTask
         throwAorDasAorDAsync(int a, Current current)
         {
             if (a > 0)
             {
-                throw new Test.A(a);
+                throw new A(a);
             }
             else
             {
-                throw new Test.D(a);
+                throw new D(a);
             }
         }
 
@@ -45,30 +45,30 @@ namespace ZeroC.Ice.exceptions.AMD
         {
             //throw new B(a, b);
             var s = new TaskCompletionSource<object>();
-            s.SetException(new Test.B(a, b));
+            s.SetException(new B(a, b));
             return new ValueTask(s.Task);
         }
 
         public ValueTask
-        throwBasBAsync(int a, int b, Current current) => throw new Test.B(a, b);
+        throwBasBAsync(int a, int b, Current current) => throw new B(a, b);
 
         public ValueTask
-        throwCasAAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
+        throwCasAAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
         public ValueTask
-        throwCasBAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
+        throwCasBAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
         public ValueTask
-        throwCasCAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
+        throwCasCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
         public ValueTask
-        throwUndeclaredAAsync(int a, Current current) => throw new Test.A(a);
+        throwUndeclaredAAsync(int a, Current current) => throw new A(a);
 
         public ValueTask
-        throwUndeclaredBAsync(int a, int b, Current current) => throw new Test.B(a, b);
+        throwUndeclaredBAsync(int a, int b, Current current) => throw new B(a, b);
 
         public ValueTask
-        throwUndeclaredCAsync(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
+        throwUndeclaredCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
         public ValueTask
         throwLocalExceptionAsync(Current current) => throw new ConnectionTimeoutException();
@@ -103,13 +103,13 @@ namespace ZeroC.Ice.exceptions.AMD
         throwAfterExceptionAsync(Current current)
         {
             // Only supported with callback based AMD API
-            throw new Test.A();
+            throw new A();
             //throw new Exception();
         }
 
         public ValueTask throwAConvertedToUnhandledAsync(Current current)
         {
-            var a = new Test.A();
+            var a = new A();
             a.ConvertToUnhandled = true;
             throw a;
         }

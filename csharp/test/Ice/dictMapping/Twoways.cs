@@ -4,14 +4,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
-
 using Test;
 
-namespace ZeroC.Ice.dictMapping
+namespace ZeroC.Ice.Test.DictMapping
 {
     public class Twoways
     {
-        internal static void twoways(Test.IMyClassPrx p)
+        internal static void twoways(IMyClassPrx p)
         {
             {
                 var i = new Dictionary<int, int>

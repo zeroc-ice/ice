@@ -5,7 +5,7 @@
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.interceptor
+namespace ZeroC.Ice.Test.Interceptor
 {
     internal sealed class Interceptor : IObject
     {
@@ -17,7 +17,7 @@ namespace ZeroC.Ice.interceptor
             {
                 if (context.Equals("invalidInput"))
                 {
-                    throw new Test.InvalidInputException("intercept");
+                    throw new InvalidInputException("intercept");
                 }
                 else if (context.Equals("notExist"))
                 {
@@ -61,7 +61,7 @@ namespace ZeroC.Ice.interceptor
             {
                 if (context.Equals("invalidInput"))
                 {
-                    throw new Test.InvalidInputException("raiseAfterDispatch");
+                    throw new InvalidInputException("raiseAfterDispatch");
                 }
                 else if (context.Equals("notExist"))
                 {

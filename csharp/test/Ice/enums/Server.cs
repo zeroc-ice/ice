@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System.Collections.Generic;
+using Test;
 
-namespace ZeroC.Ice.enums
+namespace ZeroC.Ice.Test.Enums
 {
     public class Server : TestHelper
     {

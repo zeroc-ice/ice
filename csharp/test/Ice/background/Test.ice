@@ -6,7 +6,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Background
 {
 
 interface Background

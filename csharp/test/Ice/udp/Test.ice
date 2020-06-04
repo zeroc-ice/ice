@@ -6,8 +6,9 @@
 
 #include <Ice/Identity.ice>
 
-[cs:namespace:ZeroC.Ice.udp]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::UDP
 {
 
 interface PingReply

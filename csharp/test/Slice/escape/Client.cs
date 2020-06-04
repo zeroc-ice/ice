@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using @abstract;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ZeroC.Slice.Test.Escape.@abstract;
 using Test;
 
 public class Client : TestHelper
@@ -34,14 +34,14 @@ public class Client : TestHelper
         public void @default(ZeroC.Ice.Current current) => Assert(current.Operation == "default");
     }
 
-    public sealed class Test1I : @abstract.System.ITest
+    public sealed class Test1I : ZeroC.Slice.Test.Escape.@abstract.System.ITest
     {
         public void op(ZeroC.Ice.Current c)
         {
         }
     }
 
-    public sealed class Test2I : ITest
+    public sealed class Test2I : ZeroC.Slice.Test.Escape.System.ITest
     {
         public void op(ZeroC.Ice.Current c)
         {
@@ -96,6 +96,8 @@ public class Client : TestHelper
         Assert(i != null);
         var j = Constants.@protected;
         Assert(j == 0);
+        var k = Constants.@public;
+        Assert(k == 1);
     }
 
     public override void Run(string[] args)
@@ -117,11 +119,12 @@ public class Client : TestHelper
 
             Console.Out.Write("testing System as module name... ");
             Console.Out.Flush();
-            @abstract.System.ITestPrx t1 = adapter.CreateProxy("test1", @abstract.System.ITestPrx.Factory);
+            ZeroC.Slice.Test.Escape.@abstract.System.ITestPrx t1 = adapter.CreateProxy("test1",
+                ZeroC.Slice.Test.Escape.@abstract.System.ITestPrx.Factory);
             t1.op();
 
-            ITestPrx t2 = adapter.CreateProxy("test2", ITestPrx.Factory);
-
+            ZeroC.Slice.Test.Escape.System.ITestPrx t2 = adapter.CreateProxy("test2",
+                ZeroC.Slice.Test.Escape.System.ITestPrx.Factory);
             t2.op();
             Console.Out.WriteLine("ok");
 

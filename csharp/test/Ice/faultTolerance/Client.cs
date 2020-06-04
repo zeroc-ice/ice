@@ -5,23 +5,25 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Test;
 
-using ZeroC.Ice;
-
-public class Client : Test.TestHelper
+namespace ZeroC.Ice.Test.FaultTolerance
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        Dictionary<string, string> properties = CreateTestProperties(ref args);
-        properties["Ice.Warn.Connections"] = "0";
-        using Communicator communicator = Initialize(properties);
-        var ports = args.Select(v => int.Parse(v)).ToList();
-        if (ports.Count == 0)
+        public override void Run(string[] args)
         {
-            throw new ArgumentException("Client: no ports specified");
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Warn.Connections"] = "0";
+            using Communicator communicator = Initialize(properties);
+            var ports = args.Select(v => int.Parse(v)).ToList();
+            if (ports.Count == 0)
+            {
+                throw new ArgumentException("Client: no ports specified");
+            }
+            AllTests.allTests(this, ports);
         }
-        AllTests.allTests(this, ports);
-    }
 
-    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+    }
 }

@@ -5,16 +5,19 @@
 using ZeroC.Ice;
 using ZeroC.IceBox;
 
-public class TestService : IService
+namespace ZeroC.IceBox.Test.Configuration
 {
-    public void Start(string name, Communicator communicator, string[] args)
+    public class TestService : IService
     {
-        ObjectAdapter adapter = communicator.CreateObjectAdapter(name + "OA");
-        adapter.Add("test", new TestIntf(args));
-        adapter.Activate();
-    }
+        public void Start(string name, Communicator communicator, string[] args)
+        {
+            ObjectAdapter adapter = communicator.CreateObjectAdapter(name + "OA");
+            adapter.Add("test", new TestIntf(args));
+            adapter.Activate();
+        }
 
-    public void Stop()
-    {
+        public void Stop()
+        {
+        }
     }
 }

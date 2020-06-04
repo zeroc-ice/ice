@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.operations.AMD
+namespace ZeroC.Ice.Test.AMD.Operations
 {
     public class Server : TestHelper
     {
@@ -15,8 +15,7 @@ namespace ZeroC.Ice.operations.AMD
             // We don't want connection warnings because of the timeout test.
             //
             properties["Ice.Warn.Connections"] = "0";
-            using var communicator = Initialize(properties,
-                typeIdNamespaces: new string[] { "ZeroC.Ice.operations.AMD.TypeId" });
+            using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClass());

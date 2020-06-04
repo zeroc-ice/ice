@@ -5,37 +5,37 @@
 using System;
 using Test;
 
-namespace ZeroC.Ice.exceptions
+namespace ZeroC.Ice.Test.Exceptions
 {
-    public sealed class Thrower : Test.IThrower
+    public sealed class Thrower : IThrower
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public bool supportsAssertException(Current current) => false;
 
-        public void throwAasA(int a, Current current) => throw new Test.A(a);
+        public void throwAasA(int a, Current current) => throw new A(a);
 
         public void throwAorDasAorD(int a, Current current)
         {
             if (a > 0)
             {
-                throw new Test.A(a);
+                throw new A(a);
             }
             else
             {
-                throw new Test.D(a);
+                throw new D(a);
             }
         }
 
         public void throwBasA(int a, int b, Current current) => throwBasB(a, b, current);
 
-        public void throwBasB(int a, int b, Current current) => throw new Test.B(a, b);
+        public void throwBasB(int a, int b, Current current) => throw new B(a, b);
 
         public void throwCasA(int a, int b, int c, Current current) => throwCasC(a, b, c, current);
 
         public void throwCasB(int a, int b, int c, Current current) => throwCasC(a, b, c, current);
 
-        public void throwCasC(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
+        public void throwCasC(int a, int b, int c, Current current) => throw new C(a, b, c);
 
         public void throwLocalException(Current current) => throw new ConnectionTimeoutException();
 
@@ -48,11 +48,11 @@ namespace ZeroC.Ice.exceptions
 
         public void throwLocalExceptionIdempotent(Current current) => throw new ConnectionTimeoutException();
 
-        public void throwUndeclaredA(int a, Current current) => throw new Test.A(a);
+        public void throwUndeclaredA(int a, Current current) => throw new A(a);
 
-        public void throwUndeclaredB(int a, int b, Current current) => throw new Test.B(a, b);
+        public void throwUndeclaredB(int a, int b, Current current) => throw new B(a, b);
 
-        public void throwUndeclaredC(int a, int b, int c, Current current) => throw new Test.C(a, b, c);
+        public void throwUndeclaredC(int a, int b, int c, Current current) => throw new C(a, b, c);
 
         public void throwAfterResponse(Current current)
         {
@@ -64,11 +64,11 @@ namespace ZeroC.Ice.exceptions
         //
         // Only relevant for AMD.
         //
-        public void throwAfterException(Current current) => throw new Test.A();
+        public void throwAfterException(Current current) => throw new A();
 
         public void throwAConvertedToUnhandled(Current current)
         {
-            var a = new Test.A();
+            var a = new A();
             a.ConvertToUnhandled = true;
             throw a;
         }

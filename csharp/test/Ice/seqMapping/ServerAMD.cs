@@ -4,14 +4,13 @@
 
 using Test;
 
-namespace ZeroC.Ice.seqMapping.AMD
+namespace ZeroC.Ice.Test.AMD.SeqMapping
 {
     public class Server : TestHelper
     {
         public override void Run(string[] args)
         {
-            using var communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "ZeroC.Ice.seqMapping.AMD.TypeId" });
+            using var communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyClass());

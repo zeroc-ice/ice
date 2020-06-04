@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.invoke
+namespace ZeroC.Ice.Test.Invoke
 {
     public class BlobjectI : IObject
     {
@@ -15,7 +15,7 @@ namespace ZeroC.Ice.invoke
                 if (!current.IsOneway)
                 {
                     // If called two-way, return exception to caller.
-                    throw new Test.MyException();
+                    throw new MyException();
                 }
                 return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
             }
@@ -34,10 +34,10 @@ namespace ZeroC.Ice.invoke
             {
                 if (current.Context.ContainsKey("raise"))
                 {
-                    throw new Test.MyException();
+                    throw new MyException();
                 }
                 return new ValueTask<OutgoingResponseFrame>(
-                    new OutgoingResponseFrame(current, new Test.MyException()));
+                    new OutgoingResponseFrame(current, new MyException()));
             }
             else if (current.Operation.Equals("shutdown"))
             {
@@ -48,7 +48,7 @@ namespace ZeroC.Ice.invoke
             {
                 string s = request.ReadParamList(InputStream.IceReaderIntoString);
                 var responseFrame = OutgoingResponseFrame.WithReturnValue(current, format: null,
-                    s.Equals("::Test::MyClass"), OutputStream.IceWriterFromBool);
+                    s.Equals("::ZeroC::Ice::Test::Invoke::MyClass"), OutputStream.IceWriterFromBool);
                 return new ValueTask<OutgoingResponseFrame >(responseFrame);
             }
             else

@@ -2,31 +2,32 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
-public class PluginOneFactory : IPluginFactory
+namespace ZeroC.Ice.Test.Plugin
 {
-    public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginOne(communicator);
-
-    internal class PluginOne : BasePlugin
+    public class PluginOneFactory : IPluginFactory
     {
-        public PluginOne(Communicator communicator) : base(communicator)
-        {
-        }
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginOne(communicator);
 
-        public override void Initialize()
+        internal class PluginOne : BasePlugin
         {
-            var other = (BasePlugin?)_communicator.GetPlugin("PluginTwo");
-            TestHelper.Assert(other != null);
-            _other = other;
-            TestHelper.Assert(!_other.isInitialized());
-            _initialized = true;
-        }
+            public PluginOne(Communicator communicator) : base(communicator)
+            {
+            }
 
-        public override void Destroy()
-        {
-            _destroyed = true;
-            TestHelper.Assert(_other!.isDestroyed());
+            public override void Initialize()
+            {
+                var other = (BasePlugin?)_communicator.GetPlugin("PluginTwo");
+                TestHelper.Assert(other != null);
+                _other = other;
+                TestHelper.Assert(!_other.isInitialized());
+                _initialized = true;
+            }
+
+            public override void Destroy()
+            {
+                _destroyed = true;
+                TestHelper.Assert(_other!.isDestroyed());
+            }
         }
     }
 }

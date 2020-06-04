@@ -4,8 +4,9 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.binding]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Binding
 {
 
 interface TestIntf

@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.dictMapping
+namespace ZeroC.Ice.Test.DictMapping
 {
     public class Client : TestHelper
     {
@@ -12,7 +12,7 @@ namespace ZeroC.Ice.dictMapping
         {
             using Communicator communicator = Initialize(ref args);
             System.IO.TextWriter output = GetWriter();
-            Test.IMyClassPrx myClass = AllTests.allTests(this, false);
+            IMyClassPrx myClass = AllTests.allTests(this, false);
             output.Write("shutting down server... ");
             output.Flush();
             myClass.shutdown();

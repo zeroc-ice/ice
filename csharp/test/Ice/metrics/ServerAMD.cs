@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.Test.Metrics
+namespace ZeroC.Ice.Test.AMD.Metrics
 {
     public class Server : TestHelper
     {

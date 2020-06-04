@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.retry
+namespace ZeroC.Ice.Test.Retry
 {
     public class Client : TestHelper
     {

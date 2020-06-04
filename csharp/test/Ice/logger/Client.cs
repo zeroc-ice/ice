@@ -4,29 +4,33 @@
 
 using System;
 using System.IO;
+using Test;
 
-public class Client : Test.TestHelper
+namespace ZeroC.Ice.Test.Logger
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        Console.Out.Write("testing Ice.LogFile... ");
-        Console.Out.Flush();
-        if (File.Exists("log.txt"))
+        public override void Run(string[] args)
         {
+            Console.Out.Write("testing Ice.LogFile... ");
+            Console.Out.Flush();
+            if (File.Exists("log.txt"))
+            {
+                File.Delete("log.txt");
+            }
+
+            {
+                var properties = CreateTestProperties(ref args);
+                properties["Ice.LogFile"] = "log.txt";
+                using var communicator = Initialize(properties);
+                communicator.Logger.Trace("info", "my logger");
+            }
+            Assert(File.Exists("log.txt"));
+            Assert(File.ReadAllText("log.txt").Contains("my logger"));
             File.Delete("log.txt");
+            Console.Out.WriteLine("ok");
         }
 
-        {
-            var properties = CreateTestProperties(ref args);
-            properties["Ice.LogFile"] = "log.txt";
-            using var communicator = Initialize(properties);
-            communicator.Logger.Trace("info", "my logger");
-        }
-        Assert(File.Exists("log.txt"));
-        Assert(File.ReadAllText("log.txt").Contains("my logger"));
-        File.Delete("log.txt");
-        Console.Out.WriteLine("ok");
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
-
-    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }

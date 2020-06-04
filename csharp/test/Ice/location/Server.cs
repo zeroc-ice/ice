@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System.Collections.Generic;
+using Test;
 
-namespace ZeroC.Ice.location
+namespace ZeroC.Ice.Test.Location
 {
     public class Server : TestHelper
     {

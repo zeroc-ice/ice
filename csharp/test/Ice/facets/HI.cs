@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.facets
+namespace ZeroC.Ice.Test.Facets
 {
-    public sealed class H : Test.IH
+    public sealed class H : IH
     {
         public H(Communicator communicator) => _communicator = communicator;
 

@@ -4,15 +4,10 @@
 
 #pragma once
 
-//
-// Suppress warnings
-//
+// deprecated for enumerator references
+[[suppress-warning:invalid-metadata, deprecated, reserved-identifier]]
 
-[[suppress-warning:invalid-metadata, deprecated]] // deprecated for enumerator references
-[[cs:typeid-namespace:ZeroC.Ice.defaultValue.TypeId]]
-
-[cs:namespace:ZeroC.Ice.defaultValue]
-module Test
+module ZeroC::Ice::Test::DefaultValue
 {
 
 enum Color { red, green, blue }
@@ -32,11 +27,11 @@ const long ConstLong = 4;
 const float ConstFloat = 5.1;
 const double ConstDouble = 6.2;
 const string ConstString = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
-const Color ConstColor1 = ::Test::Color::red;
-const Color ConstColor2 = Test::green;
+const Color ConstColor1 = Color::red;
+const Color ConstColor2 = green;
 const Color ConstColor3 = blue;
-const Nested::Color ConstNestedColor1 = Test::Nested::Color::red;
-const Nested::Color ConstNestedColor2 = Test::Nested::green;
+const Nested::Color ConstNestedColor1 = Nested::Color::red;
+const Nested::Color ConstNestedColor2 = Nested::green;
 const Nested::Color ConstNestedColor3 = blue;
 const int ConstZeroI = 0;
 const long ConstZeroL = 0;
@@ -67,11 +62,11 @@ class Base
 
 class Derived : Base
 {
-    Color c1 = ::Test::Color::red;
-    Color c2 = Test::green;
+    Color c1 = Color::red;
+    Color c2 = green;
     Color c3 = blue;
 
-    Nested::Color nc1 = ::Test::Nested::Color::red;
+    Nested::Color nc1 = Nested::Color::red;
     Nested::Color nc2 = Nested::green;
     Nested::Color nc3 = blue;
 }

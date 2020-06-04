@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.facets
+namespace ZeroC.Ice.Test.Facets
 {
     public class Client : TestHelper
     {

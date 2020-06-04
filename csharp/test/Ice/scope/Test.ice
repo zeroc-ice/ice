@@ -5,10 +5,9 @@
 #pragma once
 
 [[3.7]]
+[[suppress-warning:reserved-identifier]]
 
-[[cs:typeid-namespace:ZeroC.Ice.scope.TypeId]]
-[cs:namespace:ZeroC.Ice.scope]
-module Test
+module ZeroC::Ice::Test::Scope
 {
     struct S
     {
@@ -148,17 +147,17 @@ module Test
     }
 }
 
-module Inner::Test::Inner2
+module ZeroC::Ice::Test::Scope::Inner::Test::Inner2
 {
     interface I
     {
-        Test::S opS(Test::S s1, out Test::S s2);
-        Test::SSeq opSSeq(Test::SSeq s1, out Test::SSeq s2);
-        Test::SMap opSMap(Test::SMap s1, out Test::SMap s2);
+        ZeroC::Ice::Test::Scope::S opS(ZeroC::Ice::Test::Scope::S s1, out ZeroC::Ice::Test::Scope::S s2);
+        ZeroC::Ice::Test::Scope::SSeq opSSeq(ZeroC::Ice::Test::Scope::SSeq s1, out ZeroC::Ice::Test::Scope::SSeq s2);
+        ZeroC::Ice::Test::Scope::SMap opSMap(ZeroC::Ice::Test::Scope::SMap s1, out ZeroC::Ice::Test::Scope::SMap s2);
 
-        Test::C opC(Test::C c1, out Test::C c2);
-        Test::CSeq opCSeq(Test::CSeq c1, out Test::CSeq c2);
-        Test::CMap opCMap(Test::CMap c1, out Test::CMap c2);
+        ZeroC::Ice::Test::Scope::C opC(ZeroC::Ice::Test::Scope::C c1, out ZeroC::Ice::Test::Scope::C c2);
+        ZeroC::Ice::Test::Scope::CSeq opCSeq(ZeroC::Ice::Test::Scope::CSeq c1, out ZeroC::Ice::Test::Scope::CSeq c2);
+        ZeroC::Ice::Test::Scope::CMap opCMap(ZeroC::Ice::Test::Scope::CMap c1, out ZeroC::Ice::Test::Scope::CMap c2);
 
         void shutdown();
     }

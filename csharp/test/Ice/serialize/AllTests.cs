@@ -7,9 +7,8 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Test;
-using ZeroC.Ice.serialize.Test;
 
-namespace ZeroC.Ice.serialize
+namespace ZeroC.Ice.Test.Serialize
 {
     public class AllTests
     {

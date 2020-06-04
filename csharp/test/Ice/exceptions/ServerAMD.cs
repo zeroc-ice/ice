@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
 using System.Collections.Generic;
+using Test;
 
-namespace ZeroC.Ice.exceptions.AMD
+namespace ZeroC.Ice.Test.AMD.Exceptions
 {
     public sealed class DummyLogger : ILogger
     {
@@ -48,7 +48,7 @@ namespace ZeroC.Ice.exceptions.AMD
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2");
             ObjectAdapter adapter3 = communicator.CreateObjectAdapter("TestAdapter3");
-            var obj = new ThrowerI();
+            var obj = new Thrower();
             adapter.Add("thrower", obj);
             adapter2.Add("thrower", obj);
             adapter3.Add("thrower", obj);

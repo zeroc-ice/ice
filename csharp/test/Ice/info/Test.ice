@@ -6,8 +6,9 @@
 
 #include <Ice/Context.ice>
 
-[cs:namespace:ZeroC.Ice.info]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Info
 {
 
 interface TestIntf

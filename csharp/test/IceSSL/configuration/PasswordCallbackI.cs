@@ -5,29 +5,32 @@
 using System.Security;
 using Test;
 
-public class PasswordCallback : ZeroC.Ice.IPasswordCallback
+namespace ZeroC.IceSSL.Test.Configuration
 {
-    public PasswordCallback() => _password = CreateSecureString("password");
-
-    public PasswordCallback(string password) => _password = CreateSecureString(password);
-
-    public SecureString GetPassword(string file) => _password;
-
-    public SecureString GetImportPassword(string file)
+    public class PasswordCallback : ZeroC.Ice.IPasswordCallback
     {
-        TestHelper.Assert(false);
-        return null;
-    }
+        public PasswordCallback() => _password = CreateSecureString("password");
 
-    private static SecureString CreateSecureString(string s)
-    {
-        SecureString result = new SecureString();
-        foreach (char ch in s)
+        public PasswordCallback(string password) => _password = CreateSecureString(password);
+
+        public SecureString GetPassword(string file) => _password;
+
+        public SecureString GetImportPassword(string file)
         {
-            result.AppendChar(ch);
+            TestHelper.Assert(false);
+            return null;
         }
-        return result;
-    }
 
-    private SecureString _password;
+        private static SecureString CreateSecureString(string s)
+        {
+            SecureString result = new SecureString();
+            foreach (char ch in s)
+            {
+                result.AppendChar(ch);
+            }
+            return result;
+        }
+
+        private SecureString _password;
+    }
 }

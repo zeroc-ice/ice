@@ -4,9 +4,9 @@
 
 using Test;
 
-namespace ZeroC.Ice.udp
+namespace ZeroC.Ice.Test.UDP
 {
-    public sealed class TestIntf : Test.ITestIntf
+    public sealed class TestIntf : ITestIntf
     {
         public int getValue(Current current)
         {
@@ -14,7 +14,7 @@ namespace ZeroC.Ice.udp
             return 42;
         }
 
-        public void ping(Test.IPingReplyPrx? reply, Current current)
+        public void ping(IPingReplyPrx? reply, Current current)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace ZeroC.Ice.udp
             }
         }
 
-        public void sendByteSeq(byte[] seq, Test.IPingReplyPrx? reply, Current current)
+        public void sendByteSeq(byte[] seq, IPingReplyPrx? reply, Current current)
         {
             try
             {
@@ -50,14 +50,14 @@ namespace ZeroC.Ice.udp
                 try
                 {
                     byte[] seq = new byte[32 * 1024];
-                    current.Connection.CreateProxy(id, Test.ITestIntfPrx.Factory).sendByteSeq(seq, null);
+                    current.Connection.CreateProxy(id, ITestIntfPrx.Factory).sendByteSeq(seq, null);
                 }
                 catch (DatagramLimitException)
                 {
                     // Expected.
                 }
 
-                current.Connection.CreateProxy(id, Test.IPingReplyPrx.Factory).reply();
+                current.Connection.CreateProxy(id, IPingReplyPrx.Factory).reply();
             }
             catch (System.Exception)
             {

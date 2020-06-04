@@ -4,50 +4,53 @@
 
 using System;
 using System.Collections.Generic;
-using Test;
 using ZeroC.Ice;
+using Test;
 
-public class Server : TestHelper
+namespace ZeroC.Ice.Test.FaultTolerance
 {
-    public override void Run(string[] args)
+    public class Server : TestHelper
     {
-        Dictionary<string, string> properties = CreateTestProperties(ref args);
-        properties["Ice.ServerIdleTime"] = "120";
-        int port = 0;
-        for (int i = 0; i < args.Length; i++)
+        public override void Run(string[] args)
         {
-            if (args[i][0] == '-')
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.ServerIdleTime"] = "120";
+            int port = 0;
+            for (int i = 0; i < args.Length; i++)
             {
-                throw new ArgumentException("Server: unknown option `" + args[i] + "'");
+                if (args[i][0] == '-')
+                {
+                    throw new ArgumentException("Server: unknown option `" + args[i] + "'");
+                }
+
+                if (port != 0)
+                {
+                    throw new ArgumentException("Server: only one port can be specified");
+                }
+
+                try
+                {
+                    port = int.Parse(args[i]);
+                }
+                catch (FormatException)
+                {
+                    throw new ArgumentException("Server: invalid port");
+                }
             }
 
-            if (port != 0)
+            if (port <= 0)
             {
-                throw new ArgumentException("Server: only one port can be specified");
+                throw new ArgumentException("Server: no port specified");
             }
 
-            try
-            {
-                port = int.Parse(args[i]);
-            }
-            catch (FormatException)
-            {
-                throw new ArgumentException("Server: invalid port");
-            }
+            using Communicator communicator = Initialize(properties);
+            communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(port));
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("test", new TestIntf());
+            adapter.Activate();
+            communicator.WaitForShutdown();
         }
 
-        if (port <= 0)
-        {
-            throw new ArgumentException("Server: no port specified");
-        }
-
-        using Communicator communicator = Initialize(properties);
-        communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(port));
-        ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-        adapter.Add("test", new TestIntf());
-        adapter.Activate();
-        communicator.WaitForShutdown();
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
-
-    public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
 }

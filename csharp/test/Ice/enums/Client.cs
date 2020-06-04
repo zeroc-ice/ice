@@ -4,14 +4,14 @@
 
 using Test;
 
-namespace ZeroC.Ice.enums
+namespace ZeroC.Ice.Test.Enums
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
-            Test.ITestIntfPrx proxy = AllTests.allTests(this);
+            ITestIntfPrx proxy = AllTests.allTests(this);
             proxy.shutdown();
         }
 

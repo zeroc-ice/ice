@@ -3,10 +3,10 @@
 //
 
 using System;
-using Test;
 using System.Threading;
+using Test;
 
-namespace ZeroC.Ice.operations
+namespace ZeroC.Ice.Test.Operations
 {
     public class OnewaysAMI
     {
@@ -44,11 +44,11 @@ namespace ZeroC.Ice.operations
             public void sent() => called();
         }
 
-        internal static void onewaysAMI(TestHelper helper, Test.IMyClassPrx proxy)
+        internal static void onewaysAMI(TestHelper helper, IMyClassPrx proxy)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            Test.IMyClassPrx p = proxy.Clone(oneway: true);
+            IMyClassPrx p = proxy.Clone(oneway: true);
 
             {
                 var cb = new Callback();
@@ -56,7 +56,7 @@ namespace ZeroC.Ice.operations
                 cb.check();
             }
 
-            bool b = p.IceIsAAsync("::Test::MyClass").Result;
+            bool b = p.IceIsAAsync("::Operations::MyClass").Result;
             string id = p.IceIdAsync().Result;
             string[] ids = p.IceIdsAsync().Result;
 

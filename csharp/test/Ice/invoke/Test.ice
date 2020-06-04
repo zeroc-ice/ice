@@ -4,8 +4,9 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.invoke]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Invoke
 {
 
 exception MyException

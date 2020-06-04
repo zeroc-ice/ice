@@ -6,10 +6,11 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[[cs:typeid-namespace:ZeroC.Ice.exceptions.TypeId]]
-
-[cs:namespace:ZeroC.Ice.exceptions]
-module Test
+// 'Test.ice' and 'TestAMD.ice' need to generate code into separate namespaces, but with identical type-ids. So we use
+// the 'cs:namespace' metadata here to place the AMD code into a separate AMD namespace, instead of another module;
+// Which would result in differing type-ids.
+[cs:namespace:ZeroC.Ice.Test]
+module Exceptions
 {
 
 interface Empty

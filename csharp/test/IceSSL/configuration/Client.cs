@@ -3,21 +3,25 @@
 //
 
 using System;
+using Test;
 
-public class Client : Test.TestHelper
+namespace ZeroC.IceSSL.Test.Configuration
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        using var communicator = Initialize(ref args);
-        if (args.Length < 1)
+        public override void Run(string[] args)
         {
-            throw new ArgumentException("Usage: client testdir");
+            using var communicator = Initialize(ref args);
+            if (args.Length < 1)
+            {
+                throw new ArgumentException("Usage: client testdir");
+            }
+
+            IServerFactoryPrx factory;
+            factory = AllTests.allTests(this, args[0]);
+            factory.shutdown();
         }
 
-        Test.IServerFactoryPrx factory;
-        factory = AllTests.allTests(this, args[0]);
-        factory.shutdown();
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
-
-    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
 }
