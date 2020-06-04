@@ -12,12 +12,9 @@ namespace ZeroC.Ice.Test.Info
     {
         private static TcpEndpoint? getTCPEndpoint(Endpoint? endpoint)
         {
-            for (; endpoint != null; endpoint = endpoint.Underlying)
+            if (endpoint is TcpEndpoint)
             {
-                if (endpoint is TcpEndpoint)
-                {
-                    return (TcpEndpoint)endpoint;
-                }
+                return (TcpEndpoint)endpoint;
             }
             return null;
         }

@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,14 +17,13 @@ namespace ZeroC.Ice.Test.Background
         public override bool IsDatagram => _endpoint.IsDatagram;
 
         public override bool IsSecure => _endpoint.IsSecure;
-        public override string Name => _endpoint.Name;
 
         public override int Timeout => _endpoint.Timeout;
         public override EndpointType Type => (EndpointType)(TYPE_BASE + (short)_endpoint.Type);
 
         internal static short TYPE_BASE = 100;
-        private ZeroC.Ice.Endpoint _endpoint;
-        private Configuration _configuration;
+        private readonly ZeroC.Ice.Endpoint _endpoint;
+        private readonly Configuration _configuration;
 
         public override bool Equals(ZeroC.Ice.Endpoint? other)
         {
