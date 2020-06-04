@@ -1089,14 +1089,26 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
 
+        bool withBitSequence = false;
+
+        if (auto optional = OptionalPtr::dynamicCast(valueType);
+            optional && !optional->underlying()->isClassType() && !optional->underlying()->isClassType())
+        {
+            withBitSequence = true;
+            valueType = optional->underlying();
+        }
+
         out << nl << stream << ".WriteTaggedDictionary(" << tag << ", " << param;
 
-        if (!keyType->isVariableLength() && !valueType->isVariableLength())
+        if (!withBitSequence && !keyType->isVariableLength() && !valueType->isVariableLength())
         {
             // Both are fixed size
             out << ", entrySize: " << (keyType->minWireSize() + valueType->minWireSize());
         }
-
+        if (withBitSequence && isReferenceType(valueType))
+        {
+            out << ", withBitSequence: true";
+        }
         if (!StructPtr::dynamicCast(keyType))
         {
             out << ", " << outputStreamWriter(keyType, scope, true);
@@ -1218,14 +1230,33 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         assert(d);
         TypePtr keyType = d->keyType();
         TypePtr valueType = d->valueType();
+        bool withBitSequence = false;
+
+        if (auto optional = OptionalPtr::dynamicCast(valueType);
+            optional && !optional->underlying()->isClassType() && !optional->underlying()->isClassType())
+        {
+            withBitSequence = true;
+            valueType = optional->underlying();
+        }
 
         bool fixedSize = !keyType->isVariableLength() && !valueType->isVariableLength();
         bool sorted = d->findMetaDataWithPrefix("cs:generic:") == "SortedDictionary";
 
         out << stream << ".ReadTagged" << (sorted ? "Sorted" : "") << "Dictionary(" << tag
-            << ", minEntrySize: " << keyType->minWireSize() + valueType->minWireSize()
-            << ", fixedSize: " << (fixedSize ? "true" : "false") << ", "
-            << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ")";
+            << ", minKeySize: " << keyType->minWireSize();
+        if (!withBitSequence)
+        {
+            out << ", minValueSize: " << valueType->minWireSize();
+        }
+        if (withBitSequence && isReferenceType(valueType))
+        {
+            out << ", withBitSequence: true";
+        }
+        if (!withBitSequence)
+        {
+            out << ", fixedSize: " << (fixedSize ? "true" : "false");
+        }
+        out << ", " << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ")";
     }
 
     if (hasDefaultValue)

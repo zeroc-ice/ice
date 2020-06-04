@@ -62,5 +62,16 @@ namespace ZeroC.Ice.Test.Optional
         public IEnumerable<string?> OpOptStringSeq(string?[] i1, Current current) => i1;
 
         public IEnumerable<string?>? OpTaggedOptStringSeq(string?[]? i1, Current current) => i1;
+
+        public IReadOnlyDictionary<int, int?> OpIntOptIntDict(Dictionary<int, int?> i1, Current current) => i1;
+
+        public IReadOnlyDictionary<int, int?>? OpTaggedIntOptIntDict(Dictionary<int, int?>? i1, Current current) => i1;
+
+        public IReadOnlyDictionary<int, string?> OpIntOptStringDict(Dictionary<int, string?> i1, Current current) =>
+            i1;
+
+        public IReadOnlyDictionary<int, string?>? OpTaggedIntOptStringDict(
+            Dictionary<int, string?>? i1,
+            Current current) => i1;
     }
 }

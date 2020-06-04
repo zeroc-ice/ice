@@ -1507,8 +1507,10 @@ namespace ZeroC.Ice.tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedDictionary(1, 8, fixedSize: true, istr => istr.ReadInt(), istr => istr.ReadInt()),
-                        istr.ReadTaggedDictionary(3, 8, fixedSize: true, istr => istr.ReadInt(), istr => istr.ReadInt())));
+                    (istr.ReadTaggedDictionary(1, 4, 4, fixedSize: true,
+                        istr => istr.ReadInt(), istr => istr.ReadInt()),
+                     istr.ReadTaggedDictionary(3, 4, 4, fixedSize: true,
+                         istr => istr.ReadInt(), istr => istr.ReadInt())));
 
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
@@ -1547,10 +1549,10 @@ namespace ZeroC.Ice.tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                      (istr.ReadTaggedDictionary(1, 5, fixedSize: false, istr => istr.ReadString(),
-                                                                        istr => istr.ReadInt()),
-                            istr.ReadTaggedDictionary(3, 5, fixedSize: false, istr => istr.ReadString(),
-                                                                             istr => istr.ReadInt())));
+                      (istr.ReadTaggedDictionary(1, 1, 4, fixedSize: false, istr => istr.ReadString(),
+                                                                            istr => istr.ReadInt()),
+                       istr.ReadTaggedDictionary(3, 1, 4, fixedSize: false, istr => istr.ReadString(),
+                                                                            istr => istr.ReadInt())));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p2));
                 TestHelper.Assert(Enumerable.SequenceEqual(p1, p3));
             }
@@ -1585,10 +1587,10 @@ namespace ZeroC.Ice.tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedDictionary(1, 5, fixedSize: false, istr => istr.ReadInt(),
+                    (istr.ReadTaggedDictionary(1, 1, 4, fixedSize: false, istr => istr.ReadInt(),
                                                                      istr => istr.ReadNullableClass<OneTagged>()),
-                        istr.ReadTaggedDictionary(3, 5, fixedSize: false, istr => istr.ReadInt(),
-                                                                         istr => istr.ReadNullableClass<OneTagged>())));
+                     istr.ReadTaggedDictionary(3, 1, 4, fixedSize: false, istr => istr.ReadInt(),
+                                                                     istr => istr.ReadNullableClass<OneTagged>())));
                 TestHelper.Assert(p2![1]!.a == 58);
                 TestHelper.Assert(p3![1]!.a == 58);
             }

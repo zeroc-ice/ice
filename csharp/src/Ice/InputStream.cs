@@ -385,21 +385,88 @@ namespace ZeroC.Ice
         public T?[] ReadArray<T>(InputStreamReader<T> reader) where T : struct => ReadSequence(reader).ToArray();
 
         /// <summary>Reads a dictionary from the stream.</summary>
-        /// <param name="minEntrySize">The minimum size of each entry of the dictionary, in bytes.</param>
+        /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
+        /// <param name="minValueSize">The minimum size of each value of the dictionary, in bytes.</param>
         /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
         /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
         /// <returns>The dictionary read from the stream.</returns>
-        public Dictionary<TKey, TValue> ReadDictionary<TKey, TValue>(int minEntrySize,
-                                                                     InputStreamReader<TKey> keyReader,
-                                                                     InputStreamReader<TValue> valueReader)
+        public Dictionary<TKey, TValue> ReadDictionary<TKey, TValue>(
+            int minKeySize,
+            int minValueSize,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
             where TKey : notnull
         {
-            int sz = ReadAndCheckSeqSize(minEntrySize);
+            int sz = ReadAndCheckSeqSize(minKeySize + minValueSize);
             var dict = new Dictionary<TKey, TValue>(sz);
             for (int i = 0; i < sz; ++i)
             {
                 TKey key = keyReader(this);
                 TValue value = valueReader(this);
+                dict.Add(key, value);
+            }
+            return dict;
+        }
+
+        /// <summary>Reads a dictionary from the stream.</summary>
+        /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
+        /// <param name="withBitSequence">When true, null dictionary values are encoded using a bit sequence.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The dictionary read from the stream.</returns>
+        public Dictionary<TKey, TValue?> ReadDictionary<TKey, TValue>(
+            int minKeySize,
+            bool withBitSequence,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : class
+        {
+            int sz = ReadAndCheckSeqSize(minKeySize);
+            var dict = new Dictionary<TKey, TValue?>(sz);
+            if (withBitSequence)
+            {
+                var bitSequence = ReadBitSequence(sz);
+                for (int i = 0; i < sz; ++i)
+                {
+                    TKey key = keyReader(this);
+                    TValue? value = bitSequence[i] ? valueReader(this) : (TValue?)null;
+                    dict.Add(key, value);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < sz; ++i)
+                {
+                    TKey key = keyReader(this);
+                    TValue value = valueReader(this);
+                    dict.Add(key, value);
+                }
+            }
+            return dict;
+        }
+
+        /// <summary>Reads a dictionary from the stream.</summary>
+        /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The dictionary read from the stream.</returns>
+        public Dictionary<TKey, TValue?> ReadDictionary<TKey, TValue>(
+            int minKeySize,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : struct
+        {
+            int sz = ReadAndCheckSeqSize(minKeySize);
+            var dict = new Dictionary<TKey, TValue?>(sz);
+            var bitSequence = ReadBitSequence(sz);
+            for (int i = 0; i < sz; ++i)
+            {
+                TKey key = keyReader(this);
+                TValue? value = bitSequence[i] ? valueReader(this) : (TValue?)null;
                 dict.Add(key, value);
             }
             return dict;
@@ -467,21 +534,90 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Reads a sorted dictionary from the stream.</summary>
-        /// <param name="minEntrySize">The minimum size of each entry of the dictionary, in bytes.</param>
+        /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
+        /// <param name="minValueSize">The minimum size of each value of the dictionary, in bytes.</param>
         /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
         /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
         /// <returns>The sorted dictionary read from the stream.</returns>
         public SortedDictionary<TKey, TValue> ReadSortedDictionary<TKey, TValue>(
-            int minEntrySize,
+            int minKeySize,
+            int minValueSize,
             InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader) where TKey : notnull
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
         {
-            int sz = ReadAndCheckSeqSize(minEntrySize);
+            int sz = ReadAndCheckSeqSize(minKeySize + minValueSize);
             var dict = new SortedDictionary<TKey, TValue>();
             for (int i = 0; i < sz; ++i)
             {
                 TKey key = keyReader(this);
                 TValue value = valueReader(this);
+                dict.Add(key, value);
+            }
+            return dict;
+        }
+
+        /// <summary>Reads a sorted dictionary from the stream.</summary>
+        /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
+        /// <param name="withBitSequence">When true, null dictionary values are encoded using a bit sequence.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The sorted dictionary read from the stream.</returns>
+        public SortedDictionary<TKey, TValue?> ReadSortedDictionary<TKey, TValue>(
+            int minKeySize,
+            bool withBitSequence,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : class
+        {
+            int sz = ReadAndCheckSeqSize(minKeySize);
+            var dict = new SortedDictionary<TKey, TValue?>();
+
+            if (withBitSequence)
+            {
+                var bitSequence = ReadBitSequence(sz);
+                for (int i = 0; i < sz; ++i)
+                {
+                    TKey key = keyReader(this);
+                    TValue? value = bitSequence[i] ? valueReader(this) : (TValue?)null;
+                    dict.Add(key, value);
+                }
+            }
+            else
+            {
+                 for (int i = 0; i < sz; ++i)
+                {
+                    TKey key = keyReader(this);
+                    TValue value = valueReader(this);
+                    dict.Add(key, value);
+                }
+            }
+            return dict;
+        }
+
+        /// <summary>Reads a sorted dictionary from the stream. The dictionary's value type is a nullable value type.
+        /// </summary>
+        /// <param name="minKeySize">The minimum size of each key of the dictionary, in bytes.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The sorted dictionary read from the stream.</returns>
+        public SortedDictionary<TKey, TValue?> ReadSortedDictionary<TKey, TValue>(
+            int minKeySize,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : struct
+        {
+            int sz = ReadAndCheckSeqSize(minKeySize);
+            var dict = new SortedDictionary<TKey, TValue?>();
+            var bitSequence = ReadBitSequence(sz);
+            for (int i = 0; i < sz; ++i)
+            {
+                TKey key = keyReader(this);
+                TValue? value = bitSequence[i] ? valueReader(this) : (TValue?)null;
                 dict.Add(key, value);
             }
             return dict;
@@ -593,24 +729,27 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a tagged dictionary from the stream.</summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="minEntrySize">The minimum size of each entry, in bytes.</param>
-        /// <param name="fixedSize">True when the entry size is fixed; otherwise, false.</param>
+        /// <param name="minKeySize">The minimum size of each key, in bytes.</param>
+        /// <param name="minValueSize">The minimum size of each value, in bytes.</param>
+        /// <param name="fixedSize">When true, the entry size is fixed; otherwise, false.</param>
         /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
         /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
         /// <returns>The dictionary read from the stream, or null.</returns>
         public Dictionary<TKey, TValue>? ReadTaggedDictionary<TKey, TValue>(
             int tag,
-            int minEntrySize,
+            int minKeySize,
+            int minValueSize,
             bool fixedSize,
             InputStreamReader<TKey> keyReader,
-            InputStreamReader<TValue> valueReader) where TKey : notnull
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
         {
             if (fixedSize)
             {
                 if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
                 {
                     SkipSize();
-                    return ReadDictionary(minEntrySize, keyReader, valueReader);
+                    return ReadDictionary(minKeySize, minValueSize, keyReader, valueReader);
                 }
             }
             else
@@ -618,8 +757,57 @@ namespace ZeroC.Ice
                 if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
                 {
                     SkipFixedLengthSize();
-                    return ReadDictionary(minEntrySize, keyReader, valueReader);
+                    return ReadDictionary(minKeySize, minValueSize, keyReader, valueReader);
                 }
+            }
+            return null;
+        }
+
+        /// <summary>Reads a tagged dictionary from the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="minKeySize">The minimum size of each key, in bytes.</param>
+        /// <param name="withBitSequence">When true, null dictionary values are encoded using a bit sequence.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The dictionary read from the stream, or null.</returns>
+        public Dictionary<TKey, TValue?>? ReadTaggedDictionary<TKey, TValue>(
+            int tag,
+            int minKeySize,
+            bool withBitSequence,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : class
+        {
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            {
+                SkipFixedLengthSize();
+                return ReadDictionary(minKeySize, withBitSequence, keyReader, valueReader);
+            }
+            return null;
+        }
+
+        /// <summary>Reads a tagged dictionary from the stream. The dictionary's value type is a nullable value type.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="minKeySize">The minimum size of each key, in bytes.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The dictionary read from the stream, or null.</returns>
+        public Dictionary<TKey, TValue?>? ReadTaggedDictionary<TKey, TValue>(
+            int tag,
+            int minKeySize,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : struct
+        {
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            {
+                SkipFixedLengthSize();
+                return ReadDictionary(minKeySize, keyReader, valueReader);
             }
             return null;
         }
@@ -729,14 +917,16 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a tagged sorted dictionary from the stream.</summary>
         /// <param name="tag">The tag.</param>
-        /// <param name="minEntrySize">The minimum size of each entry, in bytes.</param>
+        /// <param name="minKeySize">The minimum size of each key, in bytes.</param>
+        /// <param name="minValueSize">The minimum size of each value, in bytes.</param>
         /// <param name="fixedSize">True when the entry size is fixed; otherwise, false.</param>
         /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
         /// <param name="valueReader">The input stream reader used to read each value of the dictionary.</param>
         /// <returns>The sorted dictionary read from the stream, or null.</returns>
         public SortedDictionary<TKey, TValue>? ReadTaggedSortedDictionary<TKey, TValue>(
             int tag,
-            int minEntrySize,
+            int minKeySize,
+            int minValueSize,
             bool fixedSize,
             InputStreamReader<TKey> keyReader,
             InputStreamReader<TValue> valueReader) where TKey : notnull
@@ -746,7 +936,7 @@ namespace ZeroC.Ice
                 if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.VSize))
                 {
                     SkipSize();
-                    return ReadSortedDictionary(minEntrySize, keyReader, valueReader);
+                    return ReadSortedDictionary(minKeySize, minValueSize, keyReader, valueReader);
                 }
             }
             else
@@ -754,8 +944,57 @@ namespace ZeroC.Ice
                 if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
                 {
                     SkipFixedLengthSize();
-                    return ReadSortedDictionary(minEntrySize, keyReader, valueReader);
+                    return ReadSortedDictionary(minKeySize, minValueSize, keyReader, valueReader);
                 }
+            }
+            return null;
+        }
+
+        /// <summary>Reads a tagged sorted dictionary from the stream.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="minKeySize">The minimum size of each key, in bytes.</param>
+        /// <param name="withBitSequence">When true, null dictionary values are encoded using a bit sequence.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The dictionary read from the stream, or null.</returns>
+        public SortedDictionary<TKey, TValue?>? ReadTaggeSorteddDictionary<TKey, TValue>(
+            int tag,
+            int minKeySize,
+            bool withBitSequence,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : class
+        {
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            {
+                SkipFixedLengthSize();
+                return ReadSortedDictionary(minKeySize, withBitSequence, keyReader, valueReader);
+            }
+            return null;
+        }
+
+        /// <summary>Reads a tagged sorted dictionary from the stream. The dictionary's value type is a nullable value
+        /// type.</summary>
+        /// <param name="tag">The tag.</param>
+        /// <param name="minKeySize">The minimum size of each key, in bytes.</param>
+        /// <param name="keyReader">The input stream reader used to read each key of the dictionary.</param>
+        /// <param name="valueReader">The input stream reader used to read each non-null value of the dictionary.
+        /// </param>
+        /// <returns>The dictionary read from the stream, or null.</returns>
+        public SortedDictionary<TKey, TValue?>? ReadTaggedSortedDictionary<TKey, TValue>(
+            int tag,
+            int minKeySize,
+            InputStreamReader<TKey> keyReader,
+            InputStreamReader<TValue> valueReader)
+            where TKey : notnull
+            where TValue : struct
+        {
+            if (ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.FSize))
+            {
+                SkipFixedLengthSize();
+                return ReadSortedDictionary(minKeySize, keyReader, valueReader);
             }
             return null;
         }

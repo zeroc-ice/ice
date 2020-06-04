@@ -2119,6 +2119,15 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     string name = p->name();
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
+
+    bool withBitSequence = false;
+    if (auto optional = OptionalPtr::dynamicCast(value);
+        optional && !optional->underlying()->isClassType() && !optional->underlying()->isClassType())
+    {
+        withBitSequence = true;
+        value = optional->underlying();
+    }
+
     string dictS = typeToString(p, ns);
     string readOnlyDictS = typeToString(p, ns, true);
     string generic = p->findMetaDataWithPrefix("cs:generic:");
@@ -2127,9 +2136,14 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     emitCommonAttributes();
     _out << nl << "public static class " << name << "Helper";
     _out << sb;
-    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, "<< readOnlyDictS << " dictionary) =>";
+    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << readOnlyDictS << " dictionary) =>";
     _out.inc();
     _out << nl << "ostr.WriteDictionary(dictionary";
+
+    if (withBitSequence && isReferenceType(value))
+    {
+        _out << ", withBitSequence: true";
+    }
     if (!StructPtr::dynamicCast(key))
     {
         _out << ", " << outputStreamWriter(key, ns, true);
@@ -2155,9 +2169,17 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     {
         _out << nl << "istr.ReadDictionary(";
     }
-    _out << "minEntrySize: " << (key->minWireSize() + value->minWireSize()) << ", "
-         << inputStreamReader(key, ns) << ", "
-         << inputStreamReader(value, ns) << ");";
+    _out << "minKeySize: " << key->minWireSize() << ", ";
+    if (!withBitSequence)
+    {
+        _out << "minValueSize: " << value->minWireSize() << ", ";
+    }
+    if (withBitSequence && isReferenceType(value))
+    {
+         _out << "withBitSequence: true, ";
+    }
+
+    _out << inputStreamReader(key, ns) << ", " << inputStreamReader(value, ns) << ");";
     _out.dec();
 
     _out << sp;
