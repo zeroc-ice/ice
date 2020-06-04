@@ -38,13 +38,10 @@ namespace ZeroC.IceDiscovery
 
     internal class Lookup : ILookup
     {
-        internal int LatencyMultiplier { get; }
-        internal Timer Timer { get; }
+        private int LatencyMultiplier { get; }
 
         private readonly Dictionary<string, AdapterRequest> _adapterRequests =
             new Dictionary<string, AdapterRequest>();
-        private readonly Dictionary<string, HashSet<IObjectPrx>> _replicaGroupReplies =
-            new Dictionary<string, HashSet<IObjectPrx>>();
         private readonly string _domainId;
         private readonly ILookupPrx _lookup;
         private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups =
@@ -53,32 +50,11 @@ namespace ZeroC.IceDiscovery
         private readonly Dictionary<Identity, ObjectRequest> _objectRequests =
             new Dictionary<Identity, ObjectRequest>();
         private readonly LocatorRegistry _registry;
+        private readonly Dictionary<string, HashSet<IObjectPrx>> _replicaGroupReplies =
+            new Dictionary<string, HashSet<IObjectPrx>>();
         private readonly int _retryCount;
         private readonly int _timeout;
         private bool _warnOnce = true;
-
-        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx? reply, Current current)
-        {
-            if (!domainId.Equals(_domainId))
-            {
-                return; // Ignore
-            }
-
-            IObjectPrx? proxy = _registry.FindObject(id);
-            if (proxy != null)
-            {
-                // Reply to the mulicast request using the given proxy.
-                try
-                {
-                    Debug.Assert(reply != null);
-                    reply.FoundObjectByIdAsync(id, proxy);
-                }
-                catch
-                {
-                    // Ignore.
-                }
-            }
-        }
 
         public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx? reply, Current current)
         {
@@ -103,6 +79,29 @@ namespace ZeroC.IceDiscovery
             }
         }
 
+        public void FindObjectById(string domainId, Identity id, ILookupReplyPrx? reply, Current current)
+        {
+            if (!domainId.Equals(_domainId))
+            {
+                return; // Ignore
+            }
+
+            IObjectPrx? proxy = _registry.FindObject(id);
+            if (proxy != null)
+            {
+                // Reply to the mulicast request using the given proxy.
+                try
+                {
+                    Debug.Assert(reply != null);
+                    reply.FoundObjectByIdAsync(id, proxy);
+                }
+                catch
+                {
+                    // Ignore.
+                }
+            }
+        }
+
         internal Lookup(LocatorRegistry registry, ILookupPrx lookup, Communicator communicator)
         {
             _registry = registry;
@@ -111,7 +110,6 @@ namespace ZeroC.IceDiscovery
             _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
             LatencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
             _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
-            Timer = lookup.Communicator.Timer();
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
@@ -156,8 +154,12 @@ namespace ZeroC.IceDiscovery
                     {
                         lock (_mutex)
                         {
-                            _lookup.Communicator.Logger.Warning(
-                                $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}':\n{ex}");
+                            if (_warnOnce)
+                            {
+                                _lookup.Communicator.Logger.Warning(
+                                    $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}':\n{ex}");
+                                _warnOnce = false;
+                            }
 
                             if (++failureCount == lookupCount)
                             {
@@ -174,14 +176,14 @@ namespace ZeroC.IceDiscovery
                     {
                         break;
                     }
-                    else if (_replicaGroupReplies.TryGetValue(request.RequestId, out HashSet<IObjectPrx>? value))
+                    else if (_replicaGroupReplies.TryGetValue(request.RequestId, out HashSet<IObjectPrx>? _))
                     {
                         // The request will be completed once the waiting for additional replies expires
                         break;
                     }
                     else if (--retryCount <= 0)
                     {
-                        // Request timeout and no more retries
+                        // The request timeout and no more retries
                         request.RequestSource.SetResult(null);
                         _adapterRequests.Remove(adapterId);
                         break;
