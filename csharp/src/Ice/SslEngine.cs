@@ -15,7 +15,7 @@ namespace ZeroC.Ice
     /// <summary>The ICertificateVerifier allows an application to customize the certificate verification process.
     /// Return true to allow a connection using the provided certificate information, or false to reject the
     /// connection.</summary>
-    /// <param name="info">The connection info associated with the connection being verify.</param>
+    /// <param name="info">The connection info associated with the connection being verified.</param>
     /// <returns>Return true to allow the connection, or false to reject it.</returns>
     public delegate bool ICertificateVerifier(SslConnectionInfo info);
 
