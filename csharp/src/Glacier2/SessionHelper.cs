@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
@@ -26,6 +27,10 @@ namespace ZeroC.Glacier2
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="typeIdNamespaces">Optional list of TypeId namespaces used for communicator initialization.
         /// The default is Ice.TypeId.</param>
+        /// <param name="certificates">The user certificates to use with the SSL transport.</param>
+        /// <param name="caCertificates">The certificate authorities to use with the SSL transport.</param>
+        /// <param name="certificateVerifier">The certificate verifier delegate to use with the SSL transport.</param>
+        /// <param name="passwordCallback">The password callback delegate to use with the SSL transport.</param>
         /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
         /// <param name="useCallbacks">True if the session should create an object adapter for receiving callbacks.</param>
         internal SessionHelper(ISessionCallback callback,
@@ -34,7 +39,11 @@ namespace ZeroC.Glacier2
             Dictionary<string, string> properties,
             ILogger? logger = null,
             ICommunicatorObserver? observer = null,
-            string[]? typeIdNamespaces = null)
+            string[]? typeIdNamespaces = null,
+            X509Certificate2Collection? certificates = null,
+            X509Certificate2Collection? caCertificates = null,
+            ICertificateVerifier? certificateVerifier = null,
+            IPasswordCallback? passwordCallback = null)
         {
             _callback = callback;
             _finderStr = finderStr;
@@ -43,6 +52,10 @@ namespace ZeroC.Glacier2
             _logger = logger;
             _observer = observer;
             _typeIdNamespaces = typeIdNamespaces;
+            _certificates = certificates;
+            _caCertificates = caCertificates;
+            _certificateVerifier = certificateVerifier;
+            _passwordCallback = passwordCallback;
         }
 
         /// <summary>
@@ -388,7 +401,11 @@ namespace ZeroC.Glacier2
                             properties: _properties,
                             logger: _logger,
                             observer: _observer,
-                            typeIdNamespaces: _typeIdNamespaces);
+                            typeIdNamespaces: _typeIdNamespaces,
+                            certificates: _certificates,
+                            caCertificates: _caCertificates,
+                            certificateVerifier: _certificateVerifier,
+                            passwordCallback: _passwordCallback);
                     }
                 }
                 catch (System.Exception ex)
@@ -458,9 +475,13 @@ namespace ZeroC.Glacier2
         private readonly string _finderStr;
         private readonly bool _useCallbacks;
         private readonly Dictionary<string, string> _properties;
-        private readonly Ice.ILogger? _logger;
-        private readonly Ice.Instrumentation.ICommunicatorObserver? _observer;
+        private readonly ILogger? _logger;
+        private readonly ICommunicatorObserver? _observer;
         private readonly string[]? _typeIdNamespaces;
+        private readonly X509Certificate2Collection? _certificates;
+        private readonly X509Certificate2Collection? _caCertificates;
+        private readonly ICertificateVerifier? _certificateVerifier;
+        private readonly IPasswordCallback? _passwordCallback;
 
         private readonly ISessionCallback _callback;
         private bool _destroy = false;

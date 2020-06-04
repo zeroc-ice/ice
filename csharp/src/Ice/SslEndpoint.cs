@@ -45,16 +45,9 @@ namespace ZeroC.Ice
             new SslEndpoint(SslEngine, Communicator, host, port, SourceAddress, timeout, connectionId,
                 compressionFlag);
 
-        internal override ITransceiver CreateTransceiver(
-            string transport, StreamSocket socket, string? adapterName)
-        {
-            if (!SslEngine.Initialized())
-            {
-                throw new System.InvalidOperationException("IceSSL: plug-in is not initialized");
-            }
-            return new SslTransceiver(Communicator, SslEngine, base.CreateTransceiver(transport, socket, adapterName),
+        internal override ITransceiver CreateTransceiver(string transport, StreamSocket socket, string? adapterName) =>
+            new SslTransceiver(Communicator, SslEngine, base.CreateTransceiver(transport, socket, adapterName),
                 adapterName ?? Host, adapterName != null);
-        }
     }
 
     internal sealed class SslEndpointFactory : IEndpointFactory

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 
@@ -201,6 +202,8 @@ namespace ZeroC.Ice
         private readonly int[] _retryIntervals;
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
+
+        private SslEngine _sslEngine;
         private int _state;
         private readonly Timer _timer;
 
@@ -213,13 +216,21 @@ namespace ZeroC.Ice
         public Communicator(Dictionary<string, string>? properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null)
+                            string[]? typeIdNamespaces = null,
+                            X509Certificate2Collection? certificates = null,
+                            X509Certificate2Collection? caCertificates = null,
+                            ICertificateVerifier? certificateVerifier = null,
+                            IPasswordCallback? passwordCallback = null)
             : this(ref _emptyArgs,
                    null,
                    properties,
                    logger,
                    observer,
-                   typeIdNamespaces)
+                   typeIdNamespaces,
+                   certificates,
+                   caCertificates,
+                   certificateVerifier,
+                   passwordCallback)
         {
         }
 
@@ -227,13 +238,21 @@ namespace ZeroC.Ice
                             Dictionary<string, string>? properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null)
+                            string[]? typeIdNamespaces = null,
+                            X509Certificate2Collection? certificates = null,
+                            X509Certificate2Collection? caCertificates = null,
+                            ICertificateVerifier? certificateVerifier = null,
+                            IPasswordCallback? passwordCallback = null)
             : this(ref args,
                    null,
                    properties,
                    logger,
                    observer,
-                   typeIdNamespaces)
+                   typeIdNamespaces,
+                   certificates,
+                   caCertificates,
+                   certificateVerifier,
+                   passwordCallback)
         {
         }
 
@@ -241,13 +260,21 @@ namespace ZeroC.Ice
                             Dictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null)
+                            string[]? typeIdNamespaces = null,
+                            X509Certificate2Collection? certificates = null,
+                            X509Certificate2Collection? caCertificates = null,
+                            ICertificateVerifier? certificateVerifier = null,
+                            IPasswordCallback? passwordCallback = null)
             : this(ref _emptyArgs,
                    appSettings,
                    properties,
                    logger,
                    observer,
-                   typeIdNamespaces)
+                   typeIdNamespaces,
+                   certificates,
+                   caCertificates,
+                   certificateVerifier,
+                   passwordCallback)
         {
         }
 
@@ -256,7 +283,11 @@ namespace ZeroC.Ice
                             Dictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null)
+                            string[]? typeIdNamespaces = null,
+                            X509Certificate2Collection? certificates = null,
+                            X509Certificate2Collection? caCertificates = null,
+                            ICertificateVerifier? certificateVerifier = null,
+                            IPasswordCallback? passwordCallback = null)
         {
             _state = StateActive;
             Logger = logger ?? Runtime.Logger;
@@ -572,9 +603,14 @@ namespace ZeroC.Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
+                _sslEngine = new SslEngine(this, certificates, caCertificates, certificateVerifier, passwordCallback);
+
                 IceAddEndpointFactory(new TcpEndpointFactory(this));
                 IceAddEndpointFactory(new UdpEndpointFactory(this));
                 IceAddEndpointFactory(new WSEndpointFactory(this));
+
+                IceAddEndpointFactory(new SslEndpointFactory(this, _sslEngine));
+                IceAddEndpointFactory(new WSSEndpointFactory(this, _sslEngine));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
