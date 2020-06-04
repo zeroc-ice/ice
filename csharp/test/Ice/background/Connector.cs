@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Background
         }
 
         public string Transport => "";
-        public EndpointType Type => (EndpointType)(Endpoint.TYPE_BASE + (short)_connector.Type;
+        public EndpointType Type => (EndpointType)(Endpoint.TYPE_BASE + (short)_connector.Type);
 
         //
         // Only for use by Endpoint
