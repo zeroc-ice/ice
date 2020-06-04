@@ -4,14 +4,17 @@
 
 using Test;
 
-public class Client : TestHelper
+namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        using var communicator = Initialize(ref args);
-        ITestIntfPrx test = AllTests.allTests(this);
-        test.shutdown();
-    }
+        public override void Run(string[] args)
+        {
+            using var communicator = Initialize(ref args);
+            ITestIntfPrx test = AllTests.allTests(this);
+            test.shutdown();
+        }
 
-    public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+    }
 }

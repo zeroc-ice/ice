@@ -3,10 +3,9 @@
 //
 
 using System;
-using ZeroC.Ice.timeout.Test;
 using Test;
 
-namespace ZeroC.Ice.timeout
+namespace ZeroC.Ice.Test.Timeout
 {
     public class AllTests
     {

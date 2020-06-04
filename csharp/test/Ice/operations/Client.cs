@@ -5,15 +5,13 @@
 using System;
 using Test;
 
-namespace ZeroC.Ice.operations
+namespace ZeroC.Ice.Test.Operations
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
-            using var communicator = Initialize(properties,
-                typeIdNamespaces: new string[] { "ZeroC.Ice.operations.TypeId" });
+            using var communicator = Initialize(ref args);
             var myClass = AllTests.allTests(this);
 
             Console.Out.Write("testing server shutdown... ");

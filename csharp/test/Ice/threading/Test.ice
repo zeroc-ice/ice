@@ -4,8 +4,9 @@
 
 #pragma once
 
-["cs:namespace:ZeroC.Ice.threading"]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Threading
 {
 
 exception TestFailedException

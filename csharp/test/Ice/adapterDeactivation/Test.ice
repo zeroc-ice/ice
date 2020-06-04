@@ -4,8 +4,9 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.adapterDeactivation]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::AdapterDeactivation
 {
 
 interface TestIntf

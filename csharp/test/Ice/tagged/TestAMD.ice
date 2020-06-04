@@ -6,10 +6,11 @@
 
 [[3.7]]
 
-[[cs:typeid-namespace:ZeroC.Ice.tagged.AMD.TypeId]]
-
-[cs:namespace:ZeroC.Ice.tagged.AMD]
-module Test
+// 'Test.ice' and 'TestAMD.ice' need to generate code into separate namespaces, but with identical type-ids. So we use
+// the 'cs:namespace' metadata here to place the AMD code into a separate AMD namespace, instead of another module;
+// Which would result in differing type-ids.
+[cs:namespace:ZeroC.Ice.Test.AMD]
+module Tagged
 {
 
 class OneTagged
@@ -68,7 +69,7 @@ sequence<FixedStruct> FixedStructSeq;
 sequence<VarStruct> VarStructSeq;
 sequence<OneTagged> OneTaggedSeq;
 
-[clr:serializable:ZeroC.Ice.tagged.Test.SerializableClass]
+[clr:serializable:ZeroC.Ice.Test.Tagged.SerializableClass]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;

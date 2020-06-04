@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.namespacemd
+namespace ZeroC.Ice.Test.NamespaceMD
 {
     public class Client : TestHelper
     {

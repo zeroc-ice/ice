@@ -3,10 +3,11 @@
 //
 
 using System.Threading.Tasks;
+using Test;
 
-namespace ZeroC.Ice.interceptor
+namespace ZeroC.Ice.Test.Interceptor
 {
-    public class MyObject : Test.IMyObject
+    public class MyObject : IMyObject
     {
         public int
         add(int x, int y, Current current) => x + y;
@@ -22,7 +23,7 @@ namespace ZeroC.Ice.interceptor
         }
 
         public int
-        badAdd(int x, int y, Current current) => throw new Test.InvalidInputException("badAdd");
+        badAdd(int x, int y, Current current) => throw new InvalidInputException("badAdd");
 
         public int
         notExistAdd(int x, int y, Current current) => throw new ObjectNotExistException(current);
@@ -54,7 +55,7 @@ namespace ZeroC.Ice.interceptor
         public async ValueTask<int> amdBadAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
-            throw new Test.InvalidInputException("amdBadAdd");
+            throw new InvalidInputException("amdBadAdd");
         }
 
         public async ValueTask<int> amdNotExistAddAsync(int x, int y, Current current)

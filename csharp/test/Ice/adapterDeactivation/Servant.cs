@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.adapterDeactivation
+namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public sealed class Router : IRouter
     {

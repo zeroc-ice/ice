@@ -2,13 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.tagged.Test;
-
 using System.Linq;
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.tagged
+namespace ZeroC.Ice.Test.Tagged
 {
     public class AllTests
     {

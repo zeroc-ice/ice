@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using ZeroC.Ice.seqMapping.AMD.Test;
-
-namespace ZeroC.Ice.seqMapping.AMD
+namespace ZeroC.Ice.Test.AMD.SeqMapping
 {
     public sealed class MyClass : IMyClass
     {
@@ -231,26 +229,33 @@ namespace ZeroC.Ice.seqMapping.AMD
         public ValueTask<(IEnumerable<En>, IEnumerable<En>)> opSEnSAsync(Stack<En> i, Current current) =>
             ToReturnValue(i);
 
-        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opCustomIntSAsync(Custom<int> i, Current current) =>
-            ToReturnValue(i);
-
-        public ValueTask<(IEnumerable<CV?>, IEnumerable<CV?>)> opCustomCVSAsync(Custom<CV?> i,
+        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opCustomIntSAsync(ZeroC.Ice.Test.SeqMapping.Custom<int> i,
             Current current) => ToReturnValue(i);
 
-        public ValueTask<(IEnumerable<Custom<int>>, IEnumerable<Custom<int>>)> opCustomIntSSAsync(Custom<Custom<int>> i,
+        public ValueTask<(IEnumerable<CV?>, IEnumerable<CV?>)> opCustomCVSAsync(ZeroC.Ice.Test.SeqMapping.Custom<CV?> i,
             Current current) => ToReturnValue(i);
 
-        public ValueTask<(IEnumerable<Custom<CV?>>, IEnumerable<Custom<CV?>>)> opCustomCVSSAsync(
-            Custom<Custom<CV?>> i, Current current) => ToReturnValue(i);
+        public ValueTask<(IEnumerable<ZeroC.Ice.Test.SeqMapping.Custom<int>>,
+                          IEnumerable<ZeroC.Ice.Test.SeqMapping.Custom<int>>)>
+            opCustomIntSSAsync(ZeroC.Ice.Test.SeqMapping.Custom<ZeroC.Ice.Test.SeqMapping.Custom<int>> i,
+                Current current) => ToReturnValue(i);
 
-        public ValueTask<(Serialize.Small, Serialize.Small)> opSerialSmallCSharpAsync(Serialize.Small i,
-            Current current) => new ValueTask<(Serialize.Small, Serialize.Small)>((i, i));
+        public ValueTask<(IEnumerable<ZeroC.Ice.Test.SeqMapping.Custom<CV?>>,
+                          IEnumerable<ZeroC.Ice.Test.SeqMapping.Custom<CV?>>)> opCustomCVSSAsync(
+            ZeroC.Ice.Test.SeqMapping.Custom<ZeroC.Ice.Test.SeqMapping.Custom<CV?>> i, Current current)
+                => ToReturnValue(i);
 
-        public ValueTask<(Serialize.Large, Serialize.Large)> opSerialLargeCSharpAsync(Serialize.Large i,
-            Current current) => new ValueTask<(Serialize.Large, Serialize.Large)>((i, i));
+        public ValueTask<(ZeroC.Ice.Test.SeqMapping.Serialize.Small, ZeroC.Ice.Test.SeqMapping.Serialize.Small)>
+            opSerialSmallCSharpAsync(ZeroC.Ice.Test.SeqMapping.Serialize.Small i, Current current) =>
+            new ValueTask<(ZeroC.Ice.Test.SeqMapping.Serialize.Small, ZeroC.Ice.Test.SeqMapping.Serialize.Small)>((i, i));
 
-        public ValueTask<(Serialize.Struct, Serialize.Struct)> opSerialStructCSharpAsync(Serialize.Struct i,
-            Current current) => new ValueTask<(Serialize.Struct, Serialize.Struct)>((i, i));
+        public ValueTask<(ZeroC.Ice.Test.SeqMapping.Serialize.Large, ZeroC.Ice.Test.SeqMapping.Serialize.Large)>
+            opSerialLargeCSharpAsync(ZeroC.Ice.Test.SeqMapping.Serialize.Large i, Current current) =>
+            new ValueTask<(ZeroC.Ice.Test.SeqMapping.Serialize.Large, ZeroC.Ice.Test.SeqMapping.Serialize.Large)>((i, i));
+
+        public ValueTask<(ZeroC.Ice.Test.SeqMapping.Serialize.Struct, ZeroC.Ice.Test.SeqMapping.Serialize.Struct)>
+            opSerialStructCSharpAsync(ZeroC.Ice.Test.SeqMapping.Serialize.Struct i, Current current) =>
+            new ValueTask<(ZeroC.Ice.Test.SeqMapping.Serialize.Struct, ZeroC.Ice.Test.SeqMapping.Serialize.Struct)>((i, i));
 
         private static ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)> ToReturnValue<T>(T[] input) where T : struct =>
             new ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)>((input, input));

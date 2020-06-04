@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.info
+namespace ZeroC.Ice.Test.Info
 {
     public class Server : TestHelper
     {

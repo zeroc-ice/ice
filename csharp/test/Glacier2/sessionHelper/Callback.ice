@@ -4,8 +4,9 @@
 
 #pragma once
 
-[[java:package:test.Glacier2.sessionHelper]]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Glacier2::Test::SessionHelper
 {
 
 exception CallbackException

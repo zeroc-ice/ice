@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.threading
+namespace ZeroC.Ice.Test.Threading
 {
     public class Server : TestHelper
     {

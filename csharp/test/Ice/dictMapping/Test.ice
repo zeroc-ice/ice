@@ -4,8 +4,9 @@
 
 #pragma once
 
-[cs:namespace:ZeroC.Ice.dictMapping]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::DictMapping
 {
 
 dictionary<int, int> NV;

@@ -5,17 +5,11 @@
 #pragma once
 
 [[3.7]]
-
-//
-// Suppress invalid metadata warnings
-//
-[[cs:typeid-namespace:Ice.stream.TypeId]]
-[[suppress-warning:invalid-metadata]]
+[[suppress-warning:invalid-metadata, reserved-identifier]]
 
 #include <Ice/BuiltinSequences.ice>
 
-[cs:namespace:ZeroC.Ice.stream]
-module Test
+module ZeroC::Ice::Test::Stream
 {
 
 enum MyEnum
@@ -132,7 +126,7 @@ sequence<Ice::StringSeq> StringSStack;
 [clr:generic:SortedDictionary]
 dictionary<string, string> SortedStringStringD;
 
-[clr:serializable:ZeroC.Ice.stream.Serialize.Small] sequence<byte> SerialSmall;
+[clr:serializable:ZeroC.Ice.Test.Stream.Serialize.Small] sequence<byte> SerialSmall;
 
 class MyClass
 {

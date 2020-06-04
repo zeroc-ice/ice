@@ -4,7 +4,7 @@
 
 [[suppress-warning:reserved-identifier]]
 
-module Clash
+module ZeroC::Slice::Test::Escape::Clash
 {
 
 interface Intf

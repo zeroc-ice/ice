@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.facets
+namespace ZeroC.Ice.Test.Facets
 {
-    public sealed class E : Test.IE
+    public sealed class E : IE
     {
         public E()
         {

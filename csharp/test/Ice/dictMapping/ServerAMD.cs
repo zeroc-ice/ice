@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.dictMapping.AMD
+namespace ZeroC.Ice.Test.DictMapping.AMD
 {
     public class Server : TestHelper
     {

@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.info
+namespace ZeroC.Ice.Test.Info
 {
-    public class TestIntf : Test.ITestIntf
+    public class TestIntf : ITestIntf
     {
         private static IPEndpoint? getIPEndpoint(Endpoint endpoint)
         {

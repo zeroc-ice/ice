@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.proxy
+namespace ZeroC.Ice.Test.Proxy
 {
     public class Client : TestHelper
     {

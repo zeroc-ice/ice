@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.adapterDeactivation
+namespace ZeroC.Ice.Test.AdapterDeactivation
 {
-    public sealed class TestIntf : Test.ITestIntf
+    public sealed class TestIntf : ITestIntf
     {
         public void transient(Current current)
         {

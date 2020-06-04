@@ -3,23 +3,27 @@
 //
 
 using System;
+using Test;
 
-public class Client : Test.TestHelper
+namespace ZeroC.IceDiscovery.Test.Simple
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        using var communicator = Initialize(ref args);
-        int num;
-        try
+        public override void Run(string[] args)
         {
-            num = args.Length == 1 ? int.Parse(args[0]) : 0;
+            using var communicator = Initialize(ref args);
+            int num;
+            try
+            {
+                num = args.Length == 1 ? int.Parse(args[0]) : 0;
+            }
+            catch (FormatException)
+            {
+                num = 0;
+            }
+            AllTests.allTests(this, num);
         }
-        catch (FormatException)
-        {
-            num = 0;
-        }
-        AllTests.allTests(this, num);
-    }
 
-    public static int Main(string[] args) => Test.TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+    }
 }

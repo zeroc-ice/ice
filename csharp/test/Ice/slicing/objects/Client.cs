@@ -4,13 +4,16 @@
 
 using Test;
 
-public class Client : TestHelper
+namespace ZeroC.Ice.Test.Slicing.Objects
 {
-    public override void Run(string[] args)
+    public class Client : TestHelper
     {
-        using var communicator = Initialize(ref args);
-        AllTests.allTests(this).shutdown();
-    }
+        public override void Run(string[] args)
+        {
+            using var communicator = Initialize(ref args);
+            AllTests.allTests(this).shutdown();
+        }
 
-    public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+    }
 }

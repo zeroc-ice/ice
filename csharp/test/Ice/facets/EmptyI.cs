@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.facets
+namespace ZeroC.Ice.Test.Facets
 {
-    public sealed class Empty : Test.IEmpty
+    public sealed class Empty : IEmpty
     {
     }
 }

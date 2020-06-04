@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.admin.Test;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Test;
 
-namespace ZeroC.Ice.admin
+namespace ZeroC.Ice.Test.Admin
 {
     public class AllTests
     {
@@ -124,7 +123,7 @@ namespace ZeroC.Ice.admin
             }
         }
 
-        public static void allTests(global::Test.TestHelper helper)
+        public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);

@@ -4,9 +4,9 @@
 
 using System.Collections.Generic;
 
-namespace ZeroC.Ice.dictMapping
+namespace ZeroC.Ice.Test.DictMapping
 {
-    public sealed class MyClass : Test.IMyClass
+    public sealed class MyClass : IMyClass
     {
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 

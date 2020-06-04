@@ -3,31 +3,34 @@
 //
 
 using System;
-using ZeroC.Ice;
 
-public class PluginThreeFailFactory : IPluginFactory
+namespace ZeroC.Ice.Test.Plugin
 {
-    public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginThreeFail(communicator);
-
-    internal class PluginThreeFail : BasePluginFail
+    public class PluginThreeFailFactory : IPluginFactory
     {
-        public PluginThreeFail(Communicator communicator) : base(communicator)
+        public IPlugin Create(Communicator communicator, string name, string[] args) =>
+            new PluginThreeFail(communicator);
+
+        internal class PluginThreeFail : BasePluginFail
         {
-        }
-
-        public override void Initialize() => throw new PluginInitializeFailException();
-
-        public override void Destroy() => TestHelper.Assert(false);
-
-        ~PluginThreeFail()
-        {
-            if (_initialized)
+            public PluginThreeFail(Communicator communicator) : base(communicator)
             {
-                Console.WriteLine("PluginThreeFail was initialized");
             }
-            if (_destroyed)
+
+            public override void Initialize() => throw new PluginInitializeFailException();
+
+            public override void Destroy() => TestHelper.Assert(false);
+
+            ~PluginThreeFail()
             {
-                Console.WriteLine("PluginThreeFail was destroyed");
+                if (_initialized)
+                {
+                    Console.WriteLine("PluginThreeFail was initialized");
+                }
+                if (_destroyed)
+                {
+                    Console.WriteLine("PluginThreeFail was destroyed");
+                }
             }
         }
     }

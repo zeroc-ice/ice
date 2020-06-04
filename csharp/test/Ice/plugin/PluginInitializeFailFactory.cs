@@ -2,16 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
-public class PluginInitializeFailFactory : IPluginFactory
+namespace ZeroC.Ice.Test.Plugin
 {
-    public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginInitializeFail();
-
-    internal class PluginInitializeFail : IPlugin
+    public class PluginInitializeFailFactory : IPluginFactory
     {
-        public void Initialize() => throw new PluginInitializeFailException();
+        public IPlugin Create(Communicator communicator, string name, string[] args) => new PluginInitializeFail();
 
-        public void Destroy() => TestHelper.Assert(false);
+        internal class PluginInitializeFail : IPlugin
+        {
+            public void Initialize() => throw new PluginInitializeFailException();
+
+            public void Destroy() => TestHelper.Assert(false);
+        }
     }
 }

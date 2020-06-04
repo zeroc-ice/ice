@@ -4,7 +4,7 @@
 
 [[3.7]]
 
-module Test
+module ZeroC::Slice::Test::Structure
 {
 
 sequence<string> StringSeq;

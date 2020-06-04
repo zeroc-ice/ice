@@ -4,7 +4,7 @@
 
 using Test;
 
-namespace ZeroC.Ice.defaultValue
+namespace ZeroC.Ice.Test.DefaultValue
 {
     public class Client : TestHelper
     {

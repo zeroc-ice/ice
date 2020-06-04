@@ -7,10 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Test;
 
-namespace ZeroC.Ice.operations
+namespace ZeroC.Ice.Test.Operations
 {
     public class TwowaysAMI
     {
@@ -144,14 +143,14 @@ namespace ZeroC.Ice.operations
                 called();
             }
 
-            public void opMyEnum(Test.MyEnum r, Test.MyEnum e)
+            public void opMyEnum(MyEnum r, MyEnum e)
             {
-                TestHelper.Assert(e == Test.MyEnum.enum2);
-                TestHelper.Assert(r == Test.MyEnum.enum3);
+                TestHelper.Assert(e == MyEnum.enum2);
+                TestHelper.Assert(r == MyEnum.enum3);
                 called();
             }
 
-            public void opMyClass(Test.IMyClassPrx? r, Test.IMyClassPrx? c1, Test.IMyClassPrx? c2)
+            public void opMyClass(IMyClassPrx? r, IMyClassPrx? c1, IMyClassPrx? c2)
             {
                 TestHelper.Assert(c1!.Identity.Equals(Identity.Parse("test")));
                 TestHelper.Assert(c2!.Identity.Equals(Identity.Parse("noSuchIdentity")));
@@ -159,12 +158,12 @@ namespace ZeroC.Ice.operations
                 called();
             }
 
-            public void opStruct(Test.Structure rso, Test.Structure so)
+            public void opStruct(Structure rso, Structure so)
             {
                 TestHelper.Assert(rso.p == null);
-                TestHelper.Assert(rso.e == Test.MyEnum.enum2);
+                TestHelper.Assert(rso.e == MyEnum.enum2);
                 TestHelper.Assert(rso.s.s.Equals("def"));
-                TestHelper.Assert(so.e == Test.MyEnum.enum3);
+                TestHelper.Assert(so.e == MyEnum.enum3);
                 TestHelper.Assert(so.s.s.Equals("a new string"));
                 called();
             }
@@ -476,48 +475,48 @@ namespace ZeroC.Ice.operations
                 called();
             }
 
-            public void opStringMyEnumD(Dictionary<string, Test.MyEnum> ro, Dictionary<string, Test.MyEnum> _do)
+            public void opStringMyEnumD(Dictionary<string, MyEnum> ro, Dictionary<string, MyEnum> _do)
             {
-                var di1 = new Dictionary<string, Test.MyEnum>();
-                di1["abc"] = Test.MyEnum.enum1;
-                di1[""] = Test.MyEnum.enum2;
+                var di1 = new Dictionary<string, MyEnum>();
+                di1["abc"] = MyEnum.enum1;
+                di1[""] = MyEnum.enum2;
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
-                TestHelper.Assert(ro["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro["qwerty"] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[""] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro["abc"] == MyEnum.enum1);
+                TestHelper.Assert(ro["qwerty"] == MyEnum.enum3);
+                TestHelper.Assert(ro[""] == MyEnum.enum2);
+                TestHelper.Assert(ro["Hello!!"] == MyEnum.enum2);
                 called();
             }
 
-            public void opMyEnumStringD(Dictionary<Test.MyEnum, string> ro, Dictionary<Test.MyEnum, string> _do)
+            public void opMyEnumStringD(Dictionary<MyEnum, string> ro, Dictionary<MyEnum, string> _do)
             {
-                var di1 = new Dictionary<Test.MyEnum, string>();
-                di1[Test.MyEnum.enum1] = "abc";
+                var di1 = new Dictionary<MyEnum, string>();
+                di1[MyEnum.enum1] = "abc";
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 3);
-                TestHelper.Assert(ro[Test.MyEnum.enum1].Equals("abc"));
-                TestHelper.Assert(ro[Test.MyEnum.enum2].Equals("Hello!!"));
-                TestHelper.Assert(ro[Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(ro[MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(ro[MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(ro[MyEnum.enum3].Equals("qwerty"));
                 called();
             }
 
-            public void opMyStructMyEnumD(Dictionary<Test.MyStruct, Test.MyEnum> ro,
-                                            Dictionary<Test.MyStruct, Test.MyEnum> _do)
+            public void opMyStructMyEnumD(Dictionary<MyStruct, MyEnum> ro,
+                                            Dictionary<MyStruct, MyEnum> _do)
             {
-                var s11 = new Test.MyStruct(1, 1);
-                var s12 = new Test.MyStruct(1, 2);
-                var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di1[s11] = Test.MyEnum.enum1;
-                di1[s12] = Test.MyEnum.enum2;
+                var s11 = new MyStruct(1, 1);
+                var s12 = new MyStruct(1, 2);
+                var di1 = new Dictionary<MyStruct, MyEnum>();
+                di1[s11] = MyEnum.enum1;
+                di1[s12] = MyEnum.enum2;
                 TestHelper.Assert(_do.DictionaryEqual(di1));
-                var s22 = new Test.MyStruct(2, 2);
-                var s23 = new Test.MyStruct(2, 3);
+                var s22 = new MyStruct(2, 2);
+                var s23 = new MyStruct(2, 3);
                 TestHelper.Assert(ro.Count == 4);
-                TestHelper.Assert(ro[s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[s12] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro[s22] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[s11] == MyEnum.enum1);
+                TestHelper.Assert(ro[s12] == MyEnum.enum2);
+                TestHelper.Assert(ro[s22] == MyEnum.enum3);
+                TestHelper.Assert(ro[s23] == MyEnum.enum2);
                 called();
             }
 
@@ -622,79 +621,79 @@ namespace ZeroC.Ice.operations
                 called();
             }
 
-            public void opStringMyEnumDS(Dictionary<string, Test.MyEnum>[] ro,
-                                            Dictionary<string, Test.MyEnum>[] _do)
+            public void opStringMyEnumDS(Dictionary<string, MyEnum>[] ro,
+                                            Dictionary<string, MyEnum>[] _do)
             {
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
-                TestHelper.Assert(ro[0]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[0]["qwerty"] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[0]["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[0]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(ro[0]["qwerty"] == MyEnum.enum3);
+                TestHelper.Assert(ro[0]["Hello!!"] == MyEnum.enum2);
                 TestHelper.Assert(ro[1].Count == 2);
-                TestHelper.Assert(ro[1]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[1][""] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[1]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(ro[1][""] == MyEnum.enum2);
 
                 TestHelper.Assert(_do.Length == 3);
                 TestHelper.Assert(_do[0].Count == 1);
-                TestHelper.Assert(_do[0]["Goodbye"] == Test.MyEnum.enum1);
+                TestHelper.Assert(_do[0]["Goodbye"] == MyEnum.enum1);
                 TestHelper.Assert(_do[1].Count == 2);
-                TestHelper.Assert(_do[1]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[1][""] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[1]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(_do[1][""] == MyEnum.enum2);
                 TestHelper.Assert(_do[2].Count == 3);
-                TestHelper.Assert(_do[2]["abc"] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[2]["qwerty"] == Test.MyEnum.enum3);
-                TestHelper.Assert(_do[2]["Hello!!"] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[2]["abc"] == MyEnum.enum1);
+                TestHelper.Assert(_do[2]["qwerty"] == MyEnum.enum3);
+                TestHelper.Assert(_do[2]["Hello!!"] == MyEnum.enum2);
                 called();
             }
 
-            public void opMyEnumStringDS(Dictionary<Test.MyEnum, string>[] ro,
-                                            Dictionary<Test.MyEnum, string>[] _do)
+            public void opMyEnumStringDS(Dictionary<MyEnum, string>[] ro,
+                                            Dictionary<MyEnum, string>[] _do)
             {
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 2);
-                TestHelper.Assert(ro[0][Test.MyEnum.enum2].Equals("Hello!!"));
-                TestHelper.Assert(ro[0][Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(ro[0][MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(ro[0][MyEnum.enum3].Equals("qwerty"));
                 TestHelper.Assert(ro[1].Count == 1);
-                TestHelper.Assert(ro[1][Test.MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(ro[1][MyEnum.enum1].Equals("abc"));
 
                 TestHelper.Assert(_do.Length == 3);
                 TestHelper.Assert(_do[0].Count == 1);
-                TestHelper.Assert(_do[0][Test.MyEnum.enum1].Equals("Goodbye"));
+                TestHelper.Assert(_do[0][MyEnum.enum1].Equals("Goodbye"));
                 TestHelper.Assert(_do[1].Count == 1);
-                TestHelper.Assert(_do[1][Test.MyEnum.enum1].Equals("abc"));
+                TestHelper.Assert(_do[1][MyEnum.enum1].Equals("abc"));
                 TestHelper.Assert(_do[2].Count == 2);
-                TestHelper.Assert(_do[2][Test.MyEnum.enum2].Equals("Hello!!"));
-                TestHelper.Assert(_do[2][Test.MyEnum.enum3].Equals("qwerty"));
+                TestHelper.Assert(_do[2][MyEnum.enum2].Equals("Hello!!"));
+                TestHelper.Assert(_do[2][MyEnum.enum3].Equals("qwerty"));
                 called();
             }
 
-            public void opMyStructMyEnumDS(Dictionary<Test.MyStruct, Test.MyEnum>[] ro,
-                                            Dictionary<Test.MyStruct, Test.MyEnum>[] _do)
+            public void opMyStructMyEnumDS(Dictionary<MyStruct, MyEnum>[] ro,
+                                            Dictionary<MyStruct, MyEnum>[] _do)
             {
-                var s11 = new Test.MyStruct(1, 1);
-                var s12 = new Test.MyStruct(1, 2);
-                var s22 = new Test.MyStruct(2, 2);
-                var s23 = new Test.MyStruct(2, 3);
+                var s11 = new MyStruct(1, 1);
+                var s12 = new MyStruct(1, 2);
+                var s22 = new MyStruct(2, 2);
+                var s23 = new MyStruct(2, 3);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
-                TestHelper.Assert(ro[0][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[0][s22] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[0][s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[0][s11] == MyEnum.enum1);
+                TestHelper.Assert(ro[0][s22] == MyEnum.enum3);
+                TestHelper.Assert(ro[0][s23] == MyEnum.enum2);
                 TestHelper.Assert(ro[1].Count == 2);
-                TestHelper.Assert(ro[1][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[1][s12] == Test.MyEnum.enum2);
+                TestHelper.Assert(ro[1][s11] == MyEnum.enum1);
+                TestHelper.Assert(ro[1][s12] == MyEnum.enum2);
 
                 TestHelper.Assert(_do.Length == 3);
                 TestHelper.Assert(_do[0].Count == 1);
-                TestHelper.Assert(_do[0][s23] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[0][s23] == MyEnum.enum3);
                 TestHelper.Assert(_do[1].Count == 2);
-                TestHelper.Assert(_do[1][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[1][s12] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[1][s11] == MyEnum.enum1);
+                TestHelper.Assert(_do[1][s12] == MyEnum.enum2);
                 TestHelper.Assert(_do[2].Count == 3);
-                TestHelper.Assert(_do[2][s11] == Test.MyEnum.enum1);
-                TestHelper.Assert(_do[2][s22] == Test.MyEnum.enum3);
-                TestHelper.Assert(_do[2][s23] == Test.MyEnum.enum2);
+                TestHelper.Assert(_do[2][s11] == MyEnum.enum1);
+                TestHelper.Assert(_do[2][s22] == MyEnum.enum3);
+                TestHelper.Assert(_do[2][s23] == MyEnum.enum2);
                 called();
             }
 
@@ -866,24 +865,24 @@ namespace ZeroC.Ice.operations
                 called();
             }
 
-            public void opMyEnumMyEnumSD(Dictionary<Test.MyEnum, Test.MyEnum[]> ro,
-                                            Dictionary<Test.MyEnum, Test.MyEnum[]> _do)
+            public void opMyEnumMyEnumSD(Dictionary<MyEnum, MyEnum[]> ro,
+                                            Dictionary<MyEnum, MyEnum[]> _do)
             {
                 TestHelper.Assert(_do.Count == 1);
-                TestHelper.Assert(_do[Test.MyEnum.enum1].Length == 2);
-                TestHelper.Assert(_do[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
-                TestHelper.Assert(_do[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+                TestHelper.Assert(_do[MyEnum.enum1].Length == 2);
+                TestHelper.Assert(_do[MyEnum.enum1][0] == MyEnum.enum3);
+                TestHelper.Assert(_do[MyEnum.enum1][1] == MyEnum.enum3);
                 TestHelper.Assert(ro.Count == 3);
-                TestHelper.Assert(ro[Test.MyEnum.enum3].Length == 3);
-                TestHelper.Assert(ro[Test.MyEnum.enum3][0] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[Test.MyEnum.enum3][1] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[Test.MyEnum.enum3][2] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro[Test.MyEnum.enum2].Length == 2);
-                TestHelper.Assert(ro[Test.MyEnum.enum2][0] == Test.MyEnum.enum1);
-                TestHelper.Assert(ro[Test.MyEnum.enum2][1] == Test.MyEnum.enum2);
-                TestHelper.Assert(ro[Test.MyEnum.enum1].Length == 2);
-                TestHelper.Assert(ro[Test.MyEnum.enum1][0] == Test.MyEnum.enum3);
-                TestHelper.Assert(ro[Test.MyEnum.enum1][1] == Test.MyEnum.enum3);
+                TestHelper.Assert(ro[MyEnum.enum3].Length == 3);
+                TestHelper.Assert(ro[MyEnum.enum3][0] == MyEnum.enum1);
+                TestHelper.Assert(ro[MyEnum.enum3][1] == MyEnum.enum1);
+                TestHelper.Assert(ro[MyEnum.enum3][2] == MyEnum.enum2);
+                TestHelper.Assert(ro[MyEnum.enum2].Length == 2);
+                TestHelper.Assert(ro[MyEnum.enum2][0] == MyEnum.enum1);
+                TestHelper.Assert(ro[MyEnum.enum2][1] == MyEnum.enum2);
+                TestHelper.Assert(ro[MyEnum.enum1].Length == 2);
+                TestHelper.Assert(ro[MyEnum.enum1][0] == MyEnum.enum3);
+                TestHelper.Assert(ro[MyEnum.enum1][1] == MyEnum.enum3);
                 called();
             }
 
@@ -914,7 +913,7 @@ namespace ZeroC.Ice.operations
             private readonly Dictionary<string, string>? _d;
         }
 
-        internal static void twowaysAMI(TestHelper helper, Test.IMyClassPrx p)
+        internal static void twowaysAMI(TestHelper helper, IMyClassPrx p)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -924,7 +923,7 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                TestHelper.Assert(p.IceIsAAsync("::Test::MyClass").Result);
+                TestHelper.Assert(p.IceIsAAsync("::Operations::MyClass").Result);
             }
 
             {
@@ -932,7 +931,7 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                TestHelper.Assert(p.IceIdAsync().Result.Equals("::Test::MyDerivedClass"));
+                TestHelper.Assert(p.IceIdAsync().Result.Equals("::Operations::MyDerivedClass"));
             }
 
             {
@@ -977,7 +976,7 @@ namespace ZeroC.Ice.operations
 
             {
                 var cb = new Callback();
-                var ret = p.opMyEnumAsync(Test.MyEnum.enum2).Result;
+                var ret = p.opMyEnumAsync(MyEnum.enum2).Result;
                 cb.opMyEnum(ret.ReturnValue, ret.p2);
             }
 
@@ -988,15 +987,15 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var si1 = new Test.Structure();
+                var si1 = new Structure();
                 si1.p = p;
-                si1.e = Test.MyEnum.enum3;
-                si1.s = new Test.AnotherStruct();
+                si1.e = MyEnum.enum3;
+                si1.s = new AnotherStruct();
                 si1.s.s = "abc";
-                var si2 = new Test.Structure();
+                var si2 = new Structure();
                 si2.p = null;
-                si2.e = Test.MyEnum.enum2;
-                si2.s = new Test.AnotherStruct();
+                si2.e = MyEnum.enum2;
+                si2.s = new AnotherStruct();
                 si2.s.s = "def";
 
                 var cb = new Callback(communicator);
@@ -1203,13 +1202,13 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var di1 = new Dictionary<string, Test.MyEnum>();
-                di1["abc"] = Test.MyEnum.enum1;
-                di1[""] = Test.MyEnum.enum2;
-                var di2 = new Dictionary<string, Test.MyEnum>();
-                di2["abc"] = Test.MyEnum.enum1;
-                di2["qwerty"] = Test.MyEnum.enum3;
-                di2["Hello!!"] = Test.MyEnum.enum2;
+                var di1 = new Dictionary<string, MyEnum>();
+                di1["abc"] = MyEnum.enum1;
+                di1[""] = MyEnum.enum2;
+                var di2 = new Dictionary<string, MyEnum>();
+                di2["abc"] = MyEnum.enum1;
+                di2["qwerty"] = MyEnum.enum3;
+                di2["Hello!!"] = MyEnum.enum2;
 
                 var cb = new Callback();
                 var ret = p.opStringMyEnumDAsync(di1, di2).Result;
@@ -1217,11 +1216,11 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var di1 = new Dictionary<Test.MyEnum, string>();
-                di1[Test.MyEnum.enum1] = "abc";
-                var di2 = new Dictionary<Test.MyEnum, string>();
-                di2[Test.MyEnum.enum2] = "Hello!!";
-                di2[Test.MyEnum.enum3] = "qwerty";
+                var di1 = new Dictionary<MyEnum, string>();
+                di1[MyEnum.enum1] = "abc";
+                var di2 = new Dictionary<MyEnum, string>();
+                di2[MyEnum.enum2] = "Hello!!";
+                di2[MyEnum.enum3] = "qwerty";
 
                 var cb = new Callback();
                 var ret = p.opMyEnumStringDAsync(di1, di2).Result;
@@ -1229,18 +1228,18 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var s11 = new Test.MyStruct(1, 1);
-                var s12 = new Test.MyStruct(1, 2);
-                var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di1[s11] = Test.MyEnum.enum1;
-                di1[s12] = Test.MyEnum.enum2;
+                var s11 = new MyStruct(1, 1);
+                var s12 = new MyStruct(1, 2);
+                var di1 = new Dictionary<MyStruct, MyEnum>();
+                di1[s11] = MyEnum.enum1;
+                di1[s12] = MyEnum.enum2;
 
-                var s22 = new Test.MyStruct(2, 2);
-                var s23 = new Test.MyStruct(2, 3);
-                var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di2[s11] = Test.MyEnum.enum1;
-                di2[s22] = Test.MyEnum.enum3;
-                di2[s23] = Test.MyEnum.enum2;
+                var s22 = new MyStruct(2, 2);
+                var s23 = new MyStruct(2, 3);
+                var di2 = new Dictionary<MyStruct, MyEnum>();
+                di2[s11] = MyEnum.enum1;
+                di2[s22] = MyEnum.enum3;
+                di2[s23] = MyEnum.enum2;
 
                 var cb = new Callback();
                 var ret = p.opMyStructMyEnumDAsync(di1, di2).Result;
@@ -1318,18 +1317,18 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var dsi1 = new Dictionary<string, Test.MyEnum>[2];
-                var dsi2 = new Dictionary<string, Test.MyEnum>[1];
+                var dsi1 = new Dictionary<string, MyEnum>[2];
+                var dsi2 = new Dictionary<string, MyEnum>[1];
 
-                var di1 = new Dictionary<string, Test.MyEnum>();
-                di1["abc"] = Test.MyEnum.enum1;
-                di1[""] = Test.MyEnum.enum2;
-                var di2 = new Dictionary<string, Test.MyEnum>();
-                di2["abc"] = Test.MyEnum.enum1;
-                di2["qwerty"] = Test.MyEnum.enum3;
-                di2["Hello!!"] = Test.MyEnum.enum2;
-                var di3 = new Dictionary<string, Test.MyEnum>();
-                di3["Goodbye"] = Test.MyEnum.enum1;
+                var di1 = new Dictionary<string, MyEnum>();
+                di1["abc"] = MyEnum.enum1;
+                di1[""] = MyEnum.enum2;
+                var di2 = new Dictionary<string, MyEnum>();
+                di2["abc"] = MyEnum.enum1;
+                di2["qwerty"] = MyEnum.enum3;
+                di2["Hello!!"] = MyEnum.enum2;
+                var di3 = new Dictionary<string, MyEnum>();
+                di3["Goodbye"] = MyEnum.enum1;
 
                 dsi1[0] = di1;
                 dsi1[1] = di2;
@@ -1341,16 +1340,16 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var dsi1 = new Dictionary<Test.MyEnum, string>[2];
-                var dsi2 = new Dictionary<Test.MyEnum, string>[1];
+                var dsi1 = new Dictionary<MyEnum, string>[2];
+                var dsi2 = new Dictionary<MyEnum, string>[1];
 
-                var di1 = new Dictionary<Test.MyEnum, string>();
-                di1[Test.MyEnum.enum1] = "abc";
-                var di2 = new Dictionary<Test.MyEnum, string>();
-                di2[Test.MyEnum.enum2] = "Hello!!";
-                di2[Test.MyEnum.enum3] = "qwerty";
-                var di3 = new Dictionary<Test.MyEnum, string>();
-                di3[Test.MyEnum.enum1] = "Goodbye";
+                var di1 = new Dictionary<MyEnum, string>();
+                di1[MyEnum.enum1] = "abc";
+                var di2 = new Dictionary<MyEnum, string>();
+                di2[MyEnum.enum2] = "Hello!!";
+                di2[MyEnum.enum3] = "qwerty";
+                var di3 = new Dictionary<MyEnum, string>();
+                di3[MyEnum.enum1] = "Goodbye";
 
                 dsi1[0] = di1;
                 dsi1[1] = di2;
@@ -1362,24 +1361,24 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var dsi1 = new Dictionary<Test.MyStruct, Test.MyEnum>[2];
-                var dsi2 = new Dictionary<Test.MyStruct, Test.MyEnum>[1];
+                var dsi1 = new Dictionary<MyStruct, MyEnum>[2];
+                var dsi2 = new Dictionary<MyStruct, MyEnum>[1];
 
-                var s11 = new Test.MyStruct(1, 1);
-                var s12 = new Test.MyStruct(1, 2);
-                var di1 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di1[s11] = Test.MyEnum.enum1;
-                di1[s12] = Test.MyEnum.enum2;
+                var s11 = new MyStruct(1, 1);
+                var s12 = new MyStruct(1, 2);
+                var di1 = new Dictionary<MyStruct, MyEnum>();
+                di1[s11] = MyEnum.enum1;
+                di1[s12] = MyEnum.enum2;
 
-                var s22 = new Test.MyStruct(2, 2);
-                var s23 = new Test.MyStruct(2, 3);
-                var di2 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di2[s11] = Test.MyEnum.enum1;
-                di2[s22] = Test.MyEnum.enum3;
-                di2[s23] = Test.MyEnum.enum2;
+                var s22 = new MyStruct(2, 2);
+                var s23 = new MyStruct(2, 3);
+                var di2 = new Dictionary<MyStruct, MyEnum>();
+                di2[s11] = MyEnum.enum1;
+                di2[s22] = MyEnum.enum3;
+                di2[s23] = MyEnum.enum2;
 
-                var di3 = new Dictionary<Test.MyStruct, Test.MyEnum>();
-                di3[s23] = Test.MyEnum.enum3;
+                var di3 = new Dictionary<MyStruct, MyEnum>();
+                di3[s23] = MyEnum.enum3;
 
                 dsi1[0] = di1;
                 dsi1[1] = di2;
@@ -1526,16 +1525,16 @@ namespace ZeroC.Ice.operations
             }
 
             {
-                var sdi1 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
-                var sdi2 = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+                var sdi1 = new Dictionary<MyEnum, MyEnum[]>();
+                var sdi2 = new Dictionary<MyEnum, MyEnum[]>();
 
-                var si1 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2 };
-                var si2 = new Test.MyEnum[] { Test.MyEnum.enum1, Test.MyEnum.enum2 };
-                var si3 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum3 };
+                var si1 = new MyEnum[] { MyEnum.enum1, MyEnum.enum1, MyEnum.enum2 };
+                var si2 = new MyEnum[] { MyEnum.enum1, MyEnum.enum2 };
+                var si3 = new MyEnum[] { MyEnum.enum3, MyEnum.enum3 };
 
-                sdi1[Test.MyEnum.enum3] = si1;
-                sdi1[Test.MyEnum.enum2] = si2;
-                sdi2[Test.MyEnum.enum1] = si3;
+                sdi1[MyEnum.enum3] = si1;
+                sdi1[MyEnum.enum2] = si2;
+                sdi2[MyEnum.enum1] = si3;
 
                 var cb = new Callback();
                 var ret = p.opMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
@@ -1595,7 +1594,7 @@ namespace ZeroC.Ice.operations
                 communicator.CurrentContext["two"] = "TWO";
                 communicator.CurrentContext["three"] = "THREE";
 
-                var p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                var p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
                 TestHelper.Assert(p3.opContextAsync().Result.DictionaryEqual(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
@@ -1621,7 +1620,7 @@ namespace ZeroC.Ice.operations
                 TestHelper.Assert(communicator.DefaultContext != prxContext); // it's a copy
                 TestHelper.Assert(communicator.DefaultContext.DictionaryEqual(prxContext));
 
-                p3 = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+                p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
 
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
                 communicator.CurrentContext.Clear();
@@ -1644,14 +1643,14 @@ namespace ZeroC.Ice.operations
             }
             catch (System.AggregateException ex)
             {
-                TestHelper.Assert(ex.InnerException is Test.SomeException);
+                TestHelper.Assert(ex.InnerException is SomeException);
             }
 
             // This is invoked as a oneway, despite using a twoway proxy.
             p.opOnewayMetadataAsync().Wait();
 
             {
-                var derived = Test.IMyDerivedClassPrx.CheckedCast(p);
+                var derived = IMyDerivedClassPrx.CheckedCast(p);
                 TestHelper.Assert(derived != null);
                 derived.opDerivedAsync().Wait();
             }
@@ -1674,7 +1673,7 @@ namespace ZeroC.Ice.operations
                 {
                     var p1 = await p.opMStruct1Async();
 
-                    p1.e = Test.MyEnum.enum3;
+                    p1.e = MyEnum.enum3;
                     var r = await p.opMStruct2Async(p1);
                     TestHelper.Assert(r.p2.Equals(p1) && r.ReturnValue.Equals(p1));
                 }

@@ -7,8 +7,9 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
-[[java:package:test.IceBox.admin]]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::IceBox::Test::Admin
 {
 
 interface TestFacet

@@ -3,51 +3,53 @@
 //
 
 using System;
-using ZeroC.Ice;
 
-public class PluginTwoFailFactory : IPluginFactory
+namespace ZeroC.Ice.Test.Plugin
 {
-    public IPlugin Create(Communicator communicator, string name, string[] args) =>
-        new PluginTwoFail(communicator);
-
-    internal class PluginTwoFail : BasePluginFail
+    public class PluginTwoFailFactory : IPluginFactory
     {
-        public PluginTwoFail(Communicator communicator) : base(communicator)
-        {
-        }
+        public IPlugin Create(Communicator communicator, string name, string[] args) =>
+            new PluginTwoFail(communicator);
 
-        public override void Initialize()
+        internal class PluginTwoFail : BasePluginFail
         {
-            var one = (BasePluginFail?)_communicator.GetPlugin("PluginOneFail");
-            TestHelper.Assert(one != null);
-            _one = one;
-            TestHelper.Assert(_one.isInitialized());
-            var three = (BasePluginFail?)_communicator.GetPlugin("PluginThreeFail");
-            TestHelper.Assert(three != null);
-            _three = three;
-            TestHelper.Assert(!_three.isInitialized());
-            _initialized = true;
-        }
-
-        public override void Destroy()
-        {
-            TestHelper.Assert(_one != null && !_one.isDestroyed());
-            //
-            // Not destroyed because initialize fails.
-            //
-            TestHelper.Assert(_three != null && !_three.isDestroyed());
-            _destroyed = true;
-        }
-
-        ~PluginTwoFail()
-        {
-            if (!_initialized)
+            public PluginTwoFail(Communicator communicator) : base(communicator)
             {
-                Console.WriteLine("PluginTwoFail not initialized");
             }
-            if (!_destroyed)
+
+            public override void Initialize()
             {
-                Console.WriteLine("PluginTwoFail not destroyed");
+                var one = (BasePluginFail?)_communicator.GetPlugin("PluginOneFail");
+                TestHelper.Assert(one != null);
+                _one = one;
+                TestHelper.Assert(_one.isInitialized());
+                var three = (BasePluginFail?)_communicator.GetPlugin("PluginThreeFail");
+                TestHelper.Assert(three != null);
+                _three = three;
+                TestHelper.Assert(!_three.isInitialized());
+                _initialized = true;
+            }
+
+            public override void Destroy()
+            {
+                TestHelper.Assert(_one != null && !_one.isDestroyed());
+                //
+                // Not destroyed because initialize fails.
+                //
+                TestHelper.Assert(_three != null && !_three.isDestroyed());
+                _destroyed = true;
+            }
+
+            ~PluginTwoFail()
+            {
+                if (!_initialized)
+                {
+                    Console.WriteLine("PluginTwoFail not initialized");
+                }
+                if (!_destroyed)
+                {
+                    Console.WriteLine("PluginTwoFail not destroyed");
+                }
             }
         }
     }

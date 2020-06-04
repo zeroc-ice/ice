@@ -4,9 +4,9 @@
 
 using System.Threading;
 
-namespace ZeroC.Ice.retry
+namespace ZeroC.Ice.Test.Retry
 {
-    public sealed class Retry : Test.IRetry
+    public sealed class Retry : IRetry
     {
         public void op(bool kill, Current current)
         {
@@ -37,7 +37,7 @@ namespace ZeroC.Ice.retry
 
         public void opNotIdempotent(Current current) => throw new ConnectionLostException();
 
-        public void opSystemException(Current c) => throw new Test.SystemFailure();
+        public void opSystemException(Current c) => throw new SystemFailure();
 
         public void sleep(int delay, Current c) => Thread.Sleep(delay);
 

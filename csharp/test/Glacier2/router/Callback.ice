@@ -4,7 +4,7 @@
 
 #pragma once
 
-module Test
+module ZeroC::Glacier2::Test::Router
 {
 
 exception CallbackException

@@ -4,7 +4,9 @@
 
 #pragma once
 
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::IceSSL::Test::Configuration
 {
 
 interface Server

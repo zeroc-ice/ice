@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.inheritance
+namespace ZeroC.Ice.Test.Inheritance
 {
-    public sealed class IA : Test.MA.IIA
+    public sealed class IA : MA.IIA
     {
-        public Test.MA.IIAPrx? iaop(Test.MA.IIAPrx? p, Current current) => p;
+        public MA.IIAPrx? iaop(MA.IIAPrx? p, Current current) => p;
     }
 }

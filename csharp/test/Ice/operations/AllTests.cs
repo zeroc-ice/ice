@@ -4,18 +4,18 @@
 
 using Test;
 
-namespace ZeroC.Ice.operations
+namespace ZeroC.Ice.Test.Operations
 {
     public class AllTests
     {
-        public static Test.IMyClassPrx allTests(TestHelper helper)
+        public static IMyClassPrx allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             System.IO.TextWriter output = helper.GetWriter();
 
-            var cl = Test.IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-            var derivedProxy = Test.IMyDerivedClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var cl = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
+            var derivedProxy = IMyDerivedClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
 
             output.Write("testing twoway operations... ");
             output.Flush();

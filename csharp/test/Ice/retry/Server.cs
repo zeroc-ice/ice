@@ -3,9 +3,8 @@
 //
 
 using Test;
-using ZeroC.Ice.retry.Test;
 
-namespace ZeroC.Ice.retry
+namespace ZeroC.Ice.Test.Retry
 {
     public class Server : TestHelper
     {

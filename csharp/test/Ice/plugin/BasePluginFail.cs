@@ -2,28 +2,29 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
-public abstract class BasePluginFail : IPlugin
+namespace ZeroC.Ice.Test.Plugin
 {
-    public BasePluginFail(Communicator communicator)
+    public abstract class BasePluginFail : IPlugin
     {
-        _communicator = communicator;
-        _initialized = false;
-        _destroyed = false;
+        public BasePluginFail(Communicator communicator)
+        {
+            _communicator = communicator;
+            _initialized = false;
+            _destroyed = false;
+        }
+
+        public bool isInitialized() => _initialized;
+
+        public bool isDestroyed() => _destroyed;
+
+        public abstract void Initialize();
+        public abstract void Destroy();
+
+        protected Communicator _communicator;
+        protected bool _initialized;
+        protected bool _destroyed;
+        protected BasePluginFail? _one;
+        protected BasePluginFail? _two;
+        protected BasePluginFail? _three;
     }
-
-    public bool isInitialized() => _initialized;
-
-    public bool isDestroyed() => _destroyed;
-
-    public abstract void Initialize();
-    public abstract void Destroy();
-
-    protected Communicator _communicator;
-    protected bool _initialized;
-    protected bool _destroyed;
-    protected BasePluginFail? _one;
-    protected BasePluginFail? _two;
-    protected BasePluginFail? _three;
 }

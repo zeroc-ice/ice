@@ -121,7 +121,7 @@ namespace ZeroC.Ice
         public static OutgoingRequestFrame WithParamList<T>(
             IObjectPrx proxy, string operation, bool idempotent, FormatType? format,
             IReadOnlyDictionary<string, string>? context,
-            in T value, OutputStreamStructWriter<T> writer) where T : struct
+            in T value, OutputStreamValueWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
             var ostr = new OutputStream(Ice1Definitions.Encoding, request.Data, request._payloadStart,

@@ -4,10 +4,9 @@
 
 using System;
 using System.Text;
-using ZeroC.Ice.udp.Test;
 using Test;
 
-namespace ZeroC.Ice.udp
+namespace ZeroC.Ice.Test.UDP
 {
     public class AllTests
     {

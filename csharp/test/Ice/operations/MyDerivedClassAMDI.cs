@@ -9,9 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.operations.AMD
+namespace ZeroC.Ice.Test.AMD.Operations
 {
-    public sealed class MyDerivedClass : Test.IMyDerivedClass
+    public sealed class MyDerivedClass : IMyDerivedClass
     {
 
         internal class Thread_opVoid : TaskCompletionSource<object?>
@@ -44,7 +44,7 @@ namespace ZeroC.Ice.operations.AMD
         public bool IceIsA(string id, Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds().Contains(id);
+            return typeof(IMyDerivedClass).GetAllIceTypeIds().Contains(id);
         }
 
         public void IcePing(Current current) => TestHelper.Assert(current.IsIdempotent);
@@ -52,13 +52,13 @@ namespace ZeroC.Ice.operations.AMD
         public IEnumerable<string> IceIds(Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(Test.IMyDerivedClass).GetAllIceTypeIds();
+            return typeof(IMyDerivedClass).GetAllIceTypeIds();
         }
 
         public string IceId(Current current)
         {
             TestHelper.Assert(current.IsIdempotent);
-            return typeof(Test.IMyDerivedClass).GetIceTypeId()!;
+            return typeof(IMyDerivedClass).GetIceTypeId()!;
         }
 
         public ValueTask shutdownAsync(Current current)
@@ -257,17 +257,17 @@ namespace ZeroC.Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>
-        opMyClassAsync(Test.IMyClassPrx? p1, Current current)
+        public ValueTask<(IMyClassPrx?, IMyClassPrx?, IMyClassPrx?)>
+        opMyClassAsync(IMyClassPrx? p1, Current current)
         {
             var p2 = p1;
-            var p3 = current.Adapter.CreateProxy("noSuchIdentity", Test.IMyClassPrx.Factory);
-            return new ValueTask<(Test.IMyClassPrx?, Test.IMyClassPrx?, Test.IMyClassPrx?)>((
-                current.Adapter.CreateProxy(current.Identity, Test.IMyClassPrx.Factory), p2, p3));
+            var p3 = current.Adapter.CreateProxy("noSuchIdentity", IMyClassPrx.Factory);
+            return new ValueTask<(IMyClassPrx?, IMyClassPrx?, IMyClassPrx?)>((
+                current.Adapter.CreateProxy(current.Identity, IMyClassPrx.Factory), p2, p3));
         }
 
-        public ValueTask<(Test.MyEnum, Test.MyEnum)>
-        opMyEnumAsync(Test.MyEnum p1, Current current) => MakeValueTask((Test.MyEnum.enum3, p1));
+        public ValueTask<(MyEnum, MyEnum)>
+        opMyEnumAsync(MyEnum p1, Current current) => MakeValueTask((MyEnum.enum3, p1));
 
         public ValueTask<(IReadOnlyDictionary<short, int>, IReadOnlyDictionary<short, int>)>
         opShortIntDAsync(Dictionary<short, int> p1, Dictionary<short, int> p2, Current current)
@@ -416,44 +416,44 @@ namespace ZeroC.Ice.operations.AMD
         public ValueTask<(string, string)>
         opStringAsync(string p1, string p2, Current current) => MakeValueTask(($"{p1} {p2}", $"{p2} {p1}"));
 
-        public ValueTask<(IReadOnlyDictionary<string, Test.MyEnum>, IReadOnlyDictionary<string, Test.MyEnum>)>
-        opStringMyEnumDAsync(Dictionary<string, Test.MyEnum> p1, Dictionary<string, Test.MyEnum> p2, Current current)
+        public ValueTask<(IReadOnlyDictionary<string, MyEnum>, IReadOnlyDictionary<string, MyEnum>)>
+        opStringMyEnumDAsync(Dictionary<string, MyEnum> p1, Dictionary<string, MyEnum> p2, Current current)
         {
             var p3 = p1;
-            var r = new Dictionary<string, Test.MyEnum>();
-            foreach (KeyValuePair<string, Test.MyEnum> e in p1)
+            var r = new Dictionary<string, MyEnum>();
+            foreach (KeyValuePair<string, MyEnum> e in p1)
             {
                 r[e.Key] = e.Value;
             }
-            foreach (KeyValuePair<string, Test.MyEnum> e in p2)
+            foreach (KeyValuePair<string, MyEnum> e in p2)
             {
                 r[e.Key] = e.Value;
             }
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(IReadOnlyDictionary<Test.MyEnum, string>, IReadOnlyDictionary<Test.MyEnum, string>)>
-        opMyEnumStringDAsync(Dictionary<Test.MyEnum, string> p1, Dictionary<Test.MyEnum, string> p2, Current current)
+        public ValueTask<(IReadOnlyDictionary<MyEnum, string>, IReadOnlyDictionary<MyEnum, string>)>
+        opMyEnumStringDAsync(Dictionary<MyEnum, string> p1, Dictionary<MyEnum, string> p2, Current current)
         {
             var p3 = p1;
-            var r = new Dictionary<Test.MyEnum, string>();
+            var r = new Dictionary<MyEnum, string>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
             }
-            foreach (KeyValuePair<Test.MyEnum, string> e in p2)
+            foreach (KeyValuePair<MyEnum, string> e in p2)
             {
                 r[e.Key] = e.Value;
             }
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>, IReadOnlyDictionary<Test.MyStruct, Test.MyEnum>)>
-        opMyStructMyEnumDAsync(Dictionary<Test.MyStruct, Test.MyEnum> p1,
-                               Dictionary<Test.MyStruct, Test.MyEnum> p2, Current current)
+        public ValueTask<(IReadOnlyDictionary<MyStruct, MyEnum>, IReadOnlyDictionary<MyStruct, MyEnum>)>
+        opMyStructMyEnumDAsync(Dictionary<MyStruct, MyEnum> p1,
+                               Dictionary<MyStruct, MyEnum> p2, Current current)
         {
             var p3 = p1;
-            var r = new Dictionary<Test.MyStruct, Test.MyEnum>();
+            var r = new Dictionary<MyStruct, MyEnum>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
@@ -555,14 +555,14 @@ namespace ZeroC.Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(IEnumerable<Dictionary<string, Test.MyEnum>>, IEnumerable<Dictionary<string, Test.MyEnum>>)>
-        opStringMyEnumDSAsync(Dictionary<string, Test.MyEnum>[] p1, Dictionary<string, Test.MyEnum>[] p2, Current current)
+        public ValueTask<(IEnumerable<Dictionary<string, MyEnum>>, IEnumerable<Dictionary<string, MyEnum>>)>
+        opStringMyEnumDSAsync(Dictionary<string, MyEnum>[] p1, Dictionary<string, MyEnum>[] p2, Current current)
         {
-            var p3 = new Dictionary<string, Test.MyEnum>[p1.Length + p2.Length];
+            var p3 = new Dictionary<string, MyEnum>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-            var r = new Dictionary<string, Test.MyEnum>[p1.Length];
+            var r = new Dictionary<string, MyEnum>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -570,14 +570,14 @@ namespace ZeroC.Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(IEnumerable<Dictionary<Test.MyEnum, string>>, IEnumerable<Dictionary<Test.MyEnum, string>>)>
-        opMyEnumStringDSAsync(Dictionary<Test.MyEnum, string>[] p1, Dictionary<Test.MyEnum, string>[] p2, Current current)
+        public ValueTask<(IEnumerable<Dictionary<MyEnum, string>>, IEnumerable<Dictionary<MyEnum, string>>)>
+        opMyEnumStringDSAsync(Dictionary<MyEnum, string>[] p1, Dictionary<MyEnum, string>[] p2, Current current)
         {
-            var p3 = new Dictionary<Test.MyEnum, string>[p1.Length + p2.Length];
+            var p3 = new Dictionary<MyEnum, string>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-            var r = new Dictionary<Test.MyEnum, string>[p1.Length];
+            var r = new Dictionary<MyEnum, string>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -585,16 +585,16 @@ namespace ZeroC.Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>, IEnumerable<Dictionary<Test.MyStruct, Test.MyEnum>>)>
-        opMyStructMyEnumDSAsync(Dictionary<Test.MyStruct, Test.MyEnum>[] p1,
-                                Dictionary<Test.MyStruct, Test.MyEnum>[] p2,
+        public ValueTask<(IEnumerable<Dictionary<MyStruct, MyEnum>>, IEnumerable<Dictionary<MyStruct, MyEnum>>)>
+        opMyStructMyEnumDSAsync(Dictionary<MyStruct, MyEnum>[] p1,
+                                Dictionary<MyStruct, MyEnum>[] p2,
                                 Current current)
         {
-            var p3 = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length + p2.Length];
+            var p3 = new Dictionary<MyStruct, MyEnum>[p1.Length + p2.Length];
             Array.Copy(p2, p3, p2.Length);
             Array.Copy(p1, 0, p3, p2.Length, p1.Length);
 
-            var r = new Dictionary<Test.MyStruct, Test.MyEnum>[p1.Length];
+            var r = new Dictionary<MyStruct, MyEnum>[p1.Length];
             for (int i = 0; i < p1.Length; i++)
             {
                 r[i] = p1[p1.Length - (i + 1)];
@@ -778,12 +778,12 @@ namespace ZeroC.Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>, IReadOnlyDictionary<Test.MyEnum, Test.MyEnum[]>)>
-        opMyEnumMyEnumSDAsync(Dictionary<Test.MyEnum, Test.MyEnum[]> p1, Dictionary<Test.MyEnum, Test.MyEnum[]> p2,
+        public ValueTask<(IReadOnlyDictionary<MyEnum, MyEnum[]>, IReadOnlyDictionary<MyEnum, MyEnum[]>)>
+        opMyEnumMyEnumSDAsync(Dictionary<MyEnum, MyEnum[]> p1, Dictionary<MyEnum, MyEnum[]> p2,
             Current current)
         {
             var p3 = p2;
-            var r = new Dictionary<Test.MyEnum, Test.MyEnum[]>();
+            var r = new Dictionary<MyEnum, MyEnum[]>();
             foreach (var e in p1)
             {
                 r[e.Key] = e.Value;
@@ -901,8 +901,8 @@ namespace ZeroC.Ice.operations.AMD
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(Test.Structure, Test.Structure)>
-        opStructAsync(Test.Structure p1, Test.Structure p2, Current current)
+        public ValueTask<(Structure, Structure)>
+        opStructAsync(Structure p1, Structure p2, Current current)
         {
             var p3 = p1;
             p3.s.s = "a new string";
@@ -919,11 +919,11 @@ namespace ZeroC.Ice.operations.AMD
         public ValueTask opOnewayAsync(Current current)
         {
             // "return" exception when called two-way, otherwise succeeds.
-            throw new Test.SomeException();
+            throw new SomeException();
         }
 
         // "return" exception when called two-way, otherwise succeeds.
-        public ValueTask opOnewayMetadataAsync(Current current) => throw new Test.SomeException();
+        public ValueTask opOnewayMetadataAsync(Current current) => throw new SomeException();
 
         public ValueTask
         opDerivedAsync(Current current) => new ValueTask(Task.CompletedTask);
@@ -962,50 +962,50 @@ namespace ZeroC.Ice.operations.AMD
         opByteBoolD2Async(Dictionary<byte, bool> value, Current current) =>
             MakeValueTask(value as IReadOnlyDictionary<byte, bool>);
 
-        public ValueTask<Test.MyClass1?>
-        opMyClass1Async(Test.MyClass1? value, Current current) => MakeValueTask(value);
+        public ValueTask<MyClass1?>
+        opMyClass1Async(MyClass1? value, Current current) => MakeValueTask(value);
 
-        public ValueTask<Test.MyStruct1>
-        opMyStruct1Async(Test.MyStruct1 value, Current current) => MakeValueTask(value);
+        public ValueTask<MyStruct1>
+        opMyStruct1Async(MyStruct1 value, Current current) => MakeValueTask(value);
 
         public ValueTask<IEnumerable<string>>
         opStringLiteralsAsync(Current current)
         {
             return MakeValueTask(new string[]
                 {
-                        Test.Constants.s0,
-                        Test.Constants.s1,
-                        Test.Constants.s2,
-                        Test.Constants.s3,
-                        Test.Constants.s4,
-                        Test.Constants.s5,
-                        Test.Constants.s6,
-                        Test.Constants.s7,
-                        Test.Constants.s8,
-                        Test.Constants.s9,
-                        Test.Constants.s10,
-                        Test.Constants.sw0,
-                        Test.Constants.sw1,
-                        Test.Constants.sw2,
-                        Test.Constants.sw3,
-                        Test.Constants.sw4,
-                        Test.Constants.sw5,
-                        Test.Constants.sw6,
-                        Test.Constants.sw7,
-                        Test.Constants.sw8,
-                        Test.Constants.sw9,
-                        Test.Constants.sw10,
+                        Constants.s0,
+                        Constants.s1,
+                        Constants.s2,
+                        Constants.s3,
+                        Constants.s4,
+                        Constants.s5,
+                        Constants.s6,
+                        Constants.s7,
+                        Constants.s8,
+                        Constants.s9,
+                        Constants.s10,
+                        Constants.sw0,
+                        Constants.sw1,
+                        Constants.sw2,
+                        Constants.sw3,
+                        Constants.sw4,
+                        Constants.sw5,
+                        Constants.sw6,
+                        Constants.sw7,
+                        Constants.sw8,
+                        Constants.sw9,
+                        Constants.sw10,
 
-                        Test.Constants.ss0,
-                        Test.Constants.ss1,
-                        Test.Constants.ss2,
-                        Test.Constants.ss3,
-                        Test.Constants.ss4,
-                        Test.Constants.ss5,
+                        Constants.ss0,
+                        Constants.ss1,
+                        Constants.ss2,
+                        Constants.ss3,
+                        Constants.ss4,
+                        Constants.ss5,
 
-                        Test.Constants.su0,
-                        Test.Constants.su1,
-                        Test.Constants.su2
+                        Constants.su0,
+                        Constants.su1,
+                        Constants.su2
                 } as IEnumerable<string>);
         }
 
@@ -1014,84 +1014,84 @@ namespace ZeroC.Ice.operations.AMD
         {
             return MakeValueTask(new string[]
                 {
-                        Test.Constants.s0,
-                        Test.Constants.s1,
-                        Test.Constants.s2,
-                        Test.Constants.s3,
-                        Test.Constants.s4,
-                        Test.Constants.s5,
-                        Test.Constants.s6,
-                        Test.Constants.s7,
-                        Test.Constants.s8,
-                        Test.Constants.s9,
-                        Test.Constants.s10,
+                        Constants.s0,
+                        Constants.s1,
+                        Constants.s2,
+                        Constants.s3,
+                        Constants.s4,
+                        Constants.s5,
+                        Constants.s6,
+                        Constants.s7,
+                        Constants.s8,
+                        Constants.s9,
+                        Constants.s10,
 
-                        Test.Constants.sw0,
-                        Test.Constants.sw1,
-                        Test.Constants.sw2,
-                        Test.Constants.sw3,
-                        Test.Constants.sw4,
-                        Test.Constants.sw5,
-                        Test.Constants.sw6,
-                        Test.Constants.sw7,
-                        Test.Constants.sw8,
-                        Test.Constants.sw9,
-                        Test.Constants.sw10,
+                        Constants.sw0,
+                        Constants.sw1,
+                        Constants.sw2,
+                        Constants.sw3,
+                        Constants.sw4,
+                        Constants.sw5,
+                        Constants.sw6,
+                        Constants.sw7,
+                        Constants.sw8,
+                        Constants.sw9,
+                        Constants.sw10,
 
-                        Test.Constants.ss0,
-                        Test.Constants.ss1,
-                        Test.Constants.ss2,
-                        Test.Constants.ss3,
-                        Test.Constants.ss4,
-                        Test.Constants.ss5,
+                        Constants.ss0,
+                        Constants.ss1,
+                        Constants.ss2,
+                        Constants.ss3,
+                        Constants.ss4,
+                        Constants.ss5,
 
-                        Test.Constants.su0,
-                        Test.Constants.su1,
-                        Test.Constants.su2
+                        Constants.su0,
+                        Constants.su1,
+                        Constants.su2
                 } as IEnumerable<string>);
         }
 
-        public async ValueTask<Test.IMyClass.OpMStruct1MarshaledReturnValue>
+        public async ValueTask<IMyClass.OpMStruct1MarshaledReturnValue>
         opMStruct1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IMyClass.OpMStruct1MarshaledReturnValue(
-                new Test.Structure(null, Test.MyEnum.enum1, new Test.AnotherStruct("")), current);
+            return new IMyClass.OpMStruct1MarshaledReturnValue(
+                new Structure(null, MyEnum.enum1, new AnotherStruct("")), current);
         }
 
-        public async ValueTask<Test.IMyClass.OpMStruct2MarshaledReturnValue>
-        opMStruct2Async(Test.Structure p1, Current current)
+        public async ValueTask<IMyClass.OpMStruct2MarshaledReturnValue>
+        opMStruct2Async(Structure p1, Current current)
         {
             await Task.Delay(0);
-            return new Test.IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);
+            return new IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);
         }
 
-        public async ValueTask<Test.IMyClass.OpMSeq1MarshaledReturnValue>
+        public async ValueTask<IMyClass.OpMSeq1MarshaledReturnValue>
         opMSeq1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IMyClass.OpMSeq1MarshaledReturnValue(new string[0], current);
+            return new IMyClass.OpMSeq1MarshaledReturnValue(new string[0], current);
         }
 
-        public async ValueTask<Test.IMyClass.OpMSeq2MarshaledReturnValue>
+        public async ValueTask<IMyClass.OpMSeq2MarshaledReturnValue>
         opMSeq2Async(string[] p1, Current current)
         {
             await Task.Delay(0);
-            return new Test.IMyClass.OpMSeq2MarshaledReturnValue(p1, p1, current);
+            return new IMyClass.OpMSeq2MarshaledReturnValue(p1, p1, current);
         }
 
-        public async ValueTask<Test.IMyClass.OpMDict1MarshaledReturnValue>
+        public async ValueTask<IMyClass.OpMDict1MarshaledReturnValue>
         opMDict1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IMyClass.OpMDict1MarshaledReturnValue(new Dictionary<string, string>(), current);
+            return new IMyClass.OpMDict1MarshaledReturnValue(new Dictionary<string, string>(), current);
         }
 
-        public async ValueTask<Test.IMyClass.OpMDict2MarshaledReturnValue>
+        public async ValueTask<IMyClass.OpMDict2MarshaledReturnValue>
         opMDict2Async(Dictionary<string, string> p1, Current current)
         {
             await Task.Delay(0);
-            return new Test.IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
+            return new IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
         }
 
         // Type-inference helper method

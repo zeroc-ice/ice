@@ -2,27 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice;
-
-internal class Plugin : IPlugin
+namespace ZeroC.Ice.Test.Background
 {
-    internal Plugin(Communicator communicator) => _communicator = communicator;
-
-    public void Initialize()
+    internal class Plugin : IPlugin
     {
-        for (short s = 0; s < 100; ++s)
+        internal Plugin(Communicator communicator) => _communicator = communicator;
+
+        public void Initialize()
         {
-            IEndpointFactory? factory = _communicator.IceFindEndpointFactory((EndpointType)s);
-            if (factory != null)
+            for (short s = 0; s < 100; ++s)
             {
-                _communicator.IceAddEndpointFactory(new EndpointFactory(factory));
+                IEndpointFactory? factory = _communicator.IceFindEndpointFactory((EndpointType)s);
+                if (factory != null)
+                {
+                    _communicator.IceAddEndpointFactory(new EndpointFactory(factory));
+                }
             }
         }
-    }
 
-    public void Destroy()
-    {
-    }
+        public void Destroy()
+        {
+        }
 
-    private readonly Communicator _communicator;
+        private readonly Communicator _communicator;
+    }
 }

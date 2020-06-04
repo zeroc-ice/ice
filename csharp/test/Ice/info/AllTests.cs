@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Test;
 
-namespace ZeroC.Ice.info
+namespace ZeroC.Ice.Test.Info
 {
     public class AllTests
     {
@@ -31,7 +31,7 @@ namespace ZeroC.Ice.info
             return null;
         }
 
-        public static void allTests(global::Test.TestHelper helper)
+        public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -149,9 +149,9 @@ namespace ZeroC.Ice.info
 
             int endpointPort = helper.GetTestPort(0);
 
-            var testIntf = Test.ITestIntfPrx.Parse("test:" +
-                                            helper.GetTestEndpoint(0) + ":" +
-                                            helper.GetTestEndpoint(0, "udp"), communicator);
+            var testIntf = ITestIntfPrx.Parse("test:" +
+                                              helper.GetTestEndpoint(0) + ":" +
+                                              helper.GetTestEndpoint(0, "udp"), communicator);
 
             string defaultHost = communicator.GetProperty("Ice.Default.Host") ?? "";
 

@@ -4,8 +4,9 @@
 
 #pragma once
 
-[[java:package:test.IceDiscovery.simple]]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::IceDiscovery::Test::Simple
 {
 
 interface TestIntf

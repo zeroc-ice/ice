@@ -2,13 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-using ZeroC.Ice.threading.Test;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
-namespace ZeroC.Ice.threading
+namespace ZeroC.Ice.Test.Threading
 {
     public class Collocated : TestHelper
     {

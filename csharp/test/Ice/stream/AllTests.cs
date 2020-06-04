@@ -6,10 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ZeroC.Ice.stream.Test;
 using Test;
 
-namespace ZeroC.Ice.stream
+namespace ZeroC.Ice.Test.Stream
 {
     public class AllTests
     {
@@ -199,7 +198,7 @@ namespace ZeroC.Ice.stream
 
             {
                 ostr = new OutputStream(communicator);
-                var o = new Test.ClassWithTaggedMembers();
+                var o = new ClassWithTaggedMembers();
                 o.bo = true;
                 o.by = 5;
                 o.sh = 4;
@@ -211,7 +210,7 @@ namespace ZeroC.Ice.stream
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
-                var o2 = istr.ReadClass<Test.ClassWithTaggedMembers>();
+                var o2 = istr.ReadClass<ClassWithTaggedMembers>();
                 istr.EndEncapsulation();
                 test(o2.bo == o.bo);
                 test(o2.by == o.by);
@@ -394,7 +393,7 @@ namespace ZeroC.Ice.stream
                 var arr2 = istr.ReadMyEnumS();
                 test(Compare(arr2, arr));
 
-                Test.MyEnum[][] arrS = { arr, new Test.MyEnum[0], arr };
+                MyEnum[][] arrS = { arr, new MyEnum[0], arr };
                 ostr = new OutputStream(communicator);
                 ostr.Write(arrS);
                 data = ostr.ToArray();
@@ -403,10 +402,10 @@ namespace ZeroC.Ice.stream
                 test(Compare(arr2S, arrS));
             }
 
-            var smallStructArray = new Test.SmallStruct[3];
+            var smallStructArray = new SmallStruct[3];
             for (int i = 0; i < smallStructArray.Length; ++i)
             {
-                smallStructArray[i] = new Test.SmallStruct();
+                smallStructArray[i] = new SmallStruct();
                 smallStructArray[i].bo = true;
                 smallStructArray[i].by = 1;
                 smallStructArray[i].sh = 2;
@@ -415,18 +414,18 @@ namespace ZeroC.Ice.stream
                 smallStructArray[i].f = 5.0f;
                 smallStructArray[i].d = 6.0;
                 smallStructArray[i].str = "7";
-                smallStructArray[i].e = Test.MyEnum.enum2;
-                smallStructArray[i].p = Test.IMyInterfacePrx.Parse("test:default", communicator);
+                smallStructArray[i].e = MyEnum.enum2;
+                smallStructArray[i].p = IMyInterfacePrx.Parse("test:default", communicator);
             }
 
-            var myClassArray = new Test.MyClass[4];
+            var myClassArray = new MyClass[4];
             for (int i = 0; i < myClassArray.Length; ++i)
             {
-                myClassArray[i] = new Test.MyClass();
+                myClassArray[i] = new MyClass();
                 myClassArray[i].c = myClassArray[i];
                 myClassArray[i].o = myClassArray[i];
                 myClassArray[i].s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
-                myClassArray[i].s.e = Test.MyEnum.enum2;
+                myClassArray[i].s.e = MyEnum.enum2;
                 myClassArray[i].seq1 = new bool[] { true, false, true, false };
                 myClassArray[i].seq2 = new byte[] { 1, 2, 3, 4 };
                 myClassArray[i].seq3 = new short[] { 1, 2, 3, 4 };
@@ -435,9 +434,9 @@ namespace ZeroC.Ice.stream
                 myClassArray[i].seq6 = new float[] { 1, 2, 3, 4 };
                 myClassArray[i].seq7 = new double[] { 1, 2, 3, 4 };
                 myClassArray[i].seq8 = new string[] { "string1", "string2", "string3", "string4" };
-                myClassArray[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
-                myClassArray[i].seq10 = new Test.MyClass[4]; // null elements.
-                myClassArray[i].d = new Dictionary<string, Test.MyClass>();
+                myClassArray[i].seq9 = new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 };
+                myClassArray[i].seq10 = new MyClass[4]; // null elements.
+                myClassArray[i].d = new Dictionary<string, MyClass>();
                 myClassArray[i].d["hi"] = myClassArray[i];
             }
 
@@ -457,7 +456,7 @@ namespace ZeroC.Ice.stream
                     test(arr2[i] != null);
                     test(arr2[i].c == arr2[i]);
                     test(arr2[i].o == arr2[i]);
-                    test(arr2[i].s.e == Test.MyEnum.enum2);
+                    test(arr2[i].s.e == MyEnum.enum2);
                     test(Compare(arr2[i].seq1, myClassArray[i].seq1));
                     test(Compare(arr2[i].seq2, myClassArray[i].seq2));
                     test(Compare(arr2[i].seq3, myClassArray[i].seq3));
@@ -470,7 +469,7 @@ namespace ZeroC.Ice.stream
                     test(arr2[i].d["hi"].Equals(arr2[i]));
                 }
 
-                Test.MyClass[][] arrS = { myClassArray, new Test.MyClass[0], myClassArray };
+                MyClass[][] arrS = { myClassArray, new MyClass[0], myClassArray };
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
                 ostr.Write(arrS);
@@ -491,7 +490,7 @@ namespace ZeroC.Ice.stream
                     {
                         test(arr2S[j][k].c == arr2S[j][k]);
                         test(arr2S[j][k].o == arr2S[j][k]);
-                        test(arr2S[j][k].s.e == Test.MyEnum.enum2);
+                        test(arr2S[j][k].s.e == MyEnum.enum2);
                         test(Compare(arr2S[j][k].seq1, myClassArray[k].seq1));
                         test(Compare(arr2S[j][k].seq2, myClassArray[k].seq2));
                         test(Compare(arr2S[j][k].seq3, myClassArray[k].seq3));
@@ -508,31 +507,31 @@ namespace ZeroC.Ice.stream
 
             {
                 ostr = new OutputStream(communicator);
-                var obj = new Test.MyClass();
+                var obj = new MyClass();
                 obj.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
-                obj.s.e = Test.MyEnum.enum2;
+                obj.s.e = MyEnum.enum2;
                 ostr.StartEncapsulation();
                 ostr.WriteClass(obj);
                 ostr.EndEncapsulation();
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 istr.StartEncapsulation();
-                var robj = istr.ReadClass<Test.MyClass>();
+                var robj = istr.ReadClass<MyClass>();
                 istr.EndEncapsulation();
                 test(robj != null);
-                test(robj.s.e == Test.MyEnum.enum2);
+                test(robj.s.e == MyEnum.enum2);
             }
 
             {
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation(ostr.Encoding, FormatType.Sliced);
-                var ex = new Test.MyException();
+                var ex = new MyException();
 
-                var c = new Test.MyClass();
+                var c = new MyClass();
                 c.c = c;
                 c.o = c;
                 c.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
-                c.s.e = Test.MyEnum.enum2;
+                c.s.e = MyEnum.enum2;
                 c.seq1 = new bool[] { true, false, true, false };
                 c.seq2 = new byte[] { 1, 2, 3, 4 };
                 c.seq3 = new short[] { 1, 2, 3, 4 };
@@ -541,9 +540,9 @@ namespace ZeroC.Ice.stream
                 c.seq6 = new float[] { 1, 2, 3, 4 };
                 c.seq7 = new double[] { 1, 2, 3, 4 };
                 c.seq8 = new string[] { "string1", "string2", "string3", "string4" };
-                c.seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
-                c.seq10 = new Test.MyClass[4]; // null elements.
-                c.d = new Dictionary<string, Test.MyClass>();
+                c.seq9 = new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 };
+                c.seq10 = new MyClass[4]; // null elements.
+                c.d = new Dictionary<string, MyClass>();
                 c.d.Add("hi", c);
 
                 ex.c = c;
@@ -559,7 +558,7 @@ namespace ZeroC.Ice.stream
                     istr.ThrowException();
                     test(false);
                 }
-                catch (Test.MyException ex1)
+                catch (MyException ex1)
                 {
                     test(ex1.c.s.e == c.s.e);
                     test(Compare(ex1.c.seq1, c.seq1));
@@ -588,7 +587,7 @@ namespace ZeroC.Ice.stream
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadByteBoolD();
-                test(global::Test.Collections.Equals(dict2, dict));
+                test(Collections.Equals(dict2, dict));
             }
 
             {
@@ -600,7 +599,7 @@ namespace ZeroC.Ice.stream
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadShortIntD();
-                test(global::Test.Collections.Equals(dict2, dict));
+                test(Collections.Equals(dict2, dict));
             }
 
             {
@@ -612,7 +611,7 @@ namespace ZeroC.Ice.stream
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadLongFloatD();
-                test(global::Test.Collections.Equals(dict2, dict));
+                test(Collections.Equals(dict2, dict));
             }
 
             {
@@ -624,18 +623,18 @@ namespace ZeroC.Ice.stream
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadStringStringD();
-                test(global::Test.Collections.Equals(dict2, dict));
+                test(Collections.Equals(dict2, dict));
             }
 
             {
-                var dict = new Dictionary<string, Test.MyClass>();
-                var c = new Test.MyClass();
+                var dict = new Dictionary<string, MyClass>();
+                var c = new MyClass();
                 c.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
-                c.s.e = Test.MyEnum.enum2;
+                c.s.e = MyEnum.enum2;
                 dict.Add("key1", c);
-                c = new Test.MyClass();
+                c = new MyClass();
                 c.s = new SmallStruct(false, 0, 0, 0, 0, 0.0f, 0.0, "", MyEnum.enum1, null);
-                c.s.e = Test.MyEnum.enum3;
+                c.s.e = MyEnum.enum3;
                 dict.Add("key2", c);
                 ostr = new OutputStream(communicator);
                 ostr.StartEncapsulation();
@@ -647,8 +646,8 @@ namespace ZeroC.Ice.stream
                 var dict2 = istr.ReadStringMyClassD();
                 istr.EndEncapsulation();
                 test(dict2.Count == dict.Count);
-                test(dict2["key1"].s.e == Test.MyEnum.enum2);
-                test(dict2["key2"].s.e == Test.MyEnum.enum3);
+                test(dict2["key1"].s.e == MyEnum.enum2);
+                test(dict2["key2"].s.e == MyEnum.enum3);
             }
 
             {
@@ -719,7 +718,7 @@ namespace ZeroC.Ice.stream
                     test(l2[i] != null);
                     test(l2[i].c == l2[i]);
                     test(l2[i].o == l2[i]);
-                    test(l2[i].s.e == Test.MyEnum.enum2);
+                    test(l2[i].s.e == MyEnum.enum2);
                     test(Compare(l2[i].seq1, l[i].seq1));
                     test(Compare(l2[i].seq2, l[i].seq2));
                     test(Compare(l2[i].seq3, l[i].seq3));
@@ -747,11 +746,11 @@ namespace ZeroC.Ice.stream
             }
 
             {
-                var arr = new Test.IMyInterfacePrx[2];
-                arr[0] = Test.IMyInterfacePrx.Parse("zero", communicator);
-                arr[1] = Test.IMyInterfacePrx.Parse("one", communicator);
+                var arr = new IMyInterfacePrx[2];
+                arr[0] = IMyInterfacePrx.Parse("zero", communicator);
+                arr[1] = IMyInterfacePrx.Parse("one", communicator);
                 ostr = new OutputStream(communicator);
-                var l = new List<Test.IMyInterfacePrx>(arr);
+                var l = new List<IMyInterfacePrx>(arr);
                 ostr.WriteProxySeq(l);
                 byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
@@ -784,7 +783,7 @@ namespace ZeroC.Ice.stream
             {
                 MyEnum[] arr = { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1, MyEnum.enum2 };
                 ostr = new OutputStream(communicator);
-                var l = new LinkedList<Test.MyEnum>(arr);
+                var l = new LinkedList<MyEnum>(arr);
                 ostr.Write(l);
                 byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
@@ -832,7 +831,7 @@ namespace ZeroC.Ice.stream
 
             {
                 ostr = new OutputStream(communicator);
-                var l = new Stack<Test.SmallStruct>(smallStructArray);
+                var l = new Stack<SmallStruct>(smallStructArray);
                 ostr.Write(l);
                 byte[] data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
@@ -847,11 +846,11 @@ namespace ZeroC.Ice.stream
             }
 
             {
-                var arr = new Test.IMyInterfacePrx[2];
-                arr[0] = Test.IMyInterfacePrx.Parse("zero", communicator);
-                arr[1] = Test.IMyInterfacePrx.Parse("one", communicator);
+                var arr = new IMyInterfacePrx[2];
+                arr[0] = IMyInterfacePrx.Parse("zero", communicator);
+                arr[1] = IMyInterfacePrx.Parse("one", communicator);
                 ostr = new OutputStream(communicator);
-                var l = new Stack<Test.IMyInterfacePrx>(arr);
+                var l = new Stack<IMyInterfacePrx>(arr);
                 ostr.WriteProxySeq(l);
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
@@ -883,7 +882,7 @@ namespace ZeroC.Ice.stream
 
             {
                 ostr = new OutputStream(communicator);
-                var l = new Queue<Test.SmallStruct>(smallStructArray);
+                var l = new Queue<SmallStruct>(smallStructArray);
                 ostr.Write(l);
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
@@ -930,7 +929,7 @@ namespace ZeroC.Ice.stream
                 var data = ostr.ToArray();
                 istr = new InputStream(communicator, data);
                 var dict2 = istr.ReadSortedStringStringD();
-                test(global::Test.Collections.Equals(dict2, dict));
+                test(Collections.Equals(dict2, dict));
             }*/
 
             output.WriteLine("ok");

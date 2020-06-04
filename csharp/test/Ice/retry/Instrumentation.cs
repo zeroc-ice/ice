@@ -3,11 +3,10 @@
 //
 
 using System.Collections.Generic;
+using ZeroC.Ice.Instrumentation;
 using Test;
 
-using ZeroC.Ice.Instrumentation;
-
-namespace ZeroC.Ice.retry
+namespace ZeroC.Ice.Test.Retry
 {
     public class Instrumentation
     {

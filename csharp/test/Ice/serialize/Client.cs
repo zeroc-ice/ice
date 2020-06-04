@@ -4,14 +4,13 @@
 
 using Test;
 
-namespace ZeroC.Ice.serialize
+namespace ZeroC.Ice.Test.Serialize
 {
     public class Client : TestHelper
     {
         public override void Run(string[] args)
         {
-            using var communicator = Initialize(CreateTestProperties(ref args),
-                typeIdNamespaces: new string[] { "ZeroC.Ice.serialize.TypeId" });
+            using var communicator = Initialize(ref args);
             AllTests.allTests(this);
         }
 

@@ -4,11 +4,11 @@
 
 using Test;
 
-namespace ZeroC.Ice.namespacemd
+namespace ZeroC.Ice.Test.NamespaceMD
 {
     public class AllTests
     {
-        public static Test.IInitialPrx allTests(TestHelper helper)
+        public static IInitialPrx allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
@@ -20,7 +20,7 @@ namespace ZeroC.Ice.namespacemd
 
             output.Write("testing checked cast... ");
             output.Flush();
-            var initial = Test.IInitialPrx.CheckedCast(@base);
+            var initial = IInitialPrx.CheckedCast(@base);
             TestHelper.Assert(initial != null);
             TestHelper.Assert(initial.Equals(@base));
             output.WriteLine("ok");

@@ -4,11 +4,11 @@
 
 using System.Diagnostics;
 
-namespace ZeroC.Ice.perf
+namespace ZeroC.Ice.Test.Perf
 {
-    public sealed class PerformanceI : Test.IPerformance
+    public sealed class PerformanceI : IPerformance
     {
-        private static byte[] _bytes = new byte[Test.Constants.ByteSeqSize];
+        private static byte[] _bytes = new byte[Constants.ByteSeqSize];
 
         public void sendBytes(byte[] seq, Current current)
         {

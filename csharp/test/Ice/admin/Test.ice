@@ -7,8 +7,9 @@
 
 #include <Ice/PropertiesAdmin.ice>
 
-[cs:namespace:ZeroC.Ice.admin]
-module Test
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::Admin
 {
 
 interface RemoteCommunicator

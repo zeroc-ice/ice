@@ -2,9 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-namespace ZeroC.Ice.exceptions.AMD
+namespace ZeroC.Ice.Test.AMD.Exceptions
 {
-    public sealed class Empty : Test.IEmpty
+    public sealed class Empty : IEmpty
     {
     }
 }

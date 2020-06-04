@@ -5,12 +5,12 @@
 #pragma once
 
 [[3.7]]
+[[suppress-warning:reserved-identifier]]
 
 #include <Namespace.ice>
 #include <NoNamespace.ice>
 
-[cs:namespace:ZeroC.Ice.namespacemd]
-module Test
+module ZeroC::Ice::Test::NamespaceMD
 {
 
 interface Initial

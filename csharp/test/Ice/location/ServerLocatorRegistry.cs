@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.location
+namespace ZeroC.Ice.Test.Location
 {
-    public class ServerLocatorRegistry : Test.ITestLocatorRegistry
+    public class ServerLocatorRegistry : ITestLocatorRegistry
     {
         public ValueTask SetAdapterDirectProxyAsync(string adapter, IObjectPrx? obj, Current current)
         {

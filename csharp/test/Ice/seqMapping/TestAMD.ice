@@ -6,10 +6,11 @@
 
 [[3.7]]
 
-[[cs:typeid-namespace:ZeroC.Ice.seqMapping.AMD.TypeId]]
-
-[cs:namespace:ZeroC.Ice.seqMapping.AMD]
-module Test
+// 'Test.ice' and 'TestAMD.ice' need to generate code into separate namespaces, but with identical type-ids. So we use
+// the 'cs:namespace' metadata here to place the AMD code into a separate AMD namespace, instead of another module;
+// Which would result in differing type-ids.
+[cs:namespace:ZeroC.Ice.Test.AMD]
+module SeqMapping
 {
 
 sequence<byte> AByteS;
@@ -122,15 +123,15 @@ sequence<En> AEnS;
 [clr:generic:Queue] sequence<En> QEnS;
 [clr:generic:Stack] sequence<En> SEnS;
 
-[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<int> CustomIntS;
-[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<CV> CustomCVS;
+[clr:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<int> CustomIntS;
+[clr:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CV> CustomCVS;
 
-[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<CustomIntS> CustomIntSS;
-[clr:generic:ZeroC.Ice.seqMapping.Custom] sequence<CustomCVS> CustomCVSS;
+[clr:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CustomIntS> CustomIntSS;
+[clr:generic:ZeroC.Ice.Test.SeqMapping.Custom] sequence<CustomCVS> CustomCVSS;
 
-[clr:serializable:Serialize.Small] sequence<byte> SerialSmall;
-[clr:serializable:Serialize.Large] sequence<byte> SerialLarge;
-[clr:serializable:Serialize.Struct] sequence<byte> SerialStruct;
+[clr:serializable:ZeroC.Ice.Test.SeqMapping.Serialize.Small] sequence<byte> SerialSmall;
+[clr:serializable:ZeroC.Ice.Test.SeqMapping.Serialize.Large] sequence<byte> SerialLarge;
+[clr:serializable:ZeroC.Ice.Test.SeqMapping.Serialize.Struct] sequence<byte> SerialStruct;
 
 [amd] interface MyClass
 {

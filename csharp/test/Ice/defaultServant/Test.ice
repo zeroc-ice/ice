@@ -3,10 +3,11 @@
 //
 
 #pragma once
-[[normalize-case]]
 
-[cs:namespace:ZeroC.Ice.DefaultServant]
-module Test
+[[normalize-case]]
+[[suppress-warning:reserved-identifier]]
+
+module ZeroC::Ice::Test::DefaultServant
 {
     interface MyObject
     {

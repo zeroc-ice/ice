@@ -8,10 +8,11 @@
 
 #include <Ice/Context.ice>
 
-[[cs:typeid-namespace:ZeroC.Ice.operations.AMD.TypeId]]
-
-[cs:namespace:ZeroC.Ice.operations.AMD]
-module Test
+// 'Test.ice' and 'TestAMD.ice' need to generate code into separate namespaces, but with identical type-ids. So we use
+// the 'cs:namespace' metadata here to place the AMD code into a separate AMD namespace, instead of another module;
+// Which would result in differing type-ids.
+[cs:namespace:ZeroC.Ice.Test.AMD]
+module Operations
 {
 
 enum MyEnum
@@ -154,9 +155,8 @@ exception SomeException {}
     BoolS opBoolS(BoolS p1, BoolS p2,
                   out BoolS p3);
 
-    LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3, out ::Test::ShortS p4, out IntS p5, out LongS p6);
-    ULongS opUShortUIntULongS(
-        Test::UShortS p1, UIntS p2, ULongS p3, out ::Test::UShortS p4, out UIntS p5, out ULongS p6);
+    LongS opShortIntLongS(ShortS p1, IntS p2, LongS p3, out ShortS p4, out IntS p5, out LongS p6);
+    ULongS opUShortUIntULongS(UShortS p1, UIntS p2, ULongS p3, out UShortS p4, out UIntS p5, out ULongS p6);
 
     DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
                            out FloatS p3, out DoubleS p4);
@@ -388,22 +388,4 @@ const string su0 = "ĨŸÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃";
 const string su1 = "\u0128\u0178\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 
-}
-
-//
-// Test proxy inheritance for class with operations
-// see: https://github.com/zeroc-ice/ice/issues/406
-//
-[cs:namespace:Ice.operations.AMD]
-module M
-{
-    class A
-    {
-        int x;
-    }
-
-    [amd] interface Intf
-    {
-        void opIntf();
-    }
 }

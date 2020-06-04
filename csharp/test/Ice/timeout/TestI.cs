@@ -5,9 +5,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.timeout
+namespace ZeroC.Ice.Test.Timeout
 {
-    internal class Timeout : Test.ITimeout
+    internal class Timeout : ITimeout
     {
         public void op(Current current)
         {
@@ -20,7 +20,7 @@ namespace ZeroC.Ice.timeout
         public void sleep(int to, Current current) => Thread.Sleep(to);
     }
 
-    internal class Controller : Test.IController
+    internal class Controller : IController
     {
         public Controller(Communicator communicator)
         {

@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.tagged.AMD
+namespace ZeroC.Ice.Test.AMD.Tagged
 {
-    public class Initial : Test.IInitial
+    public class Initial : IInitial
     {
         public ValueTask shutdownAsync(Current current)
         {
@@ -20,20 +20,20 @@ namespace ZeroC.Ice.tagged.AMD
         pingPongAsync(AnyClass? obj, Current current) => MakeValueTask(obj);
 
         public ValueTask
-        opTaggedExceptionAsync(int? a, string? b, Test.OneTagged? o, Current c) =>
-            throw new Test.TaggedException(false, a, b, o);
+        opTaggedExceptionAsync(int? a, string? b, OneTagged? o, Current c) =>
+            throw new TaggedException(false, a, b, o);
 
         public ValueTask
-        opDerivedExceptionAsync(int? a, string? b, Test.OneTagged? o, Current c) =>
-            throw new Test.DerivedException(false, a, b, o, b, o);
+        opDerivedExceptionAsync(int? a, string? b, OneTagged? o, Current c) =>
+            throw new DerivedException(false, a, b, o, b, o);
 
         public ValueTask
         opRequiredExceptionAsync(int? a,
                                     string? b,
-                                    Test.OneTagged? o,
+                                    OneTagged? o,
                                     Current c)
         {
-            var e = new Test.RequiredException();
+            var e = new RequiredException();
             e.a = a;
             e.b = b;
             e.o = o;
@@ -65,19 +65,19 @@ namespace ZeroC.Ice.tagged.AMD
 
         public ValueTask<(string?, string?)> opStringAsync(string? p1, Current current) => MakeValueTask((p1, p1));
 
-        public ValueTask<(Test.MyEnum?, Test.MyEnum?)> opMyEnumAsync(Test.MyEnum? p1, Current current) =>
+        public ValueTask<(MyEnum?, MyEnum?)> opMyEnumAsync(MyEnum? p1, Current current) =>
             MakeValueTask((p1, p1));
 
-        public ValueTask<(Test.SmallStruct?, Test.SmallStruct?)> opSmallStructAsync(Test.SmallStruct? p1, Current current) =>
+        public ValueTask<(SmallStruct?, SmallStruct?)> opSmallStructAsync(SmallStruct? p1, Current current) =>
             MakeValueTask((p1, p1));
 
-        public ValueTask<(Test.FixedStruct?, Test.FixedStruct?)> opFixedStructAsync(Test.FixedStruct? p1, Current current) =>
+        public ValueTask<(FixedStruct?, FixedStruct?)> opFixedStructAsync(FixedStruct? p1, Current current) =>
             MakeValueTask((p1, p1));
 
-        public ValueTask<(Test.VarStruct?, Test.VarStruct?)>
-        opVarStructAsync(Test.VarStruct? p1, Current current) => MakeValueTask((p1, p1));
+        public ValueTask<(VarStruct?, VarStruct?)>
+        opVarStructAsync(VarStruct? p1, Current current) => MakeValueTask((p1, p1));
 
-        public ValueTask<(Test.OneTagged?, Test.OneTagged?)> opOneTaggedAsync(Test.OneTagged? p1, Current current) =>
+        public ValueTask<(OneTagged?, OneTagged?)> opOneTaggedAsync(OneTagged? p1, Current current) =>
             MakeValueTask((p1, p1));
 
         public ValueTask<(ReadOnlyMemory<byte>, ReadOnlyMemory<byte>)> opByteSeqAsync(byte[]? p1, Current current) =>
@@ -122,23 +122,23 @@ namespace ZeroC.Ice.tagged.AMD
         public ValueTask<(IEnumerable<string>?, IEnumerable<string>?)> opStringListAsync(List<string>? p1, Current current) =>
             ToReturnValue(p1);
 
-        public ValueTask<(IEnumerable<Test.SmallStruct>?, IEnumerable<Test.SmallStruct>?)> opSmallStructSeqAsync(
-            Test.SmallStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<Test.SmallStruct>);
+        public ValueTask<(IEnumerable<SmallStruct>?, IEnumerable<SmallStruct>?)> opSmallStructSeqAsync(
+            SmallStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<SmallStruct>);
 
-        public ValueTask<(IEnumerable<Test.SmallStruct>?, IEnumerable<Test.SmallStruct>?)>
-        opSmallStructListAsync(List<Test.SmallStruct>? p1, Current current) => ToReturnValue(p1);
+        public ValueTask<(IEnumerable<SmallStruct>?, IEnumerable<SmallStruct>?)>
+        opSmallStructListAsync(List<SmallStruct>? p1, Current current) => ToReturnValue(p1);
 
-        public ValueTask<(IEnumerable<Test.FixedStruct>?, IEnumerable<Test.FixedStruct>?)> opFixedStructSeqAsync(
-            Test.FixedStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<Test.FixedStruct>);
+        public ValueTask<(IEnumerable<FixedStruct>?, IEnumerable<FixedStruct>?)> opFixedStructSeqAsync(
+            FixedStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<FixedStruct>);
 
-        public ValueTask<(IEnumerable<Test.FixedStruct>?, IEnumerable<Test.FixedStruct>?)>
-        opFixedStructListAsync(LinkedList<Test.FixedStruct>? p1, Current current) => ToReturnValue(p1);
+        public ValueTask<(IEnumerable<FixedStruct>?, IEnumerable<FixedStruct>?)>
+        opFixedStructListAsync(LinkedList<FixedStruct>? p1, Current current) => ToReturnValue(p1);
 
-        public ValueTask<(IEnumerable<Test.VarStruct>?, IEnumerable<Test.VarStruct>?)> opVarStructSeqAsync(
-            Test.VarStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<Test.VarStruct>);
+        public ValueTask<(IEnumerable<VarStruct>?, IEnumerable<VarStruct>?)> opVarStructSeqAsync(
+            VarStruct[]? p1, Current current) => ToReturnValue(p1 as IEnumerable<VarStruct>);
 
-        public ValueTask<(tagged.Test.SerializableClass?, tagged.Test.SerializableClass?)>
-        opSerializableAsync(tagged.Test.SerializableClass? p1, Current current) => MakeValueTask((p1, p1));
+        public ValueTask<(ZeroC.Ice.Test.Tagged.SerializableClass?, ZeroC.Ice.Test.Tagged.SerializableClass?)>
+        opSerializableAsync(ZeroC.Ice.Test.Tagged.SerializableClass? p1, Current current) => MakeValueTask((p1, p1));
 
         public ValueTask<(IReadOnlyDictionary<int, int>?, IReadOnlyDictionary<int, int>?)>
         opIntIntDictAsync(Dictionary<int, int>? p1, Current current) => ToReturnValue(p1);
@@ -146,77 +146,77 @@ namespace ZeroC.Ice.tagged.AMD
         public ValueTask<(IReadOnlyDictionary<string, int>?, IReadOnlyDictionary<string, int>?)>
         opStringIntDictAsync(Dictionary<string, int>? p1, Current current) => ToReturnValue(p1);
 
-        public ValueTask<(IReadOnlyDictionary<int, Test.OneTagged?>?, IReadOnlyDictionary<int, Test.OneTagged?>?)>
-        opIntOneTaggedDictAsync(Dictionary<int, Test.OneTagged?>? p1, Current current) => ToReturnValue(p1);
+        public ValueTask<(IReadOnlyDictionary<int, OneTagged?>?, IReadOnlyDictionary<int, OneTagged?>?)>
+        opIntOneTaggedDictAsync(Dictionary<int, OneTagged?>? p1, Current current) => ToReturnValue(p1);
 
         public ValueTask
-        opClassAndUnknownTaggedAsync(Test.A? p, Current current) => new ValueTask(Task.CompletedTask);
+        opClassAndUnknownTaggedAsync(A? p, Current current) => new ValueTask(Task.CompletedTask);
 
         public ValueTask
-        sendTaggedClassAsync(bool req, Test.OneTagged? o, Current current) => new ValueTask(Task.CompletedTask);
+        sendTaggedClassAsync(bool req, OneTagged? o, Current current) => new ValueTask(Task.CompletedTask);
 
-        public ValueTask<Test.OneTagged?>
+        public ValueTask<OneTagged?>
         returnTaggedClassAsync(bool req, Current current) =>
-            new ValueTask<Test.OneTagged?>(new Test.OneTagged(53));
+            new ValueTask<OneTagged?>(new OneTagged(53));
 
-        public ValueTask<Test.G?> opGAsync(Test.G? g, Current current) => MakeValueTask(g);
+        public ValueTask<G?> opGAsync(G? g, Current current) => MakeValueTask(g);
 
         public ValueTask opVoidAsync(Current current) => new ValueTask(Task.CompletedTask);
 
-        public async ValueTask<Test.IInitial.OpMStruct1MarshaledReturnValue>
+        public async ValueTask<IInitial.OpMStruct1MarshaledReturnValue>
         opMStruct1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMStruct1MarshaledReturnValue(new Test.SmallStruct(), current);
+            return new IInitial.OpMStruct1MarshaledReturnValue(new SmallStruct(), current);
         }
 
-        public async ValueTask<Test.IInitial.OpMStruct2MarshaledReturnValue>
-        opMStruct2Async(Test.SmallStruct? p1, Current current)
+        public async ValueTask<IInitial.OpMStruct2MarshaledReturnValue>
+        opMStruct2Async(SmallStruct? p1, Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMStruct2MarshaledReturnValue(p1, p1, current);
+            return new IInitial.OpMStruct2MarshaledReturnValue(p1, p1, current);
         }
 
-        public async ValueTask<Test.IInitial.OpMSeq1MarshaledReturnValue>
+        public async ValueTask<IInitial.OpMSeq1MarshaledReturnValue>
         opMSeq1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMSeq1MarshaledReturnValue(new string[0], current);
+            return new IInitial.OpMSeq1MarshaledReturnValue(new string[0], current);
         }
 
-        public async ValueTask<Test.IInitial.OpMSeq2MarshaledReturnValue>
+        public async ValueTask<IInitial.OpMSeq2MarshaledReturnValue>
         opMSeq2Async(string[]? p1, Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMSeq2MarshaledReturnValue(p1, p1, current);
+            return new IInitial.OpMSeq2MarshaledReturnValue(p1, p1, current);
         }
 
-        public async ValueTask<Test.IInitial.OpMDict1MarshaledReturnValue>
+        public async ValueTask<IInitial.OpMDict1MarshaledReturnValue>
         opMDict1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMDict1MarshaledReturnValue(new Dictionary<string, int>(), current);
+            return new IInitial.OpMDict1MarshaledReturnValue(new Dictionary<string, int>(), current);
         }
 
-        public async ValueTask<Test.IInitial.OpMDict2MarshaledReturnValue>
+        public async ValueTask<IInitial.OpMDict2MarshaledReturnValue>
         opMDict2Async(Dictionary<string, int>? p1, Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMDict2MarshaledReturnValue(p1, p1, current);
+            return new IInitial.OpMDict2MarshaledReturnValue(p1, p1, current);
         }
 
-        public async ValueTask<Test.IInitial.OpMG1MarshaledReturnValue>
+        public async ValueTask<IInitial.OpMG1MarshaledReturnValue>
         opMG1Async(Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMG1MarshaledReturnValue(new Test.G(), current);
+            return new IInitial.OpMG1MarshaledReturnValue(new G(), current);
         }
 
-        public async ValueTask<Test.IInitial.OpMG2MarshaledReturnValue>
-        opMG2Async(Test.G? p1, Current current)
+        public async ValueTask<IInitial.OpMG2MarshaledReturnValue>
+        opMG2Async(G? p1, Current current)
         {
             await Task.Delay(0);
-            return new Test.IInitial.OpMG2MarshaledReturnValue(p1, p1, current);
+            return new IInitial.OpMG2MarshaledReturnValue(p1, p1, current);
         }
 
         public ValueTask<bool>

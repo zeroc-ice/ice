@@ -2,11 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.proxy.AMD.Test;
+using Test;
 
-namespace ZeroC.Ice.proxy.AMD
+namespace ZeroC.Ice.Test.AMD.Proxy
 {
-    public class Server : global::Test.TestHelper
+    public class Server : TestHelper
     {
         public override void Run(string[] args)
         {
@@ -25,6 +25,6 @@ namespace ZeroC.Ice.proxy.AMD
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => global::Test.TestDriver.RunTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }
