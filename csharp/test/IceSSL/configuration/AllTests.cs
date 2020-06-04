@@ -1385,17 +1385,6 @@ public class AllTests
                     // Expected.
                 }
             }
-
-            // TODO allow to set the delegate using a property
-            /*{
-                // Test password callback property.
-                clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                clientProperties["IceSSL.PasswordCallback"] = "PasswordCallback";
-                // Don't specify the password.
-                clientProperties.Remove("IceSSL.Password");
-                var comm = new Communicator(ref args, clientProperties);
-                comm.Destroy();
-            }*/
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing IceSSL.TrustOnly... ");
