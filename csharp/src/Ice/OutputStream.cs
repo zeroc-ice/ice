@@ -503,9 +503,9 @@ namespace ZeroC.Ice
                 foreach ((TKey key, TValue? value) in v)
                 {
                     keyWriter(this, key);
-                    if (value is TValue actualValue)
+                    if (value != null)
                     {
-                        valueWriter(this, actualValue);
+                        valueWriter(this, value);
                     }
                     else
                     {
@@ -573,9 +573,9 @@ namespace ZeroC.Ice
                 foreach ((TKey key, TValue? value) in v)
                 {
                     key.IceWrite(this);
-                    if (value is TValue actualValue)
+                    if (value != null)
                     {
-                        valueWriter(this, actualValue);
+                        valueWriter(this, value);
                     }
                     else
                     {

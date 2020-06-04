@@ -2121,8 +2121,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr value = p->valueType();
 
     bool withBitSequence = false;
-    if (auto optional = OptionalPtr::dynamicCast(value);
-        optional && !optional->underlying()->isClassType() && !optional->underlying()->isClassType())
+    if (auto optional = OptionalPtr::dynamicCast(value); optional && optional->encodedUsingBitSequence())
     {
         withBitSequence = true;
         value = optional->underlying();
