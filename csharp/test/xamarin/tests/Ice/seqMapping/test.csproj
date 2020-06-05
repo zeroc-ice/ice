@@ -19,10 +19,6 @@
     <Compile Include="generated/Test.cs">
         <SliceCompileSource>../../../../Ice/seqMapping/Test.ice</SliceCompileSource>
     </Compile>
-    <Compile Include="generated/TestAMD.cs">
-        <SliceCompileSource>../../../../Ice/seqMapping/TestAMD.ice</SliceCompileSource>
-    </Compile>
     <SliceCompile Include="../../../../Ice/seqMapping/Test.ice" />
-    <SliceCompile Include="../../../../Ice/seqMapping/TestAMD.ice" />
   </ItemGroup>
 </Project>

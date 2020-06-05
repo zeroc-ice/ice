@@ -16,16 +16,9 @@
     <Compile Include="../../../../Ice/operations/MyDerivedClassAMDI.cs" />
     <Compile Include="../../../../Ice/operations/Server.cs" />
     <Compile Include="../../../../Ice/operations/ServerAMD.cs" />
-
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../../../Ice/operations/Test.ice</SliceCompileSource>
     </Compile>
-
-    <Compile Include="generated/TestAMD.cs">
-      <SliceCompileSource>../../../../Ice/operations/TestAMD.ice</SliceCompileSource>
-    </Compile>
-
     <SliceCompile Include="../../../../Ice/operations/Test.ice" />
-    <SliceCompile Include="../../../../Ice/operations/TestAMD.ice" />
   </ItemGroup>
 </Project>
