@@ -38,14 +38,13 @@ namespace ZeroC.IceDiscovery
 
     internal class Lookup : ILookup
     {
-        private int LatencyMultiplier { get; }
-
         private readonly Dictionary<string, AdapterRequest> _adapterRequests =
             new Dictionary<string, AdapterRequest>();
         private readonly string _domainId;
+        private readonly int _latencyMultiplier;
         private readonly ILookupPrx _lookup;
-        private readonly Dictionary<ILookupPrx, ILookupReplyPrx?> _lookups =
-            new Dictionary<ILookupPrx, ILookupReplyPrx?>();
+        private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups =
+            new Dictionary<ILookupPrx, ILookupReplyPrx>();
         private readonly object _mutex = new object();
         private readonly Dictionary<Identity, ObjectRequest> _objectRequests =
             new Dictionary<Identity, ObjectRequest>();
@@ -102,22 +101,41 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal Lookup(LocatorRegistry registry, ILookupPrx lookup, Communicator communicator)
+        internal Lookup(LocatorRegistry registry, ILookupPrx lookup, Communicator communicator,
+            ILookupReplyPrx lookupReply)
         {
             _registry = registry;
             _lookup = lookup;
             _timeout = communicator.GetPropertyAsInt("IceDiscovery.Timeout") ?? 300;
             _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
-            LatencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
+            _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
             _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             var single = new Endpoint[1];
-            foreach (Endpoint endpt in lookup.Endpoints)
+            foreach (UdpEndpoint endpoint in lookup.Endpoints.Cast<UdpEndpoint>())
             {
-                single[0] = endpt;
-                _lookups[lookup.Clone(endpoints: single)] = null;
+                single[0] = endpoint;
+
+                ILookupPrx? key = lookup.Clone(endpoints: single);
+                if (endpoint.McastInterface.Length > 0)
+                {
+                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(
+                        e => e is IPEndpoint ipEndpoint && ipEndpoint.Host.Equals(endpoint.McastInterface));
+
+                    if (q != null)
+                    {
+                        single[0] = q;
+                        _lookups[key] = lookupReply.Clone(endpoints: single);
+                    }
+                }
+
+                if (!_lookups.ContainsKey(key))
+                {
+                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                    _lookups[key] = lookupReply;
+                }
             }
             Debug.Assert(_lookups.Count > 0);
         }
@@ -284,7 +302,7 @@ namespace ZeroC.IceDiscovery
                                 // Delay the completion of the request to give a chance to other members of this
                                 // replica group to reply
                                 int latency =
-                                    (int)((DateTime.Now.Ticks - request.Start) * LatencyMultiplier / 10000.0);
+                                    (int)((DateTime.Now.Ticks - request.Start) * _latencyMultiplier / 10000.0);
                                 if (latency == 0)
                                 {
                                     latency = 1;
@@ -297,8 +315,11 @@ namespace ZeroC.IceDiscovery
                                     endpoints.AddRange(prx.Endpoints);
                                 }
                                 request.RequestSource.SetResult(result.Clone(endpoints: endpoints));
-                                _replicaGroupReplies.Remove(requestId);
-                                _adapterRequests.Remove(adapterId);
+                                lock (_mutex)
+                                {
+                                    _replicaGroupReplies.Remove(requestId);
+                                    _adapterRequests.Remove(adapterId);
+                                }
                             });
                         }
                     }
@@ -323,33 +344,6 @@ namespace ZeroC.IceDiscovery
                     _objectRequests.Remove(id);
                 }
                 // else ignore responses from old requests
-            }
-        }
-
-        internal void SetLookupReply(ILookupReplyPrx lookupReply)
-        {
-            // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
-            var single = new Endpoint[1];
-            foreach (ILookupPrx key in _lookups.Keys.ToArray())
-            {
-                var endpoint = (UdpEndpoint)key.Endpoints[0];
-                if (endpoint.McastInterface.Length > 0)
-                {
-                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e =>
-                        e is IPEndpoint ipEndpoint && ipEndpoint.Host.Equals(endpoint.McastInterface));
-
-                    if (q != null)
-                    {
-                        single[0] = q;
-                        _lookups[key] = lookupReply.Clone(endpoints: single);
-                    }
-                }
-
-                if (_lookups[key] == null)
-                {
-                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
-                    _lookups[key] = lookupReply;
-                }
             }
         }
     }

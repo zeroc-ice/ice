@@ -102,13 +102,13 @@ namespace ZeroC.IceDiscovery
             //
             // Add lookup and lookup reply Ice objects
             //
-            var lookup = new Lookup(locatorRegistry, lookupPrx, _communicator);
+            ILookupReplyPrx lookupReplyPrx = _replyAdapter.CreateProxy(
+                "dummy", ILookupReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
+            var lookup = new Lookup(locatorRegistry, lookupPrx, _communicator, lookupReplyPrx);
             _multicastAdapter.Add("IceDiscovery/Lookup", lookup);
 
             var lookupReply = new LookupReply(lookup);
             _replyAdapter.AddDefault(lookupReply);
-            lookup.SetLookupReply(_replyAdapter.CreateProxy("dummy", ILookupReplyPrx.Factory)
-                .Clone(invocationMode: InvocationMode.Datagram));
 
             // Setup locator on the communicator.
             _locator = _locatorAdapter.AddWithUUID(new Locator(lookup, locatorRegistryPrx), ILocatorPrx.Factory);
