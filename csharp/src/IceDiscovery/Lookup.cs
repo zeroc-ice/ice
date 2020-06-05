@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ZeroC.Ice;
 
@@ -13,15 +14,17 @@ namespace ZeroC.IceDiscovery
 {
     internal class AdapterRequest
     {
+        internal CancellationTokenSource CancellationSource { get; }
         internal string RequestId { get; }
         internal TaskCompletionSource<IObjectPrx?> RequestSource { get; }
-        internal long Start { get; }
+
+        internal readonly HashSet<IObjectPrx> Replies = new HashSet<IObjectPrx>();
 
         internal AdapterRequest()
         {
+            CancellationSource = new CancellationTokenSource();
             RequestId = Guid.NewGuid().ToString();
             RequestSource = new TaskCompletionSource<IObjectPrx?>();
-            Start = DateTime.Now.Ticks;
         }
     }
 
@@ -49,8 +52,6 @@ namespace ZeroC.IceDiscovery
         private readonly Dictionary<Identity, ObjectRequest> _objectRequests =
             new Dictionary<Identity, ObjectRequest>();
         private readonly LocatorRegistry _registry;
-        private readonly Dictionary<string, HashSet<IObjectPrx>> _replicaGroupReplies =
-            new Dictionary<string, HashSet<IObjectPrx>>();
         private readonly int _retryCount;
         private readonly int _timeout;
         private bool _warnOnce = true;
@@ -62,7 +63,7 @@ namespace ZeroC.IceDiscovery
                 return; // Ignore
             }
 
-            IObjectPrx? proxy = _registry.FindAdapter(adapterId, out bool isReplicaGroup);
+            (IObjectPrx? proxy, bool isReplicaGroup) = _registry.FindAdapter(adapterId);
             if (proxy != null)
             {
                 // Reply to the multicast request using the given proxy.
@@ -155,9 +156,9 @@ namespace ZeroC.IceDiscovery
             }
 
             int retryCount = _retryCount;
-            int lookupCount = _lookups.Count;
             int failureCount = 0;
             var requestId = new Identity(request.RequestId, "");
+            long start = DateTime.Now.Ticks;
             while (invoke)
             {
                 foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
@@ -179,7 +180,7 @@ namespace ZeroC.IceDiscovery
                                 _warnOnce = false;
                             }
 
-                            if (++failureCount == lookupCount)
+                            if (++failureCount == _lookups.Count)
                             {
                                 request.RequestSource.SetResult(null);
                                 _adapterRequests.Remove(adapterId);
@@ -187,25 +188,45 @@ namespace ZeroC.IceDiscovery
                         }
                     }
                 }
-                Task? t = await Task.WhenAny(request.RequestSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
-                lock (_mutex)
+                Task? t = await Task.WhenAny(request.RequestSource.Task,
+                    Task.Delay(_timeout, request.CancellationSource.Token)).ConfigureAwait(false);
+
+                if (t == request.RequestSource.Task)
                 {
-                    if (t == request.RequestSource.Task)
+                    break;
+                }
+                else if (t.IsCanceled && request.Replies.Count > 0)
+                {
+                    // If the timeout was canceled we delay the completion of the request to give a chance to other
+                    // members of this replica group to reply
+                    int latency = (int)((DateTime.Now.Ticks - start) * _latencyMultiplier / 10000.0);
+                    if (latency == 0)
                     {
-                        break;
+                        latency = 1;
                     }
-                    else if (_replicaGroupReplies.TryGetValue(request.RequestId, out HashSet<IObjectPrx>? _))
+                    await Task.Delay(latency);
+                    var endpoints = new List<Endpoint>();
+                    IObjectPrx result = request.Replies.First();
+                    foreach (IObjectPrx prx in request.Replies)
                     {
-                        // The request will be completed once the waiting for additional replies expires
-                        break;
+                        endpoints.AddRange(prx.Endpoints);
                     }
-                    else if (--retryCount <= 0)
+                    request.RequestSource.SetResult(result.Clone(endpoints: endpoints));
+                    lock (_mutex)
                     {
-                        // The request timeout and no more retries
-                        request.RequestSource.SetResult(null);
                         _adapterRequests.Remove(adapterId);
-                        break;
                     }
+                    break;
+                }
+                else if (--retryCount < 0)
+                {
+                    // The request timeout and no more retries
+                    request.RequestSource.SetResult(null);
+                    lock (_mutex)
+                    {
+                        _adapterRequests.Remove(adapterId);
+                    }
+                    break;
                 }
             }
             return await request.RequestSource.Task.ConfigureAwait(false);
@@ -226,7 +247,6 @@ namespace ZeroC.IceDiscovery
             }
 
             int retryCount = _retryCount;
-            int lookupCount = _lookups.Count;
             int failureCount = 0;
 
             var requestId = new Identity(request.RequestId, "");
@@ -252,7 +272,7 @@ namespace ZeroC.IceDiscovery
                                 _warnOnce = false;
                             }
 
-                            if (++failureCount == lookupCount)
+                            if (++failureCount == _lookups.Count)
                             {
                                 request.RequestSource.SetResult(null);
                                 _objectRequests.Remove(id);
@@ -267,7 +287,7 @@ namespace ZeroC.IceDiscovery
                     {
                         break;
                     }
-                    else if (--retryCount <= 0)
+                    else if (--retryCount < 0)
                     {
                         // Request timeout and no more retries
                         request.RequestSource.SetResult(null);
@@ -288,39 +308,10 @@ namespace ZeroC.IceDiscovery
                 {
                     if (isReplicaGroup)
                     {
-                        if (_replicaGroupReplies.TryGetValue(requestId, out HashSet<IObjectPrx>? proxies))
+                        request.Replies.Add(proxy);
+                        if (request.Replies.Count == 1)
                         {
-                            proxies.Add(proxy);
-                        }
-                        else
-                        {
-                            proxies = new HashSet<IObjectPrx> { proxy };
-                            _replicaGroupReplies.Add(requestId, proxies);
-
-                            Task.Run(async () =>
-                            {
-                                // Delay the completion of the request to give a chance to other members of this
-                                // replica group to reply
-                                int latency =
-                                    (int)((DateTime.Now.Ticks - request.Start) * _latencyMultiplier / 10000.0);
-                                if (latency == 0)
-                                {
-                                    latency = 1;
-                                }
-                                await Task.Delay(latency);
-                                var endpoints = new List<Endpoint>();
-                                IObjectPrx result = proxies.First();
-                                foreach (IObjectPrx prx in proxies)
-                                {
-                                    endpoints.AddRange(prx.Endpoints);
-                                }
-                                request.RequestSource.SetResult(result.Clone(endpoints: endpoints));
-                                lock (_mutex)
-                                {
-                                    _replicaGroupReplies.Remove(requestId);
-                                    _adapterRequests.Remove(adapterId);
-                                }
-                            });
+                            request.CancellationSource.Cancel();
                         }
                     }
                     else
