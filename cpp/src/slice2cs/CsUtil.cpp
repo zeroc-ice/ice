@@ -202,21 +202,6 @@ Slice::getNamespacePrefix(const ContainedPtr& cont)
 }
 
 string
-Slice::CsGenerator::getCustomTypeIdNamespace(const UnitPtr& ut)
-{
-    DefinitionContextPtr dc = ut->findDefinitionContext(ut->topLevelFile());
-    assert(dc);
-
-    static const string typeIdNsPrefix = "cs:typeid-namespace:";
-    string result = dc->findMetaData(typeIdNsPrefix);
-    if(!result.empty())
-    {
-        result = result.substr(typeIdNsPrefix.size());
-    }
-    return result;
-}
-
-string
 Slice::getNamespace(const ContainedPtr& cont)
 {
     string scope = fixId(cont->scope());
@@ -1463,9 +1448,7 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
             if(s.find(csPrefix) == 0)
             {
                 static const string csAttributePrefix = csPrefix + "attribute:";
-                static const string csTypeIdNsPrefix = csPrefix + "typeid-namespace:";
-                if(!(s.find(csTypeIdNsPrefix) == 0 && s.size() > csTypeIdNsPrefix.size()) &&
-                   !(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size()))
+                if(!(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size()))
                 {
                     dc->warning(InvalidMetaData, file, -1, "ignoring invalid global metadata `" + oldS + "'");
                     continue;

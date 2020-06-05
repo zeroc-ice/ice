@@ -3124,14 +3124,10 @@ Slice::Gen::ClassFactoryVisitor::visitModuleStart(const ModulePtr& p)
     if (p->hasValueDefs())
     {
         string prefix;
+        // We are generating code for a top-level module
         if (!ContainedPtr::dynamicCast(p->container()))
         {
-            // We are generating code for a top-level module
-            prefix = getCustomTypeIdNamespace(p->unit());
-            if (prefix.empty())
-            {
-                prefix = "ZeroC.Ice.ClassFactory";
-            }
+            prefix = "ZeroC.Ice.ClassFactory";
         }
         openNamespace(p, prefix);
         return true;
@@ -3176,13 +3172,7 @@ Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
     // The CompactIdVisitor does not visit modules, only the unit.
     if (p->hasCompactTypeId())
     {
-        string typeIdNs = getCustomTypeIdNamespace(p);
-        if (typeIdNs.empty())
-        {
-            typeIdNs = "ZeroC.Ice.ClassFactory";
-        }
-
-        _out << sp << nl << "namespace " << typeIdNs;
+        _out << sp << nl << "namespace ZeroC.Ice.ClassFactory";
         _out << sb;
         return true;
     }
@@ -3224,14 +3214,10 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitModuleStart(const ModulePtr& p)
     if (p->hasExceptions())
     {
         string prefix;
+        // We are generating code for a top-level module
         if (!ContainedPtr::dynamicCast(p->container()))
         {
-            // We are generating code for a top-level module
-            prefix = getCustomTypeIdNamespace(p->unit());
-            if (prefix.empty())
-            {
-                prefix = "ZeroC.Ice.RemoteExceptionFactory";
-            }
+            prefix = "ZeroC.Ice.RemoteExceptionFactory";
         }
         openNamespace(p, prefix);
         return true;
