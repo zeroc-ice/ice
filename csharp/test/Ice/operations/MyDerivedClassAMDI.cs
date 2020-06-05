@@ -9,9 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Operations
+namespace ZeroC.Ice.Test.Operations
 {
-    public sealed class MyDerivedClass : IMyDerivedClass
+    public sealed class MyDerivedClassAsync : IMyDerivedClassAsync
     {
 
         internal class Thread_opVoid : TaskCompletionSource<object?>

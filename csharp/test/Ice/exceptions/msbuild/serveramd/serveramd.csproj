@@ -9,11 +9,11 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../ThrowerAMDI.cs" />
-    <Compile Include="../../EmptyAMDI.cs" />
+    <Compile Include="../../EmptyI.cs" />
     <Compile Include="../../ServerAMD.cs" />
-    <Compile Include="generated/TestAMD.cs">
-      <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
+    <Compile Include="generated/Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>
-    <SliceCompile Include="../../TestAMD.ice" />
+    <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
 </Project>

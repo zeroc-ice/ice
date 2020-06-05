@@ -13,12 +13,6 @@ dictionary<int, int> NV;
 dictionary<string, string> NR;
 dictionary<string, NV> NDV;
 dictionary<string, NR> NDR;
-    sequence<int> IntSeq;
-struct TEstNv
-{
-    NV d;
-    IntSeq s;
-}
 
 sequence<int> AIS;
 [clr:generic:List] sequence<int> GIS;

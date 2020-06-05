@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.Test.AMD.SeqMapping
+namespace ZeroC.Ice.Test.SeqMapping
 {
-    public sealed class MyClass : IMyClass
+    public sealed class MyClassAsync : IMyClassAsync
     {
         public ValueTask shutdownAsync(Current current)
         {

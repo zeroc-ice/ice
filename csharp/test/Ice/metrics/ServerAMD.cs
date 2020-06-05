@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Metrics
+namespace ZeroC.Ice.Test.Metrics
 {
-    public class Server : TestHelper
+    public class ServerAMD : TestHelper
     {
         public override void Run(string[] args)
         {
@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.AMD.Metrics
             ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(() => {
                 ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.Add("metrics", new Metrics());
+                adapter.Add("metrics", new MetricsAsync());
                 return adapter;
             }));
             controllerAdapter.Activate();
@@ -34,6 +34,6 @@ namespace ZeroC.Ice.Test.AMD.Metrics
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
     }
 }

@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.Test.AMD.Tagged
+namespace ZeroC.Ice.Test.Tagged
 {
-    public class Initial : IInitial
+    public class InitialAsync : IInitialAsync
     {
         public ValueTask shutdownAsync(Current current)
         {
