@@ -28,7 +28,6 @@ namespace ZeroC.IceDiscovery
         private readonly ObjectAdapter _replyAdapter;
         private readonly int _retryCount;
         private readonly int _timeout;
-        private bool _warnOnce = true;
 
         public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx? reply, Current current)
         {
@@ -118,207 +117,160 @@ namespace ZeroC.IceDiscovery
             Debug.Assert(_lookups.Count > 0);
         }
 
-        internal async ValueTask<IObjectPrx?> FindAdapterAsync(string adapterId)
+        internal async ValueTask<IObjectPrx?> FindAdapterAsync(string id)
         {
-            LookupReply? replyServant;
-            Identity? requestId = null;
+            Task<IObjectPrx?> task;
             lock (_mutex)
             {
-                if (!_adapterReplies.TryGetValue(adapterId, out replyServant))
+                if (!_adapterReplies.TryGetValue(id, out LookupReply? replyServant))
                 {
-                    replyServant = new LookupReply(this);
-                    _adapterReplies.Add(adapterId, replyServant);
-                    requestId = _replyAdapter.AddWithUUID(replyServant, ILookupReplyPrx.Factory).Identity;
+                    replyServant = new LookupReply();
+                    task = InvokeFindAdapterAsync(id, replyServant);
+                }
+                else
+                {
+                    task = replyServant.CompletionSource.Task;
                 }
             }
+            return await task.ConfigureAwait(false);
+        }
 
-            int retryCount = _retryCount;
-            int failureCount = 0;
+        internal async Task<IObjectPrx?> InvokeFindAdapterAsync(string id, LookupReply replyServant)
+        {
+            // Called with mutex locked
+            _adapterReplies.Add(id, replyServant);
+            Identity requestId = _replyAdapter.AddWithUUID(replyServant, ILocatorRegistryPrx.Factory).Identity;
 
-            long start = DateTime.Now.Ticks;
-            while (requestId != null)
+            Task<IObjectPrx?> replyTask = replyServant.CompletionSource.Task;
+            try
             {
-                foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
+                for (int i = 0; i < _retryCount; ++i)
                 {
-                    Debug.Assert(reply != null);
-                    ILookupReplyPrx? lookupReply = reply.Clone(requestId.Value, ILookupReplyPrx.Factory);
-                    try
+                    long start = DateTime.Now.Ticks;
+                    int failureCount = 0;
+                    foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
                     {
-                        await lookup.FindAdapterByIdAsync(_domainId, adapterId, lookupReply).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        lock (_mutex)
+                        ILookupReplyPrx? lookupReply = reply.Clone(requestId, ILookupReplyPrx.Factory);
+                        try
                         {
-                            if (_warnOnce)
-                            {
-                                _lookup.Communicator.Logger.Warning(
-                                    $"failed to lookup adapter `{adapterId}' with lookup proxy `{_lookup}':\n{ex}");
-                                _warnOnce = false;
-                            }
-
+                            await lookup.FindAdapterByIdAsync(_domainId, id, lookupReply).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
                             if (++failureCount == _lookups.Count)
                             {
+                                _lookup.Communicator.Logger.Warning(
+                                    $"failed to lookup adapter `{id}' with lookup proxy `{_lookup}':\n{ex}");
                                 replyServant.CompletionSource.SetResult(null);
-                                _adapterReplies.Remove(adapterId);
-                                _replyAdapter.Remove(requestId.Value);
                             }
                         }
                     }
-                }
-                Task? t = await Task.WhenAny(
-                    replyServant.CompletionSource.Task,
-                    Task.Delay(_timeout, replyServant.CancellationSource.Token)).ConfigureAwait(false);
 
-                if (t == replyServant.CompletionSource.Task)
-                {
-                    break;
+                    Task? t = await Task.WhenAny(replyTask,
+                        Task.Delay(_timeout, replyServant.CancellationSource.Token)).ConfigureAwait(false);
+                    if (t == replyTask)
+                    {
+                        return await replyTask.ConfigureAwait(false); // We're done!
+                    }
+                    else if (t.IsCanceled)
+                    {
+                        // If the timeout was canceled we delay the completion of the request to give a chance to other
+                        // members of this replica group to reply
+                        int latency = (int)((DateTime.Now.Ticks - start) * _latencyMultiplier / 10000.0);
+                        if (latency == 0)
+                        {
+                            latency = 1;
+                        }
+                        await Task.Delay(latency);
+                        var endpoints = new List<Endpoint>();
+                        lock (replyServant.Proxies)
+                        {
+                            IObjectPrx result = replyServant.Proxies.First();
+                            foreach (IObjectPrx prx in replyServant.Proxies)
+                            {
+                                endpoints.AddRange(prx.Endpoints);
+                            }
+                            replyServant.CompletionSource.SetResult(result.Clone(endpoints: endpoints));
+                        }
+                        return await replyTask.ConfigureAwait(false); // We're done!
+                    }
                 }
-                else if (t.IsCanceled && replyServant.Proxies.Count > 0)
+                replyServant.CompletionSource.SetResult(null); // Timeout
+                return await replyTask.ConfigureAwait(false);
+            }
+            finally
+            {
+                lock (_mutex)
                 {
-                    // If the timeout was canceled we delay the completion of the request to give a chance to other
-                    // members of this replica group to reply
-                    int latency = (int)((DateTime.Now.Ticks - start) * _latencyMultiplier / 10000.0);
-                    if (latency == 0)
-                    {
-                        latency = 1;
-                    }
-                    await Task.Delay(latency);
-                    var endpoints = new List<Endpoint>();
-                    IObjectPrx result = replyServant.Proxies.First();
-                    foreach (IObjectPrx prx in replyServant.Proxies)
-                    {
-                        endpoints.AddRange(prx.Endpoints);
-                    }
-                    replyServant.CompletionSource.SetResult(result.Clone(endpoints: endpoints));
-                    lock (_mutex)
-                    {
-                        _adapterReplies.Remove(adapterId);
-                        _replyAdapter.Remove(requestId.Value);
-                    }
-                    break;
-                }
-                else if (--retryCount < 0)
-                {
-                    // The request timeout and no more retries
-                    replyServant.CompletionSource.SetResult(null);
-                    lock (_mutex)
-                    {
-                        _adapterReplies.Remove(adapterId);
-                        _replyAdapter.Remove(requestId.Value);
-                    }
-                    break;
+                    _adapterReplies.Remove(id);
+                    _replyAdapter.Remove(requestId);
                 }
             }
-            return await replyServant.CompletionSource.Task.ConfigureAwait(false);
         }
 
         internal async ValueTask<IObjectPrx?> FindObjectAsync(Identity id)
         {
-            LookupReply? replyServant;
-            Identity? requestId = null;
+            Task<IObjectPrx?> task;
             lock (_mutex)
             {
-                if (!_objectReplies.TryGetValue(id, out replyServant))
+                if (!_objectReplies.TryGetValue(id, out LookupReply? replyServant))
                 {
-                    replyServant = new LookupReply(this);
-                    _objectReplies.Add(id, replyServant);
-                    requestId = _replyAdapter.AddWithUUID(replyServant, ILocatorRegistryPrx.Factory).Identity;
+                    replyServant = new LookupReply();
+                    task = InvokeFindObjectAsync(id, replyServant);
+                }
+                else
+                {
+                    task = replyServant.CompletionSource.Task;
                 }
             }
+            return await task.ConfigureAwait(false);
+        }
 
-            int retryCount = _retryCount;
-            int failureCount = 0;
+        internal async Task<IObjectPrx?> InvokeFindObjectAsync(Identity id, LookupReply replyServant)
+        {
+            // Called with mutex locked
+            _objectReplies.Add(id, replyServant);
+            Identity requestId = _replyAdapter.AddWithUUID(replyServant, ILocatorRegistryPrx.Factory).Identity;
 
-            while (requestId != null)
+            Task<IObjectPrx?> replyTask = replyServant.CompletionSource.Task;
+            try
             {
-                foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
+                for (int i = 0; i < _retryCount; ++i)
                 {
-                    Debug.Assert(reply != null);
-                    ILookupReplyPrx? lookupReply = reply.Clone(requestId.Value, ILookupReplyPrx.Factory);
-
-                    try
+                    int failureCount = 0;
+                    foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
                     {
-                        await lookup.FindObjectByIdAsync(_domainId, id, lookupReply).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        lock (_mutex)
+                        ILookupReplyPrx? lookupReply = reply.Clone(requestId, ILookupReplyPrx.Factory);
+                        try
                         {
-                            if (_warnOnce)
+                            await lookup.FindObjectByIdAsync(_domainId, id, lookupReply).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (++failureCount == _lookups.Count)
                             {
                                 _lookup.Communicator.Logger.Warning(
                                     $"failed to lookup object `{id}' with lookup proxy `{_lookup}':\n{ex}");
-                                _warnOnce = false;
-                            }
-
-                            if (++failureCount == _lookups.Count)
-                            {
                                 replyServant.CompletionSource.SetResult(null);
-                                _objectReplies.Remove(id);
-                                _replyAdapter.Remove(requestId.Value);
                             }
                         }
                     }
+
+                    if (await Task.WhenAny(replyTask, Task.Delay(_timeout)).ConfigureAwait(false) == replyTask)
+                    {
+                        return await replyTask.ConfigureAwait(false); // We're done!
+                    }
                 }
-                Task? t = await Task.WhenAny(
-                    replyServant.CompletionSource.Task,
-                    Task.Delay(_timeout)).ConfigureAwait(false);
+                replyServant.CompletionSource.SetResult(null); // Timeout
+                return await replyTask.ConfigureAwait(false);
+            }
+            finally
+            {
                 lock (_mutex)
                 {
-                    if (t == replyServant.CompletionSource.Task)
-                    {
-                        break;
-                    }
-                    else if (--retryCount < 0)
-                    {
-                        // Request timeout and no more retries
-                        replyServant.CompletionSource.SetResult(null);
-                        _objectReplies.Remove(id);
-                        _replyAdapter.Remove(requestId.Value);
-                        break;
-                    }
-                }
-            }
-            return await replyServant.CompletionSource.Task.ConfigureAwait(false);
-        }
-
-        internal void FoundAdapter(string adapterId, Identity requestId, IObjectPrx proxy, bool isReplicaGroup)
-        {
-            lock (_mutex)
-            {
-                if (_adapterReplies.TryGetValue(adapterId, out LookupReply? replyServant))
-                {
-                    if (isReplicaGroup)
-                    {
-                        replyServant.Proxies.Add(proxy);
-                        if (replyServant.Proxies.Count == 1)
-                        {
-                            replyServant.CancellationSource.Cancel();
-                        }
-                    }
-                    else
-                    {
-                        replyServant.CompletionSource.SetResult(proxy);
-                        _adapterReplies.Remove(adapterId);
-                        _replyAdapter.Remove(requestId);
-                    }
-                }
-                // else ignore responses from old requests
-            }
-        }
-
-        internal void FoundObject(Identity id, Identity requestId, IObjectPrx proxy)
-        {
-            lock (_mutex)
-            {
-                if (_objectReplies.TryGetValue(id, out LookupReply? replyServant))
-                {
-                    replyServant.CompletionSource.SetResult(proxy);
                     _objectReplies.Remove(id);
                     _replyAdapter.Remove(requestId);
                 }
-                // else ignore responses from old requests
             }
         }
     }
@@ -327,22 +279,36 @@ namespace ZeroC.IceDiscovery
     {
         internal CancellationTokenSource CancellationSource { get; }
         internal TaskCompletionSource<IObjectPrx?> CompletionSource { get; }
-
         internal readonly HashSet<IObjectPrx> Proxies = new HashSet<IObjectPrx>();
 
-        private readonly Lookup _lookup;
+        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current current) =>
+            CompletionSource.SetResult(proxy);
 
-        internal LookupReply(Lookup lookup)
+        public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current current)
+        {
+            if (isReplicaGroup)
+            {
+                lock (Proxies)
+                {
+                    Proxies.Add(proxy!);
+                    if (Proxies.Count == 1)
+                    {
+                        // Cancel the request timeout and let InvokeFindAdapterAsync wait for additional replies
+                        // from the replica group
+                        CancellationSource.Cancel();
+                    }
+                }
+            }
+            else
+            {
+                CompletionSource.SetResult(proxy);
+            }
+        }
+
+        internal LookupReply()
         {
             CancellationSource = new CancellationTokenSource();
             CompletionSource = new TaskCompletionSource<IObjectPrx?>();
-            _lookup = lookup;
         }
-
-        public void FoundObjectById(Identity id, IObjectPrx? proxy, Current current) =>
-            _lookup.FoundObject(id, current.Identity, proxy!);
-
-        public void FoundAdapterById(string adapterId, IObjectPrx? proxy, bool isReplicaGroup, Current current) =>
-            _lookup.FoundAdapter(adapterId, current.Identity, proxy!, isReplicaGroup);
     }
 }
