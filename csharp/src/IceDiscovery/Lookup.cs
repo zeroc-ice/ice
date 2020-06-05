@@ -166,7 +166,8 @@ namespace ZeroC.IceDiscovery
                         }
                     }
                 }
-                Task? t = await Task.WhenAny(replyServant.CompletionSource.Task,
+                Task? t = await Task.WhenAny(
+                    replyServant.CompletionSource.Task,
                     Task.Delay(_timeout, replyServant.CancellationSource.Token)).ConfigureAwait(false);
 
                 if (t == replyServant.CompletionSource.Task)
