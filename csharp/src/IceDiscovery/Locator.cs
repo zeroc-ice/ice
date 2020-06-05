@@ -60,7 +60,7 @@ namespace ZeroC.IceDiscovery
         public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
             Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 HashSet<string>? adapterIds;
                 if (proxy != null)
