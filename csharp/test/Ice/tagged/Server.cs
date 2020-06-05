@@ -6,7 +6,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Tagged
 {
-    public class ServerAMD : TestHelper
+    public class Server : TestHelper
     {
         public override void Run(string[] args)
         {
@@ -19,6 +19,6 @@ namespace ZeroC.Ice.Test.Tagged
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }
