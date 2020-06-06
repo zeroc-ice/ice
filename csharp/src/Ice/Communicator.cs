@@ -182,7 +182,6 @@ namespace ZeroC.Ice
         private Identity? _adminIdentity;
         private readonly ConcurrentDictionary<string, IClassFactory?> _classFactoryCache =
             new ConcurrentDictionary<string, IClassFactory?>();
-        private readonly string[] _classFactoryNamespaces;
         private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
             new ConcurrentDictionary<int, IClassFactory?>();
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
@@ -198,7 +197,6 @@ namespace ZeroC.Ice
         private static bool _printProcessIdDone = false;
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
-        private readonly string[] _remoteExceptionFactoryNamespaces;
         private readonly int[] _retryIntervals;
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
@@ -216,7 +214,6 @@ namespace ZeroC.Ice
         public Communicator(Dictionary<string, string>? properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
                             ICertificateVerifier? certificateVerifier = null,
@@ -226,7 +223,6 @@ namespace ZeroC.Ice
                    properties,
                    logger,
                    observer,
-                   typeIdNamespaces,
                    certificates,
                    caCertificates,
                    certificateVerifier,
@@ -238,7 +234,6 @@ namespace ZeroC.Ice
                             Dictionary<string, string>? properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
                             ICertificateVerifier? certificateVerifier = null,
@@ -248,7 +243,6 @@ namespace ZeroC.Ice
                    properties,
                    logger,
                    observer,
-                   typeIdNamespaces,
                    certificates,
                    caCertificates,
                    certificateVerifier,
@@ -260,7 +254,6 @@ namespace ZeroC.Ice
                             Dictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
                             ICertificateVerifier? certificateVerifier = null,
@@ -270,7 +263,6 @@ namespace ZeroC.Ice
                    properties,
                    logger,
                    observer,
-                   typeIdNamespaces,
                    certificates,
                    caCertificates,
                    certificateVerifier,
@@ -283,7 +275,6 @@ namespace ZeroC.Ice
                             Dictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            string[]? typeIdNamespaces = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
                             ICertificateVerifier? certificateVerifier = null,
@@ -292,15 +283,6 @@ namespace ZeroC.Ice
             _state = StateActive;
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
-
-            _classFactoryNamespaces = new string[] { "ZeroC.Ice.ClassFactory" };
-            _remoteExceptionFactoryNamespaces = new string[] { "ZeroC.Ice.RemoteExceptionFactory" };
-            if (typeIdNamespaces != null)
-            {
-                _classFactoryNamespaces = _classFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
-                _remoteExceptionFactoryNamespaces =
-                    _remoteExceptionFactoryNamespaces.Concat(typeIdNamespaces).ToArray();
-            }
 
             if (properties == null)
             {
@@ -1354,13 +1336,10 @@ namespace ZeroC.Ice
             _classFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                foreach (string ns in _classFactoryNamespaces)
+                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.{className}");
+                if (factoryClass != null)
                 {
-                    Type? factoryClass = AssemblyUtil.FindType($"{ns}.{className}");
-                    if (factoryClass != null)
-                    {
-                        return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
-                    }
+                    return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
                 }
                 return null;
             });
@@ -1368,14 +1347,11 @@ namespace ZeroC.Ice
         internal IClassFactory? FindClassFactory(int compactId) =>
            _compactIdCache.GetOrAdd(compactId, compactId =>
            {
-               foreach (string ns in _classFactoryNamespaces)
-               {
-                   Type? factoryClass = AssemblyUtil.FindType($"{ns}.CompactId_{compactId}");
-                   if (factoryClass != null)
-                   {
-                       return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
-                   }
-               }
+                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.ClassFactory.CompactId_{compactId}");
+                if (factoryClass != null)
+                {
+                    return (IClassFactory?)Activator.CreateInstance(factoryClass, false);
+                }
                return null;
            });
 
@@ -1383,13 +1359,10 @@ namespace ZeroC.Ice
             _remoteExceptionFactoryCache.GetOrAdd(typeId, typeId =>
             {
                 string className = TypeIdToClassName(typeId);
-                foreach (string ns in _remoteExceptionFactoryNamespaces)
+                Type? factoryClass = AssemblyUtil.FindType($"ZeroC.Ice.RemoteExceptionFactory.{className}");
+                if (factoryClass != null)
                 {
-                    Type? factoryClass = AssemblyUtil.FindType($"{ns}.{className}");
-                    if (factoryClass != null)
-                    {
-                        return (IRemoteExceptionFactory?)Activator.CreateInstance(factoryClass, false);
-                    }
+                    return (IRemoteExceptionFactory?)Activator.CreateInstance(factoryClass, false);
                 }
                 return null;
             });

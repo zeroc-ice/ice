@@ -130,16 +130,14 @@ namespace Test
 
         public Communicator Initialize(ref string[] args,
             Dictionary<string, string>? defaults = null,
-            ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null,
-            string[]? typeIdNamespaces = null) =>
-            Initialize(CreateTestProperties(ref args, defaults), observer, typeIdNamespaces);
+            ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null) =>
+            Initialize(CreateTestProperties(ref args, defaults), observer);
 
         public Communicator Initialize(
             Dictionary<string, string> properties,
-            ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null,
-            string[]? typeIdNamespaces = null)
+            ZeroC.Ice.Instrumentation.ICommunicatorObserver? observer = null)
         {
-            var communicator = new Communicator(properties, observer: observer, typeIdNamespaces: typeIdNamespaces);
+            var communicator = new Communicator(properties, observer: observer);
             if (_communicator == null)
             {
                 _communicator = communicator;

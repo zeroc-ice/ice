@@ -106,8 +106,6 @@ public:
 
 protected:
 
-    static std::string getCustomTypeIdNamespace(const UnitPtr&);
-
     //
     // Generate code to marshal or unmarshal a type
     //
