@@ -31,11 +31,8 @@ namespace ZeroC.Ice.Test.Metrics
 
         public ValueTask opByteSAsync(byte[] bs, Current current) => new ValueTask(Task.CompletedTask);
 
-        public ValueTask<IObjectPrx?> getAdminAsync(Current current)
-        {
-            TestHelper.Assert(current != null);
-            return new ValueTask<IObjectPrx?>(current.Adapter.Communicator.GetAdmin());
-        }
+        public ValueTask<IObjectPrx?> getAdminAsync(Current current) =>
+            new ValueTask<IObjectPrx?>(current.Adapter.Communicator.GetAdmin());
 
         public ValueTask shutdownAsync(Current current)
         {

@@ -25,5 +25,5 @@ namespace ZeroC.Ice.Test.Metrics
 
         private readonly Func<ObjectAdapter> _factory;
         private ObjectAdapter _adapter;
-    };
+    }
 }
