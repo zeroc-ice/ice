@@ -33,18 +33,18 @@ namespace ZeroC.Ice.Test.Location
             output.WriteLine("ok");
 
             output.Write("testing ice_locator and ice_getLocator... ");
-            TestHelper.Assert(Proxy.IdentityComparer.Equals(base1.Locator!, communicator.DefaultLocator!));
+            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, communicator.DefaultLocator!));
             var anotherLocator = ILocatorPrx.Parse("anotherLocator", communicator);
             base1 = base1.Clone(locator: anotherLocator);
-            TestHelper.Assert(Proxy.IdentityComparer.Equals(base1.Locator!, anotherLocator));
+            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, anotherLocator));
             communicator.DefaultLocator = null;
             base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
             TestHelper.Assert(base1.Locator == null);
             base1 = base1.Clone(locator: anotherLocator);
-            TestHelper.Assert(Proxy.IdentityComparer.Equals(base1.Locator!, anotherLocator));
+            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, anotherLocator));
             communicator.DefaultLocator = locator;
             base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
-            TestHelper.Assert(Proxy.IdentityComparer.Equals(base1.Locator!, communicator.DefaultLocator!));
+            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Locator!, communicator.DefaultLocator!));
 
             //
             // We also test ice_router/ice_getRouter(perhaps we should add a
@@ -53,11 +53,11 @@ namespace ZeroC.Ice.Test.Location
             TestHelper.Assert(base1.Router == null);
             var anotherRouter = IRouterPrx.Parse("anotherRouter", communicator);
             base1 = base1.Clone(router: anotherRouter);
-            TestHelper.Assert(Proxy.IdentityComparer.Equals(base1.Router!, anotherRouter));
+            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Router!, anotherRouter));
             var router = IRouterPrx.Parse("dummyrouter", communicator);
             communicator.DefaultRouter = router;
             base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
-            TestHelper.Assert(Proxy.IdentityComparer.Equals(base1.Router!, communicator.DefaultRouter!));
+            TestHelper.Assert(ProxyComparer.Identity.Equals(base1.Router!, communicator.DefaultRouter!));
             communicator.DefaultRouter = null;
             base1 = IObjectPrx.Parse("test @ TestAdapter", communicator);
             TestHelper.Assert(base1.Router == null);

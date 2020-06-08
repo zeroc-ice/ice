@@ -13,14 +13,6 @@ namespace ZeroC.Ice
     /// <summary>Proxy provides extension methods for IObjectPrx</summary>
     public static class Proxy
     {
-        /// <summary>An IEqualityComparer that allows you to use proxies as keys of a Dictionary, while using only the
-        /// proxies' object identity for equality and hashing.</summary>
-        public static readonly IEqualityComparer<IObjectPrx> IdentityComparer = new ProxyIdentityComparer();
-
-        /// <summary>A IEqualityComparer that allows you to use proxies as keys of a Dictionary, while using only the
-        /// proxies' object identity and facet for equality and hashing.</summary>
-        public static readonly IEqualityComparer<IObjectPrx> IdentityFacetComparer = new ProxyIdentityFacetComparer();
-
         /// <summary>Creates a clone of this proxy, with a new identity and optionally other options. The clone
         /// is identical to this proxy except for its identity and other options set through parameters.</summary>
         /// <param name="prx">The source proxy.</param>
@@ -405,46 +397,6 @@ namespace ZeroC.Ice
 
             public override void HandleInvokeResponse(bool ok, OutgoingAsyncBase og) =>
                 SetResult(((ProxyGetConnection)og).GetConnection()!);
-        }
-
-        private class ProxyIdentityComparer : IEqualityComparer<IObjectPrx>
-        {
-            public int GetHashCode(IObjectPrx obj) => obj.Identity.GetHashCode();
-
-            public bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
-            {
-                if (ReferenceEquals(lhs, rhs))
-                {
-                    return true;
-                }
-
-                if (lhs == null || rhs == null)
-                {
-                    return false;
-                }
-
-                return lhs.Identity.Equals(rhs.Identity);
-            }
-        }
-
-        private class ProxyIdentityFacetComparer : IEqualityComparer<IObjectPrx>
-        {
-            public int GetHashCode(IObjectPrx obj) => System.HashCode.Combine(obj.Identity, obj.Facet);
-
-            public bool Equals(IObjectPrx? lhs, IObjectPrx? rhs)
-            {
-                if (ReferenceEquals(lhs, rhs))
-                {
-                    return true;
-                }
-
-                if (lhs == null || rhs == null)
-                {
-                    return false;
-                }
-
-                return lhs.Identity.Equals(rhs.Identity) && lhs.Facet.Equals(rhs.Facet);
-            }
         }
     }
 }

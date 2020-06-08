@@ -100,18 +100,18 @@ namespace ZeroC.Ice.Test.Hash
 
                         var obj = IObjectPrx.Parse(sw.ToString(), communicator);
 
-                        if (seenProxy.ContainsKey(Proxy.IdentityComparer.GetHashCode(obj)))
+                        if (seenProxy.ContainsKey(ProxyComparer.Identity.GetHashCode(obj)))
                         {
                             ++proxyCollisions;
                         }
                         else
                         {
-                            seenProxy[Proxy.IdentityComparer.GetHashCode(obj)] = obj;
+                            seenProxy[ProxyComparer.Identity.GetHashCode(obj)] = obj;
                         }
                         //
                         // Check the same proxy produce always the same hash
                         //
-                        Assert(Proxy.IdentityComparer.GetHashCode(obj) == Proxy.IdentityComparer.GetHashCode(obj));
+                        Assert(ProxyComparer.Identity.GetHashCode(obj) == ProxyComparer.Identity.GetHashCode(obj));
                     }
                     Assert(proxyCollisions < maxCollisions);
                 }
@@ -136,18 +136,18 @@ namespace ZeroC.Ice.Test.Hash
 
                     var obj = IObjectPrx.Parse(sw.ToString(), communicator);
 
-                    if (seenProxy.ContainsKey(Proxy.IdentityFacetComparer.GetHashCode(obj)))
+                    if (seenProxy.ContainsKey(ProxyComparer.IdentityAndFacet.GetHashCode(obj)))
                     {
                         ++proxyCollisions;
                     }
                     else
                     {
-                        seenProxy[Proxy.IdentityFacetComparer.GetHashCode(obj)] = obj;
+                        seenProxy[ProxyComparer.IdentityAndFacet.GetHashCode(obj)] = obj;
                     }
                     //
                     // Check the same proxy produce always the same hash
                     //
-                    Assert(Proxy.IdentityFacetComparer.GetHashCode(obj) == Proxy.IdentityFacetComparer.GetHashCode(obj));
+                    Assert(ProxyComparer.IdentityAndFacet.GetHashCode(obj) == ProxyComparer.IdentityAndFacet.GetHashCode(obj));
                 }
                 Assert(proxyCollisions < maxCollisions);
             }
@@ -188,23 +188,23 @@ namespace ZeroC.Ice.Test.Hash
             Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx9"]);
             //Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
 
-            Assert(Proxy.IdentityComparer.GetHashCode(prx1) == Proxy.IdentityComparer.GetHashCode(prx1));
-            Assert(Proxy.IdentityFacetComparer.GetHashCode(prx1) == Proxy.IdentityFacetComparer.GetHashCode(prx1));
+            Assert(ProxyComparer.Identity.GetHashCode(prx1) == ProxyComparer.Identity.GetHashCode(prx1));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx1) == ProxyComparer.IdentityAndFacet.GetHashCode(prx1));
 
-            Assert(Proxy.IdentityComparer.GetHashCode(prx3) == Proxy.IdentityComparer.GetHashCode(prx3));
-            Assert(Proxy.IdentityFacetComparer.GetHashCode(prx3) == Proxy.IdentityFacetComparer.GetHashCode(prx3));
+            Assert(ProxyComparer.Identity.GetHashCode(prx3) == ProxyComparer.Identity.GetHashCode(prx3));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx3) == ProxyComparer.IdentityAndFacet.GetHashCode(prx3));
 
-            Assert(Proxy.IdentityComparer.GetHashCode(prx4) == Proxy.IdentityComparer.GetHashCode(prx4));
-            Assert(Proxy.IdentityFacetComparer.GetHashCode(prx4) == Proxy.IdentityFacetComparer.GetHashCode(prx4));
+            Assert(ProxyComparer.Identity.GetHashCode(prx4) == ProxyComparer.Identity.GetHashCode(prx4));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx4) == ProxyComparer.IdentityAndFacet.GetHashCode(prx4));
 
-            Assert(Proxy.IdentityComparer.GetHashCode(prx6) == Proxy.IdentityComparer.GetHashCode(prx6));
-            Assert(Proxy.IdentityFacetComparer.GetHashCode(prx6) == Proxy.IdentityFacetComparer.GetHashCode(prx6));
+            Assert(ProxyComparer.Identity.GetHashCode(prx6) == ProxyComparer.Identity.GetHashCode(prx6));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx6) == ProxyComparer.IdentityAndFacet.GetHashCode(prx6));
 
-            Assert(Proxy.IdentityComparer.GetHashCode(prx7) == Proxy.IdentityComparer.GetHashCode(prx7));
-            Assert(Proxy.IdentityFacetComparer.GetHashCode(prx7) == Proxy.IdentityFacetComparer.GetHashCode(prx7));
+            Assert(ProxyComparer.Identity.GetHashCode(prx7) == ProxyComparer.Identity.GetHashCode(prx7));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx7) == ProxyComparer.IdentityAndFacet.GetHashCode(prx7));
 
-            Assert(Proxy.IdentityComparer.GetHashCode(prx9) == Proxy.IdentityComparer.GetHashCode(prx9));
-            Assert(Proxy.IdentityFacetComparer.GetHashCode(prx9) == Proxy.IdentityFacetComparer.GetHashCode(prx9));
+            Assert(ProxyComparer.Identity.GetHashCode(prx9) == ProxyComparer.Identity.GetHashCode(prx9));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx9) == ProxyComparer.IdentityAndFacet.GetHashCode(prx9));
 
             Console.Error.WriteLine("ok");
 
