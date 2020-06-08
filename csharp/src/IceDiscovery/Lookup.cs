@@ -276,8 +276,8 @@ namespace ZeroC.IceDiscovery
                     _proxies.Add(proxy!);
                     if (_proxies.Count == 1)
                     {
-                        // Cancel the request timeout and let InvokeFindAdapterAsync wait for additional replies
-                        // from the replica group
+                        // Cancel the request timeout and let InvokeAsync wait for additional replies from the replica
+                        // group
                         CancellationSource.Cancel();
                     }
                 }
