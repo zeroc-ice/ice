@@ -631,6 +631,8 @@ Slice::Builtin::integralRange() const
         case KindLong:
             return make_pair<int64_t, uint64_t>(INT64_MIN, INT64_MAX);
         case KindVarLong:
+            // the first 2 bits are used to encode the var-integer size, so the range is
+            // -2^63 / 4 == -2^61 to (2^63 - 1) / 4 == 2^61 - 1.
             return make_pair<int64_t, uint64_t>(INT64_MIN / 4, INT64_MAX / 4);
         case KindULong:
             return make_pair<int64_t, uint64_t>(0, UINT64_MAX);
@@ -5231,7 +5233,7 @@ Slice::Enum::minWireSize() const
 string
 Slice::Enum::getTagFormat() const
 {
-    return _underlying ? _underlying->getTagFormat() : "SIZE";
+    return _underlying ? _underlying->getTagFormat() : "Size";
 }
 
 bool
@@ -5325,7 +5327,7 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
     {
         for (const auto& en : enumerators())
         {
-            if(en != p && en->value() == _lastValue)
+            if (en != p && en->value() == _lastValue)
             {
                 _unit->error("enumerator `" + p->name() + "' has the same value as enumerator `" + en->name() + "'");
             }

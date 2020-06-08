@@ -1972,7 +1972,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     string ns = getNamespace(p);
     string scoped = fixId(p->scoped());
     EnumeratorList enumerators = p->enumerators();
-    const bool useSet = p->maxValue() - p->minValue() + 1 > static_cast<int64_t>(enumerators.size());
+
+    // When the number of enumerators is smaller than the distance between the min and max values, the values are not
+    // consecutive and we need to use a set to validate the value during unmarshaling.
+    // Note that the values are not necessarily in order, e.g. we can use a simple range check for
+    // enum E { A = 3, B = 2, C = 1 } during unmarshaling.
+    const bool useSet = static_cast<int64_t>(enumerators.size()) < p->maxValue() - p->minValue() + 1;
     string underlying = p->underlying() ? typeToString(p->underlying(), "") : "int";
 
     _out << sp;
