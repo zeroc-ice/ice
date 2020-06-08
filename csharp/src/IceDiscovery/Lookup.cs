@@ -119,26 +119,94 @@ namespace ZeroC.IceDiscovery
 
         internal async ValueTask<IObjectPrx?> FindAdapterAsync(string id)
         {
-            Task<IObjectPrx?> task;
+            Task<IObjectPrx?>? task = null;
+            LookupReply? replyServant;
             lock (_mutex)
             {
-                if (!_adapterReplies.TryGetValue(id, out LookupReply? replyServant))
+                if (!_adapterReplies.TryGetValue(id, out replyServant))
                 {
                     replyServant = new LookupReply();
-                    task = InvokeFindAdapterAsync(id, replyServant);
+                    _adapterReplies.Add(id, replyServant);
                 }
                 else
                 {
                     task = replyServant.CompletionSource.Task;
                 }
             }
+
+            if (task == null)
+            {
+                task = InvokeAsync(
+                    async (lookup, lookupReply) =>
+                    {
+                        try
+                        {
+                            await lookup.FindAdapterByIdAsync(_domainId, id, lookupReply).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidOperationException(
+                                $"failed to lookup adapter `{id}' with lookup proxy `{_lookup}'", ex);
+                        }
+                    },
+                    replyServant);
+
+                await task.ConfigureAwait(false);
+
+                lock (_mutex)
+                {
+                    _adapterReplies.Remove(id);
+                }
+            }
             return await task.ConfigureAwait(false);
         }
 
-        internal async Task<IObjectPrx?> InvokeFindAdapterAsync(string id, LookupReply replyServant)
+        internal async ValueTask<IObjectPrx?> FindObjectAsync(Identity id)
         {
-            // Called with mutex locked
-            _adapterReplies.Add(id, replyServant);
+            Task<IObjectPrx?>? task = null;
+            LookupReply? replyServant;
+            lock (_mutex)
+            {
+                if (!_objectReplies.TryGetValue(id, out replyServant))
+                {
+                    replyServant = new LookupReply();
+                    _objectReplies.Add(id, replyServant);
+                }
+                else
+                {
+                    task = replyServant.CompletionSource.Task;
+                }
+            }
+
+            if (task == null)
+            {
+                task = InvokeAsync(
+                    async (lookup, lookupReply) =>
+                    {
+                        try
+                        {
+                            await lookup.FindObjectByIdAsync(_domainId, id, lookupReply).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidOperationException(
+                                $"failed to lookup object `{id}' with lookup proxy `{_lookup}'", ex);
+                        }
+                    },
+                    replyServant);
+
+                await task.ConfigureAwait(false);
+
+                lock (_mutex)
+                {
+                    _objectReplies.Remove(id);
+                }
+            }
+            return await task.ConfigureAwait(false);
+        }
+
+        internal async Task<IObjectPrx?> InvokeAsync(Func<ILookupPrx, ILookupReplyPrx, Task> find, LookupReply replyServant)
+        {
             Identity requestId = _replyAdapter.AddWithUUID(replyServant, ILocatorRegistryPrx.Factory).Identity;
 
             Task<IObjectPrx?> replyTask = replyServant.CompletionSource.Task;
@@ -153,14 +221,13 @@ namespace ZeroC.IceDiscovery
                         ILookupReplyPrx? lookupReply = reply.Clone(requestId, ILookupReplyPrx.Factory);
                         try
                         {
-                            await lookup.FindAdapterByIdAsync(_domainId, id, lookupReply).ConfigureAwait(false);
+                            await find(lookup, lookupReply);
                         }
                         catch (Exception ex)
                         {
                             if (++failureCount == _lookups.Count)
                             {
-                                _lookup.Communicator.Logger.Warning(
-                                    $"failed to lookup adapter `{id}' with lookup proxy `{_lookup}':\n{ex}");
+                                _lookup.Communicator.Logger.Warning(ex.ToString());
                                 replyServant.CompletionSource.SetResult(null);
                             }
                         }
@@ -176,23 +243,7 @@ namespace ZeroC.IceDiscovery
                     {
                         // If the timeout was canceled we delay the completion of the request to give a chance to other
                         // members of this replica group to reply
-                        int latency = (int)((DateTime.Now.Ticks - start) * _latencyMultiplier / 10000.0);
-                        if (latency == 0)
-                        {
-                            latency = 1;
-                        }
-                        await Task.Delay(latency);
-                        var endpoints = new List<Endpoint>();
-                        lock (replyServant.Proxies)
-                        {
-                            IObjectPrx result = replyServant.Proxies.First();
-                            foreach (IObjectPrx prx in replyServant.Proxies)
-                            {
-                                endpoints.AddRange(prx.Endpoints);
-                            }
-                            replyServant.CompletionSource.SetResult(result.Clone(endpoints: endpoints));
-                        }
-                        return await replyTask.ConfigureAwait(false); // We're done!
+                        return await replyServant.WaitForReplicaGroupRepliesAsync(start, _latencyMultiplier);
                     }
                 }
                 replyServant.CompletionSource.SetResult(null); // Timeout
@@ -200,77 +251,7 @@ namespace ZeroC.IceDiscovery
             }
             finally
             {
-                lock (_mutex)
-                {
-                    _adapterReplies.Remove(id);
-                    _replyAdapter.Remove(requestId);
-                }
-            }
-        }
-
-        internal async ValueTask<IObjectPrx?> FindObjectAsync(Identity id)
-        {
-            Task<IObjectPrx?> task;
-            lock (_mutex)
-            {
-                if (!_objectReplies.TryGetValue(id, out LookupReply? replyServant))
-                {
-                    replyServant = new LookupReply();
-                    task = InvokeFindObjectAsync(id, replyServant);
-                }
-                else
-                {
-                    task = replyServant.CompletionSource.Task;
-                }
-            }
-            return await task.ConfigureAwait(false);
-        }
-
-        internal async Task<IObjectPrx?> InvokeFindObjectAsync(Identity id, LookupReply replyServant)
-        {
-            // Called with mutex locked
-            _objectReplies.Add(id, replyServant);
-            Identity requestId = _replyAdapter.AddWithUUID(replyServant, ILocatorRegistryPrx.Factory).Identity;
-
-            Task<IObjectPrx?> replyTask = replyServant.CompletionSource.Task;
-            try
-            {
-                for (int i = 0; i < _retryCount; ++i)
-                {
-                    int failureCount = 0;
-                    foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
-                    {
-                        ILookupReplyPrx? lookupReply = reply.Clone(requestId, ILookupReplyPrx.Factory);
-                        try
-                        {
-                            await lookup.FindObjectByIdAsync(_domainId, id, lookupReply).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            if (++failureCount == _lookups.Count)
-                            {
-                                _lookup.Communicator.Logger.Warning(
-                                    $"failed to lookup object `{id}' with lookup proxy `{_lookup}':\n{ex}");
-                                replyServant.CompletionSource.SetResult(null);
-                            }
-                        }
-                    }
-
-                    if (await Task.WhenAny(replyTask, Task.Delay(_timeout)).ConfigureAwait(false) == replyTask)
-                    {
-                        return await replyTask.ConfigureAwait(false); // We're done!
-                    }
-                }
-                replyServant.CompletionSource.SetResult(null); // Timeout
-                return await replyTask.ConfigureAwait(false);
-            }
-            finally
-            {
-                lock (_mutex)
-                {
-                    _objectReplies.Remove(id);
-                    _replyAdapter.Remove(requestId);
-                }
+                _replyAdapter.Remove(requestId);
             }
         }
     }
@@ -279,7 +260,9 @@ namespace ZeroC.IceDiscovery
     {
         internal CancellationTokenSource CancellationSource { get; }
         internal TaskCompletionSource<IObjectPrx?> CompletionSource { get; }
-        internal readonly HashSet<IObjectPrx> Proxies = new HashSet<IObjectPrx>();
+
+        private readonly object _mutex = new object();
+        private readonly HashSet<IObjectPrx> _proxies = new HashSet<IObjectPrx>();
 
         public void FoundObjectById(Identity id, IObjectPrx? proxy, Current current) =>
             CompletionSource.SetResult(proxy);
@@ -288,10 +271,10 @@ namespace ZeroC.IceDiscovery
         {
             if (isReplicaGroup)
             {
-                lock (Proxies)
+                lock (_mutex)
                 {
-                    Proxies.Add(proxy!);
-                    if (Proxies.Count == 1)
+                    _proxies.Add(proxy!);
+                    if (_proxies.Count == 1)
                     {
                         // Cancel the request timeout and let InvokeFindAdapterAsync wait for additional replies
                         // from the replica group
@@ -303,6 +286,30 @@ namespace ZeroC.IceDiscovery
             {
                 CompletionSource.SetResult(proxy);
             }
+        }
+
+        internal async Task<IObjectPrx?> WaitForReplicaGroupRepliesAsync(long start, int latencyMultiplier)
+        {
+            Debug.Assert(_proxies.Count > 0);
+            // This method is called by InvokeAsync after the first reply from a replica group to wait for additional
+            // replies from the replica group.
+            int latency = (int)((DateTime.Now.Ticks - start) * latencyMultiplier / 10000.0);
+            if (latency == 0)
+            {
+                latency = 1;
+            }
+            await Task.Delay(latency);
+            lock (_mutex)
+            {
+                var endpoints = new List<Endpoint>();
+                IObjectPrx result = _proxies.First();
+                foreach (IObjectPrx prx in _proxies)
+                {
+                    endpoints.AddRange(prx.Endpoints);
+                }
+                CompletionSource.SetResult(result.Clone(endpoints: endpoints));
+            }
+            return CompletionSource.Task.Result;
         }
 
         internal LookupReply()
