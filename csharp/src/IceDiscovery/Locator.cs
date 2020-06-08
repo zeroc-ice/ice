@@ -60,7 +60,7 @@ namespace ZeroC.IceDiscovery
         public ValueTask SetReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId, IObjectPrx? proxy,
             Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 HashSet<string>? adapterIds;
                 if (proxy != null)
@@ -92,14 +92,13 @@ namespace ZeroC.IceDiscovery
         public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) =>
             new ValueTask(Task.CompletedTask);
 
-        internal IObjectPrx? FindAdapter(string adapterId, out bool isReplicaGroup)
+        internal (IObjectPrx? Proxy, bool IsReplicaGroup) FindAdapter(string adapterId)
         {
             lock (_mutex)
             {
                 if (_adapters.TryGetValue(adapterId, out IObjectPrx? result))
                 {
-                    isReplicaGroup = false;
-                    return result;
+                    return (result, false);
                 }
 
                 if (_replicaGroups.TryGetValue(adapterId, out HashSet<string>? adapterIds))
@@ -122,13 +121,11 @@ namespace ZeroC.IceDiscovery
 
                     if (result != null)
                     {
-                        isReplicaGroup = true;
-                        return result.Clone(endpoints: endpoints);
+                        return (result.Clone(endpoints: endpoints), true);
                     }
                 }
 
-                isReplicaGroup = false;
-                return null;
+                return (null, false);
             }
         }
 
