@@ -92,7 +92,7 @@ namespace ZeroC.IceDiscovery
         public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? process, Current current) =>
             new ValueTask(Task.CompletedTask);
 
-        internal (IObjectPrx? proxy, bool IsReplicaGroup) FindAdapter(string adapterId)
+        internal (IObjectPrx? Proxy, bool IsReplicaGroup) FindAdapter(string adapterId)
         {
             lock (_mutex)
             {
