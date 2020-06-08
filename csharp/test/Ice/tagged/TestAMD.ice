@@ -52,6 +52,14 @@ sequence<float> FloatSeq;
 sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 
+sequence<ushort> UShortSeq;
+sequence<uint> UIntSeq;
+sequence<ulong> ULongSeq;
+sequence<varint> VarIntSeq;
+sequence<varlong> VarLongSeq;
+sequence<varuint> VarUIntSeq;
+sequence<varulong> VarULongSeq;
+
 [clr:generic:List] sequence<byte> ByteList;
 [clr:generic:List] sequence<bool> BoolList;
 [clr:generic:List] sequence<short> ShortList;
@@ -60,6 +68,7 @@ sequence<string> StringSeq;
 [clr:generic:List] sequence<float> FloatList;
 [clr:generic:List] sequence<double> DoubleList;
 [clr:generic:List] sequence<string> StringList;
+[clr:generic:List] sequence<varint> VarIntList;
 
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
@@ -112,6 +121,18 @@ class MultiTagged
     tag(29) BoolSeq? bos;
 
     tag(30) Serializable? ser;
+
+    tag(31) ushort? us;
+    tag(32) uint? ui;
+    tag(33) ulong? ul;
+    tag(34) varint? vi;
+    tag(35) varlong? vl;
+    tag(36) varuint? vui;
+    tag(37) varulong? vul;
+
+    tag(38) UShortSeq? uss;
+    tag(39) VarULongSeq? vuls;
+    tag(40) VarIntList? vil;
 }
 
 class A

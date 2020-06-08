@@ -391,6 +391,7 @@ public:
     bool isNumericTypeOrBool() const;
     bool isIntegralType() const;
     bool isUnsignedType() const;
+    std::pair<std::int64_t, std::uint64_t> integralRange() const;
 
     Kind kind() const;
     std::string kindAsString() const;
@@ -514,9 +515,9 @@ public:
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                                    const StringList&, NodeType = Real);
-    EnumPtr createEnum(const std::string&, NodeType = Real);
+    EnumPtr createEnum(const std::string&, const TypePtr&, NodeType = Real);
     EnumeratorPtr createEnumerator(const std::string&);
-    EnumeratorPtr createEnumerator(const std::string&, int);
+    EnumeratorPtr createEnumerator(const std::string&, std::int64_t);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
                          const std::string&, const std::string&, NodeType = Real);
     TypeList lookupType(const std::string&, bool = true);
@@ -1005,9 +1006,15 @@ class Enum : public virtual Container, public virtual Constructed
 public:
 
     virtual void destroy();
+
+    // The underlying numeric type. The default is varint. The only permissible explicit types are fixed-length
+    // numeric types such as byte, short, ushort.
+    BuiltinPtr underlying() const;
+
     bool explicitValue() const;
-    int minValue() const;
-    int maxValue() const;
+
+    std::int64_t minValue() const;
+    std::int64_t maxValue() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
@@ -1020,16 +1027,17 @@ public:
 
 protected:
 
-    Enum(const ContainerPtr&, const std::string&);
-    int newEnumerator(const EnumeratorPtr&);
+    Enum(const ContainerPtr&, const std::string&, const BuiltinPtr&);
+    std::int64_t newEnumerator(const EnumeratorPtr&);
 
     friend class Container;
     friend class Enumerator;
 
+    const BuiltinPtr _underlying;
     bool _explicitValue;
-    IceUtil::Int64 _minValue;
-    IceUtil::Int64 _maxValue;
-    int _lastValue;
+    std::int64_t _minValue;
+    std::int64_t _maxValue;
+    std::int64_t _lastValue;
 };
 
 // ----------------------------------------------------------------------
@@ -1046,16 +1054,16 @@ public:
     virtual std::string kindOf() const;
 
     bool explicitValue() const;
-    int value() const;
+    std::int64_t value() const;
 
 protected:
 
     Enumerator(const ContainerPtr&, const std::string&);
-    Enumerator(const ContainerPtr&, const std::string&, int);
+    Enumerator(const ContainerPtr&, const std::string&, std::int64_t);
     friend class Container;
 
     bool _explicitValue;
-    int _value;
+    std::int64_t _value;
 };
 
 // ----------------------------------------------------------------------

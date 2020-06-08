@@ -39,7 +39,11 @@ namespace ZeroC.Ice
             Size = 4,
             VSize = 5,
             FSize = 6,
-            Class = 7
+            Class = 7,
+
+            /// <summary>VInt is a special value that is never marshaled and that means "one of F1, F2, F4 or F8".
+            /// </summary>
+            VInt = 8
         }
     }
 }

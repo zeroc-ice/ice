@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Enums
         {
             using Communicator communicator = Initialize(ref args);
             ITestIntfPrx proxy = AllTests.allTests(this);
-            proxy.shutdown();
+            proxy.Shutdown();
         }
 
         public static int Main(string[] args) => TestDriver.RunTest<Client>(args);

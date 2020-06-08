@@ -1895,42 +1895,42 @@ enum_id
 // ----------------------------------------------------------------------
 enum_def
 // ----------------------------------------------------------------------
-: enum_id
+: enum_id enum_underlying
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v);
-    if(en)
+    EnumPtr en = cont->createEnum(ident->v, TypePtr::dynamicCast($2));
+    if (en)
     {
         cont->checkIntroduced(ident->v, en);
     }
     else
     {
-        en = cont->createEnum(IceUtil::generateUUID(), Dummy);
+        en = cont->createEnum(IceUtil::generateUUID(), nullptr, Dummy);
     }
     unit->pushContainer(en);
     $$ = en;
 }
 '{' enumerator_list '}'
 {
-    EnumPtr en = EnumPtr::dynamicCast($2);
+    EnumPtr en = EnumPtr::dynamicCast($3);
     if(en)
     {
-        EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($4);
+        EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
         if(enumerators->v.empty())
         {
             unit->error("enum `" + en->name() + "' must have at least one enumerator");
         }
         unit->popContainer();
     }
-    $$ = $2;
+    $$ = $3;
 }
 |
 ICE_ENUM
 {
     unit->error("missing enumeration name");
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), Dummy);
+    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), nullptr, Dummy);
     unit->pushContainer(en);
     $$ = en;
 }
@@ -1938,6 +1938,19 @@ ICE_ENUM
 {
     unit->popContainer();
     $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+enum_underlying
+// ----------------------------------------------------------------------
+: ':' type
+{
+    $$ = $2;
+}
+| %empty
+{
+    $$ = 0;
 }
 ;
 
@@ -1976,17 +1989,10 @@ enumerator
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     ContainerPtr cont = unit->currentContainer();
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($3);
-    if(intVal)
+    if (intVal)
     {
-        if(intVal->v < 0 || intVal->v > Int32Max)
-        {
-            unit->error("value for enumerator `" + ident->v + "' is out of range");
-        }
-        else
-        {
-            EnumeratorPtr en = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
-            ens->v.push_front(en);
-        }
+       EnumeratorPtr en = cont->createEnumerator(ident->v, intVal->v);
+       ens->v.push_front(en);
     }
     $$ = ens;
 }

@@ -38,6 +38,7 @@ public:
             // than just a function call). This maximises the chances
             // of inlining by compiler optimization.
             //
+            assert(0);
             throwNullHandleException(__FILE__, __LINE__);
         }
 

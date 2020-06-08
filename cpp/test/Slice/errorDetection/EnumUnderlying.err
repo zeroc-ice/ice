@@ -1,0 +1,5 @@
+EnumUnderlying.ice:7: an enum's underlying type must be byte, short, ushort, int or uint
+EnumUnderlying.ice:9: an enum's underlying type must be byte, short, ushort, int or uint
+EnumUnderlying.ice:16: an enum's underlying type must be byte, short, ushort, int or uint
+EnumUnderlying.ice:16: value -1 for enumerator `B' is out of range
+EnumUnderlying.ice:16: enumerator `C' has the same value as enumerator `A'

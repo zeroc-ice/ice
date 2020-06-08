@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Linq;
+
 using Test;
 
 namespace ZeroC.Ice.Test.Enums
@@ -69,31 +71,93 @@ namespace ZeroC.Ice.Test.Enums
             output.Write("testing enum operations... ");
             output.Flush();
             {
-                (ByteEnum r, ByteEnum o) = proxy.opByte(ByteEnum.benum1);
+                (ByteEnum r, ByteEnum o) = proxy.OpByte(ByteEnum.benum1);
                 TestHelper.Assert(r == ByteEnum.benum1 && o == ByteEnum.benum1);
-                (r, o) = proxy.opByte(ByteEnum.benum11);
+                (r, o) = proxy.OpByte(ByteEnum.benum11);
                 TestHelper.Assert(r == ByteEnum.benum11 && o == ByteEnum.benum11);
             }
 
             {
-                (ShortEnum r, ShortEnum o) = proxy.opShort(ShortEnum.senum1);
+                (ByteEnum? r, ByteEnum? o) = proxy.OpTaggedByte(ByteEnum.benum1);
+                TestHelper.Assert(r == ByteEnum.benum1 && o == ByteEnum.benum1);
+                (r, o) = proxy.OpTaggedByte(ByteEnum.benum11);
+                TestHelper.Assert(r == ByteEnum.benum11 && o == ByteEnum.benum11);
+                (r, o) = proxy.OpTaggedByte(null);
+                TestHelper.Assert(r == null && o == null);
+            }
+
+            {
+                (ShortEnum r, ShortEnum o) = proxy.OpShort(ShortEnum.senum1);
                 TestHelper.Assert(r == ShortEnum.senum1 && o == ShortEnum.senum1);
-                (r, o) = proxy.opShort(ShortEnum.senum11);
+                (r, o) = proxy.OpShort(ShortEnum.senum11);
                 TestHelper.Assert(r == ShortEnum.senum11 && o == ShortEnum.senum11);
             }
 
             {
-                (IntEnum r, IntEnum o) = proxy.opInt(IntEnum.ienum1);
+                (IntEnum r, IntEnum o) = proxy.OpInt(IntEnum.ienum1);
                 TestHelper.Assert(r == IntEnum.ienum1 && o == IntEnum.ienum1);
-                (r, o) = proxy.opInt(IntEnum.ienum11);
+                (r, o) = proxy.OpInt(IntEnum.ienum11);
                 TestHelper.Assert(r == IntEnum.ienum11 && o == IntEnum.ienum11);
-                (r, o) = proxy.opInt(IntEnum.ienum12);
+                (r, o) = proxy.OpInt(IntEnum.ienum12);
                 TestHelper.Assert(r == IntEnum.ienum12 && o == IntEnum.ienum12);
             }
 
             {
-                (SimpleEnum r, SimpleEnum o) = proxy.opSimple(SimpleEnum.green);
+                (SimpleEnum r, SimpleEnum o) = proxy.OpSimple(SimpleEnum.green);
                 TestHelper.Assert(r == SimpleEnum.green && o == SimpleEnum.green);
+            }
+
+            {
+                (FLByteEnum r, FLByteEnum o) = proxy.OpFLByte(FLByteEnum.benum1);
+                TestHelper.Assert(r == FLByteEnum.benum1 && o == FLByteEnum.benum1);
+                (r, o) = proxy.OpFLByte(FLByteEnum.benum11);
+                TestHelper.Assert(r == FLByteEnum.benum11 && o == FLByteEnum.benum11);
+            }
+
+            {
+                (FLByteEnum? r, FLByteEnum? o) = proxy.OpTaggedFLByte(FLByteEnum.benum1);
+                TestHelper.Assert(r == FLByteEnum.benum1 && o == FLByteEnum.benum1);
+                (r, o) = proxy.OpTaggedFLByte(FLByteEnum.benum11);
+                TestHelper.Assert(r == FLByteEnum.benum11 && o == FLByteEnum.benum11);
+                (r, o) = proxy.OpTaggedFLByte(null);
+                TestHelper.Assert(r == null && o == null);
+            }
+
+            {
+                (FLShortEnum r, FLShortEnum o) = proxy.OpFLShort(FLShortEnum.senum1);
+                TestHelper.Assert(r == FLShortEnum.senum1 && o == FLShortEnum.senum1);
+                (r, o) = proxy.OpFLShort(FLShortEnum.senum11);
+                TestHelper.Assert(r == FLShortEnum.senum11 && o == FLShortEnum.senum11);
+            }
+
+            {
+                (FLUShortEnum r, FLUShortEnum o) = proxy.OpFLUShort(FLUShortEnum.senum1);
+                TestHelper.Assert(r == FLUShortEnum.senum1 && o == FLUShortEnum.senum1);
+                (r, o) = proxy.OpFLUShort(FLUShortEnum.senum11);
+                TestHelper.Assert(r == FLUShortEnum.senum11 && o == FLUShortEnum.senum11);
+            }
+
+            {
+                (FLIntEnum r, FLIntEnum o) = proxy.OpFLInt(FLIntEnum.ienum1);
+                TestHelper.Assert(r == FLIntEnum.ienum1 && o == FLIntEnum.ienum1);
+                (r, o) = proxy.OpFLInt(FLIntEnum.ienum11);
+                TestHelper.Assert(r == FLIntEnum.ienum11 && o == FLIntEnum.ienum11);
+                (r, o) = proxy.OpFLInt(FLIntEnum.ienum12);
+                TestHelper.Assert(r == FLIntEnum.ienum12 && o == FLIntEnum.ienum12);
+            }
+
+            {
+                (FLUIntEnum r, FLUIntEnum o) = proxy.OpFLUInt(FLUIntEnum.ienum1);
+                TestHelper.Assert(r == FLUIntEnum.ienum1 && o == FLUIntEnum.ienum1);
+                (r, o) = proxy.OpFLUInt(FLUIntEnum.ienum11);
+                TestHelper.Assert(r == FLUIntEnum.ienum11 && o == FLUIntEnum.ienum11);
+                (r, o) = proxy.OpFLUInt(FLUIntEnum.ienum12);
+                TestHelper.Assert(r == FLUIntEnum.ienum12 && o == FLUIntEnum.ienum12);
+            }
+
+            {
+                (FLSimpleEnum r, FLSimpleEnum o) = proxy.OpFLSimple(FLSimpleEnum.green);
+                TestHelper.Assert(r == FLSimpleEnum.green && o == FLSimpleEnum.green);
             }
 
             output.WriteLine("ok");
@@ -117,38 +181,30 @@ namespace ZeroC.Ice.Test.Enums
                     ByteEnum.benum11
                 };
 
-                (ByteEnum[] b3, ByteEnum[] b2) = proxy.opByteSeq(b1);
-
-                for (int i = 0; i < b1.Length; ++i)
-                {
-                    TestHelper.Assert(b1[i] == b2[i]);
-                    TestHelper.Assert(b1[i] == b3[i]);
-                }
+                (ByteEnum[] b3, ByteEnum[] b2) = proxy.OpByteSeq(b1);
+                TestHelper.Assert(b1.SequenceEqual(b2));
+                TestHelper.Assert(b1.SequenceEqual(b3));
             }
 
             {
                 var s1 = new ShortEnum[11]
-                    {
-                            ShortEnum.senum1,
-                            ShortEnum.senum2,
-                            ShortEnum.senum3,
-                            ShortEnum.senum4,
-                            ShortEnum.senum5,
-                            ShortEnum.senum6,
-                            ShortEnum.senum7,
-                            ShortEnum.senum8,
-                            ShortEnum.senum9,
-                            ShortEnum.senum10,
-                            ShortEnum.senum11
-                    };
-
-                (ShortEnum[] s3, ShortEnum[] s2) = proxy.opShortSeq(s1);
-
-                for (int i = 0; i < s1.Length; ++i)
                 {
-                    TestHelper.Assert(s1[i] == s2[i]);
-                    TestHelper.Assert(s1[i] == s3[i]);
-                }
+                    ShortEnum.senum1,
+                    ShortEnum.senum2,
+                    ShortEnum.senum3,
+                    ShortEnum.senum4,
+                    ShortEnum.senum5,
+                    ShortEnum.senum6,
+                    ShortEnum.senum7,
+                    ShortEnum.senum8,
+                    ShortEnum.senum9,
+                    ShortEnum.senum10,
+                    ShortEnum.senum11
+                };
+
+                (ShortEnum[] s3, ShortEnum[] s2) = proxy.OpShortSeq(s1);
+                TestHelper.Assert(s1.SequenceEqual(s2));
+                TestHelper.Assert(s1.SequenceEqual(s3));
             }
 
             {
@@ -167,30 +223,218 @@ namespace ZeroC.Ice.Test.Enums
                     IntEnum.ienum11
                 };
 
-                (IntEnum[] i3, IntEnum[] i2) = proxy.opIntSeq(i1);
-
-                for (int i = 0; i < i1.Length; ++i)
-                {
-                    TestHelper.Assert(i1[i] == i2[i]);
-                    TestHelper.Assert(i1[i] == i3[i]);
-                }
+                (IntEnum[] i3, IntEnum[] i2) = proxy.OpIntSeq(i1);
+                TestHelper.Assert(i1.SequenceEqual(i2));
+                TestHelper.Assert(i1.SequenceEqual(i3));
             }
 
             {
                 var s1 = new SimpleEnum[3]
-                        {
-                                SimpleEnum.red,
-                                SimpleEnum.green,
-                                SimpleEnum.blue
-                        };
-
-                (SimpleEnum[] s3, SimpleEnum[] s2) = proxy.opSimpleSeq(s1);
-
-                for (int i = 0; i < s1.Length; ++i)
                 {
-                    TestHelper.Assert(s1[i] == s2[i]);
-                    TestHelper.Assert(s1[i] == s3[i]);
-                }
+                    SimpleEnum.red,
+                    SimpleEnum.green,
+                    SimpleEnum.blue
+                };
+
+                (SimpleEnum[] s3, SimpleEnum[] s2) = proxy.OpSimpleSeq(s1);
+                TestHelper.Assert(s1.SequenceEqual(s2));
+                TestHelper.Assert(s1.SequenceEqual(s3));
+            }
+
+            {
+                var b1 = new FLByteEnum[11]
+                {
+                    FLByteEnum.benum1,
+                    FLByteEnum.benum2,
+                    FLByteEnum.benum3,
+                    FLByteEnum.benum4,
+                    FLByteEnum.benum5,
+                    FLByteEnum.benum6,
+                    FLByteEnum.benum7,
+                    FLByteEnum.benum8,
+                    FLByteEnum.benum9,
+                    FLByteEnum.benum10,
+                    FLByteEnum.benum11
+                };
+
+                (FLByteEnum[] b3, FLByteEnum[] b2) = proxy.OpFLByteSeq(b1);
+                TestHelper.Assert(b1.SequenceEqual(b2));
+                TestHelper.Assert(b1.SequenceEqual(b3));
+            }
+
+            {
+                var s1 = new FLShortEnum[11]
+                {
+                    FLShortEnum.senum1,
+                    FLShortEnum.senum2,
+                    FLShortEnum.senum3,
+                    FLShortEnum.senum4,
+                    FLShortEnum.senum5,
+                    FLShortEnum.senum6,
+                    FLShortEnum.senum7,
+                    FLShortEnum.senum8,
+                    FLShortEnum.senum9,
+                    FLShortEnum.senum10,
+                    FLShortEnum.senum11
+                };
+
+                (FLShortEnum[] s3, FLShortEnum[] s2) = proxy.OpFLShortSeq(s1);
+                TestHelper.Assert(s1.SequenceEqual(s2));
+                TestHelper.Assert(s1.SequenceEqual(s3));
+            }
+
+            {
+                var s1 = new FLUShortEnum[11]
+                {
+                    FLUShortEnum.senum1,
+                    FLUShortEnum.senum2,
+                    FLUShortEnum.senum3,
+                    FLUShortEnum.senum4,
+                    FLUShortEnum.senum5,
+                    FLUShortEnum.senum6,
+                    FLUShortEnum.senum7,
+                    FLUShortEnum.senum8,
+                    FLUShortEnum.senum9,
+                    FLUShortEnum.senum10,
+                    FLUShortEnum.senum11
+                };
+
+                (FLUShortEnum[] s3, FLUShortEnum[] s2) = proxy.OpFLUShortSeq(s1);
+                TestHelper.Assert(s1.SequenceEqual(s2));
+                TestHelper.Assert(s1.SequenceEqual(s3));
+            }
+
+            {
+                var i1 = new FLIntEnum[11]
+                {
+                    FLIntEnum.ienum1,
+                    FLIntEnum.ienum2,
+                    FLIntEnum.ienum3,
+                    FLIntEnum.ienum4,
+                    FLIntEnum.ienum5,
+                    FLIntEnum.ienum6,
+                    FLIntEnum.ienum7,
+                    FLIntEnum.ienum8,
+                    FLIntEnum.ienum9,
+                    FLIntEnum.ienum10,
+                    FLIntEnum.ienum11
+                };
+
+                (FLIntEnum[] i3, FLIntEnum[] i2) = proxy.OpFLIntSeq(i1);
+                TestHelper.Assert(i1.SequenceEqual(i2));
+                TestHelper.Assert(i1.SequenceEqual(i3));
+            }
+
+            {
+                var i1 = new FLUIntEnum[11]
+                {
+                    FLUIntEnum.ienum1,
+                    FLUIntEnum.ienum2,
+                    FLUIntEnum.ienum3,
+                    FLUIntEnum.ienum4,
+                    FLUIntEnum.ienum5,
+                    FLUIntEnum.ienum6,
+                    FLUIntEnum.ienum7,
+                    FLUIntEnum.ienum8,
+                    FLUIntEnum.ienum9,
+                    FLUIntEnum.ienum10,
+                    FLUIntEnum.ienum11
+                };
+
+                (FLUIntEnum[] i3, FLUIntEnum[] i2) = proxy.OpFLUIntSeq(i1);
+                TestHelper.Assert(i1.SequenceEqual(i2));
+                TestHelper.Assert(i1.SequenceEqual(i3));
+            }
+
+            {
+                var s1 = new FLSimpleEnum[3]
+                {
+                    FLSimpleEnum.red,
+                    FLSimpleEnum.green,
+                    FLSimpleEnum.blue
+                };
+
+                (FLSimpleEnum[] s3, FLSimpleEnum[] s2) = proxy.OpFLSimpleSeq(s1);
+                TestHelper.Assert(s1.SequenceEqual(s2));
+                TestHelper.Assert(s1.SequenceEqual(s3));
+            }
+
+            {
+                var b1 = new ByteEnum[11]
+                {
+                    ByteEnum.benum1,
+                    ByteEnum.benum2,
+                    ByteEnum.benum3,
+                    ByteEnum.benum4,
+                    ByteEnum.benum5,
+                    ByteEnum.benum6,
+                    ByteEnum.benum7,
+                    ByteEnum.benum8,
+                    ByteEnum.benum9,
+                    ByteEnum.benum10,
+                    ByteEnum.benum11
+                };
+
+                (ByteEnum[]? b3, ByteEnum[]? b2) = proxy.OpTaggedByteSeq(b1);
+                TestHelper.Assert(b2 != null && b3 != null);
+
+                TestHelper.Assert(b1.SequenceEqual(b2));
+                TestHelper.Assert(b1.SequenceEqual(b3));
+
+                (b3, b2) = proxy.OpTaggedByteSeq(null);
+                TestHelper.Assert(b2 == null && b3 == null);
+            }
+
+            {
+                var b1 = new FLByteEnum[11]
+                {
+                    FLByteEnum.benum1,
+                    FLByteEnum.benum2,
+                    FLByteEnum.benum3,
+                    FLByteEnum.benum4,
+                    FLByteEnum.benum5,
+                    FLByteEnum.benum6,
+                    FLByteEnum.benum7,
+                    FLByteEnum.benum8,
+                    FLByteEnum.benum9,
+                    FLByteEnum.benum10,
+                    FLByteEnum.benum11
+                };
+
+                (FLByteEnum[]? b3, FLByteEnum[]? b2) = proxy.OpTaggedFLByteSeq(b1);
+                TestHelper.Assert(b2 != null && b3 != null);
+
+                TestHelper.Assert(b1.SequenceEqual(b2));
+                TestHelper.Assert(b1.SequenceEqual(b3));
+
+                (b3, b2) = proxy.OpTaggedFLByteSeq(null);
+                TestHelper.Assert(b2 == null && b3 == null);
+            }
+
+            {
+                var i1 = new FLIntEnum[11]
+                {
+                    FLIntEnum.ienum1,
+                    FLIntEnum.ienum2,
+                    FLIntEnum.ienum3,
+                    FLIntEnum.ienum4,
+                    FLIntEnum.ienum5,
+                    FLIntEnum.ienum6,
+                    FLIntEnum.ienum7,
+                    FLIntEnum.ienum8,
+                    FLIntEnum.ienum9,
+                    FLIntEnum.ienum10,
+                    FLIntEnum.ienum11
+                };
+
+                (FLIntEnum[]? i3, FLIntEnum[]? i2) = proxy.OpTaggedFLIntSeq(i1);
+                TestHelper.Assert(i2 != null && i3 != null);
+
+                TestHelper.Assert(i1.SequenceEqual(i2));
+                TestHelper.Assert(i1.SequenceEqual(i3));
+
+                (i3, i2) = proxy.OpTaggedFLIntSeq(null);
+                TestHelper.Assert(i2 == null && i3 == null);
             }
 
             output.WriteLine("ok");

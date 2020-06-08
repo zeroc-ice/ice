@@ -80,7 +80,7 @@ Slice::helperName(const TypePtr& type, const string& scope)
 namespace
 {
 
-const std::array<std::string, 18> builtinSuffixTable =
+const std::array<std::string, 17> builtinSuffixTable =
 {
     "Bool",
     "Byte",
@@ -164,6 +164,12 @@ lookupKwd(const string& name, unsigned int baseTypes)
     return mangleName(name, baseTypes);
 }
 
+}
+
+std::string
+Slice::builtinSuffix(const BuiltinPtr& builtin)
+{
+    return builtinSuffixTable[builtin->kind()];
 }
 
 string
@@ -531,7 +537,13 @@ Slice::isReferenceType(const TypePtr& type)
 bool
 Slice::isMappedToReadOnlyMemory(const SequencePtr& seq)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+    TypePtr type = seq->type();
+    if (auto en = EnumPtr::dynamicCast(type); en && en->underlying())
+    {
+        type = en->underlying();
+    }
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     return builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength() &&
         !seq->hasMetaDataWithPrefix("cs:serializable") && !seq->hasMetaDataWithPrefix("cs:generic");
 }
@@ -768,9 +780,16 @@ Slice::CsGenerator::outputStreamWriter(const TypePtr& type, const string& scope,
     {
         if (isMappedToReadOnlyMemory(seq))
         {
-            builtin = BuiltinPtr::dynamicCast(seq->type());
-            out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()]
-                << (forNestedType ? "Array" : "Sequence");
+            if (EnumPtr::dynamicCast(seq->type()))
+            {
+                out << helperName(type, scope) << ".IceWriterFrom" << (forNestedType ? "Array" : "Sequence");
+            }
+            else
+            {
+                builtin = BuiltinPtr::dynamicCast(seq->type());
+                out << "ZeroC.Ice.OutputStream.IceWriterFrom" << builtinSuffixTable[builtin->kind()]
+                    << (forNestedType ? "Array" : "Sequence");
+            }
         }
         else
         {
@@ -876,7 +895,7 @@ Slice::CsGenerator::inputStreamReader(const TypePtr& type, const string& scope)
     }
     else if (auto seq = SequencePtr::dynamicCast(type))
     {
-        if (isMappedToReadOnlyMemory(seq))
+        if (isMappedToReadOnlyMemory(seq) && !EnumPtr::dynamicCast(seq->type()))
         {
             builtin = BuiltinPtr::dynamicCast(seq->type());
             out << "ZeroC.Ice.InputStream.IceReaderInto" << builtinSuffixTable[builtin->kind()] << "Array";
@@ -951,7 +970,7 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else if (auto seq = SequencePtr::dynamicCast(underlying); seq && isMappedToReadOnlyMemory(seq))
     {
-        out << stream << ".ReadArray<" << typeToString(seq->type(), scope) << ">()";
+        out << sequenceUnmarshalCode(seq, scope, stream);
     }
     else
     {
@@ -988,7 +1007,6 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
-    EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
     if (builtin || type->isInterfaceType() || type->isClassType())
@@ -1005,9 +1023,12 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
         }
         out << ");";
     }
-    else if(en)
+    else if (auto en = EnumPtr::dynamicCast(type))
     {
-        out << nl << stream << ".WriteTaggedEnum(" << tag << ", (int?)" << param << ");";
+        string suffix = en->underlying() ? builtinSuffix(en->underlying()) : "Size";
+        string underlyingType = en->underlying() ? typeToString(en->underlying(), "") : "int";
+        out << nl << stream << ".WriteTagged" << suffix << "(" << tag << ", (" << underlyingType << "?)"
+            << param << ");";
     }
     else if(seq)
     {
@@ -1118,9 +1139,9 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
-    EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
+    // TODO: default value should be irrelevant when reading tagged data members.
     bool hasDefaultValue = dataMember && dataMember->defaultValueType();
 
     out << param << " = ";
@@ -1147,19 +1168,31 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
             << (st->isVariableLength() ? "false" : "true")
             << ", " << inputStreamReader(st, scope) << ")";
     }
-    else if (en)
+    else if (auto en = EnumPtr::dynamicCast(type))
     {
-        // We must use the reader to check the enum.
-        out << stream << ".ReadTaggedEnum(" << tag << ", " << inputStreamReader(en, scope) << ")";
+        string suffix = en->underlying() ? builtinSuffix(en->underlying()) : "Size";
+        string underlyingType = en->underlying() ? typeToString(en->underlying(), "") : "int";
+
+        out << stream << ".ReadTagged" << suffix << "(" << tag << ") is " << underlyingType << " " << param << "_ ? "
+            << helperName(en, scope) << ".As" << en->name() << "(" << param << "_" << ") : ("
+            << typeToString(en, scope) << "?)null";
     }
     else if (seq)
     {
-        assert(!hasDefaultValue); // there is currently no way to specify a default value for a sequence
         const TypePtr elementType = seq->type();
         if (isMappedToReadOnlyMemory(seq))
         {
-            out << stream << ".ReadTaggedArray<" <<
-                typeToString(elementType, scope) << ">(" << tag << ")";
+            out << stream << ".ReadTaggedArray";
+            if (auto enElement = EnumPtr::dynamicCast(elementType))
+            {
+                out << "(" << tag << ", (" << typeToString(enElement, scope) << " e) => _ = "
+                    << helperName(enElement, scope) << ".As" << enElement->name()
+                    << "((" << typeToString(enElement->underlying(), scope) << ")e))";
+            }
+            else
+            {
+                out << "<" << typeToString(elementType, scope) << ">(" << tag << ")";
+            }
         }
         else if (seq->hasMetaDataWithPrefix("cs:serializable:"))
         {
@@ -1298,7 +1331,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
 
     ostringstream out;
-    if(!serializable.empty())
+    if (!serializable.empty())
     {
         out << "(" << serializable << ") " << stream << ".ReadSerializable()";
     }
@@ -1307,6 +1340,11 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
         if (builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength())
         {
             out << stream << ".ReadArray<" << typeToString(builtin, scope) << ">()";
+        }
+        else if (auto en = EnumPtr::dynamicCast(type); en && en->underlying())
+        {
+            out << stream << ".ReadArray((" << typeToString(en, scope) << " e) => _ = " << helperName(en, scope)
+                << ".As" << en->name() << "((" << typeToString(en->underlying(), scope) << ")e))";
         }
         else if (auto optional = OptionalPtr::dynamicCast(type); optional && optional->encodedUsingBitSequence())
         {
@@ -1333,6 +1371,12 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
             // We always read an array even when mapped to a collection, as it's expected to be faster than unmarshaling
             // the collection elements one by one.
             out << stream << ".ReadArray<" << typeToString(builtin, scope) << ">()";
+        }
+        else if (auto en = EnumPtr::dynamicCast(type); en && en->underlying())
+        {
+            out << stream << ".ReadArray((" << typeToString(en, scope) << " e) => _ = "
+                << helperName(en, scope) << ".As" << en->name()
+                << "((" << typeToString(en->underlying(), scope) << ")e))";
         }
         else if (auto optional = OptionalPtr::dynamicCast(type); optional && optional->encodedUsingBitSequence())
         {

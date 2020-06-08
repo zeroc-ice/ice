@@ -71,6 +71,18 @@ namespace ZeroC.Ice.Test.Tagged
             mo1.bos = new bool[] { false, true, false };
             mo1.ser = new SerializableClass(56);
 
+            mo1.us = 321;
+            mo1.ui = 123;
+            mo1.ul = 10_000_000_000_000;
+            mo1.vi = 3_000_000;
+            mo1.vl = -10_000_000_000_000;
+            mo1.vui = 123;
+            mo1.vul = 20_000_000_000_000;
+
+            mo1.uss = new ushort[] { 6, 1, 327 };
+            mo1.vuls = new ulong[] { 100, 500, 1 };
+            mo1.vil = new List<int> { 2, -300, 0 };
+
             TestHelper.Assert(mo1.a == 15);
             TestHelper.Assert(mo1.b == true);
             TestHelper.Assert(mo1.c == 19);
@@ -147,6 +159,18 @@ namespace ZeroC.Ice.Test.Tagged
 
             TestHelper.Assert(mo4.ser == null);
 
+            TestHelper.Assert(mo4.us == null);
+            TestHelper.Assert(mo4.ui == null);
+            TestHelper.Assert(mo4.ul == null);
+            TestHelper.Assert(mo4.vi == null);
+            TestHelper.Assert(mo4.vl == null);
+            TestHelper.Assert(mo4.vui == null);
+            TestHelper.Assert(mo4.vul == null);
+
+            TestHelper.Assert(mo4.uss == null);
+            TestHelper.Assert(mo4.vuls == null);
+            TestHelper.Assert(mo4.vil == null);
+
             bool supportsCsharpSerializable = initial.supportsCsharpSerializable();
             if (!supportsCsharpSerializable)
             {
@@ -187,6 +211,18 @@ namespace ZeroC.Ice.Test.Tagged
             {
                 TestHelper.Assert(mo5.ser!.Equals(new SerializableClass(56)));
             }
+
+            TestHelper.Assert(mo5.us == mo1.us);
+            TestHelper.Assert(mo5.ui == mo1.ui);
+            TestHelper.Assert(mo5.ul == mo1.ul);
+            TestHelper.Assert(mo5.vi == mo1.vi);
+            TestHelper.Assert(mo5.vl == mo1.vl);
+            TestHelper.Assert(mo5.vui == mo1.vui);
+            TestHelper.Assert(mo5.vul == mo1.vul);
+
+            TestHelper.Assert(mo5.uss!.SequenceEqual(mo1.uss));
+            TestHelper.Assert(mo5.vuls!.SequenceEqual(mo1.vuls));
+            TestHelper.Assert(mo5.vil!.SequenceEqual(mo1.vil));
 
             // Clear the first half of the tagged members
             MultiTagged mo6 = new MultiTagged();
@@ -828,12 +864,11 @@ namespace ZeroC.Ice.Test.Tagged
 
                 requestFrame = OutgoingRequestFrame.WithParamList(initial, "opMyEnum", idempotent: false,
                     format: null, context: null, p1,
-                    (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedEnum(2, (int?) p1));
+                    (OutputStream ostr, MyEnum? p1) => ostr.WriteTaggedSize(2, (int?) p1));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedEnum(1, istr => istr.ReadMyEnum()),
-                        istr.ReadTaggedEnum(3, istr => istr.ReadMyEnum())));
+                    (istr.ReadTaggedSize(1)?.AsMyEnum(), istr.ReadTaggedSize(3)?.AsMyEnum()));
                 TestHelper.Assert(p2 == MyEnum.MyEnumMember);
                 TestHelper.Assert(p3 == MyEnum.MyEnumMember);
             }
