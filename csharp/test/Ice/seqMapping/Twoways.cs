@@ -57,42 +57,42 @@ namespace ZeroC.Ice.Test.SeqMapping
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray();
+                var i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray();
                 var (r, o) = p.opABoolS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToList();
+                var i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToList();
                 var (r, o) = p.opLBoolS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new LinkedList<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new LinkedList<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var (r, o) = p.opKBoolS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new Queue<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new Queue<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var (r, o) = p.opQBoolS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new Stack<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new Stack<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var (r, o) = p.opSBoolS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));
             }
 
             {
-                var i = new Custom<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new Custom<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var (r, o) = p.opCBoolS(i);
                 TestHelper.Assert(r.SequenceEqual(i));
                 TestHelper.Assert(o.SequenceEqual(i));

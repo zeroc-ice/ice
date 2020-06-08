@@ -57,42 +57,42 @@ namespace ZeroC.Ice.Test.SeqMapping
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray();
+                var i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray();
                 var r = p.opABoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
-                var i = Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToList();
+                var i = Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToList();
                 var r = p.opLBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
-                var i = new LinkedList<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new LinkedList<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var r = p.opKBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
-                var i = new Queue<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new Queue<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var r = p.opQBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
-                var i = new Stack<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new Stack<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var r = p.opSBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
             }
 
             {
-                var i = new Custom<bool>(Enumerable.Range(0, Length).Select(x => x % 1 == 1).ToArray());
+                var i = new Custom<bool>(Enumerable.Range(0, Length).Select(x => x % 2 == 1).ToArray());
                 var r = p.opCBoolSAsync(i).Result;
                 TestHelper.Assert(r.o.SequenceEqual(i));
                 TestHelper.Assert(r.ReturnValue.SequenceEqual(i));
