@@ -1200,6 +1200,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         }
         else if (seq->hasMetaDataWithPrefix("cs:generic:"))
         {
+            const string tmpName = (dataMember ? dataMember->name() : param) + "_";
             if (auto optional = OptionalPtr::dynamicCast(elementType); optional && optional->encodedUsingBitSequence())
             {
                 TypePtr underlying = optional->underlying();
@@ -1207,7 +1208,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                     << (isReferenceType(underlying) ? "withBitSequence: true, " : "")
                     << inputStreamReader(elementType, scope)
                     << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope)
-                    << "> " << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)"
+                    << "> " << tmpName << " ? new " << typeToString(seq, scope) << "(" << tmpName << ")"
                     << " : null";
             }
             else
@@ -1217,7 +1218,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                     << (elementType->isVariableLength() ? "false" : "true")
                     << ", " << inputStreamReader(elementType, scope)
                     << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope)
-                    << "> " << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)"
+                    << "> " << tmpName << " ? new " << typeToString(seq, scope) << "(" << tmpName << ")"
                     << " : null";
             }
         }

@@ -31,10 +31,9 @@ protected:
                             const std::string& stream = "ostr", const std::string& obj = "");
     void writeUnmarshalParams(const OperationPtr&, const std::list<ParamInfo>&, const std::list<ParamInfo>&,
                               const std::string& stream = "istr");
-    void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&,
-                                const std::string& stream = "ostr");
-    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&,
-                                  const std::string& stream = "istr");
+
+    void writeMarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);
+    void writeUnmarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
