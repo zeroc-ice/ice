@@ -4769,7 +4769,7 @@ Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& t
             return "\"\"";
         }
         case Builtin::KindObject:
-        case Builtin::KindValue:
+        case Builtin::KindAnyClass:
         {
             return "null";
         }

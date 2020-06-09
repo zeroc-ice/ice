@@ -448,7 +448,7 @@ Slice::Type::Type(const UnitPtr& unt) :
 string
 Slice::Builtin::typeId() const
 {
-    if (_kind == KindObject || _kind == KindValue)
+    if (_kind == KindObject || _kind == KindAnyClass)
     {
         return "::Ice::" + kindAsString();
     }
@@ -461,7 +461,7 @@ Slice::Builtin::typeId() const
 bool
 Slice::Builtin::usesClasses() const
 {
-    return _kind == KindValue;
+    return _kind == KindAnyClass;
 }
 
 size_t
@@ -485,7 +485,7 @@ Slice::Builtin::minWireSize() const
         case KindDouble: return 8;
         case KindString: return 1; // at least one byte for an empty string.
         case KindObject: return 3; // at least a 1-character identity name (2 bytes) + empty identity category (1 byte).
-        case KindValue: return 1; // at least one byte to marshal an index instead of an instance.
+        case KindAnyClass: return 1; // at least one byte to marshal an index instead of an instance.
     }
     throw logic_error("");
 }
@@ -516,7 +516,7 @@ Slice::Builtin::getTagFormat() const
             return "VInt";
         case KindString:
             return "VSize";
-        case KindValue:
+        case KindAnyClass:
             return "Class";
         case KindObject:
             return "FSize";
@@ -535,7 +535,7 @@ Slice::Builtin::isVariableLength() const
         case KindVarULong:
         case KindString:
         case KindObject:
-        case KindValue:
+        case KindAnyClass:
             return true;
         default:
             return false;
@@ -3031,7 +3031,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
 
     if(b)
     {
-        if(b->kind() == Builtin::KindValue || b->kind() == Builtin::KindObject)
+        if(b->kind() == Builtin::KindAnyClass || b->kind() == Builtin::KindObject)
         {
             if(isConstant)
             {

@@ -1000,7 +1000,7 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 
     assert((b && b->usesClasses()) || cl);
 
-    if(b && b->kind() == Builtin::KindValue)
+    if(b && b->kind() == Builtin::KindAnyClass)
     {
         return getUnqualified("com.zeroc.Ice.Value", package) + ".ice_staticId()";
     }

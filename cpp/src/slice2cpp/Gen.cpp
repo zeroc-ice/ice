@@ -46,7 +46,7 @@ isConstexprType(const TypePtr& constType)
             case Builtin::KindVarULong:
             case Builtin::KindFloat:
             case Builtin::KindDouble:
-            case Builtin::KindValue:
+            case Builtin::KindAnyClass:
             case Builtin::KindObject:
             {
                 return true;
@@ -3858,7 +3858,7 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
             {
                 return "::std::string()";
             }
-            case Builtin::KindValue:
+            case Builtin::KindAnyClass:
             case Builtin::KindObject:
             {
                 return "nullptr";

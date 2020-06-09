@@ -160,6 +160,7 @@ slice_error(const char* s)
 %token ICE_IDEMPOTENT
 %token ICE_TAG
 %token ICE_OPTIONAL
+%token ICE_ANYCLASS
 %token ICE_VALUE
 
 // Other tokens.
@@ -1737,8 +1738,17 @@ interface_list
     unit->error("illegal inheritance from type Object");
     $$ = new InterfaceListTok; // Dummy
 }
+| ICE_ANYCLASS
+{
+    unit->error("illegal inheritance from type AnyClass");
+    $$ = new ClassListTok; // Dummy
+}
 | ICE_VALUE
 {
+    if (!unit->compatMode())
+    {
+        unit->warning(Deprecated, "the `Value' keyword is deprecated, use `AnyClass' instead");
+    }
     unit->error("illegal inheritance from type Value");
     $$ = new ClassListTok; // Dummy
 }
@@ -2209,9 +2219,17 @@ type
 {
     $$ = unit->optionalBuiltin(Builtin::KindObject);
 }
+| ICE_ANYCLASS '?'
+{
+    $$ = unit->optionalBuiltin(Builtin::KindAnyClass);
+}
 | ICE_VALUE '?'
 {
-    $$ = unit->optionalBuiltin(Builtin::KindValue);
+    if (!unit->compatMode())
+    {
+        unit->warning(Deprecated, "the `Value' keyword is deprecated, use `AnyClass' instead");
+    }
+    $$ = unit->optionalBuiltin(Builtin::KindAnyClass);
 }
 | builtin '?'
 {
@@ -2222,22 +2240,27 @@ type
 {
     if (unit->compatMode())
     {
-        $$ = unit->optionalBuiltin(Builtin::KindValue);
+        $$ = unit->optionalBuiltin(Builtin::KindAnyClass);
     }
     else
     {
         $$ = unit->builtin(Builtin::KindObject);
     }
 }
+| ICE_ANYCLASS
+{
+    $$ = unit->builtin(Builtin::KindAnyClass);
+}
 | ICE_VALUE
 {
     if (unit->compatMode())
     {
-        $$ = unit->optionalBuiltin(Builtin::KindValue);
+        $$ = unit->optionalBuiltin(Builtin::KindAnyClass);
     }
     else
     {
-        $$ = unit->builtin(Builtin::KindValue);
+        unit->warning(Deprecated, "the `Value' keyword is deprecated, use `AnyClass' instead");
+        $$ = unit->builtin(Builtin::KindAnyClass);
     }
 }
 | builtin
@@ -2506,6 +2529,7 @@ keyword
 | ICE_IDEMPOTENT {}
 | ICE_TAG {}
 | ICE_OPTIONAL {}
+| ICE_ANYCLASS {}
 | ICE_VALUE {}
 ;
 

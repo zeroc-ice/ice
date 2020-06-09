@@ -917,7 +917,7 @@ Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
         case Builtin::KindObject:
             _seenObjectSeq = true;
             break;
-        case Builtin::KindValue:
+        case Builtin::KindAnyClass:
             _seenValueSeq = true;
             break;
         default:
@@ -937,7 +937,7 @@ Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
         case Builtin::KindObject:
             _seenObjectDict = true;
             break;
-        case Builtin::KindValue:
+        case Builtin::KindAnyClass:
             _seenValueDict = true;
             break;
         default:

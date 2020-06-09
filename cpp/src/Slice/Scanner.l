@@ -717,6 +717,8 @@ void initScanner()
         // We need a separate token type since we infer 'optional T' to mean 'tag T?'.
         // For 'tag' we require an optional type. No auto-conversion is done.
         {"optional", ICE_OPTIONAL},
+        {"AnyClass", ICE_ANYCLASS},
+        // 'Value' is kept as an alias for 'AnyClass' for backwards compatibility.
         {"Value", ICE_VALUE}
     };
 }
