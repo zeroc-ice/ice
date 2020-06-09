@@ -162,7 +162,7 @@ class Recursive
 
 class K
 {
-    AnyClass value;
+    AnyClass? value;
 }
 
 class L
@@ -170,8 +170,8 @@ class L
     string data;
 }
 
-sequence<AnyClass> ClassSeq;
-dictionary<string, AnyClass> ClassMap;
+sequence<AnyClass?> ClassSeq;
+dictionary<string, AnyClass?> ClassMap;
 
 struct StructKey
 {
@@ -216,7 +216,7 @@ interface Initial
 
     K getK();
 
-    AnyClass opClass(AnyClass v1, out AnyClass v2);
+    AnyClass? opClass(AnyClass? v1, out AnyClass? v2);
     ClassSeq opClassSeq(ClassSeq v1, out ClassSeq v2);
     ClassMap opClassMap(ClassMap v1, out ClassMap v2);
 

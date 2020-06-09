@@ -376,7 +376,7 @@ public:
         KindDouble,
         KindString,
         KindObject, // the implicit base for all proxies
-        KindAnyClass   // TODO: rename to AnyClass
+        KindAnyClass
     };
 
     virtual std::string typeId() const;
