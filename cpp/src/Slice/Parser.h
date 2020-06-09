@@ -545,7 +545,6 @@ public:
     bool hasClassDefs() const;
     bool hasInterfaceDecls() const;
     bool hasInterfaceDefs() const;
-    bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
     bool hasOnlyInterfaces() const;
     bool hasOperations() const; // interfaces or classes with operations

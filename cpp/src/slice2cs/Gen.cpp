@@ -3165,7 +3165,7 @@ Slice::Gen::ClassFactoryVisitor::ClassFactoryVisitor(IceUtilInternal::Output& ou
 bool
 Slice::Gen::ClassFactoryVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (p->hasValueDefs())
+    if (p->hasClassDefs())
     {
         string prefix;
         // We are generating code for a top-level module

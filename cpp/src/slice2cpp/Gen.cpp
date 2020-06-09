@@ -3290,7 +3290,7 @@ Slice::Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& h,
 bool
 Slice::Gen::ValueVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasValueDefs())
+    if(!p->hasClassDefs())
     {
         return false;
     }
