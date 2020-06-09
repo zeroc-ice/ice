@@ -1972,24 +1972,35 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     string ns = getNamespace(p);
     string scoped = fixId(p->scoped());
     EnumeratorList enumerators = p->enumerators();
-    const bool explicitValue = p->explicitValue();
+
+    // When the number of enumerators is smaller than the distance between the min and max values, the values are not
+    // consecutive and we need to use a set to validate the value during unmarshaling.
+    // Note that the values are not necessarily in order, e.g. we can use a simple range check for
+    // enum E { A = 3, B = 2, C = 1 } during unmarshaling.
+    const bool useSet = static_cast<int64_t>(enumerators.size()) < p->maxValue() - p->minValue() + 1;
+    string underlying = p->underlying() ? typeToString(p->underlying(), "") : "int";
 
     _out << sp;
     emitDeprecate(p, 0, _out, "type");
     emitCommonAttributes();
     emitCustomAttributes(p);
-    _out << nl << "public enum " << name;
+    _out << nl << "public enum " << name << " : " << underlying;
     _out << sb;
-    for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+    bool firstEn = true;
+    for (const auto& en : enumerators)
     {
-        if(en != enumerators.begin())
+        if (firstEn)
+        {
+            firstEn = false;
+        }
+        else
         {
             _out << ',';
         }
-        _out << nl << fixId((*en)->name());
-        if(explicitValue)
+        _out << nl << fixId(en->name());
+        if (p->explicitValue())
         {
-            _out << " = " << (*en)->value();
+            _out << " = " << en->value();
         }
     }
     _out << eb;
@@ -1998,51 +2009,81 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     emitCommonAttributes();
     _out << nl << "public static class " << p->name() << "Helper";
     _out << sb;
-    if(explicitValue)
+    if (useSet)
     {
         _out << sp;
-        _out << nl << "public static readonly global::System.Collections.Generic.HashSet<int> EnumeratorValues =";
+        _out << nl << "public static readonly global::System.Collections.Generic.HashSet<" << underlying
+            << "> EnumeratorValues =";
         _out.inc();
-        _out << nl << "new global::System.Collections.Generic.HashSet<int>()";
-        _out.spar('{');
-        for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+        _out << nl << "new global::System.Collections.Generic.HashSet<" << underlying << "> { ";
+        firstEn = true;
+        for (const auto& en : enumerators)
         {
-            _out << (*en)->value();
+            if (firstEn)
+            {
+                firstEn = false;
+            }
+            else
+            {
+                _out << ", ";
+            }
+            _out << en->value();
         }
-        _out.epar('}');
-        _out << ";";
+        _out << " };";
         _out.dec();
     }
 
     _out << sp;
-    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << name
-         << " value) => ostr.WriteEnum((int)value);";
+    _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << name << " value) =>";
+    _out.inc();
+    if (p->underlying())
+    {
+        _out << nl << "ostr.Write" << builtinSuffix(p->underlying()) << "((" << underlying << ")value);";
+    }
+    else
+    {
+        _out << nl << "ostr.WriteSize((int)value);";
+    }
+    _out.dec();
 
     _out << sp;
     _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << name << "> IceWriter = Write;";
 
     _out << sp;
-    _out << nl << "public static " << name << " Read" << p->name() << "(this ZeroC.Ice.InputStream istr)";
-    _out << sb;
-    _out << nl << "int value = istr.ReadEnumValue();";
-    if(explicitValue)
+    _out << nl << "public static " << name << " As" << p->name() << "(this " << underlying << " value) =>";
+    _out.inc();
+
+    if (useSet)
     {
-        _out << nl << "if (!EnumeratorValues.Contains(value))";
+        _out << nl << "EnumeratorValues.Contains(value)";
     }
     else
     {
-        _out << nl << "if (value < 0 || value > " << p->maxValue() << ")";
+        _out << nl << p->minValue() << " <= value && value <= " << p->maxValue();
     }
-    _out << sb;
-    _out << nl << "throw new ZeroC.Ice.InvalidDataException($\"invalid enumerator value `{value}' for "
+    _out << " ? (" << name
+        << ")value : throw new ZeroC.Ice.InvalidDataException($\"invalid enumerator value `{value}' for "
         << fixId(p->scoped()) << "\");";
-    _out << eb;
-    _out << nl << "return (" << name << ")value;";
-    _out << eb;
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "public static " << name << " Read" << p->name() << "(this ZeroC.Ice.InputStream istr) =>";
+    _out.inc();
+    _out << nl << "As" << p->name() << "(istr.";
+    if (p->underlying())
+    {
+        _out << "Read" << builtinSuffix(p->underlying()) << "()";
+    }
+    else
+    {
+        _out << "ReadSize()";
+    }
+    _out << ");";
+    _out.dec();
 
     _out << sp;
     _out << nl << "public static readonly ZeroC.Ice.InputStreamReader<" << name << "> IceReader = Read" << p->name()
-         << ";";
+        << ";";
 
     _out << eb;
 }
@@ -2080,7 +2121,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    if (!isMappedToReadOnlyMemory(p))
+    if (!isMappedToReadOnlyMemory(p) || EnumPtr::dynamicCast(p->type()))
     {
         string name = p->name();
         string scope = getNamespace(p);
@@ -2092,14 +2133,31 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         _out << nl << "public static class " << name << "Helper";
         _out << sb;
 
-        _out << sp;
-        _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
-        _out.inc();
-        _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
-        _out.dec();
+        if (isMappedToReadOnlyMemory(p))
+        {
+            assert(EnumPtr::dynamicCast(p->type()));
 
-        _out << sp;
-        _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly << "> IceWriter = Write;";
+            // For such enums, we provide 2 writers but no Write method.
+            _out << sp;
+            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
+                << "> IceWriterFromSequence = (ostr, v) => ostr.WriteSequence(v.Span);";
+
+            _out << sp;
+            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqS
+                << "> IceWriterFromArray = (ostr, v) => ostr.WriteArray(v);";
+        }
+        else
+        {
+            _out << sp;
+            _out << nl << "public static void Write(this ZeroC.Ice.OutputStream ostr, " << seqReadOnly << " sequence) =>";
+            _out.inc();
+            _out << nl << sequenceMarshalCode(p, scope, "sequence", "ostr") << ";";
+            _out.dec();
+
+            _out << sp;
+            _out << nl << "public static readonly ZeroC.Ice.OutputStreamWriter<" << seqReadOnly
+                << "> IceWriter = Write;";
+        }
 
         _out << sp;
         _out << nl << "public static " << seqS << " Read" << name << "(this ZeroC.Ice.InputStream istr) =>";

@@ -18,6 +18,17 @@
 using namespace std;
 using namespace Slice;
 
+namespace
+{
+    struct UnderscoreSeparator : numpunct<char>
+    {
+        char do_thousands_sep() const override { return '_' ; }
+        string do_grouping() const override { return "\3"; }
+    };
+
+    locale underscoreSeparatorLocale = locale(locale::classic(), new UnderscoreSeparator);
+}
+
 Slice::CompilerException::CompilerException(const char* file, int line, const string& r) :
     IceUtil::Exception(file, line),
     _reason(r)
@@ -502,6 +513,7 @@ Slice::Builtin::getTagFormat() const
         case KindVarUInt:
         case KindVarLong:
         case KindVarULong:
+            return "VInt";
         case KindString:
             return "VSize";
         case KindValue:
@@ -596,6 +608,39 @@ Slice::Builtin::isUnsignedType() const
             return true;
         default:
             return false;
+    }
+}
+
+pair<int64_t, uint64_t>
+Slice::Builtin::integralRange() const
+{
+    switch(_kind)
+    {
+        case KindByte:
+            return make_pair<int64_t, uint64_t>(0, UINT8_MAX);
+        case KindShort:
+            return make_pair<int64_t, uint64_t>(INT16_MIN, INT16_MAX);
+        case KindUShort:
+            return make_pair<int64_t, uint64_t>(0, UINT16_MAX);
+        case KindInt:
+        case KindVarInt:
+            return make_pair<int64_t, uint64_t>(INT32_MIN, INT32_MAX);
+        case KindUInt:
+        case KindVarUInt:
+            return make_pair<int64_t, uint64_t>(0, UINT32_MAX);
+        case KindLong:
+            return make_pair<int64_t, uint64_t>(INT64_MIN, INT64_MAX);
+        case KindVarLong:
+            // the first 2 bits are used to encode the var-integer size, so the range is
+            // -2^63 / 4 == -2^61 to (2^63 - 1) / 4 == 2^61 - 1.
+            return make_pair<int64_t, uint64_t>(INT64_MIN / 4, INT64_MAX / 4);
+        case KindULong:
+            return make_pair<int64_t, uint64_t>(0, UINT64_MAX);
+        case KindVarULong:
+            return make_pair<int64_t, uint64_t>(0, UINT64_MAX / 4);
+        default:
+            assert(0);
+            return make_pair<int64_t, uint64_t>(0, 0);
     }
 }
 
@@ -1723,7 +1768,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name, NodeType nt)
+Slice::Container::createEnum(const string& name, const TypePtr& type, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1759,7 +1804,19 @@ Slice::Container::createEnum(const string& name, NodeType nt)
         checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
     }
 
-    EnumPtr p = new Enum(this, name);
+    BuiltinPtr underlying; // null means no explicit underlying type (so value range is 0..INT32_MAX).
+    if (type)
+    {
+        underlying = BuiltinPtr::dynamicCast(type);
+        if (!underlying || !underlying->isIntegralType() || underlying->isVariableLength() ||
+            underlying->minWireSize() > 4)
+        {
+            _unit->error("an enum's underlying type must be byte, short, ushort, int or uint");
+            underlying = nullptr;
+        }
+    }
+
+    EnumPtr p = new Enum(this, name, underlying);
     _contents.push_back(p);
     return p;
 }
@@ -1777,7 +1834,7 @@ Slice::Container::createEnumerator(const string& name)
 }
 
 EnumeratorPtr
-Slice::Container::createEnumerator(const string& name, int value)
+Slice::Container::createEnumerator(const string& name, int64_t value)
 {
     EnumeratorPtr p = validateEnumerator(name);
     if(!p)
@@ -3005,7 +3062,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
     // Next, verify that the type of the constant or data member is compatible with the given value.
     //
 
-    if(b)
+    if (b)
     {
         BuiltinPtr lt;
 
@@ -3051,105 +3108,34 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
         }
 
         // Check that numeric values are within the type's legal range.
-        int64_t min;
-        uint64_t max;
-        try
-        {
-            // `unsigned long long`s don't fit in a `long long`, so we check them separately with `stoull`.
-            if(b->kind() == Builtin::KindULong)
-            {
-                min = 0;
-                max = UINT64_MAX;
-                auto val = stoull(value);
-                if(val < static_cast<uint64_t>(min) || val > max)
-                {
-                    // `stoull` throws this if the value is outside the range of an unsigned long long.
-                    // So it makes sense to piggyback on this and then handle errors all in one place.
-                    throw out_of_range("");
-                }
-            }
-            else if(b->isIntegralType())
-            {
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        min = 0;
-                        max = UINT8_MAX;
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        min = INT16_MIN;
-                        max = INT16_MAX;
-                        break;
-                    }
-                    case Builtin::KindUShort:
-                    {
-                        min = 0;
-                        max = UINT16_MAX;
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    case Builtin::KindVarInt:
-                    {
-                        min = INT32_MIN;
-                        max = INT32_MAX;
-                        break;
-                    }
-                    case Builtin::KindUInt:
-                    case Builtin::KindVarUInt:
-                    {
-                        min = 0;
-                        max = UINT32_MAX;
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        min = INT64_MIN;
-                        max = INT64_MAX;
-                        break;
-                    }
-                    case Builtin::KindULong:
-                    {
-                        min = 0;
-                        max = UINT64_MAX;
-                        break;
-                    }
-                    // The first 2 bits are reserved for storing the length, so we only have 62 bits for the value.
-                    case Builtin::KindVarLong:
-                    {
-                        // We lose another bit here for the sign.
-                        min = -(1LL << 61);
-                        max = (1ULL << 61) - 1;
-                        break;
-                    }
-                    case Builtin::KindVarULong:
-                    {
-                        min = 0;
-                        max = (1ULL << 62) - 1;
-                        break;
-                    }
-                    default:
-                    {
-                        throw logic_error("");
-                    }
-                }
 
-                auto val = stoll(value);
-                if(val < min || val > static_cast<int64_t>(max))
+        if (b->isIntegralType())
+        {
+            auto [min, max] = b->integralRange();
+            try
+            {
+                if (b->kind() == Builtin::KindULong)
                 {
-                    // `stoll` throws this if the value is outside the range of a long long.
-                    // So it makes sense to piggyback on this and then handle errors all in one place.
-                    throw out_of_range("");
+                    stoull(value); // throws out_of_range if value is out of range
+                }
+                else
+                {
+                    auto val = stoll(value);
+                    if(val < min || val > static_cast<int64_t>(max))
+                    {
+                        throw out_of_range("");
+                    }
                 }
             }
-        }
-        catch(const out_of_range&)
-        {
-            _unit->error("initializer `" + value + "' for " + desc + " `" + name + "' out of range for type " +
-                         b->kindAsString());
-            return false;
+            catch (const out_of_range&)
+            {
+                ostringstream oss;
+                oss.imbue(underscoreSeparatorLocale);
+                oss << "initializer `" << value << "' for " << desc << " " << name << " is outside the range of "
+                    << b->kindAsString() << ": [" << min << ".." << max << "]";
+                _unit->error(oss.str());
+                return false;
+            }
         }
     }
 
@@ -5196,22 +5182,28 @@ Slice::Enum::destroy()
     SyntaxTreeBase::destroy();
 }
 
+BuiltinPtr
+Slice::Enum::underlying() const
+{
+    return _underlying;
+}
+
 bool
 Slice::Enum::explicitValue() const
 {
     return _explicitValue;
 }
 
-int
+int64_t
 Slice::Enum::minValue() const
 {
-    return static_cast<int>(_minValue);
+    return _minValue;
 }
 
-int
+int64_t
 Slice::Enum::maxValue() const
 {
-    return static_cast<int>(_maxValue);
+    return _maxValue;
 }
 
 Contained::ContainedType
@@ -5235,19 +5227,19 @@ Slice::Enum::usesClasses() const
 size_t
 Slice::Enum::minWireSize() const
 {
-    return 1;
+    return _underlying ? _underlying->minWireSize() : 1;
 }
 
 string
 Slice::Enum::getTagFormat() const
 {
-    return "Size";
+    return _underlying ? _underlying->getTagFormat() : "Size";
 }
 
 bool
 Slice::Enum::isVariableLength() const
 {
-    return true;
+    return !_underlying;
 }
 
 string
@@ -5268,72 +5260,70 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
     // An Enum does not have any dependencies.
 }
 
-Slice::Enum::Enum(const ContainerPtr& container, const string& name) :
+Slice::Enum::Enum(const ContainerPtr& container, const string& name, const BuiltinPtr& underlying) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
     Constructed(container, name),
+    _underlying(underlying), // can be null
     _explicitValue(false),
-    _minValue(Int32Max),
-    _maxValue(0),
+    _minValue(INT64_MAX),
+    _maxValue(INT64_MIN),
     _lastValue(-1)
 {
 }
 
-int
+int64_t
 Slice::Enum::newEnumerator(const EnumeratorPtr& p)
 {
-    if(p->explicitValue())
+    int64_t rangeMin = 0;
+    uint64_t rangeMax = INT32_MAX;
+    if (_underlying)
+    {
+        tie(rangeMin, rangeMax) = _underlying->integralRange();
+    }
+
+    if (p->explicitValue())
     {
         _explicitValue = true;
-        _lastValue = p->value();
-
-        if(_lastValue < 0)
-        {
-            string msg = "value for enumerator `" + p->name() + "' is out of range";
-            _unit->error(msg);
-        }
+        _lastValue  = p->value();
     }
     else
     {
-        if(_lastValue == Int32Max)
-        {
-            string msg = "value for enumerator `" + p->name() + "' is out of range";
-            _unit->error(msg);
-        }
-        else
-        {
-            //
-            // If the enumerator was not assigned an explicit value, we automatically assign
-            // it one more than the previous enumerator.
-            //
-            ++_lastValue;
-        }
+        _lastValue++;
+    }
+
+    if (_lastValue < rangeMin || _lastValue > static_cast<int64_t>(rangeMax))
+    {
+        ostringstream oss;
+        oss.imbue(underscoreSeparatorLocale);
+        oss << "value " << _lastValue << " for enumerator `" << p->name() << "'";
+
+        oss << " is outside the range of " << (_underlying ? _underlying->kindAsString() : "its enum") << ": ["
+            << rangeMin << ".." << rangeMax << "]";
+        _unit->error(oss.str());
     }
 
     bool checkForDuplicates = true;
-    if(_lastValue > _maxValue)
+    if (_lastValue > _maxValue)
     {
         _maxValue = _lastValue;
         checkForDuplicates = false;
     }
-    if(_lastValue < _minValue)
+    if (_lastValue < _minValue)
     {
         _minValue = _lastValue;
         checkForDuplicates = false;
     }
 
-    if(checkForDuplicates)
+    if (checkForDuplicates)
     {
-        EnumeratorList enl = enumerators();
-        for (EnumeratorList::iterator q = enl.begin(); q != enl.end(); ++q)
+        for (const auto& en : enumerators())
         {
-            EnumeratorPtr& r = *q;
-            if(r != p && r->value() == _lastValue)
+            if (en != p && en->value() == _lastValue)
             {
-                _unit->error(string("enumerator `") + p->name() + "' has the same value as enumerator `" +
-                             r->name() + "'");
+                _unit->error("enumerator `" + p->name() + "' has the same value as enumerator `" + en->name() + "'");
             }
         }
     }
@@ -5375,7 +5365,7 @@ Slice::Enumerator::explicitValue() const
     return _explicitValue;
 }
 
-int
+int64_t
 Slice::Enumerator::value() const
 {
     return _value;
@@ -5390,7 +5380,7 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name)
     _value = EnumPtr::dynamicCast(container)->newEnumerator(this);
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value) :
+Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int64_t value) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _explicitValue(true),

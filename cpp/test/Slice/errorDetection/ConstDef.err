@@ -13,15 +13,15 @@ ConstDef.ice:85: `two' does not designate an enumerator of `::Test::color'
 ConstDef.ice:86: type of initializer is incompatible with the type of constant `ic10'
 ConstDef.ice:102: integer constant `-9223372036854775809' out of range
 ConstDef.ice:103: integer constant `+9223372036854775808' out of range
-ConstDef.ice:107: initializer `-2147483649' for constant `i3' out of range for type int
-ConstDef.ice:108: initializer `2147483648' for constant `i4' out of range for type int
-ConstDef.ice:112: initializer `-32769' for constant `s3' out of range for type short
-ConstDef.ice:113: initializer `32768' for constant `s4' out of range for type short
-ConstDef.ice:117: initializer `-1' for constant `b3' out of range for type byte
-ConstDef.ice:118: initializer `256' for constant `b4' out of range for type byte
-ConstDef.ice:130: initializer `32767' for constant `c5' out of range for type byte
-ConstDef.ice:131: initializer `2147483647' for constant `c6' out of range for type short
-ConstDef.ice:132: initializer `9223372036854775807' for constant `c7' out of range for type int
+ConstDef.ice:107: initializer `-2147483649' for constant i3 is outside the range of int: [-2_147_483_648..2_147_483_647]
+ConstDef.ice:108: initializer `2147483648' for constant i4 is outside the range of int: [-2_147_483_648..2_147_483_647]
+ConstDef.ice:112: initializer `-32769' for constant s3 is outside the range of short: [-32_768..32_767]
+ConstDef.ice:113: initializer `32768' for constant s4 is outside the range of short: [-32_768..32_767]
+ConstDef.ice:117: initializer `-1' for constant b3 is outside the range of byte: [0..255]
+ConstDef.ice:118: initializer `256' for constant b4 is outside the range of byte: [0..255]
+ConstDef.ice:130: initializer `32767' for constant c5 is outside the range of byte: [0..255]
+ConstDef.ice:131: initializer `2147483647' for constant c6 is outside the range of short: [-32_768..32_767]
+ConstDef.ice:132: initializer `9223372036854775807' for constant c7 is outside the range of int: [-2_147_483_648..2_147_483_647]
 ConstDef.ice:143: warning: unknown escape sequence in string literal: `\g'
 ConstDef.ice:144: unknown escape sequence in string literal: `\u000N'
 ConstDef.ice:145: unknown escape sequence in string literal: `\U0000000K'

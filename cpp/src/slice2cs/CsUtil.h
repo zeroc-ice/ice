@@ -56,6 +56,8 @@ std::string dataMemberName(const DataMemberPtr&);
 
 std::string helperName(const TypePtr&, const std::string&);
 
+std::string builtinSuffix(const BuiltinPtr&);
+
 std::string returnValueName(const ParamDeclList&);
 std::string resultType(const OperationPtr&, const std::string&, bool);
 std::string resultTask(const OperationPtr&, const std::string&, bool);

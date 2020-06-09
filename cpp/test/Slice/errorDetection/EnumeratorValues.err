@@ -1,5 +1,10 @@
-EnumeratorValues.ice:12: value for enumerator `C' is out of range
-EnumeratorValues.ice:12: enumerator `C' has the same value as enumerator `B'
-EnumeratorValues.ice:13: value for enumerator `D' is out of range
-EnumeratorValues.ice:14: value for enumerator `E' is out of range
-EnumeratorValues.ice:15: value for enumerator `F' is out of range
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:11: value 2_147_483_648 for enumerator `C' is outside the range of its enum: [0..2_147_483_647]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:12: value 2_147_483_649 for enumerator `D' is outside the range of its enum: [0..2_147_483_647]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:13: value -1 for enumerator `E' is outside the range of its enum: [0..2_147_483_647]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:14: value -2_147_483_649 for enumerator `F' is outside the range of its enum: [0..2_147_483_647]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:21: value 2_147_483_648 for enumerator `C' is outside the range of int: [-2_147_483_648..2_147_483_647]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:22: value 2_147_483_649 for enumerator `D' is outside the range of int: [-2_147_483_648..2_147_483_647]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:24: value -2_147_483_649 for enumerator `F' is outside the range of int: [-2_147_483_648..2_147_483_647]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:30: value -2 for enumerator `B' is outside the range of byte: [0..255]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:33: value 256 for enumerator `E' is outside the range of byte: [0..255]
+/Users/bernard/builds/ice/cpp/test/Slice/errorDetection/EnumeratorValues.ice:35: value 257 for enumerator `F' is outside the range of byte: [0..255]
