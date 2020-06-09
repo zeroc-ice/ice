@@ -6,11 +6,11 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Exceptions
+namespace ZeroC.Ice.Test.Exceptions
 {
-    public class Thrower : IThrower
+    public class ThrowerAsync : IThrowerAsync
     {
-        public Thrower()
+        public ThrowerAsync()
         {
         }
 

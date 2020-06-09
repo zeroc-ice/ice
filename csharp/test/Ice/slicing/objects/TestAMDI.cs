@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Slicing.Objects
+namespace ZeroC.Ice.Test.Slicing.Objects
 {
-    public sealed class TestIntf : ITestIntf
+    public sealed class TestIntfAsync : ITestIntfAsync
     {
         public ValueTask shutdownAsync(Current current)
         {
@@ -395,7 +395,7 @@ namespace ZeroC.Ice.Test.AMD.Slicing.Objects
         private static ValueTask<T> MakeValueTask<T>(T result) => new ValueTask<T>(result);
     }
 
-    public sealed class TestIntf2 : ITestIntf2
+    public sealed class TestIntf2Async : ITestIntf2Async
     {
         public ValueTask<SBase?> SBSUnknownDerivedAsSBaseAsync(Current current) =>
             new ValueTask<SBase?>(new SBSUnknownDerived("SBSUnknownDerived.sb", "SBSUnknownDerived.sbsud"));

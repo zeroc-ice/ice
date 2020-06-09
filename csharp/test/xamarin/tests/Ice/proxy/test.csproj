@@ -15,10 +15,6 @@
       <Compile Include="generated/Test.cs">
           <SliceCompileSource>../../../../Ice/proxy/Test.ice</SliceCompileSource>
       </Compile>
-      <Compile Include="generated/TestAMD.cs">
-          <SliceCompileSource>../../../../Ice/proxy/TestAMD.ice</SliceCompileSource>
-      </Compile>
       <SliceCompile Include="../../../../Ice/proxy/Test.ice" />
-      <SliceCompile Include="../../../../Ice/proxy/TestAMD.ice" />
   </ItemGroup>
 </Project>

@@ -61,7 +61,7 @@
     <ProjectReference Include="..\tests\Ice\serialize\test.csproj" />
     <ProjectReference Include="..\tests\Ice\stream\test.csproj" />
     <ProjectReference Include="..\tests\Ice\tagged\test.csproj" />
-    <ProjectReference Include="..\tests\Ice\threadPoolPriority\test.csproj" />
+    <ProjectReference Include="..\tests\Ice\threading\test.csproj" />
     <ProjectReference Include="..\tests\Ice\timeout\test.csproj" />
     <ProjectReference Include="..\tests\Ice\udp\test.csproj" />
     <ProjectReference Include="..\tests\TestCommon\testcommon.csproj" />

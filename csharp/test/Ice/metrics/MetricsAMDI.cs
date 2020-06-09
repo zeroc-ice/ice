@@ -6,30 +6,9 @@ using System;
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Metrics
+namespace ZeroC.Ice.Test.Metrics
 {
-    public sealed class Controller : IController
-    {
-        public Controller(Func<ObjectAdapter> factory)
-        {
-            _factory = factory;
-            _adapter = factory();
-            _adapter.Activate();
-        }
-
-        public void hold(Current current)
-        {
-            _adapter.Destroy();
-            _adapter = _factory(); // Recreate the adapter without activating it
-        }
-
-        public void resume(Current current) => _adapter.Activate();
-
-        private readonly Func<ObjectAdapter> _factory;
-        private ObjectAdapter _adapter;
-    };
-
-    public sealed class Metrics : IMetrics
+    public sealed class MetricsAsync : IMetricsAsync
     {
         public ValueTask opAsync(Current current) => new ValueTask(Task.CompletedTask);
 
@@ -52,12 +31,13 @@ namespace ZeroC.Ice.Test.AMD.Metrics
 
         public ValueTask opByteSAsync(byte[] bs, Current current) => new ValueTask(Task.CompletedTask);
 
-        public IObjectPrx? getAdmin(Current current)
-        {
-            TestHelper.Assert(current != null);
-            return current.Adapter.Communicator.GetAdmin();
-        }
+        public ValueTask<IObjectPrx?> getAdminAsync(Current current) =>
+            new ValueTask<IObjectPrx?>(current.Adapter.Communicator.GetAdmin());
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public ValueTask shutdownAsync(Current current)
+        {
+            current.Adapter.Communicator.Shutdown();
+            return new ValueTask(Task.CompletedTask);
+        }
     }
 }

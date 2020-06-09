@@ -5,14 +5,11 @@
 #pragma once
 
 [[3.7]]
+[[suppress-warning:reserved-identifier]]
 
 #include <Test.ice>
 
-// Because this test has both AMD and non-AMD Slice definitions with identical type-ids, we need to separate them
-// into different namespaces. As a result of this, this module also has to be placed in it's namespace with metadata
-// instead of nested modules (which would affect type-id).
-[cs:namespace:ZeroC.Ice.Test]
-module Slicing::Objects
+module ZeroC::Ice::Test::Slicing::Objects
 {
 
 class CUnknown : SBase

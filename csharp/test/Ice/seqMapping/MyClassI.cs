@@ -21,6 +21,8 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<byte>, IEnumerable<byte>) opSByteS(Stack<byte> i, Current current) => (i, i);
 
+        public (IEnumerable<byte>, IEnumerable<byte>) opCByteS(Custom<byte> i, Current current) => (i, i);
+
         public (ReadOnlyMemory<bool>, ReadOnlyMemory<bool>) opABoolS(bool[] i, Current current) => (i, i);
 
         public (IEnumerable<bool>, IEnumerable<bool>) opLBoolS(List<bool> i, Current current) => (i, i);
@@ -30,6 +32,8 @@ namespace ZeroC.Ice.Test.SeqMapping
         public (IEnumerable<bool>, IEnumerable<bool>) opQBoolS(Queue<bool> i, Current current) => (i, i);
 
         public (IEnumerable<bool>, IEnumerable<bool>) opSBoolS(Stack<bool> i, Current current) => (i, i);
+
+        public (IEnumerable<bool>, IEnumerable<bool>) opCBoolS(Custom<bool> i, Current current) => (i, i);
 
         public (ReadOnlyMemory<short>, ReadOnlyMemory<short>) opAShortS(short[] i, Current current) => (i, i);
 
@@ -41,6 +45,8 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<short>, IEnumerable<short>) opSShortS(Stack<short> i, Current current) => (i, i);
 
+        public (IEnumerable<short>, IEnumerable<short>) opCShortS(Custom<short> i, Current current) => (i, i);
+
         public (ReadOnlyMemory<int>, ReadOnlyMemory<int>) opAIntS(int[] i, Current current) => (i, i);
 
         public (IEnumerable<int>, IEnumerable<int>) opLIntS(List<int> i, Current current) => (i, i);
@@ -50,6 +56,8 @@ namespace ZeroC.Ice.Test.SeqMapping
         public (IEnumerable<int>, IEnumerable<int>) opQIntS(Queue<int> i, Current current) => (i, i);
 
         public (IEnumerable<int>, IEnumerable<int>) opSIntS(Stack<int> i, Current current) => (i, i);
+
+        public (IEnumerable<int>, IEnumerable<int>) opCIntS(Custom<int> i, Current current) => (i, i);
 
         public (ReadOnlyMemory<long>, ReadOnlyMemory<long>) opALongS(long[] i, Current current) => (i, i);
 
@@ -61,6 +69,8 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<long>, IEnumerable<long>) opSLongS(Stack<long> i, Current current) => (i, i);
 
+        public (IEnumerable<long>, IEnumerable<long>) opCLongS(Custom<long> i, Current current) => (i, i);
+
         public (ReadOnlyMemory<float>, ReadOnlyMemory<float>) opAFloatS(float[] i, Current current) => (i, i);
 
         public (IEnumerable<float>, IEnumerable<float>) opLFloatS(List<float> i, Current current) => (i, i);
@@ -70,6 +80,8 @@ namespace ZeroC.Ice.Test.SeqMapping
         public (IEnumerable<float>, IEnumerable<float>) opQFloatS(Queue<float> i, Current current) => (i, i);
 
         public (IEnumerable<float>, IEnumerable<float>) opSFloatS(Stack<float> i, Current current) => (i, i);
+
+        public (IEnumerable<float>, IEnumerable<float>) opCFloatS(Custom<float> i, Current current) => (i, i);
 
         public (ReadOnlyMemory<double>, ReadOnlyMemory<double>) opADoubleS(double[] i, Current current) => (i, i);
 
@@ -81,6 +93,8 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<double>, IEnumerable<double>) opSDoubleS(Stack<double> i, Current current) => (i, i);
 
+        public (IEnumerable<double>, IEnumerable<double>) opCDoubleS(Custom<double> i, Current current) => (i, i);
+
         public (IEnumerable<string>, IEnumerable<string>) opAStringS(string[] i, Current current) => (i, i);
 
         public (IEnumerable<string>, IEnumerable<string>) opLStringS(List<string> i, Current current) => (i, i);
@@ -91,9 +105,13 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<string>, IEnumerable<string>) opSStringS(Stack<string> i, Current current) => (i, i);
 
+        public (IEnumerable<string>, IEnumerable<string>) opCStringS(Custom<string> i, Current current) => (i, i);
+
         public (IEnumerable<AnyClass?>, IEnumerable<AnyClass?>) opAObjectS(AnyClass?[] i, Current current) => (i, i);
 
         public (IEnumerable<AnyClass?>, IEnumerable<AnyClass?>) opLObjectS(List<AnyClass?> i, Current current) => (i, i);
+
+        public (IEnumerable<AnyClass?>, IEnumerable<AnyClass?>) opCObjectS(Custom<AnyClass?> i, Current current) => (i, i);
 
         public (IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>) opAObjectPrxS(IObjectPrx?[] i, Current current) => (i, i);
 
@@ -105,6 +123,8 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>) opSObjectPrxS(Stack<IObjectPrx?> i, Current current) => (i, i);
 
+        public (IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>) opCObjectPrxS(Custom<IObjectPrx?> i, Current current) => (i, i);
+
         public (IEnumerable<S>, IEnumerable<S>) opAStructS(S[] i, Current current) => (i, i);
 
         public (IEnumerable<S>, IEnumerable<S>) opLStructS(List<S> i, Current current) => (i, i);
@@ -114,6 +134,8 @@ namespace ZeroC.Ice.Test.SeqMapping
         public (IEnumerable<S>, IEnumerable<S>) opQStructS(Queue<S> i, Current current) => (i, i);
 
         public (IEnumerable<S>, IEnumerable<S>) opSStructS(Stack<S> i, Current current) => (i, i);
+
+        public (IEnumerable<S>, IEnumerable<S>) opCStructS(Custom<S> i, Current current) => (i, i);
 
         public (IEnumerable<SD>, IEnumerable<SD>) opAStructSD(SD[] i, Current current) => (i, i);
 
@@ -125,13 +147,29 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<SD>, IEnumerable<SD>) opSStructSD(Stack<SD> i, Current current) => (i, i);
 
+        public (IEnumerable<SD>, IEnumerable<SD>) opCStructSD(Custom<SD> i, Current current) => (i, i);
+
         public (IEnumerable<CV?>, IEnumerable<CV?>) opACVS(CV?[] i, Current current) => (i, i);
 
         public (IEnumerable<CV?>, IEnumerable<CV?>) opLCVS(List<CV?> i, Current current) => (i, i);
 
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opAIPrxS(IIPrx?[] i, Current current) => (i, i);
+
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opLIPrxS(List<IIPrx?> i, Current current) => (i, i);
+
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opKIPrxS(LinkedList<IIPrx?> i, Current current) => (i, i);
+
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opQIPrxS(Queue<IIPrx?> i, Current current) => (i, i);
+
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opSIPrxS(Stack<IIPrx?> i, Current current) => (i, i);
+
+        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opCIPrxS(Custom<IIPrx?> i, Current current) => (i, i);
+
         public (IEnumerable<CR?>, IEnumerable<CR?>) opACRS(CR?[] i, Current current) => (i, i);
 
         public (IEnumerable<CR?>, IEnumerable<CR?>) opLCRS(List<CR?> i, Current current) => (i, i);
+
+        public (IEnumerable<CR?>, IEnumerable<CR?>) opCCRS(Custom<CR?> i, Current current) => (i, i);
 
         public (IEnumerable<En>, IEnumerable<En>) opAEnS(En[] i, Current current) => (i, i);
 
@@ -143,15 +181,7 @@ namespace ZeroC.Ice.Test.SeqMapping
 
         public (IEnumerable<En>, IEnumerable<En>) opSEnS(Stack<En> i, Current current) => (i, i);
 
-        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opAIPrxS(IIPrx?[] i, Current current) => (i, i);
-
-        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opLIPrxS(List<IIPrx?> i, Current current) => (i, i);
-
-        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opKIPrxS(LinkedList<IIPrx?> i, Current current) => (i, i);
-
-        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opQIPrxS(Queue<IIPrx?> i, Current current) => (i, i);
-
-        public (IEnumerable<IIPrx?>, IEnumerable<IIPrx?>) opSIPrxS(Stack<IIPrx?> i, Current current) => (i, i);
+        public (IEnumerable<En>, IEnumerable<En>) opCEnS(Custom<En> i, Current current) => (i, i);
 
         public (IEnumerable<int>, IEnumerable<int>) opCustomIntS(Custom<int> i, Current current) => (i, i);
 
