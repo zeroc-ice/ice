@@ -1121,6 +1121,8 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
+    const string tmpName = (dataMember ? dataMember->name() : param) + "_";
+
     bool hasDefaultValue = dataMember && dataMember->defaultValueType();
 
     out << param << " = ";
@@ -1174,7 +1176,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                     << (isReferenceType(underlying) ? "withBitSequence: true, " : "")
                     << inputStreamReader(elementType, scope)
                     << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope)
-                    << "> " << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)"
+                    << "> " << tmpName << " ? new " << typeToString(seq, scope) << "(" << tmpName << ")"
                     << " : null";
             }
             else
@@ -1184,7 +1186,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
                     << (elementType->isVariableLength() ? "false" : "true")
                     << ", " << inputStreamReader(elementType, scope)
                     << ") is global::System.Collections.Generic.ICollection<" << typeToString(elementType, scope)
-                    << "> " << param << "_ ? new " << typeToString(seq, scope) << "(" << param << "_)"
+                    << "> " << tmpName << " ? new " << typeToString(seq, scope) << "(" << tmpName << ")"
                     << " : null";
             }
         }
