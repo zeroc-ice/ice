@@ -1121,8 +1121,6 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
-    const string tmpName = (dataMember ? dataMember->name() : param) + "_";
-
     bool hasDefaultValue = dataMember && dataMember->defaultValueType();
 
     out << param << " = ";
@@ -1169,6 +1167,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         }
         else if (seq->hasMetaDataWithPrefix("cs:generic:"))
         {
+            const string tmpName = (dataMember ? dataMember->name() : param) + "_";
             if (auto optional = OptionalPtr::dynamicCast(elementType); optional && optional->encodedUsingBitSequence())
             {
                 TypePtr underlying = optional->underlying();

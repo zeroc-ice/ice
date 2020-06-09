@@ -1389,7 +1389,6 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     // Marshaling support
     //
     DataMemberList members = p->dataMembers();
-    DataMemberList taggedMembers = p->sortedTaggedDataMembers();
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = p->hasMetaData("preserve-slice");
 
@@ -1419,7 +1418,7 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     }
     _out << epar << ";";
 
-    writeMarshalDataMembers(members, taggedMembers, ns, 0);
+    writeMarshalDataMembers(members, p->sortedTaggedDataMembers(), ns, 0);
 
     if(base)
     {
@@ -1451,7 +1450,7 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "istr.IceStartSlice" << spar << "_iceTypeId" << epar << ";";
     _out << eb;
 
-    writeUnmarshalDataMembers(members, taggedMembers, ns, 0);
+    writeUnmarshalDataMembers(members, p->sortedTaggedDataMembers(), ns, 0);
 
     _out << nl << "istr.IceEndSlice();";
     if (base)
