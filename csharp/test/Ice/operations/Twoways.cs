@@ -285,10 +285,9 @@ namespace ZeroC.Ice.Test.Operations
                 IMyClassPrx? r;
 
                 (r, c1, c2) = p.opMyClass(p);
-                ProxyIdentityFacetComparer comparer;
-                TestHelper.Assert(comparer.Equals(c1!, p));
-                TestHelper.Assert(!comparer.Equals(c2!, p));
-                TestHelper.Assert(comparer.Equals(r!, p));
+                TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(c1!, p));
+                TestHelper.Assert(!ProxyComparer.IdentityAndFacet.Equals(c2!, p));
+                TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(r!, p));
                 TestHelper.Assert(c1!.Identity.Equals(Identity.Parse("test")));
                 TestHelper.Assert(c2!.Identity.Equals(Identity.Parse("noSuchIdentity")));
                 TestHelper.Assert(r!.Identity.Equals(Identity.Parse("test")));
@@ -306,7 +305,7 @@ namespace ZeroC.Ice.Test.Operations
                 (r, c1, c2) = p.opMyClass(null);
                 TestHelper.Assert(c1 == null);
                 TestHelper.Assert(c2 != null);
-                TestHelper.Assert(comparer.Equals(r!, p));
+                TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(r!, p));
                 r!.opVoid();
             }
 
