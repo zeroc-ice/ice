@@ -1170,11 +1170,12 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     }
     else if (auto en = EnumPtr::dynamicCast(type))
     {
+        const string tmpName = (dataMember ? dataMember->name() : param) + "_";
         string suffix = en->underlying() ? builtinSuffix(en->underlying()) : "Size";
         string underlyingType = en->underlying() ? typeToString(en->underlying(), "") : "int";
 
-        out << stream << ".ReadTagged" << suffix << "(" << tag << ") is " << underlyingType << " " << param << "_ ? "
-            << helperName(en, scope) << ".As" << en->name() << "(" << param << "_" << ") : ("
+        out << stream << ".ReadTagged" << suffix << "(" << tag << ") is " << underlyingType << " " << tmpName << " ? "
+            << helperName(en, scope) << ".As" << en->name() << "(" << tmpName << ") : ("
             << typeToString(en, scope) << "?)null";
     }
     else if (seq)
