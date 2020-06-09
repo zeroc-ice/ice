@@ -73,17 +73,16 @@ namespace ZeroC.Ice.Test.Hash
                         //
                         // Check the same endpoint produce always the same hash
                         //
-                        TestHelper.Assert(endpoint.GetHashCode() == endpoint.GetHashCode());
+                        Assert(endpoint.GetHashCode() == endpoint.GetHashCode());
                     }
                     //
                     // Check the same proxy produce always the same hash
                     //
-                    TestHelper.Assert(obj.GetHashCode() == obj.GetHashCode());
+                    Assert(obj.GetHashCode() == obj.GetHashCode());
                 }
-                TestHelper.Assert(proxyCollisions < maxCollisions);
-                TestHelper.Assert(endpointCollisions < maxCollisions);
+                Assert(proxyCollisions < maxCollisions);
+                Assert(endpointCollisions < maxCollisions);
                 {
-                    var comparer = new ProxyIdentityComparer();
                     proxyCollisions = 0;
                     seenProxy = new Dictionary<int, IObjectPrx>();
                     for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
@@ -101,26 +100,25 @@ namespace ZeroC.Ice.Test.Hash
 
                         var obj = IObjectPrx.Parse(sw.ToString(), communicator);
 
-                        if (seenProxy.ContainsKey(comparer.GetHashCode(obj)))
+                        if (seenProxy.ContainsKey(ProxyComparer.Identity.GetHashCode(obj)))
                         {
                             ++proxyCollisions;
                         }
                         else
                         {
-                            seenProxy[comparer.GetHashCode(obj)] = obj;
+                            seenProxy[ProxyComparer.Identity.GetHashCode(obj)] = obj;
                         }
                         //
                         // Check the same proxy produce always the same hash
                         //
-                        TestHelper.Assert(comparer.GetHashCode(obj) == comparer.GetHashCode(obj));
+                        Assert(ProxyComparer.Identity.GetHashCode(obj) == ProxyComparer.Identity.GetHashCode(obj));
                     }
-                    TestHelper.Assert(proxyCollisions < maxCollisions);
+                    Assert(proxyCollisions < maxCollisions);
                 }
             }
 
             {
                 var rand = new Random();
-                var comparer = new ProxyIdentityFacetComparer();
                 proxyCollisions = 0;
                 seenProxy = new Dictionary<int, IObjectPrx>();
                 for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
@@ -138,24 +136,21 @@ namespace ZeroC.Ice.Test.Hash
 
                     var obj = IObjectPrx.Parse(sw.ToString(), communicator);
 
-                    if (seenProxy.ContainsKey(comparer.GetHashCode(obj)))
+                    if (seenProxy.ContainsKey(ProxyComparer.IdentityAndFacet.GetHashCode(obj)))
                     {
                         ++proxyCollisions;
                     }
                     else
                     {
-                        seenProxy[comparer.GetHashCode(obj)] = obj;
+                        seenProxy[ProxyComparer.IdentityAndFacet.GetHashCode(obj)] = obj;
                     }
                     //
                     // Check the same proxy produce always the same hash
                     //
-                    TestHelper.Assert(comparer.GetHashCode(obj) == comparer.GetHashCode(obj));
+                    Assert(ProxyComparer.IdentityAndFacet.GetHashCode(obj) == ProxyComparer.IdentityAndFacet.GetHashCode(obj));
                 }
-                TestHelper.Assert(proxyCollisions < maxCollisions);
+                Assert(proxyCollisions < maxCollisions);
             }
-
-            var iComparer = new ProxyIdentityComparer();
-            var ifComparer = new ProxyIdentityFacetComparer();
 
             var prx1 = IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator);
             //Ice.ObjectPrx prx2 = communicator.stringToProxy("Glacier2/router:ssl -p 10011");
@@ -182,34 +177,34 @@ namespace ZeroC.Ice.Test.Hash
             };
             //proxyMap["prx10"] = prx10.GetHashCode();
 
-            TestHelper.Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator).GetHashCode() == proxyMap["prx1"]);
-            //TestHelper.Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);
-            TestHelper.Assert(IObjectPrx.Parse("Glacier2/router:udp -p 10012", communicator).GetHashCode() == proxyMap["prx3"]);
-            TestHelper.Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator).GetHashCode() == proxyMap["prx4"]);
-            //TestHelper.Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").GetHashCode() == proxyMap["prx5"]);
-            TestHelper.Assert(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator).GetHashCode() == proxyMap["prx6"]);
-            TestHelper.Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx7"]);
-            //TestHelper.Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
-            TestHelper.Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx9"]);
-            //TestHelper.Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010", communicator).GetHashCode() == proxyMap["prx1"]);
+            //Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011").GetHashCode() == proxyMap["prx2"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:udp -p 10012", communicator).GetHashCode() == proxyMap["prx3"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010", communicator).GetHashCode() == proxyMap["prx4"]);
+            //Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").GetHashCode() == proxyMap["prx5"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:udp -h zeroc.com -p 10012", communicator).GetHashCode() == proxyMap["prx6"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx7"]);
+            //Assert(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").GetHashCode() == proxyMap["prx8"]);
+            Assert(IObjectPrx.Parse("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000", communicator).GetHashCode() == proxyMap["prx9"]);
+            //Assert(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").GetHashCode() == proxyMap["prx10"]);
 
-            TestHelper.Assert(iComparer.GetHashCode(prx1) == iComparer.GetHashCode(prx1));
-            TestHelper.Assert(ifComparer.GetHashCode(prx1) == ifComparer.GetHashCode(prx1));
+            Assert(ProxyComparer.Identity.GetHashCode(prx1) == ProxyComparer.Identity.GetHashCode(prx1));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx1) == ProxyComparer.IdentityAndFacet.GetHashCode(prx1));
 
-            TestHelper.Assert(iComparer.GetHashCode(prx3) == iComparer.GetHashCode(prx3));
-            TestHelper.Assert(ifComparer.GetHashCode(prx3) == ifComparer.GetHashCode(prx3));
+            Assert(ProxyComparer.Identity.GetHashCode(prx3) == ProxyComparer.Identity.GetHashCode(prx3));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx3) == ProxyComparer.IdentityAndFacet.GetHashCode(prx3));
 
-            TestHelper.Assert(iComparer.GetHashCode(prx4) == iComparer.GetHashCode(prx4));
-            TestHelper.Assert(ifComparer.GetHashCode(prx4) == ifComparer.GetHashCode(prx4));
+            Assert(ProxyComparer.Identity.GetHashCode(prx4) == ProxyComparer.Identity.GetHashCode(prx4));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx4) == ProxyComparer.IdentityAndFacet.GetHashCode(prx4));
 
-            TestHelper.Assert(iComparer.GetHashCode(prx6) == iComparer.GetHashCode(prx6));
-            TestHelper.Assert(ifComparer.GetHashCode(prx6) == ifComparer.GetHashCode(prx6));
+            Assert(ProxyComparer.Identity.GetHashCode(prx6) == ProxyComparer.Identity.GetHashCode(prx6));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx6) == ProxyComparer.IdentityAndFacet.GetHashCode(prx6));
 
-            TestHelper.Assert(iComparer.GetHashCode(prx7) == iComparer.GetHashCode(prx7));
-            TestHelper.Assert(ifComparer.GetHashCode(prx7) == ifComparer.GetHashCode(prx7));
+            Assert(ProxyComparer.Identity.GetHashCode(prx7) == ProxyComparer.Identity.GetHashCode(prx7));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx7) == ProxyComparer.IdentityAndFacet.GetHashCode(prx7));
 
-            TestHelper.Assert(iComparer.GetHashCode(prx9) == iComparer.GetHashCode(prx9));
-            TestHelper.Assert(ifComparer.GetHashCode(prx9) == ifComparer.GetHashCode(prx9));
+            Assert(ProxyComparer.Identity.GetHashCode(prx9) == ProxyComparer.Identity.GetHashCode(prx9));
+            Assert(ProxyComparer.IdentityAndFacet.GetHashCode(prx9) == ProxyComparer.IdentityAndFacet.GetHashCode(prx9));
 
             Console.Error.WriteLine("ok");
 
@@ -238,9 +233,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same exception produce always the same hash
                     //
-                    TestHelper.Assert(ex.GetHashCode() == ex.GetHashCode());
+                    Assert(ex.GetHashCode() == ex.GetHashCode());
                 }
-                TestHelper.Assert(exceptionCollisions < maxCollisions);
+                Assert(exceptionCollisions < maxCollisions);
             }
 
             //
@@ -273,9 +268,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same exception produce always the same hash
                     //
-                    TestHelper.Assert(ex.GetHashCode() == ex.GetHashCode());
+                    Assert(ex.GetHashCode() == ex.GetHashCode());
                 }
-                TestHelper.Assert(exceptionCollisions < maxCollisions);
+                Assert(exceptionCollisions < maxCollisions);
             }
 
             {
@@ -303,7 +298,7 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same exception produce always the same hash
                     //
-                    TestHelper.Assert(ex.GetHashCode() == ex.GetHashCode());
+                    Assert(ex.GetHashCode() == ex.GetHashCode());
 
                     ex = new InvalidLengthException(v);
                     if (seenException.ContainsKey(ex.GetHashCode()))
@@ -322,9 +317,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same exception produce always the same hash
                     //
-                    TestHelper.Assert(ex.GetHashCode() == ex.GetHashCode());
+                    Assert(ex.GetHashCode() == ex.GetHashCode());
                 }
-                TestHelper.Assert(exceptionCollisions < maxCollisions);
+                Assert(exceptionCollisions < maxCollisions);
             }
             Console.Error.WriteLine("ok");
 
@@ -353,9 +348,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same struct produce always the same hash
                     //
-                    TestHelper.Assert(pf.GetHashCode() == pf.GetHashCode());
+                    Assert(pf.GetHashCode() == pf.GetHashCode());
                 }
-                TestHelper.Assert(structCollisions < maxCollisions);
+                Assert(structCollisions < maxCollisions);
 
                 var seenPointD = new Dictionary<int, PointD>();
                 structCollisions = 0;
@@ -377,9 +372,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same struct produce always the same hash
                     //
-                    TestHelper.Assert(pd.GetHashCode() == pd.GetHashCode());
+                    Assert(pd.GetHashCode() == pd.GetHashCode());
                 }
-                TestHelper.Assert(structCollisions < maxCollisions);
+                Assert(structCollisions < maxCollisions);
 
                 var seenPolyline = new Dictionary<int, Polyline>();
                 structCollisions = 0;
@@ -408,9 +403,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same struct produce always the same hash
                     //
-                    TestHelper.Assert(polyline.GetHashCode() == polyline.GetHashCode());
+                    Assert(polyline.GetHashCode() == polyline.GetHashCode());
                 }
-                TestHelper.Assert(structCollisions < maxCollisions);
+                Assert(structCollisions < maxCollisions);
 
                 var seenColorPalette = new Dictionary<int, ColorPalette>();
                 structCollisions = 0;
@@ -420,10 +415,11 @@ namespace ZeroC.Ice.Test.Hash
                     colorPalette.colors = new Dictionary<int, Color>();
                     for (int j = 0; j < 100; ++j)
                     {
-                        colorPalette.colors[j] = new Color(rand.Next(255),
-                                                                rand.Next(255),
-                                                                rand.Next(255),
-                                                                rand.Next(255));
+                        colorPalette.colors[j] = new Color(
+                            rand.Next(255),
+                            rand.Next(255),
+                            rand.Next(255),
+                            rand.Next(255));
                     }
 
                     if (seenColorPalette.ContainsKey(colorPalette.GetHashCode()))
@@ -441,9 +437,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same struct produce always the same hash
                     //
-                    TestHelper.Assert(colorPalette.GetHashCode() == colorPalette.GetHashCode());
+                    Assert(colorPalette.GetHashCode() == colorPalette.GetHashCode());
                 }
-                TestHelper.Assert(structCollisions < maxCollisions);
+                Assert(structCollisions < maxCollisions);
 
                 var seenColor = new Dictionary<int, Color>();
                 structCollisions = 0;
@@ -465,9 +461,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same struct produce always the same hash
                     //
-                    TestHelper.Assert(c.GetHashCode() == c.GetHashCode());
+                    Assert(c.GetHashCode() == c.GetHashCode());
                 }
-                TestHelper.Assert(structCollisions < maxCollisions);
+                Assert(structCollisions < maxCollisions);
 
                 var seenDraw = new Dictionary<int, Draw>();
                 structCollisions = 0;
@@ -476,7 +472,7 @@ namespace ZeroC.Ice.Test.Hash
                     var draw = new Draw(
                         new Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255)),
                         new Pen(rand.Next(10),
-                                        new Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255))),
+                            new Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255))),
                         false);
 
                     if (seenDraw.ContainsKey(draw.GetHashCode()))
@@ -494,9 +490,9 @@ namespace ZeroC.Ice.Test.Hash
                     //
                     // Check the same struct produce always the same hash
                     //
-                    TestHelper.Assert(draw.GetHashCode() == draw.GetHashCode());
+                    Assert(draw.GetHashCode() == draw.GetHashCode());
                 }
-                TestHelper.Assert(structCollisions < maxCollisions);
+                Assert(structCollisions < maxCollisions);
             }
             Console.Error.WriteLine("ok");
         }

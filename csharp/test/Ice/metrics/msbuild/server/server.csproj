@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../MetricsI.cs" />
+    <Compile Include="../../ControllerI.cs" />
     <Compile Include="../../Server.cs" />
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>

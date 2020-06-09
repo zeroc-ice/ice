@@ -5,9 +5,9 @@
 using System.Threading.Tasks;
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Slicing.Exceptions
+namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
-    public sealed class TestIntf : ITestIntf
+    public sealed class TestIntfAsync : ITestIntfAsync
     {
         public ValueTask shutdownAsync(Current current)
         {

@@ -27,320 +27,320 @@ namespace controller
         {
             if (type.Equals("Ice.acm.Server"))
             {
-                return new Ice.acm.Server();
+                return new ZeroC.Ice.Test.ACM.Server();
             }
             else if (type.Equals("Ice.acm.Client"))
             {
-                return new Ice.acm.Client();
+                return new ZeroC.Ice.Test.ACM.Client();
             }
 
             else if (type.Equals("Ice.adapterDeactivation.Server"))
             {
-                return new Ice.adapterDeactivation.Server();
+                return new ZeroC.Ice.Test.AdapterDeactivation.Server();
             }
             else if (type.Equals("Ice.adapterDeactivation.Client"))
             {
-                return new Ice.adapterDeactivation.Client();
+                return new ZeroC.Ice.Test.AdapterDeactivation.Client();
             }
             else if (type.Equals("Ice.adapterDeactivation.Collocated"))
             {
-                return new Ice.adapterDeactivation.Collocated();
+                return new ZeroC.Ice.Test.AdapterDeactivation.Collocated();
             }
 
             else if (type.Equals("Ice.admin.Server"))
             {
-                return new Ice.admin.Server();
+                return new ZeroC.Ice.Test.Admin.Server();
             }
             else if (type.Equals("Ice.admin.Client"))
             {
-                return new Ice.admin.Client();
+                return new ZeroC.Ice.Test.Admin.Client();
             }
 
             else if (type.Equals("Ice.ami.Server"))
             {
-                return new Ice.ami.Server();
+                return new ZeroC.Ice.Test.AMI.Server();
             }
             else if (type.Equals("Ice.ami.Client"))
             {
-                return new Ice.ami.Client();
+                return new ZeroC.Ice.Test.AMI.Client();
             }
             else if (type.Equals("Ice.ami.Collocated"))
             {
-                return new Ice.ami.Collocated();
+                return new ZeroC.Ice.Test.AMI.Collocated();
             }
 
             else if (type.Equals("Ice.binding.Server"))
             {
-                return new Ice.binding.Server();
+                return new ZeroC.Ice.Test.Binding.Server();
             }
             else if (type.Equals("Ice.binding.Client"))
             {
-                return new Ice.binding.Client();
+                return new ZeroC.Ice.Test.Binding.Client();
             }
 
             else if (type.Equals("Ice.defaultServant.Client"))
             {
-                return new Ice.defaultServant.Client();
+                return new ZeroC.Ice.Test.DefaultServant.Client();
             }
 
             else if (type.Equals("Ice.defaultValue.Client"))
             {
-                return new Ice.defaultValue.Client();
+                return new ZeroC.Ice.Test.DefaultValue.Client();
             }
 
             else if (type.Equals("Ice.dictMapping.Client"))
             {
-                return new Ice.dictMapping.Client();
+                return new ZeroC.Ice.Test.DictMapping.Client();
             }
             else if (type.Equals("Ice.dictMapping.Collocated"))
             {
-                return new Ice.dictMapping.Collocated();
+                return new ZeroC.Ice.Test.DictMapping.Collocated();
             }
             else if (type.Equals("Ice.dictMapping.Server"))
             {
-                return new Ice.dictMapping.Server();
+                return new ZeroC.Ice.Test.DictMapping.Server();
             }
             else if (type.Equals("Ice.dictMapping.Serveramd"))
             {
-                return new Ice.dictMapping.AMD.Server();
+                return new ZeroC.Ice.Test.DictMapping.ServerAMD();
             }
 
             else if (type.Equals("Ice.enums.Client"))
             {
-                return new Ice.enums.Client();
+                return new ZeroC.Ice.Test.Enums.Client();
             }
             else if (type.Equals("Ice.enums.Server"))
             {
-                return new Ice.enums.Server();
+                return new ZeroC.Ice.Test.Enums.Server();
             }
 
             else if (type.Equals("Ice.exceptions.Client"))
             {
-                return new Ice.exceptions.Client();
+                return new ZeroC.Ice.Test.Exceptions.Client();
             }
             else if (type.Equals("Ice.exceptions.Collocated"))
             {
-                return new Ice.exceptions.Collocated();
+                return new ZeroC.Ice.Test.Exceptions.Collocated();
             }
             else if (type.Equals("Ice.exceptions.Server"))
             {
-                return new Ice.exceptions.Server();
+                return new ZeroC.Ice.Test.Exceptions.Server();
             }
             else if (type.Equals("Ice.exceptions.Serveramd"))
             {
-                return new Ice.exceptions.AMD.Server();
+                return new ZeroC.Ice.Test.Exceptions.ServerAMD();
             }
 
             else if (type.Equals("Ice.facets.Client"))
             {
-                return new Ice.facets.Client();
+                return new ZeroC.Ice.Test.Facets.Client();
             }
             else if (type.Equals("Ice.facets.Collocated"))
             {
-                return new Ice.facets.Collocated();
+                return new ZeroC.Ice.Test.Facets.Collocated();
             }
             else if (type.Equals("Ice.facets.Server"))
             {
-                return new Ice.facets.Server();
+                return new ZeroC.Ice.Test.Facets.Server();
             }
 
             else if (type.Equals("Ice.hold.Client"))
             {
-                return new Ice.hold.Client();
+                return new ZeroC.Ice.Test.Hold.Client();
             }
             else if (type.Equals("Ice.hold.Server"))
             {
-                return new Ice.hold.Server();
+                return new ZeroC.Ice.Test.Hold.Server();
             }
 
             else if (type.Equals("Ice.info.Client"))
             {
-                return new Ice.info.Client();
+                return new ZeroC.Ice.Test.Info.Client();
             }
             else if (type.Equals("Ice.info.Server"))
             {
-                return new Ice.info.Server();
+                return new ZeroC.Ice.Test.Info.Server();
             }
 
             else if (type.Equals("Ice.inheritance.Client"))
             {
-                return new Ice.inheritance.Client();
+                return new ZeroC.Ice.Test.Inheritance.Client();
             }
             else if (type.Equals("Ice.inheritance.Collocated"))
             {
-                return new Ice.inheritance.Collocated();
+                return new ZeroC.Ice.Test.Inheritance.Collocated();
             }
             else if (type.Equals("Ice.inheritance.Server"))
             {
-                return new Ice.inheritance.Server();
+                return new ZeroC.Ice.Test.Inheritance.Server();
             }
 
             else if (type.Equals("Ice.interceptor.Client"))
             {
-                return new Ice.interceptor.Client();
+                return new ZeroC.Ice.Test.Interceptor.Client();
             }
 
             else if (type.Equals("Ice.invoke.Client"))
             {
-                return new Ice.invoke.Client();
+                return new ZeroC.Ice.Test.Invoke.Client();
             }
             else if (type.Equals("Ice.invoke.Server"))
             {
-                return new Ice.invoke.Server();
+                return new ZeroC.Ice.Test.Invoke.Server();
             }
 
             else if (type.Equals("Ice.location.Client"))
             {
-                return new Ice.location.Client();
+                return new ZeroC.Ice.Test.Location.Client();
             }
             else if (type.Equals("Ice.location.Server"))
             {
-                return new Ice.location.Server();
+                return new ZeroC.Ice.Test.Location.Server();
             }
 
             else if (type.Equals("Ice.objects.Client"))
             {
-                return new Ice.objects.Client();
+                return new ZeroC.Ice.Test.Objects.Client();
             }
             else if (type.Equals("Ice.objects.Collocated"))
             {
-                return new Ice.objects.Collocated();
+                return new ZeroC.Ice.Test.Objects.Collocated();
             }
             else if (type.Equals("Ice.objects.Server"))
             {
-                return new Ice.objects.Server();
+                return new ZeroC.Ice.Test.Objects.Server();
             }
 
             else if (type.Equals("Ice.operations.Client"))
             {
-                return new Ice.operations.Client();
+                return new ZeroC.Ice.Test.Operations.Client();
             }
             else if (type.Equals("Ice.operations.Collocated"))
             {
-                return new Ice.operations.Collocated();
+                return new ZeroC.Ice.Test.Operations.Collocated();
             }
             else if (type.Equals("Ice.operations.Server"))
             {
-                return new Ice.operations.Server();
+                return new ZeroC.Ice.Test.Operations.Server();
             }
             else if (type.Equals("Ice.operations.Serveramd"))
             {
-                return new Ice.operations.AMD.Server();
+                return new ZeroC.Ice.Test.Operations.ServerAMD();
             }
 
             else if (type.Equals("Ice.tagged.Client"))
             {
-                return new Ice.tagged.Client();
+                return new ZeroC.Ice.Test.Tagged.Client();
             }
             else if (type.Equals("Ice.tagged.Server"))
             {
-                return new Ice.tagged.Server();
+                return new ZeroC.Ice.Test.Tagged.Server();
             }
             else if (type.Equals("Ice.tagged.Serveramd"))
             {
-                return new Ice.tagged.AMD.Server();
+                return new ZeroC.Ice.Test.Tagged.ServerAMD();
             }
 
             else if (type.Equals("Ice.namespacemd.Client"))
             {
-                return new Ice.namespacemd.Client();
+                return new ZeroC.Ice.Test.NamespaceMD.Client();
             }
             else if (type.Equals("Ice.namespacemd.Server"))
             {
-                return new Ice.namespacemd.Server();
+                return new ZeroC.Ice.Test.NamespaceMD.Server();
             }
 
             else if (type.Equals("Ice.proxy.Client"))
             {
-                return new Ice.proxy.Client();
+                return new ZeroC.Ice.Test.Proxy.Client();
             }
             else if (type.Equals("Ice.proxy.Collocated"))
             {
-                return new Ice.proxy.Collocated();
+                return new ZeroC.Ice.Test.Proxy.Collocated();
             }
             else if (type.Equals("Ice.proxy.Server"))
             {
-                return new Ice.proxy.Server();
+                return new ZeroC.Ice.Test.Proxy.Server();
             }
             else if (type.Equals("Ice.proxy.Serveramd"))
             {
-                return new Ice.proxy.AMD.Server();
+                return new ZeroC.Ice.Test.Proxy.ServerAMD();
             }
 
             else if (type.Equals("Ice.retry.Client"))
             {
-                return new Ice.retry.Client();
+                return new ZeroC.Ice.Test.Retry.Client();
             }
             else if (type.Equals("Ice.retry.Collocated"))
             {
-                return new Ice.retry.Collocated();
+                return new ZeroC.Ice.Test.Retry.Collocated();
             }
             else if (type.Equals("Ice.retry.Server"))
             {
-                return new Ice.retry.Server();
+                return new ZeroC.Ice.Test.Retry.Server();
             }
 
             else if (type.Equals("Ice.scope.Client"))
             {
-                return new Ice.scope.Client();
+                return new ZeroC.Ice.Test.Scope.Client();
             }
             else if (type.Equals("Ice.scope.Server"))
             {
-                return new Ice.scope.Server();
+                return new ZeroC.Ice.Test.Scope.Server();
             }
 
             else if (type.Equals("Ice.seqMapping.Client"))
             {
-                return new Ice.seqMapping.Client();
+                return new ZeroC.Ice.Test.SeqMapping.Client();
             }
             else if (type.Equals("Ice.seqMapping.Collocated"))
             {
-                return new Ice.seqMapping.Collocated();
+                return new ZeroC.Ice.Test.SeqMapping.Collocated();
             }
             else if (type.Equals("Ice.seqMapping.Server"))
             {
-                return new Ice.seqMapping.Server();
+                return new ZeroC.Ice.Test.SeqMapping.Server();
             }
             else if (type.Equals("Ice.seqMapping.Serveramd"))
             {
-                return new Ice.seqMapping.AMD.Server();
+                return new ZeroC.Ice.Test.SeqMapping.ServerAMD();
             }
 
             else if (type.Equals("Ice.serialize.Client"))
             {
-                return new Ice.serialize.Client();
+                return new ZeroC.Ice.Test.Serialize.Client();
             }
 
             else if (type.Equals("Ice.stream.Client"))
             {
-                return new Ice.stream.Client();
+                return new ZeroC.Ice.Test.Stream.Client();
             }
 
-            else if (type.Equals("Ice.threadPoolPriority.Client"))
+            else if (type.Equals("Ice.threading.Client"))
             {
-                return new Ice.threadPoolPriority.Client();
+                return new ZeroC.Ice.Test.Threading.Client();
             }
-            else if (type.Equals("Ice.threadPoolPriority.Server"))
+            else if (type.Equals("Ice.threading.Server"))
             {
-                return new Ice.threadPoolPriority.Server();
+                return new ZeroC.Ice.Test.Threading.Server();
             }
 
             else if (type.Equals("Ice.timeout.Client"))
             {
-                return new Ice.timeout.Client();
+                return new ZeroC.Ice.Test.Timeout.Client();
             }
             else if (type.Equals("Ice.timeout.Server"))
             {
-                return new Ice.timeout.Server();
+                return new ZeroC.Ice.Test.Timeout.Server();
             }
 
             else if (type.Equals("Ice.udp.Client"))
             {
-                return new Ice.udp.Client();
+                return new ZeroC.Ice.Test.UDP.Client();
             }
             else if (type.Equals("Ice.udp.Server"))
             {
-                return new Ice.udp.Server();
+                return new ZeroC.Ice.Test.UDP.Server();
             }
 
             else

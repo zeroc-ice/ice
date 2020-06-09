@@ -4,9 +4,9 @@
 
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Proxy
+namespace ZeroC.Ice.Test.Proxy
 {
-    public class Server : TestHelper
+    public class ServerAMD : TestHelper
     {
         public override void Run(string[] args)
         {
@@ -16,15 +16,16 @@ namespace ZeroC.Ice.Test.AMD.Proxy
             //
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
+
             using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("test", new MyDerivedClass());
+            adapter.Add("test", new MyDerivedClassAsync());
             adapter.Activate();
             ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
     }
 }

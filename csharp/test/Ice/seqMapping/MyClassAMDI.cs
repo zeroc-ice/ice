@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.Test.AMD.SeqMapping
+namespace ZeroC.Ice.Test.SeqMapping
 {
-    public sealed class MyClass : IMyClass
+    public sealed class MyClassAsync : IMyClassAsync
     {
         public ValueTask shutdownAsync(Current current)
         {
@@ -31,6 +31,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<byte>, IEnumerable<byte>)> opSByteSAsync(Stack<byte> i, Current current) =>
             ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<byte>, IEnumerable<byte>)> opCByteSAsync(Custom<byte> i, Current current) =>
+            ToReturnValue(i);
+
         public ValueTask<(ReadOnlyMemory<bool>, ReadOnlyMemory<bool>)> opABoolSAsync(bool[] i, Current current) =>
             ToReturnValue(i);
 
@@ -44,6 +47,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
             ToReturnValue(i);
 
         public ValueTask<(IEnumerable<bool>, IEnumerable<bool>)> opSBoolSAsync(Stack<bool> i, Current current) =>
+            ToReturnValue(i);
+
+        public ValueTask<(IEnumerable<bool>, IEnumerable<bool>)> opCBoolSAsync(Custom<bool> i, Current current) =>
             ToReturnValue(i);
 
         public ValueTask<(ReadOnlyMemory<short>, ReadOnlyMemory<short>)> opAShortSAsync(short[] i, Current current) =>
@@ -61,6 +67,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<short>, IEnumerable<short>)> opSShortSAsync(Stack<short> i, Current current) =>
             ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<short>, IEnumerable<short>)> opCShortSAsync(Custom<short> i, Current current) =>
+            ToReturnValue(i);
+
         public ValueTask<(ReadOnlyMemory<int>, ReadOnlyMemory<int>)> opAIntSAsync(int[] i, Current current) =>
             ToReturnValue(i);
 
@@ -74,6 +83,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
             ToReturnValue(i);
 
         public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opSIntSAsync(Stack<int> i, Current current) =>
+            ToReturnValue(i);
+
+        public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opCIntSAsync(Custom<int> i, Current current) =>
             ToReturnValue(i);
 
         public ValueTask<(ReadOnlyMemory<long>, ReadOnlyMemory<long>)> opALongSAsync(long[] i, Current current) =>
@@ -91,6 +103,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<long>, IEnumerable<long>)> opSLongSAsync(Stack<long> i, Current current) =>
             ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<long>, IEnumerable<long>)> opCLongSAsync(Custom<long> i, Current current) =>
+            ToReturnValue(i);
+
         public ValueTask<(ReadOnlyMemory<float>, ReadOnlyMemory<float>)> opAFloatSAsync(float[] i, Current current) =>
             ToReturnValue(i);
 
@@ -104,6 +119,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
             ToReturnValue(i);
 
         public ValueTask<(IEnumerable<float>, IEnumerable<float>)> opSFloatSAsync(Stack<float> i, Current current) =>
+            ToReturnValue(i);
+
+        public ValueTask<(IEnumerable<float>, IEnumerable<float>)> opCFloatSAsync(Custom<float> i, Current current) =>
             ToReturnValue(i);
 
         public ValueTask<(ReadOnlyMemory<double>, ReadOnlyMemory<double>)> opADoubleSAsync(double[] i,
@@ -121,6 +139,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<double>, IEnumerable<double>)> opSDoubleSAsync(Stack<double> i,
             Current current) => ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<double>, IEnumerable<double>)> opCDoubleSAsync(Custom<double> i,
+            Current current) => ToReturnValue(i);
+
         public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opAStringSAsync(string[] i, Current current) =>
             ToReturnValue(i);
 
@@ -136,10 +157,16 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opSStringSAsync(Stack<string> i,
             Current current) => ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<string>, IEnumerable<string>)> opCStringSAsync(Custom<string> i,
+            Current current) => ToReturnValue(i);
+
         public ValueTask<(IEnumerable<AnyClass?>, IEnumerable<AnyClass?>)> opAObjectSAsync(AnyClass?[] i,
             Current current) => ToReturnValue(i);
 
         public ValueTask<(IEnumerable<AnyClass?>, IEnumerable<AnyClass?>)> opLObjectSAsync(List<AnyClass?> i,
+            Current current) => ToReturnValue(i);
+
+        public ValueTask<(IEnumerable<AnyClass?>, IEnumerable<AnyClass?>)> opCObjectSAsync(Custom<AnyClass?> i,
             Current current) => ToReturnValue(i);
 
         public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opAObjectPrxSAsync(IObjectPrx?[] i,
@@ -157,6 +184,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opSObjectPrxSAsync(Stack<IObjectPrx?> i,
             Current current) => ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<IObjectPrx?>, IEnumerable<IObjectPrx?>)> opCObjectPrxSAsync(Custom<IObjectPrx?> i,
+            Current current) => ToReturnValue(i);
+
         public ValueTask<(IEnumerable<S>, IEnumerable<S>)> opAStructSAsync(S[] i, Current current) =>
             ToReturnValue(i as IEnumerable<S>);
 
@@ -172,6 +202,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<S>, IEnumerable<S>)> opSStructSAsync(Stack<S> i,
             Current current) => ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<S>, IEnumerable<S>)> opCStructSAsync(Custom<S> i,
+            Current current) => ToReturnValue(i);
+
         public ValueTask<(IEnumerable<SD>, IEnumerable<SD>)> opAStructSDAsync(SD[] i, Current current) =>
             ToReturnValue(i as IEnumerable<SD>);
 
@@ -185,6 +218,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
             Current current) => ToReturnValue(i);
 
         public ValueTask<(IEnumerable<SD>, IEnumerable<SD>)> opSStructSDAsync(Stack<SD> i,
+            Current current) => ToReturnValue(i);
+
+        public ValueTask<(IEnumerable<SD>, IEnumerable<SD>)> opCStructSDAsync(Custom<SD> i,
             Current current) => ToReturnValue(i);
 
         public ValueTask<(IEnumerable<CV?>, IEnumerable<CV?>)> opACVSAsync(CV?[] i, Current current) =>
@@ -208,10 +244,16 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
         public ValueTask<(IEnumerable<IIPrx?>, IEnumerable<IIPrx?>)> opSIPrxSAsync(Stack<IIPrx?> i,
             Current current) => ToReturnValue(i);
 
+        public ValueTask<(IEnumerable<IIPrx?>, IEnumerable<IIPrx?>)> opCIPrxSAsync(Custom<IIPrx?> i,
+            Current current) => ToReturnValue(i);
+
         public ValueTask<(IEnumerable<CR?>, IEnumerable<CR?>)> opACRSAsync(CR?[] i, Current current) =>
             ToReturnValue(i);
 
         public ValueTask<(IEnumerable<CR?>, IEnumerable<CR?>)> opLCRSAsync(List<CR?> i,
+            Current current) => ToReturnValue(i);
+
+        public ValueTask<(IEnumerable<CR?>, IEnumerable<CR?>)> opCCRSAsync(Custom<CR?> i,
             Current current) => ToReturnValue(i);
 
         public ValueTask<(IEnumerable<En>, IEnumerable<En>)> opAEnSAsync(En[] i, Current current) =>
@@ -227,6 +269,9 @@ namespace ZeroC.Ice.Test.AMD.SeqMapping
             ToReturnValue(i);
 
         public ValueTask<(IEnumerable<En>, IEnumerable<En>)> opSEnSAsync(Stack<En> i, Current current) =>
+            ToReturnValue(i);
+
+        public ValueTask<(IEnumerable<En>, IEnumerable<En>)> opCEnSAsync(Custom<En> i, Current current) =>
             ToReturnValue(i);
 
         public ValueTask<(IEnumerable<int>, IEnumerable<int>)> opCustomIntSAsync(ZeroC.Ice.Test.SeqMapping.Custom<int> i,

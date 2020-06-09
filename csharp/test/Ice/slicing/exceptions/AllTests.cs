@@ -726,7 +726,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 {
                     SlicedData slicedData = ex.GetSlicedData()!.Value;
                     TestHelper.Assert(slicedData.Slices.Count == 1);
-                    TestHelper.Assert(slicedData.Slices[0].TypeId! == "::Slicing::Exceptions::ServerPrivateException");
+                    TestHelper.Assert(slicedData.Slices[0].TypeId! == "::ZeroC::Ice::Test::Slicing::Exceptions::ServerPrivateException");
                 }
                 catch (Exception)
                 {
@@ -747,8 +747,8 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 {
                     IReadOnlyList<SliceInfo> slices = ex.GetSlicedData()!.Value.Slices;
                     TestHelper.Assert(slices.Count == 2);
-                    TestHelper.Assert(slices[1].TypeId!.Equals("::Slicing::Exceptions::SPreserved1"));
-                    TestHelper.Assert(slices[0].TypeId!.Equals("::Slicing::Exceptions::SPreserved2"));
+                    TestHelper.Assert(slices[1].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved1"));
+                    TestHelper.Assert(slices[0].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved2"));
                 }
 
                 try
@@ -761,8 +761,8 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     TestHelper.Assert(ex.kp.Equals("preserved"));
                     IReadOnlyList<SliceInfo> slices = ex.GetSlicedData()!.Value.Slices;
                     TestHelper.Assert(slices.Count == 2);
-                    TestHelper.Assert(slices[1].TypeId!.Equals("::Slicing::Exceptions::SPreserved1"));
-                    TestHelper.Assert(slices[0].TypeId!.Equals("::Slicing::Exceptions::SPreserved2"));
+                    TestHelper.Assert(slices[1].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved1"));
+                    TestHelper.Assert(slices[0].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved2"));
                 }
 
                 ObjectAdapter adapter = communicator.CreateObjectAdapter();

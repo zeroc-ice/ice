@@ -96,15 +96,15 @@ namespace ZeroC.Ice.Test.Operations
 
             p.IcePing();
 
-            TestHelper.Assert(p.IceIsA("::Operations::MyClass"));
-            TestHelper.Assert(p.IceId().Equals("::Operations::MyDerivedClass"));
+            TestHelper.Assert(p.IceIsA("::ZeroC::Ice::Test::Operations::MyClass"));
+            TestHelper.Assert(p.IceId().Equals("::ZeroC::Ice::Test::Operations::MyDerivedClass"));
 
             {
                 string[] ids = p.IceIds();
                 TestHelper.Assert(ids.Length == 3);
                 TestHelper.Assert(ids[0].Equals("::Ice::Object"));
-                TestHelper.Assert(ids[1].Equals("::Operations::MyClass"));
-                TestHelper.Assert(ids[2].Equals("::Operations::MyDerivedClass"));
+                TestHelper.Assert(ids[1].Equals("::ZeroC::Ice::Test::Operations::MyClass"));
+                TestHelper.Assert(ids[2].Equals("::ZeroC::Ice::Test::Operations::MyDerivedClass"));
             }
 
             {
@@ -285,10 +285,9 @@ namespace ZeroC.Ice.Test.Operations
                 IMyClassPrx? r;
 
                 (r, c1, c2) = p.opMyClass(p);
-                ProxyIdentityFacetComparer comparer;
-                TestHelper.Assert(comparer.Equals(c1!, p));
-                TestHelper.Assert(!comparer.Equals(c2!, p));
-                TestHelper.Assert(comparer.Equals(r!, p));
+                TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(c1!, p));
+                TestHelper.Assert(!ProxyComparer.IdentityAndFacet.Equals(c2!, p));
+                TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(r!, p));
                 TestHelper.Assert(c1!.Identity.Equals(Identity.Parse("test")));
                 TestHelper.Assert(c2!.Identity.Equals(Identity.Parse("noSuchIdentity")));
                 TestHelper.Assert(r!.Identity.Equals(Identity.Parse("test")));
@@ -306,7 +305,7 @@ namespace ZeroC.Ice.Test.Operations
                 (r, c1, c2) = p.opMyClass(null);
                 TestHelper.Assert(c1 == null);
                 TestHelper.Assert(c2 != null);
-                TestHelper.Assert(comparer.Equals(r!, p));
+                TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(r!, p));
                 r!.opVoid();
             }
 

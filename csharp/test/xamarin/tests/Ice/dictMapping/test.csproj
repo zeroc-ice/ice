@@ -17,10 +17,6 @@
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../../../Ice/dictMapping/Test.ice</SliceCompileSource>
     </Compile>
-    <Compile Include="generated/TestAMD.cs">
-      <SliceCompileSource>../../../../Ice/dictMapping/TestAMD.ice</SliceCompileSource>
-    </Compile>
     <SliceCompile Include="../../../../Ice/dictMapping/Test.ice" />
-    <SliceCompile Include="../../../../Ice/dictMapping/TestAMD.ice" />
   </ItemGroup>
 </Project>

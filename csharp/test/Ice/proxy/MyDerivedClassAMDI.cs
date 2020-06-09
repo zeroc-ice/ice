@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ZeroC.Ice.Test.AMD.Proxy
+namespace ZeroC.Ice.Test.Proxy
 {
-    public sealed class MyDerivedClass : IMyDerivedClass
+    public sealed class MyDerivedClassAsync : IMyDerivedClassAsync
     {
         public ValueTask<IObjectPrx?> echoAsync(IObjectPrx? obj, Current c)
             => new ValueTask<IObjectPrx?>(obj);

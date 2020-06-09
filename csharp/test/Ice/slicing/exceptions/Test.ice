@@ -5,12 +5,9 @@
 #pragma once
 
 [[3.7]]
+[[suppress-warning:reserved-identifier]]
 
-// 'Test.ice' and 'TestAMD.ice' need to generate code into separate namespaces, but with identical type-ids. So we use
-// the 'cs:namespace' metadata here to place the AMD code into a separate AMD namespace, instead of another module;
-// Which would result in differing type-ids.
-[cs:namespace:ZeroC.Ice.Test]
-module Slicing::Exceptions
+module ZeroC::Ice::Test::Slicing::Exceptions
 {
 
 exception Base

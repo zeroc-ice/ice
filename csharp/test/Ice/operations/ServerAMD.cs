@@ -4,9 +4,9 @@
 
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Operations
+namespace ZeroC.Ice.Test.Operations
 {
-    public class Server : TestHelper
+    public class ServerAMD : TestHelper
     {
         public override void Run(string[] args)
         {
@@ -18,12 +18,12 @@ namespace ZeroC.Ice.Test.AMD.Operations
             using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("test", new MyDerivedClass());
+            adapter.Add("test", new MyDerivedClassAsync());
             adapter.Activate();
             ServerReady();
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
     }
 }

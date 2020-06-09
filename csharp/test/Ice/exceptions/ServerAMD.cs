@@ -5,32 +5,9 @@
 using System.Collections.Generic;
 using Test;
 
-namespace ZeroC.Ice.Test.AMD.Exceptions
+namespace ZeroC.Ice.Test.Exceptions
 {
-    public sealed class DummyLogger : ILogger
-    {
-        public void Print(string message)
-        {
-        }
-
-        public void Trace(string category, string message)
-        {
-        }
-
-        public void Warning(string message)
-        {
-        }
-
-        public void Error(string message)
-        {
-        }
-
-        public string GetPrefix() => "";
-
-        public ILogger CloneWithPrefix(string prefix) => new DummyLogger();
-    }
-
-    public class Server : TestHelper
+    public class ServerAMD : TestHelper
     {
         public override void Run(string[] args)
         {
@@ -48,7 +25,7 @@ namespace ZeroC.Ice.Test.AMD.Exceptions
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2");
             ObjectAdapter adapter3 = communicator.CreateObjectAdapter("TestAdapter3");
-            var obj = new Thrower();
+            var obj = new ThrowerAsync();
             adapter.Add("thrower", obj);
             adapter2.Add("thrower", obj);
             adapter3.Add("thrower", obj);
@@ -59,6 +36,6 @@ namespace ZeroC.Ice.Test.AMD.Exceptions
             communicator.WaitForShutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
     }
 }

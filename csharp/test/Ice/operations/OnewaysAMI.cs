@@ -56,7 +56,7 @@ namespace ZeroC.Ice.Test.Operations
                 cb.check();
             }
 
-            bool b = p.IceIsAAsync("::Operations::MyClass").Result;
+            bool b = p.IceIsAAsync("::ZeroC::Ice::Test::Operations::MyClass").Result;
             string id = p.IceIdAsync().Result;
             string[] ids = p.IceIdsAsync().Result;
 

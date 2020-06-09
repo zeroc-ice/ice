@@ -119,9 +119,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stream", "stream", "{7FA498
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\stream\test.csproj", "{C9516047-F8C7-40FF-B035-DEF4F009AF1E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "threadPoolPriority", "threadPoolPriority", "{DDB43470-FAE8-4A08-B5A6-4B9C76B85AFE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "threading", "threading", "{DDB43470-FAE8-4A08-B5A6-4B9C76B85AFE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\threadPoolPriority\test.csproj", "{58562454-2EA2-4879-A2F5-E32AE32063A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\xamarin\tests\Ice\threading\test.csproj", "{58562454-2EA2-4879-A2F5-E32AE32063A9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "timeout", "timeout", "{DD26F674-C90B-4443-B310-437CF2A48A0D}"
 EndProject

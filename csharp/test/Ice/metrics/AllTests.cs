@@ -807,7 +807,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             dm1 = (DispatchMetrics)map["opWithUserException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
-            TestHelper.Assert(dm1.Size == 38 && dm1.ReplySize == 30);
+            TestHelper.Assert(dm1.Size == 38 && dm1.ReplySize == 48);
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);

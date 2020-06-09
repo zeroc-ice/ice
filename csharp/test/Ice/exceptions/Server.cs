@@ -7,29 +7,6 @@ using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
-    public sealed class DummyLogger : ILogger
-    {
-        public void Print(string message)
-        {
-        }
-
-        public void Trace(string category, string message)
-        {
-        }
-
-        public void Warning(string message)
-        {
-        }
-
-        public void Error(string message)
-        {
-        }
-
-        public string GetPrefix() => "";
-
-        public ILogger CloneWithPrefix(string prefix) => new DummyLogger();
-    }
-
     public class Server : TestHelper
     {
         public override void Run(string[] args)

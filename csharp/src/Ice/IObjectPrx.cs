@@ -29,7 +29,6 @@ namespace ZeroC.Ice
     /// </summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
-
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<IObjectPrx> IceReader = (istr) => istr.ReadProxy(Factory);
 
