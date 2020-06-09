@@ -6,18 +6,17 @@ using System.Collections.Generic;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Represents a <see cref="IObjectPrx">object proxy</see>comparison operation that uses specific rules.
-    /// The property <see cref="EqualityComparer{T}.Default"/> can be used to get a comparer that delegates to the
-    /// object proxy <see cref="System.IEquatable{T}"/> implementation, the <see cref="Identity"/> and
-    /// <see cref="IdentityAndFacet"/> properties provide ProxyComparer objects that use different rules.</summary>
+    /// <summary>Represents an <see cref="IObjectPrx">object proxy</see>comparison operation based on all or only some
+    /// of the proxy properties. The <see cref="EqualityComparer{T}.Default"/> property delegates to the implementation
+    /// of <see cref="System.IEquatable{T}"/> provided by IObjectPrx.</summary>
     public abstract class ProxyComparer : EqualityComparer<IObjectPrx>
     {
-        /// <summary>Gets a <see cref="ProxyComparer"/> that compare proxies based on the proxies' object identity.
-        /// </summary>
+        /// <summary>Gets a <see cref="ProxyComparer"/> that compare proxies based only on the proxies' object
+        /// identity.</summary>
         public static ProxyComparer Identity { get; } = new IdentityComparer();
 
-        /// <summary>Gets a <see cref="ProxyComparer"/> that compare proxies, based on the proxies' object identity
-        /// and facet.</summary>
+        /// <summary>Gets a <see cref="ProxyComparer"/> that compare proxies, based only on the proxies' object
+        /// identity and facet.</summary>
         public static ProxyComparer IdentityAndFacet { get; } = new IdentityAndFacetComparer();
 
         private class IdentityComparer : ProxyComparer
@@ -59,6 +58,5 @@ namespace ZeroC.Ice
                 return lhs.Identity.Equals(rhs.Identity) && lhs.Facet.Equals(rhs.Facet);
             }
         }
-
     }
 }
