@@ -1046,7 +1046,7 @@ namespace ZeroC.Ice
                     int bytesReceived = await _transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
                     offset += bytesReceived;
 
-                    // Trace the receival progress within the loop as we might be receiving significant amount
+                    // Trace the receive progress within the loop as we might be receiving significant amount
                     // of data here.
                     lock (_mutex)
                     {
@@ -1129,9 +1129,8 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            readBuffer = readBuffer.Slice(Ice1Definitions.HeaderSize);
-                            int requestId = InputStream.ReadInt(readBuffer.AsSpan(0, 4));
-                            var request = new IncomingRequestFrame(_communicator, readBuffer.Slice(4));
+                            var request = new IncomingRequestFrame(_communicator,
+                                readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                             ProtocolTrace.TraceFrame(_communicator, readBuffer, request);
                             if (_adapter == null)
                             {
@@ -1141,6 +1140,7 @@ namespace ZeroC.Ice
                             else
                             {
                                 adapter = _adapter;
+                                int requestId = InputStream.ReadInt(readBuffer.AsSpan(Ice1Definitions.HeaderSize, 4));
                                 var current = new Current(_adapter, request, requestId, this);
                                 incoming = () => InvokeAsync(current, request, compressionStatus);
                                 ++_dispatchCount;
@@ -1174,11 +1174,10 @@ namespace ZeroC.Ice
 
                     case Ice1Definitions.FrameType.Reply:
                     {
-                        ArraySegment<byte> header = readBuffer.Slice(0, Ice1Definitions.HeaderSize + 4);
-                        readBuffer = readBuffer.Slice(Ice1Definitions.HeaderSize);
-                        int requestId = InputStream.ReadInt(readBuffer.AsSpan(0, 4));
-                        var responseFrame = new IncomingResponseFrame(_communicator, readBuffer.Slice(4));
-                        ProtocolTrace.TraceFrame(_communicator, header, responseFrame);
+                        int requestId = InputStream.ReadInt(readBuffer.AsSpan(14, 4));
+                        var responseFrame = new IncomingResponseFrame(_communicator,
+                            readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
+                        ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
                         if (_requests.TryGetValue(requestId, out OutgoingAsyncBase? outAsync))
                         {
                             _requests.Remove(requestId);

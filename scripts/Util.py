@@ -1885,7 +1885,7 @@ class Result:
             if hostname:
                 name += " on " + hostname
             out.write('    <testcase name="{0}" time="{1:.9f}" classname="{2}.{3}">\n'
-                      .format(name,
+                      .format(escapeXml(name),
                               d,
                               self.testsuite.getMapping(),
                               self.testsuite.getId().replace("/", ".")))
