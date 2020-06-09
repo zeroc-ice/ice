@@ -73,5 +73,25 @@ namespace ZeroC.Ice.Test.Optional
         public IReadOnlyDictionary<int, string?>? OpTaggedIntOptStringDict(
             Dictionary<int, string?>? i1,
             Current current) => i1;
+
+        public MyStruct OpMyStruct(MyStruct i1, Current current) => i1;
+
+        public MyStruct? OpOptMyStruct(MyStruct? i1, Current current) => i1;
+
+        public Derived OpDerived(Derived i1, Current current) => i1;
+
+        public Derived? OpOptDerived(Derived? i1, Current current) => i1;
+
+        public void OpDerivedEx(Current current)
+        {
+            if (current.Context.ContainsKey("all null"))
+            {
+                throw new DerivedEx();
+            }
+            else
+            {
+                throw new DerivedEx(null, 5, new string?[] { "foo", null, "bar" }, new C(42), "test");
+            }
+        }
     }
 }

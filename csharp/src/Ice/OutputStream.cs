@@ -356,38 +356,38 @@ namespace ZeroC.Ice
         /// <param name="v">The ushort to write to the stream.</param>
         public void WriteUShort(ushort v) => WriteFixedSizeNumeric(v);
 
-        /// <summary>Writes an int to stream, using Ice's variable-length integer encoding.</summary>
+        /// <summary>Writes an int to stream, using Ice's variable-size integer encoding.</summary>
         /// <param name="v">The int to write to the stream.</param>
         public void WriteVarInt(int v) => WriteVarLong(v);
 
-        /// <summary>Writes a long to stream, using Ice's variable-length integer encoding, with the minimum number of
+        /// <summary>Writes a long to stream, using Ice's variable-size integer encoding, with the minimum number of
         /// bytes required by the encoding.</summary>
         /// <param name="v">The long to write to the stream. It must be in the range [-2^61..2^61 - 1].</param>
         public void WriteVarLong(long v)
         {
-            int encodedLength = GetEncodedLength(v);
+            int encodedSize = GetEncodedSize(v);
             v <<= 2;
-            v |= (uint)encodedLength;
+            v |= (uint)encodedSize;
             Span<byte> data = stackalloc byte[sizeof(long)];
             MemoryMarshal.Write(data, ref v);
-            WriteByteSpan(data.Slice(0, 1 << encodedLength));
+            WriteByteSpan(data.Slice(0, 1 << encodedSize));
         }
 
-        /// <summary>Writes a uint to stream, using Ice's variable-length integer encoding.</summary>
+        /// <summary>Writes a uint to stream, using Ice's variable-size integer encoding.</summary>
         /// <param name="v">The uint to write to the stream.</param>
         public void WriteVarUInt(uint v) => WriteVarULong(v);
 
-        /// <summary>Writes a ulong to stream, using Ice's variable-length integer encoding, with the minimum number of
+        /// <summary>Writes a ulong to stream, using Ice's variable-size integer encoding, with the minimum number of
         /// bytes required by the encoding.</summary>
         /// <param name="v">The ulong to write to the stream. It must be in the range [0..2^62 - 1].</param>
         public void WriteVarULong(ulong v)
         {
-            int encodedLength = GetEncodedLength(v);
+            int encodedSize = GetEncodedSize(v);
             v <<= 2;
-            v |= (uint)encodedLength;
+            v |= (uint)encodedSize;
             Span<byte> data = stackalloc byte[sizeof(ulong)];
             MemoryMarshal.Write(data, ref v);
-            WriteByteSpan(data.Slice(0, 1 << encodedLength));
+            WriteByteSpan(data.Slice(0, 1 << encodedSize));
         }
 
         //
@@ -948,37 +948,37 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Writes a tagged int to stream, using Ice's variable-length integer encoding.</summary>
+        /// <summary>Writes a tagged int to stream, using Ice's variable-size integer encoding.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The int to write to the stream.</param>
         public void WriteTaggedVarInt(int tag, int? v) => WriteTaggedVarLong(tag, v);
 
-        /// <summary>Writes a tagged long to stream, using Ice's variable-length integer encoding.</summary>
+        /// <summary>Writes a tagged long to stream, using Ice's variable-size integer encoding.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The long to write to the stream.</param>
         public void WriteTaggedVarLong(int tag, long? v)
         {
             if (v is long value)
             {
-                var format = (EncodingDefinitions.TagFormat)GetEncodedLength(value);
+                var format = (EncodingDefinitions.TagFormat)GetEncodedSize(value);
                 WriteTaggedParamHeader(tag, format);
                 WriteVarLong(value);
             }
         }
 
-        /// <summary>Writes a tagged uint to stream, using Ice's variable-length integer encoding.</summary>
+        /// <summary>Writes a tagged uint to stream, using Ice's variable-size integer encoding.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The uint to write to the stream.</param>
         public void WriteTaggedVarUInt(int tag, uint? v) => WriteTaggedVarULong(tag, v);
 
-        /// <summary>Writes a tagged ulong to stream, using Ice's variable-length integer encoding.</summary>
+        /// <summary>Writes a tagged ulong to stream, using Ice's variable-size integer encoding.</summary>
         /// <param name="tag">The tag.</param>
         /// <param name="v">The ulong to write to the stream.</param>
         public void WriteTaggedVarULong(int tag, ulong? v)
         {
             if (v is ulong value)
             {
-                var format = (EncodingDefinitions.TagFormat)GetEncodedLength(value);
+                var format = (EncodingDefinitions.TagFormat)GetEncodedSize(value);
                 WriteTaggedParamHeader(tag, format);
                 WriteVarULong(value);
             }
@@ -1527,13 +1527,13 @@ namespace ZeroC.Ice
 
         /// <summary>Writes a sequence of bits to the stream, and returns this sequence backed by the stream's buffer.
         /// </summary>
-        /// <param name="bitLength">The minimum number of bits in the sequence.</param>
-        /// <returns>The bit sequence, with all bits set. The actual length of the sequence is a multiple of 8.
+        /// <param name="bitSize">The minimum number of bits in the sequence.</param>
+        /// <returns>The bit sequence, with all bits set. The actual size of the sequence is a multiple of 8.
         /// </returns>
-        public BitSequence WriteBitSequence(int bitLength)
+        public BitSequence WriteBitSequence(int bitSize)
         {
-            Debug.Assert(bitLength > 0);
-            int size = (bitLength >> 3) + ((bitLength & 0x07) != 0 ? 1 : 0);
+            Debug.Assert(bitSize > 0);
+            int size = (bitSize >> 3) + ((bitSize & 0x07) != 0 ? 1 : 0);
 
             Expand(size);
 
@@ -1639,7 +1639,7 @@ namespace ZeroC.Ice
             WriteShort((short)endpoint.Type);
             if (endpoint is OpaqueEndpoint opaqueEndpoint)
             {
-                // 2 is the encoding length
+                // 2 bytes for the encoding value (e.g. 20 for 2.0)
                 WriteEncapsulationHeader(2 + opaqueEndpoint.Bytes.Length, opaqueEndpoint.Encoding, sizeLength);
                 WriteByteSpan(opaqueEndpoint.Bytes.Span); // WriteByteSpan is not encoding-sensitive
             }
@@ -1712,13 +1712,13 @@ namespace ZeroC.Ice
             uint v = (uint)size;
             v <<= 2;
 
-            uint encodedLength = sizeLength switch
+            uint encodedSize = sizeLength switch
             {
                 1 => 0x00,
                 2 => 0x01,
                 _ => 0x02
             };
-            v |= encodedLength;
+            v |= encodedSize;
             MemoryMarshal.Write(uintBuf, ref v);
             for (int i = sizeLength; i < 4; ++i)
             {
@@ -1794,9 +1794,9 @@ namespace ZeroC.Ice
 
         /// <summary>Gets the number of bytes needed to encode a long value.</summary>
         /// <param name="value">The value to encoded.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-length integer encoding.
+        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
         /// </returns>
-        private int GetEncodedLength(long value)
+        private int GetEncodedSize(long value)
         {
             if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
             {
@@ -1814,9 +1814,9 @@ namespace ZeroC.Ice
 
         /// <summary>Gets the number of bytes needed to encode a long value.</summary>
         /// <param name="value">The value to encoded.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-length integer encoding.
+        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
         /// </returns>
-        private int GetEncodedLength(ulong value)
+        private int GetEncodedSize(ulong value)
         {
             if (value > EncodingDefinitions.VarULongMaxValue)
             {
@@ -1844,7 +1844,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return 1 << GetEncodedLength((ulong)size);
+                return 1 << GetEncodedSize((ulong)size);
             }
         }
 

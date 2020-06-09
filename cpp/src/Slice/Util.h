@@ -71,6 +71,9 @@ std::string snakeCase(const std::string&);
 // - tagged data members listed last and sorted in tag order
 DataMemberList sortForMarshaling(const DataMemberList&);
 
+// Returns the size of the bit sequence used to encode the optional elements in this data member list.
+size_t getBitSequenceSize(const DataMemberList&);
+
 }
 
 #endif
