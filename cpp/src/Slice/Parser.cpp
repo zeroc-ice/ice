@@ -3131,8 +3131,8 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
             {
                 ostringstream oss;
                 oss.imbue(underscoreSeparatorLocale);
-                oss << "initializer `" << value << "' for " << desc << " " << name << " is outside type "
-                    << b->kindAsString() << "'s range: [" << min << ".." << max << "]";
+                oss << "initializer `" << value << "' for " << desc << " " << name << " is outside the range of "
+                    << b->kindAsString() << ": [" << min << ".." << max << "]";
                 _unit->error(oss.str());
                 return false;
             }
@@ -5299,15 +5299,9 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
         ostringstream oss;
         oss.imbue(underscoreSeparatorLocale);
         oss << "value " << _lastValue << " for enumerator `" << p->name() << "'";
-        if (_underlying)
-        {
-            oss << " is outside type's " << _underlying->kindAsString() << " range: [" << rangeMin << ".." << rangeMax
-                << "]";
-        }
-        else
-        {
-            oss << " is out of range";
-        }
+
+        oss << " is outside the range of " << (_underlying ? _underlying->kindAsString() : "its enum") << ": ["
+            << rangeMin << ".." << rangeMax << "]";
         _unit->error(oss.str());
     }
 

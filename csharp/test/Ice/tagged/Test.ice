@@ -50,11 +50,6 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 
 sequence<ushort> UShortSeq;
-sequence<uint> UIntSeq;
-sequence<ulong> ULongSeq;
-sequence<varint> VarIntSeq;
-sequence<varlong> VarLongSeq;
-sequence<varuint> VarUIntSeq;
 sequence<varulong> VarULongSeq;
 
 [clr:generic:List] sequence<byte> ByteList;
