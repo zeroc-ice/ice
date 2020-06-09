@@ -642,3 +642,27 @@ Slice::snakeCase(const std::string& name)
     }
     return os.str();
 }
+
+DataMemberList
+Slice::sortForMarshaling(const DataMemberList& members)
+{
+    DataMemberList result = members;
+    result.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs) -> bool
+    {
+        if (lhs->tagged() && rhs->tagged())
+        {
+            return lhs->tag() < rhs->tag();
+        }
+        else if (!lhs->tagged() && !rhs->tagged())
+        {
+            // sort keeps the order of unordered elements
+            return false;
+        }
+        else
+        {
+            // If only one is tagged, lhs < rhs when lhs is not tagged.
+            return !lhs->tagged();
+        }
+    });
+    return result;
+}

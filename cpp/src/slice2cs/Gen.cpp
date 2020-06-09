@@ -262,31 +262,38 @@ Slice::CsVisitor::writeUnmarshalParams(const OperationPtr& op,
 }
 
 void
-Slice::CsVisitor::writeMarshalDataMembers(const DataMemberList& p, const DataMemberList& sortedTaggedMembers,
-    const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeMarshalDataMembers(const DataMemberList& p, const string& ns, unsigned int baseTypes)
 {
-    for (const auto& member : p)
+#ifndef NDEBUG
+    int currentTag = -1; // just to verify sortForMarshaling sorts correctly
+#endif
+    for (const auto& member : sortForMarshaling(p))
     {
         if (!member->tagged())
         {
+#ifndef NDEBUG
+            assert(currentTag == -1);
+#endif
             int bitSequenceIndex = -1; // TODO: temporary
             writeMarshalCode(_out, member->type(), bitSequenceIndex, true, ns,
                 "this." + fixId(dataMemberName(member), baseTypes), "ostr");
         }
-    }
-
-    for (const auto& member : sortedTaggedMembers)
-    {
-        writeTaggedMarshalCode(_out, OptionalPtr::dynamicCast(member->type()), true, ns,
-            "this." + fixId(dataMemberName(member), baseTypes), member->tag(), "ostr");
+        else
+        {
+#ifndef NDEBUG
+            assert(member->tag() > currentTag);
+            currentTag = member->tag();
+#endif
+            writeTaggedMarshalCode(_out, OptionalPtr::dynamicCast(member->type()), true, ns,
+                "this." + fixId(dataMemberName(member), baseTypes), member->tag(), "ostr");
+        }
     }
 }
 
 void
-Slice::CsVisitor::writeUnmarshalDataMembers(const DataMemberList& p, const DataMemberList& sortedTaggedMembers,
-    const string& ns, unsigned int baseTypes)
+Slice::CsVisitor::writeUnmarshalDataMembers(const DataMemberList& p, const string& ns, unsigned int baseTypes)
 {
-    for (const auto& member : p)
+    for (const auto& member : sortForMarshaling(p))
     {
         if (!member->tagged())
         {
@@ -295,13 +302,12 @@ Slice::CsVisitor::writeUnmarshalDataMembers(const DataMemberList& p, const DataM
             writeUnmarshalCode(_out, member->type(), bitSequenceIndex, ns,
                 "this." + fixId(dataMemberName(member), baseTypes), "istr");
         }
-    }
-
-    for (const auto& member : sortedTaggedMembers)
-    {
-        _out << nl;
-        writeTaggedUnmarshalCode(_out, OptionalPtr::dynamicCast(member->type()), ns,
-            "this." + fixId(dataMemberName(member), baseTypes), member->tag(), member, "istr");
+        else
+        {
+            _out << nl;
+            writeTaggedUnmarshalCode(_out, OptionalPtr::dynamicCast(member->type()), ns,
+                "this." + fixId(dataMemberName(member), baseTypes), member->tag(), member, "istr");
+        }
     }
 }
 
@@ -1418,7 +1424,7 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     }
     _out << epar << ";";
 
-    writeMarshalDataMembers(members, p->sortedTaggedDataMembers(), ns, 0);
+    writeMarshalDataMembers(members, ns, 0);
 
     if(base)
     {
@@ -1450,7 +1456,7 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "istr.IceStartSlice" << spar << "_iceTypeId" << epar << ";";
     _out << eb;
 
-    writeUnmarshalDataMembers(members, p->sortedTaggedDataMembers(), ns, 0);
+    writeUnmarshalDataMembers(members, ns, 0);
 
     _out << nl << "istr.IceEndSlice();";
     if (base)
@@ -1749,7 +1755,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << "firstSlice ? IceSlicedData : null";
     _out << epar << ";";
 
-    writeMarshalDataMembers(dataMembers, p->sortedTaggedDataMembers(), ns, Slice::ExceptionType);
+    writeMarshalDataMembers(dataMembers, ns, Slice::ExceptionType);
 
     if(base)
     {
@@ -1777,7 +1783,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "istr.IceStartSlice" << spar << "_iceTypeId" << epar << ";";
     _out << eb;
 
-    writeUnmarshalDataMembers(dataMembers, p->sortedTaggedDataMembers(), ns, Slice::ExceptionType);
+    writeUnmarshalDataMembers(dataMembers, ns, Slice::ExceptionType);
 
     _out << nl << "istr.IceEndSlice();";
     if(base)
@@ -1864,7 +1870,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public " << name << "(ZeroC.Ice.InputStream istr)";
     _out << sb;
 
-    writeUnmarshalDataMembers(dataMembers, DataMemberList(), ns, 0);
+    writeUnmarshalDataMembers(dataMembers, ns, 0);
 
     if(partialInitialize)
     {
@@ -1939,7 +1945,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "public readonly void IceWrite(ZeroC.Ice.OutputStream ostr)";
     _out << sb;
 
-    writeMarshalDataMembers(dataMembers, DataMemberList(), ns, 0);
+    writeMarshalDataMembers(dataMembers, ns, 0);
 
     _out << eb;
     _out << eb;

@@ -66,6 +66,11 @@ std::string camelCase(const std::string&);
 std::string pascalCase(const std::string&);
 std::string snakeCase(const std::string&);
 
+// Returns a new list of data members sorted as follows:
+// - non-tagged data members listed first but kept in the same order
+// - tagged data members listed last and sorted in tag order
+DataMemberList sortForMarshaling(const DataMemberList&);
+
 }
 
 #endif

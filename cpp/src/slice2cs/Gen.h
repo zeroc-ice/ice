@@ -32,8 +32,8 @@ protected:
     void writeUnmarshalParams(const OperationPtr&, const std::list<ParamInfo>&, const std::list<ParamInfo>&,
                               const std::string& stream = "istr");
 
-    void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&, const std::string&, unsigned int);
-    void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&, const std::string&, unsigned int);
+    void writeMarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);
+    void writeUnmarshalDataMembers(const DataMemberList&, const std::string&, unsigned int);
 
     void emitCommonAttributes(); // GeneratedCode and more if needed
     void emitCustomAttributes(const ContainedPtr&); // attributes specified through metadata
