@@ -235,8 +235,8 @@ namespace ZeroC.Ice
                 Ice1Definitions.FrameType.Request => "request",
                 Ice1Definitions.FrameType.RequestBatch => "batch request",
                 Ice1Definitions.FrameType.Reply => "reply",
-                Ice1Definitions.FrameType.CloseConnection => "close connection",
                 Ice1Definitions.FrameType.ValidateConnection => "validate connection",
+                Ice1Definitions.FrameType.CloseConnection => "close connection",
                 _ => "unknown",
             };
         }
