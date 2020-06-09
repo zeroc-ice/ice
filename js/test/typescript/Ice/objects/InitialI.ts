@@ -230,17 +230,17 @@ export class InitialI extends Test.Initial
         return new Test.K(new Test.L("l"));
     }
 
-    opValue(v1:Ice.Value, current:Ice.Current):[Ice.Value, Ice.Value]
+    opClass(v1:Ice.Value, current:Ice.Current):[Ice.Value, Ice.Value]
     {
         return [v1, v1];
     }
 
-    opValueSeq(v1:Ice.Value[], current:Ice.Current):[Ice.Value[], Ice.Value[]]
+    opClassSeq(v1:Ice.Value[], current:Ice.Current):[Ice.Value[], Ice.Value[]]
     {
         return [v1, v1];
     }
 
-    opValueMap(v1:Map<string, Ice.Value>, current:Ice.Current):[Map<string, Ice.Value>, Map<string, Ice.Value>]
+    opClassMap(v1:Map<string, Ice.Value>, current:Ice.Current):[Map<string, Ice.Value>, Map<string, Ice.Value>]
     {
         return [v1, v1];
     }

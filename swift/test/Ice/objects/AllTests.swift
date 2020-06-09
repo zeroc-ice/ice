@@ -148,17 +148,17 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
 
     output.write("testing Value as parameter... ")
     do {
-        let (v3, v2) = try initial.opValue(L(data: "l"))
+        let (v3, v2) = try initial.opClass(L(data: "l"))
         try test((v2 as! L).data == "l")
         try test((v3 as! L).data == "l")
     }
     do {
-        let (v3, v2) = try initial.opValueSeq([L(data: "l")])
+        let (v3, v2) = try initial.opClassSeq([L(data: "l")])
         try test((v2[0] as! L).data == "l")
         try test((v3[0] as! L).data == "l")
     }
     do {
-        let (v3, v2) = try initial.opValueMap(["l": L(data: "l")])
+        let (v3, v2) = try initial.opClassMap(["l": L(data: "l")])
         try test((v2["l"]! as! L).data == "l")
         try test((v3["l"]! as! L).data == "l")
     }

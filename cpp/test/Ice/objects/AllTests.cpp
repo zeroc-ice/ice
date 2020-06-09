@@ -253,27 +253,27 @@ allTests(Test::TestHelper* helper)
     {
         LPtr v1 = std::make_shared<L>("l");
         Ice::ValuePtr v2;
-        Ice::ValuePtr v3 = initial->opValue(v1, v2);
+        Ice::ValuePtr v3 = initial->opClass(v1, v2);
         test(ICE_DYNAMIC_CAST(L, v2)->data == "l");
         test(ICE_DYNAMIC_CAST(L, v3)->data == "l");
     }
 
     {
         LPtr l = std::make_shared<L>("l");
-        Test::ValueSeq v1;
+        Test::ClassSeq v1;
         v1.push_back(l);
-        Test::ValueSeq v2;
-        Test::ValueSeq v3 = initial->opValueSeq(v1, v2);
+        Test::ClassSeq v2;
+        Test::ClassSeq v3 = initial->opClassSeq(v1, v2);
         test(ICE_DYNAMIC_CAST(L, v2[0])->data == "l");
         test(ICE_DYNAMIC_CAST(L, v3[0])->data == "l");
     }
 
     {
         LPtr l = std::make_shared<L>("l");
-        Test::ValueMap v1;
+        Test::ClassMap v1;
         v1["l"] = l;
-        Test::ValueMap v2;
-        Test::ValueMap v3 = initial->opValueMap(v1, v2);
+        Test::ClassMap v2;
+        Test::ClassMap v3 = initial->opClassMap(v1, v2);
         test(ICE_DYNAMIC_CAST(L, v2["l"])->data == "l");
         test(ICE_DYNAMIC_CAST(L, v3["l"])->data == "l");
     }
