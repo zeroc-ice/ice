@@ -1419,7 +1419,7 @@ class ProcessFromBinDir:
 
 #
 # Executables for processes inheriting this marker class are only provided
-# as a Release executble on Windows
+# as a Release executable on Windows
 #
 class ProcessIsReleaseOnly:
 
@@ -1433,20 +1433,15 @@ class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
 
     def getCommandLine(self, current, args=""):
         #
-        # Look for slice2py installed by Pip if not found in the bin directory
+        # Look for slice2py installed by pip if not found in the bin directory
         #
         if self.exe == "slice2py":
             translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), "")
-            if os.path.exists(translator):
-                return translator + " " + args if args else translator
-            elif isinstance(platform, Windows):
-                return os.path.join(os.path.dirname(sys.executable), "Scripts", "slice2py.exe")
-            elif os.path.exists("/usr/local/bin/slice2py"):
-                return "/usr/local/bin/slice2py"
-            else:
-                import slice2py
-                return sys.executable + " " + os.path.normpath(
-                            os.path.join(slice2py.__file__, "..", "..", "..", "..", "bin", "slice2py"))
+            if not os.path.exists(translator):
+                # TODO: Switch to "sys.executable -m slice2py" once Ice 3.7.5 is released
+                # See https://github.com/zeroc-ice/ice/issues/893
+                translator = sys.executable + " -c " + "'import slice2py; slice2py.main()'"
+            return (translator + " " + args).strip()
         else:
             return Process.getCommandLine(self, current, args)
 
