@@ -1111,11 +1111,11 @@ namespace ZeroC.Ice
             (int Size, Encoding Encoding) result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
             if (OldEncoding)
             {
-                _pos += 6; // 4 (size length) + 2 (encoding bytes)
+                _pos += 6; // 4 bytes for the encaps size + 2 bytes for the encoding
             }
             else
             {
-                _pos += (1 << (_buffer[_pos] & 0x03)) + 2; // size length + encoding bytes
+                _pos += (1 << (_buffer[_pos] & 0x03)) + 2; // n bytes for the encaps size + 2 bytes for the encoding
             }
             return result;
         }

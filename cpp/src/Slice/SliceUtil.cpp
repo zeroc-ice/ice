@@ -673,13 +673,10 @@ Slice::getBitSequenceSize(const DataMemberList& members)
     size_t result = 0;
     for (const auto& member : members)
     {
-        if (!member->tagged())
+        if (auto optional = OptionalPtr::dynamicCast(member->type());
+            optional && !member->tagged() && optional->encodedUsingBitSequence())
         {
-            auto optional = OptionalPtr::dynamicCast(member->type());
-            if (optional && !optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
-            {
-                result++;
-            }
+            result++;
         }
     }
     return result;
