@@ -323,7 +323,7 @@ namespace IceLocatorDiscovery
                 {
                     StringBuilder s = new StringBuilder("locator lookup succeeded:\nlocator = ");
                     s.Append(locator);
-                    if(_instanceName.Length == 0)
+                    if(_instanceName.Length > 0)
                     {
                         s.Append("\ninstance name = ").Append(_instanceName);
                     }
@@ -430,7 +430,7 @@ namespace IceLocatorDiscovery
                             {
                                 StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
                                 s.Append(_lookup);
-                                if(_instanceName.Length == 0)
+                                if(_instanceName.Length > 0)
                                 {
                                     s.Append("\ninstance name = ").Append(_instanceName);
                                 }
@@ -458,7 +458,7 @@ namespace IceLocatorDiscovery
                             {
                                 StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
                                 s.Append(_lookup);
-                                if(_instanceName.Length == 0)
+                                if(_instanceName.Length > 0)
                                 {
                                     s.Append("\ninstance name = ").Append(_instanceName);
                                 }
@@ -507,7 +507,7 @@ namespace IceLocatorDiscovery
                     {
                         StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
                         s.Append(_lookup);
-                        if(_instanceName.Length == 0)
+                        if(_instanceName.Length > 0)
                         {
                             s.Append("\ninstance name = ").Append(_instanceName);
                         }
@@ -551,7 +551,7 @@ namespace IceLocatorDiscovery
                             StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
                             s.Append(_lookup);
                             s.Append("\nretry count = ").Append(_retryCount);
-                            if(_instanceName.Length == 0)
+                            if(_instanceName.Length > 0)
                             {
                                 s.Append("\ninstance name = ").Append(_instanceName);
                             }
@@ -587,7 +587,7 @@ namespace IceLocatorDiscovery
                 {
                     StringBuilder s = new StringBuilder("locator lookup timed out:\nlookup = ");
                     s.Append(_lookup);
-                    if(_instanceName.Length == 0)
+                    if(_instanceName.Length > 0)
                     {
                         s.Append("\ninstance name = ").Append(_instanceName);
                     }
