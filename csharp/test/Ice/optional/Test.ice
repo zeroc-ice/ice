@@ -36,7 +36,7 @@ module ZeroC::Ice::Test::Optional
 
     class Derived : Base
     {
-        Value? someClass;
+        AnyClass? someClass;
         string? s;
     }
 
@@ -49,7 +49,7 @@ module ZeroC::Ice::Test::Optional
 
     exception DerivedEx : BaseEx
     {
-        Value? someClass;
+        AnyClass? someClass;
         string? s;
     }
 
