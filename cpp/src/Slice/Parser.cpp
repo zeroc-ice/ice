@@ -5477,7 +5477,7 @@ Slice::Operation::interface() const
 }
 
 size_t
-Slice::Operation::inBitSequenceLength() const
+Slice::Operation::inBitSequenceSize() const
 {
     size_t length = 0;
     for (const auto& p : inParameters())
@@ -5497,7 +5497,7 @@ Slice::Operation::inBitSequenceLength() const
 }
 
 size_t
-Slice::Operation::returnBitSequenceLength() const
+Slice::Operation::returnBitSequenceSize() const
 {
     size_t length = 0;
     for (const auto& p : outParameters())

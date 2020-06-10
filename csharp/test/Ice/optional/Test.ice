@@ -9,16 +9,49 @@
 
 module ZeroC::Ice::Test::Optional
 {
-    class C
-    {
-        int x;
-    }
-
     sequence<int?> OptIntSeq;
     sequence<string?> OptStringSeq;
 
     dictionary<int, int?> IntOptIntDict;
     dictionary<int, string?> IntOptStringDict;
+
+    class C
+    {
+        int x;
+    }
+
+    struct MyStruct
+    {
+        Object? proxy;
+        int? x;
+        OptStringSeq? stringSeq;
+    }
+
+    class Base
+    {
+        Object? proxy;
+        int? x;
+        OptStringSeq? stringSeq;
+    }
+
+    class Derived : Base
+    {
+        Value? someClass;
+        string? s;
+    }
+
+    exception BaseEx
+    {
+        Object? proxy;
+        int? x;
+        OptStringSeq? stringSeq;
+    }
+
+    exception DerivedEx : BaseEx
+    {
+        Value? someClass;
+        string? s;
+    }
 
     interface Test
     {
@@ -51,5 +84,11 @@ module ZeroC::Ice::Test::Optional
 
         IntOptStringDict opIntOptStringDict(IntOptStringDict i1);
         tag(1) IntOptStringDict? opTaggedIntOptStringDict(tag(2) IntOptStringDict? i1);
+
+        MyStruct opMyStruct(MyStruct i1);
+        MyStruct? opOptMyStruct(MyStruct? i1);
+        Derived opDerived(Derived i1);
+        Derived? opOptDerived(Derived? i1);
+        void opDerivedEx();
     }
 }

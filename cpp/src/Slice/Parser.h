@@ -758,11 +758,11 @@ public:
 
     // The "in" bit sequence length. It corresponds to the number of in-parameters with optional types that are not
     // class/proxy and that are not tagged.
-    size_t inBitSequenceLength() const;
+    size_t inBitSequenceSize() const;
 
     // The "return" bit sequence length. It corresponds to the number of return parameters with optional types that are
     // not class/proxy and that are not tagged.
-    size_t returnBitSequenceLength() const;
+    size_t returnBitSequenceSize() const;
 
     TypePtr returnType() const;
     bool returnIsTagged() const;

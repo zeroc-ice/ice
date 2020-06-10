@@ -292,7 +292,7 @@ namespace ZeroC.Ice
             return value;
         }
 
-        /// <summary>Reads an int from the stream. This int is encoded using Ice's variable-length integer encoding.
+        /// <summary>Reads an int from the stream. This int is encoded using Ice's variable-size integer encoding.
         /// </summary>
         /// <returns>The int read from the stream.</returns>
         public int ReadVarInt()
@@ -310,7 +310,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads a long from the stream. This long is encoded using Ice's variable-length integer encoding.
+        /// <summary>Reads a long from the stream. This long is encoded using Ice's variable-size integer encoding.
         /// </summary>
         /// <returns>The long read from the stream.</returns>
         public long ReadVarLong() =>
@@ -322,7 +322,7 @@ namespace ZeroC.Ice
                 _ => ReadLong() >> 2
             };
 
-        /// <summary>Reads a uint from the stream. This uint is encoded using Ice's variable-length integer encoding.
+        /// <summary>Reads a uint from the stream. This uint is encoded using Ice's variable-size integer encoding.
         /// </summary>
         /// <returns>The uint read from the stream.</returns>
         public uint ReadVarUInt()
@@ -340,7 +340,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Reads a ulong from the stream. This ulong is encoded using Ice's variable-length integer encoding.
+        /// <summary>Reads a ulong from the stream. This ulong is encoded using Ice's variable-size integer encoding.
         /// </summary>
         /// <returns>The ulong read from the stream.</returns>
         public ulong ReadVarULong() =>
@@ -1006,11 +1006,11 @@ namespace ZeroC.Ice
         //
 
         /// <summary>Reads a bit sequence from the stream.</summary>
-        /// <param name="bitLength">The minimum number of bits in the sequence.</param>
+        /// <param name="bitSequenceSize">The minimum number of bits in the sequence.</param>
         /// <returns>The read-only bit sequence read from the stream.</returns>
-        public ReadOnlyBitSequence ReadBitSequence(int bitLength)
+        public ReadOnlyBitSequence ReadBitSequence(int bitSequenceSize)
         {
-            int size = (bitLength >> 3) + ((bitLength & 0x07) != 0 ? 1 : 0);
+            int size = (bitSequenceSize >> 3) + ((bitSequenceSize & 0x07) != 0 ? 1 : 0);
             int startPos = _pos;
             _pos += size;
             return new ReadOnlyBitSequence(_buffer.AsSpan(startPos, size));
@@ -1111,11 +1111,11 @@ namespace ZeroC.Ice
             (int Size, Encoding Encoding) result = ReadEncapsulationHeader(Encoding, _buffer.Slice(_pos));
             if (OldEncoding)
             {
-                _pos += 6; // 4 (size length) + 2 (encoding length)
+                _pos += 6; // 4 bytes for the encaps size + 2 bytes for the encoding
             }
             else
             {
-                _pos += (1 << (_buffer[_pos] & 0x03)) + 2; // size length + encoding length
+                _pos += (1 << (_buffer[_pos] & 0x03)) + 2; // n bytes for the encaps size + 2 bytes for the encoding
             }
             return result;
         }
@@ -1309,9 +1309,9 @@ namespace ZeroC.Ice
             return sz;
         }
 
-        private ReadOnlyMemory<byte> ReadBitSequenceMemory(int bitLength)
+        private ReadOnlyMemory<byte> ReadBitSequenceMemory(int bitSequenceSize)
         {
-            int size = (bitLength >> 3) + ((bitLength & 0x07) != 0 ? 1 : 0);
+            int size = (bitSequenceSize >> 3) + ((bitSequenceSize & 0x07) != 0 ? 1 : 0);
             int startPos = _pos;
             _pos += size;
             return _buffer.AsMemory(startPos, size);

@@ -974,9 +974,9 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     }
     else
     {
-        auto constructed = ConstructedPtr::dynamicCast(type);
+        auto constructed = ConstructedPtr::dynamicCast(underlying);
         assert(constructed);
-        out << helperName(type, scope) << ".Read" << constructed->name() << "(" << stream << ")";
+        out << helperName(underlying, scope) << ".Read" << constructed->name() << "(" << stream << ")";
     }
 
     if (optional)

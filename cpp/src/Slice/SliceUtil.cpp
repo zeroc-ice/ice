@@ -666,3 +666,18 @@ Slice::sortForMarshaling(const DataMemberList& members)
     });
     return result;
 }
+
+size_t
+Slice::getBitSequenceSize(const DataMemberList& members)
+{
+    size_t result = 0;
+    for (const auto& member : members)
+    {
+        if (auto optional = OptionalPtr::dynamicCast(member->type());
+            optional && !member->tagged() && optional->encodedUsingBitSequence())
+        {
+            result++;
+        }
+    }
+    return result;
+}

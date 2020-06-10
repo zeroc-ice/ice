@@ -177,6 +177,72 @@ namespace ZeroC.Ice.Test.Optional
             TestHelper.Assert(test.OpTaggedIntOptStringDict(null) == null);
 
             output.WriteLine("ok");
+
+            output.Write("testing struct with optional data members... ");
+            var myStruct = new MyStruct(test, null, new string?[] { "foo", null, "bar"});
+            MyStruct myStructResult = test.OpMyStruct(myStruct);
+            TestHelper.Assert(myStruct != myStructResult); // the proxies and arrays can't be identical
+            TestHelper.Assert(myStructResult.Proxy!.Equals(myStruct.Proxy) &&
+                myStructResult.X == myStruct.X &&
+                myStructResult.StringSeq!.SequenceEqual(myStruct.StringSeq));
+
+            myStructResult = test.OpOptMyStruct(myStruct)!.Value;
+            TestHelper.Assert(myStructResult.Proxy!.Equals(myStruct.Proxy) &&
+                myStructResult.X == myStruct.X &&
+                myStructResult.StringSeq!.SequenceEqual(myStruct.StringSeq));
+
+            TestHelper.Assert(test.OpOptMyStruct(null) == null);
+            output.WriteLine("ok");
+
+            output.Write("testing class with optional data members... ");
+            var derived = new Derived(test, null, new string?[] { "foo", null, "bar"}, null, "test");
+            Derived derivedResult = test.OpDerived(derived);
+            TestHelper.Assert(derivedResult.Proxy!.Equals(derived.Proxy) &&
+                derivedResult.X == derived.X &&
+                derivedResult.StringSeq!.SequenceEqual(derived.StringSeq) &&
+                derivedResult.SomeClass == null &&
+                derivedResult.S == derived.S);
+
+            derivedResult = test.OpOptDerived(derived)!;
+            TestHelper.Assert(derivedResult.Proxy!.Equals(derived.Proxy) &&
+                derivedResult.X == derived.X &&
+                derivedResult.StringSeq!.SequenceEqual(derived.StringSeq) &&
+                derivedResult.SomeClass == null &&
+                derivedResult.S == derived.S);
+
+            TestHelper.Assert(test.OpOptDerived(null) == null);
+            output.WriteLine("ok");
+
+            output.Write("testing exception with optional data members... ");
+            try
+            {
+                test.OpDerivedEx();
+                TestHelper.Assert(false);
+            }
+            catch (DerivedEx ex)
+            {
+                TestHelper.Assert(ex.Proxy == null &&
+                    ex.X == 5 &&
+                    ex.StringSeq!.SequenceEqual(new string?[] { "foo", null, "bar" }) &&
+                    ex.SomeClass is C someClass && someClass.X == 42 &&
+                    ex.S == "test");
+            }
+
+            try
+            {
+                test.OpDerivedEx(context: new Dictionary<string, string> { { "all null", "yes" } });
+                TestHelper.Assert(false);
+            }
+            catch (DerivedEx ex)
+            {
+                TestHelper.Assert(ex.Proxy == null &&
+                    ex.X == null &&
+                    ex.StringSeq == null &&
+                    ex.SomeClass == null &&
+                    ex.S == null);
+            }
+
+            output.WriteLine("ok");
             return test;
         }
     }
