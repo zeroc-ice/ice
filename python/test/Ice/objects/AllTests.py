@@ -115,15 +115,15 @@ def allTests(helper, communicator):
 
     sys.stdout.write("testing Value as parameter... ")
     sys.stdout.flush()
-    v1, v2 = initial.opValue(Test.L("l"))
+    v1, v2 = initial.opClass(Test.L("l"))
     test(v1.data == "l")
     test(v2.data == "l")
 
-    v1, v2 = initial.opValueSeq([Test.L("l")])
+    v1, v2 = initial.opClassSeq([Test.L("l")])
     test(v1[0].data == "l")
     test(v2[0].data == "l")
 
-    v1, v2 = initial.opValueMap({"l":Test.L("l")})
+    v1, v2 = initial.opClassMap({"l":Test.L("l")})
     test(v1["l"].data == "l")
     test(v2["l"].data == "l")
     print("ok")

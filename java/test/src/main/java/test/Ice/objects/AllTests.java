@@ -16,9 +16,9 @@ import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.K;
 import test.Ice.objects.Test.L;
-import test.Ice.objects.Test.Initial.OpValueResult;
-import test.Ice.objects.Test.Initial.OpValueSeqResult;
-import test.Ice.objects.Test.Initial.OpValueMapResult;
+import test.Ice.objects.Test.Initial.OpClassResult;
+import test.Ice.objects.Test.Initial.OpClassSeqResult;
+import test.Ice.objects.Test.Initial.OpClassMapResult;
 import test.Ice.objects.Test.L;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B1;
@@ -205,14 +205,14 @@ public class AllTests
         out.print("testing Value as parameter... ");
         {
             com.zeroc.Ice.Value v1 = new L("l");
-            OpValueResult result = initial.opValue(v1);
+            OpClassResult result = initial.opClass(v1);
             test(((L)result.returnValue).data.equals("l"));
             test(((L)result.v2).data.equals("l"));
         }
         {
             L l = new L("l");
             com.zeroc.Ice.Value[] v1 = { l };
-            OpValueSeqResult result = initial.opValueSeq(v1);
+            OpClassSeqResult result = initial.opClassSeq(v1);
             test(((L)result.returnValue[0]).data.equals("l"));
             test(((L)result.v2[0]).data.equals("l"));
         }
@@ -220,7 +220,7 @@ public class AllTests
             L l = new L("l");
             java.util.Map<String, com.zeroc.Ice.Value> v1 = new java.util.HashMap<String, com.zeroc.Ice.Value>();
             v1.put("l", l);
-            OpValueMapResult result = initial.opValueMap(v1);
+            OpClassMapResult result = initial.opClassMap(v1);
             test(((L)result.returnValue.get("l")).data.equals("l"));
             test(((L)result.v2.get("l")).data.equals("l"));
         }

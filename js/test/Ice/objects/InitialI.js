@@ -236,17 +236,17 @@
             return new Test.K(new Test.L("l"));
         }
 
-        opValue(v1, current)
+        opClass(v1, current)
         {
             return [v1, v1];
         }
 
-        opValueSeq(v1, current)
+        opClassSeq(v1, current)
         {
             return [v1, v1];
         }
 
-        opValueMap(v1, current)
+        opClassMap(v1, current)
         {
             return [v1, v1];
         }

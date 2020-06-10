@@ -70,7 +70,7 @@ module ZeroC::Ice::Test::Optional
         Object? opObject(Object i1, Object? i2);
         Test? opTest(Test i1, Test? i2);
 
-        Value? opAnyClass(Value i1, Value? i2);
+        AnyClass? opAnyClass(AnyClass i1, AnyClass? i2);
         C? opC(C i1, C? i2);
 
         OptIntSeq opOptIntSeq(OptIntSeq i1);

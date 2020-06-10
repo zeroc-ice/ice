@@ -88,9 +88,9 @@ public:
 
     virtual Test::KPtr getK(const Ice::Current&);
 
-    virtual Ice::ValuePtr opValue(Ice::ValuePtr, Ice::ValuePtr&, const Ice::Current&);
-    virtual Test::ValueSeq opValueSeq(Test::ValueSeq, Test::ValueSeq&, const Ice::Current&);
-    virtual Test::ValueMap opValueMap(Test::ValueMap, Test::ValueMap&, const Ice::Current&);
+    virtual Ice::ValuePtr opClass(Ice::ValuePtr, Ice::ValuePtr&, const Ice::Current&);
+    virtual Test::ClassSeq opClassSeq(Test::ClassSeq, Test::ClassSeq&, const Ice::Current&);
+    virtual Test::ClassMap opClassMap(Test::ClassMap, Test::ClassMap&, const Ice::Current&);
 
     virtual Test::D1Ptr getD1(Test::D1Ptr, const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
