@@ -707,7 +707,7 @@ class PluginI implements Plugin
         id.category = !instanceName.isEmpty() ? instanceName : java.util.UUID.randomUUID().toString();
         _locator = new LocatorI(_name, LookupPrx.uncheckedCast(lookupPrx), properties, instanceName, voidLoc);
         _defaultLocator = _communicator.getDefaultLocator();
-        _locatorPrx = com.zeroc.Ice.LocatorPrx.uncheckedCast(_locatorAdapter.addWithUUID(_locator));
+        _locatorPrx = com.zeroc.Ice.LocatorPrx.uncheckedCast(_locatorAdapter.add(_locator, id));
         _communicator.setDefaultLocator(_locatorPrx);
 
         com.zeroc.Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();

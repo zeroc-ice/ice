@@ -722,7 +722,7 @@ namespace IceLocatorDiscovery
 
             _defaultLocator = _communicator.getDefaultLocator();
             _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
-            _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(_locator));
+            _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.add(_locator, id));
             _communicator.setDefaultLocator(_locatorPrx);
 
             Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();
