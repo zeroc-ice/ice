@@ -201,7 +201,7 @@ namespace ZeroC.Ice
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
 
-        private SslEngine _sslEngine;
+        private readonly SslEngine _sslEngine;
         private int _state;
         private readonly Timer _timer;
 
@@ -905,9 +905,9 @@ namespace ZeroC.Ice
 
             Observer?.SetObserverUpdater(null);
 
-            if (Logger is ILoggerAdminLogger)
+            if (Logger is ILoggerAdminLogger adminLogger)
             {
-                ((ILoggerAdminLogger)Logger).Destroy();
+                adminLogger.Destroy();
             }
 
             //
@@ -983,9 +983,9 @@ namespace ZeroC.Ice
             }
 
             {
-                if (Logger != null && Logger is FileLogger)
+                if (Logger != null && Logger is FileLogger fileLogger)
                 {
-                    ((FileLogger)Logger).Destroy();
+                    fileLogger.Destroy();
                 }
             }
             _currentContext.Dispose();
