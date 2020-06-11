@@ -41,20 +41,20 @@ namespace ZeroC.Ice
 
         internal SslEngine(
             Communicator communicator,
-            X509Certificate2Collection? certs,
-            X509Certificate2Collection? caCerts,
-            RemoteCertificateValidationCallback? remoteCertificateValidationCallback,
+            X509Certificate2Collection? certificates,
+            X509Certificate2Collection? caCertificates,
+            RemoteCertificateValidationCallback? certificateValidationCallback,
             IPasswordCallback? passwordCallback)
         {
             _logger = communicator.Logger;
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             _trustManager = new SslTrustManager(communicator);
 
-            RemoteCertificateValidationCallback = remoteCertificateValidationCallback;
+            RemoteCertificateValidationCallback = certificateValidationCallback;
             PasswordCallback = passwordCallback;
 
-            Certs = certs;
-            CaCerts = caCerts;
+            Certs = certificates;
+            CaCerts = caCertificates;
 
             // Check for a default directory. We look in this directory for files mentioned in the configuration.
             _defaultDir = communicator.GetProperty("IceSSL.DefaultDir") ?? "";
@@ -81,10 +81,21 @@ namespace ZeroC.Ice
 
             // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
             CheckCertName = communicator.GetPropertyAsBool("IceSSL.CheckCertName") ?? false;
+            if (CheckCertName && RemoteCertificateValidationCallback != null)
+            {
+                throw new InvalidConfigurationException(
+                    "The property IceSSL.CheckCertName cannot be set when using a custom certificate validation callback");
+            }
 
             // VerifyDepthMax establishes the maximum length of a peer's certificate chain, including the peer's
             // certificate. A value of 0 means there is no maximum.
-            _verifyDepthMax = communicator.GetPropertyAsInt("IceSSL.VerifyDepthMax") ?? 3;
+            int? verifyDepthMax = communicator.GetPropertyAsInt("IceSSL.VerifyDepthMax");
+            if (verifyDepthMax != null && RemoteCertificateValidationCallback != null)
+            {
+                throw new InvalidConfigurationException(
+                    "The property IceSSL.VerifyDepthMax cannot be set when using a custom certificate validation callback");
+            }
+            _verifyDepthMax = verifyDepthMax ?? 3;
 
             // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
             CheckCRL = communicator.GetPropertyAsInt("IceSSL.CheckCRL") ?? 0;
@@ -188,78 +199,89 @@ namespace ZeroC.Ice
             if (CaCerts == null)
             {
                 string? certAuthFile = communicator.GetProperty("IceSSL.CAs");
-                if (certAuthFile == null)
+                if (certAuthFile != null && RemoteCertificateValidationCallback != null)
                 {
-                    certAuthFile = communicator.GetProperty("IceSSL.CertAuthFile");
+                    throw new InvalidConfigurationException(
+                        "The property IceSSL.CAs cannot be set when using a custom certificate validation callback");
                 }
 
-                if (certAuthFile != null || !(communicator.GetPropertyAsBool("IceSSL.UsePlatformCAs") ?? false))
+                bool? usePlatformCAs = communicator.GetPropertyAsBool("IceSSL.UsePlatformCAs");
+                if (usePlatformCAs != null && RemoteCertificateValidationCallback != null)
                 {
-                    CaCerts = new X509Certificate2Collection();
+                    throw new InvalidConfigurationException(
+                        "The property IceSSL.UsePlatformCAs cannot be set when using a custom certificate validation callback");
                 }
 
-                if (certAuthFile != null)
+                if (RemoteCertificateValidationCallback == null)
                 {
-                    if (!CheckPath(ref certAuthFile))
+                    if (certAuthFile != null || !(usePlatformCAs ?? false))
                     {
-                        throw new FileNotFoundException("IceSSL: CA certificate file not found: `{certAuthFile}'",
-                            certAuthFile);
+                        CaCerts = new X509Certificate2Collection();
                     }
 
-                    try
+                    if (certAuthFile != null)
                     {
-                        using FileStream fs = File.OpenRead(certAuthFile);
-                        byte[] data = new byte[fs.Length];
-                        fs.Read(data, 0, data.Length);
+                        if (!CheckPath(ref certAuthFile))
+                        {
+                            throw new FileNotFoundException("IceSSL: CA certificate file not found: `{certAuthFile}'",
+                                certAuthFile);
+                        }
 
-                        string strbuf = "";
                         try
                         {
-                            strbuf = System.Text.Encoding.UTF8.GetString(data);
-                        }
-                        catch (Exception)
-                        {
-                            // Ignore
-                        }
+                            using FileStream fs = File.OpenRead(certAuthFile);
+                            byte[] data = new byte[fs.Length];
+                            fs.Read(data, 0, data.Length);
 
-                        if (strbuf.Length == data.Length)
-                        {
-                            int size, startpos, endpos = 0;
-                            bool first = true;
-                            while (true)
+                            string strbuf = "";
+                            try
                             {
-                                startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
-                                if (startpos != -1)
-                                {
-                                    endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
-                                    size = endpos - startpos + "-----END CERTIFICATE-----".Length;
-                                }
-                                else if (first)
-                                {
-                                    startpos = 0;
-                                    endpos = strbuf.Length;
-                                    size = strbuf.Length;
-                                }
-                                else
-                                {
-                                    break;
-                                }
+                                strbuf = System.Text.Encoding.UTF8.GetString(data);
+                            }
+                            catch (Exception)
+                            {
+                                // Ignore
+                            }
 
-                                byte[] cert = new byte[size];
-                                Buffer.BlockCopy(data, startpos, cert, 0, size);
-                                CaCerts!.Import(cert);
-                                first = false;
+                            if (strbuf.Length == data.Length)
+                            {
+                                int size, startpos, endpos = 0;
+                                bool first = true;
+                                while (true)
+                                {
+                                    startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
+                                    if (startpos != -1)
+                                    {
+                                        endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
+                                        size = endpos - startpos + "-----END CERTIFICATE-----".Length;
+                                    }
+                                    else if (first)
+                                    {
+                                        startpos = 0;
+                                        endpos = strbuf.Length;
+                                        size = strbuf.Length;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+
+                                    byte[] cert = new byte[size];
+                                    Buffer.BlockCopy(data, startpos, cert, 0, size);
+                                    CaCerts!.Import(cert);
+                                    first = false;
+                                }
+                            }
+                            else
+                            {
+                                CaCerts!.Import(data);
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            CaCerts!.Import(data);
+                            throw new InvalidConfigurationException(
+                                $"IceSSL: error while attempting to load CA certificate from {certAuthFile}", ex);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"IceSSL: error while attempting to load CA certificate from {certAuthFile}", ex);
                     }
                 }
             }
