@@ -48,10 +48,11 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    _sslStream = new SslStream(new NetworkStream(fd, false),
-                                               false,
-                                               new RemoteCertificateValidationCallback(ValidationCallback),
-                                               new LocalCertificateSelectionCallback(SelectCertificate));
+                    _sslStream = new SslStream(
+                        new NetworkStream(fd, false),
+                        false,
+                        _engine.RemoteCertificateValidationCallback ?? ValidationCallback,
+                        SelectCertificate);
                 }
                 catch (IOException ex)
                 {

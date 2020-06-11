@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using ZeroC.Ice;
@@ -27,7 +28,7 @@ namespace ZeroC.Glacier2
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="certificates">The user certificates to use with the SSL transport.</param>
         /// <param name="caCertificates">The certificate authorities to use with the SSL transport.</param>
-        /// <param name="certificateVerifier">The certificate verifier delegate to use with the SSL transport.</param>
+        /// <param name="certificateValidationCallback">The certificate validation callback to use with the SSL transport.</param>
         /// <param name="passwordCallback">The password callback delegate to use with the SSL transport.</param>
         /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
         /// <param name="useCallbacks">True if the session should create an object adapter for receiving callbacks.</param>
@@ -39,7 +40,7 @@ namespace ZeroC.Glacier2
             ICommunicatorObserver? observer = null,
             X509Certificate2Collection? certificates = null,
             X509Certificate2Collection? caCertificates = null,
-            ICertificateVerifier? certificateVerifier = null,
+            RemoteCertificateValidationCallback? certificateValidationCallback = null,
             IPasswordCallback? passwordCallback = null)
         {
             _callback = callback;
@@ -50,7 +51,7 @@ namespace ZeroC.Glacier2
             _observer = observer;
             _certificates = certificates;
             _caCertificates = caCertificates;
-            _certificateVerifier = certificateVerifier;
+            _certificateValidationCallback = certificateValidationCallback;
             _passwordCallback = passwordCallback;
         }
 
@@ -399,7 +400,7 @@ namespace ZeroC.Glacier2
                             observer: _observer,
                             certificates: _certificates,
                             caCertificates: _caCertificates,
-                            certificateVerifier: _certificateVerifier,
+                            certificateValidationCallback: _certificateValidationCallback,
                             passwordCallback: _passwordCallback);
                     }
                 }
@@ -474,7 +475,7 @@ namespace ZeroC.Glacier2
         private readonly ICommunicatorObserver? _observer;
         private readonly X509Certificate2Collection? _certificates;
         private readonly X509Certificate2Collection? _caCertificates;
-        private readonly ICertificateVerifier? _certificateVerifier;
+        private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
         private readonly IPasswordCallback? _passwordCallback;
 
         private readonly ISessionCallback _callback;

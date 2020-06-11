@@ -1060,17 +1060,15 @@ namespace ZeroC.IceSSL.Test.Configuration
                 Console.Out.Write("testing custom certificate verifier... ");
                 Console.Out.Flush();
                 {
-                    //
                     // Verify that a server certificate is present.
-                    //
-                    clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
+                    clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
 
                     bool invoked = false;
                     bool hadCert = false;
                     var comm = new Communicator(ref args, clientProperties,
-                        certificateVerifier: info =>
+                        certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) =>
                         {
-                            hadCert = info.Certs != null;
+                            hadCert = certificate != null;
                             invoked = true;
                             return true;
                         });
@@ -1099,9 +1097,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // Have the verifier return false. Close the connection explicitly to force a new connection to be
                     // established.
                     comm = new Communicator(ref args, clientProperties,
-                        certificateVerifier: info =>
+                        certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) =>
                         {
-                            hadCert = info.Certs != null;
+                            hadCert = certificate != null;
                             invoked = true;
                             return false;
                         });
@@ -1129,6 +1127,83 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
 
                     comm.Destroy();
+
+                    try
+                    {
+                        // Setting IceSSL.CAs and the certificate verifier results in InvalidConfigurationException
+                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting IceSSL.VerifyPeer and the certificate verifier results in InvalidConfigurationException
+                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
+                        clientProperties["IceSSL.VerifyPeer"] = "2";
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting IceSSL.VerifyDepthMax and the certificate verifier results in InvalidConfigurationException
+                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
+                        clientProperties["IceSSL.VerifyDepthMax"] = "2";
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting IceSSL.CheckCertName and the certificate verifier results in InvalidConfigurationException
+                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
+                        clientProperties["IceSSL.CheckCertName"] = "1";
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting IceSSL.UsePlatformCAs and the certificate verifier results in InvalidConfigurationException
+                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
+                        clientProperties["IceSSL.UsePlatformCAs"] = "0";
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting CA certificates and the certificate verifier results in ArgumentException
+                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
+                        comm = new Communicator(ref args, clientProperties,
+                            caCertificates: new X509Certificate2Collection(),
+                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
                 Console.Out.WriteLine("ok");
 
