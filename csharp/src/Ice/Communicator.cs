@@ -589,11 +589,13 @@ namespace ZeroC.Ice
                 if (caCertificates != null && certificateValidationCallback != null)
                 {
                     throw new ArgumentException(
-                        "The caCertificates argument cannot be set when certificateValidationCallback argument is set",
+                        @$"the `{nameof(caCertificates)
+                        }' argument cannot be set when certificateValidationCallback argument is set",
                         nameof(caCertificates));
                 }
 
-                _sslEngine = new SslEngine(this, certificates, caCertificates, certificateValidationCallback, passwordCallback);
+                _sslEngine = new SslEngine(
+                    this, certificates, caCertificates, certificateValidationCallback, passwordCallback);
 
                 IceAddEndpointFactory(new TcpEndpointFactory(this));
                 IceAddEndpointFactory(new UdpEndpointFactory(this));

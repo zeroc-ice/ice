@@ -1142,19 +1142,6 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     try
                     {
-                        // Setting IceSSL.VerifyPeer and the certificate verifier results in InvalidConfigurationException
-                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                        clientProperties["IceSSL.VerifyPeer"] = "2";
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
                         // Setting IceSSL.VerifyDepthMax and the certificate verifier results in InvalidConfigurationException
                         clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                         clientProperties["IceSSL.VerifyDepthMax"] = "2";

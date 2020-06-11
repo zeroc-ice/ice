@@ -80,12 +80,13 @@ namespace ZeroC.Ice
             SslProtocols = ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
 
             // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
-            CheckCertName = communicator.GetPropertyAsBool("IceSSL.CheckCertName") ?? false;
-            if (CheckCertName && RemoteCertificateValidationCallback != null)
+            bool? checkCertName = communicator.GetPropertyAsBool("IceSSL.CheckCertName");
+            if (checkCertName != null && RemoteCertificateValidationCallback != null)
             {
                 throw new InvalidConfigurationException(
-                    "The property IceSSL.CheckCertName cannot be set when using a custom certificate validation callback");
+                    "the property `IceSSL.CheckCertName' check is incompatible with the custom remote certificate validation callback");
             }
+            CheckCertName = checkCertName ?? false;
 
             // VerifyDepthMax establishes the maximum length of a peer's certificate chain, including the peer's
             // certificate. A value of 0 means there is no maximum.
@@ -93,15 +94,9 @@ namespace ZeroC.Ice
             if (verifyDepthMax != null && RemoteCertificateValidationCallback != null)
             {
                 throw new InvalidConfigurationException(
-                    "The property IceSSL.VerifyDepthMax cannot be set when using a custom certificate validation callback");
+                    "the property `IceSSL.VerifyDepthMax' check is incompatible with the custom remote certificate validation callback");
             }
             _verifyDepthMax = verifyDepthMax ?? 3;
-
-            if (communicator.GetPropertyAsInt("IceSSL.VerifyPeer") != null && RemoteCertificateValidationCallback != null)
-            {
-                throw new InvalidConfigurationException(
-                    "The property IceSSL.VerifyDepthMax cannot be set when using a custom certificate validation callback");
-            }
 
             // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
             CheckCRL = communicator.GetPropertyAsInt("IceSSL.CheckCRL") ?? 0;
@@ -122,7 +117,7 @@ namespace ZeroC.Ice
                 {
                     if (!CheckPath(ref certFile))
                     {
-                        throw new FileNotFoundException($"IceSSL: certificate file not found: `{certFile}'", certFile);
+                        throw new FileNotFoundException($"certificate file not found: `{certFile}'", certFile);
                     }
 
                     SecureString? password = null;
@@ -161,7 +156,7 @@ namespace ZeroC.Ice
                     catch (CryptographicException ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"IceSSL: error while attempting to load certificate from `{certFile}'", ex);
+                            $"error while attempting to load certificate from `{certFile}'", ex);
                     }
                 }
                 else if (findCert != null)
@@ -170,7 +165,7 @@ namespace ZeroC.Ice
                     Certs.AddRange(FindCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
                     if (Certs.Count == 0)
                     {
-                        throw new InvalidConfigurationException("IceSSL: no certificates found");
+                        throw new InvalidConfigurationException("no certificates found");
                     }
                 }
                 else if (findCertProps.Count > 0)
@@ -197,7 +192,7 @@ namespace ZeroC.Ice
                     }
                     if (Certs.Count == 0)
                     {
-                        throw new InvalidConfigurationException("IceSSL: no certificates found");
+                        throw new InvalidConfigurationException("no certificates found");
                     }
                 }
             }
@@ -208,14 +203,14 @@ namespace ZeroC.Ice
                 if (certAuthFile != null && RemoteCertificateValidationCallback != null)
                 {
                     throw new InvalidConfigurationException(
-                        "The property IceSSL.CAs cannot be set when using a custom certificate validation callback");
+                        "the property `IceSSL.CAs' is incompatible with the custom remote certificate validation callback");
                 }
 
                 bool? usePlatformCAs = communicator.GetPropertyAsBool("IceSSL.UsePlatformCAs");
                 if (usePlatformCAs != null && RemoteCertificateValidationCallback != null)
                 {
                     throw new InvalidConfigurationException(
-                        "The property IceSSL.UsePlatformCAs cannot be set when using a custom certificate validation callback");
+                        "the property `IceSSL.UsePlatformCAs' is incompatible with the custom remote certificate validation callback");
                 }
 
                 if (RemoteCertificateValidationCallback == null)
@@ -229,7 +224,7 @@ namespace ZeroC.Ice
                     {
                         if (!CheckPath(ref certAuthFile))
                         {
-                            throw new FileNotFoundException("IceSSL: CA certificate file not found: `{certAuthFile}'",
+                            throw new FileNotFoundException("CA certificate file not found: `{certAuthFile}'",
                                 certAuthFile);
                         }
 
@@ -286,7 +281,7 @@ namespace ZeroC.Ice
                         catch (Exception ex)
                         {
                             throw new InvalidConfigurationException(
-                                $"IceSSL: error while attempting to load CA certificate from {certAuthFile}", ex);
+                                $"error while attempting to load CA certificate from {certAuthFile}", ex);
                         }
                     }
                 }
@@ -336,7 +331,7 @@ namespace ZeroC.Ice
                     _logger.Trace(SecurityTraceCategory, msg);
                 }
 
-                throw new TransportException($"IceSSL: {msg}");
+                throw new TransportException(msg);
             }
         }
 
@@ -369,8 +364,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                throw new InvalidConfigurationException($"IceSSL: failure while opening store specified by `{prop}'",
-                    ex);
+                throw new InvalidConfigurationException($"failure while opening X509 store specified by `{prop}'", ex);
             }
 
             // Start with all of the certificates in the collection and filter as necessary.
@@ -395,7 +389,7 @@ namespace ZeroC.Ice
                 {
                     if (value.IndexOf(':') == -1)
                     {
-                        throw new FormatException($"IceSSL: no key in `{value}'");
+                        throw new FormatException($"no key in `{value}'");
                     }
                     int start = 0;
                     int pos;
@@ -434,7 +428,7 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            throw new FormatException($"IceSSL: unknown key in `{value}'");
+                            throw new FormatException($"unknown key in `{value}'");
                         }
 
                         // Parse the argument.
@@ -445,7 +439,7 @@ namespace ZeroC.Ice
                         }
                         if (start == value.Length)
                         {
-                            throw new FormatException($"IceSSL: missing argument in `{value}'");
+                            throw new FormatException($"missing argument in `{value}'");
                         }
 
                         string arg;
@@ -463,7 +457,7 @@ namespace ZeroC.Ice
                             }
                             if (end == value.Length || value[end] != value[start])
                             {
-                                throw new FormatException("IceSSL: unmatched quote in `{value}'");
+                                throw new FormatException("unmatched quote in `{value}'");
                             }
                             ++start;
                             arg = value[start..end];
@@ -594,7 +588,7 @@ namespace ZeroC.Ice
                         }
                         default:
                         {
-                            throw new FormatException($"IceSSL: unrecognized protocol `{s}'");
+                            throw new FormatException($"unrecognized SSL protocol `{s}'");
                         }
                     }
 
@@ -605,7 +599,7 @@ namespace ZeroC.Ice
                     }
                     catch (Exception ex)
                     {
-                        throw new FormatException($"IceSSL: unrecognized protocol `{s}'", ex);
+                        throw new FormatException($"unrecognized SSL protocol `{s}'", ex);
                     }
                 }
             }
@@ -619,7 +613,7 @@ namespace ZeroC.Ice
             int pos = store.IndexOf('.');
             if (pos == -1)
             {
-                throw new InvalidConfigurationException($"IceSSL: property `{prop}' has invalid format");
+                throw new InvalidConfigurationException($"property `{prop}' has invalid format");
             }
 
             string sloc = store.Substring(0, pos).ToUpperInvariant();
@@ -633,13 +627,13 @@ namespace ZeroC.Ice
             }
             else
             {
-                throw new InvalidConfigurationException($"IceSSL: unknown store location `{sloc}' in `{prop}'");
+                throw new InvalidConfigurationException($"unknown X509 store location `{sloc}' in `{prop}'");
             }
 
             sname = store.Substring(pos + 1);
             if (sname.Length == 0)
             {
-                throw new InvalidConfigurationException($"IceSSL: invalid store name in `{prop}'");
+                throw new InvalidConfigurationException($"invalid X509 store name in `{prop}'");
             }
 
             // Try to convert the name into the StoreName enumeration.
