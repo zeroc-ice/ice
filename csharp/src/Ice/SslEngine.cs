@@ -97,6 +97,12 @@ namespace ZeroC.Ice
             }
             _verifyDepthMax = verifyDepthMax ?? 3;
 
+            if (communicator.GetPropertyAsInt("IceSSL.VerifyPeer") != null && RemoteCertificateValidationCallback != null)
+            {
+                throw new InvalidConfigurationException(
+                    "The property IceSSL.VerifyDepthMax cannot be set when using a custom certificate validation callback");
+            }
+
             // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
             CheckCRL = communicator.GetPropertyAsInt("IceSSL.CheckCRL") ?? 0;
 
