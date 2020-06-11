@@ -188,7 +188,7 @@ namespace ZeroC.Glacier2
             }
         }
 
-        /// <summary>Connects a Glacier2 session using user name and password credentials. Once the connection is
+        /// <summary>Connects a Glacier2 session using username and password credentials. Once the connection is
         /// established, SessionCallback.connected is called on the callback object; upon failure
         /// SessionCallback.exception is called with the exception.</summary>
         /// <param name="username">The user name.</param>
