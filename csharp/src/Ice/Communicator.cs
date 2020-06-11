@@ -983,7 +983,7 @@ namespace ZeroC.Ice
             }
 
             {
-                if (Logger != null && Logger is FileLogger fileLogger)
+                if (Logger is FileLogger fileLogger)
                 {
                     fileLogger.Destroy();
                 }

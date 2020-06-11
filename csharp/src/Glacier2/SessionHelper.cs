@@ -27,7 +27,7 @@ namespace ZeroC.Glacier2
             }
         }
 
-        /// <summary>Gets whether there is a need an active session</summary>
+        /// <summary>Gets whether there is an active session to the Glacier2 router.</summary>
         public bool IsConnected
         {
             get
