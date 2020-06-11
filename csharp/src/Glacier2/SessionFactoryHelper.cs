@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
@@ -180,7 +181,7 @@ namespace ZeroC.Glacier2
         private readonly ISessionCallback _callback;
         private readonly X509Certificate2Collection? _caCertificates;
         private readonly X509Certificate2Collection? _certificates;
-        private readonly ICertificateVerifier? _certificateVerifier;
+        private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
         private IReadOnlyDictionary<string, string>? _context;
         private Identity? _identity = null;
         private readonly ILogger? _logger;
@@ -201,7 +202,8 @@ namespace ZeroC.Glacier2
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="certificates">Optional certificates used by secure transports.</param>
         /// <param name="caCertificates">Optional CA certificates used by secure transports.</param>
-        /// <param name="certificateVerifier">Optional certificate verifier used by secure transports.</param>
+        /// <param name="certificateValidationCallback">Optional certificate validation callback used by secure
+        /// transports.</param>
         /// <param name="passwordCallback">Optional password callback used by secure transports.</param>
         public SessionFactoryHelper(
             ISessionCallback callback,
@@ -210,7 +212,7 @@ namespace ZeroC.Glacier2
             ICommunicatorObserver? observer = null,
             X509Certificate2Collection? certificates = null,
             X509Certificate2Collection? caCertificates = null,
-            ICertificateVerifier? certificateVerifier = null,
+            RemoteCertificateValidationCallback? certificateValidationCallback = null,
             IPasswordCallback? passwordCallback = null)
         {
             _callback = callback;
@@ -219,7 +221,7 @@ namespace ZeroC.Glacier2
             _observer = observer;
             _certificates = certificates;
             _caCertificates = caCertificates;
-            _certificateVerifier = certificateVerifier;
+            _certificateValidationCallback = certificateValidationCallback;
             _passwordCallback = passwordCallback;
 
             _properties["Ice.RetryIntervals"] = "-1";
@@ -243,7 +245,7 @@ namespace ZeroC.Glacier2
                     _observer,
                     _certificates,
                     _caCertificates,
-                    _certificateVerifier,
+                    _certificateValidationCallback,
                     _passwordCallback);
                 session.Connect(_context);
                 return session;
@@ -269,7 +271,7 @@ namespace ZeroC.Glacier2
                     _observer,
                     _certificates,
                     _caCertificates,
-                    _certificateVerifier,
+                    _certificateValidationCallback,
                     _passwordCallback);
                 session.Connect(username, password, _context);
                 return session;
