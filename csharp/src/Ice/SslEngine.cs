@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Security;
 using System.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
@@ -12,13 +13,6 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The ICertificateVerifier allows an application to customize the certificate verification process.
-    /// Return true to allow a connection using the provided certificate information, or false to reject the
-    /// connection.</summary>
-    /// <param name="info">The connection info associated with the connection being verified.</param>
-    /// <returns>Return true to allow the connection, or false to reject it.</returns>
-    public delegate bool ICertificateVerifier(SslConnectionInfo info);
-
     /// <summary>The IPasswordCallback delegate provides applications a way of supplying the SSL transport with
     /// passwords; this avoids using plain text configuration properties. Obtain the password necessary to access
     /// the private key associated with the certificate in the given file.</summary>
@@ -30,7 +24,7 @@ namespace ZeroC.Ice
     {
         internal X509Certificate2Collection? CaCerts { get; }
         internal X509Certificate2Collection? Certs { get; }
-        internal ICertificateVerifier? CertificateVerifier { get; }
+        internal RemoteCertificateValidationCallback? RemoteCertificateValidationCallback { get; }
         internal bool CheckCertName { get; }
         internal int CheckCRL { get; }
         internal IPasswordCallback? PasswordCallback { get; }
@@ -49,14 +43,14 @@ namespace ZeroC.Ice
             Communicator communicator,
             X509Certificate2Collection? certs,
             X509Certificate2Collection? caCerts,
-            ICertificateVerifier? certificateVerifier,
+            RemoteCertificateValidationCallback? remoteCertificateValidationCallback,
             IPasswordCallback? passwordCallback)
         {
             _logger = communicator.Logger;
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             _trustManager = new SslTrustManager(communicator);
 
-            CertificateVerifier = certificateVerifier;
+            RemoteCertificateValidationCallback = remoteCertificateValidationCallback;
             PasswordCallback = passwordCallback;
 
             Certs = certs;
@@ -271,7 +265,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void TraceStream(System.Net.Security.SslStream stream, string connInfo)
+        internal void TraceStream(SslStream stream, string connInfo)
         {
             var s = new System.Text.StringBuilder();
             s.Append("SSL connection summary");
@@ -309,18 +303,6 @@ namespace ZeroC.Ice
             {
                 string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     desc;
-                if (SecurityTraceLevel >= 1)
-                {
-                    _logger.Trace(SecurityTraceCategory, msg);
-                }
-
-                throw new TransportException($"IceSSL: {msg}");
-            }
-
-            if (CertificateVerifier != null && !CertificateVerifier(info))
-            {
-                string msg = (info.Incoming ? "incoming" : "outgoing") +
-                    " connection rejected by certificate verifier\n" + desc;
                 if (SecurityTraceLevel >= 1)
                 {
                     _logger.Trace(SecurityTraceCategory, msg);

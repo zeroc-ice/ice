@@ -1068,9 +1068,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                     bool invoked = false;
                     bool hadCert = false;
                     var comm = new Communicator(ref args, clientProperties,
-                        certificateVerifier: info =>
+                        certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) =>
                         {
-                            hadCert = info.Certs != null;
+                            hadCert = certificate != null;
                             invoked = true;
                             return true;
                         });
@@ -1099,9 +1099,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // Have the verifier return false. Close the connection explicitly to force a new connection to be
                     // established.
                     comm = new Communicator(ref args, clientProperties,
-                        certificateVerifier: info =>
+                        certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) =>
                         {
-                            hadCert = info.Certs != null;
+                            hadCert = certificate != null;
                             invoked = true;
                             return false;
                         });
