@@ -81,15 +81,10 @@ jar {
 
 project.ext.libJars = []
 
-project.ext.jarBuilder = "proguard-jar.gradle"
-try {
-    // Proguard does not support Java >= 14
-    if (!icegridguiProguard.toBoolean() || JavaVersion.current() >= JavaVersion.valueOf("VERSION_14")) {
-        project.ext.jarBuilder = "plain-jar.gradle"
-    }
-} catch (IllegalArgumentException) {
-    // Old version of Gralde that that does not know about Java 14
-}
+// Proguard does not support Java >= 14
+project.ext.jarBuilder = icegridguiProguard.toBoolean() &&
+                         Double.parseDouble(System.getProperty("java.vm.specification.version")) < 14.0
+                         ? "proguard-jar.gradle" : "plain-jar.gradle"
 
 apply from: jarBuilder
 
