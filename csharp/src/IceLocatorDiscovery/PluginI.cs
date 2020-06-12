@@ -30,6 +30,8 @@ namespace ZeroC.IceLocatorDiscovery
 
     internal class Locator : IObject
     {
+        private TaskCompletionSource<ILocatorPrx>? _completionSource;
+        private Task<ILocatorPrx>? _findLocatorTask;
         private string _instanceName;
         private ILocatorPrx? _locator;
         private readonly ILookupPrx _lookup;
@@ -43,7 +45,6 @@ namespace ZeroC.IceLocatorDiscovery
         private readonly int _traceLevel;
         private readonly ILocatorPrx _voidLocator;
         private bool _warned;
-        private TaskCompletionSource<ILocatorPrx>? _completionSource;
 
         internal Locator(
             string name,
@@ -135,8 +136,6 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         lock (_mutex)
                         {
-                            Debug.Assert((_locator == null && _completionSource != null) ||
-                                         (_locator != null && _completionSource == null));
                             locator = newLocator;
                             // If the current locator is equal to the one we use to send the request,
                             // clear it and retry, this will trigger the lookup of a new locator.
@@ -227,6 +226,7 @@ namespace ZeroC.IceLocatorDiscovery
                     Debug.Assert(_completionSource.Task.IsCompleted == false);
                     _completionSource.SetResult(locator);
                     _completionSource = null;
+                    _findLocatorTask = null;
                 }
                 else
                 {
@@ -239,11 +239,10 @@ namespace ZeroC.IceLocatorDiscovery
 
         private async Task<ILocatorPrx> GetLocatorAsync()
         {
-            bool lookupLocator = false;
-            TaskCompletionSource<ILocatorPrx> completionSource;
+            Task<ILocatorPrx> findLocatorTask;
             lock (_mutex)
             {
-                // If we already have a locator use it.
+                // If we already have a locator we use it.
                 if (_locator != null)
                 {
                     return _locator;
@@ -254,72 +253,84 @@ namespace ZeroC.IceLocatorDiscovery
                 {
                     return _voidLocator;
                 }
+                // If a locator lookup is running we await on it otherwise we start a new lookup.
                 else
                 {
-                    Debug.Assert(_locator == null);
-                    if (_completionSource == null)
+                    if (_findLocatorTask == null)
                     {
-                        _completionSource = new TaskCompletionSource<ILocatorPrx>();
-                        lookupLocator = true;
+                        _findLocatorTask = FindLocatorAsync();
                     }
-                    completionSource = _completionSource;
+                    findLocatorTask = _findLocatorTask;
                 }
             }
+            return await findLocatorTask.ConfigureAwait(false);
+        }
 
-            if (lookupLocator)
+        private async Task<ILocatorPrx> FindLocatorAsync()
+        {
+            TaskCompletionSource<ILocatorPrx> completionSource;
+            lock (_mutex)
             {
-                if (_traceLevel > 1)
-                {
-                    var s = new StringBuilder("looking up locator:\nlookup = ");
-                    s.Append(_lookup);
-                    if (_instanceName.Length > 0)
-                    {
-                        s.Append("\ninstance name = ").Append(_instanceName);
-                    }
-                    _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
-                }
+                Debug.Assert(_locator == null);
+                Debug.Assert(_findLocatorTask == null);
+                Debug.Assert(_completionSource == null);
+                _completionSource = new TaskCompletionSource<ILocatorPrx>();
+                completionSource = _completionSource;
+            }
 
-                int failureCount = 0;
-                for (int i = 0; i < _retryCount; ++i)
+            if (_traceLevel > 1)
+            {
+                var s = new StringBuilder("looking up locator:\nlookup = ");
+                s.Append(_lookup);
+                if (_instanceName.Length > 0)
                 {
-                    foreach ((ILookupPrx lookup, ILookupReplyPrx lookupReply) in _lookups)
+                    s.Append("\ninstance name = ").Append(_instanceName);
+                }
+                _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
+            }
+
+            int failureCount = 0;
+            for (int i = 0; i < _retryCount; ++i)
+            {
+                foreach ((ILookupPrx lookup, ILookupReplyPrx lookupReply) in _lookups)
+                {
+                    try
                     {
-                        try
+                        await lookup.FindLocatorAsync(_instanceName, lookupReply).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (_mutex)
                         {
-                            await lookup.FindLocatorAsync(_instanceName, lookupReply).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            lock (_mutex)
+                            if (++failureCount == _lookups.Count)
                             {
-                                if (++failureCount == _lookups.Count)
+                                // All the lookup calls failed propagate the error to the requests.
+                                if (_traceLevel > 0)
                                 {
-                                    // All the lookup calls failed propagate the error to the requests.
-                                    if (_traceLevel > 0)
+                                    var s = new StringBuilder("locator lookup failed:\nlookup = ");
+                                    s.Append(_lookup);
+                                    if (_instanceName.Length > 0)
                                     {
-                                        var s = new StringBuilder("locator lookup failed:\nlookup = ");
-                                        s.Append(_lookup);
-                                        if (_instanceName.Length > 0)
-                                        {
-                                            s.Append("\ninstance name = ").Append(_instanceName);
-                                        }
-                                        s.Append("\nwith lookup proxy `{_lookup}':\n");
-                                        s.Append(ex);
-                                        _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
+                                        s.Append("\ninstance name = ").Append(_instanceName);
                                     }
-                                    _completionSource.SetResult(_voidLocator);
-                                    _completionSource = null;
-                                    return _voidLocator;
+                                    s.Append("\nwith lookup proxy `{_lookup}':\n");
+                                    s.Append(ex);
+                                    _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
                                 }
+                                Debug.Assert(_completionSource != null);
+                                _completionSource.SetResult(_voidLocator);
+                                _completionSource = null;
+                                _findLocatorTask = null;
+                                return _voidLocator;
                             }
                         }
                     }
+                }
 
-                    Task t = await Task.WhenAny(completionSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
-                    if (t == completionSource.Task)
-                    {
-                        return await completionSource.Task.ConfigureAwait(false);
-                    }
+                Task t = await Task.WhenAny(completionSource.Task, Task.Delay(_timeout)).ConfigureAwait(false);
+                if (t == completionSource.Task)
+                {
+                    return await completionSource.Task.ConfigureAwait(false);
                 }
 
                 lock (_mutex)
@@ -341,6 +352,7 @@ namespace ZeroC.IceLocatorDiscovery
                         _nextRetry = Time.CurrentMonotonicTimeMillis() + _retryDelay;
                         _completionSource.SetResult(_voidLocator);
                         _completionSource = null;
+                        _findLocatorTask = null;
                     } // Else the completion source was completed by a concurrent reply
                     Debug.Assert(completionSource.Task.IsCompleted);
                 }
