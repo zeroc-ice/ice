@@ -219,10 +219,7 @@ namespace ZeroC.IceLocatorDiscovery
                         _instanceName = _locator.Identity.Category; // Stick to the first locator
                     }
                     Debug.Assert(_completionSource != null);
-                    if (!_completionSource.Task.IsCompleted)
-                    {
-                        _completionSource.SetResult(locator);
-                    }
+                    _completionSource.TrySetResult(locator);
                 }
                 else
                 {
@@ -250,14 +247,11 @@ namespace ZeroC.IceLocatorDiscovery
                     return _voidLocator;
                 }
                 // If a locator lookup is running we await on it otherwise we start a new lookup.
-                else
+                else if (_findLocatorTask == null)
                 {
-                    if (_findLocatorTask == null)
-                    {
-                        _findLocatorTask = FindLocatorAsync();
-                    }
-                    findLocatorTask = _findLocatorTask;
+                    _findLocatorTask = FindLocatorAsync();
                 }
+                findLocatorTask = _findLocatorTask;
             }
             ILocatorPrx locator = await findLocatorTask.ConfigureAwait(false);
             lock (_mutex)
@@ -315,10 +309,6 @@ namespace ZeroC.IceLocatorDiscovery
                                     s.Append(ex);
                                     _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
                                 }
-                                Debug.Assert(_completionSource != null);
-                                _completionSource.SetResult(_voidLocator);
-                                _completionSource = null;
-                                _findLocatorTask = null;
                                 return _voidLocator;
                             }
                         }
@@ -334,7 +324,13 @@ namespace ZeroC.IceLocatorDiscovery
 
             lock (_mutex)
             {
-                if (!_completionSource.Task.IsCompleted)
+                if (_completionSource.Task.IsCompleted)
+                {
+                    // we got a concurrent reply after the timeout
+                    Debug.Assert(_locator != null);
+                    return _locator;
+                }
+                else
                 {
                     // Locator lookup timeout and no more retries
                     if (_traceLevel > 0)
@@ -349,12 +345,9 @@ namespace ZeroC.IceLocatorDiscovery
                     }
 
                     _nextRetry = Time.CurrentMonotonicTimeMillis() + _retryDelay;
-                    _completionSource.SetResult(_voidLocator);
-                } // Else the completion source was completed by a concurrent reply
-                Debug.Assert(_completionSource.Task.IsCompleted);
+                    return _voidLocator;
+                }
             }
-
-            return await _completionSource.Task.ConfigureAwait(false);
         }
     }
 
