@@ -596,7 +596,7 @@ namespace ZeroC.Ice
                 if (passwordCallback != null && certificateSelectionCallback != null)
                 {
                     throw new ArgumentException(
-                        @$"the `{nameof(passwordCallback)}' and `{certificateSelectionCallback
+                        @$"the `{nameof(passwordCallback)}' and `{nameof(certificateSelectionCallback)
                         }' optional arguments are incompatible with each other",
                         nameof(passwordCallback));
                 }
@@ -604,7 +604,7 @@ namespace ZeroC.Ice
                 if (certificates != null && certificateSelectionCallback != null)
                 {
                     throw new ArgumentException(
-                        @$"the `{nameof(certificates)}' and `{certificateSelectionCallback
+                        @$"the `{nameof(certificates)}' and `{nameof(certificateSelectionCallback)
                         }' optional arguments are incompatible with each other",
                         nameof(certificates));
                 }
@@ -612,7 +612,7 @@ namespace ZeroC.Ice
                 if (caCertificates != null && certificateValidationCallback != null)
                 {
                     throw new ArgumentException(
-                        @$"the `{nameof(caCertificates)}' and `{certificateValidationCallback
+                        @$"the `{nameof(caCertificates)}' and `{nameof(certificateValidationCallback)
                         }' optional arguments are incompatible with each other",
                         nameof(caCertificates));
                 }
