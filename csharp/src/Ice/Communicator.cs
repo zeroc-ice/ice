@@ -604,7 +604,7 @@ namespace ZeroC.Ice
                 if (certificates != null && certificateSelectionCallback != null)
                 {
                     throw new ArgumentException(
-                        @$"the `{nameof(certificates) and `{certificateSelectionCallback
+                        @$"the `{nameof(certificates)}' and `{certificateSelectionCallback
                         }' optional arguments are incompatible with each other",
                         nameof(certificates));
                 }

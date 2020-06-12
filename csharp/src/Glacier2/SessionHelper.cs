@@ -28,6 +28,7 @@ namespace ZeroC.Glacier2
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="certificates">The user certificates to use with the SSL transport.</param>
         /// <param name="caCertificates">The certificate authorities to use with the SSL transport.</param>
+        /// <param name="certificateSelectionCallback">The certificate selection callback to use with the SSL transport.</param>
         /// <param name="certificateValidationCallback">The certificate validation callback to use with the SSL transport.</param>
         /// <param name="passwordCallback">The password callback delegate to use with the SSL transport.</param>
         /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
@@ -36,13 +37,15 @@ namespace ZeroC.Glacier2
             string finderStr,
             bool useCallbacks,
             Dictionary<string, string> properties,
-            ILogger? logger = null,
-            ICommunicatorObserver? observer = null,
+            ILogger? logger,
+            ICommunicatorObserver? observer,
             X509Certificate2Collection? certificates = null,
             X509Certificate2Collection? caCertificates = null,
+            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
             RemoteCertificateValidationCallback? certificateValidationCallback = null,
             IPasswordCallback? passwordCallback = null)
         {
+            // TODO Jose make all arguments required for this internal constructor
             _callback = callback;
             _finderStr = finderStr;
             _useCallbacks = useCallbacks;
@@ -51,6 +54,7 @@ namespace ZeroC.Glacier2
             _observer = observer;
             _certificates = certificates;
             _caCertificates = caCertificates;
+            _certificateSelectionCallback = certificateSelectionCallback;
             _certificateValidationCallback = certificateValidationCallback;
             _passwordCallback = passwordCallback;
         }
@@ -400,7 +404,7 @@ namespace ZeroC.Glacier2
                             observer: _observer,
                             certificates: _certificates,
                             caCertificates: _caCertificates,
-                            certificateSelectionCallback: null,
+                            certificateSelectionCallback: _certificateSelectionCallback,
                             certificateValidationCallback: _certificateValidationCallback,
                             passwordCallback: _passwordCallback);
                     }
@@ -476,6 +480,7 @@ namespace ZeroC.Glacier2
         private readonly ICommunicatorObserver? _observer;
         private readonly X509Certificate2Collection? _certificates;
         private readonly X509Certificate2Collection? _caCertificates;
+        private readonly LocalCertificateSelectionCallback? _certificateSelectionCallback;
         private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
         private readonly IPasswordCallback? _passwordCallback;
 
