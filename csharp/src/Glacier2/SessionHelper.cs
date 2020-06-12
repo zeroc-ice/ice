@@ -400,6 +400,7 @@ namespace ZeroC.Glacier2
                             observer: _observer,
                             certificates: _certificates,
                             caCertificates: _caCertificates,
+                            certificateSelectionCallback: null,
                             certificateValidationCallback: _certificateValidationCallback,
                             passwordCallback: _passwordCallback);
                     }

@@ -51,8 +51,8 @@ namespace ZeroC.Ice
                     _sslStream = new SslStream(
                         new NetworkStream(fd, false),
                         false,
-                        _engine.RemoteCertificateValidationCallback ?? ValidationCallback,
-                        SelectCertificate);
+                        _engine.RemoteCertificateValidationCallback ?? RemoteCertificateValidationCallback,
+                        _engine.CertificateSelectionCallback ?? CertificateSelectionCallback);
                 }
                 catch (IOException ex)
                 {
@@ -431,7 +431,8 @@ namespace ZeroC.Ice
             }
         }
 
-        private X509Certificate? SelectCertificate(object sender,
+        private X509Certificate? CertificateSelectionCallback(
+            object sender,
             string targetHost,
             X509CertificateCollection? certs,
             X509Certificate remoteCertificate,
@@ -462,8 +463,11 @@ namespace ZeroC.Ice
             return certs[0];
         }
 
-        private bool ValidationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
-                                        SslPolicyErrors policyErrors)
+        private bool RemoteCertificateValidationCallback(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chainEngine,
+            SslPolicyErrors policyErrors)
         {
             var chain = new X509Chain(_engine.UseMachineContext);
             try
