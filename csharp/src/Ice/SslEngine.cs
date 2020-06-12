@@ -579,27 +579,6 @@ namespace ZeroC.Ice
                     string s = arr[i].ToUpperInvariant();
                     switch (s)
                     {
-                        case "SSL3":
-                        case "SSLV3":
-                        {
-                            protocol = "Ssl3";
-                            break;
-                        }
-                        case "TLS":
-                        case "TLS1":
-                        case "TLS1_0":
-                        case "TLSV1":
-                        case "TLSV1_0":
-                        {
-                            protocol = "Tls";
-                            break;
-                        }
-                        case "TLS1_1":
-                        case "TLSV1_1":
-                        {
-                            protocol = "Tls11";
-                            break;
-                        }
                         case "TLS1_2":
                         case "TLSV1_2":
                         {

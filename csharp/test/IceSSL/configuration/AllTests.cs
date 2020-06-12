@@ -1341,12 +1341,12 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // in common.
                     //
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                    clientProperties["IceSSL.Protocols"] = "tls1_1";
+                    clientProperties["IceSSL.Protocols"] = "tls1_2";
                     Communicator comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.VerifyPeer"] = "2";
-                    serverProperties["IceSSL.Protocols"] = "tls1_2";
+                    serverProperties["IceSSL.Protocols"] = "tls1_3";
                     IServerPrx? server = fact.createServer(serverProperties);
                     try
                     {
@@ -1372,20 +1372,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.VerifyPeer"] = "2";
-                    serverProperties["IceSSL.Protocols"] = "tls1_1, tls1_2";
+                    serverProperties["IceSSL.Protocols"] = "tls1_2, tls1_3";
                     server = fact.createServer(serverProperties);
-                    try
-                    {
-                        server!.IcePing();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex.ToString().IndexOf("no protocols available") < 0) // Expected if TLS1.1 is disabled (RHEL8)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            TestHelper.Assert(false);
-                        }
-                    }
+
+                    server!.IcePing();
                     fact.destroyServer(server);
                     comm.Destroy();
 
@@ -2427,15 +2417,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                     clientProperties["IceSSL.DefaultDir"] = "";
                     clientProperties["IceSSL.VerifyDepthMax"] = "4";
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
-                    if (AssemblyUtil.IsWindows)
-                    {
-                        //
-                        // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-                        // can cause SSL handshake errors when connecting to the remote zeroc server.
-                        //
-                        clientProperties["IceSSL.Protocols"] = "TLS1_0,TLS1_1";
-                    }
-                    Communicator comm = new Communicator(clientProperties);
+
+                    var comm = new Communicator(clientProperties);
                     var p = IObjectPrx.Parse("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
                     while (true)
                     {
@@ -2477,14 +2460,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     clientProperties["IceSSL.VerifyDepthMax"] = "4";
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
                     clientProperties["IceSSL.UsePlatformCAs"] = "1";
-                    if (AssemblyUtil.IsWindows)
-                    {
-                        //
-                        // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
-                        // can cause SSL handshake errors when connecting to the remote zeroc server.
-                        //
-                        clientProperties["IceSSL.Protocols"] = "TLS1_0,TLS1_1";
-                    }
+
                     comm = new Communicator(clientProperties);
                     p = IObjectPrx.Parse("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
                     while (true)
