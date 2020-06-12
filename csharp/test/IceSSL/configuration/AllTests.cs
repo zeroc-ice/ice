@@ -199,40 +199,14 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     //
                     // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
-                    // and it doesn't trust the server certificate.
+                    // but it still verifies the server's.
                     //
-                    clientProperties = CreateProperties(defaultProperties);
-                    clientProperties["IceSSL.VerifyPeer"] = "0";
+                    clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
                     var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                     serverProperties["IceSSL.VerifyPeer"] = "0";
-                    IServerPrx? server = fact.createServer(serverProperties);
-                    try
-                    {
-                        server!.noCert();
-                        TestHelper.Assert(
-                            !((SslConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        TestHelper.Assert(false);
-                    }
-                    fact.destroyServer(server);
-                    comm.Destroy();
-
-                    //
-                    // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
-                    // but it still verifies the server's.
-                    //
-                    clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                    clientProperties["IceSSL.VerifyPeer"] = "0";
-                    comm = new Communicator(ref args, clientProperties);
-                    fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    serverProperties["IceSSL.VerifyPeer"] = "0";
-                    server = fact.createServer(serverProperties);
+                    var server = fact.createServer(serverProperties);
                     try
                     {
                         server!.noCert();
@@ -381,10 +355,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // server doesn't trust the client's CA.
                     //
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca2");
-                    clientProperties["IceSSL.VerifyPeer"] = "0";
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
+                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.VerifyPeer"] = "1";
                     server = fact.createServer(serverProperties);
                     try
@@ -427,7 +400,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     comm.Destroy();
 
                     //
-                    // This should l because the self signed certificate used by the server is not
+                    // This should fail because the self signed certificate used by the server is not
                     // trusted.
                     //
                     clientProperties = CreateProperties(defaultProperties);
@@ -708,34 +681,6 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                         //
                         // Target host does not match the certificate DNS altName, connection should succeed
-                        // because IceSSL.VerifyPeer is set to 0.
-                        //
-                        {
-                            clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "1";
-                            clientProperties["IceSSL.VerifyPeer"] = "0";
-                            comm = new Communicator(ref args, clientProperties);
-
-                            fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                            serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
-                            server = fact.createServer(serverProperties);
-                            try
-                            {
-                                server!.IcePing();
-                                var info = (SslConnectionInfo)server.GetConnection().GetConnectionInfo();
-                                TestHelper.Assert(!info.Verified);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
-                                TestHelper.Assert(false);
-                            }
-                            fact.destroyServer(server);
-                            comm.Destroy();
-                        }
-
-                        //
-                        // Target host does not match the certificate DNS altName, connection should succeed
                         // because IceSSL.CheckCertName is set to 0.
                         //
                         {
@@ -789,24 +734,23 @@ namespace ZeroC.IceSSL.Test.Configuration
                         SslConnectionInfo info;
 
                         clientProperties = CreateProperties(defaultProperties);
-                        clientProperties["IceSSL.VerifyPeer"] = "0";
                         Communicator comm = new Communicator(clientProperties);
 
                         IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
 
                         //
-                        // The client can't verify the server certificate but it should
-                        // still provide it. "s_rsa_ca1" doesn't include the root so the
-                        // cert size should be 1.
+                        // The client can't verify the server certificate it should fail/
                         //
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                         serverProperties["IceSSL.VerifyPeer"] = "0";
                         IServerPrx? server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
-                            TestHelper.Assert(info.Certs!.Length == 1);
-                            TestHelper.Assert(!info.Verified);
+                            server!.IcePing();
+                            TestHelper.Assert(false);
+                        }
+                        catch (TransportException)
+                        {
                         }
                         catch (Exception ex)
                         {
@@ -824,9 +768,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
-                            TestHelper.Assert(info.Certs!.Length == 1);
-                            TestHelper.Assert(!info.Verified);
+                            server!.IcePing();
+                            TestHelper.Assert(false);
+                        }
+                        catch (TransportException)
+                        {
                         }
                         catch (Exception ex)
                         {
@@ -836,17 +782,18 @@ namespace ZeroC.IceSSL.Test.Configuration
                         fact.destroyServer(server);
 
                         //
-                        // The client can't verify the server certificate but should
-                        // still provide it. "s_rsa_wroot_ca1" includes the root so
-                        // the cert size should be 2.
+                        // The client can't verify the server certificate should fail.
                         //
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_wroot_ca1");
                         serverProperties["IceSSL.VerifyPeer"] = "0";
                         server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
-                            TestHelper.Assert(info.Certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
+                            server!.IcePing();
+                            TestHelper.Assert(false);
+                        }
+                        catch (TransportException)
+                        {
                         }
                         catch (Exception ex)
                         {
@@ -860,7 +807,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // Now the client verifies the server certificate
                         //
                         clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                        clientProperties["IceSSL.VerifyPeer"] = "1";
                         comm = new Communicator(clientProperties);
 
                         fact = IServerFactoryPrx.Parse(factoryRef, comm);
@@ -887,7 +833,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // Try certificate with one intermediate and VerifyDepthMax=2
                         //
                         clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                        clientProperties["IceSSL.VerifyPeer"] = "1";
                         clientProperties["IceSSL.VerifyDepthMax"] = "2";
                         comm = new Communicator(clientProperties);
 
@@ -926,7 +871,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                             // Set VerifyDepthMax to 3 (the default)
                             //
                             clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            clientProperties["IceSSL.VerifyPeer"] = "1";
                             //clientProperties["IceSSL.VerifyDepthMax", "3");
                             comm = new Communicator(clientProperties);
 
@@ -971,7 +915,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                             // Increase VerifyDepthMax to 4
                             //
                             clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            clientProperties["IceSSL.VerifyPeer"] = "1";
                             clientProperties["IceSSL.VerifyDepthMax"] = "4";
                             comm = new Communicator(clientProperties);
 
@@ -1001,7 +944,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                             // Increase VerifyDepthMax to 4
                             //
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_cai2", "cacert1");
-                            clientProperties["IceSSL.VerifyPeer"] = "1";
                             clientProperties["IceSSL.VerifyDepthMax"] = "4";
                             comm = new Communicator(clientProperties);
 
