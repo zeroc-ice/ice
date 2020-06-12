@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net.Security;
+using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using ZeroC.Ice;
@@ -13,56 +13,85 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Glacier2
 {
-    /// <summary>
-    /// A helper class for using Glacier2 with GUI applications.
-    /// </summary>
+    /// <summary>A helper class for using Glacier2 with GUI applications.</summary>
     public class SessionHelper
     {
-        /// <summary>
-        /// Creates a Glacier2 session.
-        /// </summary>
-        /// <param name="callback">The callback for notifications about session
-        /// establishment.</param>
-        /// <param name="properties">Optional properties used for communicator initialization.</param>
-        /// <param name="logger">Optional logger used for communicator initialization.</param>
-        /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
-        /// <param name="certificates">The user certificates to use with the SSL transport.</param>
-        /// <param name="caCertificates">The certificate authorities to use with the SSL transport.</param>
-        /// <param name="certificateValidationCallback">The certificate validation callback to use with the SSL transport.</param>
-        /// <param name="passwordCallback">The password callback delegate to use with the SSL transport.</param>
-        /// <param name="finderStr">The stringified Ice.RouterFinder proxy.</param>
-        /// <param name="useCallbacks">True if the session should create an object adapter for receiving callbacks.</param>
-        internal SessionHelper(ISessionCallback callback,
-            string finderStr,
-            bool useCallbacks,
-            Dictionary<string, string> properties,
-            ILogger? logger = null,
-            ICommunicatorObserver? observer = null,
-            X509Certificate2Collection? certificates = null,
-            X509Certificate2Collection? caCertificates = null,
-            RemoteCertificateValidationCallback? certificateValidationCallback = null,
-            IPasswordCallback? passwordCallback = null)
+        /// <summary>Gets the session's communicator object.</summary>
+        public Communicator? Communicator
         {
-            _callback = callback;
-            _finderStr = finderStr;
-            _useCallbacks = useCallbacks;
-            _properties = properties;
-            _logger = logger;
-            _observer = observer;
-            _certificates = certificates;
-            _caCertificates = caCertificates;
-            _certificateValidationCallback = certificateValidationCallback;
-            _passwordCallback = passwordCallback;
+            get
+            {
+                lock (_mutex)
+                {
+                    return _communicator;
+                }
+            }
         }
 
-        /// <summary>
-        /// Destroys the Glacier2 session.
-        ///
-        /// Once the session has been destroyed, SessionCallback.disconnected is
-        /// called on the associated callback object.
-        /// </summary>
-        public void
-        Destroy()
+        /// <summary>Gets whether there is an active session to the Glacier2 router.</summary>
+        public bool IsConnected
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _connected;
+                }
+            }
+        }
+
+        /// <summary>Gets the Glacier2 session proxy, or null if the session hasn't been established yet or the session
+        /// has already been destroyed.</summary>
+        public ISessionPrx? Session
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _session;
+                }
+            }
+        }
+
+        private ObjectAdapter? _adapter;
+        private readonly ISessionCallback _callback;
+        private readonly X509Certificate2Collection? _caCertificates;
+        private string? _category;
+        private readonly X509Certificate2Collection? _certificates;
+        private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
+        private Communicator? _communicator;
+        private bool _connected = false;
+        private bool _destroy = false;
+        private readonly string _finderStr;
+        private readonly ILogger? _logger;
+        private readonly object _mutex = new object();
+        private readonly ICommunicatorObserver? _observer;
+        private readonly IPasswordCallback? _passwordCallback;
+        private readonly Dictionary<string, string> _properties;
+        private IRouterPrx? _router;
+        private ISessionPrx? _session;
+        private readonly bool _useCallbacks;
+
+        /// <summary>Adds a servant to the callback object adapter's with an UUID.</summary>
+        /// <param name="servant">The servant to add.</param>
+        /// <returns>The proxy for the servant. Throws SessionNotExistException if no session exists.</returns>
+        public IObjectPrx AddWithUUID(IObject servant)
+        {
+            lock (_mutex)
+            {
+                if (_router == null)
+                {
+                    throw new SessionNotExistException();
+                }
+                Debug.Assert(_category != null);
+                return ObjectAdapter().Add(
+                    new Identity(Guid.NewGuid().ToString(), _category), servant, IObjectPrx.Factory);
+            }
+        }
+
+        /// <summary>Destroys the Glacier2 session. Once the session has been destroyed, SessionCallback.disconnected
+        /// is called on the associated callback object.</summary>
+        public void Destroy()
         {
             lock (_mutex)
             {
@@ -73,11 +102,8 @@ namespace ZeroC.Glacier2
                 _destroy = true;
                 if (!_connected)
                 {
-                    //
-                    // In this case a connecting session is being destroyed.
-                    // We destroy the communicator to trigger the immediate
-                    // failure of the connection establishment.
-                    //
+                    // In this case a connecting session is being destroyed. We destroy the communicator to trigger the
+                    // immediate failure of the connection establishment.
                     var t1 = new Thread(new ThreadStart(DestroyCommunicator));
                     t1.Start();
                     return;
@@ -85,37 +111,16 @@ namespace ZeroC.Glacier2
                 _session = null;
                 _connected = false;
 
-                //
                 // Run destroyInternal in a thread because it makes remote invocations.
-                //
                 var t2 = new Thread(new ThreadStart(DestroyInternal));
                 t2.Start();
             }
         }
 
-        /// <summary>
-        /// Returns the session's communicator object.
-        /// </summary>
-        /// <returns>The communicator.</returns>
-        public Communicator?
-        Communicator()
-        {
-            lock (_mutex)
-            {
-                return _communicator;
-            }
-        }
-
-        /// <summary>
-        /// Returns the category to be used in the identities of all of
-        /// the client's callback objects. Clients must use this category
-        /// for the router to forward callback requests to the intended
-        /// client.
-        /// </summary>
-        /// <returns>The category. Throws SessionNotExistException
-        /// No session exists</returns>
-        public string
-        CategoryForClient()
+        /// <summary>Returns the category to be used in the identities of all of the client's callback objects. Clients
+        /// must use this category for the router to forward callback requests to the intended client.</summary>
+        /// <returns>The category. Throws SessionNotExistException if no session exists</returns>
+        public string GetCategoryForClient()
         {
             lock (_mutex)
             {
@@ -128,65 +133,9 @@ namespace ZeroC.Glacier2
             }
         }
 
-        /// <summary>
-        /// Adds a servant to the callback object adapter's Active Servant
-        /// Map with a UUID.
-        /// </summary>
-        /// <param name="servant">The servant to add.</param>
-        /// <returns>The proxy for the servant. Throws SessionNotExistException
-        /// if no session exists.</returns>
-        public IObjectPrx
-        AddWithUUID(IObject servant)
-        {
-            lock (_mutex)
-            {
-                if (_router == null)
-                {
-                    throw new SessionNotExistException();
-                }
-                Debug.Assert(_category != null);
-                return InternalObjectAdapter().Add(
-                    new Identity(Guid.NewGuid().ToString(), _category), servant, IObjectPrx.Factory);
-            }
-        }
-
-        /// <summary>
-        /// Returns the Glacier2 session proxy, or null if the session hasn't been
-        /// established yet or the session has already been destroyed.
-        /// </summary>
-        /// <returns>The session proxy, or null if no session exists.</returns>
-        public ISessionPrx?
-        Session()
-        {
-            lock (_mutex)
-            {
-                return _session;
-            }
-        }
-
-        /// <summary>
-        /// Returns true if there is an active session, otherwise returns false.
-        /// </summary>
-        /// <returns>true if session exists or false if no session exists.</returns>
-        public bool
-        IsConnected()
-        {
-            lock (_mutex)
-            {
-                return _connected;
-            }
-        }
-
-        /// <summary>
-        /// Returns an object adapter for callback objects, creating it if necessary.
-        /// </summary>
-        /// <return>The object adapter. Throws SessionNotExistException
-        /// if no session exists.</return>
-        public ObjectAdapter
-        ObjectAdapter() => InternalObjectAdapter();
-
-        private ObjectAdapter
-        InternalObjectAdapter()
+        /// <summary>Returns an object adapter for callback objects, creating it if necessary.</summary>
+        /// <return>The object adapter. Throws SessionNotExistException if no session exists.</return>
+        public ObjectAdapter ObjectAdapter()
         {
             lock (_mutex)
             {
@@ -204,16 +153,34 @@ namespace ZeroC.Glacier2
             }
         }
 
-        /// <summary>
-        /// Connects to the Glacier2 router using the associated SSL credentials.
-        ///
-        /// Once the connection is established, SessionCallback.connected is called on
-        /// the callback object; upon failure, SessionCallback.exception is called with
-        /// the exception.
-        /// </summary>
+        internal SessionHelper(ISessionCallback callback,
+            string finderStr,
+            bool useCallbacks,
+            Dictionary<string, string> properties,
+            ILogger? logger = null,
+            ICommunicatorObserver? observer = null,
+            X509Certificate2Collection? certificates = null,
+            X509Certificate2Collection? caCertificates = null,
+            RemoteCertificateValidationCallback? _certificateValidationCallback = null,
+            IPasswordCallback? passwordCallback = null)
+        {
+            _callback = callback;
+            _finderStr = finderStr;
+            _useCallbacks = useCallbacks;
+            _properties = properties;
+            _logger = logger;
+            _observer = observer;
+            _certificates = certificates;
+            _caCertificates = caCertificates;
+            this._certificateValidationCallback = _certificateValidationCallback;
+            _passwordCallback = passwordCallback;
+        }
+
+        /// <summary>Connects to the Glacier2 router using the associated SSL credentials. Once the connection is
+        /// established, SessionCallback.connected is called on the callback object; upon failure,
+        /// SessionCallback.exception is called with the exception.</summary>
         /// <param name="context">The request context to use when creating the session.</param>
-        internal void
-        Connect(IReadOnlyDictionary<string, string>? context)
+        internal void Connect(IReadOnlyDictionary<string, string>? context)
         {
             lock (_mutex)
             {
@@ -221,17 +188,13 @@ namespace ZeroC.Glacier2
             }
         }
 
-        /// <summary>
-        /// Connects a Glacier2 session using user name and password credentials.
-        ///
-        /// Once the connection is established, SessionCallback.connected is called on the callback object;
-        /// upon failure SessionCallback.exception is called with the exception.
-        /// </summary>
+        /// <summary>Connects a Glacier2 session using username and password credentials. Once the connection is
+        /// established, SessionCallback.connected is called on the callback object; upon failure
+        /// SessionCallback.exception is called with the exception.</summary>
         /// <param name="username">The user name.</param>
         /// <param name="password">The password.</param>
         /// <param name="context">The request context to use when creating the session.</param>
-        internal void
-        Connect(string username, string password, IReadOnlyDictionary<string, string>? context)
+        internal void Connect(string username, string password, IReadOnlyDictionary<string, string>? context)
         {
             lock (_mutex)
             {
@@ -239,12 +202,9 @@ namespace ZeroC.Glacier2
             }
         }
 
-        private void
-        Connected(IRouterPrx router, ISessionPrx session)
+        private void Connected(IRouterPrx router, ISessionPrx session)
         {
-            //
             // Remote invocation should be done without acquiring a mutex lock.
-            //
             Debug.Assert(router != null);
             Debug.Assert(_communicator != null);
             Connection? conn = router.GetCachedConnection();
@@ -263,12 +223,9 @@ namespace ZeroC.Glacier2
                 acmTimeout = (int)router.GetSessionTimeout();
             }
 
-            //
-            // We create the callback object adapter here because createObjectAdapter internally
-            // makes synchronous RPCs to the router. We can't create the OA on-demand when the
-            // client calls objectAdapter() or addWithUUID() because they can be called from the
-            // GUI thread.
-            //
+            // We create the callback object adapter here because createObjectAdapter internally makes synchronous
+            // RPCs to the router. We can't create the OA on-demand when the client calls ObjectAdapter() or
+            // AddWithUUID() because they can be called from the GUI thread.
             if (_useCallbacks)
             {
                 Debug.Assert(_adapter == null);
@@ -282,22 +239,16 @@ namespace ZeroC.Glacier2
 
                 if (_destroy)
                 {
-                    //
                     // Run destroyInternal in a thread because it makes remote invocations.
-                    //
                     var t = new Thread(new ThreadStart(DestroyInternal));
                     t.Start();
                     return;
                 }
 
-                //
                 // Cache the category.
-                //
                 _category = category;
 
-                //
                 // Assign the session after _destroy is checked.
-                //
                 _session = session;
                 _connected = true;
 
@@ -320,8 +271,18 @@ namespace ZeroC.Glacier2
             }
         }
 
-        private void
-        DestroyInternal()
+        private void DestroyCommunicator()
+        {
+            Communicator? communicator;
+            lock (_mutex)
+            {
+                communicator = _communicator;
+            }
+            Debug.Assert(communicator != null);
+            communicator.Destroy();
+        }
+
+        private void DestroyInternal()
         {
             IRouterPrx router;
             Communicator? communicator;
@@ -346,21 +307,14 @@ namespace ZeroC.Glacier2
             }
             catch (ConnectionLostException)
             {
-                //
                 // Expected if another thread invoked on an object from the session concurrently.
-                //
             }
             catch (SessionNotExistException)
             {
-                //
                 // This can also occur.
-                //
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-                //
-                // Not expected.
-                //
                 communicator.Logger.Warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
             }
 
@@ -370,22 +324,7 @@ namespace ZeroC.Glacier2
             _callback.Disconnected(this);
         }
 
-        private void
-        DestroyCommunicator()
-        {
-            Communicator? communicator;
-            lock (_mutex)
-            {
-                communicator = _communicator;
-            }
-            Debug.Assert(communicator != null);
-            communicator.Destroy();
-        }
-
-        private delegate ISessionPrx ConnectStrategy(IRouterPrx router);
-
-        private void
-        ConnectImpl(ConnectStrategy factory)
+        private void ConnectImpl(Func<IRouterPrx, ISessionPrx> factory)
         {
             Debug.Assert(!_destroy);
             new Thread(new ThreadStart(() =>
@@ -404,7 +343,7 @@ namespace ZeroC.Glacier2
                             passwordCallback: _passwordCallback);
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     lock (_mutex)
                     {
@@ -427,7 +366,7 @@ namespace ZeroC.Glacier2
                         _callback.ConnectFailed(this, ex);
                         return;
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         if (finder == null)
                         {
@@ -436,9 +375,7 @@ namespace ZeroC.Glacier2
                         }
                         else
                         {
-                            //
                             // In case of error getting router identity from RouterFinder use default identity.
-                            //
                             _communicator.DefaultRouter =
                                 finder.Clone(new Identity("router", "Glacier2"), Ice.IRouterPrx.Factory);
                         }
@@ -454,32 +391,12 @@ namespace ZeroC.Glacier2
                     ISessionPrx session = factory(routerPrx);
                     Connected(routerPrx, session);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     _communicator.Destroy();
                     _callback.ConnectFailed(this, ex);
                 }
             })).Start();
         }
-
-        private Communicator? _communicator;
-        private ObjectAdapter? _adapter;
-        private IRouterPrx? _router;
-        private ISessionPrx? _session;
-        private bool _connected = false;
-        private string? _category;
-        private readonly string _finderStr;
-        private readonly bool _useCallbacks;
-        private readonly Dictionary<string, string> _properties;
-        private readonly ILogger? _logger;
-        private readonly ICommunicatorObserver? _observer;
-        private readonly X509Certificate2Collection? _certificates;
-        private readonly X509Certificate2Collection? _caCertificates;
-        private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
-        private readonly IPasswordCallback? _passwordCallback;
-
-        private readonly ISessionCallback _callback;
-        private bool _destroy = false;
-        private readonly object _mutex = new object();
     }
 }

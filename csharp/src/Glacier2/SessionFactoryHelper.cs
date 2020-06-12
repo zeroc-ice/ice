@@ -2,10 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
 
@@ -19,163 +19,212 @@ namespace ZeroC.Glacier2
     /// session factory to create another connection.</summary>
     public class SessionFactoryHelper
     {
+        /// <summary>Gets or sets the request context to use while establishing a connection to the Glacier2 router.
+        /// </summary>
+        public IReadOnlyDictionary<string, string>? ConnectContext
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _context;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    _context = value;
+                }
+            }
+        }
+
+        /// <summary>Gets or sets the Glacier2 router port to connect to. If 0, then the default port (4063 for TCP or
+        /// 4064 for SSL) is used</summary>
+        public int Port
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _port;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    _port = value;
+                }
+            }
+        }
+
+        /// <summary>Gets or sets the host on which the Glacier2 router runs.</summary>
+        public string RouterHost
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _routerHost;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    _routerHost = value;
+                }
+            }
+        }
+
+        /// <summary>Gets or sets the router object identity.</summary>
+        public Identity? RouterIdentity
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _identity;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    _identity = value;
+                }
+            }
+        }
+
+        /// <summary>Gets or sets the connect and connection timeout for the Glacier2 router, a zero or negative
+        /// timeout value indicates that.</summary>
+        public int Timeout
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _timeout;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    _timeout = value;
+                }
+            }
+        }
+
+        /// <summary>Gets or sets the transport that will be used by the session factory to establish the connection.
+        /// </summary>
+        public string Transport
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _transport;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    _transport = value;
+                }
+            }
+        }
+
+        /// <summary>Get or sets whether the session should create an object adapter that the client can use for
+        /// receiving callbacks.</summary>
+        public bool UseCallbacks
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    return _useCallbacks;
+                }
+            }
+            set
+            {
+                lock (_mutex)
+                {
+                    _useCallbacks = value;
+                }
+            }
+        }
+
+        private int PortInternal
+        {
+            get
+            {
+                lock (_mutex)
+                {
+                    if (_port == 0)
+                    {
+                        return _transport == "ssl" || _transport == "wss" ? Glacier2SslPort : Glacier2TcpPort;
+                    }
+                    else
+                    {
+                        return _port;
+                    }
+                }
+            }
+        }
+
+        private const int Glacier2SslPort = 4064;
+        private const int Glacier2TcpPort = 4063;
+
+        private readonly ISessionCallback _callback;
+        private readonly X509Certificate2Collection? _caCertificates;
+        private readonly X509Certificate2Collection? _certificates;
+        private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
+        private IReadOnlyDictionary<string, string>? _context;
+        private Identity? _identity = null;
+        private readonly ILogger? _logger;
+        private readonly object _mutex = new object();
+        private readonly ICommunicatorObserver? _observer;
+        private readonly IPasswordCallback? _passwordCallback;
+        private int _port = 0;
+        private readonly Dictionary<string, string> _properties;
+        private string _routerHost = "localhost";
+        private int _timeout = 10000;
+        private string _transport = "ssl";
+        private bool _useCallbacks = true;
+
         /// <summary>Creates a SessionFactory object.</summary>
         /// <param name="callback">The callback for notifications about session establishment.</param>
         /// <param name="properties">Optional properties used for communicator initialization.</param>
         /// <param name="logger">Optional logger used for communicator initialization.</param>
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
-        public SessionFactoryHelper(ISessionCallback callback,
-                             Dictionary<string, string> properties,
-                             ILogger? logger = null,
-                             ICommunicatorObserver? observer = null)
+        /// <param name="certificates">Optional certificates used by secure transports.</param>
+        /// <param name="caCertificates">Optional CA certificates used by secure transports.</param>
+        /// <param name="certificateValidationCallback">Optional certificate validation callback used by secure
+        /// transports.</param>
+        /// <param name="passwordCallback">Optional password callback used by secure transports.</param>
+        public SessionFactoryHelper(
+            ISessionCallback callback,
+            Dictionary<string, string> properties,
+            ILogger? logger = null,
+            ICommunicatorObserver? observer = null,
+            X509Certificate2Collection? certificates = null,
+            X509Certificate2Collection? caCertificates = null,
+            RemoteCertificateValidationCallback? certificateValidationCallback = null,
+            IPasswordCallback? passwordCallback = null)
         {
             _callback = callback;
             _properties = properties;
             _logger = logger;
             _observer = observer;
+            _certificates = certificates;
+            _caCertificates = caCertificates;
+            _certificateValidationCallback = certificateValidationCallback;
+            _passwordCallback = passwordCallback;
 
-            SetDefaultProperties();
-        }
-
-        /// <summary>Set the router object identity.</summary>
-        /// <param name="identity">The Glacier2 router's identity.</param>
-        public void SetRouterIdentity(Identity identity)
-        {
-            lock (this)
-            {
-                _identity = identity;
-            }
-        }
-
-        /// <summary>Returns the object identity of the Glacier2 router.</summary>
-        /// <returns>The Glacier2 router's identity.</returns>
-        public Identity? GetRouterIdentity()
-        {
-            lock (this)
-            {
-                return _identity;
-            }
-        }
-
-        /// <summary>Sets the host on which the Glacier2 router runs.</summary>
-        /// <param name="hostname">The host name (or IP address) of the router host.</param>
-        public void SetRouterHost(string hostname)
-        {
-            lock (this)
-            {
-                _routerHost = hostname;
-            }
-        }
-
-        /// <summary>Returns the host on which the Glacier2 router runs.</summary>
-        /// <returns>The Glacier2 router host.</returns>
-        public string GetRouterHost()
-        {
-            lock (this)
-            {
-                return _routerHost;
-            }
-        }
-
-        /// <summary>Sets the transport that will be used by the session factory to establish the connection.</summary>
-        /// <param name="transport">The transport.</param>
-        public void SetTransport(string transport)
-        {
-            lock (this)
-            {
-                if (!transport.Equals("tcp") &&
-                    !transport.Equals("ssl") &&
-                    !transport.Equals("wss") &&
-                    !transport.Equals("ws"))
-                {
-                    throw new ArgumentException($"unknown transport `{transport}'", nameof(transport));
-                }
-                _transport = transport;
-            }
-        }
-
-        /// <summary>Returns the transport that will be used by the session factory to establish the connection.
-        /// </summary>
-        /// <returns>The transport.</returns>
-        public string GetTransport()
-        {
-            lock (this)
-            {
-                return _transport;
-            }
-        }
-
-        /// <summary>Sets the connect and connection timeout for the Glacier2 router.</summary>
-        /// <param name="timeoutMillisecs">The timeout in milliseconds. A zero or negative timeout value indicates that
-        /// the router proxy has no associated timeout.</param>
-        public void SetTimeout(int timeoutMillisecs)
-        {
-            lock (this)
-            {
-                _timeout = timeoutMillisecs;
-            }
-        }
-
-        /// <summary>Returns the connect and connection timeout associated with the Glacier2 router.</summary>
-        /// <returns>The timeout.</returns>
-        public int GetTimeout()
-        {
-            lock (this)
-            {
-                return _timeout;
-            }
-        }
-
-        /// <summary>Sets the Glacier2 router port to connect to.</summary>
-        /// <param name="port">The port. If 0, then the default port (4063 for TCP or 4064 for SSL) is used.</param>
-        public void SetPort(int port)
-        {
-            lock (this)
-            {
-                _port = port;
-            }
-        }
-
-        /// <summary>Returns the Glacier2 router port to connect to.</summary>
-        /// <returns>The port.</returns>
-        public int GetPort()
-        {
-            lock (this)
-            {
-                return GetPortInternal();
-            }
-        }
-
-        /// <summary>Sets the request context to use while establishing a connection to the Glacier2 router.</summary>
-        /// <param name="context">The request context.</param>
-        public void SetConnectContext(IReadOnlyDictionary<string, string> context)
-        {
-            lock (this)
-            {
-                _context = context;
-            }
-        }
-
-        /// <summary>Determines whether the session should create an object adapter that the client can use for
-        /// receiving callbacks.</summary>
-        /// <param name="useCallbacks">True if the session should create an object adapter.</param>
-        public void SetUseCallbacks(bool useCallbacks)
-        {
-            lock (this)
-            {
-                _useCallbacks = useCallbacks;
-            }
-        }
-
-        /// <summary>Indicates whether a newly-created session will also create an object adapter that the client can
-        /// use for receiving callbacks.</summary>
-        /// <returns>True if the session will create an object adapter.</returns>
-        public bool GetUseCallbacks()
-        {
-            lock (this)
-            {
-                return _useCallbacks;
-            }
+            _properties["Ice.RetryIntervals"] = "-1";
         }
 
         /// <summary>Connects to the Glacier2 router using the associated SSL credentials.
@@ -185,14 +234,19 @@ namespace ZeroC.Glacier2
         /// <returns>The connected session.</returns>
         public SessionHelper Connect()
         {
-            lock (this)
+            lock (_mutex)
             {
-                var session = new SessionHelper(_callback,
-                    GetRouterFinderStr(),
+                var session = new SessionHelper(
+                    _callback,
+                    CreateProxyStr(new Identity("RouterFinder", "Ice")),
                     _useCallbacks,
                     CreateProperties(),
                     _logger,
-                    _observer);
+                    _observer,
+                    _certificates,
+                    _caCertificates,
+                    _certificateValidationCallback,
+                    _passwordCallback);
                 session.Connect(_context);
                 return session;
             }
@@ -207,72 +261,38 @@ namespace ZeroC.Glacier2
         /// <returns>The connected session.</returns>
         public SessionHelper Connect(string username, string password)
         {
-            lock (this)
+            lock (_mutex)
             {
                 var session = new SessionHelper(_callback,
-                    GetRouterFinderStr(),
+                    CreateProxyStr(new Identity("RouterFinder", "Ice")),
                     _useCallbacks,
                     CreateProperties(),
                     _logger,
-                    _observer);
+                    _observer,
+                    _certificates,
+                    _caCertificates,
+                    _certificateValidationCallback,
+                    _passwordCallback);
                 session.Connect(username, password, _context);
                 return session;
             }
         }
 
-        private int GetPortInternal()
-        {
-            return _port == 0 ? ((_transport.Equals("ssl") ||
-                                  _transport.Equals("wss")) ? Glacier2SslPort : Glacier2TcpPort) : _port;
-        }
-
         private Dictionary<string, string> CreateProperties()
         {
-            // Clone the initialization data and properties.
+            // Clone the initialization properties.
             Debug.Assert(_properties != null);
             var properties = new Dictionary<string, string>(_properties);
 
-            if (!properties.ContainsKey("Ice.Default.Router") && _identity != null)
+            if (!properties.ContainsKey("Ice.Default.Router") && _identity is Identity identity)
             {
-                properties["Ice.Default.Router"] = CreateProxyStr(_identity.Value);
+                properties["Ice.Default.Router"] = CreateProxyStr(identity);
             }
             return properties;
         }
 
-        private string GetRouterFinderStr() =>
-            CreateProxyStr(new Identity("RouterFinder", "Ice"));
-
-        private string CreateProxyStr(Identity ident)
-        {
-            if (_timeout > 0)
-            {
-                return $"\"{ident}\":{_transport} -p {GetPortInternal()} -h \"{_routerHost}\" -t {_timeout}";
-            }
-            else
-            {
-                return $"\"{ident}\":{_transport} -p {GetPortInternal()} -h \"{_routerHost}\"";
-            }
-        }
-
-        private void SetDefaultProperties()
-        {
-            Debug.Assert(_properties != null);
-            _properties["Ice.RetryIntervals"] = "-1";
-        }
-
-        private readonly ISessionCallback _callback;
-        private readonly Dictionary<string, string> _properties;
-        private readonly ILogger? _logger;
-        private readonly ICommunicatorObserver? _observer;
-
-        private string _routerHost = "localhost";
-        private Identity? _identity = null;
-        private string _transport = "ssl";
-        private int _port = 0;
-        private int _timeout = 10000;
-        private IReadOnlyDictionary<string, string>? _context;
-        private bool _useCallbacks = true;
-        private const int Glacier2SslPort = 4064;
-        private const int Glacier2TcpPort = 4063;
+        private string CreateProxyStr(Identity identity) => _timeout > 0 ?
+            $"\"{identity}\":{_transport} -p {PortInternal} -h \"{_routerHost}\" -t {_timeout}" :
+            $"\"{identity}\":{_transport} -p {PortInternal} -h \"{_routerHost}\"";
     }
 }
