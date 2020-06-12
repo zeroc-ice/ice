@@ -876,7 +876,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     try
                     {
-                        // The certificate and certificate selection callback arguments are incompatible
+                        // The certificates and certificate selection callback arguments are incompatible
                         clientProperties = CreateProperties(defaultProperties, null, "cacert1");
                         comm = new Communicator(ref args, clientProperties,
                             certificates: new X509Certificate2Collection(),
