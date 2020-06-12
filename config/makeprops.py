@@ -100,7 +100,7 @@ public final class %(classname)s
 """
 
 csPreamble = commonPreamble + """
-namespace Ice
+namespace ZeroC.Ice
 {
     public static class %(classname)s
     {
