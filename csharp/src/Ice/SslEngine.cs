@@ -110,8 +110,6 @@ namespace ZeroC.Ice
                 string? certFile = communicator.GetProperty("IceSSL.CertFile");
                 string? passwordStr = communicator.GetProperty("IceSSL.Password");
                 string? findCert = communicator.GetProperty("IceSSL.FindCert");
-                const string findPrefix = "IceSSL.FindCert.";
-                Dictionary<string, string> findCertProps = communicator.GetProperties(forPrefix: findPrefix);
 
                 if (certFile != null)
                 {
@@ -163,33 +161,6 @@ namespace ZeroC.Ice
                 {
                     string certStore = communicator.GetProperty("IceSSL.CertStore") ?? "My";
                     Certs.AddRange(FindCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
-                    if (Certs.Count == 0)
-                    {
-                        throw new InvalidConfigurationException("no certificates found");
-                    }
-                }
-                else if (findCertProps.Count > 0)
-                {
-                    // If IceSSL.FindCert.* properties are defined, add the selected certificates to the collection.
-                    foreach (KeyValuePair<string, string> entry in findCertProps)
-                    {
-                        string name = entry.Key;
-                        string val = entry.Value;
-                        if (val.Length > 0)
-                        {
-                            string storeSpec = name.Substring(findPrefix.Length);
-                            StoreLocation storeLoc = 0;
-                            StoreName storeName = 0;
-                            string? sname = null;
-                            ParseStore(name, storeSpec, ref storeLoc, ref storeName, ref sname);
-                            if (sname == null)
-                            {
-                                sname = storeName.ToString();
-                            }
-                            X509Certificate2Collection coll = FindCertificates(name, storeLoc, sname, val);
-                            Certs.AddRange(coll);
-                        }
-                    }
                     if (Certs.Count == 0)
                     {
                         throw new InvalidConfigurationException("no certificates found");
