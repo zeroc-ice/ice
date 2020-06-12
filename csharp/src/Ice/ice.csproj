@@ -9,6 +9,7 @@
     <ItemGroup>
         <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
         <SliceCompile Include="../../../slice/IceDiscovery/*.ice" />
+        <SliceCompile Include="../../../slice/IceLocatorDiscovery/*.ice" />
         <Compile Update="generated\BuiltinSequences.cs">
           <SliceCompileSource>..\..\..\slice\Ice\BuiltinSequences.ice</SliceCompileSource>
         </Compile>
