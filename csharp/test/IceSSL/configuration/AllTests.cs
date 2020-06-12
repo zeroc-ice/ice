@@ -2195,8 +2195,9 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            // Use deprecated property here to test it
-                            serverProperties["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
+                            serverProperties["IceSSL.CertStore"] = "My";
+                            serverProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
+                            serverProperties["IceSSL.FindCert"] = serverFindCertProperties[i];
                             //
                             // Use TrustOnly to ensure the peer has pick the expected certificate.
                             //
@@ -2224,6 +2225,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                             try
                             {
                                 clientProperties = CreateProperties(defaultProperties);
+                                clientProperties["IceSSL.CertStore"] = "My";
+                                clientProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
                                 clientProperties["IceSSL.FindCert"] = s;
                                 Communicator comm = new Communicator(ref args, clientProperties);
                                 TestHelper.Assert(false);
@@ -2252,7 +2255,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                         try
                         {
                             clientProperties = CreateProperties(defaultProperties);
-                            clientProperties["IceSSL.FindCert.CurrentUser.My"] = s;
+                            clientProperties["IceSSL.CertStore"] = "My";
+                            clientProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
+                            clientProperties["IceSSL.FindCert"] = s;
                             Communicator comm = new Communicator(ref args, clientProperties);
                             TestHelper.Assert(false);
                         }
