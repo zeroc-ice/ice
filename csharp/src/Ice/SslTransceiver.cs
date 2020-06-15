@@ -549,8 +549,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
-                if (certificateNameMismatch)
+                if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
                 {
                     if (_engine.SecurityTraceLevel >= 1)
                     {
