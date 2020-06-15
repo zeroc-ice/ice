@@ -468,12 +468,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                             }
                             catch (Exception ex)
                             {
-                                // macOS catalina does not check the certificate common name
-                                if (!AssemblyUtil.IsMacOS)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                    TestHelper.Assert(false);
-                                }
+                                Console.WriteLine(ex.ToString());
+                                TestHelper.Assert(false);
                             }
                             fact.destroyServer(server);
                             comm.Destroy();
