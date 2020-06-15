@@ -88,7 +88,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            AddAndEvictProxies(proxy, await Router.AddProxiesAsync(new IObjectPrx[] { proxy }) as IObjectPrx[]);
+            AddAndEvictProxies(proxy, await Router.AddProxiesAsync(new IObjectPrx[] { proxy }));
         }
 
         public ObjectAdapter? Adapter
@@ -153,7 +153,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private void AddAndEvictProxies(IObjectPrx proxy, IObjectPrx[] evictedProxies)
+        private void AddAndEvictProxies(IObjectPrx proxy, IObjectPrx?[] evictedProxies)
         {
             lock (_mutex)
             {
@@ -181,14 +181,17 @@ namespace ZeroC.Ice
                 //
                 for (int i = 0; i < evictedProxies.Length; ++i)
                 {
-                    if (!_identities.Remove(evictedProxies[i].Identity))
+                    if (evictedProxies[i] != null)
                     {
-                        //
-                        // It's possible for the proxy to not have been
-                        // added yet in the local map if two threads
-                        // concurrently call addProxies.
-                        //
-                        _evictedIdentities.Add(evictedProxies[i].Identity);
+                        if (!_identities.Remove(evictedProxies[i]!.Identity))
+                        {
+                            //
+                            // It's possible for the proxy to not have been
+                            // added yet in the local map if two threads
+                            // concurrently call addProxies.
+                            //
+                            _evictedIdentities.Add(evictedProxies[i]!.Identity);
+                        }
                     }
                 }
             }

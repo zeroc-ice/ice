@@ -17,8 +17,8 @@ namespace ZeroC.Ice
 
         private protected OutgoingRequest(InputStreamReader<TReturnValue> reader) => _reader = reader;
 
-        private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request)
-            => prx.Invoke(request, oneway: false).ReadReturnValue(_reader);
+        private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request) =>
+            prx.Invoke(request, oneway: false).ReadReturnValue(_reader);
 
         private protected Task<TReturnValue> InvokeAsync(IObjectPrx prx,
                                                          OutgoingRequestFrame request,

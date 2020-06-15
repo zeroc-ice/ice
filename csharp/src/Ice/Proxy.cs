@@ -341,8 +341,8 @@ namespace ZeroC.Ice
                                                                    OutgoingRequestFrame request,
                                                                    bool oneway = false,
                                                                    IProgress<bool>? progress = null,
-                                                                   CancellationToken cancel = default)
-            => InvokeAsync(proxy, request, oneway, synchronous: false, progress, cancel);
+                                                                   CancellationToken cancel = default) =>
+            InvokeAsync(proxy, request, oneway, synchronous: false, progress, cancel);
 
         /// <summary>Forwards an incoming request to another Ice object.</summary>
         /// <param name="proxy">The proxy for the target Ice object.</param>
@@ -353,10 +353,10 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         /// <returns>A task holding the response frame.</returns>
         public static ValueTask<OutgoingResponseFrame> ForwardAsync(this IObjectPrx proxy,
-                                                                          bool oneway,
-                                                                          IncomingRequestFrame request,
-                                                                          IProgress<bool>? progress = null,
-                                                                          CancellationToken cancel = default)
+                                                                    bool oneway,
+                                                                    IncomingRequestFrame request,
+                                                                    IProgress<bool>? progress = null,
+                                                                    CancellationToken cancel = default)
         {
             var forwardedRequest = new OutgoingRequestFrame(proxy, request.Operation, request.IsIdempotent,
                 request.Context, request.Payload);
@@ -379,9 +379,7 @@ namespace ZeroC.Ice
                                                                     IProgress<bool>? progress = null,
                                                                     CancellationToken cancel = default)
         {
-            Reference reference = proxy.IceReference;
-
-            InvocationMode mode = reference.InvocationMode;
+            InvocationMode mode = proxy.IceReference.InvocationMode;
             if (mode == InvocationMode.BatchOneway || mode == InvocationMode.BatchDatagram)
             {
                 Debug.Assert(false); // not implemented

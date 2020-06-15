@@ -1106,7 +1106,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
+                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{_transceiver}");
             }
 
             // Wait for the connection closure from the peer
@@ -1568,7 +1568,7 @@ namespace ZeroC.Ice
             }
 
             // We register with the connection monitor if our new state is State.Active. ACM monitors the connection
-            // once it's initalized and validated and until it's closed. Timeouts for connection establishement and
+            // once it's initialized and validated and until it's closed. Timeouts for connection establishment and
             // validation are implemented with a timer instead and setup in the outgoing connection factory.
             if (_monitor != null)
             {
@@ -1647,7 +1647,7 @@ namespace ZeroC.Ice
             NotInitialized,
             Active,
             Closing,
-            Closed,
+            Closed
         };
     }
 }

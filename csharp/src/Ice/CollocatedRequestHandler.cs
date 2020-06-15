@@ -35,6 +35,11 @@ namespace ZeroC.Ice
 
             IChildInvocationObserver? childObserver = null;
             int requestId = 0;
+
+            // The CollocatedRequestHandler is an internal object so it's safe to lock (this) as long as our
+            // code doesn't use the collocated request handler as a lock. The lock here is useful to ensure
+            // the protocol trace and observer call is output or called in the same order as the request ID
+            // is allocated.
             lock (this)
             {
                 if (!oneway)
