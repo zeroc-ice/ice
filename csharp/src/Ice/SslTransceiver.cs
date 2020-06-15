@@ -500,15 +500,7 @@ namespace ZeroC.Ice
                         X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
                         if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                         {
-                            if (_verifyPeer > 0)
-                            {
-                                message += "\nuntrusted root certificate";
-                            }
-                            else
-                            {
-                                message += "\nuntrusted root certificate (ignored)";
-                                _verified = false;
-                            }
+                            message += "\nuntrusted root certificate";
                             errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                         }
                         else
@@ -574,15 +566,8 @@ namespace ZeroC.Ice
                             X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
                             if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                             {
-                                if (_verifyPeer > 0)
-                                {
-                                    message += "\nuntrusted root certificate";
-                                    ++errorCount;
-                                }
-                                else
-                                {
-                                    message += "\nuntrusted root certificate (ignored)";
-                                }
+                                message += "\nuntrusted root certificate";
+                                ++errorCount;
                             }
                             else
                             {
@@ -619,15 +604,8 @@ namespace ZeroC.Ice
                         }
                         else if (status.Status == X509ChainStatusFlags.PartialChain)
                         {
-                            if (_verifyPeer > 0)
-                            {
-                                message += "\npartial certificate chain";
-                                ++errorCount;
-                            }
-                            else
-                            {
-                                message += "\npartial certificate chain (ignored)";
-                            }
+                            message += "\npartial certificate chain";
+                            ++errorCount;
                         }
                         else if (status.Status != X509ChainStatusFlags.NoError)
                         {
