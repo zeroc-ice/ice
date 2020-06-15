@@ -9,8 +9,8 @@ namespace ZeroC.Ice
 {
     /// <summary>The Ice encoding defines how Slice constructs are marshaled to and later unmarshaled from sequences
     /// of bytes. An Encoding struct holds a version of the Ice encoding.</summary>
-    [System.Serializable]
-    public readonly struct Encoding : System.IEquatable<Encoding>
+    [Serializable]
+    public readonly struct Encoding : IEquatable<Encoding>
     {
         // The encodings known to the Ice runtime.
 
@@ -89,7 +89,7 @@ namespace ZeroC.Ice
             Minor = minor;
         }
 
-        public override int GetHashCode() => System.HashCode.Combine(Major, Minor);
+        public override int GetHashCode() => HashCode.Combine(Major, Minor);
 
         public bool Equals(Encoding other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
 
