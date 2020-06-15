@@ -356,7 +356,8 @@ namespace ZeroC.Ice
 
         private static void FilterLogMessages(LinkedList<LogMessage> logMessages,
                                               HashSet<LogMessageType> messageTypes,
-                                              HashSet<string> traceCategories, int messageMax)
+                                              HashSet<string> traceCategories,
+                                              int messageMax)
         {
             Debug.Assert(logMessages.Count > 0 && messageMax != 0);
 
