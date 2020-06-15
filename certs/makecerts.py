@@ -72,12 +72,9 @@ def request(question, newvalue, value):
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 if not ip:
-    try:
-        ip = socket.gethostbyname(socket.gethostname())
-    except:
-        ip = "127.0.0.1"
-    ip = request("The IP address used for the server certificate will be: " + ip + "\n"
-                 "Do you want to keep this IP address? (y/n) [y]", "IP : ", ip)
+    ip = ["127.0.0.1", "::1"]
+    ip = request("The IP addresses used for the server certificate will be: {0}\n".format(ip) +
+                 "Do you want to keep this IP address? (y/n) [y]", "IP :", ip)
 
 if not dns:
     dns = "localhost"
@@ -103,7 +100,7 @@ client.save("client.p12")
 #
 # NOTE: server.pem is used by scripts/TestController.py
 #
-server = factory.create("server", cn = (dns if usedns else ip), ip=ip, dns=dns, extendedKeyUsage="serverAuth,clientAuth")
+server = factory.create("server", cn = (dns if usedns else "server"), ip=ip, dns=dns, extendedKeyUsage="serverAuth,clientAuth")
 server.save("server.p12").save("server.pem")
 
 try:
