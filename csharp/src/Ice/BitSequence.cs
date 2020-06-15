@@ -86,7 +86,7 @@ namespace ZeroC.Ice
         public override string ToString()
         {
             var sb = new StringBuilder();
-            foreach (var b in Span)
+            foreach (byte b in Span)
             {
                 sb.Append(Convert.ToString(b, 2).PadLeft(8, '0')).Append(" ");
             }
