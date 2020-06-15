@@ -11,22 +11,11 @@ namespace ZeroC.Ice
     /// type or any of its base classes (other than AnyClass).</summary>
     public sealed class UnknownSlicedClass : AnyClass
     {
-        /// <summary>Returns the Slice type ID associated with this sliced class instance.</summary>
+        /// <summary>Returns the most derived type ID this class instance.</summary>
         /// <value>The type ID.</value>
-        public string TypeId
-        {
-            get
-            {
-                Debug.Assert(IceSlicedData is SlicedData slicedData && slicedData.Slices.Count > 0);
-                return IceSlicedData.Value.Slices[0].TypeId;
-            }
-        }
+        public string TypeId => IceSlicedData!.Value.Slices[0].TypeId;
 
-        protected override void IceRead(InputStream istr, bool firtSlice)
-        {
-            IceSlicedData = istr.IceStartFirstSlice();
-            Debug.Assert(IceSlicedData != null);
-        }
+        protected override void IceRead(InputStream istr, bool firtSlice) => IceSlicedData = istr.SlicedData;
 
         protected override SlicedData? IceSlicedData { get; set; }
 

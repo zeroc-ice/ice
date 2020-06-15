@@ -1043,13 +1043,9 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
     StructPtr st = StructPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
-    if (type->isClassType())
+    if (builtin || type->isInterfaceType() || type->isClassType())
     {
-        out << nl << stream << ".WriteTaggedClass(" << tag << ", " << param << ");";
-    }
-    else if (builtin || type->isInterfaceType())
-    {
-        auto kind = builtin ? builtin->kind() : Builtin::KindObject;
+        auto kind = builtin ? builtin->kind() : type->isInterfaceType() ? Builtin::KindObject : Builtin::KindAnyClass;
         out << nl << stream << ".WriteTagged" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
     }
     else if(st)
