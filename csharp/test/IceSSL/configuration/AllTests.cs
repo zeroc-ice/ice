@@ -679,6 +679,145 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
                 Console.Out.WriteLine("ok");
 
+                Console.Out.Write("testing certificate selection callback... ");
+                Console.Out.Flush();
+                {
+                    clientProperties = CreateProperties(defaultProperties, null, "cacert1");
+                    clientProperties["IceSSL.Password"] = "";
+
+                    bool called = false;
+                    var comm = new Communicator(ref args, clientProperties,
+                        certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                        {
+                            called = true;
+                            return null;
+                        });
+                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
+                    serverProperties["IceSSL.VerifyPeer"] = "0";
+                    IServerPrx? server = fact.createServer(serverProperties);
+                    TestHelper.Assert(server != null);
+                    try
+                    {
+                        server.noCert();
+                        TestHelper.Assert(called);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        TestHelper.Assert(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.Destroy();
+
+                    var myCerts = new X509Certificate2Collection();
+                    myCerts.Import(defaultDir + "/c_rsa_ca1.p12", "password", X509KeyStorageFlags.DefaultKeySet);
+                    called = false;
+                    comm = new Communicator(ref args, clientProperties,
+                        certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                        {
+                            called = true;
+                            return myCerts[0];
+                        });
+
+                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
+                    serverProperties["IceSSL.VerifyPeer"] = "2";
+                    fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                    server = fact.createServer(serverProperties);
+                    TestHelper.Assert(server != null);
+                    try
+                    {
+                        server.IcePing();
+                        TestHelper.Assert(called);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        TestHelper.Assert(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.Destroy();
+
+                    try
+                    {
+                        // Setting IceSSL.CertFile is incompatible with using the certificate selection callback
+                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting IceSSL.Password is incompatible with using the certificate selection callback
+                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
+                        clientProperties["IceSSL.Password"] = "password";
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting IceSSL.FindCert is incompatible with using the certificate selection callback
+                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
+                        clientProperties["IceSSL.FindCert"] =
+                            "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'";
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting IceSSL.CertStoreLocation is incompatible with using the certificate selection callback
+                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
+                        clientProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+
+                    try
+                    {
+                        // The certificates and certificate selection callback arguments are incompatible
+                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
+                        comm = new Communicator(ref args, clientProperties,
+                            certificates: new X509Certificate2Collection(),
+                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // The password callback and certificate selection callback arguments are incompatible
+                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
+                        comm = new Communicator(ref args, clientProperties,
+                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null,
+                            passwordCallback: file => new NetworkCredential("", "password").SecurePassword);
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+                Console.Out.WriteLine("ok");
+
                 Console.Out.Write("testing certificate chains... ");
                 Console.Out.Flush();
                 {
