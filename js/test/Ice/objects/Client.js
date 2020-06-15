@@ -243,15 +243,15 @@
 
             out.write("test Value as parameter...");
             {
-                let [v1, v2] = await initial.opValue(new Test.L("l"));
+                let [v1, v2] = await initial.opClass(new Test.L("l"));
                 test(v1.data == "l");
                 test(v2.data == "l");
 
-                [v1, v2] = await initial.opValueSeq([new Test.L("l")]);
+                [v1, v2] = await initial.opClassSeq([new Test.L("l")]);
                 test(v1[0].data == "l");
                 test(v2[0].data == "l");
 
-                [v1, v2] = await initial.opValueMap(new Map([["l", new Test.L("l")]]));
+                [v1, v2] = await initial.opClassMap(new Map([["l", new Test.L("l")]]));
                 test(v1.get("l").data == "l");
                 test(v2.get("l").data == "l");
             }

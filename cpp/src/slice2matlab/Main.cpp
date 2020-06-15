@@ -454,7 +454,7 @@ dictionaryTypeToString(const TypePtr& type, bool key)
                 return typeToString(type);
             }
             case Builtin::KindObject:
-            case Builtin::KindValue:
+            case Builtin::KindAnyClass:
             {
                 assert(!key);
                 return "any";
@@ -569,7 +569,7 @@ defaultValue(const DataMemberPtr& m)
                 case Builtin::KindDouble:
                     return "0";
                 case Builtin::KindObject:
-                case Builtin::KindValue:
+                case Builtin::KindAnyClass:
                     return "[]";
             }
         }

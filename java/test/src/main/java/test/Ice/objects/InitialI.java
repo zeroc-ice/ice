@@ -118,24 +118,24 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public OpValueResult
-    opValue(com.zeroc.Ice.Value v1, com.zeroc.Ice.Current current)
+    public OpClassResult
+    opClass(com.zeroc.Ice.Value v1, com.zeroc.Ice.Current current)
     {
-        return new OpValueResult(v1, v1);
+        return new OpClassResult(v1, v1);
     }
 
     @Override
-    public OpValueSeqResult
-    opValueSeq(com.zeroc.Ice.Value[] v1, com.zeroc.Ice.Current current)
+    public OpClassSeqResult
+    opClassSeq(com.zeroc.Ice.Value[] v1, com.zeroc.Ice.Current current)
     {
-        return new OpValueSeqResult(v1, v1);
+        return new OpClassSeqResult(v1, v1);
     }
 
     @Override
-    public OpValueMapResult
-    opValueMap(java.util.Map<String, com.zeroc.Ice.Value> v1, com.zeroc.Ice.Current current)
+    public OpClassMapResult
+    opClassMap(java.util.Map<String, com.zeroc.Ice.Value> v1, com.zeroc.Ice.Current current)
     {
-        return new OpValueMapResult(v1, v1);
+        return new OpClassMapResult(v1, v1);
     }
 
     @Override

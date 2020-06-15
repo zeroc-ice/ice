@@ -4,8 +4,8 @@
 
 using System;
 using System.Threading;
-using ZeroC.Ice;
 using Test;
+using ZeroC.Ice;
 
 namespace ZeroC.Glacier2.Test.SessionHelper
 {
@@ -13,20 +13,15 @@ namespace ZeroC.Glacier2.Test.SessionHelper
     {
         public class SessionCallback1 : ISessionCallback
         {
-            public
-            SessionCallback1(Client app)
-            {
-                _app = app;
-            }
+            private readonly Client _app;
 
-            public void
-            Connected(ZeroC.Glacier2.SessionHelper session) => Assert(false);
+            public SessionCallback1(Client app) => _app = app;
 
-            public void
-            Disconnected(ZeroC.Glacier2.SessionHelper session) => Assert(false);
+            public void Connected(Glacier2.SessionHelper session) => Assert(false);
 
-            public void
-            ConnectFailed(ZeroC.Glacier2.SessionHelper session, Exception exception)
+            public void Disconnected(Glacier2.SessionHelper session) => Assert(false);
+
+            public void ConnectFailed(Glacier2.SessionHelper session, Exception exception)
             {
                 try
                 {
@@ -42,52 +37,51 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 }
                 finally
                 {
-                    _app.wakeUp();
+                    _app.WakeUp();
                 }
             }
 
-            public void
-            CreatedCommunicator(ZeroC.Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
-
-            private Client _app;
+            public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator != null);
         }
 
         public class SessionCallback2 : ISessionCallback
         {
+            private readonly Client _app;
+
             public SessionCallback2(Client app) => _app = app;
 
-            public void Connected(ZeroC.Glacier2.SessionHelper session)
+            public void Connected(Glacier2.SessionHelper session)
             {
                 Console.Out.WriteLine("ok");
-                _app.wakeUp();
+                _app.WakeUp();
             }
 
-            public void Disconnected(ZeroC.Glacier2.SessionHelper session)
+            public void Disconnected(Glacier2.SessionHelper session)
             {
                 Console.Out.WriteLine("ok");
-                _app.wakeUp();
+                _app.WakeUp();
             }
 
-            public void ConnectFailed(ZeroC.Glacier2.SessionHelper session, Exception ex)
+            public void ConnectFailed(Glacier2.SessionHelper session, Exception ex)
             {
                 Console.Out.WriteLine(ex.ToString());
                 Assert(false);
             }
 
-            public void CreatedCommunicator(ZeroC.Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
-
-            private readonly Client _app;
+            public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator != null);
         }
 
         public class SessionCallback3 : ISessionCallback
         {
+            private readonly Client _app;
+
             public SessionCallback3(Client app) => _app = app;
 
-            public void Connected(ZeroC.Glacier2.SessionHelper session) => Assert(false);
+            public void Connected(Glacier2.SessionHelper session) => Assert(false);
 
-            public void Disconnected(ZeroC.Glacier2.SessionHelper session) => Assert(false);
+            public void Disconnected(Glacier2.SessionHelper session) => Assert(false);
 
-            public void ConnectFailed(ZeroC.Glacier2.SessionHelper session, Exception exception)
+            public void ConnectFailed(Glacier2.SessionHelper session, Exception exception)
             {
                 try
                 {
@@ -103,24 +97,24 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 }
                 finally
                 {
-                    _app.wakeUp();
+                    _app.WakeUp();
                 }
             }
 
-            public void CreatedCommunicator(ZeroC.Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
-
-            private readonly Client _app;
+            public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator != null);
         }
 
         public class SessionCallback4 : ISessionCallback
         {
+            private readonly Client _app;
+
             public SessionCallback4(Client app) => _app = app;
 
-            public void Connected(ZeroC.Glacier2.SessionHelper session) => Assert(false);
+            public void Connected(Glacier2.SessionHelper session) => Assert(false);
 
-            public void Disconnected(ZeroC.Glacier2.SessionHelper session) => Assert(false);
+            public void Disconnected(Glacier2.SessionHelper session) => Assert(false);
 
-            public void ConnectFailed(ZeroC.Glacier2.SessionHelper session, Exception exception)
+            public void ConnectFailed(Glacier2.SessionHelper session, Exception exception)
             {
                 try
                 {
@@ -140,13 +134,11 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 }
                 finally
                 {
-                    _app.wakeUp();
+                    _app.WakeUp();
                 }
             }
 
-            public void CreatedCommunicator(ZeroC.Glacier2.SessionHelper session) => Assert(session.Communicator() != null);
-
-            private readonly Client _app;
+            public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator != null);
         }
 
         public override void Run(string[] args)
@@ -172,7 +164,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 Console.Out.Write("testing SessionHelper connect with wrong userid/password... ");
                 Console.Out.Flush();
 
-                factory.SetTransport(transport);
+                factory.Transport = transport;
                 session = factory.Connect("userid", "xxx");
                 while (true)
                 {
@@ -188,7 +180,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     {
                     }
                 }
-                Assert(!session.IsConnected());
+                Assert(!session.IsConnected);
             }
 
             properties.Remove("Ice.Default.Router");
@@ -197,9 +189,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             {
                 Console.Out.Write("testing SessionHelper connect interrupt... ");
                 Console.Out.Flush();
-                factory.SetRouterHost(host);
-                factory.SetPort(GetTestPort(1));
-                factory.SetTransport(transport);
+                factory.RouterHost = host;
+                factory.Port = GetTestPort(1);
+                factory.Transport = transport;
                 session = factory.Connect("userid", "abc123");
 
                 Thread.Sleep(100);
@@ -219,7 +211,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     {
                     }
                 }
-                Assert(!session.IsConnected());
+                Assert(!session.IsConnected);
             }
 
             factory = new SessionFactoryHelper(new SessionCallback2(this), properties);
@@ -227,9 +219,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             {
                 Console.Out.Write("testing SessionHelper connect... ");
                 Console.Out.Flush();
-                factory.SetRouterHost(host);
-                factory.SetPort(GetTestPort(50));
-                factory.SetTransport(transport);
+                factory.RouterHost = host;
+                factory.Port = GetTestPort(50);
+                factory.Transport = transport;
                 session = factory.Connect("userid", "abc123");
                 while (true)
                 {
@@ -248,14 +240,14 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
                 Console.Out.Write("testing SessionHelper isConnected after connect... ");
                 Console.Out.Flush();
-                Assert(session.IsConnected());
+                Assert(session.IsConnected);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing SessionHelper categoryForClient after connect... ");
                 Console.Out.Flush();
                 try
                 {
-                    Assert(!session.CategoryForClient().Equals(""));
+                    Assert(!session.GetCategoryForClient().Equals(""));
                 }
                 catch (SessionNotExistException)
                 {
@@ -263,11 +255,11 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 }
                 Console.Out.WriteLine("ok");
 
-                Assert(session.Session() == null);
+                Assert(session.Session == null);
 
                 Console.Out.Write("testing stringToProxy for server object... ");
                 Console.Out.Flush();
-                var twoway = ICallbackPrx.Parse($"callback:{GetTestEndpoint(0)}", session.Communicator()!);
+                var twoway = ICallbackPrx.Parse($"callback:{GetTestEndpoint(0)}", session.Communicator!);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("pinging server after session creation... ");
@@ -280,7 +272,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 twoway.shutdown();
                 Console.Out.WriteLine("ok");
 
-                Assert(session.Communicator() != null);
+                Assert(session.Communicator != null);
                 Console.Out.Write("testing SessionHelper destroy... ");
                 Console.Out.Flush();
                 session.Destroy();
@@ -301,14 +293,14 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
                 Console.Out.Write("testing SessionHelper isConnected after destroy... ");
                 Console.Out.Flush();
-                Assert(session.IsConnected() == false);
+                Assert(session.IsConnected == false);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing SessionHelper categoryForClient after destroy... ");
                 Console.Out.Flush();
                 try
                 {
-                    Assert(!session.CategoryForClient().Equals(""));
+                    Assert(!session.GetCategoryForClient().Equals(""));
                     Assert(false);
                 }
                 catch (SessionNotExistException)
@@ -317,14 +309,14 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing SessionHelper session after destroy... ");
-                Assert(session.Session() == null);
+                Assert(session.Session == null);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing SessionHelper communicator after destroy... ");
                 Console.Out.Flush();
                 try
                 {
-                    IObjectPrx.Parse("dummy", session.Communicator()!).IcePing();
+                    IObjectPrx.Parse("dummy", session.Communicator!).IcePing();
                     Assert(false);
                 }
                 catch (CommunicatorDestroyedException)
@@ -364,9 +356,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 Console.Out.Write("testing SessionHelper connect after router shutdown... ");
                 Console.Out.Flush();
 
-                factory.SetRouterHost(host);
-                factory.SetPort(GetTestPort(50));
-                factory.SetTransport(transport);
+                factory.RouterHost = host;
+                factory.Port = GetTestPort(50);
+                factory.Transport = transport;
                 session = factory.Connect("userid", "abc123");
                 while (true)
                 {
@@ -385,14 +377,14 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
                 Console.Out.Write("testing SessionHelper isConnect after connect failure... ");
                 Console.Out.Flush();
-                Assert(session.IsConnected() == false);
+                Assert(session.IsConnected == false);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing SessionHelper communicator after connect failure... ");
                 Console.Out.Flush();
                 try
                 {
-                    IObjectPrx.Parse("dummy", session.Communicator()!).IcePing();
+                    IObjectPrx.Parse("dummy", session.Communicator!).IcePing();
                     Assert(false);
                 }
                 catch (CommunicatorDestroyedException)
@@ -407,8 +399,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             }
         }
 
-        public void
-        wakeUp()
+        public void WakeUp()
         {
             lock (this)
             {

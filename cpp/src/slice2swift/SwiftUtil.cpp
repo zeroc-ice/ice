@@ -1217,7 +1217,7 @@ SwiftGenerator::isClassType(const TypePtr& p)
 {
     TypePtr type = unwrapIfOptional(p);
     const BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return (builtin && builtin->kind() == Builtin::KindValue) || ClassDeclPtr::dynamicCast(type);
+    return (builtin && builtin->kind() == Builtin::KindAnyClass) || ClassDeclPtr::dynamicCast(type);
 }
 
 bool
@@ -1452,7 +1452,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 break;
             }
-            case Builtin::KindValue:
+            case Builtin::KindAnyClass:
             {
                 if(marshal)
                 {

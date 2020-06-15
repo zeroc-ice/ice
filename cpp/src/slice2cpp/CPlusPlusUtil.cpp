@@ -54,7 +54,7 @@ isOptionalProxyOrClass(const TypePtr& type)
             return true;
         }
         auto builtin = BuiltinPtr::dynamicCast(underlying);
-        if (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue))
+        if (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindAnyClass))
         {
             return true;
         }
@@ -377,7 +377,7 @@ Slice::isMovable(const TypePtr& type)
         {
             case Builtin::KindString:
             case Builtin::KindObject:
-            case Builtin::KindValue:
+            case Builtin::KindAnyClass:
             {
                 return true;
             }

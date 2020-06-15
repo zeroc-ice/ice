@@ -510,7 +510,7 @@ Slice::isValueType(const TypePtr& type)
         {
             case Builtin::KindString:
             case Builtin::KindObject:
-            case Builtin::KindValue:
+            case Builtin::KindAnyClass:
             {
                 return false;
             }

@@ -81,7 +81,7 @@ namespace ZeroC.Ice
             {
                 // important: The call to AssemblyUtil here ensures that AssemblyUtil static constructor
                 // runs before we try to load Bzip2 library, this is required to use the custom DLL
-                // resolver register in AssemblyUtil constructor
+                // resolver register in AssemblyUtil constructor.
                 string libNames = string.Join(", ", AssemblyUtil.GetPlatformNativeLibraryNames("bzip2")).TrimEnd();
                 bool loaded = false;
                 try
@@ -178,21 +178,18 @@ namespace ZeroC.Ice
                     return null;
                 }
 
-                // Copy the header from the decompressed stream to the compressed one,
-                // we use headerSize + 4 to ensure there is room for the size of the
-                // decompressed stream in the first segment.
+                // Copy the header from the decompressed stream to the compressed one, we use headerSize + 4 to ensure
+                // there is room for the size of the decompressed stream in the first segment.
                 ArraySegment<byte> compressedHeader = new byte[headerSize + 4];
                 headerSegment.AsSpan(0, headerSize).CopyTo(compressedHeader);
 
                 int compressedSize = compressedLen + compressedHeader.Count;
-                // Write the compression status and the size of the compressed
-                // stream into the header.
+                // Write the compression status and the size of the compressed stream into the header.
                 compressedHeader[9] = 2;
                 OutputStream.WriteInt(compressedSize, compressedHeader.AsSpan(10, 4));
 
-                // Write the compression status and size of the compressed stream
-                // into the header of the decompressed stream -- we need this to
-                // trace requests correctly.
+                // Write the compression status and size of the compressed stream into the header of the decompressed
+                // stream -- we need this to trace requests correctly.
                 headerSegment[9] = 2;
                 OutputStream.WriteInt(compressedSize, headerSegment.AsSpan(10, 4));
 
@@ -232,8 +229,7 @@ namespace ZeroC.Ice
 
             byte[] decompressed = new byte[decompressedSize];
 
-            // Prevent GC from moving the byte array, this allow to take the object address
-            // and pass it to bzip2 calls.
+            // Prevent GC from moving the byte array, this allow to take the object address and pass it to bzip2 calls.
             var decompressedHandle = GCHandle.Alloc(decompressed, GCHandleType.Pinned);
             var compressedHandle = GCHandle.Alloc(compressed.Array, GCHandleType.Pinned);
             var bzStream = new BZStream(decompressedHandle.AddrOfPinnedObject() + headerSize,

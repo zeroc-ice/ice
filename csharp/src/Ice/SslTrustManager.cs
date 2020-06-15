@@ -46,7 +46,7 @@ namespace ZeroC.Ice
             }
             catch (FormatException ex)
             {
-                throw new FormatException($"IceSSL: invalid property `{key};", ex);
+                throw new FormatException($"invalid property `{key};", ex);
             }
         }
 
@@ -193,7 +193,7 @@ namespace ZeroC.Ice
                 catch (FormatException e)
                 {
                     _communicator.Logger.Warning(
-                        $"IceSSL: unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
+                        $"unable to parse certificate DN `{subjectName}'\nreason: {e.Message}");
                 }
 
                 //

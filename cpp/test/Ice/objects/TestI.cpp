@@ -258,21 +258,21 @@ InitialI::getK(const Ice::Current&)
 }
 
 Ice::ValuePtr
-InitialI::opValue(Ice::ValuePtr v1, Ice::ValuePtr& v2, const Ice::Current&)
+InitialI::opClass(Ice::ValuePtr v1, Ice::ValuePtr& v2, const Ice::Current&)
 {
     v2 = v1;
     return v1;
 }
 
-Test::ValueSeq
-InitialI::opValueSeq(Test::ValueSeq v1, Test::ValueSeq& v2, const Ice::Current&)
+Test::ClassSeq
+InitialI::opClassSeq(Test::ClassSeq v1, Test::ClassSeq& v2, const Ice::Current&)
 {
     v2 = v1;
     return v1;
 }
 
-Test::ValueMap
-InitialI::opValueMap(Test::ValueMap v1, Test::ValueMap& v2, const Ice::Current&)
+Test::ClassMap
+InitialI::opClassMap(Test::ClassMap v1, Test::ClassMap& v2, const Ice::Current&)
 {
     v2 = v1;
     return v1;

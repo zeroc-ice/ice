@@ -32,7 +32,7 @@ module Test
 //
 interface Initial2
 {
-    void opClassAndUnknownOptional(A p, tag(1) Value? o);
+    void opClassAndUnknownOptional(A p, tag(1) AnyClass? o);
 
     void opVoid(tag(1) int? a, tag(2) string? v);
 }
