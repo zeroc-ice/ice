@@ -433,7 +433,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.CheckCertName"] = "1";
                     server = fact.createServer(serverProperties);
                     try
                     {
@@ -464,12 +463,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "1";
                             comm = new Communicator(ref args, clientProperties);
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn1", "cacert1");
-                            serverProperties["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(serverProperties);
                             try
                             {
@@ -494,12 +491,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "1";
                             comm = new Communicator(ref args, clientProperties);
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
-                            serverProperties["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(serverProperties);
                             try
                             {
@@ -519,12 +514,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "1";
                             comm = new Communicator(ref args, clientProperties);
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn3", "cacert1");
-                            serverProperties["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(serverProperties);
                             try
                             {
@@ -545,12 +538,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "1";
                             comm = new Communicator(ref args, clientProperties);
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn4", "cacert1");
-                            serverProperties["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(serverProperties);
                             try
                             {
@@ -570,12 +561,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "1";
                             comm = new Communicator(ref args, clientProperties);
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn5", "cacert1");
-                            serverProperties["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(serverProperties);
                             try
                             {
@@ -603,13 +592,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName", "1");
                             comm = new Communicator(ref args, initData);
 
                             fact = IServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                             TestHelper.Assert(fact != null);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_cn6", "cacert1");
-                            d["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(d);
                             try
                             {
@@ -627,13 +614,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName", "1");
                             comm = new Communicator(ref args, initData);
 
                             fact = IServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                             TestHelper.Assert(fact != null);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_cn7", "cacert1");
-                            d["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(d);
                             try
                             {
@@ -653,12 +638,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                         //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "1";
                             comm = new Communicator(ref args, clientProperties);
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_cn8", "cacert1");
-                            serverProperties["IceSSL.CheckCertName"] = "1";
                             server = fact.createServer(serverProperties);
                             try
                             {
@@ -674,32 +657,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                                     Console.WriteLine(ex.ToString());
                                     TestHelper.Assert(false);
                                 }
-                            }
-                            fact.destroyServer(server);
-                            comm.Destroy();
-                        }
-
-                        //
-                        // Target host does not match the certificate DNS altName, connection should succeed
-                        // because IceSSL.CheckCertName is set to 0.
-                        //
-                        {
-                            clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                            clientProperties["IceSSL.CheckCertName"] = "0";
-                            comm = new Communicator(ref args, clientProperties);
-
-                            fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                            serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
-                            serverProperties["IceSSL.CheckCertName"] = "1";
-                            server = fact.createServer(serverProperties);
-                            try
-                            {
-                                server!.IcePing();
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
-                                TestHelper.Assert(false);
                             }
                             fact.destroyServer(server);
                             comm.Destroy();
@@ -1087,19 +1044,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // Setting IceSSL.VerifyDepthMax and the certificate verifier results in InvalidConfigurationException
                         clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                         clientProperties["IceSSL.VerifyDepthMax"] = "2";
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting IceSSL.CheckCertName and the certificate verifier results in InvalidConfigurationException
-                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                        clientProperties["IceSSL.CheckCertName"] = "1";
                         comm = new Communicator(ref args, clientProperties,
                             certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
                         TestHelper.Assert(false);
@@ -2138,7 +2082,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, ca: "cacert1");
                             // Use deprecated property here to test it
-                            serverProperties["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
+                            serverProperties["IceSSL.CertStore"] = "My";
+                            serverProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
+                            serverProperties["IceSSL.FindCert"] = serverFindCertProperties[i];
                             //
                             // Use TrustOnly to ensure the peer has pick the expected certificate.
                             //
@@ -2194,7 +2140,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                         try
                         {
                             clientProperties = CreateProperties(defaultProperties);
-                            clientProperties["IceSSL.FindCert.CurrentUser.My"] = s;
+                            clientProperties["IceSSL.CertStore"] = "My";
+                            clientProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
+                            clientProperties["IceSSL.FindCert"] = s;
                             Communicator comm = new Communicator(ref args, clientProperties);
                             TestHelper.Assert(false);
                         }

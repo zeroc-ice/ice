@@ -12,10 +12,15 @@ namespace ZeroC.Ice
 {
     public static class AssemblyUtil
     {
-        public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        public static readonly bool IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        public static readonly bool IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static readonly bool IsMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
+        public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
+        // <type name, Type> pairs.
+        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>();
+        private static readonly object _mutex = new object();
 
         // Register a delegate to load native libraries used by Ice assembly.
         static AssemblyUtil() =>
@@ -71,15 +76,28 @@ namespace ZeroC.Ice
             return Array.Empty<string>();
         }
 
-        //
-        // Make sure that all assemblies that are referenced by this process
-        // are actually loaded. This is necessary so we can use reflection
-        // on any type in any assembly because the type we are after will
-        // most likely not be in the current assembly and, worse, may be
-        // in an assembly that has not been loaded yet. (Type.GetType()
-        // is no good because it looks only in the calling object's assembly
-        // and mscorlib.dll.)
-        //
+        private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            DllNotFoundException? failure = null;
+            foreach (string name in GetPlatformNativeLibraryNames(libraryName))
+            {
+                try
+                {
+                    return NativeLibrary.Load(name, assembly, searchPath);
+                }
+                catch (DllNotFoundException ex)
+                {
+                    failure = ex;
+                }
+            }
+            Debug.Assert(failure != null);
+            throw failure;
+        }
+
+        // Make sure that all assemblies that are referenced by this process are actually loaded. This is necessary so
+        // we can use reflection on any type in any assembly because the type we are after will most likely not be in
+        // the current assembly and, worse, may be in an assembly that has not been loaded yet. (Type.GetType() is no
+        // good because it looks only in the calling object's assembly and mscorlib.dll.)
         private static void LoadAssemblies()
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -111,10 +129,8 @@ namespace ZeroC.Ice
                         try
                         {
                             var loadedAssembly = Assembly.Load(name);
-                            //
-                            // The value of name.FullName may not match that of loadedAssembly.FullName,
-                            // so we record the assembly using both keys.
-                            //
+                            // The value of name.FullName may not match that of loadedAssembly.FullName, so we record
+                            // the assembly using both keys.
                             _loadedAssemblies[name.FullName] = loadedAssembly;
                             _loadedAssemblies[loadedAssembly.FullName!] = loadedAssembly;
                             LoadReferencedAssemblies(loadedAssembly);
@@ -131,29 +147,5 @@ namespace ZeroC.Ice
                 // Some platforms like UWP do not support using GetReferencedAssemblies
             }
         }
-
-        private static IntPtr DllImportResolver(string libraryName, Assembly assembly,
-            DllImportSearchPath? searchPath)
-        {
-            DllNotFoundException? failure = null;
-            foreach (string name in GetPlatformNativeLibraryNames(libraryName))
-            {
-                try
-                {
-                    return NativeLibrary.Load(name, assembly, searchPath);
-                }
-                catch (DllNotFoundException ex)
-                {
-                    failure = ex;
-                }
-            }
-            Debug.Assert(failure != null);
-            throw failure;
-        }
-
-        private static readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
-        // <type name, Type> pairs.
-        private static readonly Dictionary<string, Type> _typeTable = new Dictionary<string, Type>();
-        private static readonly object _mutex = new object();
     }
 }

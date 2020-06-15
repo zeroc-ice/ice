@@ -34,9 +34,9 @@ namespace ZeroC.Ice
         {
         }
 
-        protected override string DefaultMessage
-            => $"could not find servant for Ice object `{Id}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
-                $" while attempting to dispatch operation `{Operation}'";
+        protected override string DefaultMessage =>
+            $"could not find servant for Ice object `{Id}'" + (Facet.Length > 0 ? $" with facet `{Facet}'" : "") +
+            $" while attempting to dispatch operation `{Operation}'";
     }
 
     public partial class OperationNotExistException
@@ -46,9 +46,9 @@ namespace ZeroC.Ice
         {
         }
 
-        protected override string DefaultMessage
-            => $"could not find operation `{Operation}' for Ice object `{Id}'" +
-                (Facet.Length > 0 ? $" with facet `{Facet}'" : "");
+        protected override string DefaultMessage =>
+            $"could not find operation `{Operation}' for Ice object `{Id}'" +
+            (Facet.Length > 0 ? $" with facet `{Facet}'" : "");
     }
 
     public partial class UnhandledException

@@ -541,35 +541,14 @@ namespace ZeroC.Ice
                     }
                 }
 
-                bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
-                if (certificateNameMismatch)
+                if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
                 {
-                    if (_engine.CheckCertName && !string.IsNullOrEmpty(_host))
+                    if (_engine.SecurityTraceLevel >= 1)
                     {
-                        if (_engine.SecurityTraceLevel >= 1)
-                        {
-                            string msg = "SSL certificate validation failed - Hostname mismatch";
-                            if (_verifyPeer == 0)
-                            {
-                                msg += " (ignored)";
-                            }
-                            _communicator.Logger.Trace(_engine.SecurityTraceCategory, msg);
-                        }
-
-                        if (_verifyPeer > 0)
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                        }
+                        _communicator.Logger.Trace(_engine.SecurityTraceCategory,
+                            "SSL certificate validation failed - Hostname mismatch");
                     }
-                    else
-                    {
-                        errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                        certificateNameMismatch = false;
-                    }
+                    return false;
                 }
 
                 if ((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
@@ -592,7 +571,7 @@ namespace ZeroC.Ice
                             }
                             else
                             {
-                                _verified = !certificateNameMismatch;
+                                _verified = true;
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)

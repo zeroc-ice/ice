@@ -16,7 +16,6 @@
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/netcoreapp3.1/Ice.dll" />
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/netcoreapp3.1/IceBox.dll" />
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/netcoreapp3.1/IceGrid.dll" />
-                <Reference Include="$(MSBuildThisFileDirectory)../lib/netcoreapp3.1/IceLocatorDiscovery.dll" />
                 <Reference Include="$(MSBuildThisFileDirectory)../lib/netcoreapp3.1/IceStorm.dll" />
             </ItemGroup>
         </Otherwise>
