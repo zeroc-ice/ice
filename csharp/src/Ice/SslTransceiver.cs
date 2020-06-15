@@ -586,7 +586,7 @@ namespace ZeroC.Ice
                             }
                             else
                             {
-                                _verified = !certificateNameMismatch;
+                                _verified = true;
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)
