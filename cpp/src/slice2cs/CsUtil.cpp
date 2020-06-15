@@ -824,7 +824,15 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
         else if (underlying->isClassType())
         {
             // does not use bit sequence
-            out << nl << stream << ".WriteNullableClass(" << param << ");";
+            out << nl << stream << ".WriteNullableClass(" << param;
+            if (BuiltinPtr::dynamicCast(underlying))
+            {
+                out << ", null);"; // no formal type optimization
+            }
+            else
+            {
+                out << ", " << typeToString(underlying, scope) << ".IceTypeId);";
+            }
         }
         else
         {
@@ -848,7 +856,15 @@ Slice::CsGenerator::writeMarshalCode(Output& out,
         }
         else if (type->isClassType())
         {
-            out << nl << stream << ".WriteClass(" << param << ");";
+            out << nl << stream << ".WriteClass(" << param;
+            if (BuiltinPtr::dynamicCast(type))
+            {
+                out << ", null);"; // no formal type optimization
+            }
+            else
+            {
+                out << ", " << typeToString(type, scope) << ".IceTypeId);";
+            }
         }
         else if (auto builtin = BuiltinPtr::dynamicCast(type))
         {
@@ -939,7 +955,16 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
         else if (underlying->isClassType())
         {
             // does not use bit sequence
-            out << stream << ".ReadNullableClass<" << typeToString(underlying, scope) << ">();";
+            out << stream << ".ReadNullableClass<" << typeToString(underlying, scope) << ">(";
+            if (BuiltinPtr::dynamicCast(underlying))
+            {
+                out << "formalTypeId: null";
+            }
+            else
+            {
+                out << typeToString(underlying, scope) << ".IceTypeId";
+            }
+            out << ");";
             return;
         }
         else
@@ -958,7 +983,16 @@ Slice::CsGenerator::writeUnmarshalCode(Output &out,
     else if (underlying->isClassType())
     {
         assert(!optional);
-        out << stream << ".ReadClass<" << typeToString(underlying, scope) << ">()";
+        out << stream << ".ReadClass<" << typeToString(underlying, scope) << ">(";
+        if (BuiltinPtr::dynamicCast(underlying))
+        {
+            out << "formalTypeId: null";
+        }
+        else
+        {
+            out << typeToString(underlying, scope) << ".IceTypeId";
+        }
+        out << ")";
     }
     else if (auto builtin = BuiltinPtr::dynamicCast(underlying))
     {
@@ -1009,9 +1043,13 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
     StructPtr st = StructPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
 
-    if (builtin || type->isInterfaceType() || type->isClassType())
+    if (type->isClassType())
     {
-        auto kind = builtin ? builtin->kind() : type->isInterfaceType() ? Builtin::KindObject : Builtin::KindValue;
+        out << nl << stream << ".WriteTaggedClass(" << tag << ", " << param << ");";
+    }
+    else if (builtin || type->isInterfaceType())
+    {
+        auto kind = builtin ? builtin->kind() : Builtin::KindObject;
         out << nl << stream << ".WriteTagged" << builtinSuffixTable[kind] << "(" << tag << ", " << param << ");";
     }
     else if(st)
@@ -1154,18 +1192,15 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     }
     else if (type->isInterfaceType())
     {
-        out << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope)
-            << ".Factory)";
+        out << stream << ".ReadTaggedProxy(" << tag << ", " << typeToString(type, scope) << ".Factory)";
     }
     else if (builtin)
     {
-        out << stream << ".ReadTagged" << builtinSuffixTable[builtin->kind()] << "(" << tag
-            << ")";
+        out << stream << ".ReadTagged" << builtinSuffixTable[builtin->kind()] << "(" << tag << ")";
     }
     else if (st)
     {
-        out << stream << ".ReadTaggedStruct(" << tag << ", fixedSize: "
-            << (st->isVariableLength() ? "false" : "true")
+        out << stream << ".ReadTaggedStruct(" << tag << ", fixedSize: " << (st->isVariableLength() ? "false" : "true")
             << ", " << inputStreamReader(st, scope) << ")";
     }
     else if (auto en = EnumPtr::dynamicCast(type))

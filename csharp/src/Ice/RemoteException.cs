@@ -31,27 +31,21 @@ namespace ZeroC.Ice
 
         private readonly bool _hasCustomMessage = false;
 
-        internal RemoteException(SlicedData slicedData)
-        {
-            IceSlicedData = slicedData;
-            ConvertToUnhandled = true;
-        }
+        /// <summary>Constructs a remote exception with the provided message.</summary>
+        /// <param name="message">Message that describes the exception.</param>
+        protected internal RemoteException(string? message)
+            : base(message) => _hasCustomMessage = (message != null);
 
         /// <summary>Constructs a remote exception with the default system message.</summary>
         protected RemoteException()
         {
         }
 
-        /// <summary>Constructs a remote exception with the provided message.</summary>
-        /// <param name="message">Message that describes the exception.</param>
-        protected RemoteException(string message)
-            : base(message) => _hasCustomMessage = true;
-
         /// <summary>Constructs a remote exception with the provided message and inner exception.</summary>
         /// <param name="message">Message that describes the exception.</param>
         /// <param name="innerException">The inner exception.</param>
-        protected RemoteException(string message, Exception innerException)
-            : base(message, innerException) => _hasCustomMessage = true;
+        protected RemoteException(string? message, Exception? innerException)
+            : base(message, innerException) => _hasCustomMessage = (message != null);
 
         /// <summary>Initializes a new instance of the remote exception with serialized data.</summary>
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
@@ -61,14 +55,22 @@ namespace ZeroC.Ice
         {
         }
 
-        // See OutputStream
-        protected virtual void IceWrite(OutputStream ostr, bool firstSlice)
+        // See InputStream
+        // This base implementation is only be called on a plain RemoteException.
+        protected virtual void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(firstSlice);
-            // This implementation can only be called on a plain RemoteException with IceSlicedData set.
-            Debug.Assert(IceSlicedData.HasValue);
-            ostr.WriteSlicedData(IceSlicedData.Value);
+            IceSlicedData = istr.SlicedData;
+            ConvertToUnhandled = true;
         }
+
+        internal void Read(InputStream istr) => IceRead(istr, true);
+
+        // See OutputStream
+        // This implementation can only be called on a plain RemoteException with IceSlicedData set.
+        protected virtual void IceWrite(OutputStream ostr, bool firstSlice) =>
+            ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message);
+
         internal void Write(OutputStream ostr) => IceWrite(ostr, true);
     }
 

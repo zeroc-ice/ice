@@ -30,9 +30,8 @@ namespace ZeroC.Ice
     /// <summary>SliceInfo encapsulates the details of a slice for an unknown class or remote exception.</summary>
     public sealed class SliceInfo
     {
-        /// <summary>The Slice type ID for this slice. Can be null only for a class when CompactId is set and
-        /// unresolved.</summary>
-        public string? TypeId { get; }
+        /// <summary>The Slice type ID for this slice.</summary>
+        public string TypeId { get; }
 
         /// <summary>The Slice compact type ID for this slice. Only applicable to classes with the 1.1 encoding;
         /// otherwise, always null.</summary>
@@ -47,23 +46,18 @@ namespace ZeroC.Ice
         /// <summary>Whether or not the slice contains tagged members.</summary>
         public bool HasTaggedMembers { get; }
 
-        /// <summary>Whether or not this is the last (least derived) slice of the instance.</summary>
-        public bool IsLastSlice { get; }
-
         internal SliceInfo(
-            string? typeId,
+            string typeId,
             int? compactId,
             ReadOnlyMemory<byte> bytes,
             IReadOnlyList<AnyClass> instances,
-            bool hasTaggedlMembers,
-            bool isLastSlice)
+            bool hasTaggedlMembers)
         {
             TypeId = typeId;
             CompactId = compactId;
             Bytes = bytes;
             Instances = instances;
             HasTaggedMembers = hasTaggedlMembers;
-            IsLastSlice = isLastSlice;
         }
     }
 }

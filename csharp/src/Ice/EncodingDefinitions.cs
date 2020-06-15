@@ -15,16 +15,27 @@ namespace ZeroC.Ice
 
         internal const byte TaggedEndMarker = 0xFF;
 
+        /// <summary>The first byte of each encoded class or exception slice.</summary>
         [Flags]
         internal enum SliceFlags : byte
         {
-            HasTypeIdString = 1,
-            HasTypeIdIndex = 2,
-            HasTypeIdCompact = HasTypeIdString | HasTypeIdIndex,
+            /// <summary>The first 2 bits of SliceFlags represent the TypeIdKind, which can be extracted using
+            /// TypeIdMask.</summary>
+            TypeIdMask = 3,
             HasTaggedMembers = 4,
             HasIndirectionTable = 8,
             HasSliceSize = 16,
             IsLastSlice = 32
+        }
+
+        /// <summary>The first 2 bits of the SliceFlags.</summary>
+        internal enum TypeIdKind : byte
+        {
+            None = 0,
+            String = 1,
+            Index = 2,
+            CompactId11 = 3,
+            Sequence20 = 3,
         }
 
         /// <summary>Each tagged parameter has a specific tag format. This tag format describes how the data is encoded

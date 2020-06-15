@@ -1027,7 +1027,8 @@ namespace ZeroC.Ice.Test.Tagged
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
-                    (istr.ReadTaggedClass<OneTagged>(1), istr.ReadTaggedClass<OneTagged>(3)));
+                    (istr.ReadTaggedClass<OneTagged>(1),
+                    istr.ReadTaggedClass<OneTagged>(3)));
                 TestHelper.Assert(p2!.a == 58 && p3!.a == 58);
             }
 
@@ -1616,14 +1617,15 @@ namespace ZeroC.Ice.Test.Tagged
                     format: null, context: null, p1,
                     (OutputStream ostr, Dictionary<int, OneTagged?>? p1) =>
                         ostr.WriteTaggedDictionary(
-                            2, p1, (ostr, k) => ostr.WriteInt(k), (ostr, v) => ostr.WriteNullableClass(v)));
+                            2, p1, (ostr, k) => ostr.WriteInt(k),
+                                (ostr, v) => ostr.WriteNullableClass(v, OneTagged.IceTypeId)));
 
                 IncomingResponseFrame responseFrame = initial.Invoke(requestFrame);
                 (p2, p3) = responseFrame.ReadReturnValue(istr =>
                     (istr.ReadTaggedDictionary(1, 1, 4, fixedSize: false, istr => istr.ReadInt(),
-                                                                     istr => istr.ReadNullableClass<OneTagged>()),
+                        istr => istr.ReadNullableClass<OneTagged>(OneTagged.IceTypeId)),
                      istr.ReadTaggedDictionary(3, 1, 4, fixedSize: false, istr => istr.ReadInt(),
-                                                                     istr => istr.ReadNullableClass<OneTagged>())));
+                        istr => istr.ReadNullableClass<OneTagged>(OneTagged.IceTypeId))));
                 TestHelper.Assert(p2![1]!.a == 58);
                 TestHelper.Assert(p3![1]!.a == 58);
             }
