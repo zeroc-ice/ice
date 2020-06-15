@@ -446,21 +446,15 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
                     comm.Destroy();
 
-                    //
-                    // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
-                    // as that is the IP address used in the test certificates.
-                    //
+                    // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1 as that is the IP address used
+                    // in the test certificates.
                     if (defaultHost.Equals("127.0.0.1"))
                     {
-                        //
-                        // Test using localhost as target host
-                        //
+                        // Test using localhost as target host.
                         var props = new Dictionary<string, string>(defaultProperties);
                         props["Ice.Default.Host"] = "localhost";
 
-                        //
-                        // Target host matches the certificate DNS altName
-                        //
+                        // This must succeed, the target host matches the certificate DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                             comm = new Communicator(ref args, clientProperties);
@@ -474,9 +468,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             }
                             catch (Exception ex)
                             {
-                                //
                                 // macOS catalina does not check the certificate common name
-                                //
                                 if (!AssemblyUtil.IsMacOS)
                                 {
                                     Console.WriteLine(ex.ToString());
@@ -486,9 +478,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                             fact.destroyServer(server);
                             comm.Destroy();
                         }
-                        //
-                        // Target host does not match the certificate DNS altName
-                        //
+
+                        // This must fail, the target host does not match the certificate DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                             comm = new Communicator(ref args, clientProperties);
@@ -508,10 +499,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                             fact.destroyServer(server);
                             comm.Destroy();
                         }
-                        //
-                        // Target host matches the certificate Common Name and the certificate does not
-                        // include a DNS altName
-                        //
+
+                        // This must succeed, the target host matches the certificate Common Name and the certificate
+                        // does not include a DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                             comm = new Communicator(ref args, clientProperties);
@@ -532,10 +522,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                             comm.Destroy();
                         }
 
-                        //
-                        // Target host does not match the certificate Common Name and the certificate does not
-                        // include a DNS altName
-                        //
+                        // This must fail, the target host does not match the certificate Common Name and the
+                        // certificate does not include a DNS altName.
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                             comm = new Communicator(ref args, clientProperties);
@@ -555,10 +543,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                             fact.destroyServer(server);
                             comm.Destroy();
                         }
-                        //
-                        // Target host matches the certificate Common Name and the certificate has
+
+                        // This must fail, the target host matches the certificate Common Name and the certificate has
                         // a DNS altName that does not matches the target host
-                        //
                         {
                             clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                             comm = new Communicator(ref args, clientProperties);
@@ -661,6 +648,33 @@ namespace ZeroC.IceSSL.Test.Configuration
                             fact.destroyServer(server);
                             comm.Destroy();
                         }
+
+                        //
+                        // Target host does not match the certificate DNS altName, connection should fail.
+                        //
+                        {
+                            clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
+                            comm = new Communicator(ref args, clientProperties);
+
+                            fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                            serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
+                            server = fact.createServer(serverProperties);
+                            try
+                            {
+                                server!.IcePing();
+                                TestHelper.Assert(false);
+                            }
+                            catch (TransportException)
+                            {
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                TestHelper.Assert(false);
+                            }
+                            fact.destroyServer(server);
+                            comm.Destroy();
+                        }
                     }
                 }
                 Console.Out.WriteLine("ok");
@@ -696,7 +710,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
 
                         //
-                        // The client can't verify the server certificate it should fail/
+                        // The client can't verify the server certificate it should fail.
                         //
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
                         serverProperties["IceSSL.VerifyPeer"] = "0";
@@ -2081,7 +2095,6 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            // Use deprecated property here to test it
                             serverProperties["IceSSL.CertStore"] = "My";
                             serverProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
                             serverProperties["IceSSL.FindCert"] = serverFindCertProperties[i];
