@@ -4,27 +4,99 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Linq;
 
 namespace ZeroC.Ice
 {
+    internal sealed class RemoteLoggerQueue
+    {
+        private readonly LoggerAdmin _loggerAdmin;
+        private readonly HashSet<LogMessageType> _messageTypes;
+        private readonly IRemoteLoggerPrx _remoteLoggerPrx;
+        private ValueTask _task;
+        private readonly HashSet<string> _traceCategories;
+
+        internal RemoteLoggerQueue(LoggerAdmin loggerAdmin, IRemoteLoggerPrx prx, HashSet<LogMessageType> messageTypes,
+            HashSet<string> traceCategories)
+        {
+            // Use oneway proxy to send the remote logger invocations.
+            _remoteLoggerPrx = prx.Clone(oneway: true);
+            _loggerAdmin = loggerAdmin;
+            _messageTypes = messageTypes;
+            _traceCategories = traceCategories;
+        }
+
+        internal bool IsAccepted(LogMessage logMessage)
+        {
+            if (_messageTypes.Count == 0 || _messageTypes.Contains(logMessage.Type))
+            {
+                if (logMessage.Type != LogMessageType.TraceMessage || _traceCategories.Count == 0 ||
+                   _traceCategories.Contains(logMessage.TraceCategory))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal void Queue(Func<IRemoteLoggerPrx, ValueTask> func, ILogger logger, string op)
+        {
+            lock (this)
+            {
+                _task = PerformAsync(func, logger, op);
+            }
+        }
+
+        private async ValueTask PerformAsync(Func<IRemoteLoggerPrx, ValueTask> func, ILogger logger, string op)
+        {
+            try
+            {
+                // Wait for the previous invocation to be sent.
+                await _task;
+
+                // Now send the given invocation.
+                await func(_remoteLoggerPrx);
+            }
+            catch (Exception ex)
+            {
+                _loggerAdmin.DeadRemoteLogger(_remoteLoggerPrx, logger, ex, op);
+                throw;
+            }
+        }
+    }
+
     internal sealed class LoggerAdmin : ILoggerAdmin
     {
-        public void
-        AttachRemoteLogger(IRemoteLoggerPrx? prx, LogMessageType[] messageTypes, string[] categories,
-                           int messageMax, Current current)
+        private const string TraceCategory = "Admin.Logger";
+        private bool _destroyed = false;
+        private int _logCount = 0; // non-trace messages
+        private readonly LoggerAdminLogger _logger;
+        private readonly int _maxLogCount;
+        private readonly int _maxTraceCount;
+        private LinkedListNode<LogMessage>? _oldestTrace = null;
+        private LinkedListNode<LogMessage>? _oldestLog = null;
+        private readonly LinkedList<LogMessage> _queue = new LinkedList<LogMessage>();
+        private readonly Dictionary<Identity, RemoteLoggerQueue> _remoteLoggerMap
+            = new Dictionary<Identity, RemoteLoggerQueue>();
+        private Communicator? _sendLogCommunicator = null;
+        private int _traceCount = 0;
+        private readonly int _traceLevel;
+
+        public void AttachRemoteLogger(IRemoteLoggerPrx? prx, LogMessageType[] types, string[] categories,
+            int messageMax, Current current)
         {
             if (prx == null)
             {
                 return; // can't send this null RemoteLogger anything!
             }
 
-            IRemoteLoggerPrx remoteLogger = prx.Clone(oneway: false);
+            var messageTypes = new HashSet<LogMessageType>(types);
+            var traceCategories = new HashSet<string>(categories);
 
-            var filters = new Filters(messageTypes, categories);
             LinkedList<LogMessage>? initLogMessages = null;
-
+            RemoteLoggerQueue remoteLogger;
             lock (this)
             {
                 if (_sendLogCommunicator == null)
@@ -38,21 +110,21 @@ namespace ZeroC.Ice
                         CreateSendLogCommunicator(current.Adapter.Communicator, _logger.GetLocalLogger());
                 }
 
-                Identity remoteLoggerId = remoteLogger.Identity;
+                Identity remoteLoggerId = prx.Identity;
 
                 if (_remoteLoggerMap.ContainsKey(remoteLoggerId))
                 {
                     if (_traceLevel > 0)
                     {
-                        _logger.Trace(TraceCategory, @$"rejecting `{remoteLogger.ToString()
-                            }' with RemoteLoggerAlreadyAttachedException");
+                        _logger.Trace(TraceCategory, @$"rejecting `{prx}' with RemoteLoggerAlreadyAttachedException");
                     }
 
                     throw new RemoteLoggerAlreadyAttachedException();
                 }
 
-                _remoteLoggerMap.Add(remoteLoggerId,
-                                     new RemoteLoggerData(ChangeCommunicator(remoteLogger, _sendLogCommunicator), filters));
+                remoteLogger = new RemoteLoggerQueue(this, ChangeCommunicator(prx, _sendLogCommunicator), messageTypes,
+                    traceCategories);
+                _remoteLoggerMap.Add(remoteLoggerId, remoteLogger);
 
                 if (messageMax != 0)
                 {
@@ -66,44 +138,25 @@ namespace ZeroC.Ice
 
             if (_traceLevel > 0)
             {
-                _logger.Trace(TraceCategory, "attached `" + remoteLogger.ToString() + "'");
+                _logger.Trace(TraceCategory, $"attached `{remoteLogger}'");
             }
 
             if (initLogMessages.Count > 0)
             {
-                FilterLogMessages(initLogMessages, filters.MessageTypes, filters.TraceCategories, messageMax);
+                FilterLogMessages(initLogMessages, messageTypes, traceCategories, messageMax);
             }
 
-            try
+            remoteLogger.Queue(async prx =>
             {
-                remoteLogger.InitAsync(_logger.GetPrefix(), initLogMessages.ToArray()).ContinueWith(
-                    (t) =>
-                    {
-                        try
-                        {
-                            t.Wait();
-                            if (_traceLevel > 1)
-                            {
-                                _logger.Trace(TraceCategory, "init on `" + remoteLogger.ToString()
-                                              + "' completed successfully");
-                            }
-                        }
-                        catch (AggregateException ae)
-                        {
-                            DeadRemoteLogger(remoteLogger, _logger, ae.InnerException!, "init");
-                        }
-                    },
-                    System.Threading.Tasks.TaskScheduler.Current);
-            }
-            catch (System.Exception ex)
-            {
-                DeadRemoteLogger(remoteLogger, _logger, ex, "init");
-                throw;
-            }
+                await prx.InitAsync(_logger.GetPrefix(), initLogMessages.ToArray());
+                if (_traceLevel > 1)
+                {
+                    _logger.Trace(TraceCategory, $"init on `{remoteLogger}' completed successfully");
+                }
+            }, _logger, "init");
         }
 
-        public bool
-        DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current)
+        public bool DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current)
         {
             if (remoteLogger == null)
             {
@@ -119,19 +172,19 @@ namespace ZeroC.Ice
             {
                 if (found)
                 {
-                    _logger.Trace(TraceCategory, "detached `" + remoteLogger.ToString() + "'");
+                    _logger.Trace(TraceCategory, $"detached `{remoteLogger}'");
                 }
                 else
                 {
-                    _logger.Trace(TraceCategory, "cannot detach `" + remoteLogger.ToString() + "': not found");
+                    _logger.Trace(TraceCategory, $"cannot detach `{remoteLogger}': not found");
                 }
             }
 
             return found;
         }
 
-        public (IEnumerable<LogMessage>, string) GetLog(LogMessageType[] messageTypes, string[] categories,
-            int messageMax, Current current)
+        public (IEnumerable<LogMessage>, string) GetLog(LogMessageType[] types, string[] categories, int messageMax,
+            Current current)
         {
             LinkedList<LogMessage> logMessages;
             lock (this)
@@ -150,8 +203,9 @@ namespace ZeroC.Ice
 
             if (logMessages.Count > 0)
             {
-                var filters = new Filters(messageTypes, categories);
-                FilterLogMessages(logMessages, filters.MessageTypes, filters.TraceCategories, messageMax);
+                var messageTypes = new HashSet<LogMessageType>(types);
+                var traceCategories = new HashSet<string>(categories);
+                FilterLogMessages(logMessages, messageTypes, traceCategories, messageMax);
             }
             return (logMessages.ToArray(), prefix);
         }
@@ -178,25 +232,37 @@ namespace ZeroC.Ice
                 }
             }
 
-            //
-            // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
-            // remote loggers
-            //
+            // Destroy outside lock to avoid deadlock when there are outstanding calls sent to remote loggers
             if (sendLogCommunicator != null)
             {
                 sendLogCommunicator.Destroy();
             }
         }
 
-        internal List<IRemoteLoggerPrx>? Log(LogMessage logMessage)
+        internal void DeadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, Exception ex, string operation)
+        {
+            // No need to convert remoteLogger as we only use its identity
+            if (RemoveRemoteLogger(remoteLogger))
+            {
+                if (!(ex is CommunicatorDestroyedException))
+                {
+                    if (_traceLevel > 0)
+                    {
+                        logger.Trace(TraceCategory, $"detached `{remoteLogger}' because {operation} raised:\n{ex}");
+                    }
+                }
+            }
+        }
+
+        internal int GetTraceLevel() => _traceLevel;
+
+        internal List<RemoteLoggerQueue>? Log(LogMessage logMessage)
         {
             lock (this)
             {
-                List<IRemoteLoggerPrx>? remoteLoggers = null;
+                List<RemoteLoggerQueue>? remoteLoggers = null;
 
-                //
                 // Put message in _queue
-                //
                 if ((logMessage.Type != LogMessageType.TraceMessage && _maxLogCount > 0) ||
                     (logMessage.Type == LogMessageType.TraceMessage && _maxTraceCount > 0))
                 {
@@ -207,9 +273,7 @@ namespace ZeroC.Ice
                         Debug.Assert(_maxLogCount > 0);
                         if (_logCount == _maxLogCount)
                         {
-                            //
                             // Need to remove the oldest log from the queue
-                            //
                             Debug.Assert(_oldestLog != null);
                             LinkedListNode<LogMessage>? next = _oldestLog.Next;
                             _queue.Remove(_oldestLog);
@@ -236,9 +300,7 @@ namespace ZeroC.Ice
                         Debug.Assert(_maxTraceCount > 0);
                         if (_traceCount == _maxTraceCount)
                         {
-                            //
                             // Need to remove the oldest trace from the queue
-                            //
                             Debug.Assert(_oldestTrace != null);
                             LinkedListNode<LogMessage>? next = _oldestTrace.Next;
                             _queue.Remove(_oldestTrace);
@@ -262,24 +324,13 @@ namespace ZeroC.Ice
                     }
                 }
 
-                //
                 // Queue updated, now find which remote loggers want this message
-                //
-                foreach (RemoteLoggerData p in _remoteLoggerMap.Values)
+                foreach (RemoteLoggerQueue p in _remoteLoggerMap.Values)
                 {
-                    Filters filters = p.Filters;
-
-                    if (filters.MessageTypes.Count == 0 || filters.MessageTypes.Contains(logMessage.Type))
+                    if (p.IsAccepted(logMessage))
                     {
-                        if (logMessage.Type != LogMessageType.TraceMessage || filters.TraceCategories.Count == 0 ||
-                           filters.TraceCategories.Contains(logMessage.TraceCategory))
-                        {
-                            if (remoteLoggers == null)
-                            {
-                                remoteLoggers = new List<IRemoteLoggerPrx>();
-                            }
-                            remoteLoggers.Add(p.RemoteLogger);
-                        }
+                        remoteLoggers ??= new List<RemoteLoggerQueue>();
+                        remoteLoggers.Add(p);
                     }
                 }
 
@@ -287,30 +338,20 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void DeadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, System.Exception ex,
-                                       string operation)
-        {
-            //
-            // No need to convert remoteLogger as we only use its identity
-            //
-            if (RemoveRemoteLogger(remoteLogger))
-            {
-                if (_traceLevel > 0)
-                {
-                    logger.Trace(TraceCategory, "detached `" + remoteLogger.ToString() + "' because "
-                                 + operation + " raised:\n" + ex.ToString());
-                }
-            }
-        }
+        // Change this proxy's communicator
+        private static IRemoteLoggerPrx ChangeCommunicator(IRemoteLoggerPrx prx, Communicator communicator) =>
+            IRemoteLoggerPrx.Parse(prx.ToString()!, communicator);
 
-        internal int GetTraceLevel() => _traceLevel;
-
-        private bool RemoveRemoteLogger(IRemoteLoggerPrx remoteLogger)
+        private static Communicator CreateSendLogCommunicator(Communicator communicator, ILogger logger)
         {
-            lock (this)
-            {
-                return _remoteLoggerMap.Remove(remoteLogger.Identity);
-            }
+            var properties = communicator.GetProperties().Where(
+                p => p.Key == "Ice.Default.Locator" ||
+                p.Key == "Ice.Plugin.IceSSL" ||
+                p.Key.StartsWith("IceSSL.")).ToDictionary(p => p.Key, p => p.Value);
+
+            string[] args = communicator.GetPropertyAsList("Ice.Admin.Logger.Properties")?.Select(
+                v => v.StartsWith("--") ? v : $"--{v}").ToArray() ?? Array.Empty<string>();
+            return new Communicator(ref args, properties, logger: logger);
         }
 
         private static void FilterLogMessages(LinkedList<LogMessage> logMessages,
@@ -319,10 +360,8 @@ namespace ZeroC.Ice
         {
             Debug.Assert(logMessages.Count > 0 && messageMax != 0);
 
-            //
             // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all"
             // that match the other filters, if any.
-            //
             if (messageTypes.Count > 0 || traceCategories.Count > 0 || messageMax > 0)
             {
                 int count = 0;
@@ -371,65 +410,12 @@ namespace ZeroC.Ice
             // else, don't need any filtering
         }
 
-        //
-        // Change this proxy's communicator, while keeping its invocation timeout
-        //
-        private static IRemoteLoggerPrx ChangeCommunicator(IRemoteLoggerPrx prx, Communicator communicator) =>
-            IRemoteLoggerPrx.Parse(prx.ToString()!, communicator).Clone(invocationTimeout: prx.InvocationTimeout);
-
-        private static Communicator CreateSendLogCommunicator(Communicator communicator, ILogger logger)
+        private bool RemoveRemoteLogger(IRemoteLoggerPrx remoteLogger)
         {
-            var properties = communicator.GetProperties().Where(
-                p => p.Key == "Ice.Default.Locator" ||
-                p.Key == "Ice.Plugin.IceSSL" ||
-                p.Key.StartsWith("IceSSL.")).ToDictionary(p => p.Key, p => p.Value);
-
-            string[] args = communicator.GetPropertyAsList("Ice.Admin.Logger.Properties")?.Select(
-                v => v.StartsWith("--") ? v : $"--{v}").ToArray() ?? Array.Empty<string>();
-            return new Communicator(ref args, properties, logger: logger);
-        }
-
-        private readonly LinkedList<LogMessage> _queue = new LinkedList<LogMessage>();
-        private int _logCount = 0; // non-trace messages
-        private readonly int _maxLogCount;
-        private int _traceCount = 0;
-        private readonly int _maxTraceCount;
-        private readonly int _traceLevel;
-
-        private LinkedListNode<LogMessage>? _oldestTrace = null;
-        private LinkedListNode<LogMessage>? _oldestLog = null;
-
-        private class Filters
-        {
-            internal Filters(LogMessageType[] m, string[] c)
+            lock (this)
             {
-                MessageTypes = new HashSet<LogMessageType>(m);
-                TraceCategories = new HashSet<string>(c);
+                return _remoteLoggerMap.Remove(remoteLogger.Identity);
             }
-
-            internal readonly HashSet<LogMessageType> MessageTypes;
-            internal readonly HashSet<string> TraceCategories;
         }
-
-        private class RemoteLoggerData
-        {
-            internal RemoteLoggerData(IRemoteLoggerPrx prx, Filters f)
-            {
-                RemoteLogger = prx;
-                Filters = f;
-            }
-
-            internal readonly IRemoteLoggerPrx RemoteLogger;
-            internal readonly Filters Filters;
-        }
-
-        private readonly Dictionary<Identity, RemoteLoggerData> _remoteLoggerMap
-            = new Dictionary<Identity, RemoteLoggerData>();
-
-        private readonly LoggerAdminLogger _logger;
-
-        private Communicator? _sendLogCommunicator = null;
-        private bool _destroyed = false;
-        private const string TraceCategory = "Admin.Logger";
     }
 }
