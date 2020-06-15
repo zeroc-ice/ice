@@ -404,7 +404,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             if (b1.GetConnection() != null) // not colloc-optimized target
             {
-                b2 = b1.GetConnection().CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
+                b2 = b1.GetConnection()!.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
                 TestHelper.Assert(b2.ToString() == b2.ToString());
             }
             output.WriteLine("ok");
@@ -791,10 +791,10 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(!endpts1[0].Equals(endpts2[0]));
             TestHelper.Assert(endpts1[0].Equals(IObjectPrx.Parse("foo:tcp -h 127.0.0.1 -p 10000", communicator).Endpoints[0]));
 
-            Connection baseConnection = baseProxy.GetConnection();
+            Connection? baseConnection = baseProxy.GetConnection();
             if (baseConnection != null)
             {
-                Connection baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection();
+                Connection? baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection();
                 compObj1 = compObj1.Clone(fixedConnection: baseConnection);
                 compObj2 = compObj2.Clone(fixedConnection: baseConnection2);
                 TestHelper.Assert(!compObj1.Equals(compObj2));
@@ -837,7 +837,7 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing ice_fixed... ");
             output.Flush();
             {
-                Connection connection = cl.GetConnection();
+                Connection? connection = cl.GetConnection();
                 if (connection != null)
                 {
                     TestHelper.Assert(!cl.IsFixed);
@@ -857,7 +857,7 @@ namespace ZeroC.Ice.Test.Proxy
                     TestHelper.Assert(cl.Clone(fixedConnection: connection).Clone(fixedConnection: connection).GetConnection() == connection);
                     TestHelper.Assert(!cl.Clone(fixedConnection: connection).ConnectionTimeout.HasValue);
                     TestHelper.Assert(cl.Clone(compress: true, fixedConnection: connection).Compress!.Value);
-                    Connection fixedConnection = cl.Clone(connectionId: "ice_fixed").GetConnection();
+                    Connection? fixedConnection = cl.Clone(connectionId: "ice_fixed").GetConnection();
                     TestHelper.Assert(cl.Clone(fixedConnection: connection).Clone(fixedConnection: fixedConnection).GetConnection() == fixedConnection);
                     try
                     {

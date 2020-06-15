@@ -27,6 +27,9 @@ namespace ZeroC.Ice.Test.Threading
                 throw new TestFailedException(
                     $"unexpected task scheduler from pingSync dispatch: {TaskScheduler.Current}");
             }
+            // We add a small delay to ensure collocated calls don't complete synchronously, this is necessary to
+            // test that invocation awaited with ConfigureAwait(false) continue using the default scheduler.
+            Thread.Sleep(1);
         }
 
         public async ValueTask pingAsync(Current current)

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ZeroC.Ice.Instrumentation;
@@ -58,7 +59,7 @@ namespace ZeroC.Ice
                 {
                     foreach (Connection c in connections)
                     {
-                        c.Destroy(new CommunicatorDestroyedException());
+                        _ = c.GracefulCloseAsync(new CommunicatorDestroyedException());
                     }
                 }
 
@@ -81,6 +82,7 @@ namespace ZeroC.Ice
             }
         }
 
+        // TODO: Remove once Destroy is async
         public void WaitUntilFinished()
         {
             Dictionary<IConnector, ICollection<Connection>> connections;
@@ -111,7 +113,7 @@ namespace ZeroC.Ice
             {
                 foreach (Connection c in cl)
                 {
-                    c.WaitUntilFinished();
+                    c.GracefulCloseAsync(new CommunicatorDestroyedException()).Wait();
                 }
             }
 
@@ -141,43 +143,54 @@ namespace ZeroC.Ice
             _monitor.Destroy();
         }
 
-        public void Create(IReadOnlyList<Endpoint> endpts, bool hasMore, EndpointSelectionType selType,
-                           ICreateConnectionCallback callback)
+        // TODO: Fix the code to use async/await for CreateAsync.
+        private class CreateConnectionCallback : ICreateConnectionCallback
         {
-            Debug.Assert(endpts.Count > 0);
+            private readonly TaskCompletionSource<(Connection, bool)> _source =
+                new TaskCompletionSource<(Connection, bool)>();
 
-            //
-            // Apply the overrides.
-            //
-            IReadOnlyList<Endpoint> endpoints = ApplyOverrides(endpts).ToArray();
+            public Task<(Connection, bool)> Task => _source.Task;
+
+            void ICreateConnectionCallback.SetConnection(Connection connection, bool compress) =>
+                _source.SetResult((connection, compress));
+
+            void ICreateConnectionCallback.SetException(System.Exception ex) => _source.SetException(ex);
+        }
+
+        public async ValueTask<(Connection, bool)> CreateAsync(IReadOnlyList<Endpoint> endpoints, bool hasMore,
+            EndpointSelectionType selType)
+        {
+            Debug.Assert(endpoints.Count > 0);
 
             //
             // Try to find a connection to one of the given endpoints.
             //
-            try
+            Connection? connection = FindConnection(endpoints, out bool compress);
+            if (connection != null)
             {
-                Connection? connection = FindConnection(endpoints, out bool compress);
-                if (connection != null)
-                {
-                    callback.SetConnection(connection, compress);
-                    return;
-                }
+                return (connection, compress);
             }
-            catch (System.Exception ex)
-            {
-                callback.SetException(ex);
-                return;
-            }
-            var cb = new ConnectCallback(this, hasMore, callback, selType);
-            // TODO: do something with the return value task
-            _ = cb.GetConnectorsAsync(endpoints);
+
+            // TODO: refactor to use async/await, cancellation token
+            var callback = new CreateConnectionCallback();
+            await new ConnectCallback(this, hasMore, callback, selType).GetConnectorsAsync(endpoints);
+            return await callback.Task;
         }
 
         public void SetRouterInfo(RouterInfo routerInfo)
         {
             Debug.Assert(routerInfo != null);
             ObjectAdapter? adapter = routerInfo.Adapter;
-            IReadOnlyList<Endpoint> endpoints = routerInfo.GetClientEndpoints(); // Must be called outside the synchronization
+            IReadOnlyList<Endpoint> endpoints;
+            try
+            {
+                endpoints = routerInfo.GetClientEndpointsAsync().Result;
+            }
+            catch (System.AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ex.InnerException;
+            }
 
             lock (this)
             {
@@ -257,14 +270,6 @@ namespace ZeroC.Ice
             _destroyed = false;
             _monitor = new FactoryACMMonitor(communicator, communicator.ClientACM);
             _pendingConnectCount = 0;
-        }
-
-        private IEnumerable<Endpoint> ApplyOverrides(IReadOnlyList<Endpoint> endpoints)
-        {
-            // TODO: why do we apply only the timeout override?
-            return endpoints.Select(endpoint =>
-                (_communicator.OverrideTimeout != null) ? endpoint.NewTimeout(_communicator.OverrideTimeout.Value) :
-                    endpoint);
         }
 
         private Connection? FindConnection(IReadOnlyList<Endpoint> endpoints, out bool compress)
@@ -789,8 +794,9 @@ namespace ZeroC.Ice
                     _factory.DecPendingConnectCount(); // Must be called last.
                 }
             }
-            public async ValueTask GetConnectorsAsync(IReadOnlyList<Endpoint> endpoints)
+            public async ValueTask GetConnectorsAsync(IEnumerable<Endpoint> endpoints)
             {
+                Debug.Assert(endpoints.Any());
                 try
                 {
                     //
@@ -807,9 +813,9 @@ namespace ZeroC.Ice
                 }
 
                 System.Exception? exception = null;
-                for (int i = 0; i < endpoints.Count; ++i)
+                Endpoint last = endpoints.Last();
+                foreach (Endpoint endpoint in endpoints)
                 {
-                    Endpoint endpoint = endpoints[i];
                     try
                     {
                         IEnumerable<IConnector> ctrs = await endpoint.ConnectorsAsync(_selType).ConfigureAwait(false);
@@ -818,7 +824,7 @@ namespace ZeroC.Ice
                     catch (Exception ex)
                     {
                         exception = ex;
-                        _factory.HandleException(ex, _hasMore || (i + 1) < endpoints.Count);
+                        _factory.HandleException(ex, _hasMore || endpoint != last);
                     }
                 }
 
@@ -1046,7 +1052,7 @@ namespace ZeroC.Ice
 
                 foreach (Connection connection in _connections)
                 {
-                    connection.Destroy(new ObjectAdapterDeactivatedException(_adapter.Name));
+                    _ = connection.GracefulCloseAsync(new ObjectAdapterDeactivatedException(_adapter.Name));
                 }
 
                 _destroyed = true;
@@ -1100,6 +1106,7 @@ namespace ZeroC.Ice
             }
         }
 
+        // TODO: Remove once Destroy is async
         public void WaitUntilFinished()
         {
             lock (this)
@@ -1115,7 +1122,7 @@ namespace ZeroC.Ice
             // _connections is immutable in this state
             foreach (Connection connection in _connections)
             {
-                connection.WaitUntilFinished();
+                connection.GracefulCloseAsync(new ObjectAdapterDeactivatedException(_adapter.Name)).Wait();
             }
 
             // Ensure all the connections are finished and reaped.

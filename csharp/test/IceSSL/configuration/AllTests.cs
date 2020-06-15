@@ -212,7 +212,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     {
                         server!.noCert();
                         TestHelper.Assert(
-                            !((SslConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
+                            !((SslConnectionInfo)server.GetConnection()!.GetConnectionInfo()).Verified);
                     }
                     catch (Exception ex)
                     {
@@ -237,7 +237,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     {
                         server!.noCert();
                         TestHelper.Assert(((
-                            SslConnectionInfo)server.GetConnection().GetConnectionInfo()).Verified);
+                            SslConnectionInfo)server.GetConnection()!.GetConnectionInfo()).Verified);
                     }
                     catch (Exception ex)
                     {
@@ -315,7 +315,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
                         X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                        var info = (SslConnectionInfo)server.GetConnection().GetConnectionInfo();
+                        var info = (SslConnectionInfo)server.GetConnection()!.GetConnectionInfo();
                         TestHelper.Assert(info.Certs!.Length == 2);
                         TestHelper.Assert(info.Verified);
 
@@ -722,7 +722,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             try
                             {
                                 server!.IcePing();
-                                var info = (SslConnectionInfo)server.GetConnection().GetConnectionInfo();
+                                var info = (SslConnectionInfo)server.GetConnection()!.GetConnectionInfo();
                                 TestHelper.Assert(!info.Verified);
                             }
                             catch (Exception ex)
@@ -804,7 +804,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         IServerPrx? server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                            info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                             TestHelper.Assert(info.Certs!.Length == 1);
                             TestHelper.Assert(!info.Verified);
                         }
@@ -824,7 +824,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                            info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                             TestHelper.Assert(info.Certs!.Length == 1);
                             TestHelper.Assert(!info.Verified);
                         }
@@ -845,7 +845,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         server = fact.createServer(serverProperties);
                         try
                         {
-                            info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                            info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                             TestHelper.Assert(info.Certs!.Length == 1); // Like the SChannel transport, .NET never sends the root.
                         }
                         catch (Exception ex)
@@ -871,7 +871,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                                info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                                 TestHelper.Assert(info.Certs!.Length == 2);
                                 TestHelper.Assert(info.Verified);
                             }
@@ -899,7 +899,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                _ = server!.GetConnection().GetConnectionInfo();
+                                _ = server!.GetConnection()!.GetConnectionInfo();
                                 TestHelper.Assert(false);
                             }
                             catch (TransportException)
@@ -938,7 +938,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 server = fact.createServer(serverProperties);
                                 try
                                 {
-                                    info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                                    info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                                     TestHelper.Assert(info.Certs!.Length == 3);
                                     TestHelper.Assert(info.Verified);
                                 }
@@ -956,7 +956,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 server = fact.createServer(serverProperties);
                                 try
                                 {
-                                    _ = server!.GetConnection().GetConnectionInfo();
+                                    _ = server!.GetConnection()!.GetConnectionInfo();
                                     TestHelper.Assert(false);
                                 }
                                 catch (TransportException)
@@ -983,7 +983,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 server = fact.createServer(serverProperties);
                                 try
                                 {
-                                    info = (SslConnectionInfo)server!.GetConnection().GetConnectionInfo();
+                                    info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                                     TestHelper.Assert(info.Certs!.Length == 4);
                                     TestHelper.Assert(info.Verified);
                                 }
@@ -1080,7 +1080,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         TestHelper.Assert(server != null);
-                        var info = (SslConnectionInfo)server.GetConnection().GetConnectionInfo();
+                        var info = (SslConnectionInfo)server.GetConnection()!.GetConnectionInfo();
                         TestHelper.Assert(info.Cipher != null);
                         server.checkCipher(info.Cipher);
                     }
@@ -2334,7 +2334,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         try
                         {
                             SslConnectionInfo? info =
-                                (SslConnectionInfo?)p.GetConnection().GetConnectionInfo().Underlying;
+                                (SslConnectionInfo?)p.GetConnection()!.GetConnectionInfo().Underlying;
                             TestHelper.Assert(info != null);
                             TestHelper.Assert(info.Verified);
                             break;
