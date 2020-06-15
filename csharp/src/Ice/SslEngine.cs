@@ -25,7 +25,6 @@ namespace ZeroC.Ice
         internal X509Certificate2Collection? CaCerts { get; }
         internal X509Certificate2Collection? Certs { get; }
         internal RemoteCertificateValidationCallback? RemoteCertificateValidationCallback { get; }
-        internal bool CheckCertName { get; }
         internal int CheckCRL { get; }
         internal IPasswordCallback? PasswordCallback { get; }
         internal int SecurityTraceLevel { get; }
@@ -78,15 +77,6 @@ namespace ZeroC.Ice
 
             // Protocols selects which protocols to enable
             SslProtocols = ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
-
-            // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
-            bool? checkCertName = communicator.GetPropertyAsBool("IceSSL.CheckCertName");
-            if (checkCertName != null && RemoteCertificateValidationCallback != null)
-            {
-                throw new InvalidConfigurationException(
-                    "the property `IceSSL.CheckCertName' check is incompatible with the custom remote certificate validation callback");
-            }
-            CheckCertName = checkCertName ?? false;
 
             // VerifyDepthMax establishes the maximum length of a peer's certificate chain, including the peer's
             // certificate. A value of 0 means there is no maximum.
