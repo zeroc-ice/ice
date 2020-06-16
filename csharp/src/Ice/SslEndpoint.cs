@@ -47,7 +47,7 @@ namespace ZeroC.Ice
 
         internal override ITransceiver CreateTransceiver(string transport, StreamSocket socket, string? adapterName) =>
             new SslTransceiver(Communicator, SslEngine, base.CreateTransceiver(transport, socket, adapterName),
-                adapterName ?? Host, adapterName != null);
+                adapterName ?? Host, adapterName != null, ConnectionId);
     }
 
     internal sealed class SslEndpointFactory : IEndpointFactory

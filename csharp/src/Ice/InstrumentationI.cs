@@ -137,19 +137,19 @@ namespace ZeroC.Ice
         AddConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : Metrics
         {
             Type cli = typeof(ConnectionInfo);
-            r.Add("incoming", cl.GetMethod("GetConnectionInfo")!, cli.GetField("Incoming")!);
-            r.Add("adapterName", cl.GetMethod("GetConnectionInfo")!, cli.GetField("AdapterName")!);
-            r.Add("connectionId", cl.GetMethod("GetConnectionInfo")!, cli.GetField("ConnectionId")!);
+            r.Add("incoming", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("Incoming")!);
+            r.Add("adapterName", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("AdapterName")!);
+            r.Add("connectionId", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("ConnectionId")!);
 
-            cli = typeof(IPConnectionInfo);
-            r.Add("localHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("LocalAddress")!);
-            r.Add("localPort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("LocalPort")!);
-            r.Add("remoteHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("RemoteAddress")!);
-            r.Add("remotePort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("RemotePort")!);
+            cli = typeof(IpConnectionInfo);
+            r.Add("localHost", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("LocalAddress")!);
+            r.Add("localPort", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("LocalPort")!);
+            r.Add("remoteHost", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("RemoteAddress")!);
+            r.Add("remotePort", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("RemotePort")!);
 
-            cli = typeof(UDPConnectionInfo);
-            r.Add("mcastHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("McastAddress")!);
-            r.Add("mcastPort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("McastPort")!);
+            cli = typeof(UdpConnectionInfo);
+            r.Add("mcastHost", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("McastAddress")!);
+            r.Add("mcastPort", cl.GetMethod("GetConnectionInfo")!, cli.GetProperty("McastPort")!);
 
             AddEndpointAttributes(r, cl);
         }
@@ -190,7 +190,7 @@ namespace ZeroC.Ice
             if (_id == null)
             {
                 var os = new StringBuilder();
-                IPConnectionInfo? info = GetIPConnectionInfo();
+                IpConnectionInfo? info = GetIPConnectionInfo();
                 if (info != null)
                 {
                     os.Append(info.LocalAddress).Append(':').Append(info.LocalPort);
@@ -244,17 +244,7 @@ namespace ZeroC.Ice
 
         public Endpoint GetEndpoint() => _endpoint;
 
-        private IPConnectionInfo? GetIPConnectionInfo()
-        {
-            for (ConnectionInfo? p = _connectionInfo; p != null; p = p.Underlying)
-            {
-                if (p is IPConnectionInfo)
-                {
-                    return (IPConnectionInfo)p;
-                }
-            }
-            return null;
-        }
+        private IpConnectionInfo? GetIPConnectionInfo() => _connectionInfo as IpConnectionInfo;
 
         private readonly ConnectionInfo _connectionInfo;
         private readonly Endpoint _endpoint;

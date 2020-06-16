@@ -72,7 +72,7 @@ namespace ZeroC.Ice
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            _engine.VerifyPeer((SslConnectionInfo)GetInfo(), ToString());
+            _engine.VerifyPeer((SslConnectionInfo)GetInfo(_adapterName ?? "", _connectionId, _incoming), ToString());
 
             if (_engine.SecurityTraceLevel >= 1)
             {
@@ -292,16 +292,12 @@ namespace ZeroC.Ice
 
         public string Transport => _delegate.Transport;
 
-        public ConnectionInfo GetInfo()
+        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
         {
-            var info = new SslConnectionInfo();
-            info.Underlying = _delegate.GetInfo();
-            info.Incoming = _incoming;
-            info.AdapterName = _adapterName;
-            info.Cipher = _cipher;
-            info.Certs = _certs;
-            info.Verified = _verified;
-            return info;
+            var tcpInfo = (TcpConnectionInfo)_delegate.GetInfo(adapterName, connectionId, incoming);
+            return new SslConnectionInfo(adapterName, connectionId, incoming, tcpInfo.LocalAddress,
+                tcpInfo.LocalPort, tcpInfo.RemoteAddress, tcpInfo.RemotePort, tcpInfo.ReceivedSize,
+                tcpInfo.SendSize, _cipher, _certs, _verified);
         }
 
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
@@ -316,11 +312,12 @@ namespace ZeroC.Ice
         // Only for use by ConnectorI, AcceptorI.
         //
         internal SslTransceiver(Communicator communicator, SslEngine engine, ITransceiver del,
-            string hostOrAdapterName, bool incoming)
+            string hostOrAdapterName, bool incoming, string connectionId)
         {
             _communicator = communicator;
             _engine = engine;
             _delegate = del;
+            _connectionId = connectionId;
             _incoming = incoming;
             if (_incoming)
             {
@@ -693,6 +690,7 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly SslEngine _engine;
         private readonly ITransceiver _delegate;
+        private readonly string _connectionId;
         private readonly string? _host;
         private readonly string? _adapterName;
         private readonly bool _incoming;

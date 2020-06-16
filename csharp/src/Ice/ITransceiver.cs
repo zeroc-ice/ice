@@ -29,7 +29,7 @@ namespace ZeroC.Ice
         /// whenever the operation needs to write more data, read more data or it is done.</returns>
         int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer);
 
-        int Closing(bool initiator, System.Exception? ex);
+        int Closing(bool initiator, Exception? ex);
         void Close();
         void Destroy();
 
@@ -302,7 +302,7 @@ namespace ZeroC.Ice
 
         string Transport { get; }
         string ToDetailedString();
-        ConnectionInfo GetInfo();
+        ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming);
         void CheckSendSize(int size);
         void SetBufferSize(int rcvSize, int sndSize);
     }

@@ -176,7 +176,8 @@ namespace ZeroC.Ice.Test.Background
 
         public string Transport => "test-" + _transceiver.Transport;
 
-        public ConnectionInfo GetInfo() => _transceiver.GetInfo();
+        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming) =>
+            _transceiver.GetInfo(adapterName, connectionId, incoming);
 
         public override string? ToString() => _transceiver.ToString();
 

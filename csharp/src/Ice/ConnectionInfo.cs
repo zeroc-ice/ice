@@ -10,45 +10,35 @@ namespace ZeroC.Ice
     [Serializable]
     public class ConnectionInfo
     {
-        public ConnectionInfo? Underlying;
-        public bool Incoming;
-        public string? AdapterName;
-        public string ConnectionId;
+        public string? AdapterName { get; }
+        public string ConnectionId { get; }
+        public bool Incoming { get; }
 
-        public ConnectionInfo()
+        public ConnectionInfo(string adapterName, string connectionId, bool incoming)
         {
-            AdapterName = "";
-            ConnectionId = "";
-        }
-
-        public ConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId)
-        {
-            Underlying = underlying;
-            Incoming = incoming;
             AdapterName = adapterName;
             ConnectionId = connectionId;
+            Incoming = incoming;
         }
     }
 
     [Serializable]
-    public class IPConnectionInfo : ConnectionInfo
+    public class IpConnectionInfo : ConnectionInfo
     {
-        public string LocalAddress;
-        public int LocalPort;
-        public string RemoteAddress;
-        public int RemotePort;
+        public string LocalAddress { get; }
+        public int LocalPort { get; }
+        public string RemoteAddress { get; }
+        public int RemotePort { get; }
 
-        public IPConnectionInfo()
-        {
-            LocalAddress = "";
-            LocalPort = -1;
-            RemoteAddress = "";
-            RemotePort = -1;
-        }
-
-        public IPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
-                                string localAddress, int localPort, string remoteAddress, int remotePort)
-            : base(underlying, incoming, adapterName, connectionId)
+        public IpConnectionInfo(
+            string adapterName,
+            string connectionId,
+            bool incoming,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort)
+            : base(adapterName, connectionId, incoming)
         {
             LocalAddress = localAddress;
             LocalPort = localPort;
@@ -58,66 +48,79 @@ namespace ZeroC.Ice
     }
 
     [Serializable]
-    public class TCPConnectionInfo : IPConnectionInfo
+    public class TcpConnectionInfo : IpConnectionInfo
     {
-        public int RcvSize;
-        public int SndSize;
+        public int ReceivedSize;
+        public int SendSize;
 
-        public TCPConnectionInfo()
+        public TcpConnectionInfo(
+            string adapterName,
+            string connectionId,
+            bool incoming,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort,
+            int receivedSize,
+            int sendSize)
+            : base(adapterName, connectionId, incoming, localAddress, localPort, remoteAddress, remotePort)
         {
-            RcvSize = 0;
-            SndSize = 0;
+            ReceivedSize = receivedSize;
+            SendSize = sendSize;
         }
 
-        public TCPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
-                                 string localAddress, int localPort, string remoteAddress, int remotePort, int rcvSize,
-                                 int sndSize)
-            : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+        public TcpConnectionInfo(string adapterName, string connectionId, bool incoming)
+            : this(adapterName, connectionId, incoming, "", 0, "", 0, 0, 0)
         {
-            RcvSize = rcvSize;
-            SndSize = sndSize;
         }
     }
 
     [Serializable]
-    public class UDPConnectionInfo : IPConnectionInfo
+    public class UdpConnectionInfo : IpConnectionInfo
     {
-        public string McastAddress;
-        public int McastPort;
-        public int RcvSize;
-        public int SndSize;
+        public string McastAddress { get; }
+        public int McastPort { get; }
+        public int ReceivedSize { get; }
+        public int SendSize { get; }
 
-        public UDPConnectionInfo()
-        {
-            McastAddress = "";
-            McastPort = -1;
-            RcvSize = 0;
-            SndSize = 0;
-        }
-
-        public UDPConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
-                                 string localAddress, int localPort, string remoteAddress, int remotePort,
-                                 string mcastAddress, int mcastPort, int rcvSize, int sndSize)
-            : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+        public UdpConnectionInfo(
+            string adapterName,
+            string connectionId,
+            bool incoming,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort,
+            int rcvSize,
+            int sndSize,
+            string mcastAddress,
+            int mcastPort)
+            : base(adapterName, connectionId, incoming, localAddress, localPort, remoteAddress, remotePort)
         {
             McastAddress = mcastAddress;
             McastPort = mcastPort;
-            RcvSize = rcvSize;
-            SndSize = sndSize;
+            ReceivedSize = rcvSize;
+            SendSize = sndSize;
         }
     }
 
     [Serializable]
-    public class WSConnectionInfo : ConnectionInfo
+    public class WsConnectionInfo : TcpConnectionInfo
     {
         public Dictionary<string, string>? Headers;
 
-        public WSConnectionInfo()
-        {
-        }
-
-        public WSConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId,
-                                Dictionary<string, string> headers)
-            : base(underlying, incoming, adapterName, connectionId) => Headers = headers;
+        public WsConnectionInfo(
+            string adapterName,
+            string connectionId,
+            bool incoming,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort,
+            int receivedSize,
+            int sendSize,
+            Dictionary<string, string> headers)
+            : base(adapterName, connectionId, incoming, localAddress, localPort, remoteAddress, remotePort, receivedSize,
+                sendSize) => Headers = headers;
     }
 }

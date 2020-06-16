@@ -8,18 +8,6 @@ namespace ZeroC.Ice.Test.NetworkProxy
 {
     public class AllTests
     {
-        private static IPConnectionInfo? getIPConnectionInfo(ConnectionInfo? info)
-        {
-            for (; info != null; info = info.Underlying)
-            {
-                if (info is IPConnectionInfo)
-                {
-                    return (IPConnectionInfo)info;
-                }
-            }
-            return null;
-        }
-
         public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
@@ -41,7 +29,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
             output.Write("testing connection information... ");
             output.Flush();
             {
-                IPConnectionInfo? info = getIPConnectionInfo(testPrx.GetConnection()!.GetConnectionInfo());
+                var info = testPrx.GetConnection()!.GetConnectionInfo() as IpConnectionInfo;
                 TestHelper.Assert(info!.RemotePort == proxyPort); // make sure we are connected to the proxy port.
             }
             output.WriteLine("ok");

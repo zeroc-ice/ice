@@ -658,12 +658,24 @@ namespace ZeroC.Ice
 
         public string Transport => _delegate.Transport;
 
-        public ConnectionInfo GetInfo()
+        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
         {
-            var info = new WSConnectionInfo();
-            info.Headers = _parser.GetHeaders();
-            info.Underlying = _delegate.GetInfo();
-            return info;
+            ConnectionInfo info = _delegate.GetInfo(adapterName, connectionId, incoming);
+
+            if (info is SslConnectionInfo sslInfo)
+            {
+                return new WssConnectionInfo(
+                    adapterName, connectionId, incoming, sslInfo.LocalAddress, sslInfo.LocalPort,
+                    sslInfo.RemoteAddress, sslInfo.RemotePort, sslInfo.ReceivedSize, sslInfo.SendSize,
+                    sslInfo.Cipher, sslInfo.Certs, sslInfo.Verified, _parser.GetHeaders());
+            }
+            else
+            {
+                var tcpInfo = (TcpConnectionInfo)info;
+                return new WsConnectionInfo(adapterName, connectionId, incoming, tcpInfo.LocalAddress,
+                    tcpInfo.LocalPort, tcpInfo.RemoteAddress, tcpInfo.RemotePort, tcpInfo.ReceivedSize,
+                    tcpInfo.SendSize, _parser.GetHeaders());
+            }
         }
 
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);

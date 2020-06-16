@@ -46,25 +46,14 @@ namespace ZeroC.IceMX
 
                 protected object? GetField(System.Reflection.FieldInfo field, object? obj)
                 {
-                    while (obj != null)
+                    if (obj == null)
                     {
-                        try
-                        {
-                            return field.GetValue(obj);
-                        }
-                        catch (ArgumentException)
-                        {
-                            if (obj is Ice.ConnectionInfo connectionInfo)
-                            {
-                                obj = connectionInfo.Underlying;
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
+                        return null;
                     }
-                    return null;
+                    else
+                    {
+                        return field.GetValue(obj);
+                    }
                 }
 
                 protected readonly string Name;

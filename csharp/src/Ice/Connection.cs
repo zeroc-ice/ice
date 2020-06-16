@@ -839,21 +839,7 @@ namespace ZeroC.Ice
             {
                 return _info;
             }
-
-            try
-            {
-                _info = _transceiver.GetInfo();
-            }
-            catch (System.Exception)
-            {
-                _info = new ConnectionInfo();
-            }
-            for (ConnectionInfo? info = _info; info != null; info = info.Underlying)
-            {
-                info.ConnectionId = Endpoint.ConnectionId;
-                info.AdapterName = _adapter != null ? _adapter.Name : "";
-                info.Incoming = _connector == null;
-            }
+            _info = _transceiver.GetInfo(_adapter?.Name ?? "", Endpoint.ConnectionId, _connector == null);
             return _info;
         }
 

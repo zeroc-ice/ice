@@ -52,22 +52,28 @@ namespace ZeroC.Ice
 
         public string Transport { get; }
 
-        public ConnectionInfo GetInfo()
+        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
         {
-            var info = new TCPConnectionInfo();
-            Socket? fd = _stream.Fd();
-            if (fd != null)
+            if (Fd() is Socket fd)
             {
                 EndPoint localEndpoint = Network.GetLocalAddress(fd);
-                info.LocalAddress = Network.EndpointAddressToString(localEndpoint);
-                info.LocalPort = Network.EndpointPort(localEndpoint);
                 EndPoint? remoteEndpoint = Network.GetRemoteAddress(fd);
-                info.RemoteAddress = Network.EndpointAddressToString(remoteEndpoint);
-                info.RemotePort = Network.EndpointPort(remoteEndpoint);
-                info.RcvSize = Network.GetRecvBufferSize(fd);
-                info.SndSize = Network.GetSendBufferSize(fd);
+
+                return new TcpConnectionInfo(
+                    adapterName,
+                    connectionId,
+                    incoming,
+                    Network.EndpointAddressToString(localEndpoint),
+                    Network.EndpointPort(localEndpoint),
+                    Network.EndpointAddressToString(remoteEndpoint),
+                    Network.EndpointPort(remoteEndpoint),
+                    Network.GetRecvBufferSize(fd),
+                    Network.GetSendBufferSize(fd));
             }
-            return info;
+            else
+            {
+                return new TcpConnectionInfo(adapterName, connectionId, incoming);
+            }
         }
 
         public void CheckSendSize(int size)

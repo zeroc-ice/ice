@@ -2366,8 +2366,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     {
                         try
                         {
-                            SslConnectionInfo? info =
-                                (SslConnectionInfo?)p.GetConnection()!.GetConnectionInfo().Underlying;
+                            SslConnectionInfo? info = p.GetConnection()!.GetConnectionInfo() as SslConnectionInfo;
                             TestHelper.Assert(info != null);
                             TestHelper.Assert(info.Verified);
                             break;

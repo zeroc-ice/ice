@@ -10,27 +10,6 @@ namespace ZeroC.Ice.Test.Info
 {
     public class AllTests
     {
-        private static TcpEndpoint? getTCPEndpoint(Endpoint? endpoint)
-        {
-            if (endpoint is TcpEndpoint)
-            {
-                return (TcpEndpoint)endpoint;
-            }
-            return null;
-        }
-
-        private static TCPConnectionInfo? getTCPConnectionInfo(ConnectionInfo? info)
-        {
-            for (; info != null; info = info.Underlying)
-            {
-                if (info is TCPConnectionInfo)
-                {
-                    return (TCPConnectionInfo)info;
-                }
-            }
-            return null;
-        }
-
         public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
@@ -47,7 +26,7 @@ namespace ZeroC.Ice.Test.Info
                 var endps = p1.Endpoints;
 
                 Endpoint endpoint = endps[0];
-                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoint);
+                var tcpEndpoint = endpoint as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(tcpEndpoint.Host.Equals("tcphost"));
                 TestHelper.Assert(tcpEndpoint.Port == 10000);
@@ -97,7 +76,7 @@ namespace ZeroC.Ice.Test.Info
                 var publishedEndpoints = adapter.GetPublishedEndpoints();
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
-                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoints[0]);
+                var tcpEndpoint = endpoints[0] as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(
                         tcpEndpoint.Type == EndpointType.TCP ||
@@ -135,11 +114,11 @@ namespace ZeroC.Ice.Test.Info
 
                 foreach (var endpoint in endpoints)
                 {
-                    tcpEndpoint = getTCPEndpoint(endpoint);
+                    tcpEndpoint = endpoint as TcpEndpoint;
                     TestHelper.Assert(tcpEndpoint!.Port == port);
                 }
 
-                tcpEndpoint = getTCPEndpoint(publishedEndpoints[0]);
+                tcpEndpoint = publishedEndpoints[0] as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint!.Host == "127.0.0.1");
                 TestHelper.Assert(tcpEndpoint!.Port == port);
 
@@ -159,7 +138,7 @@ namespace ZeroC.Ice.Test.Info
             output.Flush();
             {
                 Endpoint endpoint = testIntf.GetConnection()!.Endpoint;
-                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoint);
+                var tcpEndpoint = endpoint as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(tcpEndpoint.Port == endpointPort);
                 TestHelper.Assert(!tcpEndpoint.HasCompressionFlag);
@@ -185,7 +164,7 @@ namespace ZeroC.Ice.Test.Info
                 connection.SetBufferSize(1024, 2048);
 
                 ConnectionInfo info = connection.GetConnectionInfo();
-                TCPConnectionInfo ipInfo = getTCPConnectionInfo(info)!;
+                TcpConnectionInfo ipInfo = (info as TcpConnectionInfo)!;
                 TestHelper.Assert(!info.Incoming);
                 TestHelper.Assert(info.AdapterName!.Length == 0);
                 TestHelper.Assert(ipInfo.RemotePort == endpointPort);
@@ -195,8 +174,8 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(ipInfo.LocalAddress.Equals(defaultHost));
                     TestHelper.Assert(ipInfo.RemoteAddress.Equals(defaultHost));
                 }
-                TestHelper.Assert(ipInfo.RcvSize >= 1024);
-                TestHelper.Assert(ipInfo.SndSize >= 2048);
+                TestHelper.Assert(ipInfo.ReceivedSize >= 1024);
+                TestHelper.Assert(ipInfo.SendSize >= 2048);
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
                 TestHelper.Assert(ctx["incoming"].Equals("true"));
@@ -206,9 +185,10 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
                 TestHelper.Assert(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
 
-                if (testIntf.GetConnection()!.Type().Equals("ws") || testIntf.GetConnection()!.Type().Equals("wss"))
+                if (testIntf.GetConnection()!.Type().Equals("ws") || testIntf.GetConnection()!.Type().Equals("ws"))
                 {
-                    Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers!;
+                    Dictionary<string, string> headers = info is WsConnectionInfo wsInfo ? wsInfo.Headers! :
+                        ((WssConnectionInfo)info).Headers!;
                     TestHelper.Assert(headers["Upgrade"].Equals("websocket"));
                     TestHelper.Assert(headers["Connection"].Equals("Upgrade"));
                     TestHelper.Assert(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
@@ -224,7 +204,7 @@ namespace ZeroC.Ice.Test.Info
                 connection = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
                 connection.SetBufferSize(2048, 1024);
 
-                UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.GetConnectionInfo();
+                UdpConnectionInfo udpInfo = (connection.GetConnectionInfo() as UdpConnectionInfo)!;
                 TestHelper.Assert(!udpInfo.Incoming);
                 TestHelper.Assert(udpInfo.AdapterName!.Length == 0);
                 TestHelper.Assert(udpInfo.LocalPort > 0);
@@ -235,8 +215,8 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(udpInfo.RemoteAddress.Equals(defaultHost));
                     TestHelper.Assert(udpInfo.LocalAddress.Equals(defaultHost));
                 }
-                TestHelper.Assert(udpInfo.RcvSize >= 2048);
-                TestHelper.Assert(udpInfo.SndSize >= 1024);
+                TestHelper.Assert(udpInfo.ReceivedSize >= 2048);
+                TestHelper.Assert(udpInfo.SendSize >= 1024);
             }
             output.WriteLine("ok");
 

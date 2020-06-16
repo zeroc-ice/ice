@@ -158,7 +158,7 @@ namespace ZeroC.Ice
                     offset += ret;
                     break;
                 }
-                catch (System.Net.Sockets.SocketException ex)
+                catch (SocketException ex)
                 {
                     if (Network.Interrupted(ex))
                     {
@@ -317,7 +317,7 @@ namespace ZeroC.Ice
                     return !_fd.ReceiveFromAsync(_readEventArgs);
                 }
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.RecvTruncated(ex))
                 {
@@ -350,7 +350,7 @@ namespace ZeroC.Ice
             {
                 if (_readEventArgs.SocketError != SocketError.Success)
                 {
-                    throw new System.Net.Sockets.SocketException((int)_readEventArgs.SocketError);
+                    throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 ret = _readEventArgs.BytesTransferred;
                 // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
@@ -360,7 +360,7 @@ namespace ZeroC.Ice
                     _peerAddr = _readEventArgs.RemoteEndPoint;
                 }
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.RecvTruncated(ex))
                 {
@@ -462,7 +462,7 @@ namespace ZeroC.Ice
                     completedSynchronously = !_fd.SendToAsync(_writeEventArgs);
                 }
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
@@ -493,7 +493,7 @@ namespace ZeroC.Ice
             {
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    var ex = new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                    var ex = new SocketException((int)_writeEventArgs.SocketError);
                     if (Network.ConnectionRefused(ex))
                     {
                         throw new ConnectionRefusedException(ex);
@@ -511,7 +511,7 @@ namespace ZeroC.Ice
             {
                 if (_writeEventArgs.SocketError != SocketError.Success)
                 {
-                    throw new System.Net.Sockets.SocketException((int)_writeEventArgs.SocketError);
+                    throw new SocketException((int)_writeEventArgs.SocketError);
                 }
                 ret = _writeEventArgs.BytesTransferred;
                 _writeEventArgs.SetBuffer(null, 0, 0);
@@ -521,7 +521,7 @@ namespace ZeroC.Ice
                 }
                 _writeEventArgs.BufferList = null;
             }
-            catch (System.Net.Sockets.SocketException ex)
+            catch (SocketException ex)
             {
                 if (Network.ConnectionLost(ex))
                 {
@@ -546,41 +546,47 @@ namespace ZeroC.Ice
 
         public string Transport { get; }
 
-        public ConnectionInfo GetInfo()
+        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
         {
-            var info = new UDPConnectionInfo();
+            string localAddress = "";
+            int localPort = 0;
+            string remoteAddress = "";
+            int remotePort = 0;
+            int receivedSize = 0;
+            int sendSize = 0;
+            string mcastAddress = "";
+            int mcastPort = 0;
             if (_fd != null)
             {
                 EndPoint localEndpoint = Network.GetLocalAddress(_fd);
-                info.LocalAddress = Network.EndpointAddressToString(localEndpoint);
-                info.LocalPort = Network.EndpointPort(localEndpoint);
+                localAddress = Network.EndpointAddressToString(localEndpoint);
+                localPort = Network.EndpointPort(localEndpoint);
+
                 if (_state == StateNotConnected)
                 {
                     if (_peerAddr != null)
                     {
-                        info.RemoteAddress = Network.EndpointAddressToString(_peerAddr);
-                        info.RemotePort = Network.EndpointPort(_peerAddr);
+                        remoteAddress = Network.EndpointAddressToString(_peerAddr);
+                        remotePort = Network.EndpointPort(_peerAddr);
                     }
                 }
-                else
+                else if (Network.GetRemoteAddress(_fd) is EndPoint remoteEndpoint)
                 {
-                    EndPoint? remoteEndpoint = Network.GetRemoteAddress(_fd);
-                    if (remoteEndpoint != null)
-                    {
-                        info.RemoteAddress = Network.EndpointAddressToString(remoteEndpoint);
-                        info.RemotePort = Network.EndpointPort(remoteEndpoint);
-                    }
+                    remoteAddress = Network.EndpointAddressToString(remoteEndpoint);
+                    remotePort = Network.EndpointPort(remoteEndpoint);
                 }
-                info.RcvSize = Network.GetRecvBufferSize(_fd);
-                info.SndSize = Network.GetSendBufferSize(_fd);
+
+                receivedSize = Network.GetRecvBufferSize(_fd);
+                sendSize = Network.GetSendBufferSize(_fd);
             }
 
             if (_mcastAddr != null)
             {
-                info.McastAddress = Network.EndpointAddressToString(_mcastAddr);
-                info.McastPort = Network.EndpointPort(_mcastAddr);
+                mcastAddress = Network.EndpointAddressToString(_mcastAddr);
+                mcastPort = Network.EndpointPort(_mcastAddr);
             }
-            return info;
+            return new UdpConnectionInfo(adapterName, connectionId, incoming, localAddress, localPort,
+                remoteAddress, remotePort, receivedSize, sendSize, mcastAddress, mcastPort);
         }
 
         public void CheckSendSize(int size)
