@@ -12,13 +12,15 @@ namespace ZeroC.Ice
     [Serializable]
     public class ConnectionInfo
     {
-        /// <summary>The name of the adapter associated with the connection.</summary>
+        /// <summary>Gets the name of the adapter associated with the connection if there is one otherwise return an
+        /// empty string.</summary>
         public string AdapterName { get; }
 
-        /// <summary>The endpoint connection id, of the endpoint associated with this connection.</summary>
+        /// <summary>Gets the connection id of the endpoint associated with this connection if there is one otherwise
+        /// return an empty string</summary>
         public string ConnectionId { get; }
 
-        /// <summary> Gets  whether or not the connection is an incoming or outgoing connection.</summary>
+        /// <summary>Gets whether or not the connection is an incoming connection.</summary>
         public bool Incoming { get; }
 
         protected ConnectionInfo(string adapterName, string connectionId, bool incoming)
@@ -33,18 +35,20 @@ namespace ZeroC.Ice
     [Serializable]
     public class IpConnectionInfo : ConnectionInfo
     {
-        /// <summary>The connection local IP address.</summary>
+        /// <summary>Gets the connection local IP address or an empty string if the local address is not available.
+        /// </summary>
         public string LocalAddress { get; }
-        /// <summary>The connection local IP port.</summary>
+        /// <summary>Gets the connection local IP port or -1 if the local IP port is not available.</summary>
         public int LocalPort { get; }
-        /// <summary>The connection remote IP address.</summary>
+        /// <summary>Gets the connection remote IP address or an empty string if the remote address is not available.
+        /// </summary>
         public string RemoteAddress { get; }
 
-        /// <summary>The connection buffer receive size.</summary>
+        /// <summary>Gets the connection buffer receive size.</summary>
         public int ReceiveSize { get; }
-        /// <summary>The connection remote IP port.</summary>
+        /// <summary>Gets the connection remote IP port or -1 if the remote IP port is not available.</summary>
         public int RemotePort { get; }
-        /// <summary>The connection buffer send size.</summary>
+        /// <summary>Gets the connection buffer send size.</summary>
         public int SendSize { get; }
 
         protected IpConnectionInfo(
@@ -102,9 +106,10 @@ namespace ZeroC.Ice
     [Serializable]
     public class UdpConnectionInfo : IpConnectionInfo
     {
-        /// <summary>Gets the multicast IP address associated with this connection.</summary>
+        /// <summary>Gets the multicast IP address associated with this connection or an empty string if there ins't
+        /// one.</summary>
         public string McastAddress { get; }
-        /// <summary>Gets the multicast IP port associated with this connection.</summary>
+        /// <summary>Gets the multicast IP port associated with this connection or -1 if there isn't one.</summary>
         public int McastPort { get; }
 
         protected internal UdpConnectionInfo(
@@ -131,7 +136,7 @@ namespace ZeroC.Ice
     [Serializable]
     public class WsConnectionInfo : TcpConnectionInfo
     {
-        /// <summary>The HTTP upgrade request headers.</summary>
+        /// <summary>Gets the HTTP upgrade request headers.</summary>
         public Dictionary<string, string> Headers { get; }
 
         protected internal WsConnectionInfo(
@@ -182,7 +187,7 @@ namespace ZeroC.Ice
     [Serializable]
     public class WssConnectionInfo : SslConnectionInfo
     {
-        /// <summary>The HTTP upgrade request headers.</summary>
+        /// <summary>Gets the HTTP upgrade request headers.</summary>
         public Dictionary<string, string> Headers { get; }
 
         protected internal WssConnectionInfo(
