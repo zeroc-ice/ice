@@ -220,6 +220,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
             : this(ref _emptyArgs,
@@ -229,6 +230,7 @@ namespace ZeroC.Ice
                    observer,
                    certificates,
                    caCertificates,
+                   certificateSelectionCallback,
                    certificateValidationCallback,
                    passwordCallback)
         {
@@ -240,6 +242,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
             : this(ref args,
@@ -249,6 +252,7 @@ namespace ZeroC.Ice
                    observer,
                    certificates,
                    caCertificates,
+                   certificateSelectionCallback,
                    certificateValidationCallback,
                    passwordCallback)
         {
@@ -260,6 +264,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
             : this(ref _emptyArgs,
@@ -269,6 +274,7 @@ namespace ZeroC.Ice
                    observer,
                    certificates,
                    caCertificates,
+                   certificateSelectionCallback,
                    certificateValidationCallback,
                    passwordCallback)
         {
@@ -281,6 +287,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
         {
@@ -589,16 +596,37 @@ namespace ZeroC.Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
+                if (passwordCallback != null && certificateSelectionCallback != null)
+                {
+                    throw new ArgumentException(
+                        @$"the `{nameof(passwordCallback)}' and `{nameof(certificateSelectionCallback)
+                        }' optional arguments are incompatible with each other",
+                        nameof(passwordCallback));
+                }
+
+                if (certificates != null && certificateSelectionCallback != null)
+                {
+                    throw new ArgumentException(
+                        @$"the `{nameof(certificates)}' and `{nameof(certificateSelectionCallback)
+                        }' optional arguments are incompatible with each other",
+                        nameof(certificates));
+                }
+
                 if (caCertificates != null && certificateValidationCallback != null)
                 {
                     throw new ArgumentException(
-                        @$"the `{nameof(caCertificates)
-                        }' argument cannot be set when certificateValidationCallback argument is set",
+                        @$"the `{nameof(caCertificates)}' and `{nameof(certificateValidationCallback)
+                        }' optional arguments are incompatible with each other",
                         nameof(caCertificates));
                 }
 
                 _sslEngine = new SslEngine(
-                    this, certificates, caCertificates, certificateValidationCallback, passwordCallback);
+                    this,
+                    certificates,
+                    caCertificates,
+                    certificateSelectionCallback,
+                    certificateValidationCallback,
+                    passwordCallback);
 
                 IceAddEndpointFactory(new TcpEndpointFactory(this));
                 IceAddEndpointFactory(new UdpEndpointFactory(this));

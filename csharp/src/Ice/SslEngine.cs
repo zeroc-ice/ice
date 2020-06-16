@@ -24,8 +24,8 @@ namespace ZeroC.Ice
     {
         internal X509Certificate2Collection? CaCerts { get; }
         internal X509Certificate2Collection? Certs { get; }
+        internal LocalCertificateSelectionCallback? CertificateSelectionCallback { get; }
         internal RemoteCertificateValidationCallback? RemoteCertificateValidationCallback { get; }
-        internal bool CheckCertName { get; }
         internal int CheckCRL { get; }
         internal IPasswordCallback? PasswordCallback { get; }
         internal int SecurityTraceLevel { get; }
@@ -43,6 +43,7 @@ namespace ZeroC.Ice
             Communicator communicator,
             X509Certificate2Collection? certificates,
             X509Certificate2Collection? caCertificates,
+            LocalCertificateSelectionCallback? certificateSelectionCallback,
             RemoteCertificateValidationCallback? certificateValidationCallback,
             IPasswordCallback? passwordCallback)
         {
@@ -50,6 +51,7 @@ namespace ZeroC.Ice
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             _trustManager = new SslTrustManager(communicator);
 
+            CertificateSelectionCallback = certificateSelectionCallback;
             RemoteCertificateValidationCallback = certificateValidationCallback;
             PasswordCallback = passwordCallback;
 
@@ -59,7 +61,13 @@ namespace ZeroC.Ice
             // Check for a default directory. We look in this directory for files mentioned in the configuration.
             _defaultDir = communicator.GetProperty("IceSSL.DefaultDir") ?? "";
 
-            string certStoreLocation = communicator.GetProperty("IceSSL.CertStoreLocation") ?? "CurrentUser";
+            string? certStoreLocation = communicator.GetProperty("IceSSL.CertStoreLocation");
+            if (certStoreLocation != null && CertificateSelectionCallback != null)
+            {
+                throw new InvalidConfigurationException(
+                    "the property `IceSSL.CertStoreLocation' is incompatible with the certificate selection callback");
+            }
+            certStoreLocation ??= "CurrentUser";
             StoreLocation storeLocation;
             if (certStoreLocation == "CurrentUser")
             {
@@ -79,15 +87,6 @@ namespace ZeroC.Ice
             // Protocols selects which protocols to enable
             SslProtocols = ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
 
-            // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
-            bool? checkCertName = communicator.GetPropertyAsBool("IceSSL.CheckCertName");
-            if (checkCertName != null && RemoteCertificateValidationCallback != null)
-            {
-                throw new InvalidConfigurationException(
-                    "the property `IceSSL.CheckCertName' check is incompatible with the custom remote certificate validation callback");
-            }
-            CheckCertName = checkCertName ?? false;
-
             // VerifyDepthMax establishes the maximum length of a peer's certificate chain, including the peer's
             // certificate. A value of 0 means there is no maximum.
             int? verifyDepthMax = communicator.GetPropertyAsInt("IceSSL.VerifyDepthMax");
@@ -106,10 +105,29 @@ namespace ZeroC.Ice
             {
                 // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
                 // TODO: tracing?
-                Certs = new X509Certificate2Collection();
                 string? certFile = communicator.GetProperty("IceSSL.CertFile");
+                if (certFile != null && CertificateSelectionCallback != null)
+                {
+                    throw new InvalidConfigurationException(
+                        "the property `IceSSL.CertFile' is incompatible with the certificate selection callback");
+                }
+
                 string? passwordStr = communicator.GetProperty("IceSSL.Password");
+                if (passwordStr != null && CertificateSelectionCallback != null)
+                {
+                    throw new InvalidConfigurationException(
+                        "the property `IceSSL.Password' is incompatible with the certificate selection callback");
+                }
+
                 string? findCert = communicator.GetProperty("IceSSL.FindCert");
+                if (findCert != null && CertificateSelectionCallback != null)
+                {
+                    throw new InvalidConfigurationException(
+                        "the property `IceSSL.FindCert' is incompatible with the certificate selection callback");
+                }
+                Certs = new X509Certificate2Collection();
+                const string findPrefix = "IceSSL.FindCert.";
+                Dictionary<string, string> findCertProps = communicator.GetProperties(forPrefix: findPrefix);
 
                 if (certFile != null)
                 {
