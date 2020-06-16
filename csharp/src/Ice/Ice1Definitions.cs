@@ -69,7 +69,7 @@ namespace ZeroC.Ice
             0, 0, 0, 0 // Message size (placeholder).
         };
 
-        internal static readonly byte[] ValidateConnectionMessage = new byte[]
+        internal static readonly byte[] ValidateConnectionFrame = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
@@ -78,7 +78,7 @@ namespace ZeroC.Ice
             HeaderSize, 0, 0, 0 // Message size.
         };
 
-        internal static readonly byte[] CloseConnectionMessage = new byte[]
+        internal static readonly byte[] CloseConnectionFrame = new byte[]
         {
             Magic[0], Magic[1], Magic[2], Magic[3],
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],

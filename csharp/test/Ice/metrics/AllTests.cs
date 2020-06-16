@@ -452,8 +452,8 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!collocated)
             {
-                metrics.GetConnection().Close(ConnectionClose.GracefullyWithWait);
-                metrics.Clone(connectionId: "Con1").GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+                metrics.Clone(connectionId: "Con1").GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
                 waitForCurrent(clientMetrics, "View", "Connection", 0);
                 waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -467,7 +467,7 @@ namespace ZeroC.Ice.Test.Metrics
             string isSecure = "";
             if (!collocated)
             {
-                Endpoint connectionEndpoint = metrics.GetConnection().Endpoint;
+                Endpoint connectionEndpoint = metrics.GetConnection()!.Endpoint;
                 type = connectionEndpoint.Type.ToString();
                 isSecure = connectionEndpoint.IsSecure ? "True" : "False";
             }
@@ -552,7 +552,7 @@ namespace ZeroC.Ice.Test.Metrics
 
                 var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
 
-                metrics.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
                 map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
                 // The connection might already be closed so it can be 0 or 1
@@ -561,7 +561,7 @@ namespace ZeroC.Ice.Test.Metrics
                 props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
                 updateProps(clientProps, serverProps, update, props, "Connection");
 
-                metrics.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
                 // TODO: remove or refactor depending on what we decide for connection timeouts
                 // metrics.Clone(connectionTimeout: 500).IcePing();
@@ -618,7 +618,7 @@ namespace ZeroC.Ice.Test.Metrics
                 testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "", output);
 
-                m.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                m.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
                 waitForCurrent(clientMetrics, "View", "Connection", 0);
                 waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -639,7 +639,7 @@ namespace ZeroC.Ice.Test.Metrics
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
                 TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
 
-                metrics.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 controller.hold();
                 try
                 {
@@ -690,7 +690,7 @@ namespace ZeroC.Ice.Test.Metrics
                 try
                 {
                     prx.IcePing();
-                    prx.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                    prx.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
                 catch (System.Exception)
                 {
@@ -731,9 +731,9 @@ namespace ZeroC.Ice.Test.Metrics
 
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id",
-                            prx.GetConnection().Endpoint.ToString(), c, output);
+                            prx.GetConnection()!.Endpoint.ToString(), c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
-                            prx.GetConnection().Endpoint.ToString(), c, output);
+                            prx.GetConnection()!.Endpoint.ToString(), c, output);
 
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);

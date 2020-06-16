@@ -158,7 +158,7 @@ namespace ZeroC.Ice.Test.Info
             output.Write("test connection endpoint information... ");
             output.Flush();
             {
-                Endpoint endpoint = testIntf.GetConnection().Endpoint;
+                Endpoint endpoint = testIntf.GetConnection()!.Endpoint;
                 TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoint);
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(tcpEndpoint.Port == endpointPort);
@@ -171,7 +171,7 @@ namespace ZeroC.Ice.Test.Info
                 int port = int.Parse(ctx["port"]);
                 TestHelper.Assert(port > 0);
 
-                endpoint = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection().Endpoint;
+                endpoint = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!.Endpoint;
                 UdpEndpoint udp = (UdpEndpoint)endpoint;
                 TestHelper.Assert(udp.Port == endpointPort);
                 TestHelper.Assert(udp.Host.Equals(defaultHost));
@@ -181,7 +181,7 @@ namespace ZeroC.Ice.Test.Info
             output.Write("testing connection information... ");
             output.Flush();
             {
-                Connection connection = testIntf.GetConnection();
+                Connection connection = testIntf.GetConnection()!;
                 connection.SetBufferSize(1024, 2048);
 
                 ConnectionInfo info = connection.GetConnectionInfo();
@@ -206,7 +206,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
                 TestHelper.Assert(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
 
-                if (testIntf.GetConnection().Type().Equals("ws") || testIntf.GetConnection().Type().Equals("wss"))
+                if (testIntf.GetConnection()!.Type().Equals("ws") || testIntf.GetConnection()!.Type().Equals("wss"))
                 {
                     Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers!;
                     TestHelper.Assert(headers["Upgrade"].Equals("websocket"));
@@ -221,7 +221,7 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(ctx["ws.Sec-WebSocket-Key"] != null);
                 }
 
-                connection = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection();
+                connection = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
                 connection.SetBufferSize(2048, 1024);
 
                 UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.GetConnectionInfo();

@@ -122,7 +122,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.getAdapterName());
-                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -144,7 +144,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     foreach (var adpt in adapters)
                     {
-                        adpt.getTestIntf()!.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                        adpt.getTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                     }
                 }
 
@@ -169,7 +169,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(test1.getAdapterName());
-                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -255,7 +255,7 @@ namespace ZeroC.Ice.Test.Binding
                     {
                         try
                         {
-                            a.getTestIntf()!.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                            a.getTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                         }
                         catch (Exception)
                         {
@@ -298,7 +298,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(getAdapterNameWithAMI(test1));
-                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -320,7 +320,7 @@ namespace ZeroC.Ice.Test.Binding
 
                     foreach (var adpt in adapters)
                     {
-                        adpt.getTestIntf()!.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                        adpt.getTestIntf()!.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                     }
                 }
 
@@ -345,7 +345,7 @@ namespace ZeroC.Ice.Test.Binding
                     TestHelper.Assert(test2.GetConnection() == test3.GetConnection());
 
                     names.Remove(getAdapterNameWithAMI(test1));
-                    test1.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                    test1.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 //
@@ -382,7 +382,7 @@ namespace ZeroC.Ice.Test.Binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.getAdapterName());
-                    obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 obj = obj.Clone(endpointSelection: EndpointSelectionType.Random);
@@ -394,7 +394,7 @@ namespace ZeroC.Ice.Test.Binding
                 while (names.Count > 0)
                 {
                     names.Remove(obj.getAdapterName());
-                    obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                    obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 }
 
                 deactivate(com, adapters);
@@ -450,11 +450,11 @@ namespace ZeroC.Ice.Test.Binding
                 adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++) ;
                 TestHelper.Assert(i == nRetry);
-                obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter35"); i++) ;
                 TestHelper.Assert(i == nRetry);
-                obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                 adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString())!);
                 for (i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter34"); i++) ;
                 TestHelper.Assert(i == nRetry);
@@ -738,7 +738,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.getAdapterName().Equals("Adapter82"));
-                        obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                     }
 
                     var testNonSecure = obj.Clone(preferNonSecure: true);
@@ -752,7 +752,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.getAdapterName().Equals("Adapter81"));
-                        obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                     }
 
                     com.createObjectAdapter("Adapter83", (obj.Endpoints[1]).ToString()); // Recreate a tcp OA.
@@ -760,7 +760,7 @@ namespace ZeroC.Ice.Test.Binding
                     for (i = 0; i < 5; i++)
                     {
                         TestHelper.Assert(obj.getAdapterName().Equals("Adapter83"));
-                        obj.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+                        obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
                     }
 
                     com.deactivateObjectAdapter(adapters[0]);

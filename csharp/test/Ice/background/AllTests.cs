@@ -336,7 +336,7 @@ namespace ZeroC.Ice.Test.Background
                 Console.Out.WriteLine(ex);
                 TestHelper.Assert(false);
             }
-            background.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+            background.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
             for (int i = 0; i < 4; ++i)
             {
@@ -444,7 +444,7 @@ namespace ZeroC.Ice.Test.Background
             {
                 TestHelper.Assert(false);
             }
-            background.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+            background.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
             for (int i = 0; i < 4; ++i)
             {
@@ -584,8 +584,8 @@ namespace ZeroC.Ice.Test.Background
         private static void CloseConnection(IObjectPrx prx)
         {
             var cb = new CloseCallback();
-            prx.GetConnection().SetCloseCallback(_ => cb.Closed());
-            prx.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+            prx.GetConnection()!.SetCloseCallback(_ => cb.Closed());
+            prx.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
             cb.Check();
         }
 
