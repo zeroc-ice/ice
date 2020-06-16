@@ -109,9 +109,11 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public int set(int value, Current current)
+        public int set(int newValue, Current current)
         {
-            return Interlocked.Exchange(ref _value, value);
+            int oldValue = _value;
+            _value = newValue;
+            return oldValue;
         }
 
         private bool _shutdown;

@@ -14,13 +14,10 @@ namespace ZeroC.Ice
 {
     internal class CollocatedRequestHandler : IRequestHandler
     {
-        public
-        CollocatedRequestHandler(Reference reference, ObjectAdapter adapter)
-        {
-            _reference = reference;
-            _adapter = adapter;
-            _requestId = 0;
-        }
+        private readonly ObjectAdapter _adapter;
+        private readonly object _mutex = new object();
+        private readonly Reference _reference;
+        private int _requestId;
 
         public Connection? GetConnection() => null;
 
@@ -40,7 +37,7 @@ namespace ZeroC.Ice
             // code doesn't use the collocated request handler as a lock. The lock here is useful to ensure
             // the protocol trace and observer call is output or called in the same order as the request ID
             // is allocated.
-            lock (this)
+            lock (_mutex)
             {
                 if (!oneway)
                 {
@@ -77,6 +74,7 @@ namespace ZeroC.Ice
             }
             else // Optimization: directly call invokeAll
             {
+                Debug.Assert(!oneway);
                 task = InvokeAllAsync(outgoingRequestFrame, requestId);
             }
             return new ValueTask<Task<IncomingResponseFrame>?>(WaitForResponseAsync(task, childObserver));
@@ -87,8 +85,19 @@ namespace ZeroC.Ice
                 try
                 {
                     IncomingResponseFrame? incomingResponseFrame = await task.ConfigureAwait(false);
-                    observer?.Reply(incomingResponseFrame!.Size);
-                    return incomingResponseFrame!;
+                    if (incomingResponseFrame != null)
+                    {
+                        observer?.Reply(incomingResponseFrame.Size);
+                        return incomingResponseFrame;
+                    }
+                    else
+                    {
+                        // Wait for response async is only called for twoway invocations and InvokeAllAsync only
+                        // returns null for oneway invocations so we should never get a null incoming response
+                        // frame here.
+                        Debug.Assert(false);
+                        return null!;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -100,6 +109,13 @@ namespace ZeroC.Ice
                     observer?.Detach();
                 }
             }
+        }
+
+        internal CollocatedRequestHandler(Reference reference, ObjectAdapter adapter)
+        {
+            _reference = reference;
+            _adapter = adapter;
+            _requestId = 0;
         }
 
         private async Task<IncomingResponseFrame?> InvokeAllAsync(OutgoingRequestFrame outgoingRequest,
@@ -181,9 +197,5 @@ namespace ZeroC.Ice
                 _adapter.DecDirectCount();
             }
         }
-
-        private readonly Reference _reference;
-        private readonly ObjectAdapter _adapter;
-        private int _requestId;
     }
 }

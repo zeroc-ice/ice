@@ -153,6 +153,7 @@ namespace ZeroC.Ice
             }
         }
 
+        // TODO: fix the Slice method addProxies to return non-nullable proxies.
         private void AddAndEvictProxies(IObjectPrx proxy, IObjectPrx?[] evictedProxies)
         {
             lock (_mutex)

@@ -66,7 +66,7 @@ namespace ZeroC.Ice
 
     public sealed class Connection
     {
-        /// <summary>Get or set the object adapter that dispatches requests received over this connection.
+        /// <summary>Gets or sets the object adapter that dispatches requests received over this connection.
         /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the
         /// outgoing connection used by the proxy in order to receive callbacks. This is useful if the server
         /// cannot establish a connection back to the client, for example because of firewalls.</summary>
@@ -155,7 +155,7 @@ namespace ZeroC.Ice
         private static readonly List<ArraySegment<byte>> _validateConnectionFrame =
             new List<ArraySegment<byte>> { Ice1Definitions.ValidateConnectionFrame };
 
-        /// <summary>Manually close the connection using the specified closure mode.</summary>
+        /// <summary>Manually closes the connection using the specified closure mode.</summary>
         /// <param name="mode">Determines how the connection will be closed.</param>
         public void Close(ConnectionClose mode)
         {
@@ -199,7 +199,7 @@ namespace ZeroC.Ice
         public T CreateProxy<T>(Identity identity, ProxyFactory<T> factory) where T : class, IObjectPrx =>
             factory(new Reference(_communicator, this, identity));
 
-        /// <summary>Get the ACM parameters.</summary>
+        /// <summary>Gets the ACM parameters.</summary>
         /// <returns>The ACM parameters.</returns>
         public ACM GetACM()
         {
@@ -223,7 +223,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Send a heartbeat message.</summary>
+        /// <summary>Sends a heartbeat message.</summary>
         public void Heartbeat()
         {
             try
@@ -237,7 +237,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Send an asynchronous heartbeat message.</summary>
+        /// <summary>Sends an asynchronous heartbeat message.</summary>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public async ValueTask HeartbeatAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
@@ -255,7 +255,7 @@ namespace ZeroC.Ice
             progress?.Report(true);
         }
 
-        /// <summary>Set the active connection management parameters.</summary>
+        /// <summary>Sets the active connection management parameters.</summary>
         /// <param name="timeout">The timeout value in seconds, must be &gt;= 0.</param>
         /// <param name="close">The close condition</param>
         /// <param name="heartbeat">The heartbeat condition</param>
@@ -295,7 +295,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Set the connection buffer receive/send size.</summary>
+        /// <summary>Sets the connection buffer receive/send size.</summary>
         /// <param name="rcvSize">The connection receive buffer size.</param>
         /// <param name="sndSize">The connection send buffer size.</param>
         public void SetBufferSize(int rcvSize, int sndSize)
@@ -311,7 +311,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Set a close callback on the connection. The callback is called by the connection when it's
+        /// <summary>Sets a close callback on the connection. The callback is called by the connection when it's
         /// closed. If the callback needs more information about the closure, it can call Connection.throwException.
         /// </summary>
         /// <param name="callback">The close callback object.</param>
@@ -343,7 +343,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Set a heartbeat callback on the connection. The callback is called by the connection when a
+        /// <summary>Sets a heartbeat callback on the connection. The callback is called by the connection when a
         /// heartbeat is received.</summary>
         /// <param name="callback">The heartbeat callback object.</param>
         public void SetHeartbeatCallback(Action<Connection> callback)
@@ -358,7 +358,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Throw an exception indicating the reason for connection closure. For example,
+        /// <summary>Throws an exception indicating the reason for connection closure. For example,
         /// ConnectionClosedByPeerException is raised if the connection was closed gracefully by the peer, whereas
         /// ConnectionClosedLocallyException is raised if the connection was manually closed by the application. This
         /// operation does nothing if the connection is not yet closed.</summary>
@@ -374,12 +374,12 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Return a description of the connection as human readable text, suitable for logging or error
+        /// <summary>Returns a description of the connection as human readable text, suitable for logging or error
         /// messages.</summary>
         /// <returns>The description of the connection as human readable text.</returns>
         public override string ToString() => _transceiver.ToString()!;
 
-        /// <summary>Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+        /// <summary>Returns the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
         /// </summary>
         /// <returns>The type of the connection.</returns>
         public string Type() => _transceiver.Transport; // No mutex lock, _type is immutable.

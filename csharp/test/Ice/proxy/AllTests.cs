@@ -402,9 +402,9 @@ namespace ZeroC.Ice.Test.Proxy
             var b2 = IObjectPrx.Parse(b1.ToString()!, communicator);
             TestHelper.Assert(b1.Equals(b2));
 
-            if (b1.GetConnection() != null) // not colloc-optimized target
+            if (b1.GetConnection() is Connection connection) // not colloc-optimized target
             {
-                b2 = b1.GetConnection()!.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
+                b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
                 TestHelper.Assert(b2.ToString() == b2.ToString());
             }
             output.WriteLine("ok");
@@ -791,10 +791,9 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(!endpts1[0].Equals(endpts2[0]));
             TestHelper.Assert(endpts1[0].Equals(IObjectPrx.Parse("foo:tcp -h 127.0.0.1 -p 10000", communicator).Endpoints[0]));
 
-            Connection? baseConnection = baseProxy.GetConnection();
-            if (baseConnection != null)
+            if (baseProxy.GetConnection() is Connection baseConnection)
             {
-                Connection? baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection();
+                Connection baseConnection2 = baseProxy.Clone(connectionId: "base2").GetConnection()!;
                 compObj1 = compObj1.Clone(fixedConnection: baseConnection);
                 compObj2 = compObj2.Clone(fixedConnection: baseConnection2);
                 TestHelper.Assert(!compObj1.Equals(compObj2));
@@ -837,31 +836,30 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing ice_fixed... ");
             output.Flush();
             {
-                Connection? connection = cl.GetConnection();
-                if (connection != null)
+                if (cl.GetConnection() is Connection connection2)
                 {
                     TestHelper.Assert(!cl.IsFixed);
-                    IMyClassPrx prx = cl.Clone(fixedConnection: connection);
+                    IMyClassPrx prx = cl.Clone(fixedConnection: connection2);
                     TestHelper.Assert(prx.IsFixed);
                     prx.IcePing();
-                    TestHelper.Assert(cl.Clone("facet", IObjectPrx.Factory, fixedConnection: connection).Facet.Equals("facet"));
-                    TestHelper.Assert(cl.Clone(invocationMode: InvocationMode.Oneway, fixedConnection: connection).IsOneway);
+                    TestHelper.Assert(cl.Clone("facet", IObjectPrx.Factory, fixedConnection: connection2).Facet.Equals("facet"));
+                    TestHelper.Assert(cl.Clone(invocationMode: InvocationMode.Oneway, fixedConnection: connection2).IsOneway);
                     Dictionary<string, string> ctx = new Dictionary<string, string>();
                     ctx["one"] = "hello";
                     ctx["two"] = "world";
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection).Context.Count == 0);
-                    TestHelper.Assert(cl.Clone(context: ctx, fixedConnection: connection).Context.Count == 2);
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection).InvocationTimeout == -1);
-                    TestHelper.Assert(cl.Clone(invocationTimeout: 10, fixedConnection: connection).InvocationTimeout == 10);
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection).GetConnection() == connection);
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection).Clone(fixedConnection: connection).GetConnection() == connection);
-                    TestHelper.Assert(!cl.Clone(fixedConnection: connection).ConnectionTimeout.HasValue);
-                    TestHelper.Assert(cl.Clone(compress: true, fixedConnection: connection).Compress!.Value);
+                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).Context.Count == 0);
+                    TestHelper.Assert(cl.Clone(context: ctx, fixedConnection: connection2).Context.Count == 2);
+                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).InvocationTimeout == -1);
+                    TestHelper.Assert(cl.Clone(invocationTimeout: 10, fixedConnection: connection2).InvocationTimeout == 10);
+                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).GetConnection() == connection2);
+                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).Clone(fixedConnection: connection2).GetConnection() == connection2);
+                    TestHelper.Assert(!cl.Clone(fixedConnection: connection2).ConnectionTimeout.HasValue);
+                    TestHelper.Assert(cl.Clone(compress: true, fixedConnection: connection2).Compress!.Value);
                     Connection? fixedConnection = cl.Clone(connectionId: "ice_fixed").GetConnection();
-                    TestHelper.Assert(cl.Clone(fixedConnection: connection).Clone(fixedConnection: fixedConnection).GetConnection() == fixedConnection);
+                    TestHelper.Assert(cl.Clone(fixedConnection: connection2).Clone(fixedConnection: fixedConnection).GetConnection() == fixedConnection);
                     try
                     {
-                        cl.Clone(invocationMode: InvocationMode.Datagram, fixedConnection: connection);
+                        cl.Clone(invocationMode: InvocationMode.Datagram, fixedConnection: connection2);
                         TestHelper.Assert(false);
                     }
                     catch (ArgumentException)
