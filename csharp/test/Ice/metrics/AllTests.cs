@@ -753,13 +753,15 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"].Length == 0);
 
             metrics.op();
+            int userExErrorMessageSize = 0;
             try
             {
                 metrics.opWithUserException();
                 TestHelper.Assert(false);
             }
-            catch (UserEx)
+            catch (UserEx ex)
             {
+                userExErrorMessageSize = ex.Message.Length;
             }
             try
             {
@@ -807,7 +809,10 @@ namespace ZeroC.Ice.Test.Metrics
 
             dm1 = (DispatchMetrics)map["opWithUserException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
-            TestHelper.Assert(dm1.Size == 38 && dm1.ReplySize == 48);
+
+            // We assume the error message is encoded in ASCII (each character uses 1-byte when encoded in UTF-8).
+            TestHelper.Assert(dm1.Size == 38 &&
+                dm1.ReplySize == (metrics.Encoding == Encoding.V1_1 ? 48 : 50 + userExErrorMessageSize));
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);

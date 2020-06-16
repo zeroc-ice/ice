@@ -1246,32 +1246,33 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
-    _out << nl << "istr => istr.ReadClass<" << name << ">();";
+    _out << nl << "istr => istr.ReadClass<" << name << ">(IceTypeId);";
     _out.dec();
 
     _out << sp;
     _out << nl << "public static readonly new ZeroC.Ice.InputStreamReader<" << name << "?> IceReaderIntoNullable =";
     _out.inc();
-    _out << nl << "istr => istr.ReadNullableClass<" << name << ">();";
+    _out << nl << "istr => istr.ReadNullableClass<" << name << ">(IceTypeId);";
     _out.dec();
 
-    // The writer is currently not useful; a future implementation for the 2.0 encoding will use the formal type to
-    // optimize-out the type ID.
+    _out << sp;
+    _out << nl << "public static " << (hasBaseClass ? "new " : "") << "string IceTypeId => _iceAllTypeIds[0];";
+
     _out << sp;
     _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "> IceWriter =";
     _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteClass(value);";
+    _out << nl << "(ostr, value) => ostr.WriteClass(value, IceTypeId);";
     _out.dec();
 
     _out << sp;
     _out << nl << "public static readonly new ZeroC.Ice.OutputStreamWriter<" << name << "?> IceWriterFromNullable =";
     _out.inc();
-    _out << nl << "(ostr, value) => ostr.WriteNullableClass(value);";
+    _out << nl << "(ostr, value) => ostr.WriteNullableClass(value, IceTypeId);";
     _out.dec();
 
     _out << sp;
-    _out << nl << "private readonly string _iceTypeId = ZeroC.Ice.TypeExtensions.GetIceTypeId(typeof("
-         << fixId(p->name()) << "))!;";
+    _out << nl << "private static readonly string[] _iceAllTypeIds = ZeroC.Ice.TypeExtensions.GetAllIceTypeIds(typeof("
+         << name << "));";
 
     bool partialInitialize = !hasDataMemberWithName(allDataMembers, "Initialize");
     if(partialInitialize)
@@ -1385,23 +1386,25 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     // protected internal constructor used for unmarshaling (always generated).
+    // the factory parameter is used to distinguish this ctor from the parameterless ctor that users may want to add to
+    // the partial class; it's not used otherwise.
     _out << sp;
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream istr, bool mostDerived)";
+    if (!hasBaseClass)
+    {
+        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
+            << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
+    }
+    _out << nl << "protected internal " << name << "(ZeroC.Ice.IClassFactory factory)";
     if (hasBaseClass)
     {
         // We call the base class constructor to initialize the base class fields.
         _out.inc();
-        _out << nl << ": base(istr, mostDerived: false)";
+        _out << nl << ": base(factory)";
         _out.dec();
     }
     _out << sb;
-
     // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
     writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
-    _out << nl << "if (mostDerived)";
-    _out << sb;
-    _out << nl << "IceRead(istr, true);";
-    _out << eb;
     _out << eb;
 
     writeMarshaling(p);
@@ -1434,20 +1437,23 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << sp;
     _out << nl << "protected override void IceWrite(ZeroC.Ice.OutputStream ostr, bool firstSlice)";
     _out << sb;
-    _out << nl << "ostr.IceStartSlice" << spar << "_iceTypeId" << "firstSlice";
+    _out << nl << "if (firstSlice)";
+    _out << sb;
+    _out << nl << "ostr.IceStartFirstSlice(_iceAllTypeIds";
     if (preserved || basePreserved)
     {
-        _out << "firstSlice ? IceSlicedData : null";
-    }
-    else
-    {
-        _out << "null";
+        _out << ", IceSlicedData";
     }
     if (p->compactId() >= 0)
     {
-        _out << p->compactId();
+        _out << ", compactId: " << p->compactId();
     }
-    _out << epar << ";";
+    _out << ");";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "ostr.IceStartNextSlice(IceTypeId);";
+    _out << eb;
 
     writeMarshalDataMembers(members, ns, 0);
 
@@ -1464,21 +1470,23 @@ Slice::Gen::TypesVisitor::writeMarshaling(const ClassDefPtr& p)
 
     _out << sp;
 
-    _out << nl << "protected" << (base ? " new " : " ") << "void IceRead(ZeroC.Ice.InputStream istr, "
-         << "bool firtSlice)";
+    _out << nl << "protected override void IceRead(ZeroC.Ice.InputStream istr, bool firstSlice)";
     _out << sb;
-    _out << nl << "if (firtSlice)";
+    _out << nl << "if (firstSlice)";
     _out << sb;
-    _out << nl << "istr.IceStartFirstSlice" << spar << "_iceTypeId" << "this";
     if (preserved || basePreserved)
     {
-        _out << "setSlicedData: true";
+        _out << nl << "IceSlicedData = ";
     }
-    _out << epar << ";";
+    else
+    {
+        _out << nl << "_ = ";
+    }
+    _out << "istr.IceStartFirstSlice();";
     _out << eb;
     _out << nl << "else";
     _out << sb;
-    _out << nl << "istr.IceStartSlice" << spar << "_iceTypeId" << epar << ";";
+    _out << nl << "istr.IceStartNextSlice();";
     _out << eb;
 
     writeUnmarshalDataMembers(members, ns, 0);
@@ -1560,8 +1568,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
     }
 
-    _out << nl << "private readonly string _iceTypeId = ZeroC.Ice.TypeExtensions.GetIceTypeId(typeof("
-         << name << "))!;";
+    _out << nl << "private readonly string[] _iceAllTypeIds = ZeroC.Ice.TypeExtensions.GetAllIceTypeIds(typeof("
+         << name << "));";
 
     // Up to 3 "one-shot" constructors
     for (int i = 0; i < 3; i++)
@@ -1592,13 +1600,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (i == 0)
         {
             // Insert message first
-            allParamDecl.insert(allParamDecl.cbegin(), "string " + messageParamName);
+            allParamDecl.insert(allParamDecl.cbegin(), "string? " + messageParamName);
             baseParamNames.insert(baseParamNames.cbegin(), messageParamName);
         }
         else if (i == 1)
         {
             // Also add innerException
-            allParamDecl.push_back("global::System.Exception " + innerExceptionParamName);
+            allParamDecl.push_back("global::System.Exception? " + innerExceptionParamName);
             baseParamNames.push_back(innerExceptionParamName);
         }
     }
@@ -1654,23 +1662,29 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
     // protected internal constructor used for unmarshaling (always generated).
+    // the factory parameter is used to distinguish this ctor from the parameterless ctor that users may want to add to
+    // the partial class; it's not used otherwise.
     _out << sp;
-    _out << nl << "protected internal " << name << "(ZeroC.Ice.InputStream istr, bool mostDerived)";
+    if (!p->base())
+    {
+        _out << nl << "[global::System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Performance\", "
+            << "\"CA1801:ReviewUnusedParameters\", Justification=\"Special constructor used for Ice unmarshaling\")]";
+    }
+    _out << nl << "protected internal " << name << "(ZeroC.Ice.IRemoteExceptionFactory factory, string? message)";
+    // We call the base class constructor to initialize the base class fields.
+    _out.inc();
     if (p->base())
     {
-        // We call the base class to initialize the base class' fields.
-        _out.inc();
-        _out << nl << ": base(istr, mostDerived: false)";
-        _out.dec();
+        _out << nl << ": base(factory, message)";
     }
+    else
+    {
+        _out << nl << ": base(message)";
+    }
+    _out.dec();
     _out << sb;
     // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
     writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
-    _out << nl << "if (mostDerived)";
-    _out << sb;
-    _out << nl << "IceRead(istr, true);";
-    _out << nl << "ConvertToUnhandled = true;";
-    _out << eb;
     _out << eb;
 
     // Serializable constructor
@@ -1774,12 +1788,37 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     // Remote exceptions are always "preserved".
 
     _out << sp;
+    _out << nl << "protected override void IceRead(ZeroC.Ice.InputStream istr, bool firstSlice)";
+    _out << sb;
+    _out << nl << "if (firstSlice)";
+    _out << sb;
+    _out << nl << "IceSlicedData = istr.IceStartFirstSlice();";
+    _out << nl << "ConvertToUnhandled = true;";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "istr.IceStartNextSlice();";
+    _out << eb;
+    writeUnmarshalDataMembers(dataMembers, ns, Slice::ExceptionType);
+    _out << nl << "istr.IceEndSlice();";
+
+    if (base)
+    {
+        _out << nl << "base.IceRead(istr, false);";
+    }
+    _out << eb;
+
+    _out << sp;
     _out << nl << "protected override void IceWrite(ZeroC.Ice.OutputStream ostr, bool firstSlice)";
     _out << sb;
-    _out << nl << "ostr.IceStartSlice" << spar << "_iceTypeId" << "firstSlice";
-    _out << "firstSlice ? IceSlicedData : null";
-    _out << epar << ";";
-
+    _out << nl << "if (firstSlice)";
+    _out << sb;
+    _out << nl << "ostr.IceStartFirstSlice(_iceAllTypeIds, IceSlicedData, errorMessage: Message);";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "ostr.IceStartNextSlice(_iceAllTypeIds[0]);";
+    _out << eb;
     writeMarshalDataMembers(dataMembers, ns, Slice::ExceptionType);
 
     if(base)
@@ -1793,29 +1832,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out << eb;
 
-    _out << sp;
-
-    _out << nl << "protected " << (base ? "new " : "") << "void IceRead(ZeroC.Ice.InputStream istr, "
-         << "bool firtSlice)";
-    _out << sb;
-
-    _out << nl << "if (firtSlice)";
-    _out << sb;
-    _out << nl << "IceSlicedData = istr.IceStartFirstSlice(_iceTypeId);";
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    _out << nl << "istr.IceStartSlice" << spar << "_iceTypeId" << epar << ";";
-    _out << eb;
-
-    writeUnmarshalDataMembers(dataMembers, ns, Slice::ExceptionType);
-
-    _out << nl << "istr.IceEndSlice();";
-    if(base)
-    {
-        _out << nl << "base.IceRead(istr, false);";
-    }
-    _out << eb;
     _out << eb;
 }
 
@@ -3221,9 +3237,9 @@ Slice::Gen::ClassFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
     emitCommonAttributes();
     _out << nl << "public class " << name << " : global::ZeroC.Ice.IClassFactory";
     _out << sb;
-    _out << nl << "public global::ZeroC.Ice.AnyClass Read(global::ZeroC.Ice.InputStream istr) =>";
+    _out << nl << "public global::ZeroC.Ice.AnyClass Create() =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "(istr, mostDerived: true);";
+    _out << nl << "new global::" << getNamespace(p) << "." << name << "(this);";
     _out.dec();
     _out << eb;
 
@@ -3263,9 +3279,9 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
         emitCommonAttributes();
         _out << nl << "public class CompactId_" << p->compactId() << " : global::ZeroC.Ice.IClassFactory";
         _out << sb;
-        _out << nl << "public global::ZeroC.Ice.AnyClass Read(global::ZeroC.Ice.InputStream istr) =>";
+        _out << nl << "public global::ZeroC.Ice.AnyClass Create() =>";
         _out.inc();
-        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name()) << "(istr, mostDerived: true);";
+        _out << nl << "new global::" << getNamespace(p) << "." << fixId(p->name()) << "(this);";
         _out.dec();
         _out << eb;
     }
@@ -3311,9 +3327,9 @@ Slice::Gen::RemoteExceptionFactoryVisitor::visitExceptionStart(const ExceptionPt
     emitCommonAttributes();
     _out << nl << "public class " << name << " : global::ZeroC.Ice.IRemoteExceptionFactory";
     _out << sb;
-    _out << nl << "public global::ZeroC.Ice.RemoteException Read(global::ZeroC.Ice.InputStream istr) =>";
+    _out << nl << "public global::ZeroC.Ice.RemoteException Create(string? message) =>";
     _out.inc();
-    _out << nl << "new global::" << getNamespace(p) << "." << name << "(istr, mostDerived: true);";
+    _out << nl << "new global::" << getNamespace(p) << "." << name << "(this, message);";
     _out.dec();
     _out << eb;
     return false;

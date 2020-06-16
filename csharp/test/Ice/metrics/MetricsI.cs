@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public void fail(Current current) => current.Connection!.Close(ConnectionClose.Forcefully);
 
-        public void opWithUserException(Current current) => throw new UserEx();
+        public void opWithUserException(Current current) => throw new UserEx("custom UserEx message");
 
         public void opWithRequestFailedException(Current current) => throw new ObjectNotExistException(current);
 

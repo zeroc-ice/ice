@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.Metrics
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask opWithUserExceptionAsync(Current current) => throw new UserEx();
+        public ValueTask opWithUserExceptionAsync(Current current) => throw new UserEx("custom UserEx message");
 
         public ValueTask opWithRequestFailedExceptionAsync(Current current) =>
             throw new ObjectNotExistException(current);
