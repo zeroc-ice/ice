@@ -3431,6 +3431,9 @@ class CSharpMapping(Mapping):
             "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
         })
 
+        if not isinstance(process, Server):
+            props.pop("IceSSL.VerifyPeer", None)
+
         # TODO remove this once IceSSL is integrated into core in all mappings
         props.pop("Ice.Plugin.IceSSL", None)
 

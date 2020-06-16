@@ -109,8 +109,16 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
+        public int set(int newValue, Current current)
+        {
+            int oldValue = _value;
+            _value = newValue;
+            return oldValue;
+        }
+
         private bool _shutdown;
         private TaskCompletionSource<object?>? _pending = null;
+        private int _value;
     }
 
     public class TestIntf2 : Outer.Inner.ITestIntf

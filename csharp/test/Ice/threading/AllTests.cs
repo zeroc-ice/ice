@@ -90,6 +90,7 @@ namespace ZeroC.Ice.Test.Threading
             TestHelper.Assert(progress.Scheduler == TaskScheduler.Default);
 
             // The continuation of an awaitable setup with ConfigureAwait(false) is ran with the default
+            // scheduler unless it completes synchronously in which cause it will run on the current
             // scheduler.
             await proxy.pingSyncAsync().ConfigureAwait(false);
             TestHelper.Assert(TaskScheduler.Current == TaskScheduler.Default);

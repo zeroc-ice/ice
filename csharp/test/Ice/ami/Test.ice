@@ -43,6 +43,8 @@ interface TestIntf
     [amd] int opWithResultAsyncDispatch();
     [amd] void opWithUEAsyncDispatch()
         throws TestIntfException;
+
+    int set(int value);
 }
 
 module Outer::Inner

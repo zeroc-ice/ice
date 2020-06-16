@@ -96,16 +96,17 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             }
             output.WriteLine("ok");
 
-            if (obj.GetConnection() != null)
+            Connection? connection = obj.GetConnection();
+            if (connection != null)
             {
                 output.Write("testing object adapter with bi-dir connection... ");
                 output.Flush();
                 var adapter = communicator.CreateObjectAdapter();
-                obj.GetConnection().Adapter = adapter;
-                obj.GetConnection().Adapter = null;
+                connection.Adapter = adapter;
+                connection.Adapter = null;
                 adapter.Deactivate();
                 // Setting a deactivated adapter on a connection no longer raise ObjectAdapterDeactivatedException
-                obj.GetConnection().Adapter = adapter;
+                connection.Adapter = adapter;
                 output.WriteLine("ok");
             }
 

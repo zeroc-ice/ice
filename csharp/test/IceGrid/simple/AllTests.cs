@@ -239,7 +239,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 communicator.DefaultLocator!.Identity.Category + "/Registry", communicator);
             IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
             TestHelper.Assert(session != null);
-            session.GetConnection().SetACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
+            session.GetConnection()!.SetACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
 
             IAdminPrx? admin = session.GetAdmin();
             TestHelper.Assert(admin != null);
