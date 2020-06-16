@@ -41,7 +41,6 @@ namespace ZeroC.Ice.Test.Info
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
             ConnectionInfo info = current.Connection.GetConnectionInfo();
-            System.Console.WriteLine($"Adapter Name: {info.AdapterName!}");
             ctx["adapterName"] = info.AdapterName!;
             ctx["incoming"] = info.Incoming ? "true" : "false";
 

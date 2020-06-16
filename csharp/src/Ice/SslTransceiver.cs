@@ -296,8 +296,8 @@ namespace ZeroC.Ice
         {
             var tcpInfo = (TcpConnectionInfo)_delegate.GetInfo(adapterName, connectionId, incoming);
             return new SslConnectionInfo(adapterName, connectionId, incoming, tcpInfo.LocalAddress,
-                tcpInfo.LocalPort, tcpInfo.RemoteAddress, tcpInfo.RemotePort, tcpInfo.ReceivedSize,
-                tcpInfo.SendSize, _cipher, _certs, _verified);
+                tcpInfo.LocalPort, tcpInfo.RemoteAddress, tcpInfo.RemotePort, tcpInfo.ReceiveSize,
+                tcpInfo.SendSize, _cipher!, _certs);
         }
 
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
@@ -506,13 +506,11 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            _verified = true;
                             return true;
                         }
                     }
                     else
                     {
-                        _verified = true;
                         return true;
                     }
                 }
@@ -569,10 +567,6 @@ namespace ZeroC.Ice
                             {
                                 message += "\nuntrusted root certificate";
                                 ++errorCount;
-                            }
-                            else
-                            {
-                                _verified = true;
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)
@@ -706,6 +700,5 @@ namespace ZeroC.Ice
         private int _maxRecvPacketSize;
         private string? _cipher;
         private X509Certificate2[]? _certs;
-        private bool _verified;
     }
 }

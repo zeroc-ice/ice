@@ -33,7 +33,6 @@ namespace ZeroC.IceSSL.Test.Configuration
             try
             {
                 var info = (SslConnectionInfo)current.Connection!.GetConnectionInfo();
-                TestHelper.Assert(info.Verified);
                 TestHelper.Assert(info.Certs != null &&
                     info.Certs.Length == 2 &&
                     info.Certs[0].Subject.Equals(subjectDN) &&

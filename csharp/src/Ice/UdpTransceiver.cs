@@ -549,13 +549,13 @@ namespace ZeroC.Ice
         public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
         {
             string localAddress = "";
-            int localPort = 0;
+            int localPort = -1;
             string remoteAddress = "";
-            int remotePort = 0;
-            int receivedSize = 0;
+            int remotePort = -1;
+            int receiveSize = 0;
             int sendSize = 0;
             string mcastAddress = "";
-            int mcastPort = 0;
+            int mcastPort = -1;
             if (_fd != null)
             {
                 EndPoint localEndpoint = Network.GetLocalAddress(_fd);
@@ -576,7 +576,7 @@ namespace ZeroC.Ice
                     remotePort = Network.EndpointPort(remoteEndpoint);
                 }
 
-                receivedSize = Network.GetRecvBufferSize(_fd);
+                receiveSize = Network.GetRecvBufferSize(_fd);
                 sendSize = Network.GetSendBufferSize(_fd);
             }
 
@@ -586,7 +586,7 @@ namespace ZeroC.Ice
                 mcastPort = Network.EndpointPort(_mcastAddr);
             }
             return new UdpConnectionInfo(adapterName, connectionId, incoming, localAddress, localPort,
-                remoteAddress, remotePort, receivedSize, sendSize, mcastAddress, mcastPort);
+                remoteAddress, remotePort, receiveSize, sendSize, mcastAddress, mcastPort);
         }
 
         public void CheckSendSize(int size)

@@ -210,8 +210,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         server!.noCert();
-                        TestHelper.Assert(((
-                            SslConnectionInfo)server.GetConnection()!.GetConnectionInfo()).Verified);
                     }
                     catch (Exception ex)
                     {
@@ -291,7 +289,6 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                         var info = (SslConnectionInfo)server.GetConnection()!.GetConnectionInfo();
                         TestHelper.Assert(info.Certs!.Length == 2);
-                        TestHelper.Assert(info.Verified);
 
                         TestHelper.Assert(caCert.Equals(info.Certs[1]));
                         TestHelper.Assert(serverCert.Equals(info.Certs[0]));
@@ -925,7 +922,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                             {
                                 info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                                 TestHelper.Assert(info.Certs!.Length == 2);
-                                TestHelper.Assert(info.Verified);
                             }
                             catch (Exception ex)
                             {
@@ -990,7 +986,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 {
                                     info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                                     TestHelper.Assert(info.Certs!.Length == 3);
-                                    TestHelper.Assert(info.Verified);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1034,7 +1029,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 {
                                     info = (SslConnectionInfo)server!.GetConnection()!.GetConnectionInfo();
                                     TestHelper.Assert(info.Certs!.Length == 4);
-                                    TestHelper.Assert(info.Verified);
                                 }
                                 catch (Exception ex)
                                 {
@@ -2368,7 +2362,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                         {
                             SslConnectionInfo? info = p.GetConnection()!.GetConnectionInfo() as SslConnectionInfo;
                             TestHelper.Assert(info != null);
-                            TestHelper.Assert(info.Verified);
                             break;
                         }
                         catch (Exception ex)

@@ -666,14 +666,14 @@ namespace ZeroC.Ice
             {
                 return new WssConnectionInfo(
                     adapterName, connectionId, incoming, sslInfo.LocalAddress, sslInfo.LocalPort,
-                    sslInfo.RemoteAddress, sslInfo.RemotePort, sslInfo.ReceivedSize, sslInfo.SendSize,
-                    sslInfo.Cipher, sslInfo.Certs, sslInfo.Verified, _parser.GetHeaders());
+                    sslInfo.RemoteAddress, sslInfo.RemotePort, sslInfo.ReceiveSize, sslInfo.SendSize,
+                    sslInfo.Cipher, sslInfo.Certs, _parser.GetHeaders());
             }
             else
             {
                 var tcpInfo = (TcpConnectionInfo)info;
                 return new WsConnectionInfo(adapterName, connectionId, incoming, tcpInfo.LocalAddress,
-                    tcpInfo.LocalPort, tcpInfo.RemoteAddress, tcpInfo.RemotePort, tcpInfo.ReceivedSize,
+                    tcpInfo.LocalPort, tcpInfo.RemoteAddress, tcpInfo.RemotePort, tcpInfo.ReceiveSize,
                     tcpInfo.SendSize, _parser.GetHeaders());
             }
         }

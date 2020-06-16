@@ -174,7 +174,7 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(ipInfo.LocalAddress.Equals(defaultHost));
                     TestHelper.Assert(ipInfo.RemoteAddress.Equals(defaultHost));
                 }
-                TestHelper.Assert(ipInfo.ReceivedSize >= 1024);
+                TestHelper.Assert(ipInfo.ReceiveSize >= 1024);
                 TestHelper.Assert(ipInfo.SendSize >= 2048);
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
@@ -215,7 +215,7 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(udpInfo.RemoteAddress.Equals(defaultHost));
                     TestHelper.Assert(udpInfo.LocalAddress.Equals(defaultHost));
                 }
-                TestHelper.Assert(udpInfo.ReceivedSize >= 2048);
+                TestHelper.Assert(udpInfo.ReceiveSize >= 2048);
                 TestHelper.Assert(udpInfo.SendSize >= 1024);
             }
             output.WriteLine("ok");
