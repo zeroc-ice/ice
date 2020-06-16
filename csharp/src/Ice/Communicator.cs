@@ -152,6 +152,9 @@ namespace ZeroC.Ice
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int IPVersion { get; }
+        // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
+        internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        internal int[] RetryIntervals { get; }
         internal ACMConfig ServerACM { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
@@ -198,7 +201,7 @@ namespace ZeroC.Ice
         private static bool _printProcessIdDone = false;
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
-        private readonly int[] _retryIntervals;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
 
@@ -217,6 +220,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
             : this(ref _emptyArgs,
@@ -226,6 +230,7 @@ namespace ZeroC.Ice
                    observer,
                    certificates,
                    caCertificates,
+                   certificateSelectionCallback,
                    certificateValidationCallback,
                    passwordCallback)
         {
@@ -237,6 +242,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
             : this(ref args,
@@ -246,6 +252,7 @@ namespace ZeroC.Ice
                    observer,
                    certificates,
                    caCertificates,
+                   certificateSelectionCallback,
                    certificateValidationCallback,
                    passwordCallback)
         {
@@ -257,6 +264,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
             : this(ref _emptyArgs,
@@ -266,6 +274,7 @@ namespace ZeroC.Ice
                    observer,
                    certificates,
                    caCertificates,
+                   certificateSelectionCallback,
                    certificateValidationCallback,
                    passwordCallback)
         {
@@ -278,6 +287,7 @@ namespace ZeroC.Ice
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
                             X509Certificate2Collection? caCertificates = null,
+                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
                             RemoteCertificateValidationCallback? certificateValidationCallback = null,
                             IPasswordCallback? passwordCallback = null)
         {
@@ -542,11 +552,11 @@ namespace ZeroC.Ice
 
                 if (arr == null)
                 {
-                    _retryIntervals = new int[] { 0 };
+                    RetryIntervals = new int[] { 0 };
                 }
                 else
                 {
-                    _retryIntervals = new int[arr.Length];
+                    RetryIntervals = new int[arr.Length];
                     for (int i = 0; i < arr.Length; i++)
                     {
                         int v = int.Parse(arr[i], CultureInfo.InvariantCulture);
@@ -555,11 +565,11 @@ namespace ZeroC.Ice
                         //
                         if (i == 0 && v == -1)
                         {
-                            _retryIntervals = Array.Empty<int>();
+                            RetryIntervals = Array.Empty<int>();
                             break;
                         }
 
-                        _retryIntervals[i] = v > 0 ? v : 0;
+                        RetryIntervals[i] = v > 0 ? v : 0;
                     }
                 }
 
@@ -586,16 +596,37 @@ namespace ZeroC.Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
+                if (passwordCallback != null && certificateSelectionCallback != null)
+                {
+                    throw new ArgumentException(
+                        @$"the `{nameof(passwordCallback)}' and `{nameof(certificateSelectionCallback)
+                        }' optional arguments are incompatible with each other",
+                        nameof(passwordCallback));
+                }
+
+                if (certificates != null && certificateSelectionCallback != null)
+                {
+                    throw new ArgumentException(
+                        @$"the `{nameof(certificates)}' and `{nameof(certificateSelectionCallback)
+                        }' optional arguments are incompatible with each other",
+                        nameof(certificates));
+                }
+
                 if (caCertificates != null && certificateValidationCallback != null)
                 {
                     throw new ArgumentException(
-                        @$"the `{nameof(caCertificates)
-                        }' argument cannot be set when certificateValidationCallback argument is set",
+                        @$"the `{nameof(caCertificates)}' and `{nameof(certificateValidationCallback)
+                        }' optional arguments are incompatible with each other",
                         nameof(caCertificates));
                 }
 
                 _sslEngine = new SslEngine(
-                    this, certificates, caCertificates, certificateValidationCallback, passwordCallback);
+                    this,
+                    certificates,
+                    caCertificates,
+                    certificateSelectionCallback,
+                    certificateValidationCallback,
+                    passwordCallback);
 
                 IceAddEndpointFactory(new TcpEndpointFactory(this));
                 IceAddEndpointFactory(new UdpEndpointFactory(this));
@@ -878,11 +909,8 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                //
-                // If destroy is in progress, wait for it to be done. This
-                // is necessary in case destroy() is called concurrently
-                // by multiple threads.
-                //
+                // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called
+                // concurrently by multiple threads.
                 while (_state == StateDestroyInProgress)
                 {
                     Monitor.Wait(_mutex);
@@ -895,23 +923,20 @@ namespace ZeroC.Ice
                 _state = StateDestroyInProgress;
             }
 
-            //
-            // Shutdown and destroy all the incoming and outgoing Ice
-            // connections and wait for the connections to be finished.
-            //
+            // Cancel operations that are waiting and using the communicator's cancellation token
+            _cancellationTokenSource.Cancel();
+
+            // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections
+            // to be finished.
             Shutdown();
             _outgoingConnectionFactory?.Destroy();
 
-            //
             // First wait for shutdown to finish.
-            //
             WaitForShutdown();
 
             DestroyAllObjectAdapters();
 
             _outgoingConnectionFactory?.WaitUntilFinished();
-
-            DestroyRetryQueue(); // Must be called before destroying thread pools.
 
             Observer?.SetObserverUpdater(null);
 
@@ -920,9 +945,7 @@ namespace ZeroC.Ice
                 adminLogger.Destroy();
             }
 
-            //
             // Wait for all the threads to be finished.
-            //
             _timer?.Destroy();
 
             lock (_routerInfoTable)
@@ -962,9 +985,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            //
             // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
-            //
             List<(string Name, IPlugin Plugin)> plugins;
             lock (_mutex)
             {
@@ -999,6 +1020,7 @@ namespace ZeroC.Ice
                 }
             }
             _currentContext.Dispose();
+            _cancellationTokenSource.Dispose();
         }
 
         public void Dispose() => Destroy();
@@ -1175,128 +1197,6 @@ namespace ZeroC.Ice
         {
             _typeToEndpointFactory.Add(factory.Type, factory);
             _transportToEndpointFactory.Add(factory.Name, factory);
-        }
-
-        internal int CheckRetryAfterException(System.Exception ex, Reference reference, ref int cnt)
-        {
-            ILogger logger = Logger;
-
-            if (reference.InvocationMode == InvocationMode.BatchOneway ||
-                reference.InvocationMode == InvocationMode.BatchDatagram)
-            {
-                Debug.Assert(false); // batch no longer implemented anyway
-                throw ex;
-            }
-
-            //
-            // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
-            // the connection and the request will fail with the exception.
-            //
-            if (reference.IsFixed)
-            {
-                throw ex;
-            }
-
-            if (ex is ObjectNotExistException one)
-            {
-                RouterInfo? ri = reference.RouterInfo;
-                if (ri != null && one.Operation.Equals("ice_add_proxy"))
-                {
-                    //
-                    // If we have a router, an ObjectNotExistException with an
-                    // operation name "ice_add_proxy" indicates to the client
-                    // that the router isn't aware of the proxy (for example,
-                    // because it was evicted by the router). In this case, we
-                    // must *always* retry, so that the missing proxy is added
-                    // to the router.
-                    //
-
-                    ri.ClearCache(reference);
-
-                    if (TraceLevels.Retry >= 1)
-                    {
-                        logger.Trace(TraceLevels.RetryCat, $"retrying operation call to add proxy to router\n {ex}");
-                    }
-                    return 0; // We must always retry, so we don't look at the retry count.
-                }
-                else if (reference.IsIndirect)
-                {
-                    //
-                    // We retry ObjectNotExistException if the reference is
-                    // indirect.
-                    //
-
-                    if (reference.IsWellKnown)
-                    {
-                        reference.LocatorInfo?.ClearCache(reference);
-                    }
-                }
-                else
-                {
-                    //
-                    // For all other cases, we don't retry ObjectNotExistException.
-                    //
-                    throw ex;
-                }
-            }
-
-            //
-            // Don't retry if the communicator is destroyed, object adapter is deactivated,
-            // or connection is manually closed.
-            //
-            if (ex is CommunicatorDestroyedException ||
-                ex is ObjectAdapterDeactivatedException ||
-                ex is ConnectionClosedLocallyException)
-            {
-                throw ex;
-            }
-
-            //
-            // Don't retry on timeout and operation canceled exceptions.
-            //
-            if (ex is TimeoutException || ex is OperationCanceledException)
-            {
-                throw ex;
-            }
-
-            ++cnt;
-            Debug.Assert(cnt > 0);
-
-            int interval;
-            if (cnt == (_retryIntervals.Length + 1) && ex is ConnectionClosedByPeerException)
-            {
-                //
-                // A connection closed exception is always retried at least once, even if the retry
-                // limit is reached.
-                //
-                interval = 0;
-            }
-            else if (cnt > _retryIntervals.Length)
-            {
-                if (TraceLevels.Retry >= 1)
-                {
-                    string s = "cannot retry operation call because retry limit has been exceeded\n" + ex;
-                    logger.Trace(TraceLevels.RetryCat, s);
-                }
-                throw ex;
-            }
-            else
-            {
-                interval = _retryIntervals[cnt - 1];
-            }
-
-            if (TraceLevels.Retry >= 1)
-            {
-                string s = "retrying operation call";
-                if (interval > 0)
-                {
-                    s += " in " + interval + "ms";
-                }
-                s += " because of exception\n" + ex;
-                logger.Trace(TraceLevels.RetryCat, s);
-            }
-
-            return interval;
         }
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory.

@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using IceInternal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,35 +17,17 @@ namespace ZeroC.Ice
 
         private protected OutgoingRequest(InputStreamReader<TReturnValue> reader) => _reader = reader;
 
-        private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request)
-        {
-            try
-            {
-                var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
-                new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
-                    request.Operation, request.Context, synchronous: true);
-                IncomingResponseFrame response = completed.Task.Result;
-                return response.ReadReturnValue(_reader);
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
-            }
-        }
+        private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request) =>
+            prx.Invoke(request, oneway: false).ReadReturnValue(_reader);
 
         private protected Task<TReturnValue> InvokeAsync(IObjectPrx prx,
                                                          OutgoingRequestFrame request,
                                                          IProgress<bool>? progress,
                                                          CancellationToken cancel)
         {
-            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
-            new OutgoingAsync(prx, completed, request, oneway: false).Invoke(
-                request.Operation, request.Context, synchronous: false);
+            return ReadReturnValueAsync(prx.InvokeAsync(request, oneway: false, progress, cancel), _reader);
 
-            return ReadReturnValueAsync(completed.Task, _reader);
-
-            static async Task<TReturnValue> ReadReturnValueAsync(Task<IncomingResponseFrame> task,
+            static async Task<TReturnValue> ReadReturnValueAsync(ValueTask<IncomingResponseFrame> task,
                                                                  InputStreamReader<TReturnValue> reader)
             {
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
@@ -167,36 +148,21 @@ namespace ZeroC.Ice
 
         private protected void Invoke(IObjectPrx prx, OutgoingRequestFrame request)
         {
-            try
+            bool isOneway = _oneway || prx.IsOneway;
+            IncomingResponseFrame response = prx.Invoke(request, isOneway);
+            if (!isOneway)
             {
-                var completed = new IObjectPrx.InvokeTaskCompletionCallback(null, default);
-                var isOneway = _oneway || prx.IsOneway;
-                new OutgoingAsync(prx, completed, request, oneway: isOneway).Invoke(
-                    request.Operation, request.Context, synchronous: true);
-                IncomingResponseFrame response = completed.Task.Result;
-                if (!isOneway)
-                {
-                    response.ReadVoidReturnValue();
-                }
-            }
-            catch (AggregateException ex)
-            {
-                Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
+                response.ReadVoidReturnValue();
             }
         }
 
         private protected Task InvokeAsync(IObjectPrx prx, OutgoingRequestFrame request, IProgress<bool>? progress,
                                            CancellationToken cancel)
         {
-            var completed = new IObjectPrx.InvokeTaskCompletionCallback(progress, cancel);
-            var isOneway = _oneway || prx.IsOneway;
-            new OutgoingAsync(prx, completed, request, oneway: isOneway).Invoke(
-                request.Operation, request.Context, synchronous: false);
+            bool isOneway = _oneway || prx.IsOneway;
+            return ReadVoidReturnValueAsync(prx.InvokeAsync(request, isOneway, progress, cancel), isOneway);
 
-            return ReadVoidReturnValueAsync(completed.Task, isOneway);
-
-            static async Task ReadVoidReturnValueAsync(Task<IncomingResponseFrame> task, bool oneway)
+            static async Task ReadVoidReturnValueAsync(ValueTask<IncomingResponseFrame> task, bool oneway)
             {
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
                 if (!oneway)

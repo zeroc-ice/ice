@@ -159,6 +159,37 @@ namespace ZeroC.Ice
             TaskScheduler? taskScheduler = null)
             => CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
 
+        internal ObjectAdapter? FindObjectAdapter(Reference reference)
+        {
+            List<ObjectAdapter> adapters;
+            lock (_mutex)
+            {
+                if (_isShutdown)
+                {
+                    return null;
+                }
+
+                adapters = new List<ObjectAdapter>(_adapters);
+            }
+
+            foreach (ObjectAdapter adapter in adapters)
+            {
+                try
+                {
+                    if (adapter.IsLocal(reference))
+                    {
+                        return adapter;
+                    }
+                }
+                catch (ObjectAdapterDeactivatedException)
+                {
+                    // Ignore.
+                }
+            }
+
+            return null;
+        }
+
         internal void RemoveObjectAdapter(ObjectAdapter adapter)
         {
             // Called by the object adapter to remove itself once destroyed.
@@ -235,37 +266,6 @@ namespace ZeroC.Ice
                 }
                 throw;
             }
-        }
-
-        private ObjectAdapter? FindObjectAdapter(Reference reference)
-        {
-            List<ObjectAdapter> adapters;
-            lock (_mutex)
-            {
-                if (_isShutdown)
-                {
-                    return null;
-                }
-
-                adapters = new List<ObjectAdapter>(_adapters);
-            }
-
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                try
-                {
-                    if (adapter.IsLocal(reference))
-                    {
-                        return adapter;
-                    }
-                }
-                catch (ObjectAdapterDeactivatedException)
-                {
-                    // Ignore.
-                }
-            }
-
-            return null;
         }
 
         private void DestroyAllObjectAdapters()

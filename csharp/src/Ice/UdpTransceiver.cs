@@ -598,34 +598,36 @@ namespace ZeroC.Ice
 
         public override string ToString()
         {
-            if (_fd == null)
+            try
+            {
+                string s;
+                if (_incoming && !_bound)
+                {
+                    s = "local address = " + Network.AddrToString(_addr);
+                }
+                else if (_state == StateNotConnected)
+                {
+                    s = "local address = " + Network.LocalAddrToString(Network.GetLocalAddress(_fd));
+                    if (_peerAddr != null)
+                    {
+                        s += "\nremote address = " + Network.AddrToString(_peerAddr);
+                    }
+                }
+                else
+                {
+                    s = Network.FdToString(_fd);
+                }
+
+                if (_mcastAddr != null)
+                {
+                    s += "\nmulticast address = " + Network.AddrToString(_mcastAddr);
+                }
+                return s;
+            }
+            catch (ObjectDisposedException)
             {
                 return "<closed>";
             }
-
-            string s;
-            if (_incoming && !_bound)
-            {
-                s = "local address = " + Network.AddrToString(_addr);
-            }
-            else if (_state == StateNotConnected)
-            {
-                s = "local address = " + Network.LocalAddrToString(Network.GetLocalAddress(_fd));
-                if (_peerAddr != null)
-                {
-                    s += "\nremote address = " + Network.AddrToString(_peerAddr);
-                }
-            }
-            else
-            {
-                s = Network.FdToString(_fd);
-            }
-
-            if (_mcastAddr != null)
-            {
-                s += "\nmulticast address = " + Network.AddrToString(_mcastAddr);
-            }
-            return s;
         }
 
         public string ToDetailedString()
@@ -680,27 +682,19 @@ namespace ZeroC.Ice
             _state = StateNeedConnect;
             _incoming = false;
 
-            try
+            _fd = Network.CreateSocket(true, _addr.AddressFamily);
+            SetBufSize(-1, -1);
+            Network.SetBlock(_fd, false);
+            if (Network.IsMulticast((IPEndPoint)_addr))
             {
-                _fd = Network.CreateSocket(true, _addr.AddressFamily);
-                SetBufSize(-1, -1);
-                Network.SetBlock(_fd, false);
-                if (Network.IsMulticast((IPEndPoint)_addr))
+                if (_mcastInterface.Length > 0)
                 {
-                    if (_mcastInterface.Length > 0)
-                    {
-                        Network.SetMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
-                    }
-                    if (mcastTtl != -1)
-                    {
-                        Network.SetMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
-                    }
+                    Network.SetMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
                 }
-            }
-            catch (System.Exception)
-            {
-                _fd = null;
-                throw;
+                if (mcastTtl != -1)
+                {
+                    Network.SetMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
+                }
             }
         }
 
@@ -744,7 +738,6 @@ namespace ZeroC.Ice
                 {
                     _writeEventArgs.Dispose();
                 }
-                _fd = null;
                 throw;
             }
         }
@@ -869,7 +862,7 @@ namespace ZeroC.Ice
         private readonly bool _incoming;
         private int _rcvSize;
         private int _sndSize;
-        private Socket? _fd;
+        private readonly Socket _fd;
         private EndPoint _addr;
         private readonly IPEndPoint? _sourceAddr;
         private IPEndPoint? _mcastAddr = null;

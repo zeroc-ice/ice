@@ -30,11 +30,17 @@ namespace ZeroC.Ice.Test.AMI
 
             using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
+            communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
             adapter.Add("test2", new TestIntf2());
             adapter.Activate();
+
+            ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2", serializeDispatch: true);
+            adapter2.Add("serialized", new TestIntf());
+            adapter2.Activate();
+
             ServerReady();
             communicator.WaitForShutdown();
         }

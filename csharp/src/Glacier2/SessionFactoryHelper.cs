@@ -181,6 +181,7 @@ namespace ZeroC.Glacier2
         private readonly ISessionCallback _callback;
         private readonly X509Certificate2Collection? _caCertificates;
         private readonly X509Certificate2Collection? _certificates;
+        private readonly LocalCertificateSelectionCallback? _certificateSelectionCallback;
         private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
         private IReadOnlyDictionary<string, string>? _context;
         private Identity? _identity = null;
@@ -202,6 +203,8 @@ namespace ZeroC.Glacier2
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
         /// <param name="certificates">Optional certificates used by secure transports.</param>
         /// <param name="caCertificates">Optional CA certificates used by secure transports.</param>
+        /// /// <param name="certificateSelectionCallback">Optional certificate selection callback used by secure
+        /// transports.</param>
         /// <param name="certificateValidationCallback">Optional certificate validation callback used by secure
         /// transports.</param>
         /// <param name="passwordCallback">Optional password callback used by secure transports.</param>
@@ -212,6 +215,7 @@ namespace ZeroC.Glacier2
             ICommunicatorObserver? observer = null,
             X509Certificate2Collection? certificates = null,
             X509Certificate2Collection? caCertificates = null,
+            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
             RemoteCertificateValidationCallback? certificateValidationCallback = null,
             IPasswordCallback? passwordCallback = null)
         {
@@ -221,6 +225,7 @@ namespace ZeroC.Glacier2
             _observer = observer;
             _certificates = certificates;
             _caCertificates = caCertificates;
+            _certificateSelectionCallback = certificateSelectionCallback;
             _certificateValidationCallback = certificateValidationCallback;
             _passwordCallback = passwordCallback;
 
@@ -245,6 +250,7 @@ namespace ZeroC.Glacier2
                     _observer,
                     _certificates,
                     _caCertificates,
+                    _certificateSelectionCallback,
                     _certificateValidationCallback,
                     _passwordCallback);
                 session.Connect(_context);
@@ -271,6 +277,7 @@ namespace ZeroC.Glacier2
                     _observer,
                     _certificates,
                     _caCertificates,
+                    _certificateSelectionCallback,
                     _certificateValidationCallback,
                     _passwordCallback);
                 session.Connect(username, password, _context);

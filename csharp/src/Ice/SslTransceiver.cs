@@ -51,8 +51,8 @@ namespace ZeroC.Ice
                     _sslStream = new SslStream(
                         new NetworkStream(fd, false),
                         false,
-                        _engine.RemoteCertificateValidationCallback ?? ValidationCallback,
-                        SelectCertificate);
+                        _engine.RemoteCertificateValidationCallback ?? RemoteCertificateValidationCallback,
+                        _engine.CertificateSelectionCallback ?? CertificateSelectionCallback);
                 }
                 catch (IOException ex)
                 {
@@ -431,7 +431,8 @@ namespace ZeroC.Ice
             }
         }
 
-        private X509Certificate? SelectCertificate(object sender,
+        private X509Certificate? CertificateSelectionCallback(
+            object sender,
             string targetHost,
             X509CertificateCollection? certs,
             X509Certificate remoteCertificate,
@@ -462,8 +463,11 @@ namespace ZeroC.Ice
             return certs[0];
         }
 
-        private bool ValidationCallback(object sender, X509Certificate certificate, X509Chain chainEngine,
-                                        SslPolicyErrors policyErrors)
+        private bool RemoteCertificateValidationCallback(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chainEngine,
+            SslPolicyErrors policyErrors)
         {
             var chain = new X509Chain(_engine.UseMachineContext);
             try
@@ -500,15 +504,7 @@ namespace ZeroC.Ice
                         X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
                         if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                         {
-                            if (_verifyPeer > 0)
-                            {
-                                message += "\nuntrusted root certificate";
-                            }
-                            else
-                            {
-                                message += "\nuntrusted root certificate (ignored)";
-                                _verified = false;
-                            }
+                            message += "\nuntrusted root certificate";
                             errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                         }
                         else
@@ -549,35 +545,14 @@ namespace ZeroC.Ice
                     }
                 }
 
-                bool certificateNameMismatch = (errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0;
-                if (certificateNameMismatch)
+                if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
                 {
-                    if (_engine.CheckCertName && !string.IsNullOrEmpty(_host))
+                    if (_engine.SecurityTraceLevel >= 1)
                     {
-                        if (_engine.SecurityTraceLevel >= 1)
-                        {
-                            string msg = "SSL certificate validation failed - Hostname mismatch";
-                            if (_verifyPeer == 0)
-                            {
-                                msg += " (ignored)";
-                            }
-                            _communicator.Logger.Trace(_engine.SecurityTraceCategory, msg);
-                        }
-
-                        if (_verifyPeer > 0)
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                        }
+                        _communicator.Logger.Trace(_engine.SecurityTraceCategory,
+                            "SSL certificate validation failed - Hostname mismatch");
                     }
-                    else
-                    {
-                        errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
-                        certificateNameMismatch = false;
-                    }
+                    return false;
                 }
 
                 if ((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
@@ -595,19 +570,12 @@ namespace ZeroC.Ice
                             X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
                             if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                             {
-                                if (_verifyPeer > 0)
-                                {
-                                    message += "\nuntrusted root certificate";
-                                    ++errorCount;
-                                }
-                                else
-                                {
-                                    message += "\nuntrusted root certificate (ignored)";
-                                }
+                                message += "\nuntrusted root certificate";
+                                ++errorCount;
                             }
                             else
                             {
-                                _verified = !certificateNameMismatch;
+                                _verified = true;
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)
@@ -640,15 +608,8 @@ namespace ZeroC.Ice
                         }
                         else if (status.Status == X509ChainStatusFlags.PartialChain)
                         {
-                            if (_verifyPeer > 0)
-                            {
-                                message += "\npartial certificate chain";
-                                ++errorCount;
-                            }
-                            else
-                            {
-                                message += "\npartial certificate chain (ignored)";
-                            }
+                            message += "\npartial certificate chain";
+                            ++errorCount;
                         }
                         else if (status.Status != X509ChainStatusFlags.NoError)
                         {

@@ -323,8 +323,29 @@ namespace ZeroC.Ice
             }
         }
 
+        // TODO: Port the locator info code to use async/await
         internal void GetEndpoints(Reference reference, int ttl, IGetEndpointsCallback callback) =>
             GetEndpoints(reference, null, ttl, callback);
+        private class GetEndpointsCallback : IGetEndpointsCallback
+        {
+            private readonly TaskCompletionSource<(IReadOnlyList<Endpoint>, bool)> _source =
+                new TaskCompletionSource<(IReadOnlyList<Endpoint>, bool)>();
+
+            public Task<(IReadOnlyList<Endpoint>, bool)> Task => _source.Task;
+
+            void IGetEndpointsCallback.SetEndpoints(IReadOnlyList<Endpoint> endpoints, bool cached) =>
+                _source.SetResult((endpoints, cached));
+
+            void IGetEndpointsCallback.SetException(Exception ex) => _source.SetException(ex);
+        }
+
+        internal async ValueTask<(IReadOnlyList<Endpoint>, bool)> GetEndpointsAsync(Reference reference, int ttl)
+        {
+            // TODO: refactor to use async/await
+            var callback = new GetEndpointsCallback();
+            GetEndpoints(reference, null, ttl, callback);
+            return await callback.Task.ConfigureAwait(false);
+        }
 
         internal void
         GetEndpoints(Reference reference, Reference? wellKnownRef, int ttl, IGetEndpointsCallback? callback)

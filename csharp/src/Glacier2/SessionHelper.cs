@@ -58,6 +58,7 @@ namespace ZeroC.Glacier2
         private readonly X509Certificate2Collection? _caCertificates;
         private string? _category;
         private readonly X509Certificate2Collection? _certificates;
+        private readonly LocalCertificateSelectionCallback? _certificateSelectionCallback;
         private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
         private Communicator? _communicator;
         private bool _connected = false;
@@ -157,12 +158,13 @@ namespace ZeroC.Glacier2
             string finderStr,
             bool useCallbacks,
             Dictionary<string, string> properties,
-            ILogger? logger = null,
-            ICommunicatorObserver? observer = null,
-            X509Certificate2Collection? certificates = null,
-            X509Certificate2Collection? caCertificates = null,
-            RemoteCertificateValidationCallback? _certificateValidationCallback = null,
-            IPasswordCallback? passwordCallback = null)
+            ILogger? logger,
+            ICommunicatorObserver? observer,
+            X509Certificate2Collection? certificates,
+            X509Certificate2Collection? caCertificates,
+            LocalCertificateSelectionCallback? certificateSelectionCallback,
+            RemoteCertificateValidationCallback? certificateValidationCallback,
+            IPasswordCallback? passwordCallback)
         {
             _callback = callback;
             _finderStr = finderStr;
@@ -172,7 +174,8 @@ namespace ZeroC.Glacier2
             _observer = observer;
             _certificates = certificates;
             _caCertificates = caCertificates;
-            this._certificateValidationCallback = _certificateValidationCallback;
+            _certificateSelectionCallback = certificateSelectionCallback;
+            _certificateValidationCallback = certificateValidationCallback;
             _passwordCallback = passwordCallback;
         }
 
@@ -339,6 +342,7 @@ namespace ZeroC.Glacier2
                             observer: _observer,
                             certificates: _certificates,
                             caCertificates: _caCertificates,
+                            certificateSelectionCallback: _certificateSelectionCallback,
                             certificateValidationCallback: _certificateValidationCallback,
                             passwordCallback: _passwordCallback);
                     }

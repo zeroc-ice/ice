@@ -200,8 +200,6 @@ namespace ZeroC.Ice
         private static void PrintHeader(byte messageType, byte compress, int size, StringBuilder s)
         {
             s.Append("\nmessage type = ");
-            s.Append(messageType);
-            s.Append(" ");
             s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)messageType));
 
             s.Append("\ncompression status = ");

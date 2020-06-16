@@ -4,17 +4,13 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
     public sealed class RouterInfo
     {
-        public interface IGetClientEndpointsCallback
-        {
-            void SetEndpoints(IReadOnlyList<Endpoint> endpoints);
-            void SetException(System.Exception ex);
-        }
-
         public interface IAddProxyCallback
         {
             void AddedProxy();
@@ -48,7 +44,7 @@ namespace ZeroC.Ice
         // No mutex lock necessary, _router is immutable.
         public IRouterPrx Router { get; }
 
-        public IReadOnlyList<Endpoint> GetClientEndpoints()
+        public async ValueTask<IReadOnlyList<Endpoint>> GetClientEndpointsAsync()
         {
             lock (_mutex)
             {
@@ -58,38 +54,8 @@ namespace ZeroC.Ice
                 }
             }
 
-            (IObjectPrx? proxy, bool? hasRoutingTable) = Router.GetClientProxy();
+            (IObjectPrx? proxy, bool? hasRoutingTable) = await Router.GetClientProxyAsync().ConfigureAwait(false);
             return SetClientEndpoints(proxy!, hasRoutingTable ?? true);
-        }
-
-        public void GetClientEndpoints(IGetClientEndpointsCallback callback)
-        {
-            IReadOnlyList<Endpoint>? clientEndpoints = null;
-            lock (_mutex)
-            {
-                clientEndpoints = _clientEndpoints;
-            }
-
-            if (clientEndpoints != null) // Lazy initialization.
-            {
-                callback.SetEndpoints(clientEndpoints);
-                return;
-            }
-
-            Router.GetClientProxyAsync().ContinueWith(
-                (t) =>
-                {
-                    try
-                    {
-                        (IObjectPrx? prx, bool? hasRoutingTable) = t.Result;
-                        callback.SetEndpoints(SetClientEndpoints(prx!, hasRoutingTable ?? true));
-                    }
-                    catch (System.AggregateException ae)
-                    {
-                        callback.SetException(ae.InnerException!);
-                    }
-                },
-                System.Threading.Tasks.TaskScheduler.Current);
         }
 
         public IReadOnlyList<Endpoint> GetServerEndpoints()
@@ -104,11 +70,15 @@ namespace ZeroC.Ice
             return serverProxy.IceReference.Endpoints;
         }
 
-        public void AddProxy(IObjectPrx proxy)
+        public async ValueTask AddProxyAsync(IObjectPrx proxy)
         {
             Debug.Assert(proxy != null);
             lock (_mutex)
             {
+                if (!_hasRoutingTable)
+                {
+                    return; // The router implementation doesn't maintain a routing table.
+                }
                 if (_identities.Contains(proxy.Identity))
                 {
                     //
@@ -118,42 +88,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            AddAndEvictProxies(proxy, Router.AddProxies(new IObjectPrx[] { proxy }) as IObjectPrx[]);
-        }
-
-        public bool AddProxy(IObjectPrx proxy, IAddProxyCallback callback)
-        {
-            Debug.Assert(proxy != null);
-            lock (_mutex)
-            {
-                if (!_hasRoutingTable)
-                {
-                    return true; // The router implementation doesn't maintain a routing table.
-                }
-                if (_identities.Contains(proxy.Identity))
-                {
-                    //
-                    // Only add the proxy to the router if it's not already in our local map.
-                    //
-                    return true;
-                }
-            }
-
-            Router.AddProxiesAsync(new IObjectPrx[] { proxy }).ContinueWith(
-                (t) =>
-                {
-                    try
-                    {
-                        AddAndEvictProxies(proxy, t.Result as IObjectPrx[]);
-                        callback.AddedProxy();
-                    }
-                    catch (System.AggregateException ae)
-                    {
-                        callback.SetException(ae.InnerException!);
-                    }
-                },
-                System.Threading.Tasks.TaskScheduler.Current);
-            return false;
+            AddAndEvictProxies(proxy, await Router.AddProxiesAsync(new IObjectPrx[] { proxy }));
         }
 
         public ObjectAdapter? Adapter
@@ -205,9 +140,10 @@ namespace ZeroC.Ice
                         // router, we must use the same timeout as the already
                         // existing connection.
                         //
-                        if (Router.GetConnection() != null)
+                        Connection? connection = Router.GetConnection();
+                        if (connection != null)
                         {
-                            clientProxy = clientProxy.Clone(connectionTimeout: Router.GetConnection().Timeout);
+                            clientProxy = clientProxy.Clone(connectionTimeout: connection.Timeout);
                         }
 
                         _clientEndpoints = clientProxy.IceReference.Endpoints;
@@ -217,7 +153,8 @@ namespace ZeroC.Ice
             }
         }
 
-        private void AddAndEvictProxies(IObjectPrx proxy, IObjectPrx[] evictedProxies)
+        // TODO: fix the Slice method addProxies to return non-nullable proxies.
+        private void AddAndEvictProxies(IObjectPrx proxy, IObjectPrx?[] evictedProxies)
         {
             lock (_mutex)
             {
@@ -245,14 +182,17 @@ namespace ZeroC.Ice
                 //
                 for (int i = 0; i < evictedProxies.Length; ++i)
                 {
-                    if (!_identities.Remove(evictedProxies[i].Identity))
+                    if (evictedProxies[i] != null)
                     {
-                        //
-                        // It's possible for the proxy to not have been
-                        // added yet in the local map if two threads
-                        // concurrently call addProxies.
-                        //
-                        _evictedIdentities.Add(evictedProxies[i].Identity);
+                        if (!_identities.Remove(evictedProxies[i]!.Identity))
+                        {
+                            //
+                            // It's possible for the proxy to not have been
+                            // added yet in the local map if two threads
+                            // concurrently call addProxies.
+                            //
+                            _evictedIdentities.Add(evictedProxies[i]!.Identity);
+                        }
                     }
                 }
             }

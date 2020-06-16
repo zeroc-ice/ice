@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Timeout
                     // Can sporadically occur with slow machines
                 }
             }
-            return prx.GetConnection();
+            return prx.GetConnection()!;
         }
 
         public static void allTests(TestHelper helper)

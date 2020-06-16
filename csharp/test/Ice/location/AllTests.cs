@@ -275,11 +275,11 @@ namespace ZeroC.Ice.Test.Location
             }
             Task.WaitAll(results.ToArray());
             results.Clear();
-            TestHelper.Assert(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
             if (locator.getRequestCount() > count + 800)
             {
                 output.Write("queuing = " + (locator.getRequestCount() - count));
             }
+            TestHelper.Assert(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
             count = locator.getRequestCount();
             hello = hello.Clone(adapterId: "unknown");
             for (int i = 0; i < 1000; i++)
@@ -514,7 +514,7 @@ namespace ZeroC.Ice.Test.Location
             output.Flush();
             hello = IHelloPrx.Parse("hello", communicator);
             obj1.migrateHello();
-            hello.GetConnection().Close(ConnectionClose.GracefullyWithWait);
+            hello.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
             hello.sayHello();
             obj1.migrateHello();
             hello.sayHello();
