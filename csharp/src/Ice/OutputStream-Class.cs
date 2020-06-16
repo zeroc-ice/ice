@@ -237,9 +237,8 @@ namespace ZeroC.Ice
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class);
 
-                // We cannot use formal type optimization for a tagged class parameter, because the recipient may not
-                // know the tag at all.
-                // Formal type optimization is never used for data members in sliced format.
+                // Since the recipient may not know the tag, we cannot use formal type optimization and set formalTypeId
+                // to null.
                 WriteClass(v, formalTypeId: null);
             }
         }

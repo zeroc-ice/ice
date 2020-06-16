@@ -161,24 +161,9 @@ namespace ZeroC.Ice
         /// <summary>Reads a tagged class instance from the stream.</summary>
         /// <param name="tag">The tag.</param>
         /// <returns>The class instance, or null.</returns>
-        public T? ReadTaggedClass<T>(int tag) where T : AnyClass
-        {
-            AnyClass? obj = ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class) ?
-                ReadAnyClass(formalTypeId: null) : null;
-            if (obj is T result)
-            {
-                return result;
-            }
-            else if (obj == null)
-            {
-                return null;
-            }
-            else
-            {
-                throw new InvalidDataException(@$"read instance of type `{obj.GetType().FullName
-                    }' but expected instance of type `{typeof(T).FullName}'");
-            }
-        }
+        public T? ReadTaggedClass<T>(int tag) where T : AnyClass =>
+            ReadTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class) ?
+                ReadNullableClass<T>(formalTypeId: null) : null;
 
         /// <summary>Reads a class instance from the stream.</summary>
         /// <param name="formalTypeId">The type ID of the formal type of the parameter or data member being read.
@@ -229,8 +214,7 @@ namespace ZeroC.Ice
             string? errorMessage = null;
 
             _current.SliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
-            var typeIdKind = (EncodingDefinitions.TypeIdKind)
-                (_current.SliceFlags & EncodingDefinitions.SliceFlags.TypeIdMask);
+            EncodingDefinitions.TypeIdKind typeIdKind = _current.SliceFlags.GetTypeIdKind();
 
             if (_current.InstanceType == InstanceType.Class)
             {
@@ -262,6 +246,7 @@ namespace ZeroC.Ice
                         break;
 
                     default:
+                        Debug.Assert(typeIdKind == EncodingDefinitions.TypeIdKind.None);
                         typeIds = null;
                         break;
                 }
@@ -517,12 +502,8 @@ namespace ZeroC.Ice
             else
             {
                 Debug.Assert(_current.InstanceType != InstanceType.None);
-
                 _current.SliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
-
-                Debug.Assert((EncodingDefinitions.TypeIdKind)
-                    (_current.SliceFlags & EncodingDefinitions.SliceFlags.TypeIdMask) ==
-                        EncodingDefinitions.TypeIdKind.None);
+                Debug.Assert(_current.SliceFlags.GetTypeIdKind() == EncodingDefinitions.TypeIdKind.None);
 
                 // Read the slice size if available.
                 if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
@@ -551,8 +532,7 @@ namespace ZeroC.Ice
             // for exceptions it's always encoded as a string.
             if (_current.InstanceType == InstanceType.Class)
             {
-                (typeId, compactId) = ReadTypeId11((EncodingDefinitions.TypeIdKind)
-                    (_current.SliceFlags & EncodingDefinitions.SliceFlags.TypeIdMask));
+                (typeId, compactId) = ReadTypeId11(_current.SliceFlags.GetTypeIdKind());
 
                 if (typeId == null && compactId == null)
                 {
@@ -632,6 +612,7 @@ namespace ZeroC.Ice
                     return (null, ReadSize());
 
                 default:
+                    Debug.Assert(typeIdKind == EncodingDefinitions.TypeIdKind.None);
                     return (null, null);
             }
         }
@@ -671,8 +652,7 @@ namespace ZeroC.Ice
                         sliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
 
                         // Skip type ID - can update _typeIdMap11
-                        _ = ReadTypeId11((EncodingDefinitions.TypeIdKind)
-                            (sliceFlags & EncodingDefinitions.SliceFlags.TypeIdMask));
+                        _ = ReadTypeId11(sliceFlags.GetTypeIdKind());
 
                         // Read the slice size, then skip the slice
                         if ((sliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) == 0)
@@ -680,7 +660,7 @@ namespace ZeroC.Ice
                             throw new InvalidDataException("size of slice missing");
                         }
                         int sliceSize = ReadSliceSize11();
-                        _pos += sliceSize;
+                        _pos += sliceSize; // we need a temporary sliceSize because ReadSliceSize11 updates _pos.
 
                         // If this slice has an indirection table, skip it too.
                         if ((sliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
@@ -790,7 +770,7 @@ namespace ZeroC.Ice
             // If we read the indirection table previously, we don't need it anymore since we're skipping this slice.
             _current.IndirectionTable = null;
 
-            return (_current.SliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) != 0;;
+            return (_current.SliceFlags & EncodingDefinitions.SliceFlags.IsLastSlice) != 0;
         }
 
         private struct InstanceData

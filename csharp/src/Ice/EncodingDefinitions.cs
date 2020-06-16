@@ -20,7 +20,7 @@ namespace ZeroC.Ice
         internal enum SliceFlags : byte
         {
             /// <summary>The first 2 bits of SliceFlags represent the TypeIdKind, which can be extracted using
-            /// TypeIdMask.</summary>
+            /// GetTypeIdKind.</summary>
             TypeIdMask = 3,
             HasTaggedMembers = 4,
             HasIndirectionTable = 8,
@@ -56,5 +56,14 @@ namespace ZeroC.Ice
             /// </summary>
             VInt = 8
         }
+    }
+
+    internal static class SliceFlagsExtensions
+    {
+        /// <summary>Extracts the TypeIdKind of a SliceFlags value.</summary>
+        /// <param name="sliceFlags">The SliceFlags value.</param>
+        /// <returns>The TypeIdKind encoded in sliceFlags.</returns>
+        internal static EncodingDefinitions.TypeIdKind GetTypeIdKind(this EncodingDefinitions.SliceFlags sliceFlags) =>
+            (EncodingDefinitions.TypeIdKind)(sliceFlags & EncodingDefinitions.SliceFlags.TypeIdMask);
     }
 }

@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         }
 
         // See InputStream
-        // This base implementation is only be called on a plain RemoteException.
+        // This base implementation is only called on a plain RemoteException.
         protected virtual void IceRead(InputStream istr, bool firstSlice)
         {
             Debug.Assert(firstSlice);
@@ -67,7 +67,7 @@ namespace ZeroC.Ice
         internal void Read(InputStream istr) => IceRead(istr, true);
 
         // See OutputStream
-        // This implementation can only be called on a plain RemoteException with IceSlicedData set.
+        // This implementation can only called on a plain RemoteException with IceSlicedData set.
         protected virtual void IceWrite(OutputStream ostr, bool firstSlice) =>
             ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>(), Message);
 
