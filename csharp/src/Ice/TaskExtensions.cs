@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>CancelableTask provides WhenAny static methods which creates a task that is completed either when the
-    /// given task completes or when the given cancellation token is canceled. This is useful when canceling the given
-    /// task isn't an option. For example, the user might want to cancel an invocation that is waiting for connection
-    /// establishment. Instead of canceling the connection establishment which might be shared by other invocations we
-    /// just cancel the wait on the connection esablishement for the invocation. The same applies for invocations which
-    /// are waiting on a connection to be sent.</summary>
-    internal static class CancelableTask
+    /// <summary>WaitAsync task extensions allow to cancel the wait for the task completion without cancelling the
+    /// task. For example, the user might want to cancel an invocation that is waiting for connection establishment.
+    /// Instead of canceling the connection establishment which might be shared by other invocations we cancel the wait
+    /// on the connection establishment for the invocation. The same applies for invocations which are waiting on a
+    /// connection to be sent.</summary>
+    internal static class TaskExtensions
     {
-        internal static async ValueTask WhenAny(ValueTask task, CancellationToken cancel)
+        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <param name="task">The task to wait for.</param>
+        /// <param name="cancel">The cancellation token.</param>
+        internal static async ValueTask WaitAsync(this ValueTask task, CancellationToken cancel)
         {
             // Optimization: if the given task is already completed or the cancellation token is not cancelable,
             // not need to wait for these two.
@@ -27,7 +29,10 @@ namespace ZeroC.Ice
             await task.ConfigureAwait(false);
         }
 
-        internal static async Task WhenAny(Task task, CancellationToken cancel)
+        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <param name="task">The task to wait for.</param>
+        /// <param name="cancel">The cancellation token.</param>
+        internal static async Task WaitAsync(this Task task, CancellationToken cancel)
         {
             // Optimization: if the given task is already completed or the cancellation token is not cancelable,
             // not need to wait for these two.
@@ -39,7 +44,10 @@ namespace ZeroC.Ice
             await task.ConfigureAwait(false);
         }
 
-        internal static async ValueTask<T> WhenAny<T>(ValueTask<T> task, CancellationToken cancel)
+        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <param name="task">The task to wait for.</param>
+        /// <param name="cancel">The cancellation token.</param>
+        internal static async ValueTask<T> WaitAsync<T>(this ValueTask<T> task, CancellationToken cancel)
         {
             // Optimization: if the given task is already completed or the cancellation token is not cancelable,
             // not need to wait for these two.
@@ -51,7 +59,10 @@ namespace ZeroC.Ice
             return await task.ConfigureAwait(false);
         }
 
-        internal static async Task<T> WhenAny<T>(Task<T> task, CancellationToken cancel)
+        /// <summary>Wait for the task to complete and allow the wait to be canceled.</summary>
+        /// <param name="task">The task to wait for.</param>
+        /// <param name="cancel">The cancellation token.</param>
+        internal static async Task<T> WaitAsync<T>(this Task<T> task, CancellationToken cancel)
         {
             // Optimization: if the given task is already completed or the cancellation token is not cancelable,
             // not need to wait for these two.

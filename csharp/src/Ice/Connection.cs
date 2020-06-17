@@ -251,7 +251,7 @@ namespace ZeroC.Ice
                 }
                 writeTask = SendFrameAsync(() => GetProtocolFrameData(_validateConnectionFrame));
             }
-            await CancelableTask.WhenAny(writeTask, cancel).ConfigureAwait(false);
+            await writeTask.WaitAsync(cancel).ConfigureAwait(false);
             progress?.Report(true);
         }
 
@@ -633,7 +633,7 @@ namespace ZeroC.Ice
             {
                 // TODO: for now, we continue using the endpoint timeout as the default connect timeout. This is
                 // use for both connect/accept timeouts. We're leaning toward adding Ice.ConnectTimeout for
-                // connection establishemnt and using the ACM timeout for accepting connections.
+                // connection establishment and using the ACM timeout for accepting connections.
                 int timeout = _communicator.OverrideConnectTimeout ?? Endpoint.Timeout;
                 CancellationToken timeoutToken;
                 if (timeout > 0)
@@ -644,7 +644,7 @@ namespace ZeroC.Ice
                 }
 
                 // Initialize the transport
-                await CancelableTask.WhenAny(_transceiver.InitializeAsync(), timeoutToken).ConfigureAwait(false);
+                await _transceiver.InitializeAsync().WaitAsync(timeoutToken).ConfigureAwait(false);
 
                 ArraySegment<byte> readBuffer = default;
                 if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
@@ -655,7 +655,7 @@ namespace ZeroC.Ice
                         while (offset < _validateConnectionFrame.GetByteCount())
                         {
                             ValueTask<int> writeTask = _transceiver.WriteAsync(_validateConnectionFrame, offset);
-                            await CancelableTask.WhenAny(writeTask, timeoutToken).ConfigureAwait(false);
+                            await writeTask.WaitAsync(timeoutToken).ConfigureAwait(false);
                             offset += writeTask.Result;
                         }
                         Debug.Assert(offset == _validateConnectionFrame.GetByteCount());
@@ -667,7 +667,7 @@ namespace ZeroC.Ice
                         while (offset < Ice1Definitions.HeaderSize)
                         {
                             ValueTask<int> readTask = _transceiver.ReadAsync(readBuffer, offset);
-                            await CancelableTask.WhenAny(readTask, timeoutToken).ConfigureAwait(false);
+                            await readTask.WaitAsync(timeoutToken).ConfigureAwait(false);
                             offset += readTask.Result;
                         }
 
