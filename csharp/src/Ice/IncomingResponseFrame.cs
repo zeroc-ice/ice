@@ -122,7 +122,7 @@ namespace ZeroC.Ice
         }
 
         internal UnhandledException ReadUnhandledException() =>
-            new UnhandledException(InputStream.Read11String(Payload.Slice(1)), Identity.Empty, "", "");
+            new UnhandledException(InputStream.ReadString11(Payload.Slice(1)), Identity.Empty, "", "");
 
         internal DispatchException ReadDispatchException()
         {

@@ -1698,7 +1698,7 @@ namespace ZeroC.Ice
         /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="data">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
-        private static void WriteFixedLength20Size(int size, Span<byte> data)
+        private static void WriteFixedLengthSize20(int size, Span<byte> data)
         {
             int sizeLength = data.Length;
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
@@ -1751,11 +1751,11 @@ namespace ZeroC.Ice
             Debug.Assert(start.Offset >= 0);
             if (OldEncoding)
             {
-                RewriteFixedLength11Size(Distance(start) - 4, start);
+                RewriteFixedLengthSize11(Distance(start) - 4, start);
             }
             else
             {
-                RewriteFixedLength20Size(Distance(start) - DefaultSizeLength, start);
+                RewriteFixedLengthSize20(Distance(start) - DefaultSizeLength, start);
             }
         }
 
@@ -1879,18 +1879,18 @@ namespace ZeroC.Ice
             if (OldEncoding)
             {
                 // With the 1.1 encoding, sizeLength is always 4 bytes and the encoded size includes this sizeLength.
-                RewriteFixedLength11Size(size + 4, pos);
+                RewriteFixedLengthSize11(size + 4, pos);
             }
             else
             {
-                RewriteFixedLength20Size(size, pos, sizeLength);
+                RewriteFixedLengthSize20(size, pos, sizeLength);
             }
         }
 
         /// <summary>Writes a size on 4 bytes at the given position of the stream.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
-        private void RewriteFixedLength11Size(int size, Position pos)
+        private void RewriteFixedLengthSize11(int size, Position pos)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
@@ -1905,7 +1905,7 @@ namespace ZeroC.Ice
         /// <param name="size">The size to write.</param>
         /// <param name="pos">The position to write to.</param>
         /// <param name="sizeLength">The number of bytes used to encode the size. Can be 1, 2 or 4.</param>
-        private void RewriteFixedLength20Size(int size, Position pos, int sizeLength = DefaultSizeLength)
+        private void RewriteFixedLengthSize20(int size, Position pos, int sizeLength = DefaultSizeLength)
         {
             Debug.Assert(pos.Segment < _segmentList.Count);
             Debug.Assert(pos.Offset <= Size - _segmentList.Take(pos.Segment).Sum(data => data.Count),
@@ -1914,7 +1914,7 @@ namespace ZeroC.Ice
             Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
 
             Span<byte> data = stackalloc byte[sizeLength];
-            WriteFixedLength20Size(size, data);
+            WriteFixedLengthSize20(size, data);
             RewriteByteSpan(data, pos);
         }
 
@@ -2000,7 +2000,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(sizeLength == 1 || sizeLength == 2 || sizeLength == 4);
                 Span<byte> data = stackalloc byte[sizeLength];
-                WriteFixedLength20Size(size, data);
+                WriteFixedLengthSize20(size, data);
                 WriteByteSpan(data);
             }
             WriteByte(encoding.Major);

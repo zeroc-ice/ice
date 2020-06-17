@@ -40,12 +40,12 @@ namespace ZeroC.Ice
                 if (OldEncoding)
                 {
                     // Size includes the size length.
-                    RewriteFixedLength11Size(Distance(_current.SliceSizePos), _current.SliceSizePos);
+                    RewriteFixedLengthSize11(Distance(_current.SliceSizePos), _current.SliceSizePos);
                 }
                 else
                 {
                     // Size does not include the size length.
-                    RewriteFixedLength20Size(Distance(_current.SliceSizePos) - DefaultSizeLength,
+                    RewriteFixedLengthSize20(Distance(_current.SliceSizePos) - DefaultSizeLength,
                         _current.SliceSizePos);
                 }
             }
