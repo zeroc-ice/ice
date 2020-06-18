@@ -169,7 +169,6 @@ namespace ZeroC.Ice
         public void WriteClass(AnyClass v, string? formalTypeId)
         {
             Debug.Assert(InEncapsulation);
-            Debug.Assert(v != null);
 
             if (_current.InstanceType != InstanceType.None && _format == FormatType.Sliced)
             {
