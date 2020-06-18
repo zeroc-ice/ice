@@ -144,10 +144,10 @@ namespace ZeroC.Ice
         // Map internal connection states to Ice.Instrumentation.ConnectionState state values.
         private static readonly ConnectionState[] _connectionStateMap = new ConnectionState[]
         {
-            ConnectionState.ConnectionStateValidating,   // State.NotInitialized
-            ConnectionState.ConnectionStateActive,       // State.Active
-            ConnectionState.ConnectionStateClosing,      // State.Closing
-            ConnectionState.ConnectionStateClosed,       // State.Closed
+            ConnectionState.Validating,   // State.NotInitialized
+            ConnectionState.Active,       // State.Active
+            ConnectionState.Closing,      // State.Closing
+            ConnectionState.Closed,       // State.Closed
         };
 
         private static readonly List<ArraySegment<byte>> _closeConnectionFrame =

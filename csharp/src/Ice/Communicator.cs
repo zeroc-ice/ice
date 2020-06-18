@@ -40,8 +40,6 @@ namespace ZeroC.Ice
 
             public void UpdateConnectionObservers() => _communicator.UpdateConnectionObservers();
 
-            public void UpdateThreadObservers() => _communicator.UpdateThreadObservers();
-
             private readonly Communicator _communicator;
         }
 
@@ -1349,18 +1347,6 @@ namespace ZeroC.Ice
                 {
                     adapter.UpdateConnectionObservers();
                 }
-            }
-            catch (CommunicatorDestroyedException)
-            {
-            }
-        }
-
-        internal void UpdateThreadObservers()
-        {
-            try
-            {
-                Debug.Assert(Observer != null);
-                _timer.UpdateObserver(Observer);
             }
             catch (CommunicatorDestroyedException)
             {

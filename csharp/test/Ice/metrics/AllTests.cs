@@ -197,7 +197,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
 
             func();
-            Dictionary<string, ZeroC.IceMX.Metrics?[]> view = metrics.GetMetricsView("View").ReturnValue;
+            Dictionary<string, IceMX.Metrics?[]> view = metrics.GetMetricsView("View").ReturnValue;
             if (!view.ContainsKey(map) || view[map].Length == 0)
             {
                 if (value.Length > 0)
@@ -208,7 +208,7 @@ namespace ZeroC.Ice.Test.Metrics
             }
             else if (!view[map][0]!.Id.Equals(value))
             {
-                output.WriteLine("invalid attribute value: " + attr + " = " + value + " got " + view[map][0]!.Id);
+                output.WriteLine("invalid attribute value: " + attr + " = `" + value + "' got `" + view[map][0]!.Id + "'");
                 TestHelper.Assert(false);
             }
 
@@ -339,11 +339,10 @@ namespace ZeroC.Ice.Test.Metrics
             }
         }
 
-        public static Dictionary<string, ZeroC.IceMX.Metrics>
-        toMap(ZeroC.IceMX.Metrics[] mmap)
+        public static Dictionary<string, IceMX.Metrics> toMap(IceMX.Metrics[] mmap)
         {
-            var m = new Dictionary<string, ZeroC.IceMX.Metrics>();
-            foreach (ZeroC.IceMX.Metrics e in mmap)
+            var m = new Dictionary<string, IceMX.Metrics>();
+            foreach (IceMX.Metrics e in mmap)
             {
                 m.Add(e.Id, e);
             }
@@ -394,7 +393,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             props.Add("IceMX.Metrics.View.GroupBy", "none");
             updateProps(clientProps, serverProps, update, props, "");
-            Dictionary<string, ZeroC.IceMX.Metrics?[]> view = clientMetrics.GetMetricsView("View").ReturnValue;
+            Dictionary<string, IceMX.Metrics?[]> view = clientMetrics.GetMetricsView("View").ReturnValue;
             if (!collocated)
             {
                 TestHelper.Assert(
@@ -446,6 +445,7 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 TestHelper.Assert(view["Connection"].Length == 2);
             }
+
             TestHelper.Assert(view["Dispatch"].Length == 1);
             TestHelper.Assert(view["Dispatch"][0]!.Current == 0 && view["Dispatch"][0]!.Total == 5);
             TestHelper.Assert(view["Dispatch"][0]!.Id.IndexOf("[ice_ping]") > 0);
@@ -472,7 +472,7 @@ namespace ZeroC.Ice.Test.Metrics
                 isSecure = connectionEndpoint.IsSecure ? "True" : "False";
             }
 
-            Dictionary<string, ZeroC.IceMX.Metrics> map;
+            Dictionary<string, IceMX.Metrics> map;
 
             if (!collocated)
             {
@@ -1121,7 +1121,6 @@ namespace ZeroC.Ice.Test.Metrics
             output.Write("testing instrumentation observer delegate... ");
             output.Flush();
 
-            TestHelper.Assert(obsv.threadObserver!.getTotal() > 0);
             if (!collocated)
             {
                 TestHelper.Assert(obsv.connectionObserver!.getTotal() > 0);
@@ -1137,7 +1136,6 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(obsv.dispatchObserver!.getTotal() > 0);
             TestHelper.Assert(obsv.invocationObserver!.getTotal() > 0);
 
-            TestHelper.Assert(obsv.threadObserver.GetCurrent() > 0);
             if (!collocated)
             {
                 TestHelper.Assert(obsv.connectionObserver!.GetCurrent() > 0);
@@ -1156,7 +1154,6 @@ namespace ZeroC.Ice.Test.Metrics
             waitForObserverCurrent(obsv.invocationObserver);
             TestHelper.Assert(obsv.invocationObserver.GetCurrent() == 0);
 
-            TestHelper.Assert(obsv.threadObserver.GetFailedCount() == 0);
             if (!collocated)
             {
                 TestHelper.Assert(obsv.connectionObserver!.GetFailedCount() > 0);

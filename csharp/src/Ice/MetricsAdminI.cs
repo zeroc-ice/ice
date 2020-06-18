@@ -37,59 +37,49 @@ namespace ZeroC.Ice
 
     internal interface IMetricsMapFactory
     {
-        void RegisterSubMap<S>(string subMap, System.Reflection.FieldInfo field) where S : Metrics, new();
+        void RegisterSubMap<S>(string subMap, Action<Metrics, Metrics[]> fieldSetter) where S : Metrics, new();
         void Update();
         IMetricsMap Create(string mapPrefix, Communicator communicator);
     }
 
     internal class SubMap<S> : ISubMap where S : Metrics, new()
     {
-        internal SubMap(MetricsMap<S> map, System.Reflection.FieldInfo field)
+        internal SubMap(MetricsMap<S> map, Action<Metrics, Metrics[]> fieldSetter)
         {
             _map = map;
-            _field = field;
+            _fieldSetter = fieldSetter;
         }
 
         internal MetricsMap<S>.Entry? GetMatching(MetricsHelper<S> helper) => _map.GetMatching(helper, null);
 
-        public void AddSubMapToMetrics(Metrics metrics)
-        {
-            try
-            {
-                _field.SetValue(metrics, _map.GetMetrics());
-            }
-            catch (Exception)
-            {
-                Debug.Assert(false);
-            }
-        }
+        public void AddSubMapToMetrics(Metrics metrics) => _fieldSetter(metrics, _map.GetMetrics());
 
         private readonly MetricsMap<S> _map;
-        private readonly System.Reflection.FieldInfo _field;
+        private readonly Action<Metrics, Metrics[]> _fieldSetter;
     }
 
     internal class SubMapCloneFactory<S> : ISubMapCloneFactory where S : Metrics, new()
     {
-        internal SubMapCloneFactory(MetricsMap<S> map, System.Reflection.FieldInfo field)
+        internal SubMapCloneFactory(MetricsMap<S> map, Action<Metrics, Metrics[]> fieldSetter)
         {
             _map = map;
-            _field = field;
+            _fieldSetter = fieldSetter;
         }
 
-        public ISubMap Create() => new SubMap<S>(new MetricsMap<S>(_map), _field);
+        public ISubMap Create() => new SubMap<S>(new MetricsMap<S>(_map), _fieldSetter);
 
         private readonly MetricsMap<S> _map;
-        private readonly System.Reflection.FieldInfo _field;
+        private readonly Action<Metrics, Metrics[]> _fieldSetter;
     }
 
     internal class SubMapFactory<S> : ISubMapFactory where S : Metrics, new()
     {
-        internal SubMapFactory(System.Reflection.FieldInfo field) => _field = field;
+        internal SubMapFactory(Action<Metrics, Metrics[]> fieldSetter) => _fieldSetter = fieldSetter;
 
         public ISubMapCloneFactory CreateCloneFactory(string subMapPrefix, Communicator communicator) =>
-            new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, communicator, null), _field);
+            new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, communicator, null), _fieldSetter);
 
-        private readonly System.Reflection.FieldInfo _field;
+        private readonly Action<Metrics, Metrics[]> _fieldSetter;
     }
 
     public class MetricsMap<T> : IMetricsMap where T : Metrics, new()
@@ -201,7 +191,7 @@ namespace ZeroC.Ice
                 return metrics;
             }
 
-            internal string GetId() => _object.Id;
+            internal string Id => _object.Id;
 
             private readonly MetricsMap<T> _map;
             private readonly T _object;
@@ -416,7 +406,7 @@ namespace ZeroC.Ice
             //
             lock (this)
             {
-                if (previous != null && previous.GetId().Equals(key))
+                if (previous != null && previous.Id.Equals(key))
                 {
                     Debug.Assert(_objects[key] == previous);
                     return previous;
@@ -469,7 +459,7 @@ namespace ZeroC.Ice
             // If there's still no room, remove the oldest entry (at the front).
             if (_detachedQueue.Count == _retain)
             {
-                _objects.Remove(_detachedQueue.First!.Value.GetId());
+                _objects.Remove(_detachedQueue.First!.Value.Id);
                 _detachedQueue.RemoveFirst();
             }
 
@@ -679,8 +669,8 @@ namespace ZeroC.Ice
             public IMetricsMap Create(string mapPrefix, Communicator communicator) =>
                 new MetricsMap<T>(mapPrefix, communicator, _subMaps);
 
-            public void RegisterSubMap<S>(string subMap, System.Reflection.FieldInfo field)
-                where S : Metrics, new() => _subMaps.Add(subMap, new SubMapFactory<S>(field));
+            public void RegisterSubMap<S>(string subMap, Action<Metrics, Metrics[]> fieldSetter)
+                where S : Metrics, new() => _subMaps.Add(subMap, new SubMapFactory<S>(fieldSetter));
 
             private readonly Action _updater;
             private readonly Dictionary<string, ISubMapFactory> _subMaps = new Dictionary<string, ISubMapFactory>();
@@ -851,7 +841,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public void RegisterSubMap<S>(string map, string subMap, System.Reflection.FieldInfo field)
+        public void RegisterSubMap<S>(string map, string subMap, Action<Metrics, Metrics[]> fieldSetter)
             where S : Metrics, new()
         {
             bool updated;
@@ -862,7 +852,7 @@ namespace ZeroC.Ice
                 {
                     return;
                 }
-                factory.RegisterSubMap<S>(subMap, field);
+                factory.RegisterSubMap<S>(subMap, fieldSetter);
                 RemoveMap(map);
                 updated = AddOrUpdateMap(map, factory);
             }
