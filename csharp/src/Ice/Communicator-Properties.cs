@@ -158,6 +158,10 @@ namespace ZeroC.Ice
                 {
                     pv.Used = true;
 
+                    if (pv.Val == "infinite") {
+                        return TimeSpan.FromMilliseconds(-1);
+                    }
+
                     // Match an integer followed letters
                     Match match = Regex.Match(pv.Val, @"^(\d+)([a-z]+)$");
 

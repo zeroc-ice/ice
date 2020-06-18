@@ -84,6 +84,7 @@ namespace ZeroC.Ice.Test.Properties
                     { "Duration.Seconds", "5s" },
                     { "Duration.Minutes", "1m" },
                     { "Duration.Hours", "64h" },
+                    { "Duration.Infinite", "infinite" },
 
                     { "Duration.BadDouble", "1.1ms" },
                     { "Duration.BadNegative", "-5s" },
@@ -103,6 +104,9 @@ namespace ZeroC.Ice.Test.Properties
 
                 duration = communicator.GetPropertyAsTimeSpan("Duration.Hours");
                 TestHelper.Assert(duration.Equals(TimeSpan.FromHours(64)));
+
+                duration = communicator.GetPropertyAsTimeSpan("Duration.Infinite");
+                TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(-1)));
 
                 var badProperties = new string[]
                 {
