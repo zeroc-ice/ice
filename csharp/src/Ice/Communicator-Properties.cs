@@ -164,7 +164,7 @@ namespace ZeroC.Ice
                     if (!match.Success)
                     {
                         throw new InvalidConfigurationException(
-                            $"the value of property `{name}' is not parsable as a TimeSpan");
+                            $"the value of property `{name}' is not a TimeSpan");
                     }
 
                     int value;
