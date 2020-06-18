@@ -119,7 +119,7 @@ namespace ZeroC.Ice.Instrumentation
         ///
         /// </param>
         /// <returns>The observer to instrument the remote invocation.</returns>
-        IRemoteObserver? GetRemoteObserver(ConnectionInfo con, Endpoint endpt, int requestId, int size);
+        IRemoteObserver? GetRemoteObserver(Connection con, Endpoint endpt, int requestId, int size);
 
         /// <summary>
         /// Get a collocated observer for this invocation.
@@ -217,7 +217,7 @@ namespace ZeroC.Ice.Instrumentation
         ///
         /// </param>
         /// <returns>The connection observer to instrument the connection.</returns>
-        IConnectionObserver? GetConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, IConnectionObserver? o);
+        IConnectionObserver? GetConnectionObserver(Connection c, Endpoint e, ConnectionState s, IConnectionObserver? o);
 
         /// <summary>
         /// This method should return a thread observer for the given

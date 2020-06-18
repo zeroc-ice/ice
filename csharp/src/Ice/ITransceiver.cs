@@ -302,7 +302,6 @@ namespace ZeroC.Ice
 
         string Transport { get; }
         string ToDetailedString();
-        ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming);
         void CheckSendSize(int size);
         void SetBufferSize(int rcvSize, int sndSize);
     }

@@ -454,11 +454,11 @@ namespace ZeroC.Ice
             return null;
         }
 
-        private Connection CreateConnection(ITransceiver transceiver, ConnectorInfo ci)
+        private Connection CreateConnection(ITransceiver transceiver, ConnectorInfo connectorInfo)
         {
             lock (this)
             {
-                Debug.Assert(_pending.ContainsKey(ci.Connector) && transceiver != null);
+                Debug.Assert(_pending.ContainsKey(connectorInfo.Connector) && transceiver != null);
 
                 //
                 // Create and add the connection to the connection map. Adding the connection to the map
@@ -473,22 +473,22 @@ namespace ZeroC.Ice
                         throw new CommunicatorDestroyedException();
                     }
 
-                    connection = new Connection(_communicator, _monitor, transceiver, ci.Connector,
-                                                    ci.Endpoint.NewCompressionFlag(false), null);
+                    connection = new Connection(_communicator, _monitor, transceiver, connectorInfo.Connector,
+                        connectorInfo.Endpoint.NewCompressionFlag(false), null);
                 }
-                catch (System.Exception)
+                catch
                 {
                     try
                     {
                         transceiver.Close();
                     }
-                    catch (System.Exception)
+                    catch
                     {
                         // Ignore
                     }
                     throw;
                 }
-                _connections.Add(ci.Connector, connection);
+                _connections.Add(connectorInfo.Connector, connection);
                 _connectionsByEndpoint.Add(connection.Endpoint, connection);
                 _connectionsByEndpoint.Add(connection.Endpoint.NewCompressionFlag(true), connection);
                 return connection;
@@ -1151,7 +1151,7 @@ namespace ZeroC.Ice
                 {
                     transceiver = await _acceptor!.AcceptAsync().ConfigureAwait(false);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     // If Accept failed because the acceptor has been closed, just return, we're done. Otherwise
                     // we print an error and wait for one second to avoid running in a tight loop in case the
@@ -1179,7 +1179,7 @@ namespace ZeroC.Ice
                         {
                             transceiver.Close();
                         }
-                        catch (System.Exception)
+                        catch
                         {
                         }
                         return;
@@ -1201,13 +1201,13 @@ namespace ZeroC.Ice
                     {
                         connection = new Connection(_communicator, _monitor, transceiver, null, _endpoint, _adapter);
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         try
                         {
                             transceiver.Close();
                         }
-                        catch (System.Exception)
+                        catch
                         {
                             // Ignore
                         }

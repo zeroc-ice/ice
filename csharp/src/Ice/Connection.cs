@@ -8,8 +8,12 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
 using ZeroC.Ice.Instrumentation;
+using System.Net;
+using System.Net.Sockets;
+using System.Collections.ObjectModel;
 
 namespace ZeroC.Ice
 {
@@ -64,7 +68,7 @@ namespace ZeroC.Ice
         GracefullyWithWait
     }
 
-    public sealed class Connection
+    public class Connection
     {
         /// <summary>Gets or sets the object adapter that dispatches requests received over this connection.
         /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the
@@ -92,11 +96,11 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>
-        /// Get the endpoint from which the connection was created.
-        /// </summary>
+        /// <summary>Get the endpoint from which the connection was created.</summary>
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
+
+        public bool IsIncoming { get; }
 
         // TODO: Remove Timeout after reviewing its usages, it's no longer used by the connection
         internal int Timeout => Endpoint.Timeout;
@@ -125,7 +129,6 @@ namespace ZeroC.Ice
         private TaskCompletionSource<bool>? _pendingDispatchTask;
         private Exception? _exception;
         private Action<Connection>? _heartbeatCallback;
-        private ConnectionInfo? _info;
         private readonly int _messageSizeMax;
         private IACMMonitor? _monitor;
         private readonly object _mutex = new object();
@@ -136,7 +139,7 @@ namespace ZeroC.Ice
             new Dictionary<int, TaskCompletionSource<IncomingResponseFrame>>();
         private Task _sendTask = Task.CompletedTask;
         private State _state; // The current state.
-        private readonly ITransceiver _transceiver;
+        protected readonly ITransceiver Transceiver;
         private bool _validated = false;
         private readonly bool _warn;
         private readonly bool _warnUdp;
@@ -206,20 +209,6 @@ namespace ZeroC.Ice
             lock (_mutex)
             {
                 return _monitor != null ? _monitor.GetACM() : new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
-            }
-        }
-
-        /// <summary>Returns the connection information.</summary>
-        /// <returns>The connection information.</returns>
-        public ConnectionInfo GetConnectionInfo()
-        {
-            lock (_mutex)
-            {
-                if (_state >= State.Closed)
-                {
-                    throw _exception!;
-                }
-                return InitConnectionInfo();
             }
         }
 
@@ -306,8 +295,7 @@ namespace ZeroC.Ice
                 {
                     throw _exception!;
                 }
-                _transceiver.SetBufferSize(rcvSize, sndSize);
-                _info = null; // Invalidate the cached connection info
+                Transceiver.SetBufferSize(rcvSize, sndSize);
             }
         }
 
@@ -377,12 +365,12 @@ namespace ZeroC.Ice
         /// <summary>Returns a description of the connection as human readable text, suitable for logging or error
         /// messages.</summary>
         /// <returns>The description of the connection as human readable text.</returns>
-        public override string ToString() => _transceiver.ToString()!;
+        public override string ToString() => Transceiver.ToString()!;
 
         /// <summary>Returns the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
         /// </summary>
         /// <returns>The type of the connection.</returns>
-        public string Type() => _transceiver.Transport; // No mutex lock, _type is immutable.
+        public string Type() => Transceiver.Transport; // No mutex lock, _type is immutable.
 
         internal Connection(Communicator communicator,
                             IACMMonitor? monitor,
@@ -393,10 +381,11 @@ namespace ZeroC.Ice
         {
             _communicator = communicator;
             _monitor = monitor;
-            _transceiver = transceiver;
+            Transceiver = transceiver;
             _connector = connector;
             Endpoint = endpoint;
             _adapter = adapter;
+            IsIncoming = adapter != null;
             _warn = communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
 
@@ -574,11 +563,11 @@ namespace ZeroC.Ice
 
                 // Ensure the message isn't bigger than what we can send with the transport.
                 // TODO: remove?
-                _transceiver.CheckSendSize(request.Size + Ice1Definitions.HeaderSize + 4);
+                Transceiver.CheckSendSize(request.Size + Ice1Definitions.HeaderSize + 4);
 
                 if (observer != null)
                 {
-                    childObserver = observer.GetRemoteObserver(InitConnectionInfo(), Endpoint, requestId, request.Size);
+                    childObserver = observer.GetRemoteObserver(this, Endpoint, requestId, request.Size);
                     childObserver?.Attach();
                 }
 
@@ -638,13 +627,13 @@ namespace ZeroC.Ice
                 CancellationToken timeoutToken;
                 if (timeout > 0)
                 {
-                     var source = new CancellationTokenSource();
-                     source.CancelAfter(timeout);
-                     timeoutToken = source.Token;
+                    var source = new CancellationTokenSource();
+                    source.CancelAfter(timeout);
+                    timeoutToken = source.Token;
                 }
 
                 // Initialize the transport
-                await CancelableTask.WhenAny(_transceiver.InitializeAsync(), timeoutToken).ConfigureAwait(false);
+                await CancelableTask.WhenAny(Transceiver.InitializeAsync(), timeoutToken).ConfigureAwait(false);
 
                 ArraySegment<byte> readBuffer = default;
                 if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
@@ -654,7 +643,7 @@ namespace ZeroC.Ice
                         int offset = 0;
                         while (offset < _validateConnectionFrame.GetByteCount())
                         {
-                            ValueTask<int> writeTask = _transceiver.WriteAsync(_validateConnectionFrame, offset);
+                            ValueTask<int> writeTask = Transceiver.WriteAsync(_validateConnectionFrame, offset);
                             await CancelableTask.WhenAny(writeTask, timeoutToken).ConfigureAwait(false);
                             offset += writeTask.Result;
                         }
@@ -666,7 +655,7 @@ namespace ZeroC.Ice
                         int offset = 0;
                         while (offset < Ice1Definitions.HeaderSize)
                         {
-                            ValueTask<int> readTask = _transceiver.ReadAsync(readBuffer, offset);
+                            ValueTask<int> readTask = Transceiver.ReadAsync(readBuffer, offset);
                             await CancelableTask.WhenAny(readTask, timeoutToken).ConfigureAwait(false);
                             offset += readTask.Result;
                         }
@@ -719,7 +708,7 @@ namespace ZeroC.Ice
                             s.Append(" ");
                             s.Append(Endpoint.Name);
                             s.Append(" messages\n");
-                            s.Append(_transceiver.ToDetailedString());
+                            s.Append(Transceiver.ToDetailedString());
                         }
                         else
                         {
@@ -767,7 +756,7 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                _observer = _communicator.Observer?.GetConnectionObserver(InitConnectionInfo(), Endpoint,
+                _observer = _communicator.Observer?.GetConnectionObserver(this, Endpoint,
                     _connectionStateMap[(int)_state], _observer);
                 if (_observer != null)
                 {
@@ -831,16 +820,6 @@ namespace ZeroC.Ice
                 ProtocolTrace.TraceFrame(_communicator, writeBuffer[0], response);
             }
             return (writeBuffer, compress);
-        }
-
-        private ConnectionInfo InitConnectionInfo()
-        {
-            if (_state > State.NotInitialized && _info != null) // Update the connection info until it's initialized
-            {
-                return _info;
-            }
-            _info = _transceiver.GetInfo(_adapter?.Name ?? "", Endpoint.ConnectionId, _connector == null);
-            return _info;
         }
 
         private async ValueTask InvokeAsync(Current current, IncomingRequestFrame request, byte compressionStatus)
@@ -1088,11 +1067,11 @@ namespace ZeroC.Ice
             // Notify the transport of the graceful connection closure.
             try
             {
-                await _transceiver.ClosingAsync(_exception!).ConfigureAwait(false);
+                await Transceiver.ClosingAsync(_exception!).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{_transceiver}");
+                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
             }
 
             // Wait for the connection closure from the peer
@@ -1110,11 +1089,11 @@ namespace ZeroC.Ice
             // Close the transceiver, this should cause pending IO async calls to return.
             try
             {
-                _transceiver.ThreadSafeClose();
+                Transceiver.ThreadSafeClose();
             }
             catch (Exception ex)
             {
-                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
+                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + Transceiver.ToString());
             }
 
             if (_state > State.NotInitialized && _communicator.TraceLevels.Network >= 1)
@@ -1159,11 +1138,11 @@ namespace ZeroC.Ice
             // Destroy the transport
             try
             {
-                _transceiver.Destroy();
+                Transceiver.Destroy();
             }
             catch (Exception ex)
             {
-                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
+                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + Transceiver.ToString());
             }
 
             // Notify pending requests of the failure
@@ -1199,7 +1178,7 @@ namespace ZeroC.Ice
             ArraySegment<byte> readBuffer;
             if (Endpoint.IsDatagram)
             {
-                readBuffer = await _transceiver.ReadAsync().ConfigureAwait(false);
+                readBuffer = await Transceiver.ReadAsync().ConfigureAwait(false);
             }
             else
             {
@@ -1207,7 +1186,7 @@ namespace ZeroC.Ice
                 int offset = 0;
                 while (offset < Ice1Definitions.HeaderSize)
                 {
-                    offset += await _transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
+                    offset += await Transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
                 }
             }
 
@@ -1263,7 +1242,7 @@ namespace ZeroC.Ice
                 int offset = Ice1Definitions.HeaderSize;
                 while (offset < readBuffer.Count)
                 {
-                    int bytesReceived = await _transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
+                    int bytesReceived = await Transceiver.ReadAsync(readBuffer, offset).ConfigureAwait(false);
                     offset += bytesReceived;
 
                     // Trace the receive progress within the loop as we might be receiving significant amount
@@ -1336,7 +1315,7 @@ namespace ZeroC.Ice
             int offset = 0;
             while (offset < size)
             {
-                int bytesSent = await _transceiver.WriteAsync(writeBuffer, offset).ConfigureAwait(false);
+                int bytesSent = await Transceiver.WriteAsync(writeBuffer, offset).ConfigureAwait(false);
                 offset += bytesSent;
                 lock (_mutex)
                 {
@@ -1578,7 +1557,7 @@ namespace ZeroC.Ice
                 ConnectionState newState = _connectionStateMap[(int)state];
                 if (oldState != newState)
                 {
-                    _observer = _communicator.Observer!.GetConnectionObserver(InitConnectionInfo(), Endpoint,
+                    _observer = _communicator.Observer!.GetConnectionObserver(this, Endpoint,
                         newState, _observer);
                     if (_observer != null)
                     {
@@ -1635,5 +1614,105 @@ namespace ZeroC.Ice
             Closing,
             Closed
         };
+    }
+
+    public class IPConnection : Connection
+    {
+        public IPEndPoint? LocalAddress => Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
+        public IPEndPoint? RemoteAddress => Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
+        public int ReceiveSize =>
+            Transceiver.Fd() is Socket fd ? Network.GetRecvBufferSize(fd) : -1;
+        public int SendSize =>
+            Transceiver.Fd() is Socket fd ? Network.GetRecvBufferSize(fd) : -1;
+
+        public IPConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter)
+            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+        {
+        }
+    }
+
+    public class TcpConnection : IPConnection
+    {
+        public TcpConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter)
+            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+        {
+        }
+    }
+
+    public class UdpConnection : IPConnection
+    {
+        public IPEndPoint? McastAddress => ((UdpTransceiver)Transceiver).McastAddress;
+
+        public UdpConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter)
+            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+        {
+        }
+    }
+
+    public class WsConnection : TcpConnection
+    {
+        public ReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
+
+        public WsConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter)
+            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+        {
+        }
+    }
+
+    public class TlsConnection : TcpConnection
+    {
+        public string? Cipher;
+        public X509Certificate2[]? Certs;
+
+        public TlsConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter)
+            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+        {
+        }
+    }
+
+    public class WssConnection : TlsConnection
+    {
+        public ReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
+
+        public WssConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter)
+            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+        {
+        }
     }
 }

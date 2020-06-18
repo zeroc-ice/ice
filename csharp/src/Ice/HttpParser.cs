@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 
@@ -694,15 +695,8 @@ namespace ZeroC.Ice
             return null;
         }
 
-        internal Dictionary<string, string> GetHeaders()
-        {
-            var dict = new Dictionary<string, string>();
-            foreach (KeyValuePair<string, string> e in _headers)
-            {
-                dict[_headerNames[e.Key]] = e.Value.Trim();
-            }
-            return dict;
-        }
+        internal ReadOnlyDictionary<string, string> GetHeaders() =>
+            new ReadOnlyDictionary<string, string>(_headers);
 
         private Type _type;
 

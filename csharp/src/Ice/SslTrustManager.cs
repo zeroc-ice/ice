@@ -50,7 +50,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal bool Verify(SslConnectionInfo info, string desc)
+        internal bool Verify(bool incoming, X509Certificate2[] certs, string adapterName, string desc)
         {
             List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
                 accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -59,15 +59,15 @@ namespace ZeroC.Ice
             {
                 reject.Add(_rejectAll);
             }
-            if (info.Incoming)
+            if (incoming)
             {
                 if (_rejectAllServer.Count != 0)
                 {
                     reject.Add(_rejectAllServer);
                 }
-                if (info.AdapterName!.Length > 0)
+                if (adapterName!.Length > 0)
                 {
-                    if (_rejectServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>>? p))
+                    if (_rejectServer.TryGetValue(adapterName, out List<List<RFC2253.RDNPair>>? p))
                     {
                         reject.Add(p);
                     }
@@ -85,15 +85,15 @@ namespace ZeroC.Ice
             {
                 accept.Add(_acceptAll);
             }
-            if (info.Incoming)
+            if (incoming)
             {
                 if (_acceptAllServer.Count != 0)
                 {
                     accept.Add(_acceptAllServer);
                 }
-                if (info.AdapterName!.Length > 0)
+                if (adapterName!.Length > 0)
                 {
-                    if (_acceptServer.TryGetValue(info.AdapterName, out List<List<RFC2253.RDNPair>>? p))
+                    if (_acceptServer.TryGetValue(adapterName, out List<List<RFC2253.RDNPair>>? p))
                     {
                         accept.Add(p);
                     }
@@ -118,9 +118,9 @@ namespace ZeroC.Ice
             //
             // If there is no certificate then we match false.
             //
-            if (info.Certs != null && info.Certs.Length > 0)
+            if (certs != null && certs.Length > 0)
             {
-                X500DistinguishedName subjectDN = info.Certs[0].SubjectName;
+                X500DistinguishedName subjectDN = certs[0].SubjectName;
                 string subjectName = subjectDN.Name;
                 Debug.Assert(subjectName != null);
                 try
@@ -130,10 +130,10 @@ namespace ZeroC.Ice
                     //
                     if (_traceLevel > 0)
                     {
-                        if (info.Incoming)
+                        if (incoming)
                         {
                             _communicator.Logger.Trace("Security", "trust manager evaluating client:\n" +
-                                "subject = " + subjectName + "\n" + "adapter = " + info.AdapterName + "\n" + desc);
+                                "subject = " + subjectName + "\n" + "adapter = " + adapterName + "\n" + desc);
                         }
                         else
                         {

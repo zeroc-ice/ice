@@ -13,6 +13,7 @@ namespace ZeroC.Ice
 {
     internal sealed class UdpTransceiver : ITransceiver
     {
+        internal IPEndPoint? McastAddress => _mcastAddr;
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -29,7 +30,7 @@ namespace ZeroC.Ice
                     }
                     _fd.Connect(_addr);
                 }
-                catch (System.Net.Sockets.SocketException ex)
+                catch (SocketException ex)
                 {
                     if (Network.WouldBlock(ex))
                     {
@@ -37,7 +38,7 @@ namespace ZeroC.Ice
                     }
                     throw new ConnectFailedException(ex);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     throw new ConnectFailedException(ex);
                 }
@@ -48,7 +49,7 @@ namespace ZeroC.Ice
             return SocketOperation.None;
         }
 
-        public int Closing(bool initiator, System.Exception? ex)
+        public int Closing(bool initiator, Exception? ex)
         {
             //
             // Nothing to do.
@@ -229,7 +230,7 @@ namespace ZeroC.Ice
                     }
                     break;
                 }
-                catch (System.Net.Sockets.SocketException e)
+                catch (SocketException e)
                 {
                     if (Network.RecvTruncated(e))
                     {
@@ -545,49 +546,6 @@ namespace ZeroC.Ice
         }
 
         public string Transport { get; }
-
-        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
-        {
-            string localAddress = "";
-            int localPort = -1;
-            string remoteAddress = "";
-            int remotePort = -1;
-            int receiveSize = 0;
-            int sendSize = 0;
-            string mcastAddress = "";
-            int mcastPort = -1;
-            if (_fd != null)
-            {
-                EndPoint localEndpoint = Network.GetLocalAddress(_fd);
-                localAddress = Network.EndpointAddressToString(localEndpoint);
-                localPort = Network.EndpointPort(localEndpoint);
-
-                if (_state == StateNotConnected)
-                {
-                    if (_peerAddr != null)
-                    {
-                        remoteAddress = Network.EndpointAddressToString(_peerAddr);
-                        remotePort = Network.EndpointPort(_peerAddr);
-                    }
-                }
-                else if (Network.GetRemoteAddress(_fd) is EndPoint remoteEndpoint)
-                {
-                    remoteAddress = Network.EndpointAddressToString(remoteEndpoint);
-                    remotePort = Network.EndpointPort(remoteEndpoint);
-                }
-
-                receiveSize = Network.GetRecvBufferSize(_fd);
-                sendSize = Network.GetSendBufferSize(_fd);
-            }
-
-            if (_mcastAddr != null)
-            {
-                mcastAddress = Network.EndpointAddressToString(_mcastAddr);
-                mcastPort = Network.EndpointPort(_mcastAddr);
-            }
-            return new UdpConnectionInfo(adapterName, connectionId, incoming, localAddress, localPort,
-                remoteAddress, remotePort, receiveSize, sendSize, mcastAddress, mcastPort);
-        }
 
         public void CheckSendSize(int size)
         {

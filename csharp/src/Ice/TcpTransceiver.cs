@@ -52,30 +52,6 @@ namespace ZeroC.Ice
 
         public string Transport { get; }
 
-        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
-        {
-            if (Fd() is Socket fd)
-            {
-                EndPoint localEndpoint = Network.GetLocalAddress(fd);
-                EndPoint? remoteEndpoint = Network.GetRemoteAddress(fd);
-
-                return new TcpConnectionInfo(
-                    adapterName,
-                    connectionId,
-                    incoming,
-                    Network.EndpointAddressToString(localEndpoint),
-                    Network.EndpointPort(localEndpoint),
-                    Network.EndpointAddressToString(remoteEndpoint),
-                    Network.EndpointPort(remoteEndpoint),
-                    Network.GetRecvBufferSize(fd),
-                    Network.GetSendBufferSize(fd));
-            }
-            else
-            {
-                return new TcpConnectionInfo(adapterName, connectionId, incoming);
-            }
-        }
-
         public void CheckSendSize(int size)
         {
         }

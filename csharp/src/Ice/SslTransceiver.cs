@@ -72,7 +72,7 @@ namespace ZeroC.Ice
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            _engine.VerifyPeer((SslConnectionInfo)GetInfo(_adapterName ?? "", _connectionId, _incoming), ToString());
+            _engine.VerifyPeer(_incoming, _certs ?? Array.Empty<X509Certificate2>(), _adapterName ?? "", ToString());
 
             if (_engine.SecurityTraceLevel >= 1)
             {
@@ -291,14 +291,6 @@ namespace ZeroC.Ice
         }
 
         public string Transport => _delegate.Transport;
-
-        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming)
-        {
-            var tcpInfo = (TcpConnectionInfo)_delegate.GetInfo(adapterName, connectionId, incoming);
-            return new SslConnectionInfo(adapterName, connectionId, incoming, tcpInfo.LocalAddress,
-                tcpInfo.LocalPort, tcpInfo.RemoteAddress, tcpInfo.RemotePort, tcpInfo.ReceiveSize,
-                tcpInfo.SendSize, _cipher!, _certs);
-        }
 
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
 
