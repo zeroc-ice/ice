@@ -13,12 +13,15 @@ namespace ZeroC.IceMX
     {
         internal object Clone() => MemberwiseClone();
     }
-    public class MetricsHelper<T> where T : Metrics
+    internal class MetricsHelper<T> where T : Metrics
     {
-        public class AttributeResolver
+        private readonly AttributeResolver _attributes;
+
+        internal class AttributeResolver
         {
             private abstract class Resolver
             {
+                protected string Name { get; }
                 protected Resolver(string name) => Name = name;
 
                 protected abstract object? Resolve(object obj);
@@ -38,8 +41,6 @@ namespace ZeroC.IceMX
                         throw new ArgumentOutOfRangeException(Name, ex);
                     }
                 }
-
-                protected readonly string Name;
             }
 
             public string Resolve(MetricsHelper<T> helper, string attribute)
@@ -63,7 +64,7 @@ namespace ZeroC.IceMX
 
         protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
 
-        public string Resolve(string attribute) => _attributes.Resolve(this, attribute);
+        internal string Resolve(string attribute) => _attributes.Resolve(this, attribute);
 
         public virtual void InitMetrics(T metrics)
         {
@@ -71,8 +72,6 @@ namespace ZeroC.IceMX
         }
 
         protected virtual string? DefaultResolve(string attribute) => null;
-
-        private readonly AttributeResolver _attributes;
     }
 
     public class Observer<T> : Stopwatch, Ice.Instrumentation.IObserver where T : Metrics, new()
@@ -126,7 +125,7 @@ namespace ZeroC.IceMX
             }
         }
 
-        public ObserverImpl? GetObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
+        internal ObserverImpl? GetObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
             where S : Metrics, new()
             where ObserverImpl : Observer<S>, new()
         {
@@ -178,22 +177,22 @@ namespace ZeroC.IceMX
         private long _previousDelay = 0;
     }
 
-    public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
+    internal class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
     {
-        public ObserverFactory(MetricsAdminI metrics, string name)
+        internal ObserverFactory(MetricsAdminI metrics, string name)
         {
             _metrics = metrics;
             _name = name;
             _metrics.RegisterMap<T>(name, Update);
         }
 
-        public ObserverFactory(string name)
+        internal ObserverFactory(string name)
         {
             _name = name;
             _metrics = null;
         }
 
-        public void Destroy()
+        internal void Destroy()
         {
             if (_metrics != null)
             {
@@ -201,9 +200,9 @@ namespace ZeroC.IceMX
             }
         }
 
-        public O? GetObserver(MetricsHelper<T> helper) => GetObserver(helper, null);
+        internal O? GetObserver(MetricsHelper<T> helper) => GetObserver(helper, null);
 
-        public O? GetObserver(MetricsHelper<T> helper, object? observer)
+        internal O? GetObserver(MetricsHelper<T> helper, object? observer)
         {
             lock (this)
             {
@@ -238,10 +237,10 @@ namespace ZeroC.IceMX
             }
         }
 
-        public void RegisterSubMap<S>(string subMap, Action<Metrics, Metrics[]> fieldSetter)
+        internal void RegisterSubMap<S>(string subMap, Action<Metrics, Metrics[]> fieldSetter)
             where S : Metrics, new() => _metrics!.RegisterSubMap<S>(_name, subMap, fieldSetter);
 
-        public bool IsEnabled() => _enabled;
+        internal bool IsEnabled => _enabled;
 
         public void Update()
         {

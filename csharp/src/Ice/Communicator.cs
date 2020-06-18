@@ -703,7 +703,7 @@ namespace ZeroC.Ice
                     string metricsFacetName = "Metrics";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
                     {
-                        var communicatorObserver = new CommunicatorObserverI(this, Logger);
+                        var communicatorObserver = new CommunicatorObserver(this, Logger);
                         Observer = communicatorObserver;
                         _adminFacets.Add(metricsFacetName, communicatorObserver.GetFacet());
 

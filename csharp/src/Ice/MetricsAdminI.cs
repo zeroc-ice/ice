@@ -350,7 +350,7 @@ namespace ZeroC.Ice
             return null;
         }
 
-        public Entry? GetMatching(MetricsHelper<T> helper, Entry? previous)
+        internal Entry? GetMatching(MetricsHelper<T> helper, Entry? previous)
         {
             //
             // Check the accept and reject filters.
