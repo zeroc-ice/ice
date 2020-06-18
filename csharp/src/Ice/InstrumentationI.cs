@@ -174,7 +174,7 @@ namespace ZeroC.Ice
 
         public Endpoint Endpoint { get; }
 
-        // TODO temporary until Underlying gets removed
+        // TODO temporary until ConnectionInfo refactoring
         internal IPConnectionInfo? IPConnectionInfo
         {
             get
@@ -267,7 +267,7 @@ namespace ZeroC.Ice
 
         public ConnectionInfo? ConnectionInfo => Current.Connection?.GetConnectionInfo();
 
-        // TODO temporary until Underlying gets removed
+        // TODO temporary until ConnectionInfo refactoring
         internal IPConnectionInfo? IPConnectionInfo
         {
             get
@@ -478,7 +478,7 @@ namespace ZeroC.Ice
 
         public ConnectionInfo ConnectionInfo { get; }
 
-        // TODO temporary until Underlying gets removed
+        // TODO temporary until ConnectionInfo refactoring
         internal IPConnectionInfo? IPConnectionInfo
         {
             get
