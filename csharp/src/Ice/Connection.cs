@@ -1195,9 +1195,9 @@ namespace ZeroC.Ice
             // continuations or the callback are not run from this thread which might still lock the connection's mutex.
             _ = Task.Run(() =>
             {
-                foreach (TaskCompletionSource<IncomingResponseFrame> response in _requests.Values)
+                foreach (TaskCompletionSource<IncomingResponseFrame> responseTaskCompletionSource in _requests.Values)
                 {
-                    response.SetException(_exception!);
+                    responseTaskCompletionSource.SetException(_exception!);
                 }
 
                 // Invoke the close callback
