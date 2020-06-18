@@ -180,22 +180,15 @@ namespace ZeroC.Ice
                             $"the value of property `{name}' is not an integer", ex);
                     }
 
-                    var unit = match.Groups[2].Value;
-                    switch (unit)
+                    return match.Groups[2].Value switch
                     {
-                        case "ms":
-                            return TimeSpan.FromMilliseconds(value);
-                        case "s":
-                            return TimeSpan.FromSeconds(value);
-                        case "m":
-                            return TimeSpan.FromMinutes(value);
-                        case "h":
-                            return TimeSpan.FromHours(value);
-                        default:
-                            throw new InvalidConfigurationException(
-                                $"the value of property `{name}' is not parsable as a TimeSpan." +
-                                $" Unknown time unit `{unit}'");
-                    }
+                        "ms" => TimeSpan.FromMilliseconds(value),
+                        "s" => TimeSpan.FromSeconds(value),
+                        "m" => TimeSpan.FromMinutes(value),
+                        "h" => TimeSpan.FromHours(value),
+                        _ => throw new InvalidConfigurationException(
+                            @"the value of property `{name}' is not a valid TimeSpan. Unknown time unit `{unit}'"),
+                    };
                 }
                 return null;
             }
