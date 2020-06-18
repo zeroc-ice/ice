@@ -13,21 +13,22 @@ namespace ZeroC.Ice
 
     public sealed partial class OutputStream
     {
-        // Marks the end of a slice for a class instance or user exception.
-        // This is an Ice-internal method marked public because it's called by the generated code.
-        // lastSlice is true when it's the last (least derived) slice of the instance.
+        /// <summary>Marks the end of a slice for a class instance or user exception. This is an Ice-internal method
+        /// marked public because it's called by the generated code.</summary>
+        /// <param name="lastSlice">True when it's the last (least derived) slice of the instance; otherwise, false.
+        /// </param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void IceEndSlice(bool lastSlice)
         {
-            Debug.Assert(InEncapsulation && _current != null);
+            Debug.Assert(InEncapsulation && _current.InstanceType != InstanceType.None);
 
             if (lastSlice)
             {
                 _current.SliceFlags |= EncodingDefinitions.SliceFlags.IsLastSlice;
             }
 
-            // Writes the tagged member end marker if some tagged members were encoded. Note that tagged members
-            // are encoded before the indirection table and are included in the slice size.
+            // Writes the tagged end marker if some tagged members were encoded. Note that tagged members are encoded
+            // before the indirection table and are included in the slice size.
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) != 0)
             {
                 WriteByte(EncodingDefinitions.TaggedEndMarker);
@@ -57,7 +58,10 @@ namespace ZeroC.Ice
                 WriteSize(_current.IndirectionTable.Count);
                 foreach (AnyClass v in _current.IndirectionTable)
                 {
-                    WriteInstance(v);
+                    // We cannot use formal type optimization for instances written inline in an indirection table,
+                    // as the slice may not be known/unmarshaled by the recipient - therefore the formal type of the
+                    // data member is not known.
+                    WriteInstance(v, formalTypeId: null);
                 }
                 _current.IndirectionTable.Clear();
                 _current.IndirectionMap?.Clear(); // IndirectionMap is null when writing SlicedData.
@@ -67,92 +71,107 @@ namespace ZeroC.Ice
             RewriteByte((byte)_current.SliceFlags, _current.SliceFlagsPos);
         }
 
-        // Start writing a slice of a class or exception instance.
-        // This is an Ice-internal method marked public because it's called by the generated code.
-        // typeId is the type ID of this slice.
-        // firstSlice is true when writing the first (most derived) slice of an instance.
-        // slicedData is the preserved sliced-off slices, if any. Can only be provided when firstSlice is true.
-        // compactId is the compact type ID of this slice, if specified.
+        /// <summary>Starts writing the first slice of a class or exception instance. This is an Ice-internal method
+        /// marked public because it's called by the generated code.</summary>
+        /// <param name="allTypeIds">The type IDs of all slices of the instance (excluding sliced-off slices), from
+        /// most derived to least derived.</param>
+        /// <param name="slicedData">The preserved sliced-off slices, if any.</param>
+        /// <param name="errorMessage">The exception error message (provided only by exceptions).</param>
+        /// <param name="compactId">The compact ID of this slice, if any. Used by the 1.1 encoding.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IceStartSlice(string typeId, bool firstSlice, SlicedData? slicedData = null, int? compactId = null)
+        public void IceStartFirstSlice(
+            string[] allTypeIds,
+            SlicedData? slicedData = null,
+            string? errorMessage = null,
+            int? compactId = null)
         {
-            Debug.Assert(InEncapsulation && _current != null);
-            if (slicedData.HasValue)
+            Debug.Assert(InEncapsulation && _current.InstanceType != InstanceType.None);
+
+            if (slicedData is SlicedData slicedDataValue)
             {
-                Debug.Assert(firstSlice);
+                bool firstSliceWritten = false;
                 try
                 {
-                    WriteSlicedData(slicedData.Value);
-                    firstSlice = false;
+                    // WriteSlicedData calls IceStartFirstSlice.
+                    WriteSlicedData(slicedDataValue, allTypeIds, errorMessage);
+                    firstSliceWritten = true;
                 }
                 catch (NotSupportedException)
                 {
-                    // Ignored: for some reason we could not remarshal the sliced data and firstSlice remains true
+                    // For some reason we could not remarshal the sliced data; firstSliceWritten remains false.
                 }
+                if (firstSliceWritten)
+                {
+                    IceStartNextSlice(allTypeIds[0], compactId);
+                    return;
+                }
+                // else keep going, we're still writing the first slice and we're ignoring slicedData.
             }
 
+            if (OldEncoding && _format == FormatType.Sliced)
+            {
+                // With the 1.1 encoding in sliced format, all the slice headers are the same.
+                IceStartNextSlice(allTypeIds[0], compactId);
+            }
+            else
+            {
+                _current.SliceFlags = default;
+                _current.SliceFlagsPos = _tail;
+                WriteByte(0); // Placeholder for the slice flags
+
+                if (OldEncoding)
+                {
+                    WriteTypeId11(allTypeIds[0], compactId);
+                }
+                else
+                {
+                    WriteTypeId20(allTypeIds, errorMessage);
+                    if (_format == FormatType.Sliced)
+                    {
+                        // Encode the slice size if using the sliced format.
+                        _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasSliceSize;
+                        _current.SliceSizePos = StartFixedLengthSize();
+                    }
+                }
+            }
+        }
+
+        /// <summary>Starts writing the next (i.e. not first) slice of a class or exception instance. This is an
+        /// Ice-internal method marked public because it's called by the generated code.</summary>
+        /// <param name="typeId">The type ID of this slice.</param>
+        /// <param name="compactId">The compact ID of this slice, if any. Used by the 1.1 encoding.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void IceStartNextSlice(string typeId, int? compactId = null)
+        {
+            Debug.Assert(InEncapsulation && _current.InstanceType != InstanceType.None);
+
             _current.SliceFlags = default;
+            _current.SliceFlagsPos = _tail;
+            WriteByte(0); // Placeholder for the slice flags
+
+            if (OldEncoding && _format == FormatType.Sliced)
+            {
+                WriteTypeId11(typeId, compactId);
+            }
 
             if (_format == FormatType.Sliced)
             {
                 // Encode the slice size if using the sliced format.
                 _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasSliceSize;
-            }
-
-            _current.SliceFlagsPos = _tail;
-            WriteByte(0); // Placeholder for the slice flags
-
-            // For instance slices, encode the flag and the type ID either as a string or index. For exception slices,
-            // always encode the type ID a string.
-            if (_current.InstanceType == InstanceType.Class)
-            {
-                // Encode the type ID (only in the first slice for the compact
-                // encoding).
-                // This  also shows that the firstSlice is currently useful/used only for class instances in
-                // compact format.
-                if (_format == FormatType.Sliced || firstSlice)
-                {
-                    if (compactId.HasValue)
-                    {
-                        _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTypeIdCompact;
-                        WriteSize(compactId.Value);
-                    }
-                    else
-                    {
-                        int index = RegisterTypeId(typeId);
-                        if (index < 0)
-                        {
-                            _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTypeIdString;
-                            WriteString(typeId);
-                        }
-                        else
-                        {
-                            _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTypeIdIndex;
-                            WriteSize(index);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                WriteString(typeId);
-            }
-
-            if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
-            {
                 _current.SliceSizePos = StartFixedLengthSize();
             }
-            _current.SliceFirstMemberPos = _tail;
         }
 
         /// <summary>Writes a class instance to the stream.</summary>
         /// <param name="v">The class instance to write. This instance cannot be null.</param>
-        public void WriteClass(AnyClass v)
+        /// <param name="formalTypeId">The type ID of the formal type of the parameter or data member being written.
+        /// Use null when the type of the parameter/data member is AnyClass.</param>
+        public void WriteClass(AnyClass v, string? formalTypeId)
         {
             Debug.Assert(InEncapsulation);
             Debug.Assert(v != null);
 
-            if (_current != null && _format == FormatType.Sliced)
+            if (_current.InstanceType != InstanceType.None && _format == FormatType.Sliced)
             {
                 // If writing an instance within a slice and using the sliced format, write an index of that slice's
                 // indirection table.
@@ -165,7 +184,6 @@ namespace ZeroC.Ice
                 {
                     _current.IndirectionTable ??= new List<AnyClass>();
                     _current.IndirectionMap ??= new Dictionary<AnyClass, int>();
-
                     _current.IndirectionTable.Add(v);
                     index = _current.IndirectionTable.Count; // Position + 1 (0 is reserved for null)
                     _current.IndirectionMap.Add(v, index);
@@ -174,7 +192,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                WriteInstance(v); // Writes the instance or a reference if already marshaled.
+                WriteInstance(v, formalTypeId); // Writes the instance or a reference if already marshaled.
             }
         }
 
@@ -182,20 +200,22 @@ namespace ZeroC.Ice
         /// <param name="v">The remote exception to write.</param>
         public void WriteException(RemoteException v)
         {
-            Debug.Assert(InEncapsulation && _current == null);
+            Debug.Assert(InEncapsulation && _current.InstanceType == InstanceType.None);
             Debug.Assert(_format == FormatType.Sliced);
             Debug.Assert(!(v is ObjectNotExistException)); // temporary
             Debug.Assert(!(v is OperationNotExistException)); // temporary
             Debug.Assert(!(v is UnhandledException)); // temporary
-            Push(InstanceType.Exception);
 
+            _current.InstanceType = InstanceType.Exception;
             v.Write(this);
-            Pop(null);
+            _current = default;
         }
 
         /// <summary>Writes a class instance to the stream, or null.</summary>
         /// <param name="v">The class instance to write, or null</param>
-        public void WriteNullableClass(AnyClass? v)
+        /// <param name="formalTypeId">The type ID of the formal type of the parameter or data member being written.
+        /// Use null when the type of the parameter/data member is AnyClass.</param>
+        public void WriteNullableClass(AnyClass? v, string? formalTypeId)
         {
             Debug.Assert(InEncapsulation);
             if (v == null)
@@ -204,7 +224,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                WriteClass(v);
+                WriteClass(v, formalTypeId);
             }
         }
 
@@ -216,13 +236,21 @@ namespace ZeroC.Ice
             if (v != null)
             {
                 WriteTaggedParamHeader(tag, EncodingDefinitions.TagFormat.Class);
-                WriteClass(v);
+
+                // Since the recipient may not know the tag, we cannot use formal type optimization and set formalTypeId
+                // to null.
+                WriteClass(v, formalTypeId: null);
             }
         }
 
-        internal void WriteSlicedData(SlicedData slicedData)
+        /// <summary>Writes sliced-off slices to the stream.</summary>
+        /// <param name="slicedData">The sliced-off slices to write.</param>
+        /// <param name="baseTypeIds">The type IDs of less derived slices.</param>
+        /// <param name="errorMessage">For exceptions, the exception's error message.</param>
+        internal void WriteSlicedData(SlicedData slicedData, string[] baseTypeIds, string? errorMessage = null)
         {
-            Debug.Assert(_current != null);
+            Debug.Assert(_current.InstanceType != InstanceType.None);
+
             // We only remarshal preserved slices if we are using the sliced format. Otherwise, we ignore the preserved
             // slices, which essentially "slices" the instance into the most-derived type known by the sender.
             if (_format != FormatType.Sliced)
@@ -235,43 +263,57 @@ namespace ZeroC.Ice
                     } into payload encoded with encoding {Encoding}");
             }
 
-            bool firstSlice = true;
-            // There is always at least one slice. See SlicedData constructor.
-            foreach (SliceInfo info in slicedData.Slices)
+            bool firstSliceWithNewEncoding = !OldEncoding;
+
+            for (int i = 0; i < slicedData.Slices.Count; ++i)
             {
-                IceStartSlice(info.TypeId ?? "", firstSlice, null, info.CompactId);
-                firstSlice = false;
+                SliceInfo sliceInfo = slicedData.Slices[i];
+
+                if (firstSliceWithNewEncoding)
+                {
+                    firstSliceWithNewEncoding = false;
+
+                    string[] allTypeIds = new string[slicedData.Slices.Count + baseTypeIds.Length];
+                    for (int j = 0; j < slicedData.Slices.Count; ++j)
+                    {
+                        allTypeIds[j] = slicedData.Slices[j].TypeId;
+                    }
+                    if (baseTypeIds.Length > 0)
+                    {
+                        baseTypeIds.CopyTo(allTypeIds, slicedData.Slices.Count);
+                    }
+
+                    IceStartFirstSlice(allTypeIds, errorMessage: errorMessage);
+                }
+                else
+                {
+                    // With the 1.1 encoding in sliced format, IceStartNextSlice is the same as IceStartFirstSlice.
+                    IceStartNextSlice(sliceInfo.TypeId, sliceInfo.CompactId);
+                }
 
                 // Writes the bytes associated with this slice.
-                WriteByteSpan(info.Bytes.Span);
+                WriteByteSpan(sliceInfo.Bytes.Span);
 
-                if (info.HasTaggedMembers)
+                if (sliceInfo.HasTaggedMembers)
                 {
                     _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTaggedMembers;
                 }
 
                 // Make sure to also re-write the instance indirection table.
                 // These instances will be marshaled (and assigned instance IDs) in IceEndSlice.
-                if (info.Instances.Count > 0)
+                if (sliceInfo.Instances.Count > 0)
                 {
                     _current.IndirectionTable ??= new List<AnyClass>();
                     Debug.Assert(_current.IndirectionTable.Count == 0);
-                    _current.IndirectionTable.AddRange(info.Instances);
+                    _current.IndirectionTable.AddRange(sliceInfo.Instances);
                 }
-                IceEndSlice(info.IsLastSlice); // TODO: can we check it's indeed the last slice?
+                IceEndSlice(lastSlice: baseTypeIds.Length == 0 && (i == slicedData.Slices.Count - 1));
             }
-            Debug.Assert(!firstSlice);
         }
 
-        private void Pop(InstanceData? savedInstanceData) => _current = savedInstanceData;
-
-        private InstanceData? Push(InstanceType instanceType)
-        {
-            InstanceData? savedInstanceData = _current;
-            _current = new InstanceData(instanceType);
-            return savedInstanceData;
-        }
-
+        /// <summary>Registers or looks up a type ID in the the _typeIdMap.</summary>
+        /// <param name="typeId">The type ID to register or lookup.</param>
+        /// <returns>The index in _typeIdMap if this type ID was previously registered; otherwise, -1.</returns>
         private int RegisterTypeId(string typeId)
         {
             _typeIdMap ??= new Dictionary<string, int>();
@@ -288,16 +330,16 @@ namespace ZeroC.Ice
             }
         }
 
-        // Write this class instance inline if not previously marshaled, otherwise just write its instance ID.
-        private void WriteInstance(AnyClass v)
+        /// <summary>Writes this class instance inline if not previously marshaled, otherwise just write its instance
+        /// ID.</summary>
+        /// <param name="v">The class instance.</param>
+        /// <param name="formalTypeId">The type ID of the formal parameter or data member being marshaled.</param>
+        private void WriteInstance(AnyClass v, string? formalTypeId)
         {
-            Debug.Assert(v != null);
-
             // If the instance was already marshaled, just write its instance ID.
             if (_instanceMap != null && _instanceMap.TryGetValue(v, out int instanceId))
             {
                 WriteSize(instanceId);
-                return;
             }
             else
             {
@@ -311,37 +353,139 @@ namespace ZeroC.Ice
 
                 WriteSize(1); // Class instance marker.
 
-                InstanceData? savedInstanceData = Push(InstanceType.Class);
+                // Save _current in case we're writing a nested instance.
+                InstanceData previousCurrent = _current;
+                _current = default;
+                _current.InstanceType = InstanceType.Class;
+                _current.FormalTypeId20 = formalTypeId;
+
                 v.Write(this);
-                Pop(savedInstanceData);
+
+                // Restore previous _current.
+                _current = previousCurrent;
             }
         }
 
-        private sealed class InstanceData
+        /// <summary>Writes the type ID or compact ID immediately after the slice flags byte, and updates the slice
+        /// flags byte as needed.</summary>
+        /// <param name="typeId">The type ID of the current slice.</param>
+        /// <param name="compactId">The compact ID of the current slice.</param>
+        private void WriteTypeId11(string typeId, int? compactId)
         {
-            internal readonly InstanceType InstanceType;
+            Debug.Assert(_current.InstanceType != InstanceType.None);
 
-            // The following fields are used and reused for all the slices of a class or exception instance.
-            internal EncodingDefinitions.SliceFlags SliceFlags = default;
+            EncodingDefinitions.TypeIdKind typeIdKind = EncodingDefinitions.TypeIdKind.None;
 
-            // Position of the optional slice size.
-            internal Position SliceSizePos = new Position(0, 0);
+            if (_current.InstanceType == InstanceType.Class)
+            {
+                if (compactId is int compactIdValue)
+                {
+                    typeIdKind = EncodingDefinitions.TypeIdKind.CompactId11;
+                    WriteSize(compactIdValue);
+                }
+                else
+                {
+                    int index = RegisterTypeId(typeId);
+                    if (index < 0)
+                    {
+                        typeIdKind = EncodingDefinitions.TypeIdKind.String;
+                        WriteString(typeId);
+                    }
+                    else
+                    {
+                        typeIdKind = EncodingDefinitions.TypeIdKind.Index;
+                        WriteSize(index);
+                    }
+                }
+            }
+            else
+            {
+                Debug.Assert(compactId == null);
+                // With the 1.1 encoding, we always write a string and don't set a type ID kind in SliceFlags.
+                WriteString(typeId);
+            }
 
-            // Position of the first data member in the slice, just after the optional slice size.
-            internal Position SliceFirstMemberPos = new Position(0, 0);
-
-            // Position of the slice flags.
-            internal Position SliceFlagsPos = new Position(0, 0);
-
-            // The indirection table and indirection map are only used for the sliced format.
-            internal List<AnyClass>? IndirectionTable;
-            internal Dictionary<AnyClass, int>? IndirectionMap;
-
-            internal InstanceData(InstanceType instanceType) => InstanceType = instanceType;
+            _current.SliceFlags |= (EncodingDefinitions.SliceFlags)typeIdKind;
         }
 
-        private enum InstanceType
+        /// <summary>Writes the type ID or type ID sequence immediately after the slice flags byte of the first slice,
+        /// and updates the slice flags byte as needed. Applies formal type optimization (class only), if possible.
+        /// </summary>
+        /// <param name="allTypeIds">The type IDs of all slices of this class or exception instance.</param>
+        /// <param name="errorMessage">The exception's error message. Provided only for exceptions.</param>
+        private void WriteTypeId20(string[] allTypeIds, string? errorMessage)
         {
+            Debug.Assert(_current.InstanceType != InstanceType.None);
+
+            EncodingDefinitions.TypeIdKind typeIdKind = EncodingDefinitions.TypeIdKind.None;
+
+            if (_current.InstanceType == InstanceType.Class)
+            {
+                string typeId = allTypeIds[0];
+                if (typeId != _current.FormalTypeId20)
+                {
+                    int index = RegisterTypeId(typeId);
+                    if (index < 0)
+                    {
+                        if (_format == FormatType.Sliced)
+                        {
+                            typeIdKind = EncodingDefinitions.TypeIdKind.Sequence20;
+                            WriteSequence(allTypeIds, IceWriterFromString);
+                        }
+                        else
+                        {
+                            typeIdKind = EncodingDefinitions.TypeIdKind.String;
+                            WriteString(typeId);
+                        }
+                    }
+                    else
+                    {
+                        typeIdKind = EncodingDefinitions.TypeIdKind.Index;
+                        WriteSize(index);
+                    }
+                }
+                // else, don't write anything (formal type optimization)
+            }
+            else
+            {
+                typeIdKind = EncodingDefinitions.TypeIdKind.Sequence20;
+                WriteSequence(allTypeIds, IceWriterFromString);
+
+                Debug.Assert(errorMessage != null);
+                WriteString(errorMessage);
+            }
+
+            _current.SliceFlags |= (EncodingDefinitions.SliceFlags)typeIdKind;
+        }
+
+        private struct InstanceData
+        {
+            // The following fields are used and reused for all the slices of a class or exception instance.
+
+            // (Class only) The type ID associated with the formal type of the parameter or data member being written.
+            // We use this formalTypeId to skip the marshaling of type IDs when there is a match.
+            internal string? FormalTypeId20;
+
+            internal InstanceType InstanceType;
+
+            // The following fields are used for the current slice:
+
+            // The indirection map and indirection table are only used for the sliced format.
+            internal Dictionary<AnyClass, int>? IndirectionMap;
+            internal List<AnyClass>? IndirectionTable;
+
+            internal EncodingDefinitions.SliceFlags SliceFlags;
+
+            // Position of the slice flags.
+            internal Position SliceFlagsPos;
+
+            // Position of the slice size. Used only for the sliced format.
+            internal Position SliceSizePos;
+        }
+
+        private enum InstanceType : byte
+        {
+            None = 0,
             Class,
             Exception
         }

@@ -227,7 +227,7 @@ namespace ZeroC.Ice
         private int _capacity;
 
         // Data for the class or exception instance that is currently getting marshaled.
-        private InstanceData? _current;
+        private InstanceData _current;
 
         // The segment currently used by write operations, this is usually the last segment of the segment list but it
         // can occasionally be one before last after expanding the list. The tail Position always points to this
@@ -2038,7 +2038,7 @@ namespace ZeroC.Ice
                 WriteByte((byte)v);
                 WriteSize(tag);
             }
-            if (_current != null)
+            if (_current.InstanceType != InstanceType.None)
             {
                 _current.SliceFlags |= EncodingDefinitions.SliceFlags.HasTaggedMembers;
             }

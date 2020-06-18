@@ -8,10 +8,9 @@ namespace ZeroC.Ice
     /// implemented by the generated code.</summary>
     public interface IRemoteExceptionFactory
     {
-        /// <summary>Creates a new instance of the associated remote exception and reads its fields from the stream.
-        /// </summary>
-        /// <param name="istr">The input stream.</param>
+        /// <summary>Creates a new instance of the associated remote exception class.</summary>
+        /// <param name="message">The message that describes the remote exception.</param>
         /// <returns>The new remote exception.</returns>
-        RemoteException Read(InputStream istr);
+        RemoteException Create(string? message);
     }
 }

@@ -150,6 +150,23 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>The sliced-off slices held by the current instance, if any.</summary>
+        internal SlicedData? SlicedData
+        {
+            get
+            {
+                Debug.Assert(_current.InstanceType != InstanceType.None);
+                if (_current.Slices == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new SlicedData(Encoding, _current.Slices);
+                }
+            }
+        }
+
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
         // True when reading a top-level encapsulation; otherwise, false.
@@ -161,9 +178,9 @@ namespace ZeroC.Ice
         private ArraySegment<byte> _buffer;
 
         // Data for the class or exception instance that is currently getting unmarshaled.
-        private InstanceData? _current;
+        private InstanceData _current;
 
-        // The maximum depth when reading nested class/exception instances.
+        // The current depth when reading nested class/exception instances.
         private int _classGraphDepth = 0;
 
         // Map of class instance ID to class instance.
@@ -181,14 +198,15 @@ namespace ZeroC.Ice
         // The 0-based index in the buffer.
         private int _pos;
 
-        // See _typeIdMap.
-        private int _posAfterLatestInsertedTypeId = 0;
+        // See ReadTypeId11.
+        private int _posAfterLatestInsertedTypeId11 = 0;
 
-        // Map of type ID index to type ID string.
-        // When reading a top-level encapsulation, we assign a type ID index (starting with 1) to each type ID we
-        // read, in order. Since this map is a list, we lookup a previously assigned type ID string with
-        // _typeIdMap[index - 1].
-        private List<string>? _typeIdMap;
+        // Map of type ID index to type ID sequence, used only for classes.
+        // We assign a type ID index (starting with 1) to each type ID (type ID sequence) we read, in order.
+        // Since this map is a list, we lookup a previously assigned type ID (type ID sequence) with
+        // _typeIdMap[index - 1]. With the 2.0 encoding, each entry has at least 1 element.
+        private List<string>? _typeIdMap11;
+        private List<string[]>? _typeIdMap20;
 
         //
         // Read methods for basic types
@@ -1382,11 +1400,12 @@ namespace ZeroC.Ice
         /// <returns>True if the tagged parameter is present; otherwise, false.</returns>
         private bool ReadTaggedParamHeader(int tag, EncodingDefinitions.TagFormat expectedFormat)
         {
-            // Tagged members/parameters can only be in the main encapsulation
+            // Tagged members/parameters can only be in the main encapsulation.
             Debug.Assert(InEncapsulation);
 
-            // The current slice has no tagged parameter
-            if (_current != null && (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) == 0)
+            // The current slice has no tagged parameter.
+            if (_current.InstanceType != InstanceType.None &&
+                (_current.SliceFlags & EncodingDefinitions.SliceFlags.HasTaggedMembers) == 0)
             {
                 return false;
             }
@@ -1513,7 +1532,7 @@ namespace ZeroC.Ice
                     }
                     break;
                 case EncodingDefinitions.TagFormat.Class:
-                    ReadAnyClass();
+                    ReadAnyClass(formalTypeId: null);
                     break;
             }
         }

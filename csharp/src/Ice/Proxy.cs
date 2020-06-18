@@ -292,8 +292,8 @@ namespace ZeroC.Ice
         public static async ValueTask<Connection?> GetConnectionAsync(this IObjectPrx prx,
                                                                       CancellationToken cancel = default)
         {
-            IRequestHandler handler = await CancelableTask.WhenAny(prx.IceReference.GetRequestHandlerAsync(),
-                cancel).ConfigureAwait(false);
+            IRequestHandler handler =
+                await prx.IceReference.GetRequestHandlerAsync().WaitAsync(cancel).ConfigureAwait(false);
             return (handler as ConnectionRequestHandler)?.GetConnection();
         }
 
@@ -427,13 +427,11 @@ namespace ZeroC.Ice
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
-                            handler = await CancelableTask.WhenAny(reference.GetRequestHandlerAsync(),
-                                cancel).ConfigureAwait(false);
+                            handler = await reference.GetRequestHandlerAsync().WaitAsync(cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
-                            Task<IncomingResponseFrame>? responseTask = await CancelableTask.WhenAny(
-                                    handler!.SendRequestAsync(request, oneway, synchronous, observer),
-                                    cancel).ConfigureAwait(false);
+                            Task<IncomingResponseFrame>? responseTask = await handler!.SendRequestAsync(request, oneway,
+                                synchronous, observer).WaitAsync(cancel).ConfigureAwait(false);
 
                             sent = true; // Mark the request as sent, it's important for the retry logic
 
@@ -450,7 +448,7 @@ namespace ZeroC.Ice
                             if (responseTask != null)
                             {
                                 IncomingResponseFrame response =
-                                    await CancelableTask.WhenAny(responseTask, cancel).ConfigureAwait(false);
+                                    await responseTask.WaitAsync(cancel).ConfigureAwait(false);
                                 switch (response.ReplyStatus)
                                 {
                                     case ReplyStatus.OK:
@@ -513,7 +511,7 @@ namespace ZeroC.Ice
                                 // cancellation token or if the communicator is destroyed.
                                 CancellationToken token = CancellationTokenSource.CreateLinkedTokenSource(cancel,
                                     proxy.Communicator.CancellationToken).Token;
-                                await CancelableTask.WhenAny(Task.Delay(delay), token).ConfigureAwait(false);
+                                await Task.Delay(delay, token).ConfigureAwait(false);
                             }
 
                             observer?.Retried();
