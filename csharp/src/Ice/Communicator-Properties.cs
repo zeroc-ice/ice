@@ -158,8 +158,8 @@ namespace ZeroC.Ice
                 {
                     pv.Used = true;
 
-                    // Match an integer followed by ms, s, m, or h
-                    Match match = Regex.Match(pv.Val, @"^(\d+)(ms|s|m|h)$");
+                    // Match an integer followed letters
+                    Match match = Regex.Match(pv.Val, @"^(\d+)([a-z]+)$");
 
                     if (!match.Success)
                     {
