@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,13 +14,14 @@ namespace ZeroC.Ice
     public sealed class LocatorInfo
     {
         internal ILocatorPrx Locator { get; }
-        private readonly Lazy<ILocatorRegistryPrx?> _locatorRegistry;
-        private readonly LocatorTable _table;
         private readonly bool _background;
         private readonly Dictionary<string, Task<IReadOnlyList<Endpoint>?>> _adapterRequests =
             new Dictionary<string, Task<IReadOnlyList<Endpoint>?>>();
         private readonly Dictionary<Identity, Task<Reference?>> _objectRequests =
             new Dictionary<Identity, Task<Reference?>>();
+        private readonly Lazy<ILocatorRegistryPrx?> _locatorRegistry;
+        private readonly object _mutex = new object();
+        private readonly LocatorTable _table;
 
         public override bool Equals(object? obj) =>
              ReferenceEquals(this, obj) || (obj is LocatorInfo rhs && Locator.Equals(rhs.Locator));
@@ -213,7 +215,7 @@ namespace ZeroC.Ice
             }
 
             Task<IReadOnlyList<Endpoint>?>? task;
-            lock (_adapterRequests)
+            lock (_mutex)
             {
                 if (!_adapterRequests.TryGetValue(reference.AdapterId, out task))
                 {
@@ -275,7 +277,7 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    lock (_adapterRequests)
+                    lock (_mutex)
                     {
                         _adapterRequests.Remove(reference.AdapterId);
                     }
@@ -294,7 +296,7 @@ namespace ZeroC.Ice
             }
 
             Task<Reference?>? task;
-            lock (_objectRequests)
+            lock (_mutex)
             {
                 if (!_objectRequests.TryGetValue(reference.Identity, out task))
                 {
@@ -358,7 +360,7 @@ namespace ZeroC.Ice
                 }
                 finally
                 {
-                    lock (_objectRequests)
+                    lock (_mutex)
                     {
                         _objectRequests.Remove(reference.Identity);
                     }
@@ -400,11 +402,11 @@ namespace ZeroC.Ice
 
     public sealed partial class Communicator
     {
+        private readonly bool _backgroundLocatorCacheUpdates;
         private readonly Dictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new Dictionary<ILocatorPrx, LocatorInfo>();
         private readonly Dictionary<LocatorKey, LocatorTable> _locatorTableMap =
             new Dictionary<LocatorKey, LocatorTable>();
-        private readonly bool _backgroundLocatorCacheUpdates;
 
         // Returns locator info for a given locator. Automatically creates the locator info if it doesn't exist yet.
         internal LocatorInfo? GetLocatorInfo(ILocatorPrx? locator, Encoding encoding)
@@ -421,7 +423,7 @@ namespace ZeroC.Ice
             }
 
             // TODO: reap unused locator info objects?
-            lock (_locatorInfoMap)
+            lock (_mutex)
             {
                 if (!_locatorInfoMap.TryGetValue(locator, out LocatorInfo? info))
                 {
@@ -463,25 +465,19 @@ namespace ZeroC.Ice
 
     internal sealed class LocatorTable
     {
-        private readonly Dictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)> _adapterEndpointsTable =
-            new Dictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)>();
-        private readonly Dictionary<Identity, (long Time, Reference Reference)> _objectTable =
-            new Dictionary<Identity, (long Time, Reference Reference)>();
+        private readonly ConcurrentDictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)>
+            _adapterEndpointsTable = new ConcurrentDictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)>();
+        private readonly ConcurrentDictionary<Identity, (long Time, Reference Reference)> _objectReferenceTable =
+            new ConcurrentDictionary<Identity, (long Time, Reference Reference)>();
 
         internal void AddAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints)
         {
-            lock (_adapterEndpointsTable)
-            {
-                _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTimeMillis(), endpoints);
-            }
+            _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTimeMillis(), endpoints);
         }
 
         internal void AddObjectReference(Identity id, Reference reference)
         {
-            lock (_objectTable)
-            {
-                _objectTable[id] = (Time.CurrentMonotonicTimeMillis(), reference);
-            }
+            _objectReferenceTable[id] = (Time.CurrentMonotonicTimeMillis(), reference);
         }
 
         internal (IReadOnlyList<Endpoint>?, bool) GetAdapterEndpoints(string adapter, int ttl)
@@ -491,13 +487,12 @@ namespace ZeroC.Ice
                 return (null, false);
             }
 
-            lock (_adapterEndpointsTable)
+            if (_adapterEndpointsTable.TryGetValue(adapter, out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
             {
-                if (_adapterEndpointsTable.TryGetValue(adapter,
-                    out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
-                {
-                    return (entry.Endpoints, CheckTTL(entry.Time, ttl));
-                }
+                return (entry.Endpoints, CheckTTL(entry.Time, ttl));
+            }
+            else
+            {
                 return (null, false);
             }
         }
@@ -509,39 +504,36 @@ namespace ZeroC.Ice
                 return (null, false);
             }
 
-            lock (_objectTable)
+            if (_objectReferenceTable.TryGetValue(id, out (long Time, Reference Reference) entry))
             {
-                if (_objectTable.TryGetValue(id, out (long Time, Reference Reference) entry))
-                {
-                    return (entry.Reference, CheckTTL(entry.Time, ttl));
-                }
+                return (entry.Reference, CheckTTL(entry.Time, ttl));
+            }
+            else
+            {
                 return (null, false);
             }
         }
 
         internal IReadOnlyList<Endpoint>? RemoveAdapterEndpoints(string adapter)
         {
-            lock (_adapterEndpointsTable)
+            if (_adapterEndpointsTable.TryRemove(adapter, out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
             {
-                if (_adapterEndpointsTable.TryGetValue(adapter,
-                    out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
-                {
-                    _adapterEndpointsTable.Remove(adapter);
-                    return entry.Endpoints;
-                }
+                return entry.Endpoints;
+            }
+            else
+            {
                 return null;
             }
         }
 
         internal Reference? RemoveObjectReference(Identity id)
         {
-            lock (_objectTable)
+            if (_objectReferenceTable.TryRemove(id, out (long Time, Reference Reference) entry))
             {
-                if (_objectTable.TryGetValue(id, out (long Time, Reference Reference) entry))
-                {
-                    _objectTable.Remove(id);
-                    return entry.Reference;
-                }
+                return entry.Reference;
+            }
+            else
+            {
                 return null;
             }
         }
@@ -557,18 +549,6 @@ namespace ZeroC.Ice
             {
                 return Time.CurrentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
             }
-        }
-
-        private readonly struct TableEntry<T>
-        {
-            public TableEntry(long time, T value)
-            {
-                Time = time;
-                Value = value;
-            }
-
-            public readonly long Time;
-            public readonly T Value;
         }
     }
 }

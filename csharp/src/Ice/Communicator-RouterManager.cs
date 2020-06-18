@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -151,39 +152,30 @@ namespace ZeroC.Ice
 
     public sealed partial class Communicator
     {
-        private readonly Dictionary<IRouterPrx, RouterInfo> _routerInfoTable = new Dictionary<IRouterPrx, RouterInfo>();
+        private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
+            new ConcurrentDictionary<IRouterPrx, RouterInfo>();
 
         // Returns router info for a given router. Automatically creates the router info if it doesn't exist yet.
-        internal RouterInfo? GetRouterInfo(IRouterPrx? rtr)
+        internal RouterInfo? GetRouterInfo(IRouterPrx? router)
         {
-            if (rtr == null)
-            {
-                return null;
-            }
-
-            lock (_routerInfoTable)
+            if (router != null)
             {
                 // The router cannot be routed.
-                IRouterPrx router = rtr.Clone(clearRouter: true);
-                if (!_routerInfoTable.TryGetValue(router, out RouterInfo? info))
-                {
-                    info = new RouterInfo(router);
-                    _routerInfoTable.Add(router, info);
-                }
-                return info;
+                return _routerInfoTable.GetOrAdd(router.Clone(clearRouter: true), key => new RouterInfo(key));
+            }
+            else
+            {
+                return null;
             }
         }
 
         // Removes router info for a given router.
-        internal void EraseRouterInfo(IRouterPrx? rtr)
+        internal void EraseRouterInfo(IRouterPrx? router)
         {
-            if (rtr != null)
+            if (router != null)
             {
-                lock (_routerInfoTable)
-                {
-                    // The router cannot be routed.
-                    _routerInfoTable.Remove(rtr.Clone(clearRouter: true));
-                }
+                // The router cannot be routed.
+                _routerInfoTable.TryRemove(router.Clone(clearRouter: true), out RouterInfo? _);
             }
         }
     }
