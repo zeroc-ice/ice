@@ -175,7 +175,7 @@ namespace ZeroC.Ice
                     catch (FormatException ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"the value of property `{name}' is not an integer", ex);
+                            $"the value of property `{name}' is not a TimeSpan", ex);
                     }
 
                     return match.Groups[2].Value switch
