@@ -258,9 +258,9 @@ namespace ZeroC.Ice
 
         public ConnectionState State { get; }
 
-        private string? _id;
-
         private static readonly AttributeResolver _attributes = new AttributeResolverI();
+
+        private string? _id;
 
         internal ConnectionHelper(ConnectionInfo con, Endpoint endpt, ConnectionState state)
             : base(_attributes)

@@ -87,7 +87,7 @@ namespace ZeroC.Ice.Instrumentation
 
     public interface IObserverUpdater
     {
-        /// <summary>Update the connection observers associated each Ice connection from the communicator and its
+        /// <summary>Update the connection observers associated with each Ice connection from the communicator and its
         /// object adapters. When called, this method goes through all the connections and for each connection
         /// CommunicatorObserver.GetConnectionObserver is called. The implementation of GetConnectionObserver has the
         /// possibility to return an updated observer if necessary.</summary>
@@ -130,12 +130,12 @@ namespace ZeroC.Ice.Instrumentation
         /// this method for each invocation on a proxy.</summary>
         /// <param name="prx">The proxy used for the invocation.</param>
         /// <param name="operation">The name of the invocation.</param>
-        /// <param name="ctx">The context specified by the user.</param>
+        /// <param name="contex">The context specified by the user.</param>
         /// <returns>The invocation observer to instrument the invocation.</returns>
         IInvocationObserver? GetInvocationObserver(
             IObjectPrx prx,
             string operation,
-            IReadOnlyDictionary<string, string> ctx);
+            IReadOnlyDictionary<string, string> contex);
 
         /// <summary>This method should return a dispatch observer for the given dispatch. The Ice run-time calls this
         /// method each time it receives an incoming invocation to be dispatched for an Ice object.</summary>
