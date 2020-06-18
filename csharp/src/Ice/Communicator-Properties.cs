@@ -144,12 +144,10 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>
-        /// Gets the value of a property as a TimeSpan. If the property is not set, returns null.
+        /// <summary>Gets the value of a property as a TimeSpan. If the property is not set, returns null.
         /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', or 'h'.
         /// These correspond to milliseconds, seconds, minutes, and hours, respectively.
-        /// e.g. 50ms, 3m
-        /// </summary>
+        /// e.g. 50ms, 3m</summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into a TimeSpan or null.</returns>
         public TimeSpan? GetPropertyAsTimeSpan(string name)
