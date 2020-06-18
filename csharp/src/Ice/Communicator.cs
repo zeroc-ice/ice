@@ -40,8 +40,6 @@ namespace ZeroC.Ice
 
             public void UpdateConnectionObservers() => _communicator.UpdateConnectionObservers();
 
-            public void UpdateThreadObservers() => _communicator.UpdateThreadObservers();
-
             private readonly Communicator _communicator;
         }
 
@@ -705,7 +703,7 @@ namespace ZeroC.Ice
                     string metricsFacetName = "Metrics";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(metricsFacetName))
                     {
-                        var communicatorObserver = new CommunicatorObserverI(this, Logger);
+                        var communicatorObserver = new CommunicatorObserver(this, Logger);
                         Observer = communicatorObserver;
                         _adminFacets.Add(metricsFacetName, communicatorObserver.GetFacet());
 
@@ -1349,18 +1347,6 @@ namespace ZeroC.Ice
                 {
                     adapter.UpdateConnectionObservers();
                 }
-            }
-            catch (CommunicatorDestroyedException)
-            {
-            }
-        }
-
-        internal void UpdateThreadObservers()
-        {
-            try
-            {
-                Debug.Assert(Observer != null);
-                _timer.UpdateObserver(Observer);
             }
             catch (CommunicatorDestroyedException)
             {

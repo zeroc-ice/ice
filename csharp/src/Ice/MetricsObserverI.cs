@@ -13,12 +13,15 @@ namespace ZeroC.IceMX
     {
         internal object Clone() => MemberwiseClone();
     }
-    public class MetricsHelper<T> where T : Metrics
+    internal class MetricsHelper<T> where T : Metrics
     {
-        public class AttributeResolver
+        private readonly AttributeResolver _attributes;
+
+        internal class AttributeResolver
         {
             private abstract class Resolver
             {
+                protected string Name { get; }
                 protected Resolver(string name) => Name = name;
 
                 protected abstract object? Resolve(object obj);
@@ -27,12 +30,7 @@ namespace ZeroC.IceMX
                 {
                     try
                     {
-                        object? result = Resolve(obj);
-                        if (result != null)
-                        {
-                            return result.ToString()!;
-                        }
-                        return "";
+                        return Resolve(obj)?.ToString() ?? "";
                     }
                     catch (ArgumentOutOfRangeException)
                     {
@@ -43,173 +41,30 @@ namespace ZeroC.IceMX
                         throw new ArgumentOutOfRangeException(Name, ex);
                     }
                 }
-
-                protected object? GetField(System.Reflection.FieldInfo field, object? obj)
-                {
-                    if (obj == null)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return field.GetValue(obj);
-                    }
-                }
-
-                protected readonly string Name;
-            }
-
-            private class FieldResolverI : Resolver
-            {
-                internal FieldResolverI(string name, System.Reflection.FieldInfo field)
-                    : base(name)
-                {
-                    Debug.Assert(field != null);
-                    _field = field;
-                }
-
-                protected override object? Resolve(object obj) => GetField(_field, obj);
-
-                private readonly System.Reflection.FieldInfo _field;
-            }
-
-            private class MethodResolverI : Resolver
-            {
-                internal MethodResolverI(string name, System.Reflection.MethodInfo method)
-                    : base(name)
-                {
-                    Debug.Assert(method != null);
-                    _method = method;
-                }
-
-                protected override object? Resolve(object obj) => _method.Invoke(obj, null);
-
-                private readonly System.Reflection.MethodInfo _method;
-            }
-
-            private class MemberFieldResolverI : Resolver
-            {
-                internal MemberFieldResolverI(string name, System.Reflection.MethodInfo method,
-                                              System.Reflection.FieldInfo field)
-                    : base(name)
-                {
-                    Debug.Assert(method != null && field != null);
-                    _method = method;
-                    _field = field;
-                }
-
-                protected override object? Resolve(object obj)
-                {
-                    object? o = _method.Invoke(obj, null);
-                    if (o != null)
-                    {
-                        return GetField(_field, o);
-                    }
-                    throw new ArgumentOutOfRangeException(Name);
-                }
-
-                private readonly System.Reflection.MethodInfo _method;
-                private readonly System.Reflection.FieldInfo _field;
-            }
-
-            private class MemberMethodResolverI : Resolver
-            {
-                internal MemberMethodResolverI(string name, System.Reflection.MethodInfo method,
-                                               System.Reflection.MethodInfo subMeth)
-                    : base(name)
-                {
-                    Debug.Assert(method != null && subMeth != null);
-                    _method = method;
-                    _subMethod = subMeth;
-                }
-
-                protected override object? Resolve(object obj)
-                {
-                    object? o = _method.Invoke(obj, null);
-                    if (o != null)
-                    {
-                        return _subMethod.Invoke(o, null);
-                    }
-                    throw new ArgumentOutOfRangeException(Name);
-                }
-
-                private readonly System.Reflection.MethodInfo _method;
-                private readonly System.Reflection.MethodInfo _subMethod;
-            }
-
-            private class MemberPropertyResolverI : Resolver
-            {
-                internal MemberPropertyResolverI(string name, System.Reflection.MethodInfo method,
-                                                 System.Reflection.PropertyInfo property)
-                    : base(name)
-                {
-                    Debug.Assert(method != null && property != null);
-                    _method = method;
-                    _property = property;
-                }
-
-                protected override object? Resolve(object obj)
-                {
-                    object? o = _method.Invoke(obj, null);
-                    if (o != null)
-                    {
-                        return _property.GetValue(o, null);
-                    }
-                    throw new ArgumentOutOfRangeException(Name);
-                }
-
-                private readonly System.Reflection.MethodInfo _method;
-                private readonly System.Reflection.PropertyInfo _property;
-            }
-
-            protected AttributeResolver()
-            {
             }
 
             public string Resolve(MetricsHelper<T> helper, string attribute)
             {
-                if (!_attributes.TryGetValue(attribute, out MetricsHelper<T>.AttributeResolver.Resolver? resolver))
+                if (!_attributes.TryGetValue(attribute, out Func<object, object?>? resolver))
                 {
                     if (attribute.Equals("none"))
                     {
                         return "";
                     }
-                    string? v = helper.DefaultResolve(attribute);
-                    if (v != null)
-                    {
-                        return v;
-                    }
-                    throw new ArgumentOutOfRangeException(attribute);
+                    return helper.DefaultResolve(attribute) ?? throw new ArgumentOutOfRangeException(attribute);
                 }
-                return resolver.ResolveImpl(helper);
+                return resolver(helper)?.ToString() ?? "";
             }
 
-            public void
-            Add(string name, System.Reflection.MethodInfo method) =>
-                _attributes.Add(name, new MethodResolverI(name, method));
+            public void Add(string name, Func<object, object?> resolver) => _attributes.Add(name, resolver);
 
-            public void
-            Add(string name, System.Reflection.FieldInfo field) =>
-                _attributes.Add(name, new FieldResolverI(name, field));
-
-            public void
-            Add(string name, System.Reflection.MethodInfo method, System.Reflection.FieldInfo field) =>
-                _attributes.Add(name, new MemberFieldResolverI(name, method, field));
-
-            public void
-            Add(string name, System.Reflection.MethodInfo method, System.Reflection.MethodInfo subMethod) =>
-                _attributes.Add(name, new MemberMethodResolverI(name, method, subMethod));
-
-            public void
-            Add(string name, System.Reflection.MethodInfo method, System.Reflection.PropertyInfo property) =>
-                _attributes.Add(name, new MemberPropertyResolverI(name, method, property));
-
-            private readonly Dictionary<string, Resolver> _attributes = new Dictionary<string, Resolver>();
+            private readonly Dictionary<string, Func<object, object?>> _attributes =
+                new Dictionary<string, Func<object, object?>>();
         }
 
         protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
 
-        public string Resolve(string attribute) => _attributes.Resolve(this, attribute);
+        internal string Resolve(string attribute) => _attributes.Resolve(this, attribute);
 
         public virtual void InitMetrics(T metrics)
         {
@@ -217,8 +72,6 @@ namespace ZeroC.IceMX
         }
 
         protected virtual string? DefaultResolve(string attribute) => null;
-
-        private readonly AttributeResolver _attributes;
     }
 
     public class Observer<T> : Stopwatch, Ice.Instrumentation.IObserver where T : Metrics, new()
@@ -272,7 +125,7 @@ namespace ZeroC.IceMX
             }
         }
 
-        public ObserverImpl? GetObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
+        internal ObserverImpl? GetObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
             where S : Metrics, new()
             where ObserverImpl : Observer<S>, new()
         {
@@ -324,22 +177,22 @@ namespace ZeroC.IceMX
         private long _previousDelay = 0;
     }
 
-    public class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
+    internal class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
     {
-        public ObserverFactory(MetricsAdminI metrics, string name)
+        internal ObserverFactory(MetricsAdminI metrics, string name)
         {
             _metrics = metrics;
             _name = name;
             _metrics.RegisterMap<T>(name, Update);
         }
 
-        public ObserverFactory(string name)
+        internal ObserverFactory(string name)
         {
             _name = name;
             _metrics = null;
         }
 
-        public void Destroy()
+        internal void Destroy()
         {
             if (_metrics != null)
             {
@@ -347,9 +200,9 @@ namespace ZeroC.IceMX
             }
         }
 
-        public O? GetObserver(MetricsHelper<T> helper) => GetObserver(helper, null);
+        internal O? GetObserver(MetricsHelper<T> helper) => GetObserver(helper, null);
 
-        public O? GetObserver(MetricsHelper<T> helper, object? observer)
+        internal O? GetObserver(MetricsHelper<T> helper, object? observer)
         {
             lock (this)
             {
@@ -367,42 +220,27 @@ namespace ZeroC.IceMX
                     MetricsMap<T>.Entry? e = m.GetMatching(helper, old?.GetEntry(m));
                     if (e != null)
                     {
-                        if (metricsObjects == null)
-                        {
-                            metricsObjects = new List<MetricsMap<T>.Entry>(_maps.Count);
-                        }
+                        metricsObjects ??= new List<MetricsMap<T>.Entry>(_maps.Count);
                         metricsObjects.Add(e);
                     }
                 }
 
                 if (metricsObjects == null)
                 {
-                    if (old != null)
-                    {
-                        old.Detach();
-                    }
+                    old?.Detach();
                     return null;
                 }
 
-                O obsv;
-                try
-                {
-                    obsv = new O();
-                }
-                catch (Exception)
-                {
-                    Debug.Assert(false);
-                    return null;
-                }
+                var obsv = new O();
                 obsv.Init(metricsObjects, old);
                 return obsv;
             }
         }
 
-        public void RegisterSubMap<S>(string subMap, System.Reflection.FieldInfo field)
-            where S : Metrics, new() => _metrics!.RegisterSubMap<S>(_name, subMap, field);
+        internal void RegisterSubMap<S>(string subMap, Action<Metrics, Metrics[]> fieldSetter)
+            where S : Metrics, new() => _metrics!.RegisterSubMap<S>(_name, subMap, fieldSetter);
 
-        public bool IsEnabled() => _enabled;
+        internal bool IsEnabled => _enabled;
 
         public void Update()
         {

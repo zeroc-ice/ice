@@ -12,18 +12,19 @@ namespace ZeroC.Ice
     public abstract class AnyClass
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly InputStreamReader<AnyClass> IceReader = (istr) => istr.ReadClass<AnyClass>();
+        public static readonly InputStreamReader<AnyClass> IceReader =
+            istr => istr.ReadClass<AnyClass>(formalTypeId: null);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly InputStreamReader<AnyClass?> IceReaderIntoNullable =
-            (istr) => istr.ReadNullableClass<AnyClass>();
+            istr => istr.ReadNullableClass<AnyClass>(formalTypeId: null);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly OutputStreamWriter<AnyClass> IceWriter = (ostr, value) => ostr.WriteClass(value);
+        public static readonly OutputStreamWriter<AnyClass> IceWriter = (ostr, value) => ostr.WriteClass(value, null);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly OutputStreamWriter<AnyClass?> IceWriterFromNullable =
-            (ostr, value) => ostr.WriteNullableClass(value);
+            (ostr, value) => ostr.WriteNullableClass(value, null);
 
         protected virtual SlicedData? IceSlicedData
         {
@@ -36,6 +37,10 @@ namespace ZeroC.Ice
             get => IceSlicedData;
             set => IceSlicedData = value;
         }
+
+        // See InputStream
+        protected abstract void IceRead(InputStream istr, bool firtSlice);
+        internal void Read(InputStream istr) => IceRead(istr, true);
 
         // See OutputStream.
         protected abstract void IceWrite(OutputStream ostr, bool firstSlice);

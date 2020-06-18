@@ -57,7 +57,7 @@ namespace ZeroC.Ice.Test.Retry
             public ICollocatedObserver?
             GetCollocatedObserver(ObjectAdapter adapter, int i, int j) => null;
 
-        };
+        }
 
         private static IInvocationObserver invocationObserver = new InvocationObserver();
 
@@ -73,8 +73,6 @@ namespace ZeroC.Ice.Test.Retry
                 ConnectionState s,
                 IConnectionObserver? o) => null;
 
-            public IThreadObserver? GetThreadObserver(string p, string n, ThreadState s, IThreadObserver? o) => null;
-
             public IInvocationObserver? GetInvocationObserver(IObjectPrx? p, string o,
                 IReadOnlyDictionary<string, string> c) => invocationObserver;
 
@@ -83,7 +81,7 @@ namespace ZeroC.Ice.Test.Retry
             public void SetObserverUpdater(IObserverUpdater? u)
             {
             }
-        };
+        }
 
         private static ICommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 

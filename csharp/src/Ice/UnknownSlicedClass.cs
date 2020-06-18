@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
@@ -10,23 +11,19 @@ namespace ZeroC.Ice
     /// type or any of its base classes (other than AnyClass).</summary>
     public sealed class UnknownSlicedClass : AnyClass
     {
-        /// <summary>Returns the Slice type ID associated with this sliced class instance.</summary>
+        /// <summary>Returns the most derived type ID this class instance.</summary>
         /// <value>The type ID.</value>
-        public string? TypeId
-        {
-            get
-            {
-                // TypeId can be null for a slice with an unresolved compact ID.
-                Debug.Assert(IceSlicedData is SlicedData slicedData && slicedData.Slices.Count > 0);
-                return IceSlicedData.Value.Slices[0].TypeId;
-            }
-        }
+        public string TypeId => IceSlicedData!.Value.Slices[0].TypeId;
+
+        protected override void IceRead(InputStream istr, bool firtSlice) => IceSlicedData = istr.SlicedData;
 
         protected override SlicedData? IceSlicedData { get; set; }
 
         protected override void IceWrite(OutputStream ostr, bool firstSlice) =>
-            ostr.WriteSlicedData(IceSlicedData!.Value);
+            ostr.WriteSlicedData(IceSlicedData!.Value, Array.Empty<string>());
 
-        internal UnknownSlicedClass(InputStream istr) => istr.FirstSliceInit(this, setSlicedData: true);
+        internal UnknownSlicedClass()
+        {
+        }
     }
 }

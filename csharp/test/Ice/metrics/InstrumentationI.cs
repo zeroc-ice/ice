@@ -78,7 +78,7 @@ namespace ZeroC.Ice.Test.Metrics
         public int total;
         public int current;
         public int failedCount;
-    };
+    }
 
     public class ChildInvocationObserver : Observer, IChildInvocationObserver
     {
@@ -102,15 +102,15 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public int replySize;
-    };
+    }
 
     public class RemoteObserver : ChildInvocationObserver, IRemoteObserver
     {
-    };
+    }
 
     public class CollocatedObserver : ChildInvocationObserver, ICollocatedObserver
     {
-    };
+    }
 
     public class InvocationObserver : Observer, IInvocationObserver
     {
@@ -184,7 +184,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public RemoteObserver? remoteObserver = null;
         public CollocatedObserver? collocatedObserver = null;
-    };
+    }
 
     public class DispatchObserver : Observer, IDispatchObserver
     {
@@ -219,7 +219,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public int userExceptionCount;
         public int replySize;
-    };
+    }
 
     public class ConnectionObserver : Observer, IConnectionObserver
     {
@@ -254,31 +254,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public int sent;
         public int received;
-    };
-
-    public class ThreadObserver : Observer, IThreadObserver
-    {
-        public override void
-        reset()
-        {
-            lock (this)
-            {
-                base.reset();
-                states = 0;
-            }
-        }
-
-        public void
-        StateChanged(ThreadState o, ThreadState n)
-        {
-            lock (this)
-            {
-                ++states;
-            }
-        }
-
-        public int states;
-    };
+    }
 
     public class CommunicatorObserver : ICommunicatorObserver
     {
@@ -334,21 +310,6 @@ namespace ZeroC.Ice.Test.Metrics
                     connectionObserver.reset();
                 }
                 return connectionObserver;
-            }
-        }
-
-        public IThreadObserver?
-        GetThreadObserver(string p, string id, ThreadState s, IThreadObserver? old)
-        {
-            lock (this)
-            {
-                TestHelper.Assert(old == null || old is ThreadObserver);
-                if (threadObserver == null)
-                {
-                    threadObserver = new ThreadObserver();
-                    threadObserver.reset();
-                }
-                return threadObserver;
             }
         }
 
@@ -419,7 +380,6 @@ namespace ZeroC.Ice.Test.Metrics
         public Observer? connectionEstablishmentObserver;
         public Observer? endpointLookupObserver;
         public ConnectionObserver? connectionObserver;
-        public ThreadObserver? threadObserver;
         public InvocationObserver? invocationObserver;
         public DispatchObserver? dispatchObserver;
     };
