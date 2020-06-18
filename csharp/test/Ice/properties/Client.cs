@@ -75,6 +75,56 @@ namespace ZeroC.Ice.Test.Properties
                 Assert(properties.DictionaryEqual(props));
                 Console.Out.WriteLine("ok");
             }
+
+            {
+                Console.Out.Write("testing configuration properties as TimeSpan... ");
+                var timeSpanProperties = new Dictionary<string, string>
+                {
+                    { "Duration.Milliseconds", "10000ms" },
+                    { "Duration.Seconds", "5s" },
+                    { "Duration.Minutes", "1m" },
+                    { "Duration.Hours", "64h" },
+
+                    { "Duration.BadDouble", "1.1ms" },
+                    { "Duration.BadNegative", "-5s" },
+                    { "Duration.BadCombination", "1m10s" }
+                };
+
+                var communicator = new Communicator(timeSpanProperties);
+
+                var duration = communicator.GetPropertyAsTimeSpan("Duration.Milliseconds");
+                TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(10000)));
+
+                duration = communicator.GetPropertyAsTimeSpan("Duration.Seconds");
+                TestHelper.Assert(duration.Equals(TimeSpan.FromSeconds(5)));
+
+                duration = communicator.GetPropertyAsTimeSpan("Duration.Minutes");
+                TestHelper.Assert(duration.Equals(TimeSpan.FromMinutes(1)));
+
+                duration = communicator.GetPropertyAsTimeSpan("Duration.Hours");
+                TestHelper.Assert(duration.Equals(TimeSpan.FromHours(64)));
+
+                var badProperties = new string[]
+                {
+                    "Duration.BadDouble",
+                    "Duration.BadNegative",
+                    "Duration.BadCombination"
+                };
+
+                foreach (string property in badProperties)
+                {
+                    try
+                    {
+                        var t = communicator.GetPropertyAsTimeSpan(property);
+                        TestHelper.Assert(false);
+                    }
+                    catch (InvalidConfigurationException)
+                    {
+                    }
+                }
+
+                Console.Out.WriteLine("ok");
+            }
         }
 
         public static int Main(string[] args) => TestDriver.RunTest<Client>(args);

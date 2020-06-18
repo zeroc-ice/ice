@@ -144,6 +144,64 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>
+        /// Gets the value of a property as a TimeSpan. If the property is not set, returns null.
+        /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', or 'h'.
+        /// These correspond to milliseconds, seconds, minutes, and hours, respectively.
+        /// e.g. 50ms, 3m
+        /// </summary>
+        /// <param name="name">The property name.</param>
+        /// <returns>The property value parsed into a TimeSpan or null.</returns>
+        public TimeSpan? GetPropertyAsTimeSpan(string name)
+        {
+            lock (_properties)
+            {
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
+                {
+                    pv.Used = true;
+
+                    // Match an integer followed by ms, s, m, or h
+                    Match match = Regex.Match(pv.Val, @"^(\d+)(ms|s|m|h)$");
+
+                    if (!match.Success)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"the value of property `{name}' is not parsable as a TimeSpan");
+                    }
+
+                    int value;
+                    try
+                    {
+                        value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        Console.WriteLine(value);
+                    }
+                    catch (FormatException ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"the value of property `{name}' is not an integer", ex);
+                    }
+
+                    var unit = match.Groups[2].Value;
+                    switch (unit)
+                    {
+                        case "ms":
+                            return TimeSpan.FromMilliseconds(value);
+                        case "s":
+                            return TimeSpan.FromSeconds(value);
+                        case "m":
+                            return TimeSpan.FromMinutes(value);
+                        case "h":
+                            return TimeSpan.FromHours(value);
+                        default:
+                            throw new InvalidConfigurationException(
+                                $"the value of property `{name}' is not parsable as a TimeSpan." +
+                                $" Unknown time unit `{unit}'");
+                    }
+                }
+                return null;
+            }
+        }
+
         /// <summary>Insert a new property or change the value of an existing property.
         /// Setting the value of a property to the empty string removes this property
         /// if it was present, and does nothing otherwise.</summary>
