@@ -1040,7 +1040,10 @@ namespace ZeroC.Ice
                         if (_requests.TryGetValue(requestId, out TaskCompletionSource<IncomingResponseFrame>? response))
                         {
                             _requests.Remove(requestId);
-                            response.SetResult(responseFrame);
+                            incoming = () => {
+                                response.SetResult(responseFrame);
+                                return new ValueTask(Task.CompletedTask);
+                            };
                             if (_requests.Count == 0)
                             {
                                 System.Threading.Monitor.PulseAll(_mutex); // Notify threads blocked in Close()

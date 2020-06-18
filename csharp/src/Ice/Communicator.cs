@@ -948,25 +948,6 @@ namespace ZeroC.Ice
             // Wait for all the threads to be finished.
             _timer?.Destroy();
 
-            lock (_routerInfoTable)
-            {
-                foreach (RouterInfo routerInfo in _routerInfoTable.Values)
-                {
-                    routerInfo.Destroy();
-                }
-                _routerInfoTable.Clear();
-            }
-
-            lock (_locatorInfoMap)
-            {
-                foreach (LocatorInfo locatorInfo in _locatorInfoMap.Values)
-                {
-                    locatorInfo.Destroy();
-                }
-                _locatorInfoMap.Clear();
-                _locatorTableMap.Clear();
-            }
-
             _typeToEndpointFactory.Clear();
             _transportToEndpointFactory.Clear();
 
