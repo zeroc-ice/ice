@@ -173,7 +173,6 @@ namespace ZeroC.Ice
                     try
                     {
                         value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                        Console.WriteLine(value);
                     }
                     catch (FormatException ex)
                     {
