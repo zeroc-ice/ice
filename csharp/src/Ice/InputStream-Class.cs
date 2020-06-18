@@ -550,7 +550,7 @@ namespace ZeroC.Ice
                 {
                     if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
                     {
-                        // A compact-format slice cannot be have a size.
+                        // A slice in compact format cannot carry a size.
                         throw new InvalidDataException("inconsistent slice flags");
                     }
                 }
