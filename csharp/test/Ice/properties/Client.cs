@@ -119,7 +119,7 @@ namespace ZeroC.Ice.Test.Properties
                 {
                     try
                     {
-                        var t = communicator.GetPropertyAsTimeSpan(property);
+                        _ = communicator.GetPropertyAsTimeSpan(property);
                         TestHelper.Assert(false);
                     }
                     catch (InvalidConfigurationException)
