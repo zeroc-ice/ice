@@ -705,13 +705,12 @@ namespace ZeroC.Ice
                     {
                         var communicatorObserver = new CommunicatorObserver(this, Logger);
                         Observer = communicatorObserver;
-                        _adminFacets.Add(metricsFacetName, communicatorObserver.GetFacet());
+                        _adminFacets.Add(metricsFacetName, communicatorObserver.AdminFacet);
 
                         // Make sure the admin plugin receives property updates.
                         if (propsAdmin != null)
                         {
-                            propsAdmin.Updated += (_, updates) =>
-                                communicatorObserver.GetFacet().Updated(updates);
+                            propsAdmin.Updated += (_, updates) => communicatorObserver.AdminFacet.Updated(updates);
                         }
                     }
                 }

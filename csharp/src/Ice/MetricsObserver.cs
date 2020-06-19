@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using ZeroC.Ice;
 
 namespace ZeroC.IceMX
@@ -17,31 +18,22 @@ namespace ZeroC.IceMX
     {
         private readonly AttributeResolver _attributes;
 
+        public virtual void InitMetrics(T metrics)
+        {
+            // Override in specialized helpers.
+        }
+
+        internal string Resolve(string attribute) => _attributes.Resolve(this, attribute);
+        protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
+
+        protected virtual string? DefaultResolve(string attribute) => null;
+
         internal class AttributeResolver
         {
-            private abstract class Resolver
-            {
-                protected string Name { get; }
-                protected Resolver(string name) => Name = name;
+            private readonly Dictionary<string, Func<object, object?>> _attributes =
+                new Dictionary<string, Func<object, object?>>();
 
-                protected abstract object? Resolve(object obj);
-
-                public string ResolveImpl(object obj)
-                {
-                    try
-                    {
-                        return Resolve(obj)?.ToString() ?? "";
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        throw;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new ArgumentOutOfRangeException(Name, ex);
-                    }
-                }
-            }
+            public void Add(string name, Func<object, object?> resolver) => _attributes.Add(name, resolver);
 
             public string Resolve(MetricsHelper<T> helper, string attribute)
             {
@@ -51,32 +43,19 @@ namespace ZeroC.IceMX
                     {
                         return "";
                     }
-                    return helper.DefaultResolve(attribute) ?? throw new ArgumentOutOfRangeException(attribute);
+                    return helper.DefaultResolve(attribute) ?? throw new MissingFieldException(attribute);
                 }
                 return resolver(helper)?.ToString() ?? "";
             }
-
-            public void Add(string name, Func<object, object?> resolver) => _attributes.Add(name, resolver);
-
-            private readonly Dictionary<string, Func<object, object?>> _attributes =
-                new Dictionary<string, Func<object, object?>>();
         }
-
-        protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
-
-        internal string Resolve(string attribute) => _attributes.Resolve(this, attribute);
-
-        public virtual void InitMetrics(T metrics)
-        {
-            // Override in specialized helpers.
-        }
-
-        protected virtual string? DefaultResolve(string attribute) => null;
     }
 
-    public class Observer<T> : Stopwatch, Ice.Instrumentation.IObserver where T : Metrics, new()
+    internal class Observer<T> : Stopwatch, Ice.Instrumentation.IObserver where T : Metrics, new()
     {
         public delegate void MetricsUpdate(T m);
+
+        private List<MetricsMap<T>.Entry>? _objects;
+        private long _previousDelay = 0;
 
         public virtual void Attach() => Start();
 
@@ -98,7 +77,7 @@ namespace ZeroC.IceMX
             }
         }
 
-        public void ForEach(MetricsUpdate u)
+        internal void ForEach(MetricsUpdate u)
         {
             foreach (MetricsMap<T>.Entry e in _objects!)
             {
@@ -106,24 +85,7 @@ namespace ZeroC.IceMX
             }
         }
 
-        public void Init(List<MetricsMap<T>.Entry> objects, Observer<T>? previous)
-        {
-            _objects = objects;
-
-            if (previous == null)
-            {
-                return;
-            }
-
-            _previousDelay = previous._previousDelay + (long)(previous.ElapsedTicks / (Frequency / 1000000.0));
-            foreach (MetricsMap<T>.Entry e in previous._objects!)
-            {
-                if (!_objects.Contains(e))
-                {
-                    e.Detach(_previousDelay);
-                }
-            }
-        }
+        internal MetricsMap<T>.Entry? GetEntry(MetricsMap<T> map) => _objects.FirstOrDefault(entry => entry.Map == map);
 
         internal ObserverImpl? GetObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
             where S : Metrics, new()
@@ -154,50 +116,47 @@ namespace ZeroC.IceMX
                 obsv.Init(metricsObjects, null);
                 return obsv;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Debug.Assert(false);
+                Debug.Assert(false, ex.ToString());
                 return null;
             }
         }
 
-        public MetricsMap<T>.Entry? GetEntry(MetricsMap<T> map)
+        internal void Init(List<MetricsMap<T>.Entry> objects, Observer<T>? previous)
         {
-            foreach (MetricsMap<T>.Entry e in _objects!)
+            _objects = objects;
+
+            if (previous == null)
             {
-                if (e.GetMap() == map)
+                return;
+            }
+
+            _previousDelay = previous._previousDelay + (long)(previous.ElapsedTicks / (Frequency / 1000000.0));
+            foreach (MetricsMap<T>.Entry e in previous._objects!)
+            {
+                if (!_objects.Contains(e))
                 {
-                    return e;
+                    e.Detach(_previousDelay);
                 }
             }
-            return null;
         }
-
-        private List<MetricsMap<T>.Entry>? _objects;
-        private long _previousDelay = 0;
     }
 
     internal class ObserverFactory<T, O> where T : Metrics, new() where O : Observer<T>, new()
     {
-        internal ObserverFactory(MetricsAdminI metrics, string name)
+        internal bool IsEnabled => _enabled;
+        private volatile bool _enabled;
+        private readonly List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
+        private readonly MetricsAdmin? _metrics;
+        private readonly string _name;
+        private Action? _updater;
+
+        internal ObserverFactory(MetricsAdmin metrics, string name)
         {
             _metrics = metrics;
             _name = name;
             _metrics.RegisterMap<T>(name, Update);
-        }
-
-        internal ObserverFactory(string name)
-        {
-            _name = name;
-            _metrics = null;
-        }
-
-        internal void Destroy()
-        {
-            if (_metrics != null)
-            {
-                _metrics.UnregisterMap(_name);
-            }
         }
 
         internal O? GetObserver(MetricsHelper<T> helper) => GetObserver(helper, null);
@@ -207,14 +166,8 @@ namespace ZeroC.IceMX
             lock (this)
             {
                 List<MetricsMap<T>.Entry>? metricsObjects = null;
-                O? old = null;
-                try
-                {
-                    old = (O?)observer;
-                }
-                catch (InvalidCastException)
-                {
-                }
+                var old = observer as O;
+
                 foreach (MetricsMap<T> m in _maps)
                 {
                     MetricsMap<T>.Entry? e = m.GetMatching(helper, old?.GetEntry(m));
@@ -231,18 +184,32 @@ namespace ZeroC.IceMX
                     return null;
                 }
 
-                var obsv = new O();
-                obsv.Init(metricsObjects, old);
-                return obsv;
+                try
+                {
+                    var obsv = new O();
+                    obsv.Init(metricsObjects, old);
+                    return obsv;
+                }
+                catch (Exception ex)
+                {
+                    Debug.Assert(false, ex.ToString());
+                    return null;
+                }
             }
         }
 
         internal void RegisterSubMap<S>(string subMap, Action<Metrics, Metrics[]> fieldSetter)
             where S : Metrics, new() => _metrics!.RegisterSubMap<S>(_name, subMap, fieldSetter);
 
-        internal bool IsEnabled => _enabled;
+        internal void SetUpdater(Action? updater)
+        {
+            lock (this)
+            {
+                _updater = updater;
+            }
+        }
 
-        public void Update()
+        private void Update()
         {
             Action? updater;
             lock (this)
@@ -258,19 +225,5 @@ namespace ZeroC.IceMX
 
             updater?.Invoke();
         }
-
-        public void SetUpdater(Action? updater)
-        {
-            lock (this)
-            {
-                _updater = updater;
-            }
-        }
-
-        private readonly MetricsAdminI? _metrics;
-        private readonly string _name;
-        private readonly List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
-        private volatile bool _enabled;
-        private Action? _updater;
     }
 }

@@ -1,0 +1,3 @@
+-! 06/12/20 23:16:13.277 Master: warning: setting `Ice.ThreadPool.Server.Size' is not useful, you should set individual adapter thread pools instead.
+-! 06/12/20 23:16:13.278 Master: warning: session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled (with Glacier2 filters disabled)
+-! 06/12/20 23:16:13.278 Master: warning: administrative session manager endpoints `IceGrid.Registry.AdminSessionManager.Endpoints' enabled (with Glacier2 filters disabled)
