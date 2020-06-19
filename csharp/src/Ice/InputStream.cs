@@ -1049,6 +1049,16 @@ namespace Ice
         }
 
         /// <summary>
+        /// Extracts a sequence of byte values from the stream.
+        /// </summary>
+        /// <param name="l">The extracted byte sequence as an ArraySegment.</param>
+        public void readByteSeq(out ArraySegment<byte> l)
+        {
+            byte[] array = readByteSeq();
+            l = new ArraySegment<byte>(array);
+        }
+
+        /// <summary>
         /// Extracts an optional byte sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
@@ -1233,6 +1243,16 @@ namespace Ice
         }
 
         /// <summary>
+        /// Extracts a sequence of boolean values from the stream.
+        /// </summary>
+        /// <param name="l">The extracted boolean sequence as an ArraySegment.</param>
+        public void readBoolSeq(out ArraySegment<bool> l)
+        {
+            bool[] array = readBoolSeq();
+            l = new ArraySegment<bool>(array);
+        }
+
+        /// <summary>
         /// Extracts an optional boolean sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
@@ -1392,6 +1412,16 @@ namespace Ice
             short[] array = readShortSeq();
             Array.Reverse(array);
             l = new Stack<short>(array);
+        }
+
+        /// <summary>
+        /// Extracts a sequence of short values from the stream.
+        /// </summary>
+        /// <param name="l">The extracted short sequence as an ArraySegment.</param>
+        public void readShortSeq(out ArraySegment<short> l)
+        {
+            short[] array = readShortSeq();
+            l = new ArraySegment<short>(array);
         }
 
         /// <summary>
@@ -1579,6 +1609,16 @@ namespace Ice
         }
 
         /// <summary>
+        /// Extracts a sequence of int values from the stream.
+        /// </summary>
+        /// <param name="l">The extracted int sequence as an ArraySegment.</param>
+        public void readIntSeq(out ArraySegment<int> l)
+        {
+            int[] array = readIntSeq();
+            l = new ArraySegment<int>(array);
+        }
+
+        /// <summary>
         /// Extracts an optional int sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
@@ -1760,6 +1800,16 @@ namespace Ice
             long[] array = readLongSeq();
             Array.Reverse(array);
             l = new Stack<long>(array);
+        }
+
+        /// <summary>
+        /// Extracts a sequence of long values from the stream.
+        /// </summary>
+        /// <param name="l">The extracted long sequence as an ArraySegment.</param>
+        public void readLongSeq(out ArraySegment<long> l)
+        {
+            long[] array = readLongSeq();
+            l = new ArraySegment<long>(array);
         }
 
         /// <summary>
@@ -1947,6 +1997,16 @@ namespace Ice
         }
 
         /// <summary>
+        /// Extracts a sequence of float values from the stream.
+        /// </summary>
+        /// <param name="l">The extracted float sequence as an ArraySegment.</param>
+        public void readFloatSeq(out ArraySegment<float> l)
+        {
+            float[] array = readFloatSeq();
+            l = new ArraySegment<float>(array);
+        }
+
+        /// <summary>
         /// Extracts an optional float sequence from the stream.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
@@ -2128,6 +2188,16 @@ namespace Ice
             double[] array = readDoubleSeq();
             Array.Reverse(array);
             l = new Stack<double>(array);
+        }
+
+        /// <summary>
+        /// Extracts a sequence of double values from the stream.
+        /// </summary>
+        /// <param name="l">The extracted double sequence as an ArraySegment.</param>
+        public void readDoubleSeq(out ArraySegment<double> l)
+        {
+            double[] array = readDoubleSeq();
+            l = new ArraySegment<double>(array);
         }
 
         /// <summary>
@@ -2333,6 +2403,16 @@ namespace Ice
             string[] array = readStringSeq();
             Array.Reverse(array);
             l = new Stack<string>(array);
+        }
+
+        /// <summary>
+        /// Extracts a sequence of strings from the stream.
+        /// </summary>
+        /// <param name="l">The extracted string sequence as an ArraySegment.</param>
+        public void readStringSeq(out ArraySegment<string> l)
+        {
+            string[] array = readStringSeq();
+            l = new ArraySegment<string>(array);
         }
 
         /// <summary>

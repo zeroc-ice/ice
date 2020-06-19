@@ -15,6 +15,7 @@ sequence<byte> AByteS;
 ["clr:generic:LinkedList"] sequence<byte> KByteS;
 ["clr:generic:Queue"] sequence<byte> QByteS;
 ["clr:generic:Stack"] sequence<byte> SByteS;
+["clr:generic:ArraySegment"] sequence<byte> ASByteS;
 ["clr:generic:Ice.seqMapping.Custom"] sequence<byte> CByteS;
 
 sequence<bool> ABoolS;

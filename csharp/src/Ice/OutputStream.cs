@@ -582,15 +582,25 @@ namespace Ice
         /// Passing null causes an empty sequence to be written to the stream.</param>
         public void writeByteSeq(byte[] v)
         {
-            if(v == null)
+            writeByteSeq(v == null ? new ArraySegment<byte>() : new ArraySegment<byte>(v));
+        }
+
+
+        /// <summary>
+        /// Writes a byte sequence to the stream.
+        /// </summary>
+        /// <param name="v">The byte sequence to write to the stream</param>
+        public void writeByteSeq(ArraySegment<byte> v)
+        {
+            if (v.Count == 0)
             {
                 writeSize(0);
             }
             else
             {
-                writeSize(v.Length);
-                expand(v.Length);
-                _buf.b.put(v);
+                writeSize(v.Count);
+                expand(v.Count);
+                _buf.b.put(v.Array, v.Offset, v.Count);
             }
         }
 
@@ -802,6 +812,24 @@ namespace Ice
         }
 
         /// <summary>
+        /// Writes a bool sequence to the stream.
+        /// </summary>
+        /// <param name="v">The bool sequence to write to the stream</param>
+        public void writeBoolSeq(ArraySegment<bool> v)
+        {
+            if (v.Count == 0)
+            {
+                writeBoolSeq(null);
+            }
+            else
+            {
+                bool[] tmp = new bool[v.Count];
+                System.Buffer.BlockCopy(v.Array, v.Offset, tmp, 0, v.Count);
+                writeBoolSeq(tmp);
+            }
+        }
+
+        /// <summary>
         /// Writes a boolean sequence to the stream.
         /// </summary>
         /// <param name="count">The number of elements in the sequence.</param>
@@ -971,6 +999,24 @@ namespace Ice
                 writeSize(v.Length);
                 expand(v.Length * 2);
                 _buf.b.putShortSeq(v);
+            }
+        }
+
+        /// <summary>
+        /// Writes a short sequence to the stream.
+        /// </summary>
+        /// <param name="v">The short sequence to write to the stream</param>
+        public void writeShortSeq(ArraySegment<short> v)
+        {
+            if (v.Count == 0)
+            {
+                writeShortSeq(null);
+            }
+            else
+            {
+                short[] tmp = new short[v.Count];
+                System.Buffer.BlockCopy(v.Array, v.Offset, tmp, 0, v.Count);
+                writeShortSeq(tmp);
             }
         }
 
@@ -1161,6 +1207,24 @@ namespace Ice
         }
 
         /// <summary>
+        /// Writes a int sequence to the stream.
+        /// </summary>
+        /// <param name="v">The int sequence to write to the stream</param>
+        public void writeIntSeq(ArraySegment<int> v)
+        {
+            if (v.Count == 0)
+            {
+                writeIntSeq(null);
+            }
+            else
+            {
+                int[] tmp = new int[v.Count];
+                System.Buffer.BlockCopy(v.Array, v.Offset, tmp, 0, v.Count);
+                writeIntSeq(tmp);
+            }
+        }
+
+        /// <summary>
         /// Writes an int sequence to the stream.
         /// </summary>
         /// <param name="count">The number of elements in the sequence.</param>
@@ -1333,6 +1397,24 @@ namespace Ice
                 writeSize(v.Length);
                 expand(v.Length * 8);
                 _buf.b.putLongSeq(v);
+            }
+        }
+
+        /// <summary>
+        /// Writes a long sequence to the stream.
+        /// </summary>
+        /// <param name="v">The long sequence to write to the stream</param>
+        public void writeLongSeq(ArraySegment<long> v)
+        {
+            if (v.Count == 0)
+            {
+                writeLongSeq(null);
+            }
+            else
+            {
+                long[] tmp = new long[v.Count];
+                System.Buffer.BlockCopy(v.Array, v.Offset, tmp, 0, v.Count);
+                writeLongSeq(tmp);
             }
         }
 
@@ -1515,6 +1597,24 @@ namespace Ice
         /// <summary>
         /// Writes a float sequence to the stream.
         /// </summary>
+        /// <param name="v">The float sequence to write to the stream</param>
+        public void writeFloatSeq(ArraySegment<float> v)
+        {
+            if (v.Count == 0)
+            {
+                writeFloatSeq(null);
+            }
+            else
+            {
+                float[] tmp = new float[v.Count];
+                System.Buffer.BlockCopy(v.Array, v.Offset, tmp, 0, v.Count);
+                writeFloatSeq(tmp);
+            }
+        }
+
+        /// <summary>
+        /// Writes a float sequence to the stream.
+        /// </summary>
         /// <param name="count">The number of elements in the sequence.</param>
         /// <param name="v">An enumerator for the container holding the sequence.</param>
         public void writeFloatSeq(int count, IEnumerable<float> v)
@@ -1685,6 +1785,24 @@ namespace Ice
                 writeSize(v.Length);
                 expand(v.Length * 8);
                 _buf.b.putDoubleSeq(v);
+            }
+        }
+
+        /// <summary>
+        /// Writes a double sequence to the stream.
+        /// </summary>
+        /// <param name="v">The double sequence to write to the stream</param>
+        public void writeDoubleSeq(ArraySegment<double> v)
+        {
+            if (v.Count == 0)
+            {
+                writeDoubleSeq(null);
+            }
+            else
+            {
+                double[] tmp = new double[v.Count];
+                System.Buffer.BlockCopy(v.Array, v.Offset, tmp, 0, v.Count);
+                writeDoubleSeq(tmp);
             }
         }
 
@@ -1873,6 +1991,24 @@ namespace Ice
                 {
                     writeString(v[i]);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Writes a string sequence to the stream.
+        /// </summary>
+        /// <param name="v">The string sequence to write to the stream</param>
+        public void writeStringSeq(ArraySegment<string> v)
+        {
+            if (v.Count == 0)
+            {
+                writeStringSeq(null);
+            }
+            else
+            {
+                string[] tmp = new string[v.Count];
+                System.Buffer.BlockCopy(v.Array, v.Offset, tmp, 0, v.Count);
+                writeStringSeq(tmp);
             }
         }
 
