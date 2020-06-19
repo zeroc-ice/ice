@@ -267,7 +267,7 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a size from the stream. This size's encoding is variable-length.</summary>
         /// <returns>The size read from the stream.</returns>
-        public int ReadSize() => OldEncoding ? Read11Size() : Read20Size();
+        public int ReadSize() => OldEncoding ? ReadSize11() : ReadSize20();
 
         /// <summary>Reads a string from the stream.</summary>
         /// <returns>The string read from the stream.</returns>
@@ -1034,19 +1034,6 @@ namespace ZeroC.Ice
             return new ReadOnlyBitSequence(_buffer.AsSpan(startPos, size));
         }
 
-        internal static string Read11String(ArraySegment<byte> buffer)
-        {
-            int size = Read11Size(buffer.AsSpan());
-            if (size == 0)
-            {
-                return "";
-            }
-            else
-            {
-                return _utf8.GetString(buffer.AsSpan(size < 255 ? 1 : 5, size));
-            }
-        }
-
         /// <summary>Reads an empty encapsulation from the provided byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
         /// <param name="encoding">The encoding of the buffer.</param>
@@ -1093,7 +1080,7 @@ namespace ZeroC.Ice
             else
             {
                 sizeLength = 1 << (buffer[0] & 0x03);
-                size = Read20Size(buffer);
+                size = ReadSize20(buffer);
             }
 
             if (sizeLength + size > buffer.Length)
@@ -1108,6 +1095,19 @@ namespace ZeroC.Ice
         internal static int ReadInt(ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
+
+        internal static string ReadString11(ArraySegment<byte> buffer)
+        {
+            int size = ReadSize11(buffer.AsSpan());
+            if (size == 0)
+            {
+                return "";
+            }
+            else
+            {
+                return _utf8.GetString(buffer.AsSpan(size < 255 ? 1 : 5, size));
+            }
+        }
 
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
         /// <param name="communicator">The communicator.</param>
@@ -1202,7 +1202,7 @@ namespace ZeroC.Ice
             return encoding;
         }
 
-        private static int Read11Size(ReadOnlySpan<byte> buffer)
+        private static int ReadSize11(ReadOnlySpan<byte> buffer)
         {
             byte b = buffer[0];
             if (b < 255)
@@ -1218,7 +1218,7 @@ namespace ZeroC.Ice
             return size;
         }
 
-        private static int Read20Size(ReadOnlySpan<byte> buffer)
+        private static int ReadSize20(ReadOnlySpan<byte> buffer)
         {
             ulong size = (buffer[0] & 0x03) switch
             {
@@ -1271,30 +1271,6 @@ namespace ZeroC.Ice
             if (_pos != _buffer.Count)
             {
                 throw new InvalidDataException($"{_buffer.Count - _pos} bytes remaining in the InputStream buffer");
-            }
-        }
-
-        private int Read11Size()
-        {
-            byte b = ReadByte();
-            if (b < 255)
-            {
-                return b;
-            }
-
-            int size = ReadInt();
-            if (size < 0)
-            {
-                throw new InvalidDataException($"read invalid size: {size}");
-            }
-            return size;
-        }
-
-        private int Read20Size()
-        {
-            checked
-            {
-                return (int)ReadVarULong();
             }
         }
 
@@ -1384,6 +1360,30 @@ namespace ZeroC.Ice
                 dict.Add(key, value);
             }
             return dict;
+        }
+
+        private int ReadSize11()
+        {
+            byte b = ReadByte();
+            if (b < 255)
+            {
+                return b;
+            }
+
+            int size = ReadInt();
+            if (size < 0)
+            {
+                throw new InvalidDataException($"read invalid size: {size}");
+            }
+            return size;
+        }
+
+        private int ReadSize20()
+        {
+            checked
+            {
+                return (int)ReadVarULong();
+            }
         }
 
         private int ReadSpan(Span<byte> span)
@@ -1528,7 +1528,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        Skip(Read20Size());
+                        Skip(ReadSize20());
                     }
                     break;
                 case EncodingDefinitions.TagFormat.Class:

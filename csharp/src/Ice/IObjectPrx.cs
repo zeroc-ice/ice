@@ -164,7 +164,7 @@ namespace ZeroC.Ice
         public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
 
         /// <summary>The locator cache timeout of this proxy, in seconds.</summary>
-        public int LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
+        public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
         /// <summary>The invocation timeout of this proxy, in seconds.</summary>
         public int InvocationTimeout => IceReference.InvocationTimeout;

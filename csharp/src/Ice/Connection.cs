@@ -122,7 +122,7 @@ namespace ZeroC.Ice
         private readonly int _compressionLevel;
         private readonly IConnector? _connector;
         private int _dispatchCount;
-        private TaskCompletionSource<bool>? _pendingDispatchTask;
+        private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
         private Action<Connection>? _heartbeatCallback;
         private ConnectionInfo? _info;
@@ -450,7 +450,7 @@ namespace ZeroC.Ice
                             SetState(State.Closing, exception);
                             if (_dispatchCount > 0)
                             {
-                                _pendingDispatchTask = new TaskCompletionSource<bool>();
+                                _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
                             }
                             closingTask = _closeTask = PerformGracefulCloseAsync();
                         }
@@ -785,7 +785,7 @@ namespace ZeroC.Ice
                     SetState(State.Closed, exception ?? _exception!);
                     if (_dispatchCount > 0)
                     {
-                        _pendingDispatchTask ??= new TaskCompletionSource<bool>();
+                        _dispatchTaskCompletionSource ??= new TaskCompletionSource<bool>();
                     }
                     _closeTask = PerformCloseAsync();
                 }
@@ -920,10 +920,10 @@ namespace ZeroC.Ice
 
                     // Decrease the dispatch count
                     Debug.Assert(_dispatchCount > 0);
-                    if (--_dispatchCount == 0 && _pendingDispatchTask != null)
+                    if (--_dispatchCount == 0 && _dispatchTaskCompletionSource != null)
                     {
                         Debug.Assert(_state > State.Active);
-                        _pendingDispatchTask.SetResult(true);
+                        _dispatchTaskCompletionSource.SetResult(true);
                     }
                 }
 
@@ -1037,11 +1037,19 @@ namespace ZeroC.Ice
                         var responseFrame = new IncomingResponseFrame(_communicator,
                             readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                         ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
-                        if (_requests.TryGetValue(requestId, out TaskCompletionSource<IncomingResponseFrame>? response))
+                        if (_requests.TryGetValue(requestId,
+                                out TaskCompletionSource<IncomingResponseFrame>? responseTaskCompletionSource))
                         {
                             _requests.Remove(requestId);
+                            // We can't call SetResult directly from here as it might be trigger the continuations
+                            // to run synchronously and it wouldn't be safe to run a continuation with the mutex
+                            // locked.
+                            //
+                            // TODO: Running continuations of synchronous call would be safe but we don't know
+                            // here if this is a synchronous call or not. We could if we provided this information
+                            // to SendRequestAsync and kept track.
                             incoming = () => {
-                                response.SetResult(responseFrame);
+                                responseTaskCompletionSource.SetResult(responseFrame);
                                 return new ValueTask(Task.CompletedTask);
                             };
                             if (_requests.Count == 0)
@@ -1093,9 +1101,9 @@ namespace ZeroC.Ice
             if (!(_exception is ConnectionClosedByPeerException))
             {
                 // Wait for the all the dispatch to be completed to ensure the responses are sent.
-                if (_pendingDispatchTask != null)
+                if (_dispatchTaskCompletionSource != null)
                 {
-                    await _pendingDispatchTask.Task.ConfigureAwait(false);
+                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
                 }
 
                 // Write and wait for the close connection frame to be written
@@ -1183,27 +1191,30 @@ namespace ZeroC.Ice
                 _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + _transceiver.ToString());
             }
 
-            // Notify pending requests of the failure
-            foreach (TaskCompletionSource<IncomingResponseFrame> response in _requests.Values)
+            // Notify pending requests of the failure and the close callback. We use the thread pool to ensure the
+            // continuations or the callback are not run from this thread which might still lock the connection's mutex.
+            _ = Task.Run(() =>
             {
-                response.SetException(_exception!);
-            }
-            _requests.Clear();
+                foreach (TaskCompletionSource<IncomingResponseFrame> responseTaskCompletionSource in _requests.Values)
+                {
+                    responseTaskCompletionSource.SetException(_exception!);
+                }
 
-            // Invoke the close callback
-            try
-            {
-                _closeCallback?.Invoke(this);
-            }
-            catch (Exception ex)
-            {
-                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-            }
+                // Invoke the close callback
+                try
+                {
+                    _closeCallback?.Invoke(this);
+                }
+                catch (Exception ex)
+                {
+                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                }
+            });
 
             // Wait for all the dispatch to complete before reaping the connection and notifying the observer
-            if (_pendingDispatchTask != null)
+            if (_dispatchTaskCompletionSource != null)
             {
-                await _pendingDispatchTask.Task.ConfigureAwait(false);
+                await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
             }
 
             _monitor?.Reap(this);

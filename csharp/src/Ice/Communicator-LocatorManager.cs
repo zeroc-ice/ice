@@ -23,18 +23,13 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private readonly LocatorTable _table;
 
-        public override bool Equals(object? obj) =>
-             ReferenceEquals(this, obj) || (obj is LocatorInfo rhs && Locator.Equals(rhs.Locator));
-
-        public override int GetHashCode() => Locator.GetHashCode();
-
         internal LocatorInfo(ILocatorPrx locator, LocatorTable table, bool background)
         {
             Locator = locator;
             _table = table;
             _background = background;
 
-            // The locator registry can't be located. We use ordered endpoint selection in case the locator
+            // The locator registry can't be located and we use ordered endpoint selection in case the locator
             // returned a proxy with some endpoints which are preferred to be tried first.
             _locatorRegistry = new Lazy<ILocatorRegistryPrx?>(
                 () => locator.GetRegistry()?.Clone(clearLocator: true,
@@ -76,82 +71,98 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<(IReadOnlyList<Endpoint>, bool)> GetEndpointsAsync(Reference reference, int ttl)
+        internal async ValueTask<(IReadOnlyList<Endpoint>, bool)> GetEndpointsAsync(Reference reference, TimeSpan ttl)
         {
             Debug.Assert(reference.IsIndirect);
             IReadOnlyList<Endpoint>? endpoints = null;
             bool cached;
-            if (!reference.IsWellKnown)
+            if (reference.IsWellKnown)
             {
-                (endpoints, cached) = _table.GetAdapterEndpoints(reference.AdapterId, ttl);
+                // First, we resolve the well-known reference. The resolved reference either embeds the endpoints
+                // or an adapter ID.
+                Reference? resolvedReference;
+                (resolvedReference, cached) = _table.GetObjectReference(reference.Identity, ttl);
                 if (!cached)
                 {
-                    if (_background && endpoints != null)
+                    if (_background && resolvedReference != null)
                     {
-                        _ = GetAdapterEndpointsAsync(reference);
-                    }
-                    else
-                    {
-                        endpoints = await GetAdapterEndpointsAsync(reference).ConfigureAwait(false);
-                    }
-                }
-            }
-            else
-            {
-                Reference? referenceForWellKnown;
-                (referenceForWellKnown, cached) = _table.GetObjectReference(reference.Identity, ttl);
-                if (!cached)
-                {
-                    if (_background && referenceForWellKnown != null)
-                    {
+                        // Reference is returned from the cache but TTL was reached, if backgrounds updates
+                        // are configured, we obtain a new reference to refresh the cache but use the stale
+                        // reference to not block the caller.
                         _ = GetObjectReferenceAsync(reference);
                     }
                     else
                     {
-                        referenceForWellKnown = await GetObjectReferenceAsync(reference).ConfigureAwait(false);
+                        resolvedReference = await GetObjectReferenceAsync(reference).ConfigureAwait(false);
                     }
                 }
 
-                if (referenceForWellKnown != null)
+                // If the resolved reference encoding doesn't match, we can't use it. Otherwise, we check if it's
+                // an direct reference with endpoints or an indirect reference (in which case we need to resolve
+                // its endpoints).
+                if (resolvedReference != null && resolvedReference.Encoding == reference.Encoding)
                 {
-                    Debug.Assert(referenceForWellKnown.Encoding == reference.Encoding);
-                    if (referenceForWellKnown.IsIndirect)
+                    if (resolvedReference.IsIndirect)
                     {
-                        Debug.Assert(!referenceForWellKnown.IsWellKnown);
+                        Debug.Assert(!resolvedReference.IsWellKnown);
 
+                        // Get the endpoints for the adapter from the resolved reference.
                         bool adapterCached;
-                        (endpoints, adapterCached) = _table.GetAdapterEndpoints(referenceForWellKnown.AdapterId, ttl);
+                        (endpoints, adapterCached) = _table.GetAdapterEndpoints(resolvedReference.AdapterId, ttl);
                         if (!adapterCached)
                         {
                             if (_background && endpoints != null)
                             {
-                                _ = GetAdapterEndpointsAsync(referenceForWellKnown);
+                                // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
+                                // are configured, we obtain new endpoints but continue using the stale endpoints to
+                                // not block the caller.
+                                _ = GetAdapterEndpointsAsync(resolvedReference);
                             }
                             else
                             {
-                                // Get the endpoints for the adapter ID from the resolved well-known reference. If no
-                                // endpoints are returned or the adapter is not found, we clear the resolved well-known
-                                // reference from the cache.
+                                bool adapterNotFound = false;
                                 try
                                 {
-                                    endpoints =
-                                        await GetAdapterEndpointsAsync(referenceForWellKnown).ConfigureAwait(false);
-                                    if (endpoints == null)
-                                    {
-                                        _table.RemoveObjectReference(referenceForWellKnown.Identity);
-                                    }
+                                    endpoints = await GetAdapterEndpointsAsync(resolvedReference).ConfigureAwait(false);
                                 }
                                 catch (AdapterNotFoundException)
                                 {
-                                    _table.RemoveObjectReference(referenceForWellKnown.Identity);
+                                    adapterNotFound = true;
                                     throw;
+                                }
+                                finally
+                                {
+                                    // If we can't resolve the endpoints, we clear the resolved object reference from
+                                    // the cache.
+                                    if (endpoints == null || adapterNotFound)
+                                    {
+                                        _table.RemoveObjectReference(reference.Identity);
+                                    }
                                 }
                             }
                         }
                     }
                     else
                     {
-                        endpoints = referenceForWellKnown.Endpoints;
+                        endpoints = resolvedReference.Endpoints;
+                    }
+                }
+            }
+            else
+            {
+                (endpoints, cached) = _table.GetAdapterEndpoints(reference.AdapterId, ttl);
+                if (!cached)
+                {
+                    if (_background && endpoints != null)
+                    {
+                        // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
+                        // are configured, we obtain new endpoints but continue using the stale endpoints to
+                        // not block the caller.
+                        _ = GetAdapterEndpointsAsync(reference);
+                    }
+                    else
+                    {
+                        endpoints = await GetAdapterEndpointsAsync(reference).ConfigureAwait(false);
                     }
                 }
             }
@@ -219,7 +230,7 @@ namespace ZeroC.Ice
             {
                 if (!_adapterRequests.TryGetValue(reference.AdapterId, out task))
                 {
-                    // If there's no locator request in progress for this adapter, we make one and cache it to prevent
+                    // If there's no locator request in progress for this adapter, we invoke one and cache it to prevent
                     // making too many requests on the locator. It's removed once the locator response is received.
                     task = PerformGetAdapterEndpointsAsync(reference);
                     if (!task.IsCompleted)
@@ -341,8 +352,7 @@ namespace ZeroC.Ice
                 try
                 {
                     IObjectPrx? proxy = await Locator.FindObjectByIdAsync(reference.Identity).ConfigureAwait(false);
-                    if (proxy != null && !proxy.IceReference.IsWellKnown &&
-                        proxy.IceReference.Encoding == reference.Encoding)
+                    if (proxy != null && !proxy.IceReference.IsWellKnown)
                     {
                         // Cache the object reference.
                         _table.AddObjectReference(reference.Identity, proxy.IceReference);
@@ -403,10 +413,10 @@ namespace ZeroC.Ice
     public sealed partial class Communicator
     {
         private readonly bool _backgroundLocatorCacheUpdates;
-        private readonly Dictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
-            new Dictionary<ILocatorPrx, LocatorInfo>();
-        private readonly Dictionary<LocatorKey, LocatorTable> _locatorTableMap =
-            new Dictionary<LocatorKey, LocatorTable>();
+        private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
+            new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
+        private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
+            new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
 
         // Returns locator info for a given locator. Automatically creates the locator info if it doesn't exist yet.
         internal LocatorInfo? GetLocatorInfo(ILocatorPrx? locator, Encoding encoding)
@@ -422,72 +432,41 @@ namespace ZeroC.Ice
                 locator = locator.Clone(clearLocator: true, encoding: encoding);
             }
 
-            // TODO: reap unused locator info objects?
-            lock (_mutex)
-            {
-                if (!_locatorInfoMap.TryGetValue(locator, out LocatorInfo? info))
-                {
-                    // Rely on locator identity for the adapter table. We want to have only one table per locator
-                    // (not one per locator proxy).
-                    var key = new LocatorKey(locator);
-                    if (!_locatorTableMap.TryGetValue(key, out LocatorTable? table))
-                    {
-                        table = new LocatorTable();
-                        _locatorTableMap[key] = table;
-                    }
-
-                    info = new LocatorInfo(locator, table, _backgroundLocatorCacheUpdates);
-                    _locatorInfoMap[locator] = info;
-                }
-
-                return info;
-            }
-        }
-
-        private readonly struct LocatorKey : IEquatable<LocatorKey>
-        {
-            private readonly Identity _id;
-            private readonly Encoding _encoding;
-
-            public LocatorKey(ILocatorPrx prx)
-            {
-                _id = prx.Identity;
-                _encoding = prx.Encoding;
-            }
-
-            public bool Equals(LocatorKey other) => _id.Equals(other._id) && _encoding.Equals(other._encoding);
-
-            public override bool Equals(object? obj) => (obj is LocatorKey other) && Equals(other);
-
-            public override int GetHashCode() => HashCode.Combine(_id, _encoding);
+            return _locatorInfoMap.GetOrAdd(locator, locatorKey => {
+                // Rely on locator identity and encoding for the adapter table. We want to have only one table per
+                // locator and encoding (not one per locator proxy).
+                LocatorTable table =
+                    _locatorTableMap.GetOrAdd((locatorKey.Identity, locatorKey.Encoding), key => new LocatorTable());
+                return new LocatorInfo(locatorKey, table, _backgroundLocatorCacheUpdates);
+            });
         }
     }
 
     internal sealed class LocatorTable
     {
-        private readonly ConcurrentDictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)>
-            _adapterEndpointsTable = new ConcurrentDictionary<string, (long Time, IReadOnlyList<Endpoint> Endpoints)>();
-        private readonly ConcurrentDictionary<Identity, (long Time, Reference Reference)> _objectReferenceTable =
-            new ConcurrentDictionary<Identity, (long Time, Reference Reference)>();
+        private readonly ConcurrentDictionary<string, (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints)>
+            _adapterEndpointsTable =
+                new ConcurrentDictionary<string, (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints)>();
 
-        internal void AddAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints)
-        {
-            _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTimeMillis(), endpoints);
-        }
+        private readonly ConcurrentDictionary<Identity, (TimeSpan Time, Reference Reference)>
+            _objectReferenceTable =
+                new ConcurrentDictionary<Identity, (TimeSpan Time, Reference Reference)>();
 
-        internal void AddObjectReference(Identity id, Reference reference)
-        {
-            _objectReferenceTable[id] = (Time.CurrentMonotonicTimeMillis(), reference);
-        }
+        internal void AddAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints) =>
+            _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTime(), endpoints);
 
-        internal (IReadOnlyList<Endpoint>?, bool) GetAdapterEndpoints(string adapter, int ttl)
+        internal void AddObjectReference(Identity id, Reference reference) =>
+            _objectReferenceTable[id] = (Time.CurrentMonotonicTime(), reference);
+
+        internal (IReadOnlyList<Endpoint>?, bool) GetAdapterEndpoints(string adapter, TimeSpan ttl)
         {
-            if (ttl == 0) // Locator cache disabled.
+            if (ttl == TimeSpan.Zero) // Locator cache disabled.
             {
                 return (null, false);
             }
 
-            if (_adapterEndpointsTable.TryGetValue(adapter, out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
+            if (_adapterEndpointsTable.TryGetValue(adapter,
+                out (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints) entry))
             {
                 return (entry.Endpoints, CheckTTL(entry.Time, ttl));
             }
@@ -497,14 +476,14 @@ namespace ZeroC.Ice
             }
         }
 
-        internal (Reference?, bool) GetObjectReference(Identity id, int ttl)
+        internal (Reference?, bool) GetObjectReference(Identity id, TimeSpan ttl)
         {
-            if (ttl == 0) // Locator cache disabled.
+            if (ttl == TimeSpan.Zero) // Locator cache disabled.
             {
                 return (null, false);
             }
 
-            if (_objectReferenceTable.TryGetValue(id, out (long Time, Reference Reference) entry))
+            if (_objectReferenceTable.TryGetValue(id, out (TimeSpan Time, Reference Reference) entry))
             {
                 return (entry.Reference, CheckTTL(entry.Time, ttl));
             }
@@ -514,41 +493,16 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IReadOnlyList<Endpoint>? RemoveAdapterEndpoints(string adapter)
-        {
-            if (_adapterEndpointsTable.TryRemove(adapter, out (long Time, IReadOnlyList<Endpoint> Endpoints) entry))
-            {
-                return entry.Endpoints;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        internal IReadOnlyList<Endpoint>? RemoveAdapterEndpoints(string adapter) =>
+            _adapterEndpointsTable.TryRemove(adapter,
+                out (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints) entry) ? entry.Endpoints : null;
 
-        internal Reference? RemoveObjectReference(Identity id)
-        {
-            if (_objectReferenceTable.TryRemove(id, out (long Time, Reference Reference) entry))
-            {
-                return entry.Reference;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        internal Reference? RemoveObjectReference(Identity id) =>
+            _objectReferenceTable.TryRemove(id,
+                out (TimeSpan Time, Reference Reference) entry) ? entry.Reference : null;
 
-        private static bool CheckTTL(long time, int ttl)
-        {
-            Debug.Assert(ttl != 0);
-            if (ttl < 0) // TTL = infinite
-            {
-                return true;
-            }
-            else
-            {
-                return Time.CurrentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
-            }
-        }
+        // Returns true if the given timestamp is still valid when compared to the given time-to-live
+        private static bool CheckTTL(TimeSpan timestamp, TimeSpan ttl) =>
+            ttl == Timeout.InfiniteTimeSpan || (Time.CurrentMonotonicTime() - timestamp) <= ttl;
     }
 }

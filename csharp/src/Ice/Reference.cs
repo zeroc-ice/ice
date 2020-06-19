@@ -38,7 +38,7 @@ namespace ZeroC.Ice
         internal bool IsFixed => _fixedConnection != null;
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
         internal bool IsWellKnown => !IsFixed && Endpoints.Count == 0 && AdapterId.Length == 0;
-        internal int LocatorCacheTimeout { get; }
+        internal TimeSpan LocatorCacheTimeout { get; }
         internal LocatorInfo? LocatorInfo { get; }
         internal bool PreferNonSecure { get; }
         internal Protocol Protocol { get; }
@@ -911,7 +911,7 @@ namespace ZeroC.Ice
                                  InvocationMode? invocationMode = null,
                                  int? invocationTimeout = null,
                                  ILocatorPrx? locator = null,
-                                 int? locatorCacheTimeout = null,
+                                 TimeSpan? locatorCacheTimeout = null,
                                  bool? oneway = null,
                                  bool? preferNonSecure = null,
                                  Protocol? protocol = null,
@@ -1059,11 +1059,11 @@ namespace ZeroC.Ice
                     throw new ArgumentException($"invalid {nameof(connectionTimeout)}: {connectionTimeout.Value}",
                         nameof(connectionTimeout));
                 }
-                if (locatorCacheTimeout != null && locatorCacheTimeout.Value < -1)
+                if (locatorCacheTimeout != null &&
+                    locatorCacheTimeout < TimeSpan.Zero && locatorCacheTimeout != Timeout.InfiniteTimeSpan)
                 {
                     throw new ArgumentException(
-                        $"invalid {nameof(locatorCacheTimeout)}: {locatorCacheTimeout.Value}",
-                        nameof(locatorCacheTimeout));
+                        $"invalid {nameof(locatorCacheTimeout)}: {locatorCacheTimeout}", nameof(locatorCacheTimeout));
                 }
 
                 if (adapterId != null && endpoints != null)
@@ -1407,7 +1407,7 @@ namespace ZeroC.Ice
                 [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
                 [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
                 [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture),
-                [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToString(CultureInfo.InvariantCulture),
+                [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToString(),
                 [prefix + ".PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
 
@@ -1481,7 +1481,7 @@ namespace ZeroC.Ice
             IReadOnlyDictionary<string, string>? context = null;
             EndpointSelectionType? endpointSelection = null;
             int? invocationTimeout = null;
-            int? locatorCacheTimeout = null;
+            TimeSpan? locatorCacheTimeout = null;
             LocatorInfo? locatorInfo = null;
             bool? preferNonSecure = null;
             RouterInfo? routerInfo = null;
@@ -1533,13 +1533,14 @@ namespace ZeroC.Ice
                     communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
 
                 property = $"{propertyPrefix}.LocatorCacheTimeout";
-                locatorCacheTimeout = communicator.GetPropertyAsInt(property);
-                if (locatorCacheTimeout is int locatorCacheTimeoutValue)
+                if (communicator.GetPropertyAsInt(property) is int locatorCacheTimeoutIntValue)
                 {
-                    if (locatorCacheTimeoutValue < -1)
+                    locatorCacheTimeout = locatorCacheTimeoutIntValue == -1 ? Timeout.InfiniteTimeSpan :
+                        TimeSpan.FromSeconds(locatorCacheTimeoutIntValue);
+                    if (locatorCacheTimeout < TimeSpan.Zero && locatorCacheTimeout != Timeout.InfiniteTimeSpan)
                     {
                         throw new InvalidConfigurationException(
-                            $"invalid value for property `{property}': `{locatorCacheTimeoutValue}'");
+                            $"invalid value for property `{property}': `{locatorCacheTimeout}'");
                     }
                 }
 
@@ -1597,7 +1598,7 @@ namespace ZeroC.Ice
                           Identity identity,
                           InvocationMode invocationMode,
                           int invocationTimeout,
-                          int locatorCacheTimeout,
+                          TimeSpan locatorCacheTimeout,
                           LocatorInfo? locatorInfo,
                           bool preferNonSecure,
                           Protocol protocol,
@@ -1651,7 +1652,7 @@ namespace ZeroC.Ice
             InvocationTimeout = invocationTimeout;
             IsCollocationOptimized = false;
             IsConnectionCached = false;
-            LocatorCacheTimeout = 0;
+            LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
             PreferNonSecure = false;
             Protocol = Protocol.Ice1; // it's really the connection's protocol

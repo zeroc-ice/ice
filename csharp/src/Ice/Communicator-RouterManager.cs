@@ -25,11 +25,6 @@ namespace ZeroC.Ice
         private readonly HashSet<Identity> _identities = new HashSet<Identity>();
         private readonly object _mutex = new object();
 
-        public override bool Equals(object? obj) =>
-            ReferenceEquals(this, obj) || (obj is RouterInfo rhs && Router.Equals(rhs.Router));
-
-        public override int GetHashCode() => Router.GetHashCode();
-
         internal RouterInfo(IRouterPrx router) => Router = router;
 
         internal async ValueTask AddProxyAsync(IObjectPrx proxy)

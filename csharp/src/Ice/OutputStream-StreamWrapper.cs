@@ -73,7 +73,7 @@ namespace ZeroC.Ice
                         else
                         {
                             Span<byte> data = stackalloc byte[OutputStream.DefaultSizeLength];
-                            OutputStream.WriteFixedLength20Size(_pos, data);
+                            OutputStream.WriteFixedLengthSize20(_pos, data);
                             _stream.RewriteByteSpan(data, _startPos);
                         }
                     }

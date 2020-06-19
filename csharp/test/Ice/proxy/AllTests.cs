@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using Test;
 
@@ -428,10 +429,10 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(b1 != null && b1.Locator != null && b1.Locator.Identity.Name.Equals("locator"));
             communicator.SetProperty(property, "");
             property = propertyPrefix + ".LocatorCacheTimeout";
-            TestHelper.Assert(b1.LocatorCacheTimeout == -1);
+            TestHelper.Assert(b1.LocatorCacheTimeout == Timeout.InfiniteTimeSpan);
             communicator.SetProperty(property, "1");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
-            TestHelper.Assert(b1 != null && b1.LocatorCacheTimeout == 1);
+            TestHelper.Assert(b1 != null && b1.LocatorCacheTimeout == TimeSpan.FromSeconds(1));
             communicator.SetProperty(property, "");
 
             // Now retest with an indirect proxy.
@@ -443,10 +444,10 @@ namespace ZeroC.Ice.Test.Proxy
             communicator.SetProperty(property, "");
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            TestHelper.Assert(b1.LocatorCacheTimeout == -1);
+            TestHelper.Assert(b1.LocatorCacheTimeout == Timeout.InfiniteTimeSpan);
             communicator.SetProperty(property, "1");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
-            TestHelper.Assert(b1 != null && b1.LocatorCacheTimeout == 1);
+            TestHelper.Assert(b1 != null && b1.LocatorCacheTimeout == TimeSpan.FromSeconds(1));
             communicator.SetProperty(property, "");
 
             // This cannot be tested so easily because the property is cached
@@ -529,7 +530,7 @@ namespace ZeroC.Ice.Test.Proxy
                 cacheConnection: true,
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
-                locatorCacheTimeout: 200,
+                locatorCacheTimeout: TimeSpan.FromSeconds(200),
                 invocationTimeout: 1500);
 
             var locator = ILocatorPrx.Parse("locator", communicator).Clone(
@@ -537,7 +538,7 @@ namespace ZeroC.Ice.Test.Proxy
                 cacheConnection: false,
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
-                locatorCacheTimeout: 300,
+                locatorCacheTimeout: TimeSpan.FromSeconds(300),
                 invocationTimeout: 1500,
                 router: router);
 
@@ -546,7 +547,7 @@ namespace ZeroC.Ice.Test.Proxy
                 cacheConnection: true,
                 preferNonSecure: false,
                 endpointSelection: EndpointSelectionType.Ordered,
-                locatorCacheTimeout: 100,
+                locatorCacheTimeout: TimeSpan.FromSeconds(100),
                 invocationTimeout: 1234,
                 encoding: Encoding.V2_0,
                 locator: locator);
@@ -559,7 +560,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.ConnectionCached"].Equals("1"));
             TestHelper.Assert(proxyProps["Test.PreferNonSecure"].Equals("0"));
             TestHelper.Assert(proxyProps["Test.EndpointSelection"].Equals("Ordered"));
-            TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"].Equals("100"));
+            TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"].Equals("00:01:40"));
             TestHelper.Assert(proxyProps["Test.InvocationTimeout"].Equals("1234"));
 
             TestHelper.Assert(proxyProps["Test.Locator"].Equals($"locator -t -p ice1 -e {Encoding.V2_0}"));
@@ -568,7 +569,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
             TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"].Equals("1"));
             TestHelper.Assert(proxyProps["Test.Locator.EndpointSelection"].Equals("Random"));
-            TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"].Equals("300"));
+            TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"].Equals("00:05:00"));
             TestHelper.Assert(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
 
             TestHelper.Assert(proxyProps["Test.Locator.Router"].Equals(
@@ -577,7 +578,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
             TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"].Equals("1"));
             TestHelper.Assert(proxyProps["Test.Locator.Router.EndpointSelection"].Equals("Random"));
-            TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"].Equals("200"));
+            TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"].Equals("00:03:20"));
             TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"].Equals("1500"));
 
             output.WriteLine("ok");
@@ -661,7 +662,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             try
             {
-                baseProxy.Clone(locatorCacheTimeout: 0);
+                baseProxy.Clone(locatorCacheTimeout: TimeSpan.Zero);
             }
             catch (ArgumentException)
             {
@@ -670,7 +671,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             try
             {
-                baseProxy.Clone(locatorCacheTimeout: -1);
+                baseProxy.Clone(locatorCacheTimeout: Timeout.InfiniteTimeSpan);
             }
             catch (ArgumentException)
             {
@@ -679,7 +680,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             try
             {
-                baseProxy.Clone(locatorCacheTimeout: -2);
+                baseProxy.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(-2));
                 TestHelper.Assert(false);
             }
             catch (ArgumentException)
@@ -776,8 +777,10 @@ namespace ZeroC.Ice.Test.Proxy
             compObj2 = IObjectPrx.Parse("foo@MyAdapter2", communicator);
             TestHelper.Assert(!compObj1.Equals(compObj2));
 
-            TestHelper.Assert(compObj1.Clone(locatorCacheTimeout: 20).Equals(compObj1.Clone(locatorCacheTimeout: 20)));
-            TestHelper.Assert(!compObj1.Clone(locatorCacheTimeout: 10).Equals(compObj1.Clone(locatorCacheTimeout: 20)));
+            TestHelper.Assert(compObj1.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(20))
+                .Equals(compObj1.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(20))));
+            TestHelper.Assert(!compObj1.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10))
+                .Equals(compObj1.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(20))));
 
             TestHelper.Assert(compObj1.Clone(invocationTimeout: 20).Equals(compObj1.Clone(invocationTimeout: 20)));
             TestHelper.Assert(!compObj1.Clone(invocationTimeout: 10).Equals(compObj1.Clone(invocationTimeout: 20)));

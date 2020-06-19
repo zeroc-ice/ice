@@ -470,6 +470,19 @@ namespace ZeroC.Ice.Test.AMI
                         Task.Run(() => p.IcePing()).Wait();
                     }
 
+                    try
+                    {
+                        await p.closeAsync(CloseMode.Forcefully);
+                        TestHelper.Assert(false);
+                    }
+                    catch (Exception)
+                    {
+                        // Run blocking IcePing() on another thread from the continuation to ensure there's no deadlock
+                        // if the continuaion blocks and wait for another thread to complete an invocation with the
+                        // connection.
+                        Task.Run(() => p.IcePing()).Wait();
+                    }
+
                     // Operations implemented with amd and async.
                     await p.opAsyncDispatchAsync();
 

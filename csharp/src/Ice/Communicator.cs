@@ -123,7 +123,7 @@ namespace ZeroC.Ice
         public string DefaultTransport { get; }
         public int DefaultTimeout { get; }
         public int DefaultInvocationTimeout { get; }
-        public int DefaultLocatorCacheTimeout { get; }
+        public TimeSpan DefaultLocatorCacheTimeout { get; }
 
         /// <summary>The default router for this communicator. To disable the default router, null can be used.
         /// All newly created proxies will use this default router. Note that setting this property has no effect on
@@ -455,11 +455,19 @@ namespace ZeroC.Ice
                         $"invalid value for Ice.Default.InvocationTimeout: `{DefaultInvocationTimeout}'");
                 }
 
-                DefaultLocatorCacheTimeout = GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") ?? -1;
-                if (DefaultLocatorCacheTimeout < -1)
+                if (GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") is int locatorCacheTimeout)
                 {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
+                    DefaultLocatorCacheTimeout = locatorCacheTimeout == -1 ? Timeout.InfiniteTimeSpan :
+                        TimeSpan.FromSeconds(locatorCacheTimeout);
+                    if (locatorCacheTimeout < -1)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
+                    }
+                }
+                else
+                {
+                    DefaultLocatorCacheTimeout = Timeout.InfiniteTimeSpan;
                 }
 
                 if (GetPropertyAsBool("Ice.Override.Compress") is bool compress)
