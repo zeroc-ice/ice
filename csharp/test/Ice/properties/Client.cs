@@ -91,7 +91,7 @@ namespace ZeroC.Ice.Test.Properties
                     { "Duration.BadCombination", "1m10s" }
                 };
 
-                var communicator = new Communicator(timeSpanProperties);
+                using var communicator = new Communicator(timeSpanProperties);
 
                 var duration = communicator.GetPropertyAsTimeSpan("Duration.Milliseconds");
                 TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(10000)));
