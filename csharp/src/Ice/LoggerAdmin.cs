@@ -16,11 +16,13 @@ namespace ZeroC.Ice
         private readonly HashSet<LogMessageType> _messageTypes;
         private readonly object _mutex = new object();
         private readonly IRemoteLoggerPrx _remoteLoggerPrx;
-        private ValueTask _lastRequestTask;
+        private Task _lastRequestTask = Task.CompletedTask;
         private readonly HashSet<string> _traceCategories;
 
-        internal LogForwarder(LoggerAdmin loggerAdmin, IRemoteLoggerPrx prx, HashSet<LogMessageType> messageTypes,
-            HashSet<string> traceCategories)
+        internal LogForwarder(LoggerAdmin loggerAdmin,
+                              IRemoteLoggerPrx prx,
+                              HashSet<LogMessageType> messageTypes,
+                              HashSet<string> traceCategories)
         {
             _remoteLoggerPrx = prx;
             _loggerAdmin = loggerAdmin;
@@ -47,42 +49,43 @@ namespace ZeroC.Ice
         /// <param name="localLogger">The local logger.</param>
         /// <param name="request">A delegate that represents an asynchronous request to be called on the remote
         /// logger.</param>
-        internal void Queue(string operation, ILogger localLogger, Func<IRemoteLoggerPrx, ValueTask> request)
+        internal void Queue(string operation, ILogger localLogger, Func<IRemoteLoggerPrx, Task> request)
         {
             lock (_mutex)
             {
                 // Creates a new task that waits for the last request task to complete and to send the given
                 // request. Save this new task as the last request task.
-                _lastRequestTask = QueueAsync(_lastRequestTask, _loggerAdmin, _remoteLoggerPrx, operation, localLogger,
+                _lastRequestTask = QueueAsync(_lastRequestTask, operation, localLogger,
                      request);
             }
 
-            static async ValueTask QueueAsync(ValueTask previousRequestTask, LoggerAdmin loggerAdmin,
-                IRemoteLoggerPrx proxy, string operation, ILogger localLogger,
-                Func<IRemoteLoggerPrx, ValueTask> request)
+            async Task QueueAsync(Task previousRequestTask, string operation, ILogger localLogger,
+                Func<IRemoteLoggerPrx, Task> request)
             {
                 try
                 {
                     // Wait for the previous request task to complete.
                     await previousRequestTask;
 
-                    if (loggerAdmin.TraceLevel > 1)
+                    if (_loggerAdmin.TraceLevel > 1)
                     {
-                        localLogger.Trace(LoggerAdmin.TraceCategory, $"sending {operation} message to `{proxy}'");
+                        localLogger.Trace(LoggerAdmin.TraceCategory,
+                            $"sending {operation} message to `{_remoteLoggerPrx}'");
                     }
 
                     // Now send the given request. The IRemoteLogger requests are marked as [oneway] in the Slice so
                     // this should return once the request has been sent.
-                    await request(proxy);
+                    await request(_remoteLoggerPrx);
 
-                    if (loggerAdmin.TraceLevel > 1)
+                    if (_loggerAdmin.TraceLevel > 1)
                     {
-                        localLogger.Trace(LoggerAdmin.TraceCategory, $"{operation} on `{proxy}' sent successfully");
+                        localLogger.Trace(LoggerAdmin.TraceCategory,
+                            $"{operation} on `{_remoteLoggerPrx}' sent successfully");
                     }
                 }
                 catch (Exception exception)
                 {
-                    loggerAdmin.DeadRemoteLogger(proxy, localLogger, exception, operation);
+                    _loggerAdmin.DeadRemoteLogger(_remoteLoggerPrx, localLogger, exception, operation);
                     throw;
                 }
             }
@@ -106,8 +109,11 @@ namespace ZeroC.Ice
         private Communicator? _sendLogCommunicator = null;
         private int _traceCount = 0;
 
-        public void AttachRemoteLogger(IRemoteLoggerPrx? prx, LogMessageType[] types, string[] categories,
-            int messageMax, Current current)
+        public void AttachRemoteLogger(IRemoteLoggerPrx? prx,
+                                       LogMessageType[] types,
+                                       string[] categories,
+                                       int messageMax,
+                                       Current current)
         {
             if (prx == null)
             {
@@ -164,8 +170,7 @@ namespace ZeroC.Ice
                 FilterLogMessages(initLogMessages, messageTypes, traceCategories, messageMax);
             }
 
-            logForwarder.Queue("init", _logger, (Func<IRemoteLoggerPrx, ValueTask>)(async prx =>
-                await prx.InitAsync(_logger.GetPrefix(), initLogMessages.ToArray())));
+            logForwarder.Queue("init", _logger, prx => prx.InitAsync(_logger.GetPrefix(), initLogMessages.ToArray()));
         }
 
         public bool DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current)
@@ -192,8 +197,10 @@ namespace ZeroC.Ice
             return found;
         }
 
-        public (IEnumerable<LogMessage>, string) GetLog(LogMessageType[] types, string[] categories, int messageMax,
-            Current current)
+        public (IEnumerable<LogMessage>, string) GetLog(LogMessageType[] types,
+                                                        string[] categories,
+                                                        int messageMax,
+                                                        Current current)
         {
             LinkedList<LogMessage> logMessages;
             lock (_mutex)
@@ -260,7 +267,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                List<LogForwarder>? remoteLoggers = null;
+                List<LogForwarder>? logForwarderList = null;
 
                 // Put message in _queue
                 if ((logMessage.Type != LogMessageType.TraceMessage && _maxLogCount > 0) ||
@@ -329,12 +336,12 @@ namespace ZeroC.Ice
                 {
                     if (p.IsAccepted(logMessage))
                     {
-                        remoteLoggers ??= new List<LogForwarder>();
-                        remoteLoggers.Add(p);
+                        logForwarderList ??= new List<LogForwarder>();
+                        logForwarderList.Add(p);
                     }
                 }
 
-                return remoteLoggers;
+                return logForwarderList;
             }
         }
 

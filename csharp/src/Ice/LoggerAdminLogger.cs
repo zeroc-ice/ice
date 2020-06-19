@@ -3,22 +3,27 @@
 //
 
 using System;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
+using System.Collections.Concurrent;
 
 namespace ZeroC.Ice
 {
     internal sealed class LoggerAdminLogger : ILogger
     {
         internal ILogger LocalLogger { get; }
-        private const string TraceCategory = "Admin.Logger";
         private static long Now() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
+        private readonly Channel<LogMessage> _channel;
         private readonly LoggerAdmin _loggerAdmin;
 
         public ILogger CloneWithPrefix(string prefix) => LocalLogger.CloneWithPrefix(prefix);
 
-        public void Destroy() => _loggerAdmin.Destroy();
+        public void Destroy()
+        {
+            _channel.Writer.Complete();
+            _loggerAdmin.Destroy();
+        }
 
         public void Error(string message)
         {
@@ -56,18 +61,33 @@ namespace ZeroC.Ice
         {
             LocalLogger = (localLogger as LoggerAdminLogger)?.LocalLogger ?? localLogger;
             _loggerAdmin = new LoggerAdmin(communicator, this);
+
+            // Create an unbounded channel to ensure the messages are sent from a separate thread. We don't allow
+            // synchronous continuations to ensure that writes on the channel are never processed by the writer
+            // thread.
+            _channel = Channel.CreateUnbounded<LogMessage>(new UnboundedChannelOptions {
+                AllowSynchronousContinuations = false,
+                SingleReader = true,
+                SingleWriter = true
+            });
+
+            Task.Run(async () =>
+            {
+                // The enumeration completes when the channel writer Complete method is called.
+                await foreach (LogMessage logMessage in _channel.Reader.ReadAllAsync())
+                {
+                    List<LogForwarder>? logForwarderList = _loggerAdmin.Log(logMessage);
+                    if (logForwarderList != null)
+                    {
+                        foreach (LogForwarder p in logForwarderList)
+                        {
+                            p.Queue("log", LocalLogger, prx => prx.LogAsync(logMessage));
+                        }
+                    }
+                }
+            });
         }
 
-        internal void Log(LogMessage logMessage)
-        {
-            List<LogForwarder>? remoteLoggers = _loggerAdmin.Log(logMessage);
-            if (remoteLoggers != null)
-            {
-                foreach (LogForwarder p in remoteLoggers)
-                {
-                    p.Queue("log", LocalLogger, async prx => await prx.LogAsync(logMessage));
-                }
-            }
-        }
+        internal void Log(LogMessage logMessage) => _channel.Writer.TryWrite(logMessage);
     }
 }
