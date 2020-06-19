@@ -86,9 +86,12 @@ namespace ZeroC.Ice.Test.Properties
                     { "Duration.Hours", "64h" },
                     { "Duration.Infinite", "infinite" },
 
-                    { "Duration.BadDouble", "1.1ms" },
-                    { "Duration.BadNegative", "-5s" },
-                    { "Duration.BadCombination", "1m10s" }
+                    { "Duration.Bad.Double", "1.1ms" },
+                    { "Duration.Bad.Negative", "-5s" },
+                    { "Duration.Bad.Combination", "1m10s" },
+                    { "Duration.Bad.AboveMax", $"{TimeSpan.MaxValue.TotalMilliseconds + 1}ms"},
+                    { "Duration.Bad.NotANumber", "NaN"},
+                    { "Duration.Bad.NoUnits", "42"}
                 };
 
                 using var communicator = new Communicator(timeSpanProperties);
@@ -108,14 +111,7 @@ namespace ZeroC.Ice.Test.Properties
                 duration = communicator.GetPropertyAsTimeSpan("Duration.Infinite");
                 TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(-1)));
 
-                var badProperties = new string[]
-                {
-                    "Duration.BadDouble",
-                    "Duration.BadNegative",
-                    "Duration.BadCombination"
-                };
-
-                foreach (string property in badProperties)
+                foreach (string property in communicator.GetProperties("Duration.Bad").Keys)
                 {
                     try
                     {

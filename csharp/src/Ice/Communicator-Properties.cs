@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -65,10 +66,10 @@ namespace ZeroC.Ice
                         pv.Used = true;
                         return int.Parse(pv.Val, CultureInfo.InvariantCulture);
                     }
-                    catch (FormatException ex)
+                    catch (Exception ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"the value of property `{name}' is not an integer", ex);
+                            $"the value `{pv.Val}' of property `{name}' is not a 32-bit integer", ex);
                     }
                 }
                 return null;
@@ -159,38 +160,36 @@ namespace ZeroC.Ice
                     pv.Used = true;
 
                     if (pv.Val == "infinite") {
-                        return TimeSpan.FromMilliseconds(-1);
+                        return Timeout.InfiniteTimeSpan;
                     }
 
                     // Match an integer followed letters
-                    Match match = Regex.Match(pv.Val, @"^(\d+)([a-z]+)$");
+                    Match match = Regex.Match(pv.Val, @"^([0-9]+)([a-z]+)$");
 
                     if (!match.Success)
                     {
                         throw new InvalidConfigurationException(
-                            $"the value of property `{name}' is not a TimeSpan");
+                            $"the value `{pv.Val}' of property `{name}' is not a TimeSpan");
                     }
 
-                    int value;
                     try
                     {
-                        value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        int value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        string unit = match.Groups[2].Value;
+                        return unit switch
+                        {
+                            "ms" => TimeSpan.FromMilliseconds(value),
+                            "s" => TimeSpan.FromSeconds(value),
+                            "m" => TimeSpan.FromMinutes(value),
+                            "h" => TimeSpan.FromHours(value),
+                            _ => throw new FormatException($"unknown time unit `{unit}'"),
+                        };
                     }
-                    catch (FormatException ex)
+                    catch (Exception ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"the value of property `{name}' is not a TimeSpan", ex);
+                            $"the value `{pv.Val}' of property `{name}' is not a TimeSpan", ex);
                     }
-
-                    return match.Groups[2].Value switch
-                    {
-                        "ms" => TimeSpan.FromMilliseconds(value),
-                        "s" => TimeSpan.FromSeconds(value),
-                        "m" => TimeSpan.FromMinutes(value),
-                        "h" => TimeSpan.FromHours(value),
-                        _ => throw new InvalidConfigurationException(
-                            @"the value of property `{name}' is not a valid TimeSpan. Unknown time unit `{unit}'"),
-                    };
                 }
                 return null;
             }
