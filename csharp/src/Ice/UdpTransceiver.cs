@@ -14,6 +14,13 @@ namespace ZeroC.Ice
     internal sealed class UdpTransceiver : ITransceiver
     {
         internal IPEndPoint? McastAddress => _mcastAddr;
+
+        public Connection CreateConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter) => new UdpConnection(communicator, monitor, this, connector, endpoint, adapter);
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)

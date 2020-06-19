@@ -113,7 +113,7 @@ namespace ZeroC.Ice
         }
 
         public IConnectionObserver? GetConnectionObserver(
-            ConnectionInfo c,
+            Connection c,
             Endpoint e,
             ConnectionState s,
             IConnectionObserver? obsv)
@@ -206,7 +206,7 @@ namespace ZeroC.Ice
 
     internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
     {
-        private ConnectionInfo ConnectionInfo { get; }
+        private Connection Connection { get; }
 
         private Endpoint Endpoint { get; }
         private string Id
@@ -216,20 +216,24 @@ namespace ZeroC.Ice
                 if (_id == null)
                 {
                     var os = new StringBuilder();
-                    IPConnectionInfo? info = IPConnectionInfo;
-                    if (info != null)
+                    string? localAddres = (Connection as IPConnection)?.LocalAddress?.ToString();
+                    string? remoteAddress = (Connection as IPConnection)?.LocalAddress?.ToString();
+                    if (localAddres != null)
                     {
-                        os.Append(info.LocalAddress).Append(':').Append(info.LocalPort);
-                        os.Append(" -> ");
-                        os.Append(info.RemoteAddress).Append(':').Append(info.RemotePort);
+                        os.Append(localAddres);
+                        if (remoteAddress != null)
+                        {
+                            os.Append(" -> ");
+                            os.Append(remoteAddress);
+                        }
                     }
                     else
                     {
                         os.Append("connection-").Append(ConnectionInfo);
                     }
-                    if (ConnectionInfo.ConnectionId.Length > 0)
+                    if (Connection.Endpoint.ConnectionId.Length > 0)
                     {
-                        os.Append(" [").Append(ConnectionInfo.ConnectionId).Append("]");
+                        os.Append(" [").Append(Connection.Endpoint.ConnectionId).Append("]");
                     }
                     _id = os.ToString();
                 }
@@ -237,24 +241,8 @@ namespace ZeroC.Ice
             }
         }
 
-        // TODO temporary until ConnectionInfo refactoring
-        private IPConnectionInfo? IPConnectionInfo
-        {
-            get
-            {
-                for (ConnectionInfo? p = ConnectionInfo; p != null; p = p.Underlying)
-                {
-                    if (p is IPConnectionInfo info)
-                    {
-                        return info;
-                    }
-                }
-                return null;
-            }
-        }
-
         public string Parent =>
-            string.IsNullOrEmpty(ConnectionInfo.AdapterName) ? "Communicator" : ConnectionInfo.AdapterName;
+            string.IsNullOrEmpty(Connection.Adapter?.Name) ? "Communicator" : Connection.Adapter.Name;
 
         public ConnectionState State { get; }
 
@@ -262,10 +250,10 @@ namespace ZeroC.Ice
 
         private string? _id;
 
-        internal ConnectionHelper(ConnectionInfo con, Endpoint endpt, ConnectionState state)
+        internal ConnectionHelper(Connection con, Endpoint endpt, ConnectionState state)
             : base(_attributes)
         {
-            ConnectionInfo = con;
+            Connection = con;
             Endpoint = endpt;
             State = state;
         }
@@ -277,9 +265,9 @@ namespace ZeroC.Ice
                 Add("parent", obj => (obj as ConnectionHelper)?.Parent);
                 Add("id", obj => (obj as ConnectionHelper)?.Id);
                 Add("state", obj => (obj as ConnectionHelper)?.State.ToString().ToLowerInvariant());
-                Add("incoming", obj => (obj as ConnectionHelper)?.ConnectionInfo.Incoming);
-                Add("adapterName", obj => (obj as ConnectionHelper)?.ConnectionInfo.AdapterName);
-                Add("connectionId", obj => (obj as ConnectionHelper)?.ConnectionInfo.ConnectionId);
+                Add("incoming", obj => (obj as ConnectionHelper)?.Connection.IsIncoming);
+                Add("adapterName", obj => (obj as ConnectionHelper)?.Connection.Adapter?.Name);
+                Add("connectionId", obj => (obj as ConnectionHelper)?.Connection.Endpoint.ConnectionId);
 
                 Add("localHost", obj => (obj as ConnectionHelper)?.IPConnectionInfo?.LocalAddress);
                 Add("localPort", obj => (obj as ConnectionHelper)?.IPConnectionInfo?.LocalPort);
@@ -331,13 +319,8 @@ namespace ZeroC.Ice
     {
         // It is important to throw here when there isn't a connection, so that the filters doesn't use the
         // connection attributes for a collocated dispatch.
-        private ConnectionInfo? ConnectionInfo => Current.Connection?.GetConnectionInfo() ??
-            throw new NotSupportedException();
+        private Connection Connection => Current.Connection ?? throw new NotSupportedException();
         private Current Current { get; }
-
-        // It is important to throw here when there isn't a connection, so that the filters doesn't use the
-        // connection attributes for a collocated dispatch.
-        private Endpoint? Endpoint => Current.Connection?.Endpoint ?? throw new NotSupportedException();
 
         private string Id
         {
@@ -349,22 +332,6 @@ namespace ZeroC.Ice
         }
 
         private string Identity => Current.Identity.ToString(Current.Adapter!.Communicator.ToStringMode);
-
-        // TODO temporary until ConnectionInfo refactoring
-        private IPConnectionInfo? IPConnectionInfo
-        {
-            get
-            {
-                for (ConnectionInfo? p = ConnectionInfo; p != null; p = p.Underlying)
-                {
-                    if (p is IPConnectionInfo info)
-                    {
-                        return info;
-                    }
-                }
-                return null;
-            }
-        }
 
         private string Mode => Current.RequestId == 0 ? "oneway" : "twoway";
 
@@ -399,9 +366,9 @@ namespace ZeroC.Ice
                 Add("parent", obj => (obj as DispatchHelper)?.Parent);
                 Add("id", obj => (obj as DispatchHelper)?.Id);
 
-                Add("incoming", obj => (obj as DispatchHelper)?.ConnectionInfo?.Incoming);
-                Add("adapterName", obj => (obj as DispatchHelper)?.ConnectionInfo?.AdapterName);
-                Add("connectionId", obj => (obj as DispatchHelper)?.ConnectionInfo?.ConnectionId);
+                Add("incoming", obj => (obj as DispatchHelper)?.Connection.IsIncoming);
+                Add("adapterName", obj => (obj as DispatchHelper)?.Current.Adapter.Name);
+                Add("connectionId", obj => (obj as DispatchHelper)?.Connection.Endpoint.ConnectionId);
 
                 Add("localHost", obj => (obj as DispatchHelper)?.IPConnectionInfo?.LocalAddress);
                 Add("localPort", obj => (obj as DispatchHelper)?.IPConnectionInfo?.LocalPort);
@@ -413,14 +380,14 @@ namespace ZeroC.Ice
                 Add("mcastPort",
                     obj => ((obj as DispatchHelper)?.ConnectionInfo as UDPConnectionInfo)?.McastPort);
 
-                Add("endpoint", obj => (obj as DispatchHelper)?.Endpoint);
-                Add("endpointType", obj => (obj as DispatchHelper)?.Endpoint?.Type);
-                Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Endpoint?.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Endpoint?.IsSecure);
-                Add("endpointTimeout", obj => (obj as DispatchHelper)?.Endpoint?.Timeout);
-                Add("endpointCompress", obj => (obj as DispatchHelper)?.Endpoint?.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as DispatchHelper)?.Endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as DispatchHelper)?.Endpoint as IPEndpoint)?.Port);
+                Add("endpoint", obj => (obj as DispatchHelper)?.Connection.Endpoint);
+                Add("endpointType", obj => (obj as DispatchHelper)?.Connection.Endpoint.Type);
+                Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsSecure);
+                Add("endpointTimeout", obj => (obj as DispatchHelper)?.Connection.Endpoint.Timeout);
+                Add("endpointCompress", obj => (obj as DispatchHelper)?.Connection.Endpoint.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as DispatchHelper)?.Connection.Endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as DispatchHelper)?.Connection.Endpoint as IPEndpoint)?.Port);
 
                 Add("operation", obj => (obj as DispatchHelper)?.Current.Operation);
                 Add("identity", obj => (obj as DispatchHelper)?.Identity);
@@ -574,7 +541,7 @@ namespace ZeroC.Ice
                 new CollocatedInvocationHelper(adapter, requestId, size),
                 Delegate?.GetCollocatedObserver(adapter, requestId, size));
 
-        public IRemoteObserver? GetRemoteObserver(ConnectionInfo con, Endpoint endpt, int requestId, int size) =>
+        public IRemoteObserver? GetRemoteObserver(Connection con, Endpoint endpt, int requestId, int size) =>
             GetObserver<RemoteMetrics, RemoteObserver, IRemoteObserver>(
                 "Remote",
                 new RemoteInvocationHelper(con, endpt, requestId, size),
@@ -675,7 +642,7 @@ namespace ZeroC.Ice
 
     internal class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
     {
-        private ConnectionInfo ConnectionInfo { get; }
+        private Connection Connection { get; }
         private Endpoint Endpoint { get; }
         private string Id
         {
@@ -683,31 +650,15 @@ namespace ZeroC.Ice
             {
                 if (_id == null)
                 {
-                    _id = string.IsNullOrEmpty(ConnectionInfo.ConnectionId) ?
-                        Endpoint.ToString() : $"{Endpoint} [" + ConnectionInfo.ConnectionId + "]";
+                    _id = string.IsNullOrEmpty(Connection.Endpoint.ConnectionId) ?
+                        Endpoint.ToString() : $"{Endpoint} [" + Connection.Endpoint.ConnectionId + "]";
                 }
                 return _id;
             }
         }
 
-        // TODO temporary until ConnectionInfo refactoring
-        private IPConnectionInfo? IPConnectionInfo
-        {
-            get
-            {
-                for (ConnectionInfo? p = ConnectionInfo; p != null; p = p.Underlying)
-                {
-                    if (p is IPConnectionInfo info)
-                    {
-                        return info;
-                    }
-                }
-                return null;
-            }
-        }
-
         private string Parent =>
-            string.IsNullOrEmpty(ConnectionInfo.AdapterName) ? "Communicator" : ConnectionInfo.AdapterName;
+            string.IsNullOrEmpty(Connection.Adapter?.Name) ? "Communicator" : Connection.Adapter.Name;
 
         private int RequestId { get; }
 
@@ -715,10 +666,10 @@ namespace ZeroC.Ice
         private readonly int _size;
         private string? _id;
 
-        internal RemoteInvocationHelper(ConnectionInfo con, Endpoint endpt, int requestId, int size)
+        internal RemoteInvocationHelper(Connection con, Endpoint endpt, int requestId, int size)
             : base(_attributes)
         {
-            ConnectionInfo = con;
+            Connection = con;
             Endpoint = endpt;
             RequestId = requestId;
             _size = size;
@@ -733,9 +684,9 @@ namespace ZeroC.Ice
                 Add("parent", obj => (obj as RemoteInvocationHelper)?.Parent);
                 Add("id", obj => (obj as RemoteInvocationHelper)?.Id);
                 Add("requestId", obj => (obj as RemoteInvocationHelper)?.RequestId);
-                Add("incoming", obj => (obj as RemoteInvocationHelper)?.ConnectionInfo.Incoming);
-                Add("adapterName", obj => (obj as RemoteInvocationHelper)?.ConnectionInfo.AdapterName);
-                Add("connectionId", obj => (obj as RemoteInvocationHelper)?.ConnectionInfo.ConnectionId);
+                Add("incoming", obj => (obj as RemoteInvocationHelper)?.Connection.IsIncoming);
+                Add("adapterName", obj => (obj as RemoteInvocationHelper)?.Connection.Adapter?.Name);
+                Add("connectionId", obj => (obj as RemoteInvocationHelper)?.Connection.Endpoint.ConnectionId);
 
                 Add("localHost", obj => (obj as RemoteInvocationHelper)?.IPConnectionInfo?.LocalAddress);
                 Add("localPort", obj => (obj as RemoteInvocationHelper)?.IPConnectionInfo?.LocalPort);

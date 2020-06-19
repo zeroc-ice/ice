@@ -15,6 +15,17 @@ namespace ZeroC.Ice
 {
     internal sealed class SslTransceiver : ITransceiver
     {
+        public string? Cipher => _cipher;
+
+        public X509Certificate2[]? Certificates => _certs;
+
+        public Connection CreateConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter) => new SslConnection(communicator, monitor, this, connector, endpoint, adapter);
+
         public Socket? Fd() => _delegate.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)

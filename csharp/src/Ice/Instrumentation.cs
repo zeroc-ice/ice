@@ -70,12 +70,12 @@ namespace ZeroC.Ice.Instrumentation
         void RemoteException();
 
         /// <summary>Get a remote observer for this invocation.</summary>
-        /// <param name="connectionInfo">The connection information.</param>
+        /// <param name="connection">The connection.</param>
         /// <param name="endpoint">The connection endpoint.</param>
         /// <param name="requestId">The invocation request ID.</param>
         /// <param name="size">The size of the invocation in bytes.</param>
         /// <returns>The observer to instrument the remote invocation.</returns>
-        IRemoteObserver? GetRemoteObserver(ConnectionInfo connectionInfo, Endpoint endpoint, int requestId, int size);
+        IRemoteObserver? GetRemoteObserver(Connection connection, Endpoint endpoint, int requestId, int size);
 
         /// <summary>Get a collocated observer for this invocation.</summary>
         /// <param name="adapter">The object adapter hosting the collocated Ice object.</param>
@@ -114,14 +114,14 @@ namespace ZeroC.Ice.Instrumentation
         /// <summary>This method should return a connection observer for the given connection. The Ice run-time calls
         /// this method for each new connection and for all the Ice communicator connections when
         /// ObserverUpdater.UpdateConnectionObservers is called.</summary>
-        /// <param name="connectionInfo">The connection information.</param>
+        /// <param name="connection">The connection.</param>
         /// <param name="endpoint">The connection endpoint.</param>
         /// <param name="connectionState">The state of the connection.</param>
         /// <param name="oldObserver">The old connection observer if one is already set or a null reference otherwise.
         /// </param>
         /// <returns>The connection observer to instrument the connection.</returns>
         IConnectionObserver? GetConnectionObserver(
-            ConnectionInfo connectionInfo,
+            Connection connection,
             Endpoint endpoint,
             ConnectionState connectionState,
             IConnectionObserver? oldObserver);

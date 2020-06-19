@@ -15,6 +15,12 @@ namespace ZeroC.Ice
 
     public interface ITransceiver
     {
+        public Connection CreateConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter);
         Socket? Fd();
 
         /// <summary>

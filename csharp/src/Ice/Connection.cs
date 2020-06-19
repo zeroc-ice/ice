@@ -68,7 +68,7 @@ namespace ZeroC.Ice
         GracefullyWithWait
     }
 
-    public class Connection
+    public abstract class Connection
     {
         /// <summary>Gets or sets the object adapter that dispatches requests received over this connection.
         /// A client can invoke an operation on a server using a proxy, and then set an object adapter for the
@@ -372,12 +372,13 @@ namespace ZeroC.Ice
         /// <returns>The type of the connection.</returns>
         public string Type() => Transceiver.Transport; // No mutex lock, _type is immutable.
 
-        internal Connection(Communicator communicator,
-                            IACMMonitor? monitor,
-                            ITransceiver transceiver,
-                            IConnector? connector,
-                            Endpoint endpoint,
-                            ObjectAdapter? adapter)
+        internal Connection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter)
         {
             _communicator = communicator;
             _monitor = monitor;
@@ -1616,7 +1617,7 @@ namespace ZeroC.Ice
         };
     }
 
-    public class IPConnection : Connection
+    public abstract class IPConnection : Connection
     {
         public IPEndPoint? LocalAddress => Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
         public IPEndPoint? RemoteAddress => Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
@@ -1683,12 +1684,14 @@ namespace ZeroC.Ice
         }
     }
 
-    public class TlsConnection : TcpConnection
+    public class SslConnection : TcpConnection
     {
-        public string? Cipher;
-        public X509Certificate2[]? Certs;
+        public string? Cipher => (Transceiver as SslTransceiver)?.Cipher ??
+            (Transceiver as WSTransceiver)?.Cipher;
+        public X509Certificate2[]? Certificates => (Transceiver as SslTransceiver)?.Certificates ??
+            (Transceiver as WSTransceiver)?.Certificates;
 
-        public TlsConnection(
+        public SslConnection(
             Communicator communicator,
             IACMMonitor? monitor,
             ITransceiver transceiver,
@@ -1700,7 +1703,7 @@ namespace ZeroC.Ice
         }
     }
 
-    public class WssConnection : TlsConnection
+    public class WssConnection : SslConnection
     {
         public ReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
 
