@@ -21,10 +21,9 @@ namespace ZeroC.Ice
         public override bool HasCompressionFlag => false;
         public override bool IsDatagram => false;
         public override bool IsSecure => false;
-        public override string Name => "opaque";
-
         public override int Timeout => -1;
-        public override EndpointType Type { get; }
+        public override Transport Transport { get; }
+        public override string TransportName => "opaque";
 
         private int _hashCode = 0; // 0 is a special value that means not initialized.
 
@@ -36,7 +35,7 @@ namespace ZeroC.Ice
             }
             if (other is OpaqueEndpoint opaqueEndpoint)
             {
-                if (Type != opaqueEndpoint.Type)
+                if (Transport != opaqueEndpoint.Transport)
                 {
                     return false;
                 }
@@ -48,7 +47,7 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                return true;
+                return base.Equals(other);
             }
             else
             {
@@ -64,7 +63,7 @@ namespace ZeroC.Ice
             }
             else
             {
-               int hashCode = HashCode.Combine(Type, Encoding, Bytes);
+               int hashCode = HashCode.Combine(base.GetHashCode(), Transport, Encoding, Bytes);
                if (hashCode == 0)
                {
                    hashCode = 1;
@@ -77,7 +76,7 @@ namespace ZeroC.Ice
         public override string OptionsToString()
         {
             var sb = new StringBuilder(" -t ");
-            sb.Append(((short)Type).ToString(CultureInfo.InvariantCulture));
+            sb.Append(((short)Transport).ToString(CultureInfo.InvariantCulture));
 
             sb.Append(" -e ");
             sb.Append(Encoding.ToString());
@@ -94,8 +93,8 @@ namespace ZeroC.Ice
         public override string ToString()
         {
             string val = System.Convert.ToBase64String(Bytes.Span);
-            short typeNum = (short)Type;
-            return $"opaque -t {typeNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
+            short transportNum = (short)Transport;
+            return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
         }
 
         public override void IceWritePayload(OutputStream ostr)
@@ -123,7 +122,8 @@ namespace ZeroC.Ice
         public override IAcceptor? GetAcceptor(string adapterName) => null;
         public override ITransceiver? GetTransceiver() => null;
 
-        internal OpaqueEndpoint(string endpointString, Dictionary<string, string?> options)
+        internal OpaqueEndpoint(Protocol protocol, Dictionary<string, string?> options, string endpointString)
+            : base(protocol)
         {
             if (options.TryGetValue("-t", out string? argument))
             {
@@ -138,15 +138,17 @@ namespace ZeroC.Ice
                 }
                 catch (FormatException ex)
                 {
-                    throw new FormatException($"invalid type value `{argument}' in endpoint `{endpointString}'", ex);
+                    throw new FormatException(
+                        $"invalid transport value `{argument}' in endpoint `{endpointString}'", ex);
                 }
 
                 if (t < 0)
                 {
-                    throw new FormatException($"type value `{argument}' out of range in endpoint `{endpointString}'");
+                    throw new FormatException(
+                        $"transport value `{argument}' out of range in endpoint `{endpointString}'");
                 }
 
-                Type = (EndpointType)t;
+                Transport = (Transport)t;
                 options.Remove("-t");
             }
             else
@@ -201,9 +203,10 @@ namespace ZeroC.Ice
             // the caller deals with remaining options, if any
         }
 
-        internal OpaqueEndpoint(EndpointType type, Encoding encoding, byte[] bytes)
+        internal OpaqueEndpoint(Transport transport, Protocol protocol, Encoding encoding, byte[] bytes)
+            : base(protocol)
         {
-            Type = type;
+            Transport = transport;
             Encoding = encoding;
             Bytes = bytes;
         }

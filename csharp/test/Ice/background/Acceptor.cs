@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Background
             return new Transceiver(_acceptor.Accept());
         }
 
-        public string Transport => _acceptor.Transport;
+        public string TransportName => _acceptor.TransportName;
 
         public override string ToString() => _acceptor.ToString();
 

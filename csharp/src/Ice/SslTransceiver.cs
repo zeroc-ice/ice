@@ -290,7 +290,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public string Transport => _delegate.Transport;
+        public string TransportName => _delegate.TransportName;
 
         public ConnectionInfo GetInfo()
         {

@@ -12,9 +12,6 @@ namespace ZeroC.Ice.Test.Background
             return new Transceiver(_connector.Connect());
         }
 
-        public string Transport => "";
-        public EndpointType Type => (EndpointType)(Endpoint.TYPE_BASE + (short)_connector.Type);
-
         //
         // Only for use by Endpoint
         //

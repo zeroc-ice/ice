@@ -1636,7 +1636,7 @@ namespace ZeroC.Ice
 
             // Encoding does not change at all in this method.
 
-            WriteShort((short)endpoint.Type);
+            WriteShort((short)endpoint.Transport);
             if (endpoint is OpaqueEndpoint opaqueEndpoint)
             {
                 // 2 bytes for the encoding value (e.g. 20 for 2.0)

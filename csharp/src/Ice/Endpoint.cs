@@ -10,24 +10,6 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Each endpoint's type is identified by a short value. The enumerators of EndpointType represent the
-    /// types of endpoints that the Ice runtime knows and implements. Other endpoint types, with values not represented
-    /// by these enumerators, can be implemented and registered using transport plug-ins.</summary>
-    public enum EndpointType : short
-    {
-        TCP = 1,
-        SSL = 2,
-        UDP = 3,
-        WS = 4,
-        WSS = 5,
-        BT = 6,
-        BTS = 7,
-#pragma warning disable SA1300 // Element should begin with upper-case letter
-        iAP = 8,
-        iAPS = 9
-#pragma warning restore SA1300 // Element should begin with upper-case letter
-    }
-
      /// <summary>An endpoint describes a server-side network sink for Ice requests: an object adapter listens on one or
      /// more endpoints and a client establishes a connection to a given object adapter endpoint. An endpoint
      /// encapsulates a network transport protocol such as TCP or Bluetooth RFCOMM, plus transport-specific addressing
@@ -52,15 +34,18 @@ namespace ZeroC.Ice
         /// <value>True when this endpoint's transport is secure; otherwise, false.</value>
         public abstract bool IsSecure { get; }
 
-        /// <summary>The name of the endpoint's transport in lowercase, or "opaque" when the transport's name is
-        /// unknown.</summary>
-        public virtual string Name => Type.ToString().ToLowerInvariant();
+        /// <summary>The Ice protocol of this endpoint.</summary>
+        public Protocol Protocol { get; }
 
         /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
         public abstract int Timeout { get; }
 
-        /// <summary>The <see cref="EndpointType">type</see> of this endpoint.</summary>
-        public abstract EndpointType Type { get; }
+        /// <summary>The <see cref="Transport"></see> of this endpoint.</summary>
+        public abstract Transport Transport { get; }
+
+        /// <summary>The name of the endpoint's transport in lowercase, or "opaque" when the transport's name is
+        /// unknown.</summary>
+        public virtual string TransportName => Transport.ToString().ToLowerInvariant();
 
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {
@@ -79,10 +64,12 @@ namespace ZeroC.Ice
         public static bool operator !=(Endpoint? lhs, Endpoint? rhs) => !(lhs == rhs);
 
         public override bool Equals(object? obj) => obj != null && obj is Endpoint other && Equals(other);
-        public abstract bool Equals(Endpoint? other);
-        public abstract override int GetHashCode();
 
-        public override string ToString() => $"{Name}{OptionsToString()}";
+        public virtual bool Equals(Endpoint? other) => Protocol == other?.Protocol;
+
+        public override int GetHashCode() => Protocol.GetHashCode();
+
+        public override string ToString() => $"{TransportName}{OptionsToString()}";
 
         // Converts all the options to a string with a leading empty space character.
         public abstract string OptionsToString();
@@ -126,8 +113,27 @@ namespace ZeroC.Ice
         // acceptor.
         public abstract ITransceiver? GetTransceiver();
 
-        // Creates an endpoint from a string.
-        internal static Endpoint Parse(string endpointString, Communicator communicator, bool oaEndpoint)
+        protected Endpoint(Protocol protocol)
+        {
+            Protocol = protocol;
+        }
+
+        /// <summary>Creates an endpoint from a string.</summary>
+        /// <param name="endpointString">The string parsed by this method.</param>
+        /// <param name="protocol">The Ice protocol of the enclosing proxy.</param>
+        /// <param name="communicator">The communicator that this proxy will use to make remote invocation.</param>
+        /// <param name="oaEndpoint">When true, endpointString represents an object adapter's endpoint configuration;
+        /// when false, endpointString represents a proxy endpoint.</param>
+        /// <returns>The new endpoint.</returns>
+        /// <exception cref="FormatException">Thrown when endpointString cannot be parsed.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the transport specified in endpointString does not
+        /// support the specified protocol.</exception>
+        // TODO: revise description of protocol when oaEndpoint = true.
+        internal static Endpoint Parse(
+            string endpointString,
+            Protocol protocol,
+            Communicator communicator,
+            bool oaEndpoint)
         {
             string[]? args = StringUtil.SplitString(endpointString, " \t\r\n");
             if (args == null)
@@ -140,15 +146,15 @@ namespace ZeroC.Ice
                 throw new FormatException("no non-whitespace character in endpoint string");
             }
 
-            string transport = args[0];
-            if (transport == "default")
+            string transportName = args[0];
+            if (transportName == "default")
             {
-                transport = communicator.DefaultTransport;
+                transportName = communicator.DefaultTransport;
             }
 
             var options = new Dictionary<string, string?>();
 
-            // Parse args into options (and skip transport at args[0])
+            // Parse args into options (and skip transportName at args[0])
             for (int n = 1; n < args.Length; ++n)
             {
                 // Any option with < 2 characters or that does not start with - is illegal
@@ -175,9 +181,9 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (communicator.IceFindEndpointFactory(transport) is IEndpointFactory factory)
+            if (communicator.FindEndpointFactory(transportName, out Transport transport) is IEndpointFactory factory)
             {
-                Endpoint endpoint = factory.Create(endpointString, options, oaEndpoint);
+                Endpoint endpoint = factory.Create(transport, protocol, options, oaEndpoint, endpointString);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
@@ -188,9 +194,9 @@ namespace ZeroC.Ice
 
             // If the stringified endpoint is opaque, create an unknown endpoint, then see whether the type matches one
             // of the known endpoints.
-            if (!oaEndpoint && transport == "opaque")
+            if (!oaEndpoint && transportName == "opaque")
             {
-                var opaqueEndpoint = new OpaqueEndpoint(endpointString, options);
+                var opaqueEndpoint = new OpaqueEndpoint(protocol, options, endpointString);
                 if (options.Count > 0)
                 {
                     throw new FormatException(
@@ -198,7 +204,7 @@ namespace ZeroC.Ice
                 }
 
                 if (opaqueEndpoint.Encoding.IsSupported &&
-                    communicator.IceFindEndpointFactory(opaqueEndpoint.Type) != null)
+                    communicator.IceFindEndpointFactory(opaqueEndpoint.Transport) != null)
                 {
                     // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
                     // unmarshal it from this buffer.
@@ -214,7 +220,8 @@ namespace ZeroC.Ice
                     Debug.Assert(bufferList.Count == 1);
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);
 
-                    return new InputStream(communicator, Ice1Definitions.Encoding, bufferList[0]).ReadEndpoint();
+                    return
+                        new InputStream(communicator, Ice1Definitions.Encoding, bufferList[0]).ReadEndpoint(protocol);
                 }
                 else
                 {
@@ -222,7 +229,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            throw new FormatException($"unknown transport `{transport}' in endpoint `{endpointString}'");
+            throw new FormatException($"unknown transport `{transportName}' in endpoint `{endpointString}'");
         }
 
         // Stringify the options of an endpoint

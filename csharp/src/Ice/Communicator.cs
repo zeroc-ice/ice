@@ -202,18 +202,18 @@ namespace ZeroC.Ice
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
-            new Dictionary<EndpointType, BufSizeWarnInfo>();
+        private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
+            new Dictionary<Transport, BufSizeWarnInfo>();
 
         private readonly SslEngine _sslEngine;
         private int _state;
         private readonly Timer _timer;
 
-        private readonly IDictionary<string, IEndpointFactory> _transportToEndpointFactory =
-            new ConcurrentDictionary<string, IEndpointFactory>();
+        private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
+            new ConcurrentDictionary<Transport, IEndpointFactory>();
 
-        private readonly IDictionary<EndpointType, IEndpointFactory> _typeToEndpointFactory =
-            new ConcurrentDictionary<EndpointType, IEndpointFactory>();
+        private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
+            new ConcurrentDictionary<string, (IEndpointFactory, Transport)>();
 
         public Communicator(Dictionary<string, string>? properties,
                             ILogger? logger = null,
@@ -628,12 +628,12 @@ namespace ZeroC.Ice
                     certificateValidationCallback,
                     passwordCallback);
 
-                IceAddEndpointFactory(new TcpEndpointFactory(this));
-                IceAddEndpointFactory(new UdpEndpointFactory(this));
-                IceAddEndpointFactory(new WSEndpointFactory(this));
+                IceAddEndpointFactory(Transport.TCP, "tcp", new TcpEndpointFactory(this));
+                IceAddEndpointFactory(Transport.UDP, "udp", new UdpEndpointFactory(this));
+                IceAddEndpointFactory(Transport.WS, "ws", new WSEndpointFactory(this));
 
-                IceAddEndpointFactory(new SslEndpointFactory(this, _sslEngine));
-                IceAddEndpointFactory(new WSSEndpointFactory(this, _sslEngine));
+                IceAddEndpointFactory(Transport.SSL, "ssl", new SslEndpointFactory(this, _sslEngine));
+                IceAddEndpointFactory(Transport.WSS, "wss", new WSSEndpointFactory(this, _sslEngine));
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -967,8 +967,8 @@ namespace ZeroC.Ice
                 _locatorTableMap.Clear();
             }
 
-            _typeToEndpointFactory.Clear();
             _transportToEndpointFactory.Clear();
+            _transportNameToEndpointFactory.Clear();
 
             if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
             {
@@ -1193,37 +1193,49 @@ namespace ZeroC.Ice
         }
 
         // Registers an endpoint factory.
-        public void IceAddEndpointFactory(IEndpointFactory factory)
+        public void IceAddEndpointFactory(Transport transport, string transportName, IEndpointFactory factory)
         {
-            _typeToEndpointFactory.Add(factory.Type, factory);
-            _transportToEndpointFactory.Add(factory.Name, factory);
+            _transportNameToEndpointFactory.Add(transportName, (factory, transport));
+            _transportToEndpointFactory.Add(transport, factory);
         }
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory.
-        public IEndpointFactory? IceFindEndpointFactory(string transport) =>
+        public IEndpointFactory? IceFindEndpointFactory(Transport transport) =>
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
-        // Finds an endpoint factory previously registered using IceAddEndpointFactory.
-        public IEndpointFactory? IceFindEndpointFactory(EndpointType type) =>
-            _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
+        // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.
+        internal IEndpointFactory? FindEndpointFactory(string transportName, out Transport transport)
+        {
+            if (_transportNameToEndpointFactory.TryGetValue(transportName,
+                out (IEndpointFactory Factory, Transport Transport) value))
+            {
+                transport = value.Transport;
+                return value.Factory;
+            }
+            else
+            {
+                transport = default;
+                return null;
+            }
+        }
 
-        internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
+        internal BufSizeWarnInfo GetBufSizeWarn(Transport transport)
         {
             lock (_setBufSizeWarn)
             {
                 BufSizeWarnInfo info;
-                if (!_setBufSizeWarn.ContainsKey(type))
+                if (!_setBufSizeWarn.ContainsKey(transport))
                 {
                     info = new BufSizeWarnInfo();
                     info.SndWarn = false;
                     info.SndSize = -1;
                     info.RcvWarn = false;
                     info.RcvSize = -1;
-                    _setBufSizeWarn.Add(type, info);
+                    _setBufSizeWarn.Add(transport, info);
                 }
                 else
                 {
-                    info = _setBufSizeWarn[type];
+                    info = _setBufSizeWarn[transport];
                 }
                 return info;
             }
@@ -1277,14 +1289,14 @@ namespace ZeroC.Ice
                 return null;
             });
 
-        internal void SetRcvBufSizeWarn(EndpointType type, int size)
+        internal void SetRcvBufSizeWarn(Transport transport, int size)
         {
             lock (_setBufSizeWarn)
             {
-                BufSizeWarnInfo info = GetBufSizeWarn(type);
+                BufSizeWarnInfo info = GetBufSizeWarn(transport);
                 info.RcvWarn = true;
                 info.RcvSize = size;
-                _setBufSizeWarn[type] = info;
+                _setBufSizeWarn[transport] = info;
             }
         }
 
@@ -1322,14 +1334,14 @@ namespace ZeroC.Ice
             }
         }
 
-        internal void SetSndBufSizeWarn(EndpointType type, int size)
+        internal void SetSndBufSizeWarn(Transport transport, int size)
         {
             lock (_setBufSizeWarn)
             {
-                BufSizeWarnInfo info = GetBufSizeWarn(type);
+                BufSizeWarnInfo info = GetBufSizeWarn(transport);
                 info.SndWarn = true;
                 info.SndSize = size;
-                _setBufSizeWarn[type] = info;
+                _setBufSizeWarn[transport] = info;
             }
         }
 
