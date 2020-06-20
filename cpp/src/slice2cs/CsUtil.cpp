@@ -1317,6 +1317,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     bool isStack = false;
     bool isList = false;
     bool isLinkedList = false;
+    bool isArraySegment = false;
     bool isCustom = false;
     if(isGeneric)
     {
@@ -1338,6 +1339,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         else if(genericType == "List")
         {
             isList = true;
+        }
+        else if(genericType == "System.ArraySegment")
+        {
+            isArraySegment = true;
         }
         else
         {
@@ -1519,7 +1524,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
                 if(marshal)
                 {
-                    if(isArray)
+                    if(isArray || isArraySegment)
                     {
                         out << nl << stream << ".write" << func << "Seq(" << param << ");";
                     }
@@ -1540,6 +1545,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     if(isArray)
                     {
                         out << nl << param << " = " << stream << ".read" << func << "Seq();";
+                    }
+                    else if(isArraySegment)
+                    {
+                        out << nl << param << " = new " << "global::" << genericType << "<" << typeToString(type, scope) << ">("
+                            << stream << ".read" << func << "Seq());";
                     }
                     else if(isCustom)
                     {

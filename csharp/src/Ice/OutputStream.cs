@@ -582,15 +582,24 @@ namespace Ice
         /// Passing null causes an empty sequence to be written to the stream.</param>
         public void writeByteSeq(byte[] v)
         {
-            if(v == null)
+            writeByteSeq(v == null ? new ArraySegment<byte>() : new ArraySegment<byte>(v));
+        }
+
+        /// <summary>
+        /// Writes a byte sequence to the stream.
+        /// </summary>
+        /// <param name="v">The byte sequence to write to the stream.</param>
+        public void writeByteSeq(ArraySegment<byte> v)
+        {
+            if (v.Count == 0)
             {
                 writeSize(0);
             }
             else
             {
-                writeSize(v.Length);
-                expand(v.Length);
-                _buf.b.put(v);
+                writeSize(v.Count);
+                expand(v.Count);
+                _buf.b.put(v.Array, v.Offset, v.Count);
             }
         }
 
