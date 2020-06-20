@@ -537,31 +537,38 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
-    bool preUnmarshal)
+Slice::CsVisitor::writeDataMemberDefaultValues(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
     // This helper function is called only for class/exception data members.
 
     for (const auto& p: members)
     {
         TypePtr memberType = p->type();
-        if (preUnmarshal)
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            SequencePtr seq = SequencePtr::dynamicCast(memberType);
-            DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
-
-            if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
-            {
-                // This is to suppress compiler warnings for non-nullable fields.
-                _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = null!;";
-            }
-        }
-        else if (p->defaultValueType())
+        if (p->defaultValueType())
         {
             _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = ";
             writeConstantValue(_out, memberType, p->defaultValueType(), p->defaultValue(), ns);
             _out << ";";
+        }
+    }
+}
+
+void
+Slice::CsVisitor::writeSuppressNonNullableWarnings(const DataMemberList& members, unsigned int baseTypes)
+{
+    // This helper function is called only for class/exception data members.
+
+    for (const auto& p: members)
+    {
+        TypePtr memberType = p->type();
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
+        SequencePtr seq = SequencePtr::dynamicCast(memberType);
+        DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
+
+        if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
+        {
+            // This is to suppress compiler warnings for non-nullable fields.
+            _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = null!;";
         }
     }
 }
@@ -1376,7 +1383,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                          << fixId(d->name(), Slice::ObjectType) << ";";
                 }
             }
-            writeDataMemberInitializers(dataMembers, ns, ObjectType, false);
+            writeDataMemberDefaultValues(dataMembers, ns, ObjectType);
             if (partialInitialize)
             {
                 _out << nl << "Initialize();";
@@ -1403,8 +1410,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out.dec();
     }
     _out << sb;
-    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
-    writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
+    writeSuppressNonNullableWarnings(dataMembers, ObjectType);
     _out << eb;
 
     writeMarshaling(p);
@@ -1617,7 +1623,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, false);
+        writeDataMemberDefaultValues(dataMembers, ns, Slice::ExceptionType);
         _out << eb;
     }
 
@@ -1683,8 +1689,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out.dec();
     _out << sb;
-    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
-    writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
+    writeSuppressNonNullableWarnings(dataMembers, Slice::ExceptionType);
     _out << eb;
 
     // Serializable constructor

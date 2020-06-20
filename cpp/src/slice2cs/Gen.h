@@ -42,11 +42,11 @@ protected:
 
     std::string writeValue(const TypePtr&, const std::string&);
 
-    //
     // Generate assignment statements for those data members that have default values.
-    //
-    bool requiresDataMemberInitializers(const DataMemberList&);
-    void writeDataMemberInitializers(const DataMemberList&, const std::string&, unsigned int, bool);
+    void writeDataMemberDefaultValues(const DataMemberList&, const std::string&, unsigned int);
+
+    // Generate this.X = null! for non-nullable fields.
+    void writeSuppressNonNullableWarnings(const DataMemberList&, unsigned int);
 
     void writeProxyDocComment(const InterfaceDefPtr&, const std::string&);
     void writeServantDocComment(const InterfaceDefPtr&, const std::string&);
