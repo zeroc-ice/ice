@@ -555,7 +555,7 @@ namespace ZeroC.Ice.Test.Tagged
                 TestHelper.Assert(wd != null);
                 // When a tagged member is set to null (equivalent to not set) explicitly, it remains null / not set,
                 // even when it has a default value. This is consistent with the behavior for non-tagged optional
-                // parameters / data members with default values.
+                // data members with default values.
                 TestHelper.Assert(wd.a == null);
                 TestHelper.Assert(wd.s == null);
             }
