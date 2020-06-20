@@ -379,7 +379,7 @@ namespace ZeroC.Ice
         /// <returns>The description of the connection as human readable text.</returns>
         public override string ToString() => _transceiver.ToString()!;
 
-        /// <summary>Returns the transport's name. This corresponds "tcp", "udp", etc.</summary>
+        /// <summary>Returns the transport's name. This corresponds to "tcp", "udp", etc.</summary>
         /// <returns>The transport name.</returns>
         public string TransportName => _transceiver.TransportName;
 
