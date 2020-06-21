@@ -1006,8 +1006,9 @@ public:
 
     virtual void destroy();
 
-    // The underlying numeric type. The default is varint. The only permissible explicit types are fixed-length
-    // numeric types such as byte, short, ushort.
+    // The underlying type. The default is nullptr, which means a range of 0..INT32_MAX encoded as a variable-length
+    // size.
+    // The only permissible underlying types are byte, short, ushort, int, and uint.
     BuiltinPtr underlying() const;
 
     // A Slice enum is checked by default: the generated unmarshaling code verifies the value matches one of the enum's
