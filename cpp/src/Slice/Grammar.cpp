@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.6.3.  */
+/* A Bison parser, made by GNU Bison 3.6.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
@@ -49,7 +49,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.6.3"
+#define YYBISON_VERSION "3.6.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -265,21 +265,22 @@ extern int slice_debug;
     ICE_OPTIONAL = 292,            /* ICE_OPTIONAL  */
     ICE_ANYCLASS = 293,            /* ICE_ANYCLASS  */
     ICE_VALUE = 294,               /* ICE_VALUE  */
-    ICE_STRING_LITERAL = 295,      /* ICE_STRING_LITERAL  */
-    ICE_INTEGER_LITERAL = 296,     /* ICE_INTEGER_LITERAL  */
-    ICE_FLOATING_POINT_LITERAL = 297, /* ICE_FLOATING_POINT_LITERAL  */
-    ICE_IDENTIFIER = 298,          /* ICE_IDENTIFIER  */
-    ICE_SCOPED_IDENTIFIER = 299,   /* ICE_SCOPED_IDENTIFIER  */
-    ICE_LOCAL_METADATA_OPEN = 300, /* ICE_LOCAL_METADATA_OPEN  */
-    ICE_LOCAL_METADATA_CLOSE = 301, /* ICE_LOCAL_METADATA_CLOSE  */
-    ICE_FILE_METADATA_OPEN = 302,  /* ICE_FILE_METADATA_OPEN  */
-    ICE_FILE_METADATA_IGNORE = 303, /* ICE_FILE_METADATA_IGNORE  */
-    ICE_FILE_METADATA_CLOSE = 304, /* ICE_FILE_METADATA_CLOSE  */
-    ICE_IDENT_OPEN = 305,          /* ICE_IDENT_OPEN  */
-    ICE_KEYWORD_OPEN = 306,        /* ICE_KEYWORD_OPEN  */
-    ICE_TAG_OPEN = 307,            /* ICE_TAG_OPEN  */
-    ICE_OPTIONAL_OPEN = 308,       /* ICE_OPTIONAL_OPEN  */
-    BAD_CHAR = 309                 /* BAD_CHAR  */
+    ICE_UNCHECKED = 295,           /* ICE_UNCHECKED  */
+    ICE_STRING_LITERAL = 296,      /* ICE_STRING_LITERAL  */
+    ICE_INTEGER_LITERAL = 297,     /* ICE_INTEGER_LITERAL  */
+    ICE_FLOATING_POINT_LITERAL = 298, /* ICE_FLOATING_POINT_LITERAL  */
+    ICE_IDENTIFIER = 299,          /* ICE_IDENTIFIER  */
+    ICE_SCOPED_IDENTIFIER = 300,   /* ICE_SCOPED_IDENTIFIER  */
+    ICE_LOCAL_METADATA_OPEN = 301, /* ICE_LOCAL_METADATA_OPEN  */
+    ICE_LOCAL_METADATA_CLOSE = 302, /* ICE_LOCAL_METADATA_CLOSE  */
+    ICE_FILE_METADATA_OPEN = 303,  /* ICE_FILE_METADATA_OPEN  */
+    ICE_FILE_METADATA_IGNORE = 304, /* ICE_FILE_METADATA_IGNORE  */
+    ICE_FILE_METADATA_CLOSE = 305, /* ICE_FILE_METADATA_CLOSE  */
+    ICE_IDENT_OPEN = 306,          /* ICE_IDENT_OPEN  */
+    ICE_KEYWORD_OPEN = 307,        /* ICE_KEYWORD_OPEN  */
+    ICE_TAG_OPEN = 308,            /* ICE_TAG_OPEN  */
+    ICE_OPTIONAL_OPEN = 309,       /* ICE_OPTIONAL_OPEN  */
+    BAD_CHAR = 310                 /* BAD_CHAR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -354,119 +355,120 @@ enum yysymbol_kind_t
   YYSYMBOL_ICE_OPTIONAL = 37,              /* ICE_OPTIONAL  */
   YYSYMBOL_ICE_ANYCLASS = 38,              /* ICE_ANYCLASS  */
   YYSYMBOL_ICE_VALUE = 39,                 /* ICE_VALUE  */
-  YYSYMBOL_ICE_STRING_LITERAL = 40,        /* ICE_STRING_LITERAL  */
-  YYSYMBOL_ICE_INTEGER_LITERAL = 41,       /* ICE_INTEGER_LITERAL  */
-  YYSYMBOL_ICE_FLOATING_POINT_LITERAL = 42, /* ICE_FLOATING_POINT_LITERAL  */
-  YYSYMBOL_ICE_IDENTIFIER = 43,            /* ICE_IDENTIFIER  */
-  YYSYMBOL_ICE_SCOPED_IDENTIFIER = 44,     /* ICE_SCOPED_IDENTIFIER  */
-  YYSYMBOL_ICE_LOCAL_METADATA_OPEN = 45,   /* ICE_LOCAL_METADATA_OPEN  */
-  YYSYMBOL_ICE_LOCAL_METADATA_CLOSE = 46,  /* ICE_LOCAL_METADATA_CLOSE  */
-  YYSYMBOL_ICE_FILE_METADATA_OPEN = 47,    /* ICE_FILE_METADATA_OPEN  */
-  YYSYMBOL_ICE_FILE_METADATA_IGNORE = 48,  /* ICE_FILE_METADATA_IGNORE  */
-  YYSYMBOL_ICE_FILE_METADATA_CLOSE = 49,   /* ICE_FILE_METADATA_CLOSE  */
-  YYSYMBOL_ICE_IDENT_OPEN = 50,            /* ICE_IDENT_OPEN  */
-  YYSYMBOL_ICE_KEYWORD_OPEN = 51,          /* ICE_KEYWORD_OPEN  */
-  YYSYMBOL_ICE_TAG_OPEN = 52,              /* ICE_TAG_OPEN  */
-  YYSYMBOL_ICE_OPTIONAL_OPEN = 53,         /* ICE_OPTIONAL_OPEN  */
-  YYSYMBOL_BAD_CHAR = 54,                  /* BAD_CHAR  */
-  YYSYMBOL_55_ = 55,                       /* ';'  */
-  YYSYMBOL_56_ = 56,                       /* '{'  */
-  YYSYMBOL_57_ = 57,                       /* '}'  */
-  YYSYMBOL_58_ = 58,                       /* ')'  */
-  YYSYMBOL_59_ = 59,                       /* ':'  */
-  YYSYMBOL_60_ = 60,                       /* '='  */
-  YYSYMBOL_61_ = 61,                       /* ','  */
-  YYSYMBOL_62_ = 62,                       /* '<'  */
-  YYSYMBOL_63_ = 63,                       /* '>'  */
-  YYSYMBOL_64_ = 64,                       /* '*'  */
-  YYSYMBOL_65_ = 65,                       /* '?'  */
-  YYSYMBOL_YYACCEPT = 66,                  /* $accept  */
-  YYSYMBOL_start = 67,                     /* start  */
-  YYSYMBOL_opt_semicolon = 68,             /* opt_semicolon  */
-  YYSYMBOL_file_metadata = 69,             /* file_metadata  */
-  YYSYMBOL_local_metadata = 70,            /* local_metadata  */
-  YYSYMBOL_definitions = 71,               /* definitions  */
-  YYSYMBOL_definition = 72,                /* definition  */
-  YYSYMBOL_73_1 = 73,                      /* $@1  */
-  YYSYMBOL_74_2 = 74,                      /* $@2  */
-  YYSYMBOL_75_3 = 75,                      /* $@3  */
-  YYSYMBOL_76_4 = 76,                      /* $@4  */
-  YYSYMBOL_77_5 = 77,                      /* $@5  */
-  YYSYMBOL_78_6 = 78,                      /* $@6  */
-  YYSYMBOL_79_7 = 79,                      /* $@7  */
-  YYSYMBOL_80_8 = 80,                      /* $@8  */
-  YYSYMBOL_81_9 = 81,                      /* $@9  */
-  YYSYMBOL_82_10 = 82,                     /* $@10  */
-  YYSYMBOL_83_11 = 83,                     /* $@11  */
-  YYSYMBOL_84_12 = 84,                     /* $@12  */
-  YYSYMBOL_85_13 = 85,                     /* $@13  */
-  YYSYMBOL_module_def = 86,                /* module_def  */
-  YYSYMBOL_87_14 = 87,                     /* @14  */
-  YYSYMBOL_88_15 = 88,                     /* @15  */
-  YYSYMBOL_exception_id = 89,              /* exception_id  */
-  YYSYMBOL_exception_decl = 90,            /* exception_decl  */
-  YYSYMBOL_exception_def = 91,             /* exception_def  */
-  YYSYMBOL_92_16 = 92,                     /* @16  */
-  YYSYMBOL_exception_extends = 93,         /* exception_extends  */
-  YYSYMBOL_exception_exports = 94,         /* exception_exports  */
-  YYSYMBOL_type_id = 95,                   /* type_id  */
-  YYSYMBOL_tag = 96,                       /* tag  */
-  YYSYMBOL_optional = 97,                  /* optional  */
-  YYSYMBOL_tagged_type_id = 98,            /* tagged_type_id  */
-  YYSYMBOL_exception_export = 99,          /* exception_export  */
-  YYSYMBOL_struct_id = 100,                /* struct_id  */
-  YYSYMBOL_struct_decl = 101,              /* struct_decl  */
-  YYSYMBOL_struct_def = 102,               /* struct_def  */
-  YYSYMBOL_103_17 = 103,                   /* @17  */
-  YYSYMBOL_struct_exports = 104,           /* struct_exports  */
-  YYSYMBOL_struct_export = 105,            /* struct_export  */
-  YYSYMBOL_class_name = 106,               /* class_name  */
-  YYSYMBOL_class_id = 107,                 /* class_id  */
-  YYSYMBOL_class_decl = 108,               /* class_decl  */
-  YYSYMBOL_class_def = 109,                /* class_def  */
-  YYSYMBOL_110_18 = 110,                   /* @18  */
-  YYSYMBOL_class_extends = 111,            /* class_extends  */
-  YYSYMBOL_extends = 112,                  /* extends  */
-  YYSYMBOL_class_exports = 113,            /* class_exports  */
-  YYSYMBOL_data_member = 114,              /* data_member  */
-  YYSYMBOL_struct_data_member = 115,       /* struct_data_member  */
-  YYSYMBOL_return_type = 116,              /* return_type  */
-  YYSYMBOL_operation_preamble = 117,       /* operation_preamble  */
-  YYSYMBOL_operation = 118,                /* operation  */
-  YYSYMBOL_119_19 = 119,                   /* @19  */
-  YYSYMBOL_120_20 = 120,                   /* @20  */
-  YYSYMBOL_class_export = 121,             /* class_export  */
-  YYSYMBOL_interface_id = 122,             /* interface_id  */
-  YYSYMBOL_interface_decl = 123,           /* interface_decl  */
-  YYSYMBOL_interface_def = 124,            /* interface_def  */
-  YYSYMBOL_125_21 = 125,                   /* @21  */
-  YYSYMBOL_interface_list = 126,           /* interface_list  */
-  YYSYMBOL_interface_extends = 127,        /* interface_extends  */
-  YYSYMBOL_interface_exports = 128,        /* interface_exports  */
-  YYSYMBOL_interface_export = 129,         /* interface_export  */
-  YYSYMBOL_exception_list = 130,           /* exception_list  */
-  YYSYMBOL_exception = 131,                /* exception  */
-  YYSYMBOL_sequence_def = 132,             /* sequence_def  */
-  YYSYMBOL_dictionary_def = 133,           /* dictionary_def  */
-  YYSYMBOL_enum_id = 134,                  /* enum_id  */
-  YYSYMBOL_enum_def = 135,                 /* enum_def  */
-  YYSYMBOL_136_22 = 136,                   /* @22  */
-  YYSYMBOL_137_23 = 137,                   /* @23  */
-  YYSYMBOL_enum_underlying = 138,          /* enum_underlying  */
-  YYSYMBOL_enumerator_list = 139,          /* enumerator_list  */
-  YYSYMBOL_enumerator = 140,               /* enumerator  */
-  YYSYMBOL_enumerator_initializer = 141,   /* enumerator_initializer  */
-  YYSYMBOL_out_qualifier = 142,            /* out_qualifier  */
-  YYSYMBOL_parameters = 143,               /* parameters  */
-  YYSYMBOL_throws = 144,                   /* throws  */
-  YYSYMBOL_scoped_name = 145,              /* scoped_name  */
-  YYSYMBOL_builtin = 146,                  /* builtin  */
-  YYSYMBOL_type = 147,                     /* type  */
-  YYSYMBOL_string_literal = 148,           /* string_literal  */
-  YYSYMBOL_string_list = 149,              /* string_list  */
-  YYSYMBOL_const_initializer = 150,        /* const_initializer  */
-  YYSYMBOL_const_def = 151,                /* const_def  */
-  YYSYMBOL_keyword = 152                   /* keyword  */
+  YYSYMBOL_ICE_UNCHECKED = 40,             /* ICE_UNCHECKED  */
+  YYSYMBOL_ICE_STRING_LITERAL = 41,        /* ICE_STRING_LITERAL  */
+  YYSYMBOL_ICE_INTEGER_LITERAL = 42,       /* ICE_INTEGER_LITERAL  */
+  YYSYMBOL_ICE_FLOATING_POINT_LITERAL = 43, /* ICE_FLOATING_POINT_LITERAL  */
+  YYSYMBOL_ICE_IDENTIFIER = 44,            /* ICE_IDENTIFIER  */
+  YYSYMBOL_ICE_SCOPED_IDENTIFIER = 45,     /* ICE_SCOPED_IDENTIFIER  */
+  YYSYMBOL_ICE_LOCAL_METADATA_OPEN = 46,   /* ICE_LOCAL_METADATA_OPEN  */
+  YYSYMBOL_ICE_LOCAL_METADATA_CLOSE = 47,  /* ICE_LOCAL_METADATA_CLOSE  */
+  YYSYMBOL_ICE_FILE_METADATA_OPEN = 48,    /* ICE_FILE_METADATA_OPEN  */
+  YYSYMBOL_ICE_FILE_METADATA_IGNORE = 49,  /* ICE_FILE_METADATA_IGNORE  */
+  YYSYMBOL_ICE_FILE_METADATA_CLOSE = 50,   /* ICE_FILE_METADATA_CLOSE  */
+  YYSYMBOL_ICE_IDENT_OPEN = 51,            /* ICE_IDENT_OPEN  */
+  YYSYMBOL_ICE_KEYWORD_OPEN = 52,          /* ICE_KEYWORD_OPEN  */
+  YYSYMBOL_ICE_TAG_OPEN = 53,              /* ICE_TAG_OPEN  */
+  YYSYMBOL_ICE_OPTIONAL_OPEN = 54,         /* ICE_OPTIONAL_OPEN  */
+  YYSYMBOL_BAD_CHAR = 55,                  /* BAD_CHAR  */
+  YYSYMBOL_56_ = 56,                       /* ';'  */
+  YYSYMBOL_57_ = 57,                       /* '{'  */
+  YYSYMBOL_58_ = 58,                       /* '}'  */
+  YYSYMBOL_59_ = 59,                       /* ')'  */
+  YYSYMBOL_60_ = 60,                       /* ':'  */
+  YYSYMBOL_61_ = 61,                       /* '='  */
+  YYSYMBOL_62_ = 62,                       /* ','  */
+  YYSYMBOL_63_ = 63,                       /* '<'  */
+  YYSYMBOL_64_ = 64,                       /* '>'  */
+  YYSYMBOL_65_ = 65,                       /* '*'  */
+  YYSYMBOL_66_ = 66,                       /* '?'  */
+  YYSYMBOL_YYACCEPT = 67,                  /* $accept  */
+  YYSYMBOL_start = 68,                     /* start  */
+  YYSYMBOL_opt_semicolon = 69,             /* opt_semicolon  */
+  YYSYMBOL_file_metadata = 70,             /* file_metadata  */
+  YYSYMBOL_local_metadata = 71,            /* local_metadata  */
+  YYSYMBOL_definitions = 72,               /* definitions  */
+  YYSYMBOL_definition = 73,                /* definition  */
+  YYSYMBOL_74_1 = 74,                      /* $@1  */
+  YYSYMBOL_75_2 = 75,                      /* $@2  */
+  YYSYMBOL_76_3 = 76,                      /* $@3  */
+  YYSYMBOL_77_4 = 77,                      /* $@4  */
+  YYSYMBOL_78_5 = 78,                      /* $@5  */
+  YYSYMBOL_79_6 = 79,                      /* $@6  */
+  YYSYMBOL_80_7 = 80,                      /* $@7  */
+  YYSYMBOL_81_8 = 81,                      /* $@8  */
+  YYSYMBOL_82_9 = 82,                      /* $@9  */
+  YYSYMBOL_83_10 = 83,                     /* $@10  */
+  YYSYMBOL_84_11 = 84,                     /* $@11  */
+  YYSYMBOL_85_12 = 85,                     /* $@12  */
+  YYSYMBOL_86_13 = 86,                     /* $@13  */
+  YYSYMBOL_module_def = 87,                /* module_def  */
+  YYSYMBOL_88_14 = 88,                     /* @14  */
+  YYSYMBOL_89_15 = 89,                     /* @15  */
+  YYSYMBOL_exception_id = 90,              /* exception_id  */
+  YYSYMBOL_exception_decl = 91,            /* exception_decl  */
+  YYSYMBOL_exception_def = 92,             /* exception_def  */
+  YYSYMBOL_93_16 = 93,                     /* @16  */
+  YYSYMBOL_exception_extends = 94,         /* exception_extends  */
+  YYSYMBOL_exception_exports = 95,         /* exception_exports  */
+  YYSYMBOL_type_id = 96,                   /* type_id  */
+  YYSYMBOL_tag = 97,                       /* tag  */
+  YYSYMBOL_optional = 98,                  /* optional  */
+  YYSYMBOL_tagged_type_id = 99,            /* tagged_type_id  */
+  YYSYMBOL_exception_export = 100,         /* exception_export  */
+  YYSYMBOL_struct_id = 101,                /* struct_id  */
+  YYSYMBOL_struct_decl = 102,              /* struct_decl  */
+  YYSYMBOL_struct_def = 103,               /* struct_def  */
+  YYSYMBOL_104_17 = 104,                   /* @17  */
+  YYSYMBOL_struct_exports = 105,           /* struct_exports  */
+  YYSYMBOL_struct_export = 106,            /* struct_export  */
+  YYSYMBOL_class_name = 107,               /* class_name  */
+  YYSYMBOL_class_id = 108,                 /* class_id  */
+  YYSYMBOL_class_decl = 109,               /* class_decl  */
+  YYSYMBOL_class_def = 110,                /* class_def  */
+  YYSYMBOL_111_18 = 111,                   /* @18  */
+  YYSYMBOL_class_extends = 112,            /* class_extends  */
+  YYSYMBOL_extends = 113,                  /* extends  */
+  YYSYMBOL_class_exports = 114,            /* class_exports  */
+  YYSYMBOL_data_member = 115,              /* data_member  */
+  YYSYMBOL_struct_data_member = 116,       /* struct_data_member  */
+  YYSYMBOL_return_type = 117,              /* return_type  */
+  YYSYMBOL_operation_preamble = 118,       /* operation_preamble  */
+  YYSYMBOL_operation = 119,                /* operation  */
+  YYSYMBOL_120_19 = 120,                   /* @19  */
+  YYSYMBOL_121_20 = 121,                   /* @20  */
+  YYSYMBOL_class_export = 122,             /* class_export  */
+  YYSYMBOL_interface_id = 123,             /* interface_id  */
+  YYSYMBOL_interface_decl = 124,           /* interface_decl  */
+  YYSYMBOL_interface_def = 125,            /* interface_def  */
+  YYSYMBOL_126_21 = 126,                   /* @21  */
+  YYSYMBOL_interface_list = 127,           /* interface_list  */
+  YYSYMBOL_interface_extends = 128,        /* interface_extends  */
+  YYSYMBOL_interface_exports = 129,        /* interface_exports  */
+  YYSYMBOL_interface_export = 130,         /* interface_export  */
+  YYSYMBOL_exception_list = 131,           /* exception_list  */
+  YYSYMBOL_exception = 132,                /* exception  */
+  YYSYMBOL_sequence_def = 133,             /* sequence_def  */
+  YYSYMBOL_dictionary_def = 134,           /* dictionary_def  */
+  YYSYMBOL_enum_id = 135,                  /* enum_id  */
+  YYSYMBOL_enum_def = 136,                 /* enum_def  */
+  YYSYMBOL_137_22 = 137,                   /* @22  */
+  YYSYMBOL_138_23 = 138,                   /* @23  */
+  YYSYMBOL_enum_underlying = 139,          /* enum_underlying  */
+  YYSYMBOL_enumerator_list = 140,          /* enumerator_list  */
+  YYSYMBOL_enumerator = 141,               /* enumerator  */
+  YYSYMBOL_enumerator_initializer = 142,   /* enumerator_initializer  */
+  YYSYMBOL_out_qualifier = 143,            /* out_qualifier  */
+  YYSYMBOL_parameters = 144,               /* parameters  */
+  YYSYMBOL_throws = 145,                   /* throws  */
+  YYSYMBOL_scoped_name = 146,              /* scoped_name  */
+  YYSYMBOL_builtin = 147,                  /* builtin  */
+  YYSYMBOL_type = 148,                     /* type  */
+  YYSYMBOL_string_literal = 149,           /* string_literal  */
+  YYSYMBOL_string_list = 150,              /* string_list  */
+  YYSYMBOL_const_initializer = 151,        /* const_initializer  */
+  YYSYMBOL_const_def = 152,                /* const_def  */
+  YYSYMBOL_keyword = 153                   /* keyword  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -481,7 +483,7 @@ typedef enum yysymbol_kind_t yysymbol_kind_t;
 int slice_lex(YYSTYPE* lvalp, YYLTYPE* llocp);
 
 
-#line 485 "src/Slice/Grammar.cpp"
+#line 487 "src/Slice/Grammar.cpp"
 
 #ifdef short
 # undef short
@@ -789,18 +791,18 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   1117
+#define YYLAST   1139
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  66
+#define YYNTOKENS  67
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  87
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  255
+#define YYNRULES  256
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  365
+#define YYNSTATES  368
 
-#define YYMAXUTOK   309
+#define YYMAXUTOK   310
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -818,15 +820,15 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,    58,    64,     2,    61,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    59,    55,
-      62,    60,    63,    65,     2,     2,     2,     2,     2,     2,
+       2,    59,    65,     2,    62,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    60,    56,
+      63,    61,    64,    66,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    56,     2,    57,     2,     2,     2,     2,
+       2,     2,     2,    57,     2,    58,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -844,39 +846,40 @@ static const yytype_int8 yytranslate[] =
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    49,    50,    51,    52,    53,    54
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
+      55
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   191,   191,   199,   202,   210,   214,   224,   228,   235,
-     244,   252,   261,   270,   269,   275,   274,   279,   284,   283,
-     289,   288,   293,   298,   297,   303,   302,   307,   312,   311,
-     317,   316,   321,   326,   325,   331,   330,   335,   340,   339,
-     344,   349,   348,   354,   353,   358,   362,   372,   371,   400,
-     399,   460,   464,   475,   486,   485,   511,   519,   528,   537,
-     540,   544,   552,   566,   584,   663,   669,   680,   702,   785,
-     795,   810,   825,   846,   859,   865,   869,   880,   891,   890,
-     931,   940,   943,   947,   955,   961,   965,   976,  1001,  1091,
-    1103,  1116,  1115,  1149,  1183,  1192,  1195,  1203,  1212,  1215,
-    1219,  1227,  1249,  1276,  1298,  1324,  1333,  1344,  1353,  1362,
-    1371,  1380,  1390,  1404,  1417,  1434,  1440,  1450,  1474,  1499,
-    1523,  1554,  1553,  1576,  1575,  1598,  1604,  1608,  1619,  1633,
-    1632,  1666,  1701,  1736,  1741,  1746,  1760,  1764,  1773,  1782,
-    1785,  1789,  1797,  1803,  1810,  1822,  1834,  1845,  1853,  1867,
-    1877,  1893,  1897,  1909,  1908,  1940,  1939,  1957,  1961,  1970,
-    1976,  1984,  1996,  2009,  2016,  2026,  2030,  2068,  2074,  2085,
-    2088,  2104,  2120,  2132,  2144,  2155,  2171,  2175,  2184,  2187,
-    2195,  2196,  2197,  2198,  2199,  2200,  2201,  2202,  2203,  2204,
-    2205,  2206,  2207,  2208,  2209,  2214,  2218,  2222,  2226,  2234,
-    2239,  2250,  2254,  2266,  2271,  2297,  2329,  2357,  2363,  2371,
-    2378,  2390,  2399,  2408,  2448,  2455,  2462,  2474,  2483,  2497,
-    2498,  2499,  2500,  2501,  2502,  2503,  2504,  2505,  2506,  2507,
-    2508,  2509,  2510,  2511,  2512,  2513,  2514,  2515,  2516,  2517,
-    2518,  2519,  2520,  2521,  2522,  2523,  2524,  2525,  2526,  2527,
-    2528,  2529,  2530,  2531,  2532,  2533
+       0,   192,   192,   200,   203,   211,   215,   225,   229,   236,
+     245,   253,   262,   271,   270,   276,   275,   280,   285,   284,
+     290,   289,   294,   299,   298,   304,   303,   308,   313,   312,
+     318,   317,   322,   327,   326,   332,   331,   336,   341,   340,
+     345,   350,   349,   355,   354,   359,   363,   373,   372,   401,
+     400,   461,   465,   476,   487,   486,   512,   520,   529,   538,
+     541,   545,   553,   567,   585,   659,   665,   676,   698,   776,
+     786,   801,   816,   837,   850,   856,   860,   871,   882,   881,
+     922,   931,   934,   938,   946,   952,   956,   967,   992,  1082,
+    1094,  1107,  1106,  1140,  1174,  1183,  1186,  1194,  1203,  1206,
+    1210,  1218,  1240,  1267,  1289,  1315,  1324,  1335,  1344,  1353,
+    1362,  1371,  1381,  1395,  1408,  1425,  1431,  1441,  1465,  1490,
+    1514,  1545,  1544,  1567,  1566,  1589,  1595,  1599,  1610,  1624,
+    1623,  1657,  1692,  1727,  1732,  1737,  1751,  1755,  1764,  1773,
+    1776,  1780,  1788,  1794,  1801,  1813,  1825,  1836,  1844,  1858,
+    1868,  1884,  1899,  1914,  1927,  1926,  1949,  1948,  1966,  1970,
+    1979,  1985,  1993,  2005,  2018,  2025,  2035,  2039,  2077,  2083,
+    2094,  2097,  2113,  2129,  2141,  2153,  2164,  2180,  2184,  2193,
+    2196,  2204,  2205,  2206,  2207,  2208,  2209,  2210,  2211,  2212,
+    2213,  2214,  2215,  2216,  2217,  2218,  2223,  2227,  2231,  2235,
+    2243,  2248,  2259,  2263,  2275,  2280,  2306,  2338,  2366,  2372,
+    2380,  2387,  2399,  2408,  2417,  2457,  2464,  2471,  2483,  2492,
+    2506,  2507,  2508,  2509,  2510,  2511,  2512,  2513,  2514,  2515,
+    2516,  2517,  2518,  2519,  2520,  2521,  2522,  2523,  2524,  2525,
+    2526,  2527,  2528,  2529,  2530,  2531,  2532,  2533,  2534,  2535,
+    2536,  2537,  2538,  2539,  2540,  2541,  2542
 };
 #endif
 
@@ -900,31 +903,31 @@ static const char *const yytname[] =
   "ICE_VARUINT", "ICE_LONG", "ICE_ULONG", "ICE_VARLONG", "ICE_VARULONG",
   "ICE_FLOAT", "ICE_DOUBLE", "ICE_STRING", "ICE_OBJECT", "ICE_CONST",
   "ICE_FALSE", "ICE_TRUE", "ICE_IDEMPOTENT", "ICE_TAG", "ICE_OPTIONAL",
-  "ICE_ANYCLASS", "ICE_VALUE", "ICE_STRING_LITERAL", "ICE_INTEGER_LITERAL",
-  "ICE_FLOATING_POINT_LITERAL", "ICE_IDENTIFIER", "ICE_SCOPED_IDENTIFIER",
-  "ICE_LOCAL_METADATA_OPEN", "ICE_LOCAL_METADATA_CLOSE",
-  "ICE_FILE_METADATA_OPEN", "ICE_FILE_METADATA_IGNORE",
-  "ICE_FILE_METADATA_CLOSE", "ICE_IDENT_OPEN", "ICE_KEYWORD_OPEN",
-  "ICE_TAG_OPEN", "ICE_OPTIONAL_OPEN", "BAD_CHAR", "';'", "'{'", "'}'",
-  "')'", "':'", "'='", "','", "'<'", "'>'", "'*'", "'?'", "$accept",
-  "start", "opt_semicolon", "file_metadata", "local_metadata",
-  "definitions", "definition", "$@1", "$@2", "$@3", "$@4", "$@5", "$@6",
-  "$@7", "$@8", "$@9", "$@10", "$@11", "$@12", "$@13", "module_def", "@14",
-  "@15", "exception_id", "exception_decl", "exception_def", "@16",
-  "exception_extends", "exception_exports", "type_id", "tag", "optional",
-  "tagged_type_id", "exception_export", "struct_id", "struct_decl",
-  "struct_def", "@17", "struct_exports", "struct_export", "class_name",
-  "class_id", "class_decl", "class_def", "@18", "class_extends", "extends",
-  "class_exports", "data_member", "struct_data_member", "return_type",
-  "operation_preamble", "operation", "@19", "@20", "class_export",
-  "interface_id", "interface_decl", "interface_def", "@21",
-  "interface_list", "interface_extends", "interface_exports",
-  "interface_export", "exception_list", "exception", "sequence_def",
-  "dictionary_def", "enum_id", "enum_def", "@22", "@23", "enum_underlying",
-  "enumerator_list", "enumerator", "enumerator_initializer",
-  "out_qualifier", "parameters", "throws", "scoped_name", "builtin",
-  "type", "string_literal", "string_list", "const_initializer",
-  "const_def", "keyword", YY_NULLPTR
+  "ICE_ANYCLASS", "ICE_VALUE", "ICE_UNCHECKED", "ICE_STRING_LITERAL",
+  "ICE_INTEGER_LITERAL", "ICE_FLOATING_POINT_LITERAL", "ICE_IDENTIFIER",
+  "ICE_SCOPED_IDENTIFIER", "ICE_LOCAL_METADATA_OPEN",
+  "ICE_LOCAL_METADATA_CLOSE", "ICE_FILE_METADATA_OPEN",
+  "ICE_FILE_METADATA_IGNORE", "ICE_FILE_METADATA_CLOSE", "ICE_IDENT_OPEN",
+  "ICE_KEYWORD_OPEN", "ICE_TAG_OPEN", "ICE_OPTIONAL_OPEN", "BAD_CHAR",
+  "';'", "'{'", "'}'", "')'", "':'", "'='", "','", "'<'", "'>'", "'*'",
+  "'?'", "$accept", "start", "opt_semicolon", "file_metadata",
+  "local_metadata", "definitions", "definition", "$@1", "$@2", "$@3",
+  "$@4", "$@5", "$@6", "$@7", "$@8", "$@9", "$@10", "$@11", "$@12", "$@13",
+  "module_def", "@14", "@15", "exception_id", "exception_decl",
+  "exception_def", "@16", "exception_extends", "exception_exports",
+  "type_id", "tag", "optional", "tagged_type_id", "exception_export",
+  "struct_id", "struct_decl", "struct_def", "@17", "struct_exports",
+  "struct_export", "class_name", "class_id", "class_decl", "class_def",
+  "@18", "class_extends", "extends", "class_exports", "data_member",
+  "struct_data_member", "return_type", "operation_preamble", "operation",
+  "@19", "@20", "class_export", "interface_id", "interface_decl",
+  "interface_def", "@21", "interface_list", "interface_extends",
+  "interface_exports", "interface_export", "exception_list", "exception",
+  "sequence_def", "dictionary_def", "enum_id", "enum_def", "@22", "@23",
+  "enum_underlying", "enumerator_list", "enumerator",
+  "enumerator_initializer", "out_qualifier", "parameters", "throws",
+  "scoped_name", "builtin", "type", "string_literal", "string_list",
+  "const_initializer", "const_def", "keyword", YY_NULLPTR
 };
 
 static const char *
@@ -944,17 +947,17 @@ static const yytype_int16 yytoknum[] =
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
      285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
      295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
-     305,   306,   307,   308,   309,    59,   123,   125,    41,    58,
-      61,    44,    60,    62,    42,    63
+     305,   306,   307,   308,   309,   310,    59,   123,   125,    41,
+      58,    61,    44,    60,    62,    42,    63
 };
 #endif
 
-#define YYPACT_NINF (-311)
+#define YYPACT_NINF (-281)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-170)
+#define YYTABLE_NINF (-171)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -963,115 +966,115 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-    -311,    24,    12,  -311,    -6,    -6,    -6,  -311,   167,    -6,
-    -311,   -30,   -29,    -8,     1,    -1,   522,   612,   653,   694,
-      25,    29,   735,    57,    -6,  -311,  -311,     7,    67,  -311,
-      40,    69,  -311,    11,     9,    80,  -311,    13,    85,  -311,
-      91,    96,    98,  -311,   100,  -311,  -311,    -6,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-    -311,    34,  -311,  -311,  -311,  -311,  -311,  -311,  -311,    57,
-      57,  -311,    88,  -311,  1043,   -17,   112,  -311,  -311,  -311,
-      51,   124,   112,   125,   129,   112,  -311,    51,   132,   112,
-     147,  -311,   133,   112,   139,   142,  1073,  -311,   112,   143,
-    -311,   145,   152,   153,  -311,  -311,   155,  1043,  1043,   776,
-    -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,    66,   138,   149,    73,   151,
-     -25,  -311,  -311,  -311,   161,  -311,  -311,  -311,   377,  -311,
-    -311,   164,  -311,  -311,  -311,  -311,  -311,  -311,  -311,   157,
-     165,  -311,  -311,  -311,  -311,  -311,   166,  -311,  -311,  -311,
-    -311,  -311,  -311,   175,   163,   169,   168,   178,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,   170,   193,   422,   185,
-    1005,   184,   467,   147,   332,   776,   135,   162,   817,    57,
-      60,  -311,   776,   193,  -311,  -311,  -311,  -311,  -311,  -311,
-    -311,   187,  1005,   186,   377,  -311,  -311,    30,    41,   188,
-    1073,  1073,   189,  -311,   858,  -311,   191,  1005,   190,  -311,
-     194,   928,   195,   196,  -311,  -311,  -311,  -311,  1043,  -311,
-    -311,  -311,  -311,  -311,   422,  -311,  1073,  1073,   197,   199,
-    -311,   858,  -311,  -311,   192,  -311,   198,   200,  -311,   201,
-     193,   202,   217,   203,   377,  -311,  -311,   467,  -311,   206,
-    -311,   332,  -311,   967,  1073,  1073,   109,    89,  -311,   209,
-    -311,  -311,  -311,   207,  -311,  -311,  -311,   193,   422,  -311,
-    -311,  -311,  -311,  -311,  -311,   193,   193,  -311,  -311,   467,
-    -311,   113,  -311,  -311,  -311,  -311,   211,  -311,    57,    18,
-     332,   899,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-    1005,  -311,   260,  -311,  -311,  -311,   259,  -311,   858,   259,
-      57,   570,  -311,  -311,  -311,  1005,  -311,   213,  -311,  -311,
-    -311,   858,   570,  -311,  -311
+    -281,    45,    12,  -281,    -4,    -4,    -4,  -281,   170,    -4,
+    -281,   -29,    -7,    -6,    -9,    61,   529,   621,   663,   705,
+       1,     9,   747,    29,    44,    -4,  -281,  -281,     8,    30,
+    -281,    20,    32,  -281,    13,     3,    39,  -281,    14,    67,
+    -281,    69,    82,    80,  -281,    95,  -281,  -281,    -4,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,    59,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+      29,    29,  -281,    90,  -281,  1063,   120,    37,   141,  -281,
+    -281,  -281,   142,   148,   141,   156,   150,   141,  -281,   142,
+     158,   141,   110,  -281,   159,   141,   161,   163,  1094,  -281,
+     141,   164,  -281,   165,   166,   162,  -281,  -281,   168,  1063,
+    1063,   789,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,  -281,   123,   167,   171,
+     129,   172,   -25,  -281,  -281,  -281,  -281,   173,  -281,  -281,
+    -281,   381,  -281,  -281,   175,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,   174,   182,  -281,  -281,  -281,  -281,  -281,   183,
+    -281,  -281,  -281,  -281,  -281,  -281,   160,   179,   181,   185,
+     184,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,   186,
+     125,   427,   169,  1024,   187,   473,   110,   335,   789,    85,
+     135,   831,    29,   118,  -281,   789,   125,  -281,  -281,  -281,
+    -281,  -281,  -281,  -281,   188,  1024,   191,   381,  -281,  -281,
+     -13,    34,   189,  1094,  1094,   195,  -281,   873,  -281,   196,
+    1024,   197,  -281,   200,   945,   199,   201,  -281,  -281,  -281,
+    -281,  1063,  -281,  -281,  -281,  -281,  -281,   427,  -281,  1094,
+    1094,   192,   204,  -281,   873,  -281,  -281,   202,  -281,   203,
+     205,  -281,   206,   125,   211,   219,   212,   381,  -281,  -281,
+     473,  -281,   210,  -281,   335,  -281,   985,  1094,  1094,   139,
+      91,  -281,   218,  -281,  -281,  -281,   213,  -281,  -281,  -281,
+     125,   427,  -281,  -281,  -281,  -281,  -281,  -281,   125,   125,
+    -281,  -281,   473,  -281,   149,  -281,  -281,  -281,  -281,   208,
+    -281,    29,   -38,   335,   915,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  1024,  -281,   217,  -281,  -281,  -281,   215,
+    -281,   873,   215,    29,   578,  -281,  -281,  -281,  1024,  -281,
+     214,  -281,  -281,  -281,   873,   578,  -281,  -281
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
      Performed when YYTABLE does not specify something else to do.  Zero
      means the default is an error.  */
-static const yytype_uint8 yydefact[] =
+static const yytype_int16 yydefact[] =
 {
-      12,     0,     9,     1,     0,     0,     0,    10,     0,   208,
-     210,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,   155,     9,     0,    11,    13,    53,    27,    28,
-      77,    32,    33,    90,    94,    17,    18,   128,    22,    23,
-      37,    40,   158,    41,    45,   207,     7,     0,     5,     6,
-      46,    47,    49,   219,   220,   221,   222,   223,   224,   225,
+      12,     0,     9,     1,     0,     0,     0,    10,     0,   209,
+     211,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,   156,     9,     0,     0,    11,    13,    53,    27,
+      28,    77,    32,    33,    90,    94,    17,    18,   128,    22,
+      23,    37,    40,   159,    41,    45,   208,     7,     0,     5,
+       6,    46,    47,    49,   220,   221,   222,   223,   224,   225,
      226,   227,   228,   229,   230,   231,   232,   233,   234,   235,
      236,   237,   238,   239,   240,   241,   242,   243,   244,   245,
      246,   247,   248,   249,   250,   251,   252,   253,   254,   255,
-      85,     0,    86,   126,   127,    51,    52,    75,    76,     9,
-       9,   151,     0,   152,     0,     0,     4,    95,    96,    54,
-       0,     0,     4,     0,     0,     4,    91,     0,     0,     4,
-       0,   129,     0,     4,     0,     0,     0,   153,     4,     0,
-     209,     0,     0,     0,   178,   179,     0,     0,     0,   164,
-     180,   181,   182,   183,   184,   185,   186,   187,   188,   189,
-     190,   191,   192,   193,   194,   200,   201,   202,   204,   203,
-       0,     8,     3,    14,     0,    56,    26,    29,     0,    31,
-      34,     0,    93,    16,    19,   133,   134,   135,   136,   132,
-       0,    21,    24,    36,    39,   157,     0,    42,    44,    12,
-      12,    87,    88,     0,     0,   161,     0,   160,   163,   195,
-     196,   197,   198,   205,   206,   199,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,   164,     9,     9,     0,     9,
-       0,   156,   164,     0,   215,   216,   214,   211,   212,   213,
-     218,     0,     0,     0,     0,    66,    70,     0,     0,   105,
-       0,     0,    82,    84,   112,    79,     0,     0,     0,   131,
-       0,     0,     0,     0,    48,    50,   147,   148,     0,   165,
-     162,   166,   159,   217,     0,    73,     0,     0,   101,    60,
-      74,   104,    55,    81,     0,    65,     0,     0,    69,     0,
-       0,   107,     0,   109,     0,    62,   111,     0,   125,    99,
-      92,     0,   116,     0,     0,     0,     0,     0,   142,   140,
-     115,   130,   154,     0,    59,    71,    72,     0,     0,   103,
-      63,    64,    67,    68,   106,     0,     0,    80,    98,     0,
-     139,     0,   113,   114,   117,   119,     0,   167,     9,     0,
-       0,     0,   102,    58,   108,   110,    97,   118,   120,   123,
-       0,   121,   168,   138,   149,   150,   177,   170,   174,   177,
-       9,     0,   124,   172,   122,     0,   176,   144,   145,   146,
-     171,   175,     0,   173,   143
+     256,    85,     0,    86,   126,   127,    51,    52,    75,    76,
+       9,     9,   152,     0,   153,     0,     0,     0,     4,    95,
+      96,    54,     0,     0,     4,     0,     0,     4,    91,     0,
+       0,     4,     0,   129,     0,     4,     0,     0,     0,   154,
+       4,     0,   210,     0,     0,     0,   179,   180,     0,     0,
+       0,   165,   181,   182,   183,   184,   185,   186,   187,   188,
+     189,   190,   191,   192,   193,   194,   195,   201,   202,   203,
+     205,   204,     0,   151,     8,     3,    14,     0,    56,    26,
+      29,     0,    31,    34,     0,    93,    16,    19,   133,   134,
+     135,   136,   132,     0,    21,    24,    36,    39,   158,     0,
+      42,    44,    12,    12,    87,    88,     0,     0,   162,     0,
+     161,   164,   196,   197,   198,   199,   206,   207,   200,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,   165,     9,
+       9,     0,     9,     0,   157,   165,     0,   216,   217,   215,
+     212,   213,   214,   219,     0,     0,     0,     0,    66,    70,
+       0,     0,   105,     0,     0,    82,    84,   112,    79,     0,
+       0,     0,   131,     0,     0,     0,     0,    48,    50,   147,
+     148,     0,   166,   163,   167,   160,   218,     0,    73,     0,
+       0,   101,    60,    74,   104,    55,    81,     0,    65,     0,
+       0,    69,     0,     0,   107,     0,   109,     0,    62,   111,
+       0,   125,    99,    92,     0,   116,     0,     0,     0,     0,
+       0,   142,   140,   115,   130,   155,     0,    59,    71,    72,
+       0,     0,   103,    63,    64,    67,    68,   106,     0,     0,
+      80,    98,     0,   139,     0,   113,   114,   117,   119,     0,
+     168,     9,     0,     0,     0,   102,    58,   108,   110,    97,
+     118,   120,   123,     0,   121,   169,   138,   149,   150,   178,
+     171,   175,   178,     9,     0,   124,   173,   122,     0,   177,
+     144,   145,   146,   172,   176,     0,   174,   143
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -311,  -311,    33,  -311,   -19,   -24,  -311,  -311,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -250,  -202,
-    -201,  -200,  -310,  -311,  -311,  -311,  -311,  -311,  -223,  -311,
-    -311,  -311,  -311,  -311,  -311,  -311,    49,  -265,    28,  -311,
-     -14,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,  -311,
-      63,  -311,  -278,  -311,   -85,  -311,  -311,  -311,  -311,  -311,
-    -311,  -311,  -311,  -175,  -311,  -311,   -62,  -311,   -68,   -84,
-    -311,   -89,     8,    22,  -218,  -311,   -16
+    -281,  -281,   -34,  -281,   -19,    19,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -254,  -203,
+    -206,  -202,  -258,  -281,  -281,  -281,  -281,  -281,  -228,  -281,
+    -281,  -281,  -281,  -281,  -281,  -281,   147,  -273,    28,  -281,
+     -17,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,  -281,
+      64,  -281,  -280,  -281,   -83,  -281,  -281,  -281,  -281,  -281,
+    -281,  -281,  -281,  -191,  -281,  -281,   -62,  -281,   -68,   -84,
+    -281,   -89,    21,    17,  -221,  -281,   -16
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
-      -1,     1,   163,     7,     8,     2,    25,   106,   118,   119,
-     122,   123,   111,   112,   114,   115,   124,   125,   128,   129,
-      26,   131,   132,    27,    28,    29,   164,   109,   233,   265,
-     266,   267,   268,   269,    30,    31,    32,   113,   211,   242,
-      33,    34,    35,    36,   171,   116,   110,   248,   270,   243,
-     296,   297,   298,   349,   346,   289,    37,    38,    39,   180,
-     178,   121,   252,   299,   356,   357,    40,    41,    42,    43,
-     186,   102,   127,   196,   197,   260,   328,   329,   352,   158,
-     159,   282,    10,    11,   230,    44,   198
+      -1,     1,   166,     7,     8,     2,    26,   108,   120,   121,
+     124,   125,   113,   114,   116,   117,   126,   127,   130,   131,
+      27,   133,   134,    28,    29,    30,   167,   111,   236,   268,
+     269,   270,   271,   272,    31,    32,    33,   115,   214,   245,
+      34,    35,    36,    37,   174,   118,   112,   251,   273,   246,
+     299,   300,   301,   352,   349,   292,    38,    39,    40,   183,
+     181,   123,   255,   302,   359,   360,    41,    42,    43,    44,
+     189,   103,   129,   199,   200,   263,   331,   332,   355,   160,
+     161,   285,    10,    11,   233,    45,   201
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -1079,308 +1082,312 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-      92,    94,    96,    98,   104,   263,   103,   136,   239,   240,
-     241,   273,    -2,   320,   304,   160,    46,    45,   206,   107,
-      48,   107,   318,   -89,     3,   107,   165,    12,    13,   161,
-     347,    47,    47,   172,     9,   207,   179,   185,   281,   283,
-     253,    49,    51,    52,    47,   360,   105,   262,   193,   194,
-     294,   295,   343,    47,   336,   130,    50,     4,   333,     5,
-       6,   317,   314,   -57,   305,   306,   108,   -89,   108,  -137,
-     -89,   274,   108,   134,   135,   133,   341,   134,   135,   342,
-     137,   138,   277,   117,   134,   135,   120,    99,   275,   332,
-     326,   100,   294,   295,   134,   135,   -78,   334,   335,   278,
-     327,   259,     4,   134,   135,  -168,  -168,  -168,  -168,  -168,
-    -168,  -168,  -168,  -168,  -168,  -168,  -168,  -168,  -168,  -168,
-    -168,   244,   -25,   229,   -30,  -168,  -168,  -168,  -168,   179,
-     199,   200,  -168,  -168,  -168,   -15,   261,   203,   204,   229,
-     -20,  -168,  -168,   271,   139,   167,   -35,  -169,   170,   210,
-    -169,   -38,   174,   276,   279,   -43,   182,   126,   271,   324,
-     325,   187,   300,   337,   338,   216,   217,   162,    14,   303,
-      15,    16,    17,    18,    19,    20,    21,    22,   175,   166,
-       4,   168,     5,     6,   169,   176,   177,   173,   181,   232,
-     134,   135,   254,   247,   183,   251,   229,   184,   188,    23,
-     258,   189,   257,   201,   300,   322,   323,     4,   190,     5,
-       6,   191,    24,   192,   202,   210,   205,   208,   213,   255,
-     212,   214,   215,   229,   219,   221,   224,   225,   286,   220,
-     223,   229,   229,   226,   227,   228,   134,   135,   218,   222,
-     234,   245,   264,   272,   284,   232,   287,   290,   280,   291,
-     310,   348,   301,   302,   308,   309,   311,   307,   312,   313,
-     285,   319,   315,   316,   330,   210,   361,   358,   247,   339,
-     331,   327,   251,   351,   362,   288,   249,   364,   358,   321,
-     350,   354,     0,     0,     0,     0,     0,     0,     0,   232,
+      93,    95,    97,    99,   105,   266,   104,   243,   138,   276,
+     242,   244,    -2,   307,   323,   109,   162,   321,    47,   209,
+     109,   344,    12,    13,   345,   -89,   109,   256,   168,   277,
+      46,   136,   137,    48,   265,   175,   210,     9,   182,   188,
+     284,   286,   107,    49,    50,     3,   278,    51,   297,   339,
+     196,   197,   298,   346,   106,    48,    48,   336,     4,   320,
+       5,     6,   317,   110,   100,   -57,   308,   309,   110,   132,
+     -89,  -137,   101,   -89,   110,     4,   280,   -78,   136,   137,
+     170,   139,   140,   173,   164,   350,   -25,   177,   -30,   335,
+     297,   185,   329,   281,   298,   -15,   190,   337,   338,    48,
+     363,   135,   330,   136,   137,    52,    53,  -169,  -169,  -169,
+    -169,  -169,  -169,  -169,  -169,  -169,  -169,  -169,  -169,  -169,
+    -169,  -169,  -169,   -20,   247,   -35,   232,  -169,  -169,  -169,
+    -169,     4,   182,     5,     6,  -169,  -169,  -169,   -38,   264,
+     128,   178,   232,   257,  -169,  -169,   274,   141,   179,   180,
+    -170,   -43,   213,  -170,   136,   137,   279,   282,   227,   228,
+     262,   274,   136,   137,   163,   303,   229,   230,   231,   136,
+     137,    14,   306,    15,    16,    17,    18,    19,    20,    21,
+      22,     4,   119,     5,     6,   122,   136,   137,   202,   203,
+     327,   328,   235,   258,   206,   207,   250,   165,   254,   232,
+     340,   341,    23,   261,   169,   260,   172,   303,   325,   326,
+      24,   219,   220,   171,   176,   184,    25,   186,   213,   187,
+     191,   194,   192,   193,   221,   237,   232,   195,   330,   354,
+     211,   289,   215,   204,   232,   232,   216,   205,   208,   217,
+     218,   222,   223,   224,   267,   248,   225,   226,   235,   275,
+     283,   287,   290,   310,   351,   293,   294,   304,   312,   305,
+     311,   313,   314,   288,   315,   316,   322,   342,   213,   364,
+     361,   250,   318,   319,   333,   254,   365,   334,   291,   324,
+     252,   361,   367,   353,   357,     0,     0,     0,     0,     0,
+       0,     0,   235,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,   250,     0,     0,     0,     0,     0,     0,
+       0,     0,   343,     0,   254,     0,     0,     0,   348,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     247,     0,     0,     0,     0,     0,     0,     0,     0,   340,
-       0,   251,     0,     0,     0,   345,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,   355,   353,   250,     0,   359,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,   363,   359,    -9,    -9,    -9,
+       0,     0,     0,     0,   358,   356,   253,     0,   362,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,   366,   362,
       -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,
-      -9,    -9,    -9,    -9,     0,     0,     0,    -9,    -9,    -9,
-      -9,    -9,     0,     0,     0,    -9,    -9,     4,   209,     0,
-       0,     0,     0,     0,    -9,    -9,     0,     0,     0,  -141,
+      -9,    -9,    -9,    -9,    -9,    -9,    -9,     0,     0,     0,
+      -9,    -9,    -9,    -9,    -9,     0,     0,     0,     0,    -9,
+      -9,     4,   212,     0,     0,     0,     0,     0,    -9,    -9,
+       0,     0,     0,  -141,     0,     0,     0,    -9,    -9,    -9,
+      -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,
+      -9,    -9,    -9,     0,     0,     0,     0,    -9,    -9,    -9,
+      -9,     0,     0,     0,     0,    -9,    -9,     4,   234,     0,
+       0,     0,     0,     0,    -9,    -9,     0,     0,     0,   -83,
        0,     0,     0,    -9,    -9,    -9,    -9,    -9,    -9,    -9,
       -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,     0,
        0,     0,     0,    -9,    -9,    -9,    -9,     0,     0,     0,
-      -9,    -9,     4,   231,     0,     0,     0,     0,     0,    -9,
-      -9,     0,     0,     0,   -83,     0,     0,     0,    -9,    -9,
+       0,    -9,    -9,     4,   249,     0,     0,     0,     0,     0,
+      -9,    -9,     0,     0,     0,   -61,     0,     0,     0,    -9,
       -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,
-      -9,    -9,    -9,    -9,     0,     0,     0,     0,    -9,    -9,
-      -9,    -9,     0,     0,     0,    -9,    -9,     4,   246,     0,
-       0,     0,     0,     0,    -9,    -9,     0,     0,     0,   -61,
-       0,     0,     0,    -9,    -9,    -9,    -9,    -9,    -9,    -9,
-      -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,    -9,     0,
-       0,     0,     0,    -9,    -9,    -9,    -9,     0,     0,     0,
-      -9,    -9,     4,     0,     0,     0,     0,     0,     0,    -9,
-      -9,     0,     0,     0,  -100,    53,    54,    55,    56,    57,
-      58,    59,    60,    61,    62,    63,    64,    65,    66,    67,
-      68,    69,    70,    71,    72,    73,    74,    75,    76,    77,
-      78,    79,    80,    81,    82,    83,    84,    85,    86,    87,
-      88,    89,     0,     0,     0,    90,     0,     0,     0,     0,
-       0,     0,    91,    53,    54,    55,    56,    57,    58,    59,
+      -9,    -9,    -9,    -9,    -9,     0,     0,     0,     0,    -9,
+      -9,    -9,    -9,     0,     0,     0,     0,    -9,    -9,     4,
+       0,     0,     0,     0,     0,     0,    -9,    -9,     0,     0,
+       0,  -100,    54,    55,    56,    57,    58,    59,    60,    61,
+      62,    63,    64,    65,    66,    67,    68,    69,    70,    71,
+      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
+      82,    83,    84,    85,    86,    87,    88,    89,    90,     0,
+       0,     0,     0,    91,     0,     0,     0,     0,     0,     0,
+      92,    54,    55,    56,    57,    58,    59,    60,    61,    62,
+      63,    64,    65,    66,    67,    68,    69,    70,    71,    72,
+      73,    74,    75,    76,    77,    78,    79,    80,    81,    82,
+      83,    84,    85,    86,    87,    88,    89,    90,     0,     0,
+       0,     0,   136,   137,    54,    55,    56,    57,    58,    59,
       60,    61,    62,    63,    64,    65,    66,    67,    68,    69,
       70,    71,    72,    73,    74,    75,    76,    77,    78,    79,
       80,    81,    82,    83,    84,    85,    86,    87,    88,    89,
-       0,     0,     0,   134,   135,    53,    54,    55,    56,    57,
+      90,     0,     0,     0,     0,    94,    54,    55,    56,    57,
       58,    59,    60,    61,    62,    63,    64,    65,    66,    67,
       68,    69,    70,    71,    72,    73,    74,    75,    76,    77,
       78,    79,    80,    81,    82,    83,    84,    85,    86,    87,
-      88,    89,     0,     0,     0,    93,    53,    54,    55,    56,
-      57,    58,    59,    60,    61,    62,    63,    64,    65,    66,
-      67,    68,    69,    70,    71,    72,    73,    74,    75,    76,
-      77,    78,    79,    80,    81,    82,    83,    84,    85,    86,
-      87,    88,    89,     0,     0,     0,    95,    53,    54,    55,
+      88,    89,    90,     0,     0,     0,     0,    96,    54,    55,
       56,    57,    58,    59,    60,    61,    62,    63,    64,    65,
       66,    67,    68,    69,    70,    71,    72,    73,    74,    75,
       76,    77,    78,    79,    80,    81,    82,    83,    84,    85,
-      86,    87,    88,    89,     0,     0,     0,    97,    53,    54,
-      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
-      75,    76,    77,    78,    79,    80,    81,    82,    83,    84,
-      85,    86,    87,    88,    89,     0,     0,     0,   101,    53,
+      86,    87,    88,    89,    90,     0,     0,     0,     0,    98,
       54,    55,    56,    57,    58,    59,    60,    61,    62,    63,
       64,    65,    66,    67,    68,    69,    70,    71,    72,    73,
       74,    75,    76,    77,    78,    79,    80,    81,    82,    83,
-      84,    85,    86,    87,    88,    89,     0,     0,     0,   195,
-      53,    54,    55,    56,    57,    58,    59,    60,    61,    62,
-      63,    64,    65,    66,    67,    68,    69,    70,    71,    72,
-      73,    74,    75,    76,    77,    78,    79,    80,    81,    82,
-      83,    84,    85,    86,    87,    88,    89,     0,     0,     0,
-     256,    53,    54,    55,    56,    57,    58,    59,    60,    61,
+      84,    85,    86,    87,    88,    89,    90,     0,     0,     0,
+       0,   102,    54,    55,    56,    57,    58,    59,    60,    61,
       62,    63,    64,    65,    66,    67,    68,    69,    70,    71,
       72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
-      82,    83,    84,    85,    86,    87,    88,    89,     0,     0,
-       0,   285,    53,    54,    55,    56,    57,    58,    59,    60,
-      61,    62,    63,    64,    65,    66,    67,    68,    69,    70,
-      71,    72,    73,    74,    75,    76,    77,    78,    79,    80,
-      81,    82,    83,    84,    85,    86,    87,    88,    89,     0,
-       0,     0,   344,   292,   140,   141,   142,   143,   144,   145,
-     146,   147,   148,   149,   150,   151,   152,   153,   154,   155,
-       0,     0,     0,   293,   235,   236,   156,   157,     0,     0,
-       0,   134,   135,    24,     0,     0,     0,     0,     0,     0,
-     237,   238,   292,   140,   141,   142,   143,   144,   145,   146,
-     147,   148,   149,   150,   151,   152,   153,   154,   155,     0,
-       0,     0,     0,   235,   236,   156,   157,     0,     0,     0,
-     134,   135,     0,     0,     0,     0,     0,     0,     0,   237,
-     238,   140,   141,   142,   143,   144,   145,   146,   147,   148,
-     149,   150,   151,   152,   153,   154,   155,     0,     0,     0,
-       0,   235,   236,   156,   157,     0,     0,     0,   134,   135,
-      24,     0,     0,     0,     0,     0,     0,   237,   238,   140,
-     141,   142,   143,   144,   145,   146,   147,   148,   149,   150,
-     151,   152,   153,   154,   155,     0,     0,     0,     0,     0,
-       0,   156,   157,     0,     0,     0,   134,   135,    24,   140,
-     141,   142,   143,   144,   145,   146,   147,   148,   149,   150,
-     151,   152,   153,   154,   155,     0,     0,     0,     0,     0,
-       0,   156,   157,     0,     0,     0,   134,   135
+      82,    83,    84,    85,    86,    87,    88,    89,    90,     0,
+       0,     0,     0,   198,    54,    55,    56,    57,    58,    59,
+      60,    61,    62,    63,    64,    65,    66,    67,    68,    69,
+      70,    71,    72,    73,    74,    75,    76,    77,    78,    79,
+      80,    81,    82,    83,    84,    85,    86,    87,    88,    89,
+      90,     0,     0,     0,     0,   259,    54,    55,    56,    57,
+      58,    59,    60,    61,    62,    63,    64,    65,    66,    67,
+      68,    69,    70,    71,    72,    73,    74,    75,    76,    77,
+      78,    79,    80,    81,    82,    83,    84,    85,    86,    87,
+      88,    89,    90,     0,     0,     0,     0,   288,    54,    55,
+      56,    57,    58,    59,    60,    61,    62,    63,    64,    65,
+      66,    67,    68,    69,    70,    71,    72,    73,    74,    75,
+      76,    77,    78,    79,    80,    81,    82,    83,    84,    85,
+      86,    87,    88,    89,    90,     0,     0,     0,     0,   347,
+     295,   142,   143,   144,   145,   146,   147,   148,   149,   150,
+     151,   152,   153,   154,   155,   156,   157,     0,     0,     0,
+     296,   238,   239,   158,   159,     0,     0,     0,     0,   136,
+     137,    25,     0,     0,     0,     0,     0,     0,   240,   241,
+     295,   142,   143,   144,   145,   146,   147,   148,   149,   150,
+     151,   152,   153,   154,   155,   156,   157,     0,     0,     0,
+       0,   238,   239,   158,   159,     0,     0,     0,     0,   136,
+     137,     0,     0,     0,     0,     0,     0,     0,   240,   241,
+     142,   143,   144,   145,   146,   147,   148,   149,   150,   151,
+     152,   153,   154,   155,   156,   157,     0,     0,     0,     0,
+     238,   239,   158,   159,     0,     0,     0,     0,   136,   137,
+      25,     0,     0,     0,     0,     0,     0,   240,   241,   142,
+     143,   144,   145,   146,   147,   148,   149,   150,   151,   152,
+     153,   154,   155,   156,   157,     0,     0,     0,     0,     0,
+       0,   158,   159,     0,     0,     0,     0,   136,   137,    25,
+     142,   143,   144,   145,   146,   147,   148,   149,   150,   151,
+     152,   153,   154,   155,   156,   157,     0,     0,     0,     0,
+       0,     0,   158,   159,     0,     0,     0,     0,   136,   137
 };
 
 static const yytype_int16 yycheck[] =
 {
-      16,    17,    18,    19,    23,   223,    22,    91,   210,   210,
-     210,   234,     0,   291,   264,   104,    46,     9,    43,    12,
-      49,    12,   287,    12,     0,    12,   110,     5,     6,    46,
-     340,    61,    61,   117,    40,    60,   120,   126,   240,   241,
-     215,    49,    43,    44,    61,   355,    24,   222,   137,   138,
-     251,   251,   330,    61,   319,    47,    55,    45,   308,    47,
-      48,   284,   280,    56,   266,   267,    59,    56,    59,    56,
-      59,    41,    59,    43,    44,    41,    58,    43,    44,    61,
-      99,   100,    41,    34,    43,    44,    37,    62,    58,   307,
-       1,    62,   293,   293,    43,    44,    56,   315,   316,    58,
-      11,    41,    45,    43,    44,    16,    17,    18,    19,    20,
+      16,    17,    18,    19,    23,   226,    22,   213,    92,   237,
+     213,   213,     0,   267,   294,    12,   105,   290,    47,    44,
+      12,    59,     5,     6,    62,    12,    12,   218,   112,    42,
+       9,    44,    45,    62,   225,   119,    61,    41,   122,   128,
+     243,   244,    25,    50,    50,     0,    59,    56,   254,   322,
+     139,   140,   254,   333,    10,    62,    62,   311,    46,   287,
+      48,    49,   283,    60,    63,    57,   269,   270,    60,    48,
+      57,    57,    63,    60,    60,    46,    42,    57,    44,    45,
+     114,   100,   101,   117,    47,   343,    56,   121,    56,   310,
+     296,   125,     1,    59,   296,    56,   130,   318,   319,    62,
+     358,    42,    11,    44,    45,    44,    45,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    56,   213,    56,   210,    36,    37,    38,
+      39,    46,   216,    48,    49,    44,    45,    46,    56,   223,
+      60,    31,   226,    58,    53,    54,   235,    57,    38,    39,
+      59,    56,   171,    62,    44,    45,   240,   241,    33,    34,
+      42,   250,    44,    45,    44,   254,    41,    42,    43,    44,
+      45,     1,   261,     3,     4,     5,     6,     7,     8,     9,
+      10,    46,    35,    48,    49,    38,    44,    45,    65,    66,
+      51,    52,   211,    58,    65,    66,   215,    56,   217,   283,
+      51,    52,    32,   222,    56,   221,    56,   296,   297,   298,
+      40,   192,   193,    57,    56,    56,    46,    56,   237,    56,
+      56,    59,    57,    57,    64,    56,   310,    59,    11,    14,
+      57,   247,    57,    66,   318,   319,    62,    66,    66,    57,
+      57,    62,    61,    58,    56,    58,    62,    61,   267,    58,
+      61,    56,    56,    61,   343,    58,    56,    58,   274,    58,
+      56,    59,    59,    44,    59,    59,    56,    59,   287,   358,
+     354,   290,    61,    61,    56,   294,    62,    64,   250,   296,
+     216,   365,   365,   345,   352,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,   311,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,   322,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,   331,    -1,   333,    -1,    -1,    -1,   334,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,   353,   351,     1,    -1,   354,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   364,   365,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    -1,    -1,    -1,
+      35,    36,    37,    38,    39,    -1,    -1,    -1,    -1,    44,
+      45,    46,     1,    -1,    -1,    -1,    -1,    -1,    53,    54,
+      -1,    -1,    -1,    58,    -1,    -1,    -1,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    -1,    -1,    -1,    -1,    36,    37,    38,
+      39,    -1,    -1,    -1,    -1,    44,    45,    46,     1,    -1,
+      -1,    -1,    -1,    -1,    53,    54,    -1,    -1,    -1,    58,
+      -1,    -1,    -1,    16,    17,    18,    19,    20,    21,    22,
+      23,    24,    25,    26,    27,    28,    29,    30,    31,    -1,
+      -1,    -1,    -1,    36,    37,    38,    39,    -1,    -1,    -1,
+      -1,    44,    45,    46,     1,    -1,    -1,    -1,    -1,    -1,
+      53,    54,    -1,    -1,    -1,    58,    -1,    -1,    -1,    16,
+      17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
+      27,    28,    29,    30,    31,    -1,    -1,    -1,    -1,    36,
+      37,    38,    39,    -1,    -1,    -1,    -1,    44,    45,    46,
+      -1,    -1,    -1,    -1,    -1,    -1,    53,    54,    -1,    -1,
+      -1,    58,     3,     4,     5,     6,     7,     8,     9,    10,
+      11,    12,    13,    14,    15,    16,    17,    18,    19,    20,
       21,    22,    23,    24,    25,    26,    27,    28,    29,    30,
-      31,   210,    55,   207,    55,    36,    37,    38,    39,   213,
-      64,    65,    43,    44,    45,    55,   220,    64,    65,   223,
-      55,    52,    53,   232,    56,   112,    55,    58,   115,   168,
-      61,    55,   119,   237,   238,    55,   123,    59,   247,    50,
-      51,   128,   251,    50,    51,   189,   190,    55,     1,   258,
-       3,     4,     5,     6,     7,     8,     9,    10,    31,    55,
-      45,    56,    47,    48,    55,    38,    39,    55,    55,   208,
-      43,    44,    57,   212,    55,   214,   280,    55,    55,    32,
-     219,    56,   218,    65,   293,   294,   295,    45,    56,    47,
-      48,    58,    45,    58,    65,   234,    65,    56,    61,    57,
-      56,    56,    56,   307,    61,    57,    33,    34,   244,    60,
-      60,   315,   316,    40,    41,    42,    43,    44,    63,    61,
-      55,    57,    55,    57,    55,   264,    55,    57,    60,    55,
-      58,   340,    57,    57,    55,   271,    58,    60,    58,    58,
-      43,    55,    60,    60,    55,   284,   355,   351,   287,    58,
-      63,    11,   291,    14,    61,   247,   213,   362,   362,   293,
-     342,   349,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   308,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-     319,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   328,
-      -1,   330,    -1,    -1,    -1,   331,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,   350,   348,     1,    -1,   351,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,   361,   362,    15,    16,    17,
-      18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
-      28,    29,    30,    31,    -1,    -1,    -1,    35,    36,    37,
-      38,    39,    -1,    -1,    -1,    43,    44,    45,     1,    -1,
-      -1,    -1,    -1,    -1,    52,    53,    -1,    -1,    -1,    57,
-      -1,    -1,    -1,    16,    17,    18,    19,    20,    21,    22,
-      23,    24,    25,    26,    27,    28,    29,    30,    31,    -1,
-      -1,    -1,    -1,    36,    37,    38,    39,    -1,    -1,    -1,
-      43,    44,    45,     1,    -1,    -1,    -1,    -1,    -1,    52,
-      53,    -1,    -1,    -1,    57,    -1,    -1,    -1,    16,    17,
-      18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
-      28,    29,    30,    31,    -1,    -1,    -1,    -1,    36,    37,
-      38,    39,    -1,    -1,    -1,    43,    44,    45,     1,    -1,
-      -1,    -1,    -1,    -1,    52,    53,    -1,    -1,    -1,    57,
-      -1,    -1,    -1,    16,    17,    18,    19,    20,    21,    22,
-      23,    24,    25,    26,    27,    28,    29,    30,    31,    -1,
-      -1,    -1,    -1,    36,    37,    38,    39,    -1,    -1,    -1,
-      43,    44,    45,    -1,    -1,    -1,    -1,    -1,    -1,    52,
-      53,    -1,    -1,    -1,    57,     3,     4,     5,     6,     7,
-       8,     9,    10,    11,    12,    13,    14,    15,    16,    17,
-      18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
-      28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
-      38,    39,    -1,    -1,    -1,    43,    -1,    -1,    -1,    -1,
-      -1,    -1,    50,     3,     4,     5,     6,     7,     8,     9,
-      10,    11,    12,    13,    14,    15,    16,    17,    18,    19,
-      20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      -1,    -1,    -1,    43,    44,     3,     4,     5,     6,     7,
-       8,     9,    10,    11,    12,    13,    14,    15,    16,    17,
-      18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
-      28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
-      38,    39,    -1,    -1,    -1,    43,     3,     4,     5,     6,
+      31,    32,    33,    34,    35,    36,    37,    38,    39,    -1,
+      -1,    -1,    -1,    44,    -1,    -1,    -1,    -1,    -1,    -1,
+      51,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+      12,    13,    14,    15,    16,    17,    18,    19,    20,    21,
+      22,    23,    24,    25,    26,    27,    28,    29,    30,    31,
+      32,    33,    34,    35,    36,    37,    38,    39,    -1,    -1,
+      -1,    -1,    44,    45,     3,     4,     5,     6,     7,     8,
+       9,    10,    11,    12,    13,    14,    15,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    38,
+      39,    -1,    -1,    -1,    -1,    44,     3,     4,     5,     6,
        7,     8,     9,    10,    11,    12,    13,    14,    15,    16,
       17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
       27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
-      37,    38,    39,    -1,    -1,    -1,    43,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,    14,    15,
-      16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
-      26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
-      36,    37,    38,    39,    -1,    -1,    -1,    43,     3,     4,
+      37,    38,    39,    -1,    -1,    -1,    -1,    44,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    -1,    -1,    -1,    43,     3,
-       4,     5,     6,     7,     8,     9,    10,    11,    12,    13,
-      14,    15,    16,    17,    18,    19,    20,    21,    22,    23,
-      24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
-      34,    35,    36,    37,    38,    39,    -1,    -1,    -1,    43,
+      35,    36,    37,    38,    39,    -1,    -1,    -1,    -1,    44,
        3,     4,     5,     6,     7,     8,     9,    10,    11,    12,
       13,    14,    15,    16,    17,    18,    19,    20,    21,    22,
       23,    24,    25,    26,    27,    28,    29,    30,    31,    32,
       33,    34,    35,    36,    37,    38,    39,    -1,    -1,    -1,
-      43,     3,     4,     5,     6,     7,     8,     9,    10,    11,
-      12,    13,    14,    15,    16,    17,    18,    19,    20,    21,
-      22,    23,    24,    25,    26,    27,    28,    29,    30,    31,
-      32,    33,    34,    35,    36,    37,    38,    39,    -1,    -1,
-      -1,    43,     3,     4,     5,     6,     7,     8,     9,    10,
+      -1,    44,     3,     4,     5,     6,     7,     8,     9,    10,
       11,    12,    13,    14,    15,    16,    17,    18,    19,    20,
       21,    22,    23,    24,    25,    26,    27,    28,    29,    30,
       31,    32,    33,    34,    35,    36,    37,    38,    39,    -1,
-      -1,    -1,    43,    15,    16,    17,    18,    19,    20,    21,
-      22,    23,    24,    25,    26,    27,    28,    29,    30,    31,
-      -1,    -1,    -1,    35,    36,    37,    38,    39,    -1,    -1,
-      -1,    43,    44,    45,    -1,    -1,    -1,    -1,    -1,    -1,
-      52,    53,    15,    16,    17,    18,    19,    20,    21,    22,
-      23,    24,    25,    26,    27,    28,    29,    30,    31,    -1,
-      -1,    -1,    -1,    36,    37,    38,    39,    -1,    -1,    -1,
-      43,    44,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    52,
-      53,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      -1,    -1,    -1,    44,     3,     4,     5,     6,     7,     8,
+       9,    10,    11,    12,    13,    14,    15,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    38,
+      39,    -1,    -1,    -1,    -1,    44,     3,     4,     5,     6,
+       7,     8,     9,    10,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
+      27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
+      37,    38,    39,    -1,    -1,    -1,    -1,    44,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    -1,    -1,    -1,    -1,    44,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    -1,    -1,    -1,
-      -1,    36,    37,    38,    39,    -1,    -1,    -1,    43,    44,
-      45,    -1,    -1,    -1,    -1,    -1,    -1,    52,    53,    16,
+      35,    36,    37,    38,    39,    -1,    -1,    -1,    -1,    44,
+      45,    46,    -1,    -1,    -1,    -1,    -1,    -1,    53,    54,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    -1,    -1,    -1,
+      -1,    36,    37,    38,    39,    -1,    -1,    -1,    -1,    44,
+      45,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    53,    54,
+      16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
+      26,    27,    28,    29,    30,    31,    -1,    -1,    -1,    -1,
+      36,    37,    38,    39,    -1,    -1,    -1,    -1,    44,    45,
+      46,    -1,    -1,    -1,    -1,    -1,    -1,    53,    54,    16,
       17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
       27,    28,    29,    30,    31,    -1,    -1,    -1,    -1,    -1,
-      -1,    38,    39,    -1,    -1,    -1,    43,    44,    45,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
-      27,    28,    29,    30,    31,    -1,    -1,    -1,    -1,    -1,
-      -1,    38,    39,    -1,    -1,    -1,    43,    44
+      -1,    38,    39,    -1,    -1,    -1,    -1,    44,    45,    46,
+      16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
+      26,    27,    28,    29,    30,    31,    -1,    -1,    -1,    -1,
+      -1,    -1,    38,    39,    -1,    -1,    -1,    -1,    44,    45
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    67,    71,     0,    45,    47,    48,    69,    70,    40,
-     148,   149,   149,   149,     1,     3,     4,     5,     6,     7,
-       8,     9,    10,    32,    45,    72,    86,    89,    90,    91,
-     100,   101,   102,   106,   107,   108,   109,   122,   123,   124,
-     132,   133,   134,   135,   151,   148,    46,    61,    49,    49,
-      55,    43,    44,     3,     4,     5,     6,     7,     8,     9,
-      10,    11,    12,    13,    14,    15,    16,    17,    18,    19,
-      20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      43,    50,   152,    43,   152,    43,   152,    43,   152,    62,
-      62,    43,   137,   152,    70,   149,    73,    12,    59,    93,
-     112,    78,    79,   103,    80,    81,   111,   112,    74,    75,
-     112,   127,    76,    77,    82,    83,    59,   138,    84,    85,
-     148,    87,    88,    41,    43,    44,   145,    70,    70,    56,
-      16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
-      26,    27,    28,    29,    30,    31,    38,    39,   145,   146,
-     147,    46,    55,    68,    92,   145,    55,    68,    56,    55,
-      68,   110,   145,    55,    68,    31,    38,    39,   126,   145,
-     125,    55,    68,    55,    55,   147,   136,    68,    55,    56,
-      56,    58,    58,   147,   147,    43,   139,   140,   152,    64,
-      65,    65,    65,    64,    65,    65,    43,    60,    56,     1,
-      70,   104,    56,    61,    56,    56,    71,    71,    63,    61,
-      60,    57,    61,    60,    33,    34,    40,    41,    42,   145,
-     150,     1,    70,    94,    55,    36,    37,    52,    53,    95,
-      96,    97,   105,   115,   147,    57,     1,    70,   113,   126,
-       1,    70,   128,   139,    57,    57,    43,   152,    70,    41,
-     141,   145,   139,   150,    55,    95,    96,    97,    98,    99,
-     114,   147,    57,   104,    41,    58,   145,    41,    58,   145,
-      60,    95,   147,    95,    55,    43,   152,    55,   114,   121,
-      57,    55,    15,    35,    96,    97,   116,   117,   118,   129,
-     147,    57,    57,   147,    94,    95,    95,    60,    55,   152,
-      58,    58,    58,    58,   150,    60,    60,   104,   113,    55,
-     128,   116,   147,   147,    50,    51,     1,    11,   142,   143,
-      55,    63,   150,    94,   150,   150,   113,    50,    51,    58,
-      70,    58,    61,   128,    43,   152,   120,    98,   147,   119,
-     142,    14,   144,   152,   144,    70,   130,   131,   145,   152,
-      98,   147,    61,   152,   130
+       0,    68,    72,     0,    46,    48,    49,    70,    71,    41,
+     149,   150,   150,   150,     1,     3,     4,     5,     6,     7,
+       8,     9,    10,    32,    40,    46,    73,    87,    90,    91,
+      92,   101,   102,   103,   107,   108,   109,   110,   123,   124,
+     125,   133,   134,   135,   136,   152,   149,    47,    62,    50,
+      50,    56,    44,    45,     3,     4,     5,     6,     7,     8,
+       9,    10,    11,    12,    13,    14,    15,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    38,
+      39,    44,    51,   153,    44,   153,    44,   153,    44,   153,
+      63,    63,    44,   138,   153,    71,    10,   150,    74,    12,
+      60,    94,   113,    79,    80,   104,    81,    82,   112,   113,
+      75,    76,   113,   128,    77,    78,    83,    84,    60,   139,
+      85,    86,   149,    88,    89,    42,    44,    45,   146,    71,
+      71,    57,    16,    17,    18,    19,    20,    21,    22,    23,
+      24,    25,    26,    27,    28,    29,    30,    31,    38,    39,
+     146,   147,   148,    44,    47,    56,    69,    93,   146,    56,
+      69,    57,    56,    69,   111,   146,    56,    69,    31,    38,
+      39,   127,   146,   126,    56,    69,    56,    56,   148,   137,
+      69,    56,    57,    57,    59,    59,   148,   148,    44,   140,
+     141,   153,    65,    66,    66,    66,    65,    66,    66,    44,
+      61,    57,     1,    71,   105,    57,    62,    57,    57,    72,
+      72,    64,    62,    61,    58,    62,    61,    33,    34,    41,
+      42,    43,   146,   151,     1,    71,    95,    56,    36,    37,
+      53,    54,    96,    97,    98,   106,   116,   148,    58,     1,
+      71,   114,   127,     1,    71,   129,   140,    58,    58,    44,
+     153,    71,    42,   142,   146,   140,   151,    56,    96,    97,
+      98,    99,   100,   115,   148,    58,   105,    42,    59,   146,
+      42,    59,   146,    61,    96,   148,    96,    56,    44,   153,
+      56,   115,   122,    58,    56,    15,    35,    97,    98,   117,
+     118,   119,   130,   148,    58,    58,   148,    95,    96,    96,
+      61,    56,   153,    59,    59,    59,    59,   151,    61,    61,
+     105,   114,    56,   129,   117,   148,   148,    51,    52,     1,
+      11,   143,   144,    56,    64,   151,    95,   151,   151,   114,
+      51,    52,    59,    71,    59,    62,   129,    44,   153,   121,
+      99,   148,   120,   143,    14,   145,   153,   145,    71,   131,
+     132,   146,   153,    99,   148,    62,   153,   131
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    66,    67,    68,    68,    69,    69,    70,    70,    70,
-      71,    71,    71,    73,    72,    74,    72,    72,    75,    72,
-      76,    72,    72,    77,    72,    78,    72,    72,    79,    72,
-      80,    72,    72,    81,    72,    82,    72,    72,    83,    72,
-      72,    84,    72,    85,    72,    72,    72,    87,    86,    88,
-      86,    89,    89,    90,    92,    91,    93,    93,    94,    94,
-      94,    94,    95,    96,    96,    96,    96,    97,    97,    97,
-      97,    98,    98,    98,    99,   100,   100,   101,   103,   102,
-     104,   104,   104,   104,   105,   106,   106,   107,   107,   107,
-     108,   110,   109,   111,   111,   112,   112,   113,   113,   113,
-     113,   114,   114,   114,   114,   115,   115,   115,   115,   115,
-     115,   115,   115,   116,   116,   116,   116,   117,   117,   117,
-     117,   119,   118,   120,   118,   121,   122,   122,   123,   125,
-     124,   126,   126,   126,   126,   126,   127,   127,   128,   128,
-     128,   128,   129,   130,   130,   131,   131,   132,   132,   133,
-     133,   134,   134,   136,   135,   137,   135,   138,   138,   139,
-     139,   140,   140,   140,   140,   141,   141,   142,   142,   143,
-     143,   143,   143,   143,   143,   143,   144,   144,   145,   145,
-     146,   146,   146,   146,   146,   146,   146,   146,   146,   146,
-     146,   146,   146,   146,   146,   147,   147,   147,   147,   147,
-     147,   147,   147,   147,   147,   147,   147,   148,   148,   149,
-     149,   150,   150,   150,   150,   150,   150,   151,   151,   152,
-     152,   152,   152,   152,   152,   152,   152,   152,   152,   152,
-     152,   152,   152,   152,   152,   152,   152,   152,   152,   152,
-     152,   152,   152,   152,   152,   152,   152,   152,   152,   152,
-     152,   152,   152,   152,   152,   152
+       0,    67,    68,    69,    69,    70,    70,    71,    71,    71,
+      72,    72,    72,    74,    73,    75,    73,    73,    76,    73,
+      77,    73,    73,    78,    73,    79,    73,    73,    80,    73,
+      81,    73,    73,    82,    73,    83,    73,    73,    84,    73,
+      73,    85,    73,    86,    73,    73,    73,    88,    87,    89,
+      87,    90,    90,    91,    93,    92,    94,    94,    95,    95,
+      95,    95,    96,    97,    97,    97,    97,    98,    98,    98,
+      98,    99,    99,    99,   100,   101,   101,   102,   104,   103,
+     105,   105,   105,   105,   106,   107,   107,   108,   108,   108,
+     109,   111,   110,   112,   112,   113,   113,   114,   114,   114,
+     114,   115,   115,   115,   115,   116,   116,   116,   116,   116,
+     116,   116,   116,   117,   117,   117,   117,   118,   118,   118,
+     118,   120,   119,   121,   119,   122,   123,   123,   124,   126,
+     125,   127,   127,   127,   127,   127,   128,   128,   129,   129,
+     129,   129,   130,   131,   131,   132,   132,   133,   133,   134,
+     134,   135,   135,   135,   137,   136,   138,   136,   139,   139,
+     140,   140,   141,   141,   141,   141,   142,   142,   143,   143,
+     144,   144,   144,   144,   144,   144,   144,   145,   145,   146,
+     146,   147,   147,   147,   147,   147,   147,   147,   147,   147,
+     147,   147,   147,   147,   147,   147,   148,   148,   148,   148,
+     148,   148,   148,   148,   148,   148,   148,   148,   149,   149,
+     150,   150,   151,   151,   151,   151,   151,   151,   152,   152,
+     153,   153,   153,   153,   153,   153,   153,   153,   153,   153,
+     153,   153,   153,   153,   153,   153,   153,   153,   153,   153,
+     153,   153,   153,   153,   153,   153,   153,   153,   153,   153,
+     153,   153,   153,   153,   153,   153,   153
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -1401,17 +1408,17 @@ static const yytype_int8 yyr2[] =
        3,     0,     5,     0,     5,     1,     2,     2,     1,     0,
        6,     3,     1,     1,     1,     1,     2,     0,     4,     3,
        2,     0,     1,     3,     1,     1,     1,     6,     6,     9,
-       9,     2,     2,     0,     6,     0,     5,     2,     0,     3,
-       1,     1,     3,     1,     0,     1,     1,     1,     0,     0,
-       3,     5,     4,     6,     3,     5,     2,     0,     1,     1,
+       9,     3,     2,     2,     0,     6,     0,     5,     2,     0,
+       3,     1,     1,     3,     1,     0,     1,     1,     1,     0,
+       0,     3,     5,     4,     6,     3,     5,     2,     0,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     2,     2,     2,     2,     2,
-       1,     1,     1,     1,     1,     2,     2,     2,     1,     3,
-       1,     1,     1,     1,     1,     1,     1,     6,     5,     1,
+       1,     1,     1,     1,     1,     1,     2,     2,     2,     2,
+       2,     1,     1,     1,     1,     1,     2,     2,     2,     1,
+       3,     1,     1,     1,     1,     1,     1,     1,     6,     5,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     1
+       1,     1,     1,     1,     1,     1,     1
 };
 
 
@@ -1997,72 +2004,72 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 192 "src/Slice/Grammar.y"
-{
-}
-#line 2004 "src/Slice/Grammar.cpp"
-    break;
-
-  case 3:
-#line 200 "src/Slice/Grammar.y"
+#line 193 "src/Slice/Grammar.y"
 {
 }
 #line 2011 "src/Slice/Grammar.cpp"
     break;
 
-  case 4:
-#line 203 "src/Slice/Grammar.y"
+  case 3:
+#line 201 "src/Slice/Grammar.y"
 {
 }
 #line 2018 "src/Slice/Grammar.cpp"
     break;
 
+  case 4:
+#line 204 "src/Slice/Grammar.y"
+{
+}
+#line 2025 "src/Slice/Grammar.cpp"
+    break;
+
   case 5:
-#line 211 "src/Slice/Grammar.y"
+#line 212 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[-1];
 }
-#line 2026 "src/Slice/Grammar.cpp"
+#line 2033 "src/Slice/Grammar.cpp"
     break;
 
   case 6:
-#line 215 "src/Slice/Grammar.y"
+#line 216 "src/Slice/Grammar.y"
 {
     unit->error("file metadata must appear before any definitions");
     yyval = yyvsp[-1]; // Dummy
 }
-#line 2035 "src/Slice/Grammar.cpp"
+#line 2042 "src/Slice/Grammar.cpp"
     break;
 
   case 7:
-#line 225 "src/Slice/Grammar.y"
+#line 226 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[-1];
 }
-#line 2043 "src/Slice/Grammar.cpp"
+#line 2050 "src/Slice/Grammar.cpp"
     break;
 
   case 8:
-#line 229 "src/Slice/Grammar.y"
+#line 230 "src/Slice/Grammar.y"
 {
     StringListTokPtr metadata1 = StringListTokPtr::dynamicCast(yyvsp[-3]);
     StringListTokPtr metadata2 = StringListTokPtr::dynamicCast(yyvsp[-1]);
     metadata1->v.splice(metadata1->v.end(), metadata2->v);
     yyval = metadata1;
 }
-#line 2054 "src/Slice/Grammar.cpp"
+#line 2061 "src/Slice/Grammar.cpp"
     break;
 
   case 9:
-#line 236 "src/Slice/Grammar.y"
+#line 237 "src/Slice/Grammar.y"
 {
     yyval = new StringListTok;
 }
-#line 2062 "src/Slice/Grammar.cpp"
+#line 2069 "src/Slice/Grammar.cpp"
     break;
 
   case 10:
-#line 245 "src/Slice/Grammar.y"
+#line 246 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[0]);
     if(!metaData->v.empty())
@@ -2070,11 +2077,11 @@ yyreduce:
         unit->addFileMetaData(metaData->v);
     }
 }
-#line 2074 "src/Slice/Grammar.cpp"
+#line 2081 "src/Slice/Grammar.cpp"
     break;
 
   case 11:
-#line 253 "src/Slice/Grammar.y"
+#line 254 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
     ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[0]);
@@ -2083,186 +2090,186 @@ yyreduce:
         contained->setMetaData(metaData->v);
     }
 }
-#line 2087 "src/Slice/Grammar.cpp"
-    break;
-
-  case 12:
-#line 262 "src/Slice/Grammar.y"
-{
-}
 #line 2094 "src/Slice/Grammar.cpp"
     break;
 
+  case 12:
+#line 263 "src/Slice/Grammar.y"
+{
+}
+#line 2101 "src/Slice/Grammar.cpp"
+    break;
+
   case 13:
-#line 270 "src/Slice/Grammar.y"
+#line 271 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || ModulePtr::dynamicCast(yyvsp[0]));
 }
-#line 2102 "src/Slice/Grammar.cpp"
+#line 2109 "src/Slice/Grammar.cpp"
     break;
 
   case 15:
-#line 275 "src/Slice/Grammar.y"
+#line 276 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || ClassDeclPtr::dynamicCast(yyvsp[0]));
 }
-#line 2110 "src/Slice/Grammar.cpp"
+#line 2117 "src/Slice/Grammar.cpp"
     break;
 
   case 17:
-#line 280 "src/Slice/Grammar.y"
+#line 281 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after class forward declaration");
 }
-#line 2118 "src/Slice/Grammar.cpp"
+#line 2125 "src/Slice/Grammar.cpp"
     break;
 
   case 18:
-#line 284 "src/Slice/Grammar.y"
+#line 285 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || ClassDefPtr::dynamicCast(yyvsp[0]));
 }
-#line 2126 "src/Slice/Grammar.cpp"
+#line 2133 "src/Slice/Grammar.cpp"
     break;
 
   case 20:
-#line 289 "src/Slice/Grammar.y"
+#line 290 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || InterfaceDeclPtr::dynamicCast(yyvsp[0]));
 }
-#line 2134 "src/Slice/Grammar.cpp"
+#line 2141 "src/Slice/Grammar.cpp"
     break;
 
   case 22:
-#line 294 "src/Slice/Grammar.y"
+#line 295 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after interface forward declaration");
 }
-#line 2142 "src/Slice/Grammar.cpp"
+#line 2149 "src/Slice/Grammar.cpp"
     break;
 
   case 23:
-#line 298 "src/Slice/Grammar.y"
+#line 299 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || InterfaceDefPtr::dynamicCast(yyvsp[0]));
 }
-#line 2150 "src/Slice/Grammar.cpp"
+#line 2157 "src/Slice/Grammar.cpp"
     break;
 
   case 25:
-#line 303 "src/Slice/Grammar.y"
+#line 304 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0);
 }
-#line 2158 "src/Slice/Grammar.cpp"
+#line 2165 "src/Slice/Grammar.cpp"
     break;
 
   case 27:
-#line 308 "src/Slice/Grammar.y"
+#line 309 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after exception forward declaration");
 }
-#line 2166 "src/Slice/Grammar.cpp"
+#line 2173 "src/Slice/Grammar.cpp"
     break;
 
   case 28:
-#line 312 "src/Slice/Grammar.y"
+#line 313 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || ExceptionPtr::dynamicCast(yyvsp[0]));
 }
-#line 2174 "src/Slice/Grammar.cpp"
+#line 2181 "src/Slice/Grammar.cpp"
     break;
 
   case 30:
-#line 317 "src/Slice/Grammar.y"
+#line 318 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0);
 }
-#line 2182 "src/Slice/Grammar.cpp"
+#line 2189 "src/Slice/Grammar.cpp"
     break;
 
   case 32:
-#line 322 "src/Slice/Grammar.y"
+#line 323 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after struct forward declaration");
 }
-#line 2190 "src/Slice/Grammar.cpp"
+#line 2197 "src/Slice/Grammar.cpp"
     break;
 
   case 33:
-#line 326 "src/Slice/Grammar.y"
+#line 327 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || StructPtr::dynamicCast(yyvsp[0]));
 }
-#line 2198 "src/Slice/Grammar.cpp"
+#line 2205 "src/Slice/Grammar.cpp"
     break;
 
   case 35:
-#line 331 "src/Slice/Grammar.y"
+#line 332 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || SequencePtr::dynamicCast(yyvsp[0]));
 }
-#line 2206 "src/Slice/Grammar.cpp"
+#line 2213 "src/Slice/Grammar.cpp"
     break;
 
   case 37:
-#line 336 "src/Slice/Grammar.y"
+#line 337 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after sequence definition");
 }
-#line 2214 "src/Slice/Grammar.cpp"
+#line 2221 "src/Slice/Grammar.cpp"
     break;
 
   case 38:
-#line 340 "src/Slice/Grammar.y"
+#line 341 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || DictionaryPtr::dynamicCast(yyvsp[0]));
 }
-#line 2222 "src/Slice/Grammar.cpp"
+#line 2229 "src/Slice/Grammar.cpp"
     break;
 
   case 40:
-#line 345 "src/Slice/Grammar.y"
+#line 346 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after dictionary definition");
 }
-#line 2230 "src/Slice/Grammar.cpp"
+#line 2237 "src/Slice/Grammar.cpp"
     break;
 
   case 41:
-#line 349 "src/Slice/Grammar.y"
+#line 350 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || EnumPtr::dynamicCast(yyvsp[0]));
 }
-#line 2238 "src/Slice/Grammar.cpp"
+#line 2245 "src/Slice/Grammar.cpp"
     break;
 
   case 43:
-#line 354 "src/Slice/Grammar.y"
+#line 355 "src/Slice/Grammar.y"
 {
     assert(yyvsp[0] == 0 || ConstPtr::dynamicCast(yyvsp[0]));
 }
-#line 2246 "src/Slice/Grammar.cpp"
+#line 2253 "src/Slice/Grammar.cpp"
     break;
 
   case 45:
-#line 359 "src/Slice/Grammar.y"
+#line 360 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after const definition");
 }
-#line 2254 "src/Slice/Grammar.cpp"
+#line 2261 "src/Slice/Grammar.cpp"
     break;
 
   case 46:
-#line 363 "src/Slice/Grammar.y"
+#line 364 "src/Slice/Grammar.y"
 {
     yyerrok;
 }
-#line 2262 "src/Slice/Grammar.cpp"
+#line 2269 "src/Slice/Grammar.cpp"
     break;
 
   case 47:
-#line 372 "src/Slice/Grammar.y"
+#line 373 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -2278,11 +2285,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 2282 "src/Slice/Grammar.cpp"
+#line 2289 "src/Slice/Grammar.cpp"
     break;
 
   case 48:
-#line 388 "src/Slice/Grammar.y"
+#line 389 "src/Slice/Grammar.y"
 {
     if(yyvsp[-3])
     {
@@ -2294,11 +2301,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 2298 "src/Slice/Grammar.cpp"
+#line 2305 "src/Slice/Grammar.cpp"
     break;
 
   case 49:
-#line 400 "src/Slice/Grammar.y"
+#line 401 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -2336,11 +2343,11 @@ yyreduce:
         }
     }
 }
-#line 2340 "src/Slice/Grammar.cpp"
+#line 2347 "src/Slice/Grammar.cpp"
     break;
 
   case 50:
-#line 438 "src/Slice/Grammar.y"
+#line 439 "src/Slice/Grammar.y"
 {
     if(yyvsp[-3])
     {
@@ -2358,38 +2365,38 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 2362 "src/Slice/Grammar.cpp"
+#line 2369 "src/Slice/Grammar.cpp"
     break;
 
   case 51:
-#line 461 "src/Slice/Grammar.y"
+#line 462 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 2370 "src/Slice/Grammar.cpp"
+#line 2377 "src/Slice/Grammar.cpp"
     break;
 
   case 52:
-#line 465 "src/Slice/Grammar.y"
+#line 466 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 2380 "src/Slice/Grammar.cpp"
+#line 2387 "src/Slice/Grammar.cpp"
     break;
 
   case 53:
-#line 476 "src/Slice/Grammar.y"
+#line 477 "src/Slice/Grammar.y"
 {
     unit->error("exceptions cannot be forward declared");
     yyval = 0;
 }
-#line 2389 "src/Slice/Grammar.cpp"
+#line 2396 "src/Slice/Grammar.cpp"
     break;
 
   case 54:
-#line 486 "src/Slice/Grammar.y"
+#line 487 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-1]);
     ExceptionPtr base = ExceptionPtr::dynamicCast(yyvsp[0]);
@@ -2402,11 +2409,11 @@ yyreduce:
     }
     yyval = ex;
 }
-#line 2406 "src/Slice/Grammar.cpp"
+#line 2413 "src/Slice/Grammar.cpp"
     break;
 
   case 55:
-#line 499 "src/Slice/Grammar.y"
+#line 500 "src/Slice/Grammar.y"
 {
     if(yyvsp[-3])
     {
@@ -2414,11 +2421,11 @@ yyreduce:
     }
     yyval = yyvsp[-3];
 }
-#line 2418 "src/Slice/Grammar.cpp"
+#line 2425 "src/Slice/Grammar.cpp"
     break;
 
   case 56:
-#line 512 "src/Slice/Grammar.y"
+#line 513 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -2426,19 +2433,19 @@ yyreduce:
     cont->checkIntroduced(scoped->v);
     yyval = contained;
 }
-#line 2430 "src/Slice/Grammar.cpp"
+#line 2437 "src/Slice/Grammar.cpp"
     break;
 
   case 57:
-#line 520 "src/Slice/Grammar.y"
+#line 521 "src/Slice/Grammar.y"
 {
     yyval = 0;
 }
-#line 2438 "src/Slice/Grammar.cpp"
+#line 2445 "src/Slice/Grammar.cpp"
     break;
 
   case 58:
-#line 529 "src/Slice/Grammar.y"
+#line 530 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
     ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[-2]);
@@ -2447,33 +2454,33 @@ yyreduce:
         contained->setMetaData(metaData->v);
     }
 }
-#line 2451 "src/Slice/Grammar.cpp"
-    break;
-
-  case 59:
-#line 538 "src/Slice/Grammar.y"
-{
-}
 #line 2458 "src/Slice/Grammar.cpp"
     break;
 
-  case 60:
-#line 541 "src/Slice/Grammar.y"
+  case 59:
+#line 539 "src/Slice/Grammar.y"
 {
-    unit->error("`;' missing after definition");
 }
-#line 2466 "src/Slice/Grammar.cpp"
+#line 2465 "src/Slice/Grammar.cpp"
     break;
 
-  case 61:
-#line 545 "src/Slice/Grammar.y"
+  case 60:
+#line 542 "src/Slice/Grammar.y"
 {
+    unit->error("`;' missing after definition");
 }
 #line 2473 "src/Slice/Grammar.cpp"
     break;
 
+  case 61:
+#line 546 "src/Slice/Grammar.y"
+{
+}
+#line 2480 "src/Slice/Grammar.cpp"
+    break;
+
   case 62:
-#line 553 "src/Slice/Grammar.y"
+#line 554 "src/Slice/Grammar.y"
 {
     TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
@@ -2482,11 +2489,11 @@ yyreduce:
     typestring->v = make_pair(type, ident->v);
     yyval = typestring;
 }
-#line 2486 "src/Slice/Grammar.cpp"
+#line 2493 "src/Slice/Grammar.cpp"
     break;
 
   case 63:
-#line 567 "src/Slice/Grammar.y"
+#line 568 "src/Slice/Grammar.y"
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast(yyvsp[-1]);
 
@@ -2504,11 +2511,11 @@ yyreduce:
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     yyval = m;
 }
-#line 2508 "src/Slice/Grammar.cpp"
+#line 2515 "src/Slice/Grammar.cpp"
     break;
 
   case 64:
-#line 585 "src/Slice/Grammar.y"
+#line 586 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
 
@@ -2558,20 +2565,15 @@ yyreduce:
     }
     cont->checkIntroduced(scoped->v);
 
-    int tag = -1;
+    std::int64_t tag = -1;
     EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
     ConstPtr constant = ConstPtr::dynamicCast(cl.front());
-    if(constant)
+    if (constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b && b->isIntegralType())
+        if (b && b->isIntegralType())
         {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-            if(l < 0 || l > Int32Max)
-            {
-                unit->error("tag is out of range");
-            }
-            tag = static_cast<int>(l);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
         }
     }
     else if(enumerator)
@@ -2579,39 +2581,39 @@ yyreduce:
         tag = enumerator->value();
     }
 
-    if(tag < 0)
+    if (tag < 0 || tag > INT32_MAX)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        unit->error("cannot use value of `" + scoped->v + "' as a tag");
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(static_cast<int>(tag));
     yyval = m;
 }
-#line 2591 "src/Slice/Grammar.cpp"
+#line 2593 "src/Slice/Grammar.cpp"
     break;
 
   case 65:
-#line 664 "src/Slice/Grammar.y"
+#line 660 "src/Slice/Grammar.y"
 {
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     yyval = m;
 }
-#line 2601 "src/Slice/Grammar.cpp"
+#line 2603 "src/Slice/Grammar.cpp"
     break;
 
   case 66:
-#line 670 "src/Slice/Grammar.y"
+#line 666 "src/Slice/Grammar.y"
 {
     unit->error("missing tag");
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     yyval = m;
 }
-#line 2611 "src/Slice/Grammar.cpp"
+#line 2613 "src/Slice/Grammar.cpp"
     break;
 
   case 67:
-#line 681 "src/Slice/Grammar.y"
+#line 677 "src/Slice/Grammar.y"
 {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast(yyvsp[-1]);
     if (!unit->compatMode())
@@ -2633,11 +2635,11 @@ yyreduce:
     TaggedDefTokPtr m = new TaggedDefTok(tag);
     yyval = m;
 }
-#line 2637 "src/Slice/Grammar.cpp"
+#line 2639 "src/Slice/Grammar.cpp"
     break;
 
   case 68:
-#line 703 "src/Slice/Grammar.y"
+#line 699 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
     if (!unit->compatMode())
@@ -2691,20 +2693,15 @@ yyreduce:
     }
     cont->checkIntroduced(scoped->v);
 
-    int tag = -1;
+    std::int64_t tag = -1;
     EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
     ConstPtr constant = ConstPtr::dynamicCast(cl.front());
-    if(constant)
+    if (constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if(b && b->isIntegralType())
         {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-            if(l < 0 || l > Int32Max)
-            {
-                unit->error("tag is out of range");
-            }
-            tag = static_cast<int>(l);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
         }
     }
     else if(enumerator)
@@ -2712,19 +2709,19 @@ yyreduce:
         tag = enumerator->value();
     }
 
-    if(tag < 0)
+    if (tag < 0 || tag > INT32_MAX)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        unit->error("cannot use value of `" + scoped->v + "' as a tag");
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(static_cast<int>(tag));
     yyval = m;
 }
-#line 2724 "src/Slice/Grammar.cpp"
+#line 2721 "src/Slice/Grammar.cpp"
     break;
 
   case 69:
-#line 786 "src/Slice/Grammar.y"
+#line 777 "src/Slice/Grammar.y"
 {
     if (!unit->compatMode())
     {
@@ -2734,11 +2731,11 @@ yyreduce:
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     yyval = m;
 }
-#line 2738 "src/Slice/Grammar.cpp"
+#line 2735 "src/Slice/Grammar.cpp"
     break;
 
   case 70:
-#line 796 "src/Slice/Grammar.y"
+#line 787 "src/Slice/Grammar.y"
 {
     if (!unit->compatMode())
     {
@@ -2748,11 +2745,11 @@ yyreduce:
     TaggedDefTokPtr m = new TaggedDefTok(-1); // Dummy
     yyval = m;
 }
-#line 2752 "src/Slice/Grammar.cpp"
+#line 2749 "src/Slice/Grammar.cpp"
     break;
 
   case 71:
-#line 811 "src/Slice/Grammar.y"
+#line 802 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
@@ -2767,11 +2764,11 @@ yyreduce:
     m->name = ts->v.second;
     yyval = m;
 }
-#line 2771 "src/Slice/Grammar.cpp"
+#line 2768 "src/Slice/Grammar.cpp"
     break;
 
   case 72:
-#line 826 "src/Slice/Grammar.y"
+#line 817 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
@@ -2792,11 +2789,11 @@ yyreduce:
     }
     yyval = m;
 }
-#line 2796 "src/Slice/Grammar.cpp"
+#line 2793 "src/Slice/Grammar.cpp"
     break;
 
   case 73:
-#line 847 "src/Slice/Grammar.y"
+#line 838 "src/Slice/Grammar.y"
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
     TaggedDefTokPtr m = new TaggedDefTok(-1);
@@ -2804,38 +2801,38 @@ yyreduce:
     m->name = ts->v.second;
     yyval = m;
 }
-#line 2808 "src/Slice/Grammar.cpp"
+#line 2805 "src/Slice/Grammar.cpp"
     break;
 
   case 75:
-#line 866 "src/Slice/Grammar.y"
+#line 857 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 2816 "src/Slice/Grammar.cpp"
+#line 2813 "src/Slice/Grammar.cpp"
     break;
 
   case 76:
-#line 870 "src/Slice/Grammar.y"
+#line 861 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as struct name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 2826 "src/Slice/Grammar.cpp"
+#line 2823 "src/Slice/Grammar.cpp"
     break;
 
   case 77:
-#line 881 "src/Slice/Grammar.y"
+#line 872 "src/Slice/Grammar.y"
 {
     unit->error("structs cannot be forward declared");
     yyval = 0; // Dummy
 }
-#line 2835 "src/Slice/Grammar.cpp"
+#line 2832 "src/Slice/Grammar.cpp"
     break;
 
   case 78:
-#line 891 "src/Slice/Grammar.y"
+#line 882 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -2853,11 +2850,11 @@ yyreduce:
     }
     yyval = st;
 }
-#line 2857 "src/Slice/Grammar.cpp"
+#line 2854 "src/Slice/Grammar.cpp"
     break;
 
   case 79:
-#line 909 "src/Slice/Grammar.y"
+#line 900 "src/Slice/Grammar.y"
 {
     if(yyvsp[-3])
     {
@@ -2875,11 +2872,11 @@ yyreduce:
         unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
-#line 2879 "src/Slice/Grammar.cpp"
+#line 2876 "src/Slice/Grammar.cpp"
     break;
 
   case 80:
-#line 932 "src/Slice/Grammar.y"
+#line 923 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
     ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[-2]);
@@ -2888,51 +2885,51 @@ yyreduce:
         contained->setMetaData(metaData->v);
     }
 }
-#line 2892 "src/Slice/Grammar.cpp"
+#line 2889 "src/Slice/Grammar.cpp"
     break;
 
   case 81:
-#line 941 "src/Slice/Grammar.y"
+#line 932 "src/Slice/Grammar.y"
 {
 }
-#line 2899 "src/Slice/Grammar.cpp"
+#line 2896 "src/Slice/Grammar.cpp"
     break;
 
   case 82:
-#line 944 "src/Slice/Grammar.y"
+#line 935 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after definition");
 }
-#line 2907 "src/Slice/Grammar.cpp"
+#line 2904 "src/Slice/Grammar.cpp"
     break;
 
   case 83:
-#line 948 "src/Slice/Grammar.y"
+#line 939 "src/Slice/Grammar.y"
 {
 }
-#line 2914 "src/Slice/Grammar.cpp"
+#line 2911 "src/Slice/Grammar.cpp"
     break;
 
   case 85:
-#line 962 "src/Slice/Grammar.y"
+#line 953 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 2922 "src/Slice/Grammar.cpp"
+#line 2919 "src/Slice/Grammar.cpp"
     break;
 
   case 86:
-#line 966 "src/Slice/Grammar.y"
+#line 957 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as class name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 2932 "src/Slice/Grammar.cpp"
+#line 2929 "src/Slice/Grammar.cpp"
     break;
 
   case 87:
-#line 977 "src/Slice/Grammar.y"
+#line 968 "src/Slice/Grammar.y"
 {
     IceUtil::Int64 id = IntegerTokPtr::dynamicCast(yyvsp[-1])->v;
     if(id < 0)
@@ -2957,11 +2954,11 @@ yyreduce:
     classId->t = static_cast<int>(id);
     yyval = classId;
 }
-#line 2961 "src/Slice/Grammar.cpp"
+#line 2958 "src/Slice/Grammar.cpp"
     break;
 
   case 88:
-#line 1002 "src/Slice/Grammar.y"
+#line 993 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
 
@@ -3051,33 +3048,33 @@ yyreduce:
     yyval = classId;
 
 }
-#line 3055 "src/Slice/Grammar.cpp"
+#line 3052 "src/Slice/Grammar.cpp"
     break;
 
   case 89:
-#line 1092 "src/Slice/Grammar.y"
+#line 1083 "src/Slice/Grammar.y"
 {
     ClassIdTokPtr classId = new ClassIdTok();
     classId->v = StringTokPtr::dynamicCast(yyvsp[0])->v;
     classId->t = -1;
     yyval = classId;
 }
-#line 3066 "src/Slice/Grammar.cpp"
+#line 3063 "src/Slice/Grammar.cpp"
     break;
 
   case 90:
-#line 1104 "src/Slice/Grammar.y"
+#line 1095 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v);
     yyval = cl;
 }
-#line 3077 "src/Slice/Grammar.cpp"
+#line 3074 "src/Slice/Grammar.cpp"
     break;
 
   case 91:
-#line 1116 "src/Slice/Grammar.y"
+#line 1107 "src/Slice/Grammar.y"
 {
     ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
@@ -3094,11 +3091,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3098 "src/Slice/Grammar.cpp"
+#line 3095 "src/Slice/Grammar.cpp"
     break;
 
   case 92:
-#line 1133 "src/Slice/Grammar.y"
+#line 1124 "src/Slice/Grammar.y"
 {
     if(yyvsp[-3])
     {
@@ -3110,11 +3107,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3114 "src/Slice/Grammar.cpp"
+#line 3111 "src/Slice/Grammar.cpp"
     break;
 
   case 93:
-#line 1150 "src/Slice/Grammar.y"
+#line 1141 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -3148,33 +3145,33 @@ yyreduce:
         }
     }
 }
-#line 3152 "src/Slice/Grammar.cpp"
+#line 3149 "src/Slice/Grammar.cpp"
     break;
 
   case 94:
-#line 1184 "src/Slice/Grammar.y"
+#line 1175 "src/Slice/Grammar.y"
 {
     yyval = 0;
 }
-#line 3160 "src/Slice/Grammar.cpp"
+#line 3157 "src/Slice/Grammar.cpp"
     break;
 
   case 95:
-#line 1193 "src/Slice/Grammar.y"
+#line 1184 "src/Slice/Grammar.y"
 {
 }
-#line 3167 "src/Slice/Grammar.cpp"
+#line 3164 "src/Slice/Grammar.cpp"
     break;
 
   case 96:
-#line 1196 "src/Slice/Grammar.y"
+#line 1187 "src/Slice/Grammar.y"
 {
 }
-#line 3174 "src/Slice/Grammar.cpp"
+#line 3171 "src/Slice/Grammar.cpp"
     break;
 
   case 97:
-#line 1204 "src/Slice/Grammar.y"
+#line 1195 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
     ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[-2]);
@@ -3183,33 +3180,33 @@ yyreduce:
         contained->setMetaData(metaData->v);
     }
 }
-#line 3187 "src/Slice/Grammar.cpp"
+#line 3184 "src/Slice/Grammar.cpp"
     break;
 
   case 98:
-#line 1213 "src/Slice/Grammar.y"
+#line 1204 "src/Slice/Grammar.y"
 {
 }
-#line 3194 "src/Slice/Grammar.cpp"
+#line 3191 "src/Slice/Grammar.cpp"
     break;
 
   case 99:
-#line 1216 "src/Slice/Grammar.y"
+#line 1207 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after definition");
 }
-#line 3202 "src/Slice/Grammar.cpp"
+#line 3199 "src/Slice/Grammar.cpp"
     break;
 
   case 100:
-#line 1220 "src/Slice/Grammar.y"
+#line 1211 "src/Slice/Grammar.y"
 {
 }
-#line 3209 "src/Slice/Grammar.cpp"
+#line 3206 "src/Slice/Grammar.cpp"
     break;
 
   case 101:
-#line 1228 "src/Slice/Grammar.y"
+#line 1219 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
@@ -3231,11 +3228,11 @@ yyreduce:
     unit->currentContainer()->checkIntroduced(def->name, dm);
     yyval = dm;
 }
-#line 3235 "src/Slice/Grammar.cpp"
+#line 3232 "src/Slice/Grammar.cpp"
     break;
 
   case 102:
-#line 1250 "src/Slice/Grammar.y"
+#line 1241 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr def = TaggedDefTokPtr::dynamicCast(yyvsp[-2]);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
@@ -3262,11 +3259,11 @@ yyreduce:
     unit->currentContainer()->checkIntroduced(def->name, dm);
     yyval = dm;
 }
-#line 3266 "src/Slice/Grammar.cpp"
+#line 3263 "src/Slice/Grammar.cpp"
     break;
 
   case 103:
-#line 1277 "src/Slice/Grammar.y"
+#line 1268 "src/Slice/Grammar.y"
 {
     TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
     string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -3288,11 +3285,11 @@ yyreduce:
     assert(yyval);
     unit->error("keyword `" + name + "' cannot be used as data member name");
 }
-#line 3292 "src/Slice/Grammar.cpp"
+#line 3289 "src/Slice/Grammar.cpp"
     break;
 
   case 104:
-#line 1299 "src/Slice/Grammar.y"
+#line 1290 "src/Slice/Grammar.y"
 {
     TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
@@ -3313,11 +3310,11 @@ yyreduce:
     assert(yyval);
     unit->error("missing data member name");
 }
-#line 3317 "src/Slice/Grammar.cpp"
+#line 3314 "src/Slice/Grammar.cpp"
     break;
 
   case 105:
-#line 1325 "src/Slice/Grammar.y"
+#line 1316 "src/Slice/Grammar.y"
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -3326,11 +3323,11 @@ yyreduce:
     unit->currentContainer()->checkIntroduced(ts->v.second, dm);
     yyval = dm;
 }
-#line 3330 "src/Slice/Grammar.cpp"
+#line 3327 "src/Slice/Grammar.cpp"
     break;
 
   case 106:
-#line 1334 "src/Slice/Grammar.y"
+#line 1325 "src/Slice/Grammar.y"
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[-2]);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast(yyvsp[0]);
@@ -3341,11 +3338,11 @@ yyreduce:
     unit->currentContainer()->checkIntroduced(ts->v.second, dm);
     yyval = dm;
 }
-#line 3345 "src/Slice/Grammar.cpp"
+#line 3342 "src/Slice/Grammar.cpp"
     break;
 
   case 107:
-#line 1345 "src/Slice/Grammar.y"
+#line 1336 "src/Slice/Grammar.y"
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -3354,11 +3351,11 @@ yyreduce:
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
-#line 3358 "src/Slice/Grammar.cpp"
+#line 3355 "src/Slice/Grammar.cpp"
     break;
 
   case 108:
-#line 1354 "src/Slice/Grammar.y"
+#line 1345 "src/Slice/Grammar.y"
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[-2]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -3367,11 +3364,11 @@ yyreduce:
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
-#line 3371 "src/Slice/Grammar.cpp"
+#line 3368 "src/Slice/Grammar.cpp"
     break;
 
   case 109:
-#line 1363 "src/Slice/Grammar.y"
+#line 1354 "src/Slice/Grammar.y"
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -3380,11 +3377,11 @@ yyreduce:
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
-#line 3384 "src/Slice/Grammar.cpp"
+#line 3381 "src/Slice/Grammar.cpp"
     break;
 
   case 110:
-#line 1372 "src/Slice/Grammar.y"
+#line 1363 "src/Slice/Grammar.y"
 {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[-2]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -3393,11 +3390,11 @@ yyreduce:
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
-#line 3397 "src/Slice/Grammar.cpp"
+#line 3394 "src/Slice/Grammar.cpp"
     break;
 
   case 111:
-#line 1381 "src/Slice/Grammar.y"
+#line 1372 "src/Slice/Grammar.y"
 {
     TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
     string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -3407,11 +3404,11 @@ yyreduce:
     assert(yyval);
     unit->error("keyword `" + name + "' cannot be used as data member name");
 }
-#line 3411 "src/Slice/Grammar.cpp"
+#line 3408 "src/Slice/Grammar.cpp"
     break;
 
   case 112:
-#line 1391 "src/Slice/Grammar.y"
+#line 1382 "src/Slice/Grammar.y"
 {
     TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
@@ -3420,11 +3417,11 @@ yyreduce:
     assert(yyval);
     unit->error("missing data member name");
 }
-#line 3424 "src/Slice/Grammar.cpp"
+#line 3421 "src/Slice/Grammar.cpp"
     break;
 
   case 113:
-#line 1405 "src/Slice/Grammar.y"
+#line 1396 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
 
@@ -3437,11 +3434,11 @@ yyreduce:
     m->type = optional;
     yyval = m;
 }
-#line 3441 "src/Slice/Grammar.cpp"
+#line 3438 "src/Slice/Grammar.cpp"
     break;
 
   case 114:
-#line 1418 "src/Slice/Grammar.y"
+#line 1409 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr m = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
 
@@ -3458,30 +3455,30 @@ yyreduce:
     }
     yyval = m;
 }
-#line 3462 "src/Slice/Grammar.cpp"
+#line 3459 "src/Slice/Grammar.cpp"
     break;
 
   case 115:
-#line 1435 "src/Slice/Grammar.y"
+#line 1426 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr m = new TaggedDefTok(-1);
     m->type = TypePtr::dynamicCast(yyvsp[0]);
     yyval = m;
 }
-#line 3472 "src/Slice/Grammar.cpp"
+#line 3469 "src/Slice/Grammar.cpp"
     break;
 
   case 116:
-#line 1441 "src/Slice/Grammar.y"
+#line 1432 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr m = new TaggedDefTok(-1);
     yyval = m;
 }
-#line 3481 "src/Slice/Grammar.cpp"
+#line 3478 "src/Slice/Grammar.cpp"
     break;
 
   case 117:
-#line 1451 "src/Slice/Grammar.y"
+#line 1442 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -3505,11 +3502,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3509 "src/Slice/Grammar.cpp"
+#line 3506 "src/Slice/Grammar.cpp"
     break;
 
   case 118:
-#line 1475 "src/Slice/Grammar.y"
+#line 1466 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -3534,11 +3531,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3538 "src/Slice/Grammar.cpp"
+#line 3535 "src/Slice/Grammar.cpp"
     break;
 
   case 119:
-#line 1500 "src/Slice/Grammar.y"
+#line 1491 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -3562,11 +3559,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3566 "src/Slice/Grammar.cpp"
+#line 3563 "src/Slice/Grammar.cpp"
     break;
 
   case 120:
-#line 1524 "src/Slice/Grammar.y"
+#line 1515 "src/Slice/Grammar.y"
 {
     TaggedDefTokPtr returnType = TaggedDefTokPtr::dynamicCast(yyvsp[-1]);
     string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
@@ -3591,11 +3588,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3595 "src/Slice/Grammar.cpp"
+#line 3592 "src/Slice/Grammar.cpp"
     break;
 
   case 121:
-#line 1554 "src/Slice/Grammar.y"
+#line 1545 "src/Slice/Grammar.y"
 {
     if(yyvsp[-2])
     {
@@ -3607,11 +3604,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3611 "src/Slice/Grammar.cpp"
+#line 3608 "src/Slice/Grammar.cpp"
     break;
 
   case 122:
-#line 1566 "src/Slice/Grammar.y"
+#line 1557 "src/Slice/Grammar.y"
 {
     OperationPtr op = OperationPtr::dynamicCast(yyvsp[-1]);
     ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast(yyvsp[0]);
@@ -3621,11 +3618,11 @@ yyreduce:
         op->setExceptionList(el->v);
     }
 }
-#line 3625 "src/Slice/Grammar.cpp"
+#line 3622 "src/Slice/Grammar.cpp"
     break;
 
   case 123:
-#line 1576 "src/Slice/Grammar.y"
+#line 1567 "src/Slice/Grammar.y"
 {
     if(yyvsp[-2])
     {
@@ -3633,11 +3630,11 @@ yyreduce:
     }
     yyerrok;
 }
-#line 3637 "src/Slice/Grammar.cpp"
+#line 3634 "src/Slice/Grammar.cpp"
     break;
 
   case 124:
-#line 1584 "src/Slice/Grammar.y"
+#line 1575 "src/Slice/Grammar.y"
 {
     OperationPtr op = OperationPtr::dynamicCast(yyvsp[-1]);
     ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast(yyvsp[0]);
@@ -3647,29 +3644,29 @@ yyreduce:
         op->setExceptionList(el->v); // Dummy
     }
 }
-#line 3651 "src/Slice/Grammar.cpp"
+#line 3648 "src/Slice/Grammar.cpp"
     break;
 
   case 126:
-#line 1605 "src/Slice/Grammar.y"
+#line 1596 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 3659 "src/Slice/Grammar.cpp"
+#line 3656 "src/Slice/Grammar.cpp"
     break;
 
   case 127:
-#line 1609 "src/Slice/Grammar.y"
+#line 1600 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as interface name");
     yyval = yyvsp[0]; // Dummy
 }
-#line 3669 "src/Slice/Grammar.cpp"
+#line 3666 "src/Slice/Grammar.cpp"
     break;
 
   case 128:
-#line 1620 "src/Slice/Grammar.y"
+#line 1611 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -3677,11 +3674,11 @@ yyreduce:
     cont->checkIntroduced(ident->v, cl);
     yyval = cl;
 }
-#line 3681 "src/Slice/Grammar.cpp"
+#line 3678 "src/Slice/Grammar.cpp"
     break;
 
   case 129:
-#line 1633 "src/Slice/Grammar.y"
+#line 1624 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
@@ -3698,11 +3695,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3702 "src/Slice/Grammar.cpp"
+#line 3699 "src/Slice/Grammar.cpp"
     break;
 
   case 130:
-#line 1650 "src/Slice/Grammar.y"
+#line 1641 "src/Slice/Grammar.y"
 {
     if(yyvsp[-3])
     {
@@ -3714,11 +3711,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 3718 "src/Slice/Grammar.cpp"
+#line 3715 "src/Slice/Grammar.cpp"
     break;
 
   case 131:
-#line 1667 "src/Slice/Grammar.y"
+#line 1658 "src/Slice/Grammar.y"
 {
     InterfaceListTokPtr intfs = InterfaceListTokPtr::dynamicCast(yyvsp[0]);
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-2]);
@@ -3753,11 +3750,11 @@ yyreduce:
     }
     yyval = intfs;
 }
-#line 3757 "src/Slice/Grammar.cpp"
+#line 3754 "src/Slice/Grammar.cpp"
     break;
 
   case 132:
-#line 1702 "src/Slice/Grammar.y"
+#line 1693 "src/Slice/Grammar.y"
 {
     InterfaceListTokPtr intfs = new InterfaceListTok;
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
@@ -3792,29 +3789,29 @@ yyreduce:
     }
     yyval = intfs;
 }
-#line 3796 "src/Slice/Grammar.cpp"
+#line 3793 "src/Slice/Grammar.cpp"
     break;
 
   case 133:
-#line 1737 "src/Slice/Grammar.y"
+#line 1728 "src/Slice/Grammar.y"
 {
     unit->error("illegal inheritance from type Object");
     yyval = new InterfaceListTok; // Dummy
 }
-#line 3805 "src/Slice/Grammar.cpp"
+#line 3802 "src/Slice/Grammar.cpp"
     break;
 
   case 134:
-#line 1742 "src/Slice/Grammar.y"
+#line 1733 "src/Slice/Grammar.y"
 {
     unit->error("illegal inheritance from type AnyClass");
     yyval = new ClassListTok; // Dummy
 }
-#line 3814 "src/Slice/Grammar.cpp"
+#line 3811 "src/Slice/Grammar.cpp"
     break;
 
   case 135:
-#line 1747 "src/Slice/Grammar.y"
+#line 1738 "src/Slice/Grammar.y"
 {
     if (!unit->compatMode())
     {
@@ -3823,27 +3820,27 @@ yyreduce:
     unit->error("illegal inheritance from type Value");
     yyval = new ClassListTok; // Dummy
 }
-#line 3827 "src/Slice/Grammar.cpp"
+#line 3824 "src/Slice/Grammar.cpp"
     break;
 
   case 136:
-#line 1761 "src/Slice/Grammar.y"
+#line 1752 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
 }
-#line 3835 "src/Slice/Grammar.cpp"
+#line 3832 "src/Slice/Grammar.cpp"
     break;
 
   case 137:
-#line 1765 "src/Slice/Grammar.y"
+#line 1756 "src/Slice/Grammar.y"
 {
     yyval = new InterfaceListTok;
 }
-#line 3843 "src/Slice/Grammar.cpp"
+#line 3840 "src/Slice/Grammar.cpp"
     break;
 
   case 138:
-#line 1774 "src/Slice/Grammar.y"
+#line 1765 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
     ContainedPtr contained = ContainedPtr::dynamicCast(yyvsp[-2]);
@@ -3852,55 +3849,55 @@ yyreduce:
         contained->setMetaData(metaData->v);
     }
 }
-#line 3856 "src/Slice/Grammar.cpp"
+#line 3853 "src/Slice/Grammar.cpp"
     break;
 
   case 139:
-#line 1783 "src/Slice/Grammar.y"
+#line 1774 "src/Slice/Grammar.y"
 {
 }
-#line 3863 "src/Slice/Grammar.cpp"
+#line 3860 "src/Slice/Grammar.cpp"
     break;
 
   case 140:
-#line 1786 "src/Slice/Grammar.y"
+#line 1777 "src/Slice/Grammar.y"
 {
     unit->error("`;' missing after definition");
 }
-#line 3871 "src/Slice/Grammar.cpp"
+#line 3868 "src/Slice/Grammar.cpp"
     break;
 
   case 141:
-#line 1790 "src/Slice/Grammar.y"
+#line 1781 "src/Slice/Grammar.y"
 {
 }
-#line 3878 "src/Slice/Grammar.cpp"
+#line 3875 "src/Slice/Grammar.cpp"
     break;
 
   case 143:
-#line 1804 "src/Slice/Grammar.y"
+#line 1795 "src/Slice/Grammar.y"
 {
     ExceptionPtr exception = ExceptionPtr::dynamicCast(yyvsp[-2]);
     ExceptionListTokPtr exceptionList = ExceptionListTokPtr::dynamicCast(yyvsp[0]);
     exceptionList->v.push_front(exception);
     yyval = exceptionList;
 }
-#line 3889 "src/Slice/Grammar.cpp"
+#line 3886 "src/Slice/Grammar.cpp"
     break;
 
   case 144:
-#line 1811 "src/Slice/Grammar.y"
+#line 1802 "src/Slice/Grammar.y"
 {
     ExceptionPtr exception = ExceptionPtr::dynamicCast(yyvsp[0]);
     ExceptionListTokPtr exceptionList = new ExceptionListTok;
     exceptionList->v.push_front(exception);
     yyval = exceptionList;
 }
-#line 3900 "src/Slice/Grammar.cpp"
+#line 3897 "src/Slice/Grammar.cpp"
     break;
 
   case 145:
-#line 1823 "src/Slice/Grammar.y"
+#line 1814 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -3912,21 +3909,21 @@ yyreduce:
     cont->checkIntroduced(scoped->v, exception);
     yyval = exception;
 }
-#line 3916 "src/Slice/Grammar.cpp"
+#line 3913 "src/Slice/Grammar.cpp"
     break;
 
   case 146:
-#line 1835 "src/Slice/Grammar.y"
+#line 1826 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
     yyval = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
-#line 3926 "src/Slice/Grammar.cpp"
+#line 3923 "src/Slice/Grammar.cpp"
     break;
 
   case 147:
-#line 1846 "src/Slice/Grammar.y"
+#line 1837 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
@@ -3934,11 +3931,11 @@ yyreduce:
     ContainerPtr cont = unit->currentContainer();
     yyval = cont->createSequence(ident->v, type, metaData->v);
 }
-#line 3938 "src/Slice/Grammar.cpp"
+#line 3935 "src/Slice/Grammar.cpp"
     break;
 
   case 148:
-#line 1854 "src/Slice/Grammar.y"
+#line 1845 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
@@ -3947,11 +3944,11 @@ yyreduce:
     yyval = cont->createSequence(ident->v, type, metaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
-#line 3951 "src/Slice/Grammar.cpp"
+#line 3948 "src/Slice/Grammar.cpp"
     break;
 
   case 149:
-#line 1868 "src/Slice/Grammar.y"
+#line 1859 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast(yyvsp[-6]);
@@ -3961,11 +3958,11 @@ yyreduce:
     ContainerPtr cont = unit->currentContainer();
     yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
 }
-#line 3965 "src/Slice/Grammar.cpp"
+#line 3962 "src/Slice/Grammar.cpp"
     break;
 
   case 150:
-#line 1878 "src/Slice/Grammar.y"
+#line 1869 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr keyMetaData = StringListTokPtr::dynamicCast(yyvsp[-6]);
@@ -3976,49 +3973,71 @@ yyreduce:
     yyval = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
-#line 3980 "src/Slice/Grammar.cpp"
+#line 3977 "src/Slice/Grammar.cpp"
     break;
 
   case 151:
-#line 1894 "src/Slice/Grammar.y"
-{
-    yyval = yyvsp[0];
-}
-#line 3988 "src/Slice/Grammar.cpp"
-    break;
-
-  case 152:
-#line 1898 "src/Slice/Grammar.y"
+#line 1885 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
-    unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
-    yyval = yyvsp[0]; // Dummy
-}
-#line 3998 "src/Slice/Grammar.cpp"
-    break;
-
-  case 153:
-#line 1909 "src/Slice/Grammar.y"
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v, TypePtr::dynamicCast(yyvsp[0]));
+    EnumPtr en = cont->createEnum(ident->v, true);
     if (en)
     {
         cont->checkIntroduced(ident->v, en);
     }
     else
     {
-        en = cont->createEnum(IceUtil::generateUUID(), nullptr, Dummy);
+        en = cont->createEnum(IceUtil::generateUUID(), true, Dummy);
     }
-    unit->pushContainer(en);
     yyval = en;
 }
-#line 4018 "src/Slice/Grammar.cpp"
+#line 3996 "src/Slice/Grammar.cpp"
+    break;
+
+  case 152:
+#line 1900 "src/Slice/Grammar.y"
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    ContainerPtr cont = unit->currentContainer();
+    EnumPtr en = cont->createEnum(ident->v, false);
+    if (en)
+    {
+        cont->checkIntroduced(ident->v, en);
+    }
+    else
+    {
+        en = cont->createEnum(IceUtil::generateUUID(), false, Dummy);
+    }
+    yyval = en;
+}
+#line 4015 "src/Slice/Grammar.cpp"
+    break;
+
+  case 153:
+#line 1915 "src/Slice/Grammar.y"
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    ContainerPtr cont = unit->currentContainer();
+    unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
+    yyval = cont->createEnum(IceUtil::generateUUID(), false, Dummy);
+}
+#line 4026 "src/Slice/Grammar.cpp"
     break;
 
   case 154:
-#line 1925 "src/Slice/Grammar.y"
+#line 1927 "src/Slice/Grammar.y"
+{
+    EnumPtr en = EnumPtr::dynamicCast(yyvsp[-1]);
+    en->initUnderlying(TypePtr::dynamicCast(yyvsp[0]));
+    unit->pushContainer(en);
+    yyval = en;
+}
+#line 4037 "src/Slice/Grammar.cpp"
+    break;
+
+  case 155:
+#line 1934 "src/Slice/Grammar.y"
 {
     EnumPtr en = EnumPtr::dynamicCast(yyvsp[-3]);
     if(en)
@@ -4032,11 +4051,11 @@ yyreduce:
     }
     yyval = yyvsp[-3];
 }
-#line 4036 "src/Slice/Grammar.cpp"
+#line 4055 "src/Slice/Grammar.cpp"
     break;
 
-  case 155:
-#line 1940 "src/Slice/Grammar.y"
+  case 156:
+#line 1949 "src/Slice/Grammar.y"
 {
     unit->error("missing enumeration name");
     ContainerPtr cont = unit->currentContainer();
@@ -4044,53 +4063,53 @@ yyreduce:
     unit->pushContainer(en);
     yyval = en;
 }
-#line 4048 "src/Slice/Grammar.cpp"
+#line 4067 "src/Slice/Grammar.cpp"
     break;
 
-  case 156:
-#line 1948 "src/Slice/Grammar.y"
+  case 157:
+#line 1957 "src/Slice/Grammar.y"
 {
     unit->popContainer();
     yyval = yyvsp[-4];
 }
-#line 4057 "src/Slice/Grammar.cpp"
-    break;
-
-  case 157:
-#line 1958 "src/Slice/Grammar.y"
-{
-    yyval = yyvsp[0];
-}
-#line 4065 "src/Slice/Grammar.cpp"
+#line 4076 "src/Slice/Grammar.cpp"
     break;
 
   case 158:
-#line 1962 "src/Slice/Grammar.y"
+#line 1967 "src/Slice/Grammar.y"
 {
-    yyval = 0;
+    yyval = yyvsp[0];
 }
-#line 4073 "src/Slice/Grammar.cpp"
+#line 4084 "src/Slice/Grammar.cpp"
     break;
 
   case 159:
 #line 1971 "src/Slice/Grammar.y"
 {
+    yyval = 0;
+}
+#line 4092 "src/Slice/Grammar.cpp"
+    break;
+
+  case 160:
+#line 1980 "src/Slice/Grammar.y"
+{
     EnumeratorListTokPtr ens = EnumeratorListTokPtr::dynamicCast(yyvsp[-2]);
     ens->v.splice(ens->v.end(), EnumeratorListTokPtr::dynamicCast(yyvsp[0])->v);
     yyval = ens;
 }
-#line 4083 "src/Slice/Grammar.cpp"
-    break;
-
-  case 160:
-#line 1977 "src/Slice/Grammar.y"
-{
-}
-#line 4090 "src/Slice/Grammar.cpp"
+#line 4102 "src/Slice/Grammar.cpp"
     break;
 
   case 161:
-#line 1985 "src/Slice/Grammar.y"
+#line 1986 "src/Slice/Grammar.y"
+{
+}
+#line 4109 "src/Slice/Grammar.cpp"
+    break;
+
+  case 162:
+#line 1994 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
@@ -4102,11 +4121,11 @@ yyreduce:
     }
     yyval = ens;
 }
-#line 4106 "src/Slice/Grammar.cpp"
+#line 4125 "src/Slice/Grammar.cpp"
     break;
 
-  case 162:
-#line 1997 "src/Slice/Grammar.y"
+  case 163:
+#line 2006 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-2]);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
@@ -4119,39 +4138,39 @@ yyreduce:
     }
     yyval = ens;
 }
-#line 4123 "src/Slice/Grammar.cpp"
+#line 4142 "src/Slice/Grammar.cpp"
     break;
 
-  case 163:
-#line 2010 "src/Slice/Grammar.y"
+  case 164:
+#line 2019 "src/Slice/Grammar.y"
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as enumerator");
     EnumeratorListTokPtr ens = new EnumeratorListTok; // Dummy
     yyval = ens;
 }
-#line 4134 "src/Slice/Grammar.cpp"
+#line 4153 "src/Slice/Grammar.cpp"
     break;
 
-  case 164:
-#line 2017 "src/Slice/Grammar.y"
+  case 165:
+#line 2026 "src/Slice/Grammar.y"
 {
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     yyval = ens; // Dummy
 }
-#line 4143 "src/Slice/Grammar.cpp"
-    break;
-
-  case 165:
-#line 2027 "src/Slice/Grammar.y"
-{
-    yyval = yyvsp[0];
-}
-#line 4151 "src/Slice/Grammar.cpp"
+#line 4162 "src/Slice/Grammar.cpp"
     break;
 
   case 166:
-#line 2031 "src/Slice/Grammar.y"
+#line 2036 "src/Slice/Grammar.y"
+{
+    yyval = yyvsp[0];
+}
+#line 4170 "src/Slice/Grammar.cpp"
+    break;
+
+  case 167:
+#line 2040 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
@@ -4184,58 +4203,38 @@ yyreduce:
 
     yyval = tok;
 }
-#line 4188 "src/Slice/Grammar.cpp"
+#line 4207 "src/Slice/Grammar.cpp"
     break;
 
-  case 167:
-#line 2069 "src/Slice/Grammar.y"
+  case 168:
+#line 2078 "src/Slice/Grammar.y"
 {
     BoolTokPtr out = new BoolTok;
     out->v = true;
     yyval = out;
 }
-#line 4198 "src/Slice/Grammar.cpp"
+#line 4217 "src/Slice/Grammar.cpp"
     break;
 
-  case 168:
-#line 2075 "src/Slice/Grammar.y"
+  case 169:
+#line 2084 "src/Slice/Grammar.y"
 {
     BoolTokPtr out = new BoolTok;
     out->v = false;
     yyval = out;
 }
-#line 4208 "src/Slice/Grammar.cpp"
-    break;
-
-  case 169:
-#line 2086 "src/Slice/Grammar.y"
-{
-}
-#line 4215 "src/Slice/Grammar.cpp"
+#line 4227 "src/Slice/Grammar.cpp"
     break;
 
   case 170:
-#line 2089 "src/Slice/Grammar.y"
+#line 2095 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
-    TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
-    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
-    if(op)
-    {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
-        StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
-        if(!metaData->v.empty())
-        {
-            pd->setMetaData(metaData->v);
-        }
-    }
 }
-#line 4235 "src/Slice/Grammar.cpp"
+#line 4234 "src/Slice/Grammar.cpp"
     break;
 
   case 171:
-#line 2105 "src/Slice/Grammar.y"
+#line 2098 "src/Slice/Grammar.y"
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
     TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
@@ -4251,27 +4250,31 @@ yyreduce:
         }
     }
 }
-#line 4255 "src/Slice/Grammar.cpp"
+#line 4254 "src/Slice/Grammar.cpp"
     break;
 
   case 172:
-#line 2121 "src/Slice/Grammar.y"
+#line 2114 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-3]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
-    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
+    TaggedDefTokPtr tsp = TaggedDefTokPtr::dynamicCast(yyvsp[0]);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
-        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-1]);
+        if(!metaData->v.empty())
+        {
+            pd->setMetaData(metaData->v);
+        }
     }
 }
-#line 4271 "src/Slice/Grammar.cpp"
+#line 4274 "src/Slice/Grammar.cpp"
     break;
 
   case 173:
-#line 2133 "src/Slice/Grammar.y"
+#line 2130 "src/Slice/Grammar.y"
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
@@ -4283,26 +4286,27 @@ yyreduce:
         unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-#line 4287 "src/Slice/Grammar.cpp"
+#line 4290 "src/Slice/Grammar.cpp"
     break;
 
   case 174:
-#line 2145 "src/Slice/Grammar.y"
+#line 2142 "src/Slice/Grammar.y"
 {
-    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
-    TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-3]);
+    TypePtr type = TypePtr::dynamicCast(yyvsp[-1]);
+    StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
-        unit->error("missing parameter name");
+        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-#line 4302 "src/Slice/Grammar.cpp"
+#line 4306 "src/Slice/Grammar.cpp"
     break;
 
   case 175:
-#line 2156 "src/Slice/Grammar.y"
+#line 2154 "src/Slice/Grammar.y"
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
     TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
@@ -4313,155 +4317,170 @@ yyreduce:
         unit->error("missing parameter name");
     }
 }
-#line 4317 "src/Slice/Grammar.cpp"
+#line 4321 "src/Slice/Grammar.cpp"
     break;
 
   case 176:
-#line 2172 "src/Slice/Grammar.y"
+#line 2165 "src/Slice/Grammar.y"
 {
-    yyval = yyvsp[0];
+    BoolTokPtr isOutParam = BoolTokPtr::dynamicCast(yyvsp[-2]);
+    TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
+    OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
+    if(op)
+    {
+        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        unit->error("missing parameter name");
+    }
 }
-#line 4325 "src/Slice/Grammar.cpp"
+#line 4336 "src/Slice/Grammar.cpp"
     break;
 
   case 177:
-#line 2176 "src/Slice/Grammar.y"
+#line 2181 "src/Slice/Grammar.y"
 {
-    yyval = new ExceptionListTok;
+    yyval = yyvsp[0];
 }
-#line 4333 "src/Slice/Grammar.cpp"
+#line 4344 "src/Slice/Grammar.cpp"
     break;
 
   case 178:
 #line 2185 "src/Slice/Grammar.y"
 {
+    yyval = new ExceptionListTok;
 }
-#line 4340 "src/Slice/Grammar.cpp"
+#line 4352 "src/Slice/Grammar.cpp"
     break;
 
   case 179:
-#line 2188 "src/Slice/Grammar.y"
+#line 2194 "src/Slice/Grammar.y"
 {
 }
-#line 4347 "src/Slice/Grammar.cpp"
-    break;
-
-  case 180:
-#line 2195 "src/Slice/Grammar.y"
-           {}
-#line 4353 "src/Slice/Grammar.cpp"
-    break;
-
-  case 181:
-#line 2196 "src/Slice/Grammar.y"
-           {}
 #line 4359 "src/Slice/Grammar.cpp"
     break;
 
-  case 182:
+  case 180:
 #line 2197 "src/Slice/Grammar.y"
-            {}
-#line 4365 "src/Slice/Grammar.cpp"
+{
+}
+#line 4366 "src/Slice/Grammar.cpp"
+    break;
+
+  case 181:
+#line 2204 "src/Slice/Grammar.y"
+           {}
+#line 4372 "src/Slice/Grammar.cpp"
+    break;
+
+  case 182:
+#line 2205 "src/Slice/Grammar.y"
+           {}
+#line 4378 "src/Slice/Grammar.cpp"
     break;
 
   case 183:
-#line 2198 "src/Slice/Grammar.y"
-             {}
-#line 4371 "src/Slice/Grammar.cpp"
+#line 2206 "src/Slice/Grammar.y"
+            {}
+#line 4384 "src/Slice/Grammar.cpp"
     break;
 
   case 184:
-#line 2199 "src/Slice/Grammar.y"
-          {}
-#line 4377 "src/Slice/Grammar.cpp"
+#line 2207 "src/Slice/Grammar.y"
+             {}
+#line 4390 "src/Slice/Grammar.cpp"
     break;
 
   case 185:
-#line 2200 "src/Slice/Grammar.y"
-           {}
-#line 4383 "src/Slice/Grammar.cpp"
+#line 2208 "src/Slice/Grammar.y"
+          {}
+#line 4396 "src/Slice/Grammar.cpp"
     break;
 
   case 186:
-#line 2201 "src/Slice/Grammar.y"
-             {}
-#line 4389 "src/Slice/Grammar.cpp"
+#line 2209 "src/Slice/Grammar.y"
+           {}
+#line 4402 "src/Slice/Grammar.cpp"
     break;
 
   case 187:
-#line 2202 "src/Slice/Grammar.y"
-              {}
-#line 4395 "src/Slice/Grammar.cpp"
+#line 2210 "src/Slice/Grammar.y"
+             {}
+#line 4408 "src/Slice/Grammar.cpp"
     break;
 
   case 188:
-#line 2203 "src/Slice/Grammar.y"
-           {}
-#line 4401 "src/Slice/Grammar.cpp"
+#line 2211 "src/Slice/Grammar.y"
+              {}
+#line 4414 "src/Slice/Grammar.cpp"
     break;
 
   case 189:
-#line 2204 "src/Slice/Grammar.y"
-            {}
-#line 4407 "src/Slice/Grammar.cpp"
+#line 2212 "src/Slice/Grammar.y"
+           {}
+#line 4420 "src/Slice/Grammar.cpp"
     break;
 
   case 190:
-#line 2205 "src/Slice/Grammar.y"
-              {}
-#line 4413 "src/Slice/Grammar.cpp"
+#line 2213 "src/Slice/Grammar.y"
+            {}
+#line 4426 "src/Slice/Grammar.cpp"
     break;
 
   case 191:
-#line 2206 "src/Slice/Grammar.y"
-               {}
-#line 4419 "src/Slice/Grammar.cpp"
+#line 2214 "src/Slice/Grammar.y"
+              {}
+#line 4432 "src/Slice/Grammar.cpp"
     break;
 
   case 192:
-#line 2207 "src/Slice/Grammar.y"
-            {}
-#line 4425 "src/Slice/Grammar.cpp"
+#line 2215 "src/Slice/Grammar.y"
+               {}
+#line 4438 "src/Slice/Grammar.cpp"
     break;
 
   case 193:
-#line 2208 "src/Slice/Grammar.y"
-             {}
-#line 4431 "src/Slice/Grammar.cpp"
+#line 2216 "src/Slice/Grammar.y"
+            {}
+#line 4444 "src/Slice/Grammar.cpp"
     break;
 
   case 194:
-#line 2209 "src/Slice/Grammar.y"
+#line 2217 "src/Slice/Grammar.y"
              {}
-#line 4437 "src/Slice/Grammar.cpp"
+#line 4450 "src/Slice/Grammar.cpp"
     break;
 
   case 195:
-#line 2215 "src/Slice/Grammar.y"
-{
-    yyval = unit->optionalBuiltin(Builtin::KindObject);
-}
-#line 4445 "src/Slice/Grammar.cpp"
+#line 2218 "src/Slice/Grammar.y"
+             {}
+#line 4456 "src/Slice/Grammar.cpp"
     break;
 
   case 196:
-#line 2219 "src/Slice/Grammar.y"
+#line 2224 "src/Slice/Grammar.y"
 {
     yyval = unit->optionalBuiltin(Builtin::KindObject);
 }
-#line 4453 "src/Slice/Grammar.cpp"
+#line 4464 "src/Slice/Grammar.cpp"
     break;
 
   case 197:
-#line 2223 "src/Slice/Grammar.y"
+#line 2228 "src/Slice/Grammar.y"
 {
-    yyval = unit->optionalBuiltin(Builtin::KindAnyClass);
+    yyval = unit->optionalBuiltin(Builtin::KindObject);
 }
-#line 4461 "src/Slice/Grammar.cpp"
+#line 4472 "src/Slice/Grammar.cpp"
     break;
 
   case 198:
-#line 2227 "src/Slice/Grammar.y"
+#line 2232 "src/Slice/Grammar.y"
+{
+    yyval = unit->optionalBuiltin(Builtin::KindAnyClass);
+}
+#line 4480 "src/Slice/Grammar.cpp"
+    break;
+
+  case 199:
+#line 2236 "src/Slice/Grammar.y"
 {
     if (!unit->compatMode())
     {
@@ -4469,20 +4488,20 @@ yyreduce:
     }
     yyval = unit->optionalBuiltin(Builtin::KindAnyClass);
 }
-#line 4473 "src/Slice/Grammar.cpp"
+#line 4492 "src/Slice/Grammar.cpp"
     break;
 
-  case 199:
-#line 2235 "src/Slice/Grammar.y"
+  case 200:
+#line 2244 "src/Slice/Grammar.y"
 {
     StringTokPtr typeName = StringTokPtr::dynamicCast(yyvsp[-1]);
     yyval = unit->optionalBuiltin(Builtin::kindFromString(typeName->v).value());
 }
-#line 4482 "src/Slice/Grammar.cpp"
+#line 4501 "src/Slice/Grammar.cpp"
     break;
 
-  case 200:
-#line 2240 "src/Slice/Grammar.y"
+  case 201:
+#line 2249 "src/Slice/Grammar.y"
 {
     if (unit->compatMode())
     {
@@ -4493,19 +4512,19 @@ yyreduce:
         yyval = unit->builtin(Builtin::KindObject);
     }
 }
-#line 4497 "src/Slice/Grammar.cpp"
-    break;
-
-  case 201:
-#line 2251 "src/Slice/Grammar.y"
-{
-    yyval = unit->builtin(Builtin::KindAnyClass);
-}
-#line 4505 "src/Slice/Grammar.cpp"
+#line 4516 "src/Slice/Grammar.cpp"
     break;
 
   case 202:
-#line 2255 "src/Slice/Grammar.y"
+#line 2260 "src/Slice/Grammar.y"
+{
+    yyval = unit->builtin(Builtin::KindAnyClass);
+}
+#line 4524 "src/Slice/Grammar.cpp"
+    break;
+
+  case 203:
+#line 2264 "src/Slice/Grammar.y"
 {
     if (unit->compatMode())
     {
@@ -4517,20 +4536,20 @@ yyreduce:
         yyval = unit->builtin(Builtin::KindAnyClass);
     }
 }
-#line 4521 "src/Slice/Grammar.cpp"
+#line 4540 "src/Slice/Grammar.cpp"
     break;
 
-  case 203:
-#line 2267 "src/Slice/Grammar.y"
+  case 204:
+#line 2276 "src/Slice/Grammar.y"
 {
     StringTokPtr typeName = StringTokPtr::dynamicCast(yyvsp[0]);
     yyval = unit->builtin(Builtin::kindFromString(typeName->v).value());
 }
-#line 4530 "src/Slice/Grammar.cpp"
+#line 4549 "src/Slice/Grammar.cpp"
     break;
 
-  case 204:
-#line 2272 "src/Slice/Grammar.y"
+  case 205:
+#line 2281 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
@@ -4556,11 +4575,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 4560 "src/Slice/Grammar.cpp"
+#line 4579 "src/Slice/Grammar.cpp"
     break;
 
-  case 205:
-#line 2298 "src/Slice/Grammar.y"
+  case 206:
+#line 2307 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
@@ -4592,11 +4611,11 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 4596 "src/Slice/Grammar.cpp"
+#line 4615 "src/Slice/Grammar.cpp"
     break;
 
-  case 206:
-#line 2330 "src/Slice/Grammar.y"
+  case 207:
+#line 2339 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[-1]);
     ContainerPtr cont = unit->currentContainer();
@@ -4619,50 +4638,50 @@ yyreduce:
         yyval = 0;
     }
 }
-#line 4623 "src/Slice/Grammar.cpp"
+#line 4642 "src/Slice/Grammar.cpp"
     break;
 
-  case 207:
-#line 2358 "src/Slice/Grammar.y"
+  case 208:
+#line 2367 "src/Slice/Grammar.y"
 {
     StringTokPtr str1 = StringTokPtr::dynamicCast(yyvsp[-1]);
     StringTokPtr str2 = StringTokPtr::dynamicCast(yyvsp[0]);
     str1->v += str2->v;
 }
-#line 4633 "src/Slice/Grammar.cpp"
-    break;
-
-  case 208:
-#line 2364 "src/Slice/Grammar.y"
-{
-}
-#line 4640 "src/Slice/Grammar.cpp"
+#line 4652 "src/Slice/Grammar.cpp"
     break;
 
   case 209:
-#line 2372 "src/Slice/Grammar.y"
+#line 2373 "src/Slice/Grammar.y"
+{
+}
+#line 4659 "src/Slice/Grammar.cpp"
+    break;
+
+  case 210:
+#line 2381 "src/Slice/Grammar.y"
 {
     StringTokPtr str = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr stringList = StringListTokPtr::dynamicCast(yyvsp[-2]);
     stringList->v.push_back(str->v);
     yyval = stringList;
 }
-#line 4651 "src/Slice/Grammar.cpp"
+#line 4670 "src/Slice/Grammar.cpp"
     break;
 
-  case 210:
-#line 2379 "src/Slice/Grammar.y"
+  case 211:
+#line 2388 "src/Slice/Grammar.y"
 {
     StringTokPtr str = StringTokPtr::dynamicCast(yyvsp[0]);
     StringListTokPtr stringList = new StringListTok;
     stringList->v.push_back(str->v);
     yyval = stringList;
 }
-#line 4662 "src/Slice/Grammar.cpp"
+#line 4681 "src/Slice/Grammar.cpp"
     break;
 
-  case 211:
-#line 2391 "src/Slice/Grammar.y"
+  case 212:
+#line 2400 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindLong);
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast(yyvsp[0]);
@@ -4671,11 +4690,11 @@ yyreduce:
     ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), intVal->literal);
     yyval = def;
 }
-#line 4675 "src/Slice/Grammar.cpp"
+#line 4694 "src/Slice/Grammar.cpp"
     break;
 
-  case 212:
-#line 2400 "src/Slice/Grammar.y"
+  case 213:
+#line 2409 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindDouble);
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast(yyvsp[0]);
@@ -4684,11 +4703,11 @@ yyreduce:
     ConstDefTokPtr def = new ConstDefTok(type, sstr.str(), floatVal->literal);
     yyval = def;
 }
-#line 4688 "src/Slice/Grammar.cpp"
+#line 4707 "src/Slice/Grammar.cpp"
     break;
 
-  case 213:
-#line 2409 "src/Slice/Grammar.y"
+  case 214:
+#line 2418 "src/Slice/Grammar.y"
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def;
@@ -4728,44 +4747,44 @@ yyreduce:
     }
     yyval = def;
 }
-#line 4732 "src/Slice/Grammar.cpp"
+#line 4751 "src/Slice/Grammar.cpp"
     break;
 
-  case 214:
-#line 2449 "src/Slice/Grammar.y"
+  case 215:
+#line 2458 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, literal->v, literal->literal);
     yyval = def;
 }
-#line 4743 "src/Slice/Grammar.cpp"
+#line 4762 "src/Slice/Grammar.cpp"
     break;
 
-  case 215:
-#line 2456 "src/Slice/Grammar.y"
+  case 216:
+#line 2465 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, "false", "false");
     yyval = def;
 }
-#line 4754 "src/Slice/Grammar.cpp"
+#line 4773 "src/Slice/Grammar.cpp"
     break;
 
-  case 216:
-#line 2463 "src/Slice/Grammar.y"
+  case 217:
+#line 2472 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast(yyvsp[0]);
     ConstDefTokPtr def = new ConstDefTok(type, "true", "true");
     yyval = def;
 }
-#line 4765 "src/Slice/Grammar.cpp"
+#line 4784 "src/Slice/Grammar.cpp"
     break;
 
-  case 217:
-#line 2475 "src/Slice/Grammar.y"
+  case 218:
+#line 2484 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-4]);
     TypePtr const_type = TypePtr::dynamicCast(yyvsp[-3]);
@@ -4774,11 +4793,11 @@ yyreduce:
     yyval = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
-#line 4778 "src/Slice/Grammar.cpp"
+#line 4797 "src/Slice/Grammar.cpp"
     break;
 
-  case 218:
-#line 2484 "src/Slice/Grammar.y"
+  case 219:
+#line 2493 "src/Slice/Grammar.y"
 {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast(yyvsp[-3]);
     TypePtr const_type = TypePtr::dynamicCast(yyvsp[-2]);
@@ -4787,233 +4806,233 @@ yyreduce:
     yyval = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
-#line 4791 "src/Slice/Grammar.cpp"
-    break;
-
-  case 219:
-#line 2497 "src/Slice/Grammar.y"
-             {}
-#line 4797 "src/Slice/Grammar.cpp"
+#line 4810 "src/Slice/Grammar.cpp"
     break;
 
   case 220:
-#line 2498 "src/Slice/Grammar.y"
-            {}
-#line 4803 "src/Slice/Grammar.cpp"
+#line 2506 "src/Slice/Grammar.y"
+             {}
+#line 4816 "src/Slice/Grammar.cpp"
     break;
 
   case 221:
-#line 2499 "src/Slice/Grammar.y"
-                {}
-#line 4809 "src/Slice/Grammar.cpp"
+#line 2507 "src/Slice/Grammar.y"
+            {}
+#line 4822 "src/Slice/Grammar.cpp"
     break;
 
   case 222:
-#line 2500 "src/Slice/Grammar.y"
+#line 2508 "src/Slice/Grammar.y"
                 {}
-#line 4815 "src/Slice/Grammar.cpp"
+#line 4828 "src/Slice/Grammar.cpp"
     break;
 
   case 223:
-#line 2501 "src/Slice/Grammar.y"
-             {}
-#line 4821 "src/Slice/Grammar.cpp"
+#line 2509 "src/Slice/Grammar.y"
+                {}
+#line 4834 "src/Slice/Grammar.cpp"
     break;
 
   case 224:
-#line 2502 "src/Slice/Grammar.y"
-               {}
-#line 4827 "src/Slice/Grammar.cpp"
+#line 2510 "src/Slice/Grammar.y"
+             {}
+#line 4840 "src/Slice/Grammar.cpp"
     break;
 
   case 225:
-#line 2503 "src/Slice/Grammar.y"
-                 {}
-#line 4833 "src/Slice/Grammar.cpp"
+#line 2511 "src/Slice/Grammar.y"
+               {}
+#line 4846 "src/Slice/Grammar.cpp"
     break;
 
   case 226:
-#line 2504 "src/Slice/Grammar.y"
-           {}
-#line 4839 "src/Slice/Grammar.cpp"
+#line 2512 "src/Slice/Grammar.y"
+                 {}
+#line 4852 "src/Slice/Grammar.cpp"
     break;
 
   case 227:
-#line 2505 "src/Slice/Grammar.y"
-          {}
-#line 4845 "src/Slice/Grammar.cpp"
+#line 2513 "src/Slice/Grammar.y"
+           {}
+#line 4858 "src/Slice/Grammar.cpp"
     break;
 
   case 228:
-#line 2506 "src/Slice/Grammar.y"
-              {}
-#line 4851 "src/Slice/Grammar.cpp"
+#line 2514 "src/Slice/Grammar.y"
+          {}
+#line 4864 "src/Slice/Grammar.cpp"
     break;
 
   case 229:
-#line 2507 "src/Slice/Grammar.y"
-                 {}
-#line 4857 "src/Slice/Grammar.cpp"
+#line 2515 "src/Slice/Grammar.y"
+              {}
+#line 4870 "src/Slice/Grammar.cpp"
     break;
 
   case 230:
-#line 2508 "src/Slice/Grammar.y"
-             {}
-#line 4863 "src/Slice/Grammar.cpp"
+#line 2516 "src/Slice/Grammar.y"
+                 {}
+#line 4876 "src/Slice/Grammar.cpp"
     break;
 
   case 231:
-#line 2509 "src/Slice/Grammar.y"
-           {}
-#line 4869 "src/Slice/Grammar.cpp"
+#line 2517 "src/Slice/Grammar.y"
+             {}
+#line 4882 "src/Slice/Grammar.cpp"
     break;
 
   case 232:
-#line 2510 "src/Slice/Grammar.y"
+#line 2518 "src/Slice/Grammar.y"
            {}
-#line 4875 "src/Slice/Grammar.cpp"
+#line 4888 "src/Slice/Grammar.cpp"
     break;
 
   case 233:
-#line 2511 "src/Slice/Grammar.y"
+#line 2519 "src/Slice/Grammar.y"
            {}
-#line 4881 "src/Slice/Grammar.cpp"
+#line 4894 "src/Slice/Grammar.cpp"
     break;
 
   case 234:
-#line 2512 "src/Slice/Grammar.y"
-            {}
-#line 4887 "src/Slice/Grammar.cpp"
+#line 2520 "src/Slice/Grammar.y"
+           {}
+#line 4900 "src/Slice/Grammar.cpp"
     break;
 
   case 235:
-#line 2513 "src/Slice/Grammar.y"
-             {}
-#line 4893 "src/Slice/Grammar.cpp"
+#line 2521 "src/Slice/Grammar.y"
+            {}
+#line 4906 "src/Slice/Grammar.cpp"
     break;
 
   case 236:
-#line 2514 "src/Slice/Grammar.y"
-          {}
-#line 4899 "src/Slice/Grammar.cpp"
+#line 2522 "src/Slice/Grammar.y"
+             {}
+#line 4912 "src/Slice/Grammar.cpp"
     break;
 
   case 237:
-#line 2515 "src/Slice/Grammar.y"
-           {}
-#line 4905 "src/Slice/Grammar.cpp"
+#line 2523 "src/Slice/Grammar.y"
+          {}
+#line 4918 "src/Slice/Grammar.cpp"
     break;
 
   case 238:
-#line 2516 "src/Slice/Grammar.y"
-             {}
-#line 4911 "src/Slice/Grammar.cpp"
+#line 2524 "src/Slice/Grammar.y"
+           {}
+#line 4924 "src/Slice/Grammar.cpp"
     break;
 
   case 239:
-#line 2517 "src/Slice/Grammar.y"
-              {}
-#line 4917 "src/Slice/Grammar.cpp"
+#line 2525 "src/Slice/Grammar.y"
+             {}
+#line 4930 "src/Slice/Grammar.cpp"
     break;
 
   case 240:
-#line 2518 "src/Slice/Grammar.y"
-           {}
-#line 4923 "src/Slice/Grammar.cpp"
+#line 2526 "src/Slice/Grammar.y"
+              {}
+#line 4936 "src/Slice/Grammar.cpp"
     break;
 
   case 241:
-#line 2519 "src/Slice/Grammar.y"
-            {}
-#line 4929 "src/Slice/Grammar.cpp"
+#line 2527 "src/Slice/Grammar.y"
+           {}
+#line 4942 "src/Slice/Grammar.cpp"
     break;
 
   case 242:
-#line 2520 "src/Slice/Grammar.y"
-              {}
-#line 4935 "src/Slice/Grammar.cpp"
+#line 2528 "src/Slice/Grammar.y"
+            {}
+#line 4948 "src/Slice/Grammar.cpp"
     break;
 
   case 243:
-#line 2521 "src/Slice/Grammar.y"
-               {}
-#line 4941 "src/Slice/Grammar.cpp"
+#line 2529 "src/Slice/Grammar.y"
+              {}
+#line 4954 "src/Slice/Grammar.cpp"
     break;
 
   case 244:
-#line 2522 "src/Slice/Grammar.y"
-            {}
-#line 4947 "src/Slice/Grammar.cpp"
+#line 2530 "src/Slice/Grammar.y"
+               {}
+#line 4960 "src/Slice/Grammar.cpp"
     break;
 
   case 245:
-#line 2523 "src/Slice/Grammar.y"
-             {}
-#line 4953 "src/Slice/Grammar.cpp"
+#line 2531 "src/Slice/Grammar.y"
+            {}
+#line 4966 "src/Slice/Grammar.cpp"
     break;
 
   case 246:
-#line 2524 "src/Slice/Grammar.y"
+#line 2532 "src/Slice/Grammar.y"
              {}
-#line 4959 "src/Slice/Grammar.cpp"
+#line 4972 "src/Slice/Grammar.cpp"
     break;
 
   case 247:
-#line 2525 "src/Slice/Grammar.y"
+#line 2533 "src/Slice/Grammar.y"
              {}
-#line 4965 "src/Slice/Grammar.cpp"
+#line 4978 "src/Slice/Grammar.cpp"
     break;
 
   case 248:
-#line 2526 "src/Slice/Grammar.y"
-            {}
-#line 4971 "src/Slice/Grammar.cpp"
+#line 2534 "src/Slice/Grammar.y"
+             {}
+#line 4984 "src/Slice/Grammar.cpp"
     break;
 
   case 249:
-#line 2527 "src/Slice/Grammar.y"
+#line 2535 "src/Slice/Grammar.y"
             {}
-#line 4977 "src/Slice/Grammar.cpp"
+#line 4990 "src/Slice/Grammar.cpp"
     break;
 
   case 250:
-#line 2528 "src/Slice/Grammar.y"
-           {}
-#line 4983 "src/Slice/Grammar.cpp"
+#line 2536 "src/Slice/Grammar.y"
+            {}
+#line 4996 "src/Slice/Grammar.cpp"
     break;
 
   case 251:
-#line 2529 "src/Slice/Grammar.y"
-                 {}
-#line 4989 "src/Slice/Grammar.cpp"
+#line 2537 "src/Slice/Grammar.y"
+           {}
+#line 5002 "src/Slice/Grammar.cpp"
     break;
 
   case 252:
-#line 2530 "src/Slice/Grammar.y"
-          {}
-#line 4995 "src/Slice/Grammar.cpp"
+#line 2538 "src/Slice/Grammar.y"
+                 {}
+#line 5008 "src/Slice/Grammar.cpp"
     break;
 
   case 253:
-#line 2531 "src/Slice/Grammar.y"
-               {}
-#line 5001 "src/Slice/Grammar.cpp"
+#line 2539 "src/Slice/Grammar.y"
+          {}
+#line 5014 "src/Slice/Grammar.cpp"
     break;
 
   case 254:
-#line 2532 "src/Slice/Grammar.y"
+#line 2540 "src/Slice/Grammar.y"
                {}
-#line 5007 "src/Slice/Grammar.cpp"
+#line 5020 "src/Slice/Grammar.cpp"
     break;
 
   case 255:
-#line 2533 "src/Slice/Grammar.y"
+#line 2541 "src/Slice/Grammar.y"
+               {}
+#line 5026 "src/Slice/Grammar.cpp"
+    break;
+
+  case 256:
+#line 2542 "src/Slice/Grammar.y"
             {}
-#line 5013 "src/Slice/Grammar.cpp"
+#line 5032 "src/Slice/Grammar.cpp"
     break;
 
 
-#line 5017 "src/Slice/Grammar.cpp"
+#line 5036 "src/Slice/Grammar.cpp"
 
       default: break;
     }
@@ -5212,5 +5231,5 @@ yyreturn:
   return yyresult;
 }
 
-#line 2536 "src/Slice/Grammar.y"
+#line 2545 "src/Slice/Grammar.y"
 

@@ -1215,7 +1215,7 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
         if (isMappedToReadOnlyMemory(seq))
         {
             out << stream << ".ReadTaggedArray";
-            if (auto enElement = EnumPtr::dynamicCast(elementType))
+            if (auto enElement = EnumPtr::dynamicCast(elementType); enElement && !enElement->isUnchecked())
             {
                 out << "(" << tag << ", (" << typeToString(enElement, scope) << " e) => _ = "
                     << helperName(enElement, scope) << ".As" << enElement->name()
@@ -1362,6 +1362,7 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
 
     TypePtr type = seq->type();
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    auto en = EnumPtr::dynamicCast(type);
 
     ostringstream out;
     if (!serializable.empty())
@@ -1370,11 +1371,12 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
     }
     else if (generic.empty())
     {
-        if (builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength())
+        if ((builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength()) ||
+            (en && en->underlying() && en->isUnchecked()))
         {
-            out << stream << ".ReadArray<" << typeToString(builtin, scope) << ">()";
+            out << stream << ".ReadArray<" << typeToString(type, scope) << ">()";
         }
-        else if (auto en = EnumPtr::dynamicCast(type); en && en->underlying())
+        else if (en && en->underlying())
         {
             out << stream << ".ReadArray((" << typeToString(en, scope) << " e) => _ = " << helperName(en, scope)
                 << ".As" << en->name() << "((" << typeToString(en->underlying(), scope) << ")e))";
@@ -1399,13 +1401,14 @@ Slice::CsGenerator::sequenceUnmarshalCode(const SequencePtr& seq, const string& 
             out << "global::System.Linq.Enumerable.Reverse(";
         }
 
-        if (builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength())
+        if ((builtin && builtin->isNumericTypeOrBool() && !builtin->isVariableLength()) ||
+            (en && en->underlying() && en->isUnchecked()))
         {
             // We always read an array even when mapped to a collection, as it's expected to be faster than unmarshaling
             // the collection elements one by one.
-            out << stream << ".ReadArray<" << typeToString(builtin, scope) << ">()";
+            out << stream << ".ReadArray<" << typeToString(type, scope) << ">()";
         }
-        else if (auto en = EnumPtr::dynamicCast(type); en && en->underlying())
+        else if (en && en->underlying())
         {
             out << stream << ".ReadArray((" << typeToString(en, scope) << " e) => _ = "
                 << helperName(en, scope) << ".As" << en->name()

@@ -1768,7 +1768,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name, const TypePtr& type, NodeType nt)
+Slice::Container::createEnum(const string& name, bool unchecked, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1804,19 +1804,7 @@ Slice::Container::createEnum(const string& name, const TypePtr& type, NodeType n
         checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
     }
 
-    BuiltinPtr underlying; // null means no explicit underlying type (so value range is 0..INT32_MAX).
-    if (type)
-    {
-        underlying = BuiltinPtr::dynamicCast(type);
-        if (!underlying || !underlying->isIntegralType() || underlying->isVariableLength() ||
-            underlying->minWireSize() > 4)
-        {
-            _unit->error("an enum's underlying type must be byte, short, ushort, int or uint");
-            underlying = nullptr;
-        }
-    }
-
-    EnumPtr p = new Enum(this, name, underlying);
+    EnumPtr p = new Enum(this, name, unchecked);
     _contents.push_back(p);
     return p;
 }
@@ -5240,13 +5228,34 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
     // An Enum does not have any dependencies.
 }
 
-Slice::Enum::Enum(const ContainerPtr& container, const string& name, const BuiltinPtr& underlying) :
+void
+Slice::Enum::initUnderlying(const TypePtr& type)
+{
+    assert(_contents.empty());
+
+    if (type)
+    {
+        BuiltinPtr underlying = BuiltinPtr::dynamicCast(type);
+        if (!underlying || !underlying->isIntegralType() || underlying->isVariableLength() ||
+            underlying->minWireSize() > 4)
+        {
+            _unit->error("an enum's underlying type must be byte, short, ushort, int, or uint");
+        }
+        else
+        {
+            _underlying = underlying;
+        }
+    }
+}
+
+Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool unchecked) :
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
     Constructed(container, name),
-    _underlying(underlying), // can be null
+    _unchecked(unchecked),
+    _underlying(nullptr),
     _explicitValue(false),
     _minValue(INT64_MAX),
     _maxValue(INT64_MIN),
