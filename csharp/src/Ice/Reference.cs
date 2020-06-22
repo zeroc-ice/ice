@@ -611,7 +611,7 @@ namespace ZeroC.Ice
                     }
 
                     string es = s[beg..end];
-                    endpoints.Add(Endpoint.Parse(es, communicator, false));
+                    endpoints.Add(Endpoint.Parse(es, protocol, communicator, false));
                 }
 
                 Debug.Assert(endpoints.Count > 0);
@@ -709,7 +709,7 @@ namespace ZeroC.Ice
                 endpoints = new Endpoint[sz];
                 for (int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = istr.ReadEndpoint();
+                    endpoints[i] = istr.ReadEndpoint(protocol);
                 }
             }
             else

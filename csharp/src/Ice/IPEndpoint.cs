@@ -33,7 +33,7 @@ namespace ZeroC.Ice
         {
             if (other is IPEndpoint ipEndpoint)
             {
-                if (Type != ipEndpoint.Type)
+                if (Transport != ipEndpoint.Transport)
                 {
                     return false;
                 }
@@ -53,7 +53,7 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                return true;
+                return base.Equals(other);
             }
             else
             {
@@ -65,7 +65,8 @@ namespace ZeroC.Ice
         {
             // The hash code is cached in the derived class, not this abstract base class.
             var hash = new HashCode();
-            hash.Add(Type);
+            hash.Add(base.GetHashCode());
+            hash.Add(Transport);
             hash.Add(Host);
             hash.Add(Port);
             if (SourceAddress != null)
@@ -123,7 +124,7 @@ namespace ZeroC.Ice
             {
                 // Same as Equals except we don't consider the connection ID
 
-                if (Type != ipEndpoint.Type)
+                if (Transport != ipEndpoint.Transport)
                 {
                     return false;
                 }
@@ -154,11 +155,11 @@ namespace ZeroC.Ice
         }
 
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
-            compressionFlag == HasCompressionFlag ? this : CreateEndpoint(Host, Port, ConnectionId, compressionFlag,
+            compressionFlag == HasCompressionFlag ? this : CreateIPEndpoint(Host, Port, ConnectionId, compressionFlag,
                 Timeout);
 
         public override Endpoint NewConnectionId(string connectionId) =>
-            connectionId == ConnectionId ? this : CreateEndpoint(Host, Port, connectionId, HasCompressionFlag,
+            connectionId == ConnectionId ? this : CreateIPEndpoint(Host, Port, connectionId, HasCompressionFlag,
                 Timeout);
 
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
@@ -220,7 +221,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return addresses.Select(address => CreateEndpoint(Network.EndpointAddressToString(address),
+                return addresses.Select(address => CreateIPEndpoint(Network.EndpointAddressToString(address),
                                                                   Network.EndpointPort(address),
                                                                   ConnectionId,
                                                                   HasCompressionFlag,
@@ -237,7 +238,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return hosts.Select(host => CreateEndpoint(host, Port, ConnectionId, HasCompressionFlag, Timeout));
+                return hosts.Select(host => CreateIPEndpoint(host, Port, ConnectionId, HasCompressionFlag, Timeout));
             }
         }
 
@@ -249,12 +250,18 @@ namespace ZeroC.Ice
             }
             else
             {
-                return CreateEndpoint(Host, port, ConnectionId, HasCompressionFlag, Timeout);
+                return CreateIPEndpoint(Host, port, ConnectionId, HasCompressionFlag, Timeout);
             }
         }
 
-        private protected IPEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress,
+        private protected IPEndpoint(
+            Communicator communicator,
+            Protocol protocol,
+            string host,
+            int port,
+            IPAddress? sourceAddress,
             string connectionId)
+            : base(protocol)
         {
             Communicator = communicator;
             Host = host;
@@ -263,15 +270,21 @@ namespace ZeroC.Ice
             ConnectionId = connectionId;
         }
 
-        private protected IPEndpoint(Communicator communicator, InputStream istr)
+        private protected IPEndpoint(InputStream istr, Protocol protocol)
+            : base(protocol)
         {
-            Communicator = communicator;
+            Communicator = istr.Communicator;
             Host = istr.ReadString();
             Port = istr.ReadInt();
         }
 
-        private protected IPEndpoint(Communicator communicator, string endpointString,
-            Dictionary<string, string?> options, bool oaEndpoint)
+        private protected IPEndpoint(
+            Communicator communicator,
+            Protocol protocol,
+            Dictionary<string, string?> options,
+            bool oaEndpoint,
+            string endpointString)
+            : base(protocol)
         {
             Communicator = communicator;
 
@@ -343,7 +356,9 @@ namespace ZeroC.Ice
         }
 
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
-        private protected abstract IPEndpoint CreateEndpoint(string host, int port, string connectionId,
+
+        // TODO: rename to Clone and make parameters optional?
+        private protected abstract IPEndpoint CreateIPEndpoint(string host, int port, string connectionId,
             bool compressionFlag, int timeout);
     }
 }

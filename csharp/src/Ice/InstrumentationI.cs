@@ -290,7 +290,7 @@ namespace ZeroC.Ice
                     obj => ((obj as ConnectionHelper)?._connectionInfo as UDPConnectionInfo)?.McastPort);
 
                 Add("endpoint", obj => (obj as ConnectionHelper)?._endpoint);
-                Add("endpointType", obj => (obj as ConnectionHelper)?._endpoint?.Type);
+                Add("endpointTransport", obj => (obj as ConnectionHelper)?._endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as ConnectionHelper)?._endpoint?.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._endpoint?.IsSecure);
                 Add("endpointTimeout", obj => (obj as ConnectionHelper)?._endpoint?.Timeout);
@@ -410,7 +410,7 @@ namespace ZeroC.Ice
                     obj => ((obj as DispatchHelper)?.ConnectionInfo as UDPConnectionInfo)?.McastPort);
 
                 Add("endpoint", obj => (obj as DispatchHelper)?.Endpoint);
-                Add("endpointType", obj => (obj as DispatchHelper)?.Endpoint?.Type);
+                Add("endpointTransport", obj => (obj as DispatchHelper)?.Endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Endpoint?.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Endpoint?.IsSecure);
                 Add("endpointTimeout", obj => (obj as DispatchHelper)?.Endpoint?.Timeout);
@@ -473,7 +473,7 @@ namespace ZeroC.Ice
                 Add("parent", obj => "Communicator");
                 Add("id", obj => (obj as EndpointHelper)?.Id);
                 Add("endpoint", obj => (obj as EndpointHelper)?._endpoint);
-                Add("endpointType", obj => (obj as EndpointHelper)?._endpoint?.Type);
+                Add("endpointTransport", obj => (obj as EndpointHelper)?._endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as EndpointHelper)?._endpoint?.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as EndpointHelper)?._endpoint?.IsSecure);
                 Add("endpointTimeout", obj => (obj as EndpointHelper)?._endpoint?.Timeout);
@@ -734,7 +734,7 @@ namespace ZeroC.Ice
                 Add("mcastPort",
                     obj => ((obj as RemoteInvocationHelper)?._connectionInfo as UDPConnectionInfo)?.McastPort);
                 Add("endpoint", obj => (obj as RemoteInvocationHelper)?._endpoint);
-                Add("endpointType", obj => (obj as RemoteInvocationHelper)?._endpoint?.Type);
+                Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._endpoint?.IsDatagram);
                 Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._endpoint?.IsSecure);
                 Add("endpointTimeout", obj => (obj as RemoteInvocationHelper)?._endpoint?.Timeout);

@@ -116,6 +116,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icestormservice", "..\src\I
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icestormadmin", "..\src\IceStorm\msbuild\icestormadmin\icestormadmin.vcxproj", "{8F1A1F99-DBE0-408D-99F7-D59142BD008C}"
 	ProjectSection(ProjectDependencies) = postProject
+		{E6864F0D-B2ED-406A-B98C-F3668A680005} = {E6864F0D-B2ED-406A-B98C-F3668A680005}
 		{E8ACC848-F7DA-4B29-B52F-81D66E7D397E} = {E8ACC848-F7DA-4B29-B52F-81D66E7D397E}
 	EndProjectSection
 EndProject

@@ -66,6 +66,8 @@ module Ice
     /// The Ice remote logger interface. An application can implement a
     /// RemoteLogger to receive the log messages sent to the local {@link Logger}
     /// of another Ice application.
+    // TODO: fix C++ and Java implementations of the LoggerAdmin facet to use oneway invocations once [oneway]
+    // is supported in these languages.
     interface RemoteLogger
     {
         /// init is called by attachRemoteLogger when a RemoteLogger proxy is attached.
@@ -73,12 +75,12 @@ module Ice
         /// @param prefix The prefix of the associated local Logger.
         ///
         /// @param logMessages Old log messages generated before "now".
-        void init(string prefix, LogMessageSeq logMessages);
+        [oneway] void init(string prefix, LogMessageSeq logMessages);
 
         /// Log a LogMessage. Note that log may be called by LoggerAdmin before init.
         ///
         /// @param message The message to log.
-        void log(LogMessage message);
+        [oneway] void log(LogMessage message);
     }
 
     /// Thrown when the provided RemoteLogger was previously attached to a LoggerAdmin.
