@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Info
             ctx["compress"] = endpoint.HasCompressionFlag ? "true" : "false";
             ctx["datagram"] = endpoint.IsDatagram ? "true" : "false";
             ctx["secure"] = endpoint.IsDatagram ? "true" : "false";
-            ctx["type"] = endpoint.Type.ToString();
+            ctx["transport"] = endpoint.Transport.ToString();
 
             IPEndpoint? ipEndpoint = endpoint as IPEndpoint;
             TestHelper.Assert(ipEndpoint != null);

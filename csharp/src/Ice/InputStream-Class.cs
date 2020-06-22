@@ -77,7 +77,7 @@ namespace ZeroC.Ice
             {
                 do
                 {
-                    // The type ID is always read and cannot be null.
+                    // The type ID is always read for an exception and cannot be null.
                     (string? typeId, _) = ReadSliceHeaderIntoCurrent11();
                     Debug.Assert(typeId != null);
 
@@ -122,7 +122,7 @@ namespace ZeroC.Ice
                     }
                     else if (SkipSlice(typeId))
                     {
-                        Debug.Assert(typeId == allTypeIds[allTypeIds.Length - 1]);
+                        // It should be the last element of allTypeIds; if it's not, we'll fail when reading the slices.
                         break;
                     }
                     // else, loop.
@@ -209,7 +209,6 @@ namespace ZeroC.Ice
         /// exceptions.</returns>
         private (string[]? AllTypeIds, string? ErrorMessage) ReadFirstSliceHeaderIntoCurrent20()
         {
-            Debug.Assert(_current.InstanceType != InstanceType.None);
             string[]? typeIds;
             string? errorMessage = null;
 
@@ -242,10 +241,15 @@ namespace ZeroC.Ice
 
                     case EncodingDefinitions.TypeIdKind.Sequence20:
                         typeIds = ReadArray(1, IceReaderIntoString);
+                        if (typeIds.Length == 0)
+                        {
+                            throw new InvalidDataException("received empty type ID sequence");
+                        }
                         _typeIdMap20.Add(typeIds);
                         break;
 
                     default:
+                        // TypeIdKind has only 4 possible values.
                         Debug.Assert(typeIdKind == EncodingDefinitions.TypeIdKind.None);
                         typeIds = null;
                         break;
@@ -257,6 +261,10 @@ namespace ZeroC.Ice
                 if (typeIdKind == EncodingDefinitions.TypeIdKind.Sequence20)
                 {
                     typeIds = ReadArray(1, IceReaderIntoString);
+                    if (typeIds.Length == 0)
+                    {
+                        throw new InvalidDataException("received empty type ID sequence");
+                    }
                 }
                 else
                 {
@@ -305,7 +313,7 @@ namespace ZeroC.Ice
         /// </summary>
         private void ReadIndirectionTableIntoCurrent()
         {
-            Debug.Assert(_current.InstanceType != InstanceType.None && _current.IndirectionTable == null);
+            Debug.Assert(_current.IndirectionTable == null);
             if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasIndirectionTable) != 0)
             {
                 if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) == 0)
@@ -366,7 +374,6 @@ namespace ZeroC.Ice
                     IClassFactory? factory = null;
                     if (typeId != null)
                     {
-                        Debug.Assert(compactId == null);
                         factory = Communicator.FindClassFactory(typeId);
                     }
                     else if (compactId is int compactIdValue)
@@ -448,7 +455,11 @@ namespace ZeroC.Ice
                         // SkipSlice saves the slice data including the current indirection table, if any.
                         if (SkipSlice(allTypeIds[i]))
                         {
-                            Debug.Assert(i == skipCount - 1);
+                            if (i != skipCount - 1)
+                            {
+                                throw new InvalidDataException(
+                                    "class slice marked as the last slice is not the last slice");
+                            }
                             break;
                         }
                         else
@@ -501,9 +512,12 @@ namespace ZeroC.Ice
             }
             else
             {
-                Debug.Assert(_current.InstanceType != InstanceType.None);
                 _current.SliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
-                Debug.Assert(_current.SliceFlags.GetTypeIdKind() == EncodingDefinitions.TypeIdKind.None);
+                if (_current.SliceFlags.GetTypeIdKind() != EncodingDefinitions.TypeIdKind.None)
+                {
+                    throw new InvalidDataException(
+                        $"invalid type ID kind `{_current.SliceFlags.GetTypeIdKind()}' for next slice");
+                }
 
                 // Read the slice size if available.
                 if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
@@ -521,8 +535,6 @@ namespace ZeroC.Ice
         /// <returns>The type ID or the compact ID of the current slice.</returns>
         private (string? TypeId, int? CompactId) ReadSliceHeaderIntoCurrent11()
         {
-            Debug.Assert(_current.InstanceType != InstanceType.None);
-
             _current.SliceFlags = (EncodingDefinitions.SliceFlags)ReadByte();
 
             string? typeId = null;
@@ -536,8 +548,11 @@ namespace ZeroC.Ice
 
                 if (typeId == null && compactId == null)
                 {
-                    // Slice in compact format
-                    Debug.Assert((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) == 0);
+                    if ((_current.SliceFlags & EncodingDefinitions.SliceFlags.HasSliceSize) != 0)
+                    {
+                        // A slice in compact format cannot carry a size.
+                        throw new InvalidDataException("inconsistent slice flags");
+                    }
                 }
             }
             else
@@ -612,6 +627,7 @@ namespace ZeroC.Ice
                     return (null, ReadSize());
 
                 default:
+                    // TypeIdKind has only 4 possible values.
                     Debug.Assert(typeIdKind == EncodingDefinitions.TypeIdKind.None);
                     return (null, null);
             }
@@ -622,8 +638,6 @@ namespace ZeroC.Ice
         /// SkipIndirectionTable11 itself.</summary>
         private void SkipIndirectionTable11()
         {
-            Debug.Assert(_current.InstanceType != InstanceType.None);
-
             // We should never skip an exception's indirection table
             Debug.Assert(_current.InstanceType == InstanceType.Class);
 
@@ -681,10 +695,8 @@ namespace ZeroC.Ice
         /// <returns>True when the current slice is the last slice; otherwise, false.</returns>
         private bool SkipSlice(string? typeId, int? compactId = null)
         {
-            Debug.Assert(_current.InstanceType != InstanceType.None);
-
             // With the 2.0 encoding, typeId is not null and compactId is always null.
-            // With the 1.1 encoding, they are potentially both null.
+            // With the 1.1 encoding, they are potentially both null (but this will result in an exception below).
             Debug.Assert(OldEncoding || (typeId != null && compactId == null));
 
             if (typeId == null && compactId == null)

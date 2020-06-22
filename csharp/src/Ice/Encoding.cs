@@ -93,14 +93,7 @@ namespace ZeroC.Ice
 
         public bool Equals(Encoding other) => Major.Equals(other.Major) && Minor.Equals(other.Minor);
 
-        public override bool Equals(object? other)
-        {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return other is Encoding value && Equals(value);
-        }
+        public override bool Equals(object? other) => other is Encoding value && Equals(value);
 
         public override string ToString() => string.Format("{0}.{1}", Major, Minor);
 

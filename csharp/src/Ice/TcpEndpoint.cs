@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -16,7 +17,7 @@ namespace ZeroC.Ice
         public override bool IsDatagram => false;
         public override bool HasCompressionFlag { get; }
         public override int Timeout { get; }
-        public override EndpointType Type => EndpointType.TCP;
+        public override Transport Transport => Transport.TCP;
 
         private int _hashCode = 0;
 
@@ -97,28 +98,41 @@ namespace ZeroC.Ice
         }
 
         public override Endpoint NewTimeout(int timeout) =>
-            timeout == Timeout ? this : CreateEndpoint(Host, Port, ConnectionId, HasCompressionFlag, timeout);
+            timeout == Timeout ? this : CreateIPEndpoint(Host, Port, ConnectionId, HasCompressionFlag, timeout);
 
         public override IAcceptor GetAcceptor(string adapterName) =>
-            new TcpAcceptor(this, Communicator, Name, Host, Port, adapterName);
+            new TcpAcceptor(this, Communicator, Host, Port, adapterName);
         public override ITransceiver? GetTransceiver() => null;
 
-        internal TcpEndpoint(Communicator communicator, string host, int port, IPAddress? sourceAddress, int timeout,
-            string connectionId, bool compressionFlag) :
-            base(communicator, host, port, sourceAddress, connectionId)
+        internal TcpEndpoint(
+            Communicator communicator,
+            Protocol protocol,
+            string host,
+            int port,
+            IPAddress? sourceAddress,
+            int timeout,
+            string connectionId,
+            bool compressionFlag)
+            : base(communicator, protocol, host, port, sourceAddress, connectionId)
         {
             Timeout = timeout;
             HasCompressionFlag = compressionFlag;
         }
 
-        internal TcpEndpoint(Communicator communicator, InputStream istr) : base(communicator, istr)
+        internal TcpEndpoint(InputStream istr, Protocol protocol)
+            : base(istr, protocol)
         {
             Timeout = istr.ReadInt();
             HasCompressionFlag = istr.ReadBool();
         }
 
-        internal TcpEndpoint(Communicator communicator, string endpointString, Dictionary<string, string?> options,
-            bool oaEndpoint) : base(communicator, endpointString, options, oaEndpoint)
+        internal TcpEndpoint(
+            Communicator communicator,
+            Protocol protocol,
+            Dictionary<string, string?> options,
+            bool oaEndpoint,
+            string endpointString)
+            : base(communicator, protocol, options, oaEndpoint, endpointString)
         {
             if (options.TryGetValue("-t", out string? argument))
             {
@@ -166,10 +180,21 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(this, Communicator, Name, Type, addr, proxy, SourceAddress, Timeout, ConnectionId);
-        private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
-            bool compressionFlag, int timeout) =>
-            new TcpEndpoint(Communicator, host, port, SourceAddress, timeout, connectionId, compressionFlag);
+            new TcpConnector(this,
+                             Communicator,
+                             addr,
+                             proxy,
+                             SourceAddress,
+                             Timeout,
+                             ConnectionId);
+
+        private protected override IPEndpoint CreateIPEndpoint(
+            string host,
+            int port,
+            string connectionId,
+            bool compressionFlag,
+            int timeout) =>
+            new TcpEndpoint(Communicator, Protocol, host, port, SourceAddress, timeout, connectionId, compressionFlag);
 
         internal virtual ITransceiver CreateTransceiver(
             string transport,
@@ -180,16 +205,21 @@ namespace ZeroC.Ice
 
     internal sealed class TcpEndpointFactory : IEndpointFactory
     {
-        public EndpointType Type => EndpointType.TCP;
-        public string Name => "tcp";
+        private Communicator _communicator;
 
-        private Communicator Communicator { get; }
+        public Endpoint Create(
+            Transport transport,
+            Protocol protocol,
+            Dictionary<string, string?> options,
+            bool oaEndpoint,
+            string endpointString)
+        {
+            Debug.Assert(transport == Transport.TCP); // we currently register this factory only for TCP
+            return new TcpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString);
+        }
 
-        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
-            new TcpEndpoint(Communicator, endpointString, options, oaEndpoint);
+        public Endpoint Read(InputStream istr, Protocol protocol) => new TcpEndpoint(istr, protocol);
 
-        public Endpoint Read(InputStream istr) => new TcpEndpoint(Communicator, istr);
-
-        internal TcpEndpointFactory(Communicator communicator) => Communicator = communicator;
+        internal TcpEndpointFactory(Communicator communicator) => _communicator = communicator;
     }
 }

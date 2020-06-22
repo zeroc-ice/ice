@@ -56,7 +56,7 @@ namespace ZeroC.Ice
         public void FinishWrite(IList<ArraySegment<byte>> buffer, ref int offset) =>
             _stream.FinishWrite(buffer, ref offset);
 
-        public string Transport { get; }
+        public string TransportName { get; }
 
         public void CheckSendSize(int size)
         {
@@ -71,9 +71,9 @@ namespace ZeroC.Ice
         //
         // Only for use by TcpConnector, TcpAcceptor
         //
-        internal TcpTransceiver(string transport, StreamSocket stream)
+        internal TcpTransceiver(string transportName, StreamSocket stream)
         {
-            Transport = transport;
+            TransportName = transportName;
             _stream = stream;
         }
 

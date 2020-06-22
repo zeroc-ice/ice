@@ -537,31 +537,38 @@ Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
-    bool preUnmarshal)
+Slice::CsVisitor::writeDataMemberDefaultValues(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
     // This helper function is called only for class/exception data members.
 
     for (const auto& p: members)
     {
         TypePtr memberType = p->type();
-        if (preUnmarshal)
-        {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            SequencePtr seq = SequencePtr::dynamicCast(memberType);
-            DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
-
-            if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
-            {
-                // This is to suppress compiler warnings for non-nullable fields.
-                _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = null!;";
-            }
-        }
-        else if (p->defaultValueType())
+        if (p->defaultValueType())
         {
             _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = ";
             writeConstantValue(_out, memberType, p->defaultValueType(), p->defaultValue(), ns);
             _out << ";";
+        }
+    }
+}
+
+void
+Slice::CsVisitor::writeSuppressNonNullableWarnings(const DataMemberList& members, unsigned int baseTypes)
+{
+    // This helper function is called only for class/exception data members.
+
+    for (const auto& p: members)
+    {
+        TypePtr memberType = p->type();
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
+        SequencePtr seq = SequencePtr::dynamicCast(memberType);
+        DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
+
+        if (seq || dict || (builtin && builtin->kind() == Builtin::KindString))
+        {
+            // This is to suppress compiler warnings for non-nullable fields.
+            _out << nl << "this." << fixId(dataMemberName(p), baseTypes) << " = null!;";
         }
     }
 }
@@ -1376,7 +1383,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                          << fixId(d->name(), Slice::ObjectType) << ";";
                 }
             }
-            writeDataMemberInitializers(dataMembers, ns, ObjectType, false);
+            writeDataMemberDefaultValues(dataMembers, ns, ObjectType);
             if (partialInitialize)
             {
                 _out << nl << "Initialize();";
@@ -1403,8 +1410,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out.dec();
     }
     _out << sb;
-    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
-    writeDataMemberInitializers(dataMembers, ns, ObjectType, true);
+    writeSuppressNonNullableWarnings(dataMembers, ObjectType);
     _out << eb;
 
     writeMarshaling(p);
@@ -1617,7 +1623,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, false);
+        writeDataMemberDefaultValues(dataMembers, ns, Slice::ExceptionType);
         _out << eb;
     }
 
@@ -1683,8 +1689,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     _out.dec();
     _out << sb;
-    // This initialization suppresses warnings (with = null!) for non-nullable data members such a string.
-    writeDataMemberInitializers(dataMembers, ns, Slice::ExceptionType, true);
+    writeSuppressNonNullableWarnings(dataMembers, Slice::ExceptionType);
     _out << eb;
 
     // Serializable constructor
@@ -1856,13 +1861,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sb;
 
     _out << sp;
-    _out << nl << "public static ZeroC.Ice.InputStreamReader<" << name << "> IceReader =>";
+    _out << nl << "public static ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
     _out << nl << "istr => new " << name << "(istr);";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =>";
+    _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =";
     _out.inc();
     _out << nl << "(ZeroC.Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
     _out.dec();
@@ -1937,8 +1942,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp;
     _out << nl << "public bool Equals(" << fixId(p->name()) << " other)";
 
+    _out << " =>";
     _out.inc();
-    _out << nl << "=> ";
+    _out << nl;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end();)
     {
         string mName = fixId(dataMemberName(*q));
@@ -1955,7 +1961,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(++q != dataMembers.end())
         {
-            _out << " &&" << nl << "   ";
+            _out << " &&" << nl;
         }
         else
         {
@@ -1965,14 +1971,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public override bool Equals(object? other)";
-    _out << sb;
-    _out << nl << "if (object.ReferenceEquals(this, other))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << "return other is " << name << " value && this.Equals(value);";
-    _out << eb;
+    _out << nl << "public override bool Equals(object? other) => other is " << name << " value && this.Equals(value);";
 
     _out << sp;
     _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs)";

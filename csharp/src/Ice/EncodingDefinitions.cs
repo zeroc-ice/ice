@@ -35,7 +35,9 @@ namespace ZeroC.Ice
             String = 1,
             Index = 2,
             CompactId11 = 3,
+#pragma warning disable CA1069 // Enums values should not be duplicated
             Sequence20 = 3,
+#pragma warning restore CA1069 // Enums values should not be duplicated
         }
 
         /// <summary>Each tagged parameter has a specific tag format. This tag format describes how the data is encoded

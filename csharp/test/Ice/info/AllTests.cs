@@ -36,14 +36,14 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint.HasCompressionFlag);
                 TestHelper.Assert(!tcpEndpoint.IsDatagram);
 
-                TestHelper.Assert(tcpEndpoint.Type == EndpointType.TCP && !tcpEndpoint.IsSecure ||
-                        tcpEndpoint.Type == EndpointType.SSL && tcpEndpoint.IsSecure ||
-                        tcpEndpoint.Type == EndpointType.WS && !tcpEndpoint.IsSecure ||
-                        tcpEndpoint.Type == EndpointType.WSS && tcpEndpoint.IsSecure);
-                TestHelper.Assert(tcpEndpoint.Type == EndpointType.TCP && endpoint is TcpEndpoint ||
-                        tcpEndpoint.Type == EndpointType.SSL && endpoint is SslEndpoint ||
-                        tcpEndpoint.Type == EndpointType.WS && endpoint is WSEndpoint ||
-                        tcpEndpoint.Type == EndpointType.WSS && endpoint is WSEndpoint);
+                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP && !tcpEndpoint.IsSecure ||
+                        tcpEndpoint.Transport == Transport.SSL && tcpEndpoint.IsSecure ||
+                        tcpEndpoint.Transport == Transport.WS && !tcpEndpoint.IsSecure ||
+                        tcpEndpoint.Transport == Transport.WSS && tcpEndpoint.IsSecure);
+                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP && endpoint is TcpEndpoint ||
+                        tcpEndpoint.Transport == Transport.SSL && endpoint is SslEndpoint ||
+                        tcpEndpoint.Transport == Transport.WS && endpoint is WSEndpoint ||
+                        tcpEndpoint.Transport == Transport.WSS && endpoint is WSEndpoint);
 
                 UdpEndpoint udpEndpoint = (UdpEndpoint)endps[1];
                 TestHelper.Assert(udpEndpoint.Host.Equals("udphost"));
@@ -55,7 +55,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(!udpEndpoint.HasCompressionFlag);
                 TestHelper.Assert(!udpEndpoint.IsSecure);
                 TestHelper.Assert(udpEndpoint.IsDatagram);
-                TestHelper.Assert(udpEndpoint.Type == EndpointType.UDP);
+                TestHelper.Assert(udpEndpoint.Transport == Transport.UDP);
 
                 OpaqueEndpoint opaqueEndpoint = (OpaqueEndpoint)endps[2];
                 TestHelper.Assert(opaqueEndpoint.Bytes.Length > 0);
@@ -80,10 +80,10 @@ namespace ZeroC.Ice.Test.Info
                 var tcpEndpoint = endpoints[0] as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(
-                        tcpEndpoint.Type == EndpointType.TCP ||
-                        tcpEndpoint.Type == EndpointType.SSL ||
-                        tcpEndpoint.Type == EndpointType.WS ||
-                        tcpEndpoint.Type == EndpointType.WSS);
+                        tcpEndpoint.Transport == Transport.TCP ||
+                        tcpEndpoint.Transport == Transport.SSL ||
+                        tcpEndpoint.Transport == Transport.WS ||
+                        tcpEndpoint.Transport == Transport.WSS);
 
                 TestHelper.Assert(tcpEndpoint.Host.Equals(host));
                 TestHelper.Assert(tcpEndpoint.Port > 0);

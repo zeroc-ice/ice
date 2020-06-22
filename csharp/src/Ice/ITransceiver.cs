@@ -306,7 +306,7 @@ namespace ZeroC.Ice
             }
         }
 
-        string Transport { get; }
+        string TransportName { get; }
         string ToDetailedString();
         void CheckSendSize(int size);
         void SetBufferSize(int rcvSize, int sndSize);

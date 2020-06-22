@@ -553,8 +553,11 @@ namespace ZeroC.Ice.Test.Tagged
                 wd.s = null;
                 wd = (WD?)initial.pingPong(wd);
                 TestHelper.Assert(wd != null);
-                TestHelper.Assert(wd.a == 5);
-                TestHelper.Assert(wd.s! == "test");
+                // When a tagged member is set to null (equivalent to not set) explicitly, it remains null / not set,
+                // even when it has a default value. This is consistent with the behavior for non-tagged optional
+                // data members with default values.
+                TestHelper.Assert(wd.a == null);
+                TestHelper.Assert(wd.s == null);
             }
             output.WriteLine("ok");
 
@@ -1643,7 +1646,8 @@ namespace ZeroC.Ice.Test.Tagged
                 }
                 catch (TaggedException ex)
                 {
-                    TestHelper.Assert(ex.a == 5);
+                    TestHelper.Assert(ex.a == null); // don't use default value for 'a' data member since set explicitly
+                                                     // to null by server
                     TestHelper.Assert(ex.b == null);
                     TestHelper.Assert(ex.o == null);
                 }
@@ -1671,10 +1675,11 @@ namespace ZeroC.Ice.Test.Tagged
                 }
                 catch (DerivedException ex)
                 {
-                    TestHelper.Assert(ex.a == 5);
+                    TestHelper.Assert(ex.a == null); // don't use default value for 'a' data member since set explicitly
+                                                     // to null by server
                     TestHelper.Assert(ex.b == null);
                     TestHelper.Assert(ex.o == null);
-                    TestHelper.Assert(ex.ss == "test");
+                    TestHelper.Assert(ex.ss == null);
                     TestHelper.Assert(ex.o2 == null);
                 }
 
@@ -1703,7 +1708,7 @@ namespace ZeroC.Ice.Test.Tagged
                 }
                 catch (RequiredException ex)
                 {
-                    TestHelper.Assert(ex.a == 5);
+                    TestHelper.Assert(ex.a == null);
                     TestHelper.Assert(ex.b == null);
                     TestHelper.Assert(ex.o == null);
                     TestHelper.Assert(ex.ss == "test");

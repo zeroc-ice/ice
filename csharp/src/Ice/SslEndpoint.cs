@@ -3,15 +3,17 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 
 namespace ZeroC.Ice
 {
-    /// <summary> Endpoint represents a TLS layer over another endpoint.</summary>
+    /// <summary>Endpoint represents a TLS layer over another endpoint.</summary>
+    // TODO: fix summary
     public class SslEndpoint : TcpEndpoint
     {
         public override bool IsSecure => true;
-        public override EndpointType Type => EndpointType.SSL;
+        public override Transport Transport => Transport.SSL;
 
         private protected SslEngine SslEngine { get; }
 
@@ -28,33 +30,58 @@ namespace ZeroC.Ice
 
         public override ITransceiver? GetTransceiver() => null;
 
-        internal SslEndpoint(SslEngine engine, Communicator communicator, string host, int port, IPAddress? sourceAddress,
-            int timeout, string connectionId, bool compressionFlag)
-            : base(communicator, host, port, sourceAddress, timeout, connectionId, compressionFlag) =>
+        internal SslEndpoint(
+            SslEngine engine,
+            Communicator communicator,
+            Protocol protocol,
+            string host,
+            int port,
+            IPAddress? sourceAddress,
+            int timeout,
+            string connectionId,
+            bool compressionFlag)
+            : base(communicator, protocol, host, port, sourceAddress, timeout, connectionId, compressionFlag) =>
             SslEngine = engine;
 
-        internal SslEndpoint(SslEngine engine, Communicator communicator, InputStream istr)
-            : base(communicator, istr) => SslEngine = engine;
+        internal SslEndpoint(SslEngine engine, InputStream istr, Protocol protocol)
+            : base(istr, protocol) => SslEngine = engine;
 
-        internal SslEndpoint(SslEngine engine, Communicator communicator, string endpointString,
-            Dictionary<string, string?> options, bool oaEndpoint)
-            : base(communicator, endpointString, options, oaEndpoint) => SslEngine = engine;
+        internal SslEndpoint(
+            SslEngine engine,
+            Communicator communicator,
+            Protocol protocol,
+            Dictionary<string, string?> options,
+            bool oaEndpoint,
+            string endpointString)
+            : base(communicator, protocol, options, oaEndpoint, endpointString) => SslEngine = engine;
 
-        private protected override IPEndpoint CreateEndpoint(string host, int port, string connectionId,
-            bool compressionFlag, int timeout) =>
-            new SslEndpoint(SslEngine, Communicator, host, port, SourceAddress, timeout, connectionId,
-                compressionFlag);
+        private protected override IPEndpoint CreateIPEndpoint(
+            string host,
+            int port,
+            string connectionId,
+            bool compressionFlag,
+            int timeout) =>
+            new SslEndpoint(SslEngine,
+                            Communicator,
+                            Protocol,
+                            host,
+                            port,
+                            SourceAddress,
+                            timeout,
+                            connectionId,
+                            compressionFlag);
 
         internal override ITransceiver CreateTransceiver(string transport, StreamSocket socket, string? adapterName) =>
-            new SslTransceiver(Communicator, SslEngine, base.CreateTransceiver(transport, socket, adapterName),
-                adapterName ?? Host, adapterName != null, ConnectionId);
+            new SslTransceiver(Communicator,
+                               SslEngine,
+                               base.CreateTransceiver(transport, socket, adapterName),
+                               adapterName ?? Host,
+                               adapterName != null,
+                               ConnectionId);
     }
 
     internal sealed class SslEndpointFactory : IEndpointFactory
     {
-        public EndpointType Type => EndpointType.SSL;
-        public string Name => "ssl";
-
         private SslEngine SslEngine { get; }
         private Communicator Communicator { get; }
 
@@ -64,8 +91,17 @@ namespace ZeroC.Ice
             SslEngine = engine;
         }
 
-        public Endpoint Create(string endpointString, Dictionary<string, string?> options, bool oaEndpoint) =>
-            new SslEndpoint(SslEngine, Communicator, endpointString, options, oaEndpoint);
-        public Endpoint Read(InputStream istr) => new SslEndpoint(SslEngine, Communicator, istr);
+        public Endpoint Create(
+            Transport transport,
+            Protocol protocol,
+            Dictionary<string, string?> options,
+            bool oaEndpoint,
+            string endpointString)
+        {
+            Debug.Assert(transport == Transport.SSL);
+            return new SslEndpoint(SslEngine, Communicator, protocol, options, oaEndpoint, endpointString);
+        }
+
+        public Endpoint Read(InputStream istr, Protocol protocol) => new SslEndpoint(SslEngine, istr, protocol);
     }
 }

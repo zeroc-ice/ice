@@ -53,8 +53,7 @@ namespace ZeroC.Ice
         public bool Equals(ACM other) =>
             Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
 
-        public override bool Equals(object? other) =>
-            ReferenceEquals(this, other) || (other is ACM value && Equals(value));
+        public override bool Equals(object? other) => other is ACM value && Equals(value);
 
         public static bool operator ==(ACM lhs, ACM rhs) => Equals(lhs, rhs);
 
@@ -126,7 +125,7 @@ namespace ZeroC.Ice
         private readonly int _compressionLevel;
         private readonly IConnector? _connector;
         private int _dispatchCount;
-        private TaskCompletionSource<bool>? _pendingDispatchTask;
+        private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
         private Action<Connection>? _heartbeatCallback;
         private readonly int _messageSizeMax;
@@ -240,7 +239,7 @@ namespace ZeroC.Ice
                 }
                 writeTask = SendFrameAsync(() => GetProtocolFrameData(_validateConnectionFrame));
             }
-            await CancelableTask.WhenAny(writeTask, cancel).ConfigureAwait(false);
+            await writeTask.WaitAsync(cancel).ConfigureAwait(false);
             progress?.Report(true);
         }
 
@@ -367,18 +366,12 @@ namespace ZeroC.Ice
         /// <returns>The description of the connection as human readable text.</returns>
         public override string ToString() => Transceiver.ToString()!;
 
-        /// <summary>Returns the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
-        /// </summary>
-        /// <returns>The type of the connection.</returns>
-        public string Type() => Transceiver.Transport; // No mutex lock, _type is immutable.
-
-        internal Connection(
-            Communicator communicator,
-            IACMMonitor? monitor,
-            ITransceiver transceiver,
-            IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter)
+        internal Connection(Communicator communicator,
+                            IACMMonitor? monitor,
+                            ITransceiver transceiver,
+                            IConnector? connector,
+                            Endpoint endpoint,
+                            ObjectAdapter? adapter)
         {
             _communicator = communicator;
             _monitor = monitor;
@@ -440,7 +433,7 @@ namespace ZeroC.Ice
                             SetState(State.Closing, exception);
                             if (_dispatchCount > 0)
                             {
-                                _pendingDispatchTask = new TaskCompletionSource<bool>();
+                                _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
                             }
                             closingTask = _closeTask = PerformGracefulCloseAsync();
                         }
@@ -623,7 +616,7 @@ namespace ZeroC.Ice
             {
                 // TODO: for now, we continue using the endpoint timeout as the default connect timeout. This is
                 // use for both connect/accept timeouts. We're leaning toward adding Ice.ConnectTimeout for
-                // connection establishemnt and using the ACM timeout for accepting connections.
+                // connection establishment and using the ACM timeout for accepting connections.
                 int timeout = _communicator.OverrideConnectTimeout ?? Endpoint.Timeout;
                 CancellationToken timeoutToken;
                 if (timeout > 0)
@@ -634,7 +627,7 @@ namespace ZeroC.Ice
                 }
 
                 // Initialize the transport
-                await CancelableTask.WhenAny(Transceiver.InitializeAsync(), timeoutToken).ConfigureAwait(false);
+                await Transceiver.InitializeAsync().WaitAsync(timeoutToken).ConfigureAwait(false);
 
                 ArraySegment<byte> readBuffer = default;
                 if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
@@ -645,7 +638,7 @@ namespace ZeroC.Ice
                         while (offset < _validateConnectionFrame.GetByteCount())
                         {
                             ValueTask<int> writeTask = Transceiver.WriteAsync(_validateConnectionFrame, offset);
-                            await CancelableTask.WhenAny(writeTask, timeoutToken).ConfigureAwait(false);
+                            await writeTask.WaitAsync(timeoutToken).ConfigureAwait(false);
                             offset += writeTask.Result;
                         }
                         Debug.Assert(offset == _validateConnectionFrame.GetByteCount());
@@ -657,7 +650,7 @@ namespace ZeroC.Ice
                         while (offset < Ice1Definitions.HeaderSize)
                         {
                             ValueTask<int> readTask = Transceiver.ReadAsync(readBuffer, offset);
-                            await CancelableTask.WhenAny(readTask, timeoutToken).ConfigureAwait(false);
+                            await readTask.WaitAsync(timeoutToken).ConfigureAwait(false);
                             offset += readTask.Result;
                         }
 
@@ -707,7 +700,7 @@ namespace ZeroC.Ice
                             s.Append("starting to ");
                             s.Append(_connector != null ? "send" : "receive");
                             s.Append(" ");
-                            s.Append(Endpoint.Name);
+                            s.Append(Endpoint.TransportName);
                             s.Append(" messages\n");
                             s.Append(Transceiver.ToDetailedString());
                         }
@@ -715,7 +708,7 @@ namespace ZeroC.Ice
                         {
                             s.Append(_connector != null ? "established" : "accepted");
                             s.Append(" ");
-                            s.Append(Endpoint.Name);
+                            s.Append(Endpoint.TransportName);
                             s.Append(" connection\n");
                             s.Append(ToString());
                         }
@@ -777,7 +770,7 @@ namespace ZeroC.Ice
                     SetState(State.Closed, exception ?? _exception!);
                     if (_dispatchCount > 0)
                     {
-                        _pendingDispatchTask ??= new TaskCompletionSource<bool>();
+                        _dispatchTaskCompletionSource ??= new TaskCompletionSource<bool>();
                     }
                     _closeTask = PerformCloseAsync();
                 }
@@ -888,10 +881,10 @@ namespace ZeroC.Ice
 
                     // Decrease the dispatch count
                     Debug.Assert(_dispatchCount > 0);
-                    if (--_dispatchCount == 0 && _pendingDispatchTask != null)
+                    if (--_dispatchCount == 0 && _dispatchTaskCompletionSource != null)
                     {
                         Debug.Assert(_state > State.Active);
-                        _pendingDispatchTask.SetResult(true);
+                        _dispatchTaskCompletionSource.SetResult(true);
                     }
                 }
 
@@ -1005,10 +998,21 @@ namespace ZeroC.Ice
                         var responseFrame = new IncomingResponseFrame(_communicator,
                             readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                         ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
-                        if (_requests.TryGetValue(requestId, out TaskCompletionSource<IncomingResponseFrame>? response))
+                        if (_requests.TryGetValue(requestId,
+                                out TaskCompletionSource<IncomingResponseFrame>? responseTaskCompletionSource))
                         {
                             _requests.Remove(requestId);
-                            response.SetResult(responseFrame);
+                            // We can't call SetResult directly from here as it might be trigger the continuations
+                            // to run synchronously and it wouldn't be safe to run a continuation with the mutex
+                            // locked.
+                            //
+                            // TODO: Running continuations of synchronous call would be safe but we don't know
+                            // here if this is a synchronous call or not. We could if we provided this information
+                            // to SendRequestAsync and kept track.
+                            incoming = () => {
+                                responseTaskCompletionSource.SetResult(responseFrame);
+                                return new ValueTask(Task.CompletedTask);
+                            };
                             if (_requests.Count == 0)
                             {
                                 System.Threading.Monitor.PulseAll(_mutex); // Notify threads blocked in Close()
@@ -1058,9 +1062,9 @@ namespace ZeroC.Ice
             if (!(_exception is ConnectionClosedByPeerException))
             {
                 // Wait for the all the dispatch to be completed to ensure the responses are sent.
-                if (_pendingDispatchTask != null)
+                if (_dispatchTaskCompletionSource != null)
                 {
-                    await _pendingDispatchTask.Task.ConfigureAwait(false);
+                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
                 }
 
                 // Write and wait for the close connection frame to be written
@@ -1103,7 +1107,7 @@ namespace ZeroC.Ice
             {
                 var s = new StringBuilder();
                 s.Append("closed ");
-                s.Append(Endpoint.Name);
+                s.Append(Endpoint.TransportName);
                 s.Append(" connection\n");
                 s.Append(ToString());
 
@@ -1148,27 +1152,30 @@ namespace ZeroC.Ice
                 _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + Transceiver.ToString());
             }
 
-            // Notify pending requests of the failure
-            foreach (TaskCompletionSource<IncomingResponseFrame> response in _requests.Values)
+            // Notify pending requests of the failure and the close callback. We use the thread pool to ensure the
+            // continuations or the callback are not run from this thread which might still lock the connection's mutex.
+            _ = Task.Run(() =>
             {
-                response.SetException(_exception!);
-            }
-            _requests.Clear();
+                foreach (TaskCompletionSource<IncomingResponseFrame> responseTaskCompletionSource in _requests.Values)
+                {
+                    responseTaskCompletionSource.SetException(_exception!);
+                }
 
-            // Invoke the close callback
-            try
-            {
-                _closeCallback?.Invoke(this);
-            }
-            catch (Exception ex)
-            {
-                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-            }
+                // Invoke the close callback
+                try
+                {
+                    _closeCallback?.Invoke(this);
+                }
+                catch (Exception ex)
+                {
+                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                }
+            });
 
             // Wait for all the dispatch to complete before reaping the connection and notifying the observer
-            if (_pendingDispatchTask != null)
+            if (_dispatchTaskCompletionSource != null)
             {
-                await _pendingDispatchTask.Task.ConfigureAwait(false);
+                await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
             }
 
             _monitor?.Reap(this);
@@ -1586,7 +1593,7 @@ namespace ZeroC.Ice
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"received {length} bytes via {Endpoint.Name}\n{this}");
+                    $"received {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 
             if (_observer != null && length > 0)
@@ -1600,7 +1607,7 @@ namespace ZeroC.Ice
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"sent {length} bytes via {Endpoint.Name}\n{this}");
+                    $"sent {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 
             if (_observer != null && length > 0)
