@@ -3,211 +3,92 @@
 //
 
 using System;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
+using System.Collections.Concurrent;
 
 namespace ZeroC.Ice
 {
-    internal interface ILoggerAdminLogger : ILogger
+    internal sealed class LoggerAdminLogger : ILogger
     {
-        ILoggerAdmin GetFacet();
-        void Destroy();
-    }
+        internal ILogger LocalLogger { get; }
+        private static long Now() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
+        private readonly Channel<LogMessage> _channel;
+        private readonly LoggerAdmin _loggerAdmin;
 
-    internal sealed class LoggerAdminLogger : ILoggerAdminLogger
-    {
+        public ILogger CloneWithPrefix(string prefix) => LocalLogger.CloneWithPrefix(prefix);
+
+        public void Destroy()
+        {
+            _channel.Writer.Complete();
+            _loggerAdmin.Destroy();
+        }
+
+        public void Error(string message)
+        {
+            var logMessage = new LogMessage(LogMessageType.ErrorMessage, Now(), "", message);
+            LocalLogger.Error(message);
+            Log(logMessage);
+        }
+
+        public string GetPrefix() => LocalLogger.GetPrefix();
+
+        public ILoggerAdmin GetFacet() => _loggerAdmin;
+
         public void Print(string message)
         {
             var logMessage = new LogMessage(LogMessageType.PrintMessage, Now(), "", message);
-            _localLogger.Print(message);
+            LocalLogger.Print(message);
             Log(logMessage);
         }
 
         public void Trace(string category, string message)
         {
             var logMessage = new LogMessage(LogMessageType.TraceMessage, Now(), category, message);
-            _localLogger.Trace(category, message);
+            LocalLogger.Trace(category, message);
             Log(logMessage);
         }
 
         public void Warning(string message)
         {
             var logMessage = new LogMessage(LogMessageType.WarningMessage, Now(), "", message);
-            _localLogger.Warning(message);
+            LocalLogger.Warning(message);
             Log(logMessage);
-        }
-
-        public void Error(string message)
-        {
-            var logMessage = new LogMessage(LogMessageType.ErrorMessage, Now(), "", message);
-            _localLogger.Error(message);
-            Log(logMessage);
-        }
-
-        public string GetPrefix() => _localLogger.GetPrefix();
-
-        public ILogger CloneWithPrefix(string prefix) => _localLogger.CloneWithPrefix(prefix);
-
-        public ILoggerAdmin GetFacet() => _loggerAdmin;
-
-        public void Destroy()
-        {
-            Thread? thread = null;
-            lock (this)
-            {
-                if (_sendLogThread != null)
-                {
-                    thread = _sendLogThread;
-                    _sendLogThread = null;
-                    _destroyed = true;
-                    Monitor.PulseAll(this);
-                }
-            }
-
-            if (thread != null)
-            {
-                thread.Join();
-            }
-
-            _loggerAdmin.Destroy();
         }
 
         internal LoggerAdminLogger(Communicator communicator, ILogger localLogger)
         {
-            if (localLogger is LoggerAdminLogger)
-            {
-                _localLogger = ((LoggerAdminLogger)localLogger).GetLocalLogger();
-            }
-            else
-            {
-                _localLogger = localLogger;
-            }
+            LocalLogger = (localLogger as LoggerAdminLogger)?.LocalLogger ?? localLogger;
             _loggerAdmin = new LoggerAdmin(communicator, this);
-        }
 
-        internal ILogger GetLocalLogger() => _localLogger;
-
-        internal void Log(LogMessage logMessage)
-        {
-            List<IRemoteLoggerPrx>? remoteLoggers = _loggerAdmin.Log(logMessage);
-
-            if (remoteLoggers != null)
+            // Create an unbounded channel to ensure the messages are sent from a separate thread. We don't allow
+            // synchronous continuations to ensure that writes on the channel are never processed by the writer
+            // thread.
+            _channel = Channel.CreateUnbounded<LogMessage>(new UnboundedChannelOptions
             {
-                Debug.Assert(remoteLoggers.Count > 0);
+                AllowSynchronousContinuations = false,
+                SingleReader = true,
+                SingleWriter = false
+            });
 
-                lock (this)
-                {
-                    if (_sendLogThread == null)
-                    {
-                        _sendLogThread = new Thread(new ThreadStart(Run));
-                        _sendLogThread.Name = "Ice.SendLogThread";
-                        _sendLogThread.IsBackground = true;
-                        _sendLogThread.Start();
-                    }
-
-                    _jobQueue.Enqueue(new Job(remoteLoggers, logMessage));
-                    Monitor.PulseAll(this);
-                }
-            }
-        }
-
-        private void Run()
-        {
-            if (_loggerAdmin.GetTraceLevel() > 1)
+            Task.Run(async () =>
             {
-                _localLogger.Trace(TraceCategory, "send log thread started");
-            }
-
-            for (; ; )
-            {
-                Job job;
-                lock (this)
+                // The enumeration completes when the channel writer Complete method is called.
+                await foreach (LogMessage logMessage in _channel.Reader.ReadAllAsync())
                 {
-                    while (!_destroyed && _jobQueue.Count == 0)
+                    List<LogForwarder>? logForwarderList = _loggerAdmin.Log(logMessage);
+                    if (logForwarderList != null)
                     {
-                        Monitor.Wait(this);
-                    }
-
-                    if (_destroyed)
-                    {
-                        break; // for(;;)
-                    }
-
-                    Debug.Assert(_jobQueue.Count > 0);
-                    job = _jobQueue.Dequeue();
-                }
-
-                foreach (IRemoteLoggerPrx p in job.RemoteLoggers)
-                {
-                    if (_loggerAdmin.GetTraceLevel() > 1)
-                    {
-                        _localLogger.Trace(TraceCategory, "sending log message to `" + p.ToString() + "'");
-                    }
-
-                    try
-                    {
-                        //
-                        // p is a proxy associated with the _sendLogCommunicator
-                        //
-                        p.LogAsync(job.LogMessage).ContinueWith(
-                            (t) =>
-                            {
-                                try
-                                {
-                                    t.Wait();
-                                    if (_loggerAdmin.GetTraceLevel() > 1)
-                                    {
-                                        _localLogger.Trace(TraceCategory, "log on `" + p.ToString()
-                                                           + "' completed successfully");
-                                    }
-                                }
-                                catch (AggregateException ae)
-                                {
-                                    if (ae.InnerException is CommunicatorDestroyedException)
-                                    {
-                                        // expected if there are outstanding calls during communicator destruction
-                                    }
-
-                                    Debug.Assert(ae.InnerException != null);
-                                    _loggerAdmin.DeadRemoteLogger(p, _localLogger, ae.InnerException, "log");
-                                }
-                            },
-                            System.Threading.Tasks.TaskScheduler.Current);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        _loggerAdmin.DeadRemoteLogger(p, _localLogger, ex, "log");
+                        foreach (LogForwarder p in logForwarderList)
+                        {
+                            p.Queue("log", LocalLogger, prx => prx.LogAsync(logMessage));
+                        }
                     }
                 }
-            }
-
-            if (_loggerAdmin.GetTraceLevel() > 1)
-            {
-                _localLogger.Trace(TraceCategory, "send log thread completed");
-            }
+            });
         }
 
-        private static long Now() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
-
-        private class Job
-        {
-            internal Job(List<IRemoteLoggerPrx> r, LogMessage l)
-            {
-                RemoteLoggers = r;
-                LogMessage = l;
-            }
-
-            internal readonly List<IRemoteLoggerPrx> RemoteLoggers;
-            internal readonly LogMessage LogMessage;
-        }
-
-        private readonly ILogger _localLogger;
-        private readonly LoggerAdmin _loggerAdmin;
-        private bool _destroyed = false;
-        private Thread? _sendLogThread;
-        private readonly Queue<Job> _jobQueue = new Queue<Job>();
-
-        private const string TraceCategory = "Admin.Logger";
+        internal void Log(LogMessage logMessage) => _channel.Writer.TryWrite(logMessage);
     }
 }
