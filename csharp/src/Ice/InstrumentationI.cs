@@ -279,14 +279,14 @@ namespace ZeroC.Ice
                 Add("mcastPort", obj =>
                     ((obj as ConnectionHelper)?._connection as UdpConnection)?.McastAddress?.Port);
 
-                Add("endpoint", obj => (obj as ConnectionHelper)?._endpoint);
-                Add("endpointTransport", obj => (obj as ConnectionHelper)?._endpoint?.Transport);
-                Add("endpointIsDatagram", obj => (obj as ConnectionHelper)?._endpoint?.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._endpoint?.IsSecure);
-                Add("endpointTimeout", obj => (obj as ConnectionHelper)?._endpoint?.Timeout);
-                Add("endpointCompress", obj => (obj as ConnectionHelper)?._endpoint?.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as ConnectionHelper)?._endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as ConnectionHelper)?._endpoint as IPEndpoint)?.Port);
+                Add("endpoint", obj => (obj as ConnectionHelper)?._connection.Endpoint);
+                Add("endpointTransport", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Transport);
+                Add("endpointIsDatagram", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._connection.Endpoint?.IsSecure);
+                Add("endpointTimeout", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Timeout);
+                Add("endpointCompress", obj => (obj as ConnectionHelper)?._connection.Endpoint?.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as ConnectionHelper)?._connection.Endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as ConnectionHelper)?._connection.Endpoint as IPEndpoint)?.Port);
             }
         }
     }
@@ -385,14 +385,14 @@ namespace ZeroC.Ice
                 Add("mcastPort", obj =>
                     ((obj as DispatchHelper)?.Connection as UdpConnection)?.McastAddress?.Port);
 
-                Add("endpoint", obj => (obj as DispatchHelper)?.Endpoint);
-                Add("endpointTransport", obj => (obj as DispatchHelper)?.Endpoint?.Transport);
-                Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Endpoint?.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Endpoint?.IsSecure);
-                Add("endpointTimeout", obj => (obj as DispatchHelper)?.Endpoint?.Timeout);
-                Add("endpointCompress", obj => (obj as DispatchHelper)?.Endpoint?.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as DispatchHelper)?.Endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as DispatchHelper)?.Endpoint as IPEndpoint)?.Port);
+                Add("endpoint", obj => (obj as DispatchHelper)?.Connection.Endpoint);
+                Add("endpointTransport", obj => (obj as DispatchHelper)?.Connection.Endpoint.Transport);
+                Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Connection.Endpoint.IsSecure);
+                Add("endpointTimeout", obj => (obj as DispatchHelper)?.Connection.Endpoint.Timeout);
+                Add("endpointCompress", obj => (obj as DispatchHelper)?.Connection.Endpoint.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as DispatchHelper)?.Connection.Endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as DispatchHelper)?.Connection.Endpoint as IPEndpoint)?.Port);
 
                 Add("operation", obj => (obj as DispatchHelper)?._current.Operation);
                 Add("identity", obj => (obj as DispatchHelper)?.Identity);
@@ -697,14 +697,14 @@ namespace ZeroC.Ice
                 Add("mcastPort", obj =>
                     ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.McastAddress?.Port);
 
-                Add("endpoint", obj => (obj as RemoteInvocationHelper)?._endpoint);
-                Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._endpoint?.Transport);
-                Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._endpoint?.IsDatagram);
-                Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._endpoint?.IsSecure);
-                Add("endpointTimeout", obj => (obj as RemoteInvocationHelper)?._endpoint?.Timeout);
-                Add("endpointCompress", obj => (obj as RemoteInvocationHelper)?._endpoint?.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as RemoteInvocationHelper)?._endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as RemoteInvocationHelper)?._endpoint as IPEndpoint)?.Port);
+                Add("endpoint", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint);
+                Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Transport);
+                Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.IsSecure);
+                Add("endpointTimeout", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Timeout);
+                Add("endpointCompress", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as RemoteInvocationHelper)?._connection.Endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as RemoteInvocationHelper)?._connection.Endpoint as IPEndpoint)?.Port);
             }
         }
     }
