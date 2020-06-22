@@ -904,7 +904,7 @@ Slice::CsVisitor::getParamAttributes(const ParamDeclPtr& p)
 }
 
 vector<string>
-Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns)
+Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns, int typeCtx)
 {
     vector<string> params;
     ParamDeclList paramList = op->parameters();
@@ -916,7 +916,7 @@ Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns)
         {
             param += "out ";
         }
-        param += typeToString((*q)->type(), ns, (*q)->optional(), cl->isLocal()) + " " + fixId((*q)->name());
+        param += typeToString((*q)->type(), ns, (*q)->optional(), cl->isLocal(), (*q)->getMetaData(), typeCtx) + " " + fixId((*q)->name());
         params.push_back(param);
     }
     return params;
@@ -932,7 +932,7 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
     ParamDeclList paramList = op->inParameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), ns, (*q)->optional(), cl->isLocal())
+        params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), ns, (*q)->optional(), cl->isLocal(), (*q)->getMetaData())
                          + " " + (internal ? "iceP_" + (*q)->name() : fixId((*q)->name())));
     }
     return params;
@@ -959,7 +959,7 @@ Slice::CsVisitor::getOutParams(const OperationPtr& op, const string& ns, bool re
         {
             s += "out ";
         }
-        s += typeToString((*q)->type(), ns, (*q)->optional()) + ' ' + fixId((*q)->name());
+        s += typeToString((*q)->type(), ns, (*q)->optional(), false, (*q)->getMetaData()) + ' ' + fixId((*q)->name());
         params.push_back(s);
     }
 
@@ -1024,8 +1024,9 @@ Slice::CsVisitor::getDispatchParams(const OperationPtr& op, string& retS, vector
     }
     else
     {
+        int typeCtx = TypeContextDispatchParam;
         name = fixId(op->name(), DotNet::ICloneable, true);
-        params = getParams(op, ns);
+        params = getParams(op, ns, typeCtx);
         args = getArgs(op);
         paramDecls = op->parameters();
         retS = typeToString(op->returnType(), ns, op->returnIsOptional());
@@ -4955,6 +4956,18 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
     writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
     _out << eb;
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    if(builtin && builtin->kind() == Builtin::KindByte)
+    {
+        string builtinTypeS = typeToString(p->type(), ns);
+
+        _out << sp << nl << "public static void write(" << getUnqualified("Ice.OutputStream", ns) << " ostr, global::System.ArraySegment<" << builtinTypeS
+             << "> v)";
+        _out << sb;
+        writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
+        _out << eb;
+    }
 
     _out << sp << nl << "public static " << typeS << " read(" << getUnqualified("Ice.InputStream", ns) << " istr)";
     _out << sb;

@@ -10,6 +10,7 @@
 
 namespace Slice
 {
+const int TypeContextDispatchParam = 1;
 
 class CsGenerator : private ::IceUtil::noncopyable
 {
@@ -54,7 +55,7 @@ protected:
     static std::string getOptionalFormat(const TypePtr&, const std::string&);
     static std::string getStaticId(const TypePtr&);
     static std::string typeToString(const TypePtr&, const std::string&, bool = false, bool = false,
-                                    const StringList& = StringList());
+                                    const StringList& = StringList(), int = 0);
     static bool isClassType(const TypePtr&);
     static bool isValueType(const TypePtr&);
 

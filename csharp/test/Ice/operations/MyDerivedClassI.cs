@@ -144,6 +144,20 @@ namespace Ice
                 return r;
             }
 
+            public override byte[] opByteSArraySegment(byte[] p1, byte[] p2, out byte[] p3, Current current = null)
+            {
+                p3 = new byte[p1.Length];
+                for (int i = 0; i < p1.Length; i++)
+                {
+                    p3[i] = p1[p1.Length - (i + 1)];
+                }
+
+                byte[] r = new byte[p1.Length + p2.Length];
+                Array.Copy(p1, r, p1.Length);
+                Array.Copy(p2, 0, r, p1.Length, p2.Length);
+                return r;
+            }
+
             public override byte[][] opByteSS(byte[][] p1, byte[][] p2, out byte[][] p3, Ice.Current current)
             {
                 p3 = new byte[p1.Length][];

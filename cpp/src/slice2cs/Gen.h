@@ -28,7 +28,7 @@ protected:
     virtual void writeDispatch(const ClassDefPtr&);
     virtual void writeMarshaling(const ClassDefPtr&);
 
-    static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
+    static std::vector<std::string> getParams(const OperationPtr&, const std::string&, int = 0);
     static std::vector<std::string> getInParams(const OperationPtr&, const std::string&, bool = false);
     static std::vector<std::string> getOutParams(const OperationPtr&, const std::string&, bool, bool);
     static std::vector<std::string> getArgs(const OperationPtr&);

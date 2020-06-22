@@ -125,6 +125,9 @@ interface MyClass
     ByteS opByteS(ByteS p1, ByteS p2,
                   out ByteS p3);
 
+    ByteS opByteSArraySegment(ByteS p1, ["cs:ArraySegment"] ByteS p2,
+                              out ByteS p3);
+
     BoolS opBoolS(BoolS p1, BoolS p2,
                   out BoolS p3);
 

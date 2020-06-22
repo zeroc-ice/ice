@@ -386,7 +386,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
 
 string
 Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional, bool local,
-                                 const StringList& metaData)
+                                 const StringList& metaData, int typeCtx)
 {
     if(!type)
     {
@@ -491,6 +491,16 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         {
             string customType = meta.substr(prefix.size());
             return "global::" + customType;
+        }
+
+        prefix = "cs:ArraySegment";
+        for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+        {
+            meta = *i;
+            if(meta.find(prefix) == 0 && !(typeCtx & TypeContextDispatchParam))
+            {
+                return "global::System.ArraySegment<" + typeToString(seq->type(), package, optional, local) + ">";
+            }
         }
 
         return typeToString(seq->type(), package, optional, local) + "[]";
@@ -1317,7 +1327,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     bool isStack = false;
     bool isList = false;
     bool isLinkedList = false;
-    bool isArraySegment = false;
     bool isCustom = false;
     if(isGeneric)
     {
@@ -1339,10 +1348,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         else if(genericType == "List")
         {
             isList = true;
-        }
-        else if(genericType == "System.ArraySegment")
-        {
-            isArraySegment = true;
         }
         else
         {
@@ -1524,7 +1529,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
                 if(marshal)
                 {
-                    if(isArray || isArraySegment)
+                    if(isArray)
                     {
                         out << nl << stream << ".write" << func << "Seq(" << param << ");";
                     }
@@ -1545,11 +1550,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     if(isArray)
                     {
                         out << nl << param << " = " << stream << ".read" << func << "Seq();";
-                    }
-                    else if(isArraySegment)
-                    {
-                        out << nl << param << " = new " << "global::" << genericType << "<" << typeToString(type, scope) << ">("
-                            << stream << ".read" << func << "Seq());";
                     }
                     else if(isCustom)
                     {
@@ -2746,6 +2746,25 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 {
                     newLocalMetaData.push_back(s);
                     continue;
+                }
+            }
+            else if(ParamDeclPtr::dynamicCast(cont))
+            {
+                ParamDeclPtr paramDecl = ParamDeclPtr::dynamicCast(cont);
+                static const string csArraySegmentPrefix = csPrefix + "ArraySegment";
+                if(s.find(csArraySegmentPrefix) == 0)
+                {
+                    seq = SequencePtr::dynamicCast(paramDecl->type());
+
+                    if (seq)
+                    {
+                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                        if(builtin && builtin->kind() == Builtin::KindByte)
+                        {
+                            newLocalMetaData.push_back(s);
+                            continue;
+                        }
+                    }
                 }
             }
 
