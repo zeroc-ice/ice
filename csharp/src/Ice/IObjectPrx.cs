@@ -163,7 +163,7 @@ namespace ZeroC.Ice
         /// <summary>The endpoints of this proxy. A proxy with a non-empty endpoint list is a direct proxy.</summary>
         public IReadOnlyList<Endpoint> Endpoints => IceReference.Endpoints;
 
-        /// <summary>The locator cache timeout of this proxy, in seconds.</summary>
+        /// <summary>The locator cache timeout of this proxy.</summary>
         public TimeSpan LocatorCacheTimeout => IceReference.LocatorCacheTimeout;
 
         /// <summary>The invocation timeout of this proxy, in seconds.</summary>

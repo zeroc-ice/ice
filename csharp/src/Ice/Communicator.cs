@@ -184,6 +184,8 @@ namespace ZeroC.Ice
         private readonly HashSet<string> _adminFacetFilter = new HashSet<string>();
         private readonly Dictionary<string, IObject> _adminFacets = new Dictionary<string, IObject>();
         private Identity? _adminIdentity;
+        private readonly bool _backgroundLocatorCacheUpdates;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ConcurrentDictionary<string, IClassFactory?> _classFactoryCache =
             new ConcurrentDictionary<string, IClassFactory?>();
         private readonly ConcurrentDictionary<int, IClassFactory?> _compactIdCache =
@@ -193,25 +195,26 @@ namespace ZeroC.Ice
         private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
-        private readonly object _mutex = new object();
-
         private bool _isShutdown = false;
+        private readonly object _mutex = new object();
+        private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
+            new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
+        private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
+            new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
         private static bool _oneOffDone = false;
         private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
+            new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<EndpointType, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<EndpointType, BufSizeWarnInfo>();
-
         private readonly SslEngine _sslEngine;
         private int _state;
         private readonly Timer _timer;
-
         private readonly IDictionary<string, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<string, IEndpointFactory>();
-
         private readonly IDictionary<EndpointType, IEndpointFactory> _typeToEndpointFactory =
             new ConcurrentDictionary<EndpointType, IEndpointFactory>();
 
@@ -455,19 +458,13 @@ namespace ZeroC.Ice
                         $"invalid value for Ice.Default.InvocationTimeout: `{DefaultInvocationTimeout}'");
                 }
 
-                if (GetPropertyAsInt("Ice.Default.LocatorCacheTimeout") is int locatorCacheTimeout)
+                DefaultLocatorCacheTimeout =
+                    GetPropertyAsTimeSpan("Ice.Default.LocatorCacheTimeout") ?? Timeout.InfiniteTimeSpan;
+                if (DefaultLocatorCacheTimeout != Timeout.InfiniteTimeSpan &&
+                    DefaultLocatorCacheTimeout < TimeSpan.Zero)
                 {
-                    DefaultLocatorCacheTimeout = locatorCacheTimeout == -1 ? Timeout.InfiniteTimeSpan :
-                        TimeSpan.FromSeconds(locatorCacheTimeout);
-                    if (locatorCacheTimeout < -1)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
-                    }
-                }
-                else
-                {
-                    DefaultLocatorCacheTimeout = Timeout.InfiniteTimeSpan;
+                    throw new InvalidConfigurationException(
+                        $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
                 }
 
                 if (GetPropertyAsBool("Ice.Override.Compress") is bool compress)
@@ -1196,37 +1193,13 @@ namespace ZeroC.Ice
         public IEndpointFactory? IceFindEndpointFactory(EndpointType type) =>
             _typeToEndpointFactory.TryGetValue(type, out IEndpointFactory? factory) ? factory : null;
 
-        internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
+        internal void EraseRouterInfo(IRouterPrx? router)
         {
-            lock (_setBufSizeWarn)
+            // Removes router info for a given router.
+            if (router != null)
             {
-                BufSizeWarnInfo info;
-                if (!_setBufSizeWarn.ContainsKey(type))
-                {
-                    info = new BufSizeWarnInfo();
-                    info.SndWarn = false;
-                    info.SndSize = -1;
-                    info.RcvWarn = false;
-                    info.RcvSize = -1;
-                    _setBufSizeWarn.Add(type, info);
-                }
-                else
-                {
-                    info = _setBufSizeWarn[type];
-                }
-                return info;
-            }
-        }
-
-        internal OutgoingConnectionFactory OutgoingConnectionFactory()
-        {
-            lock (_mutex)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _outgoingConnectionFactory;
+                // The router cannot be routed.
+                _routerInfoTable.TryRemove(router.Clone(clearRouter: true), out RouterInfo? _);
             }
         }
 
@@ -1265,6 +1238,79 @@ namespace ZeroC.Ice
                 }
                 return null;
             });
+
+        internal BufSizeWarnInfo GetBufSizeWarn(EndpointType type)
+        {
+            lock (_setBufSizeWarn)
+            {
+                BufSizeWarnInfo info;
+                if (!_setBufSizeWarn.ContainsKey(type))
+                {
+                    info = new BufSizeWarnInfo();
+                    info.SndWarn = false;
+                    info.SndSize = -1;
+                    info.RcvWarn = false;
+                    info.RcvSize = -1;
+                    _setBufSizeWarn.Add(type, info);
+                }
+                else
+                {
+                    info = _setBufSizeWarn[type];
+                }
+                return info;
+            }
+        }
+
+        internal LocatorInfo? GetLocatorInfo(ILocatorPrx? locator, Encoding encoding)
+        {
+            // Returns locator info for a given locator. Automatically creates the locator info if it doesn't exist
+            // yet.
+            if (locator == null)
+            {
+                return null;
+            }
+
+            if (locator.Locator != null || locator.Encoding != encoding)
+            {
+                // The locator can't be located.
+                locator = locator.Clone(clearLocator: true, encoding: encoding);
+            }
+
+            return _locatorInfoMap.GetOrAdd(locator, locatorKey =>
+            {
+                // Rely on locator identity and encoding for the adapter table. We want to have only one table per
+                // locator and encoding (not one per locator proxy).
+                LocatorTable table =
+                    _locatorTableMap.GetOrAdd((locatorKey.Identity, locatorKey.Encoding), key => new LocatorTable());
+                return new LocatorInfo(locatorKey, table, _backgroundLocatorCacheUpdates);
+            });
+        }
+
+        internal RouterInfo? GetRouterInfo(IRouterPrx? router)
+        {
+            // Returns router info for a given router. Automatically creates the router info if it doesn't exist yet.
+            if (router != null)
+            {
+                // The router cannot be routed.
+                return _routerInfoTable.GetOrAdd(router.Clone(clearRouter: true), key => new RouterInfo(key));
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        internal OutgoingConnectionFactory OutgoingConnectionFactory()
+        {
+            lock (_mutex)
+            {
+                if (_state == StateDestroyed)
+                {
+                    throw new CommunicatorDestroyedException();
+                }
+                return _outgoingConnectionFactory;
+            }
+        }
 
         internal void SetRcvBufSizeWarn(EndpointType type, int size)
         {

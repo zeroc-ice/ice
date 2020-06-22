@@ -1520,28 +1520,23 @@ namespace ZeroC.Ice
 
                 property = $"{propertyPrefix}.InvocationTimeout";
                 invocationTimeout = communicator.GetPropertyAsInt(property);
-                if (invocationTimeout is int invocationTimeoutValue)
+                if (invocationTimeout != null && invocationTimeout < 1 && invocationTimeout != -1)
                 {
-                    if (invocationTimeoutValue < 1 && invocationTimeoutValue != -1)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid value for property `{property}': `{invocationTimeoutValue}'");
-                    }
+                    throw new InvalidConfigurationException(
+                        $"invalid value for property `{property}': `{invocationTimeout}'");
                 }
 
                 locatorInfo = communicator.GetLocatorInfo(
                     communicator.GetPropertyAsProxy($"{propertyPrefix}.Locator", ILocatorPrx.Factory), encoding);
 
                 property = $"{propertyPrefix}.LocatorCacheTimeout";
-                if (communicator.GetPropertyAsInt(property) is int locatorCacheTimeoutIntValue)
+                locatorCacheTimeout = communicator.GetPropertyAsTimeSpan(property);
+                if (locatorCacheTimeout != null &&
+                    locatorCacheTimeout < TimeSpan.Zero &&
+                    locatorCacheTimeout != Timeout.InfiniteTimeSpan)
                 {
-                    locatorCacheTimeout = locatorCacheTimeoutIntValue == -1 ? Timeout.InfiniteTimeSpan :
-                        TimeSpan.FromSeconds(locatorCacheTimeoutIntValue);
-                    if (locatorCacheTimeout < TimeSpan.Zero && locatorCacheTimeout != Timeout.InfiniteTimeSpan)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid value for property `{property}': `{locatorCacheTimeout}'");
-                    }
+                    throw new InvalidConfigurationException(
+                        $"invalid value for property `{property}': `{locatorCacheTimeout}'");
                 }
 
                 preferNonSecure = communicator.GetPropertyAsBool($"{propertyPrefix}.PreferNonSecure");

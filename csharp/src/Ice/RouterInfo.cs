@@ -9,9 +9,16 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>The router info class caches information specific to a given router. The communicator holds a router
+    /// info instance per router proxy set either with Ice.Default.Router or the proxy's Router property. It caches
+    /// the router's server and client proxies as well as proxies that were added to the router's routing table (when
+    /// a routed proxy obtains a new connection request handler (in Reference.GetConnectionRequestHandlerAsync). If an
+    /// object adapter is created with the router, this class also keeps track of this object adapter. This is used to
+    /// associate connections established from routed proxies to the object adapter to allow bi-dir communications.
+    /// TODO: review how we handled routers. The communicator holds a per-proxy router info table right now, should
+    /// it be per-router identity instead? Also fix #228.</summary>
     internal sealed class RouterInfo
     {
-        // No mutex lock necessary, _router is immutable.
         public IRouterPrx Router { get; }
         public ObjectAdapter? Adapter
         {
@@ -140,38 +147,7 @@ namespace ZeroC.Ice
                 throw new InvalidConfigurationException($"router `{Router.Identity}' has no server endpoints");
             }
 
-            // The server proxy cannot be routed.
-            return serverProxy.Clone(clearRouter: true).IceReference.Endpoints;
-        }
-    }
-
-    public sealed partial class Communicator
-    {
-        private readonly ConcurrentDictionary<IRouterPrx, RouterInfo> _routerInfoTable =
-            new ConcurrentDictionary<IRouterPrx, RouterInfo>();
-
-        // Returns router info for a given router. Automatically creates the router info if it doesn't exist yet.
-        internal RouterInfo? GetRouterInfo(IRouterPrx? router)
-        {
-            if (router != null)
-            {
-                // The router cannot be routed.
-                return _routerInfoTable.GetOrAdd(router.Clone(clearRouter: true), key => new RouterInfo(key));
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        // Removes router info for a given router.
-        internal void EraseRouterInfo(IRouterPrx? router)
-        {
-            if (router != null)
-            {
-                // The router cannot be routed.
-                _routerInfoTable.TryRemove(router.Clone(clearRouter: true), out RouterInfo? _);
-            }
+            return serverProxy.IceReference.Endpoints;
         }
     }
 }

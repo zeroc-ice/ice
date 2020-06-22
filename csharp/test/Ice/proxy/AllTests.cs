@@ -430,7 +430,7 @@ namespace ZeroC.Ice.Test.Proxy
             communicator.SetProperty(property, "");
             property = propertyPrefix + ".LocatorCacheTimeout";
             TestHelper.Assert(b1.LocatorCacheTimeout == Timeout.InfiniteTimeSpan);
-            communicator.SetProperty(property, "1");
+            communicator.SetProperty(property, "1s");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
             TestHelper.Assert(b1 != null && b1.LocatorCacheTimeout == TimeSpan.FromSeconds(1));
             communicator.SetProperty(property, "");
@@ -445,7 +445,7 @@ namespace ZeroC.Ice.Test.Proxy
 
             property = propertyPrefix + ".LocatorCacheTimeout";
             TestHelper.Assert(b1.LocatorCacheTimeout == Timeout.InfiniteTimeSpan);
-            communicator.SetProperty(property, "1");
+            communicator.SetProperty(property, "1s");
             b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
             TestHelper.Assert(b1 != null && b1.LocatorCacheTimeout == TimeSpan.FromSeconds(1));
             communicator.SetProperty(property, "");

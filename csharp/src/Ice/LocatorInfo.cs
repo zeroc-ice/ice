@@ -11,16 +11,23 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public sealed class LocatorInfo
+    /// <summary>The locator info class caches information specific to a given locator proxy. The communicator holds a
+    /// locator info instance per locator proxy set either with Ice.Default.Locator or the proxy's Locator property. It
+    /// caches the locator registry proxy and keeps track of requests to the locator to prevent multiple concurrent
+    /// locator requests for the same adapter or well-known object. The locator info also holds a reference on a locator
+    /// table that caches endpoints and resolved references for adapters or well-known objects.
+    /// TODO: refactor to support new Locator API (for new protocol/encoding). We could consider merging the locator
+    /// table and locator info classes as well.</summary>
+    internal sealed class LocatorInfo
     {
         internal ILocatorPrx Locator { get; }
         private readonly bool _background;
-        private readonly Dictionary<string, Task<IReadOnlyList<Endpoint>?>> _adapterRequests =
-            new Dictionary<string, Task<IReadOnlyList<Endpoint>?>>();
-        private readonly Dictionary<Identity, Task<Reference?>> _objectRequests =
-            new Dictionary<Identity, Task<Reference?>>();
+        private readonly Dictionary<string, Task<IReadOnlyList<Endpoint>>> _adapterRequests =
+            new Dictionary<string, Task<IReadOnlyList<Endpoint>>>();
         private readonly Lazy<ILocatorRegistryPrx?> _locatorRegistry;
         private readonly object _mutex = new object();
+        private readonly Dictionary<Identity, Task<Reference>> _objectRequests =
+            new Dictionary<Identity, Task<Reference>>();
         private readonly LocatorTable _table;
 
         internal LocatorInfo(ILocatorPrx locator, LocatorTable table, bool background)
@@ -36,36 +43,40 @@ namespace ZeroC.Ice
                                                    endpointSelection: EndpointSelectionType.Ordered));
         }
 
-        internal void ClearCache(Reference rf)
+        internal void ClearCache(Reference reference)
         {
-            Debug.Assert(rf.IsIndirect);
-            if (!rf.IsWellKnown)
+            Debug.Assert(reference.IsIndirect);
+            if (!reference.IsWellKnown)
             {
-                IReadOnlyList<Endpoint>? endpoints = _table.RemoveAdapterEndpoints(rf.AdapterId);
-                if (endpoints != null && rf.Communicator.TraceLevels.Location >= 2)
+                IReadOnlyList<Endpoint>? endpoints = _table.RemoveAdapterEndpoints(reference.AdapterId);
+                if (endpoints != null && reference.Communicator.TraceLevels.Location >= 2)
                 {
-                    Trace("removed endpoints for adapter from locator cache", rf, endpoints);
+                    Trace("removed endpoints for adapter from locator cache", reference, endpoints);
                 }
             }
             else
             {
-                Reference? r = _table.RemoveObjectReference(rf.Identity);
-                if (r != null)
+                Reference? resolvedReference = _table.RemoveObjectReference(reference.Identity);
+                if (resolvedReference != null)
                 {
-                    if (!r.IsIndirect)
+                    if (!resolvedReference.IsIndirect)
                     {
-                        if (rf.Communicator.TraceLevels.Location >= 2)
+                        if (reference.Communicator.TraceLevels.Location >= 2)
                         {
-                            Trace("removed endpoints for well-known object from locator cache", rf, r.Endpoints);
+                            Trace("removed endpoints for well-known object from locator cache",
+                                  reference,
+                                  resolvedReference.Endpoints);
                         }
                     }
-                    else if (!r.IsWellKnown)
+                    else if (!resolvedReference.IsWellKnown)
                     {
-                        if (rf.Communicator.TraceLevels.Location >= 2)
+                        if (reference.Communicator.TraceLevels.Location >= 2)
                         {
-                            Trace("removed adapter for well-known object from locator cache", rf, r);
+                            Trace("removed adapter for well-known object from locator cache",
+                                  reference,
+                                  resolvedReference);
                         }
-                        ClearCache(r);
+                        ClearCache(resolvedReference);
                     }
                 }
             }
@@ -167,9 +178,11 @@ namespace ZeroC.Ice
                 }
             }
 
+            Debug.Assert(endpoints != null);
+
             if (reference.Communicator.TraceLevels.Location >= 1)
             {
-                if (endpoints != null && endpoints.Count > 0)
+                if (endpoints.Count > 0)
                 {
                     if (cached)
                     {
@@ -187,12 +200,14 @@ namespace ZeroC.Ice
                         if (reference.IsWellKnown)
                         {
                             Trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
-                                  reference, endpoints);
+                                  reference,
+                                  endpoints);
                         }
                         else
                         {
                             Trace("retrieved endpoints for adapter from locator, adding to locator cache",
-                                  reference, endpoints);
+                                  reference,
+                                  endpoints);
                         }
                     }
                 }
@@ -214,10 +229,10 @@ namespace ZeroC.Ice
                     communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
                 }
             }
-            return (endpoints ?? Array.Empty<Endpoint>(), cached);
+            return (endpoints!, cached);
         }
 
-        private async Task<IReadOnlyList<Endpoint>?> GetAdapterEndpointsAsync(Reference reference)
+        private Task<IReadOnlyList<Endpoint>> GetAdapterEndpointsAsync(Reference reference)
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
@@ -225,7 +240,7 @@ namespace ZeroC.Ice
                     $"searching for adapter by id\nadapter = {reference.AdapterId}");
             }
 
-            Task<IReadOnlyList<Endpoint>?>? task;
+            Task<IReadOnlyList<Endpoint>>? task;
             lock (_mutex)
             {
                 if (!_adapterRequests.TryGetValue(reference.AdapterId, out task))
@@ -239,51 +254,47 @@ namespace ZeroC.Ice
                     }
                 }
             }
+            return task!;
 
-            try
-            {
-                // Wait and return the locator response.
-                return await task.ConfigureAwait(false);
-            }
-            catch (AdapterNotFoundException)
-            {
-                if (reference.Communicator.TraceLevels.Location > 0)
-                {
-                    reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
-                        $"adapter not found\nadapter = {reference.AdapterId}");
-                }
-                throw;
-            }
-            catch (Exception exception)
-            {
-                if (reference.Communicator.TraceLevels.Location > 0)
-                {
-                    reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
-                        "could not contact the locator to retrieve endpoints\n" +
-                        $"adapter = {reference.AdapterId}\nreason = {exception}");
-                }
-                throw;
-            }
-
-            async Task<IReadOnlyList<Endpoint>?> PerformGetAdapterEndpointsAsync(Reference reference)
+            async Task<IReadOnlyList<Endpoint>> PerformGetAdapterEndpointsAsync(Reference reference)
             {
                 try
                 {
+                    // TODO: Fix FindAdapterById to return non-null proxy
                     IObjectPrx? proxy = await Locator.FindAdapterByIdAsync(reference.AdapterId).ConfigureAwait(false);
                     if (proxy != null && !proxy.IceReference.IsIndirect)
                     {
                         // Cache the adapter endpoints.
-                        _table.AddAdapterEndpoints(reference.AdapterId, proxy.IceReference.Endpoints);
+                        _table.SetAdapterEndpoints(reference.AdapterId, proxy.IceReference.Endpoints);
                         return proxy.IceReference.Endpoints;
                     }
                     else
                     {
-                        return null;
+                        throw new NoEndpointException(reference.ToString());
                     }
                 }
                 catch (AdapterNotFoundException)
                 {
+                    if (reference.Communicator.TraceLevels.Location > 0)
+                    {
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                            $"adapter not found\nadapter = {reference.AdapterId}");
+                    }
                     _table.RemoveAdapterEndpoints(reference.AdapterId);
+                    throw;
+                }
+                catch (NoEndpointException)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    if (reference.Communicator.TraceLevels.Location > 0)
+                    {
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                            "could not contact the locator to retrieve endpoints\n" +
+                            $"adapter = {reference.AdapterId}\nreason = {exception}");
+                    }
                     throw;
                 }
                 finally
@@ -298,7 +309,7 @@ namespace ZeroC.Ice
 
         internal ILocatorRegistryPrx? GetLocatorRegistry() => _locatorRegistry.Value;
 
-        private async Task<Reference?> GetObjectReferenceAsync(Reference reference)
+        private Task<Reference> GetObjectReferenceAsync(Reference reference)
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
@@ -306,7 +317,7 @@ namespace ZeroC.Ice
                     $"searching for well-known object\nwell-known proxy = {reference}");
             }
 
-            Task<Reference?>? task;
+            Task<Reference>? task;
             lock (_mutex)
             {
                 if (!_objectRequests.TryGetValue(reference.Identity, out task))
@@ -320,52 +331,48 @@ namespace ZeroC.Ice
                     }
                 }
             }
+            return task!;
 
-            try
-            {
-                // Wait and return the locator response.
-                return await task.ConfigureAwait(false);
-            }
-            catch (AdapterNotFoundException)
-            {
-                if (reference.Communicator.TraceLevels.Location > 0)
-                {
-                    reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
-                        "object not found\n" +
-                        $"object = {reference.Identity.ToString(reference.Communicator.ToStringMode)}");
-                }
-                throw;
-            }
-            catch (Exception exception)
-            {
-                if (reference.Communicator.TraceLevels.Location > 0)
-                {
-                    reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
-                        "could not contact the locator to retrieve endpoints\n" +
-                        $"well-known proxy = {reference}\nreason = {exception}");
-                }
-                throw;
-            }
-
-            async Task<Reference?> PerformGetObjectProxyAsync(Reference reference)
+            async Task<Reference> PerformGetObjectProxyAsync(Reference reference)
             {
                 try
                 {
+                    // TODO: Fix FindObjectById to return non-null proxy
                     IObjectPrx? proxy = await Locator.FindObjectByIdAsync(reference.Identity).ConfigureAwait(false);
                     if (proxy != null && !proxy.IceReference.IsWellKnown)
                     {
                         // Cache the object reference.
-                        _table.AddObjectReference(reference.Identity, proxy.IceReference);
+                        _table.SetObjectReference(reference.Identity, proxy.IceReference);
                         return proxy.IceReference;
                     }
                     else
                     {
-                        return null;
+                        throw new NoEndpointException(reference.ToString());
                     }
                 }
-                catch (AdapterNotFoundException)
+                catch (ObjectNotFoundException)
                 {
+                    if (reference.Communicator.TraceLevels.Location > 0)
+                    {
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                            "object not found\n" +
+                            $"object = {reference.Identity.ToString(reference.Communicator.ToStringMode)}");
+                    }
                     _table.RemoveObjectReference(reference.Identity);
+                    throw;
+                }
+                catch (NoEndpointException)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    if (reference.Communicator.TraceLevels.Location > 0)
+                    {
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                            "could not contact the locator to retrieve endpoints\n" +
+                            $"well-known proxy = {reference}\nreason = {exception}");
+                    }
                     throw;
                 }
                 finally
@@ -410,55 +417,26 @@ namespace ZeroC.Ice
         }
     }
 
-    public sealed partial class Communicator
-    {
-        private readonly bool _backgroundLocatorCacheUpdates;
-        private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
-            new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
-        private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
-            new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
-
-        // Returns locator info for a given locator. Automatically creates the locator info if it doesn't exist yet.
-        internal LocatorInfo? GetLocatorInfo(ILocatorPrx? locator, Encoding encoding)
-        {
-            if (locator == null)
-            {
-                return null;
-            }
-
-            if (locator.Locator != null || locator.Encoding != encoding)
-            {
-                // The locator can't be located.
-                locator = locator.Clone(clearLocator: true, encoding: encoding);
-            }
-
-            return _locatorInfoMap.GetOrAdd(locator, locatorKey => {
-                // Rely on locator identity and encoding for the adapter table. We want to have only one table per
-                // locator and encoding (not one per locator proxy).
-                LocatorTable table =
-                    _locatorTableMap.GetOrAdd((locatorKey.Identity, locatorKey.Encoding), key => new LocatorTable());
-                return new LocatorInfo(locatorKey, table, _backgroundLocatorCacheUpdates);
-            });
-        }
-    }
-
+    /// <summary>The LocatorTable class caches endpoints and references for adapters and well-known objects resolved
+    /// through a given locator. The communicator maintains a dictionary of locator tables for each locator identity,
+    /// and encoding pair. A locator table can be used by multiple locator info instances.</summary>
     internal sealed class LocatorTable
     {
-        private readonly ConcurrentDictionary<string, (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints)>
+        private readonly ConcurrentDictionary<string, (TimeSpan InsertionTime, IReadOnlyList<Endpoint> Endpoints)>
             _adapterEndpointsTable =
-                new ConcurrentDictionary<string, (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints)>();
+                new ConcurrentDictionary<string, (TimeSpan InsertionTime, IReadOnlyList<Endpoint> Endpoints)>();
 
-        private readonly ConcurrentDictionary<Identity, (TimeSpan Time, Reference Reference)>
+        private readonly ConcurrentDictionary<Identity, (TimeSpan InsertionTime, Reference Reference)>
             _objectReferenceTable =
-                new ConcurrentDictionary<Identity, (TimeSpan Time, Reference Reference)>();
+                new ConcurrentDictionary<Identity, (TimeSpan InsertionTime, Reference Reference)>();
 
-        internal void AddAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints) =>
+        internal void SetAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints) =>
             _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTime(), endpoints);
 
-        internal void AddObjectReference(Identity id, Reference reference) =>
+        internal void SetObjectReference(Identity id, Reference reference) =>
             _objectReferenceTable[id] = (Time.CurrentMonotonicTime(), reference);
 
-        internal (IReadOnlyList<Endpoint>?, bool) GetAdapterEndpoints(string adapter, TimeSpan ttl)
+        internal (IReadOnlyList<Endpoint>? Endpoints, bool Cached) GetAdapterEndpoints(string adapter, TimeSpan ttl)
         {
             if (ttl == TimeSpan.Zero) // Locator cache disabled.
             {
@@ -466,9 +444,9 @@ namespace ZeroC.Ice
             }
 
             if (_adapterEndpointsTable.TryGetValue(adapter,
-                out (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints) entry))
+                out (TimeSpan InsertionTime, IReadOnlyList<Endpoint> Endpoints) entry))
             {
-                return (entry.Endpoints, CheckTTL(entry.Time, ttl));
+                return (entry.Endpoints, CheckTTL(entry.InsertionTime, ttl));
             }
             else
             {
@@ -476,16 +454,16 @@ namespace ZeroC.Ice
             }
         }
 
-        internal (Reference?, bool) GetObjectReference(Identity id, TimeSpan ttl)
+        internal (Reference? Reference, bool Cached) GetObjectReference(Identity id, TimeSpan ttl)
         {
             if (ttl == TimeSpan.Zero) // Locator cache disabled.
             {
                 return (null, false);
             }
 
-            if (_objectReferenceTable.TryGetValue(id, out (TimeSpan Time, Reference Reference) entry))
+            if (_objectReferenceTable.TryGetValue(id, out (TimeSpan InsertionTime, Reference Reference) entry))
             {
-                return (entry.Reference, CheckTTL(entry.Time, ttl));
+                return (entry.Reference, CheckTTL(entry.InsertionTime, ttl));
             }
             else
             {
@@ -495,14 +473,14 @@ namespace ZeroC.Ice
 
         internal IReadOnlyList<Endpoint>? RemoveAdapterEndpoints(string adapter) =>
             _adapterEndpointsTable.TryRemove(adapter,
-                out (TimeSpan Time, IReadOnlyList<Endpoint> Endpoints) entry) ? entry.Endpoints : null;
+                out (TimeSpan InsertionTime, IReadOnlyList<Endpoint> Endpoints) entry) ? entry.Endpoints : null;
 
         internal Reference? RemoveObjectReference(Identity id) =>
             _objectReferenceTable.TryRemove(id,
-                out (TimeSpan Time, Reference Reference) entry) ? entry.Reference : null;
+                out (TimeSpan InsertionTime, Reference Reference) entry) ? entry.Reference : null;
 
-        // Returns true if the given timestamp is still valid when compared to the given time-to-live
-        private static bool CheckTTL(TimeSpan timestamp, TimeSpan ttl) =>
-            ttl == Timeout.InfiniteTimeSpan || (Time.CurrentMonotonicTime() - timestamp) <= ttl;
+        // Returns true if the time-to-live has been reached
+        private static bool CheckTTL(TimeSpan insertionTime, TimeSpan ttl) =>
+            ttl == Timeout.InfiniteTimeSpan || (Time.CurrentMonotonicTime() - insertionTime) <= ttl;
     }
 }
