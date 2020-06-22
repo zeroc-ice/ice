@@ -1204,20 +1204,10 @@ namespace ZeroC.Ice
             _transportToEndpointFactory.TryGetValue(transport, out IEndpointFactory? factory) ? factory : null;
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory, using the transport's name.
-        internal IEndpointFactory? FindEndpointFactory(string transportName, out Transport transport)
-        {
-            if (_transportNameToEndpointFactory.TryGetValue(transportName,
-                out (IEndpointFactory Factory, Transport Transport) value))
-            {
-                transport = value.Transport;
-                return value.Factory;
-            }
-            else
-            {
-                transport = default;
-                return null;
-            }
-        }
+        internal (IEndpointFactory Factory, Transport Transport)? FindEndpointFactory(string transportName) =>
+            _transportNameToEndpointFactory.TryGetValue(transportName,
+                out (IEndpointFactory Factory, Transport Transport) value) ? value :
+                    ((IEndpointFactory Factory, Transport Transport)?)null;
 
         internal BufSizeWarnInfo GetBufSizeWarn(Transport transport)
         {

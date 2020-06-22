@@ -182,12 +182,12 @@ namespace ZeroC.Ice
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
             new TcpConnector(this,
-                            Communicator,
-                            addr,
-                            proxy,
-                            SourceAddress,
-                            Timeout,
-                            ConnectionId);
+                             Communicator,
+                             addr,
+                             proxy,
+                             SourceAddress,
+                             Timeout,
+                             ConnectionId);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,

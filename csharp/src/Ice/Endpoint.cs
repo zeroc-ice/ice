@@ -40,7 +40,7 @@ namespace ZeroC.Ice
         /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
         public abstract int Timeout { get; }
 
-        /// <summary>The <see cref="Transport"></see> of this endpoint.</summary>
+        /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
         public abstract Transport Transport { get; }
 
         /// <summary>The name of the endpoint's transport in lowercase, or "opaque" when the transport's name is
@@ -63,7 +63,7 @@ namespace ZeroC.Ice
 
         public static bool operator !=(Endpoint? lhs, Endpoint? rhs) => !(lhs == rhs);
 
-        public override bool Equals(object? obj) => obj != null && obj is Endpoint other && Equals(other);
+        public override bool Equals(object? obj) => obj is Endpoint other && Equals(other);
 
         public virtual bool Equals(Endpoint? other) => Protocol == other?.Protocol;
 
@@ -113,15 +113,12 @@ namespace ZeroC.Ice
         // acceptor.
         public abstract ITransceiver? GetTransceiver();
 
-        protected Endpoint(Protocol protocol)
-        {
-            Protocol = protocol;
-        }
+        protected Endpoint(Protocol protocol) => Protocol = protocol;
 
         /// <summary>Creates an endpoint from a string.</summary>
         /// <param name="endpointString">The string parsed by this method.</param>
         /// <param name="protocol">The Ice protocol of the enclosing proxy.</param>
-        /// <param name="communicator">The communicator that this proxy will use to make remote invocation.</param>
+        /// <param name="communicator">The communicator of the enclosing proxy or object adapter.</param>
         /// <param name="oaEndpoint">When true, endpointString represents an object adapter's endpoint configuration;
         /// when false, endpointString represents a proxy endpoint.</param>
         /// <returns>The new endpoint.</returns>
@@ -181,7 +178,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (communicator.FindEndpointFactory(transportName, out Transport transport) is IEndpointFactory factory)
+            if (communicator.FindEndpointFactory(transportName) is (IEndpointFactory factory, Transport transport))
             {
                 Endpoint endpoint = factory.Create(transport, protocol, options, oaEndpoint, endpointString);
                 if (options.Count > 0)

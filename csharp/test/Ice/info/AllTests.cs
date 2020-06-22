@@ -206,8 +206,8 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
                 TestHelper.Assert(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
 
-                if (testIntf.GetConnection()!.TransportName.Equals("ws") ||
-                    testIntf.GetConnection()!.TransportName.Equals("wss"))
+                if (testIntf.GetConnection()!.Endpoint.TransportName.Equals("ws") ||
+                    testIntf.GetConnection()!.Endpoint.TransportName.Equals("wss"))
                 {
                     Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers!;
                     TestHelper.Assert(headers["Upgrade"].Equals("websocket"));
