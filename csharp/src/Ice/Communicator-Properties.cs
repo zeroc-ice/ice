@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -65,10 +66,10 @@ namespace ZeroC.Ice
                         pv.Used = true;
                         return int.Parse(pv.Val, CultureInfo.InvariantCulture);
                     }
-                    catch (FormatException ex)
+                    catch (Exception ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"the value of property `{name}' is not an integer", ex);
+                            $"the value `{pv.Val}' of property `{name}' is not a 32-bit integer", ex);
                     }
                 }
                 return null;
@@ -140,6 +141,57 @@ namespace ZeroC.Ice
             }
             else
             {
+                return null;
+            }
+        }
+
+        /// <summary>Gets the value of a property as a TimeSpan. If the property is not set, returns null.
+        /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', or 'h'.
+        /// These correspond to milliseconds, seconds, minutes, and hours, respectively.
+        /// A value of "infinite" can be used to specify an infinite duration.
+        /// e.g. 50ms, 3m</summary>
+        /// <param name="name">The property name.</param>
+        /// <returns>The property value parsed into a TimeSpan or null.</returns>
+        public TimeSpan? GetPropertyAsTimeSpan(string name)
+        {
+            lock (_properties)
+            {
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
+                {
+                    pv.Used = true;
+
+                    if (pv.Val == "infinite") {
+                        return Timeout.InfiniteTimeSpan;
+                    }
+
+                    // Match an integer followed letters
+                    Match match = Regex.Match(pv.Val, @"^([0-9]+)([a-z]+)$");
+
+                    if (!match.Success)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"the value `{pv.Val}' of property `{name}' is not a TimeSpan");
+                    }
+
+                    try
+                    {
+                        int value = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        string unit = match.Groups[2].Value;
+                        return unit switch
+                        {
+                            "ms" => TimeSpan.FromMilliseconds(value),
+                            "s" => TimeSpan.FromSeconds(value),
+                            "m" => TimeSpan.FromMinutes(value),
+                            "h" => TimeSpan.FromHours(value),
+                            _ => throw new FormatException($"unknown time unit `{unit}'"),
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"the value `{pv.Val}' of property `{name}' is not a TimeSpan", ex);
+                    }
+                }
                 return null;
             }
         }

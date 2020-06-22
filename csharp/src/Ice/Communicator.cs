@@ -691,7 +691,7 @@ namespace ZeroC.Ice
                     string loggerFacetName = "Logger";
                     if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(loggerFacetName))
                     {
-                        ILoggerAdminLogger loggerAdminLogger = new LoggerAdminLogger(this, Logger);
+                        var loggerAdminLogger = new LoggerAdminLogger(this, Logger);
                         Logger = loggerAdminLogger;
                         _adminFacets.Add(loggerFacetName, loggerAdminLogger.GetFacet());
                     }
@@ -948,7 +948,7 @@ namespace ZeroC.Ice
 
             Observer?.SetObserverUpdater(null);
 
-            if (Logger is ILoggerAdminLogger adminLogger)
+            if (Logger is LoggerAdminLogger adminLogger)
             {
                 adminLogger.Destroy();
             }
