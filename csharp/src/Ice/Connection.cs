@@ -49,8 +49,7 @@ namespace ZeroC.Ice
         public bool Equals(ACM other) =>
             Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
 
-        public override bool Equals(object? other) =>
-            ReferenceEquals(this, other) || (other is ACM value && Equals(value));
+        public override bool Equals(object? other) => other is ACM value && Equals(value);
 
         public static bool operator ==(ACM lhs, ACM rhs) => Equals(lhs, rhs);
 

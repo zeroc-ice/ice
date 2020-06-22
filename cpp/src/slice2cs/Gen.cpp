@@ -1861,13 +1861,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     _out << sb;
 
     _out << sp;
-    _out << nl << "public static ZeroC.Ice.InputStreamReader<" << name << "> IceReader =>";
+    _out << nl << "public static ZeroC.Ice.InputStreamReader<" << name << "> IceReader =";
     _out.inc();
     _out << nl << "istr => new " << name << "(istr);";
     _out.dec();
 
     _out << sp;
-    _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =>";
+    _out << nl << "public static ZeroC.Ice.OutputStreamValueWriter<" << name << "> IceWriter =";
     _out.inc();
     _out << nl << "(ZeroC.Ice.OutputStream ostr, in " << name << " value) => value.IceWrite(ostr);";
     _out.dec();
@@ -1942,8 +1942,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp;
     _out << nl << "public bool Equals(" << fixId(p->name()) << " other)";
 
+    _out << " =>";
     _out.inc();
-    _out << nl << "=> ";
+    _out << nl;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end();)
     {
         string mName = fixId(dataMemberName(*q));
@@ -1960,7 +1961,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(++q != dataMembers.end())
         {
-            _out << " &&" << nl << "   ";
+            _out << " &&" << nl;
         }
         else
         {
@@ -1970,14 +1971,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out.dec();
 
     _out << sp;
-    _out << nl << "public override bool Equals(object? other)";
-    _out << sb;
-    _out << nl << "if (object.ReferenceEquals(this, other))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << "return other is " << name << " value && this.Equals(value);";
-    _out << eb;
+    _out << nl << "public override bool Equals(object? other) => other is " << name << " value && this.Equals(value);";
 
     _out << sp;
     _out << nl << "public static bool operator ==(" << name << " lhs, " << name << " rhs)";
