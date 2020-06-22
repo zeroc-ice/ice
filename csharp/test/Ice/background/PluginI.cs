@@ -12,10 +12,12 @@ namespace ZeroC.Ice.Test.Background
         {
             for (short s = 0; s < 100; ++s)
             {
-                IEndpointFactory? factory = _communicator.IceFindEndpointFactory((EndpointType)s);
+                var transport = (Transport)s;
+                IEndpointFactory? factory = _communicator.IceFindEndpointFactory(transport);
                 if (factory != null)
                 {
-                    _communicator.IceAddEndpointFactory(new EndpointFactory(factory));
+                    var wrapper = new EndpointFactory(factory, transport);
+                    _communicator.IceAddEndpointFactory(wrapper.Transport, wrapper.TransportName, wrapper);
                 }
             }
         }

@@ -122,7 +122,7 @@ namespace ZeroC.Ice
 
             Type cli = typeof(Endpoint);
 
-            r.Add("endpointType", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Type")!);
+            r.Add("endpointTransport", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Transport")!);
             r.Add("endpointIsDatagram", cl.GetMethod("GetEndpoint")!, cli.GetProperty("IsDatagram")!);
             r.Add("endpointIsSecure", cl.GetMethod("GetEndpoint")!, cli.GetProperty("IsSecure")!);
             r.Add("endpointTimeout", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Timeout")!);

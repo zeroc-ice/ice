@@ -1140,13 +1140,13 @@ namespace ZeroC.Ice
 
         /// <summary>Reads an endpoint from the stream.</summary>
         /// <returns>The endpoint read from the stream.</returns>
-        internal Endpoint ReadEndpoint()
+        internal Endpoint ReadEndpoint(Protocol protocol)
         {
-            var type = (EndpointType)ReadShort();
+            var transport = (Transport)ReadShort();
             (int size, Encoding encoding) = ReadEncapsulationHeader();
 
             Endpoint endpoint;
-            if (encoding.IsSupported && Communicator.IceFindEndpointFactory(type) is IEndpointFactory factory)
+            if (encoding.IsSupported && Communicator.IceFindEndpointFactory(transport) is IEndpointFactory factory)
             {
                 Encoding oldEncoding = Encoding;
                 ArraySegment<byte> oldBuffer = _buffer;
@@ -1157,7 +1157,7 @@ namespace ZeroC.Ice
                 _pos = 0;
                 _minTotalSeqSize = 0;
 
-                endpoint = factory.Read(this);
+                endpoint = factory.Read(this, protocol);
                 CheckEndOfBuffer();
 
                 // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
@@ -1169,7 +1169,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                endpoint = new OpaqueEndpoint(type, encoding, _buffer.Slice(_pos, size - 2).ToArray());
+                endpoint = new OpaqueEndpoint(transport, protocol, encoding, _buffer.Slice(_pos, size - 2).ToArray());
                 _pos += size - 2;
             }
 

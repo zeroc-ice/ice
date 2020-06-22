@@ -10,6 +10,7 @@ using Test;
 
 namespace ZeroC.Ice.Test.Background
 {
+    // TODO: Endpoint is an awful name for this class.
     internal class Endpoint : ZeroC.Ice.Endpoint
     {
         public override string ConnectionId => _endpoint.ConnectionId;
@@ -19,9 +20,9 @@ namespace ZeroC.Ice.Test.Background
         public override bool IsSecure => _endpoint.IsSecure;
 
         public override int Timeout => _endpoint.Timeout;
-        public override EndpointType Type => (EndpointType)(TYPE_BASE + (short)_endpoint.Type);
+        public override Transport Transport => (Transport)(TransportBase + (short)_endpoint.Transport);
 
-        internal static short TYPE_BASE = 100;
+        internal const short TransportBase = 100;
         private readonly ZeroC.Ice.Endpoint _endpoint;
         private readonly Configuration _configuration;
 
@@ -61,7 +62,7 @@ namespace ZeroC.Ice.Test.Background
 
         public override void IceWritePayload(OutputStream ostr)
         {
-            ostr.WriteShort((short)_endpoint.Type);
+            ostr.WriteShort((short)_endpoint.Transport);
             _endpoint.IceWritePayload(ostr);
         }
 
@@ -146,6 +147,7 @@ namespace ZeroC.Ice.Test.Background
         }
 
         internal Endpoint(ZeroC.Ice.Endpoint endpoint)
+            : base(endpoint.Protocol)
         {
             _endpoint = endpoint;
             _configuration = Configuration.GetInstance();

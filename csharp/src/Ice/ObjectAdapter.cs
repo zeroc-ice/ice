@@ -1051,7 +1051,7 @@ namespace ZeroC.Ice
                 }
 
                 string s = endpts[beg..end];
-                endpoints.Add(Endpoint.Parse(s, Communicator, oaEndpoints));
+                endpoints.Add(Endpoint.Parse(s, Protocol.Ice1, Communicator, oaEndpoints));
                 ++end;
             }
 

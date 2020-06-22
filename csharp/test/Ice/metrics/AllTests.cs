@@ -463,12 +463,12 @@ namespace ZeroC.Ice.Test.Metrics
 
             output.WriteLine("ok");
 
-            string type = "";
+            string transportName = "";
             string isSecure = "";
             if (!collocated)
             {
                 Endpoint connectionEndpoint = metrics.GetConnection()!.Endpoint;
-                type = connectionEndpoint.Type.ToString();
+                transportName = connectionEndpoint.Transport.ToString();
                 isSecure = connectionEndpoint.IsSecure ? "True" : "False";
             }
 
@@ -600,7 +600,7 @@ namespace ZeroC.Ice.Test.Metrics
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
                             endpoint + " -t 500", output);
 
-                testAttribute(clientMetrics, clientProps, update, "Connection", "endpointType", type, output);
+                testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTransport", transportName, output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500", output);
@@ -666,7 +666,7 @@ namespace ZeroC.Ice.Test.Metrics
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
                             endpoint + " -t " + timeout, c, output);
 
-                testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", type, c, output);
+                testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTransport", transportName, c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
                             c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
@@ -735,7 +735,7 @@ namespace ZeroC.Ice.Test.Metrics
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint",
                             prx.GetConnection()!.Endpoint.ToString(), c, output);
 
-                testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", type, c, output);
+                testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTransport", transportName, c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "False", c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", isSecure, c, output);
                 testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "500", c, output);
@@ -838,7 +838,7 @@ namespace ZeroC.Ice.Test.Metrics
                             endpoint + " -t 60000", op, output);
                 //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
-                testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", type, op, output);
+                testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTransport", transportName, op, output);
                 testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
                 testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", isSecure, op, output);
                 testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "60000", op, output);

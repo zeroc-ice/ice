@@ -9,20 +9,14 @@ namespace ZeroC.Ice
     internal sealed class TcpConnector : IConnector
     {
         public ITransceiver Connect() =>
-            _endpoint.CreateTransceiver(Transport,
+            _endpoint.CreateTransceiver(
+                _endpoint.TransportName,
                 new StreamSocket(_communicator, _proxy, _addr, _sourceAddr), null);
 
-        public EndpointType Type { get; }
-        public string Transport { get; }
-
-        //
-        // Only for use by TcpEndpoint
-        //
+        // TODO: why are we copying all these readonly fields of the endpoint?
         internal TcpConnector(
             TcpEndpoint endpoint,
             Communicator communicator,
-            string transport,
-            EndpointType type,
             EndPoint addr,
             INetworkProxy? proxy,
             IPAddress? sourceAddr,
@@ -31,8 +25,6 @@ namespace ZeroC.Ice
         {
             _endpoint = endpoint;
             _communicator = communicator;
-            Transport = transport;
-            Type = type;
             _addr = addr;
             _proxy = proxy;
             _sourceAddr = sourceAddr;
