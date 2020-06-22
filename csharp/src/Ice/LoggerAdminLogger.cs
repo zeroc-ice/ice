@@ -65,10 +65,11 @@ namespace ZeroC.Ice
             // Create an unbounded channel to ensure the messages are sent from a separate thread. We don't allow
             // synchronous continuations to ensure that writes on the channel are never processed by the writer
             // thread.
-            _channel = Channel.CreateUnbounded<LogMessage>(new UnboundedChannelOptions {
+            _channel = Channel.CreateUnbounded<LogMessage>(new UnboundedChannelOptions
+            {
                 AllowSynchronousContinuations = false,
                 SingleReader = true,
-                SingleWriter = true
+                SingleWriter = false
             });
 
             Task.Run(async () =>

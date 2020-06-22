@@ -109,11 +109,12 @@ namespace ZeroC.Ice
         private Communicator? _sendLogCommunicator = null;
         private int _traceCount = 0;
 
-        public void AttachRemoteLogger(IRemoteLoggerPrx? prx,
-                                       LogMessageType[] types,
-                                       string[] categories,
-                                       int messageMax,
-                                       Current current)
+        public void AttachRemoteLogger(
+            IRemoteLoggerPrx? prx,
+            LogMessageType[] types,
+            string[] categories,
+            int messageMax,
+            Current current)
         {
             if (prx == null)
             {
