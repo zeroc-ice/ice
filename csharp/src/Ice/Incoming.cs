@@ -47,12 +47,9 @@ namespace ZeroC.Ice
                 current.Adapter.Communicator.ToStringMode));
             output.Append("\noperation: ").Append(current.Operation);
 
-            if (current.Connection?.GetConnectionInfo() is IpConnectionInfo ipinfo)
+            if ((current.Connection as IPConnection)!.RemoteAddress is System.Net.IPEndPoint remoteEndpoint)
             {
-                output.Append("\nremote host: ")
-                      .Append(ipinfo.RemoteAddress)
-                      .Append(" remote port: ")
-                      .Append(ipinfo.RemotePort);
+                output.Append("\nremote address: ").Append(remoteEndpoint);
             }
             output.Append("\n");
             output.Append(ex.ToString());

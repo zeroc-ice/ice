@@ -1002,7 +1002,7 @@ namespace ZeroC.Ice
                     _transceiver?.Close();
                     _acceptor?.Close();
                 }
-                catch (System.Exception)
+                catch
                 {
                     // Ignore
                 }

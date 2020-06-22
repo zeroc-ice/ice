@@ -152,7 +152,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public IRemoteObserver
-        GetRemoteObserver(ConnectionInfo c, Endpoint e, int a, int b)
+        GetRemoteObserver(Connection c, int a, int b)
         {
             lock (this)
             {
@@ -296,10 +296,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public IConnectionObserver?
-        GetConnectionObserver(ConnectionInfo c,
-                            Endpoint e,
-                            ConnectionState s,
-                            IConnectionObserver? old)
+        GetConnectionObserver(Connection c, ConnectionState s, IConnectionObserver? old)
         {
             lock (this)
             {

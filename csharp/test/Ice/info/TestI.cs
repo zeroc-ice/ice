@@ -40,26 +40,24 @@ namespace ZeroC.Ice.Test.Info
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
-            ConnectionInfo info = current.Connection.GetConnectionInfo();
-            ctx["adapterName"] = info.AdapterName!;
-            ctx["incoming"] = info.Incoming ? "true" : "false";
+            ctx["adapterName"] = current.Connection.Adapter?.Name ?? "";
+            ctx["incoming"] = current.Connection.IsIncoming ? "true" : "false";
 
-            var ipinfo = info as IpConnectionInfo;
-            TestHelper.Assert(ipinfo != null);
-            ctx["localAddress"] = ipinfo.LocalAddress;
-            ctx["localPort"] = ipinfo.LocalPort.ToString();
-            ctx["remoteAddress"] = ipinfo.RemoteAddress;
-            ctx["remotePort"] = ipinfo.RemotePort.ToString();
+            var iPConnection = current.Connection as IPConnection;
+            TestHelper.Assert(iPConnection != null);
+            ctx["localAddress"] = iPConnection.LocalAddress?.Address.ToString() ?? "";
+            ctx["localPort"] = iPConnection.LocalAddress?.Port.ToString() ?? "";
+            ctx["remoteAddress"] = iPConnection.RemoteAddress?.Address.ToString() ?? "";
+            ctx["remotePort"] = iPConnection.RemoteAddress?.Port.ToString() ?? "";
 
-            if (info is WsConnectionInfo || info is WssConnectionInfo)
+            if (((current.Connection as WSConnection)?.Headers ?? (current.Connection as WssConnection)?.Headers ?? null) is
+                IReadOnlyDictionary<string, string> headers)
             {
-                var headers = info is WsConnectionInfo wsInfo ? wsInfo.Headers! : ((WssConnectionInfo)info).Headers!;
-                foreach (KeyValuePair<string, string> e in headers)
+                foreach ((string key, string value) in headers)
                 {
-                    ctx["ws." + e.Key] = e.Value;
+                    ctx[$"ws.{key}"] = value;
                 }
             }
-
             return ctx;
         }
     }

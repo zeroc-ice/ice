@@ -568,7 +568,7 @@ namespace ZeroC.Ice
 
                 if (observer != null)
                 {
-                    childObserver = observer.GetRemoteObserver(this, Endpoint, requestId, request.Size);
+                    childObserver = observer.GetRemoteObserver(this, requestId, request.Size);
                     childObserver?.Attach();
                 }
 
@@ -757,8 +757,10 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                _observer = _communicator.Observer?.GetConnectionObserver(this, Endpoint,
-                    _connectionStateMap[(int)_state], _observer);
+                _observer = _communicator.Observer?.GetConnectionObserver(
+                    this,
+                    _connectionStateMap[(int)_state],
+                    _observer);
                 if (_observer != null)
                 {
                     _observer.Attach();
@@ -1558,8 +1560,7 @@ namespace ZeroC.Ice
                 ConnectionState newState = _connectionStateMap[(int)state];
                 if (oldState != newState)
                 {
-                    _observer = _communicator.Observer!.GetConnectionObserver(this, Endpoint,
-                        newState, _observer);
+                    _observer = _communicator.Observer!.GetConnectionObserver(this, newState, _observer);
                     if (_observer != null)
                     {
                         _observer.Attach();
@@ -1619,12 +1620,45 @@ namespace ZeroC.Ice
 
     public abstract class IPConnection : Connection
     {
-        public IPEndPoint? LocalAddress => Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
-        public IPEndPoint? RemoteAddress => Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
-        public int ReceiveSize =>
-            Transceiver.Fd() is Socket fd ? Network.GetRecvBufferSize(fd) : -1;
-        public int SendSize =>
-            Transceiver.Fd() is Socket fd ? Network.GetRecvBufferSize(fd) : -1;
+        public IPEndPoint? LocalAddress
+        {
+            get
+            {
+                // Cache the address to be able to access it after the socket is dispose
+                if (_localAddress == null)
+                {
+                    try
+                    {
+                        _localAddress = Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
+                    }
+                    catch
+                    {
+                    }
+                }
+                return _localAddress;
+            }
+        }
+        public IPEndPoint? RemoteAddress
+        {
+            get
+            {
+                // Cache the address to be able to access it after the socket is dispose
+                if (_remoteAddress == null)
+                {
+                    try
+                    {
+                        _remoteAddress = Transceiver.Fd()?.RemoteEndPoint as IPEndPoint;
+                    }
+                    catch
+                    {
+                    }
+                }
+                return _remoteAddress;
+            }
+        }
+
+        private IPEndPoint? _localAddress;
+        private IPEndPoint? _remoteAddress;
 
         public IPConnection(
             Communicator communicator,
@@ -1654,7 +1688,26 @@ namespace ZeroC.Ice
 
     public class UdpConnection : IPConnection
     {
-        public IPEndPoint? McastAddress => ((UdpTransceiver)Transceiver).McastAddress;
+        public IPEndPoint? McastAddress
+        {
+            get
+            {
+                // Cache the address to be able to access it after the socket is dispose
+                if (_mcastAddress == null)
+                {
+                    try
+                    {
+                        _mcastAddress = (Transceiver as UdpTransceiver)?.McastAddress;
+                    }
+                    catch
+                    {
+                    }
+                }
+                return _mcastAddress;
+            }
+        }
+
+        private IPEndPoint? _mcastAddress;
 
         public UdpConnection(
             Communicator communicator,
@@ -1668,11 +1721,11 @@ namespace ZeroC.Ice
         }
     }
 
-    public class WsConnection : TcpConnection
+    public class WSConnection : TcpConnection
     {
-        public ReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
+        public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
 
-        public WsConnection(
+        public WSConnection(
             Communicator communicator,
             IACMMonitor? monitor,
             ITransceiver transceiver,
@@ -1705,7 +1758,7 @@ namespace ZeroC.Ice
 
     public class WssConnection : SslConnection
     {
-        public ReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
+        public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
 
         public WssConnection(
             Communicator communicator,

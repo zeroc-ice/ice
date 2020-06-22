@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -49,7 +48,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return new WsConnection(communicator, monitor, this, connector, endpoint, adapter);
+                return new WSConnection(communicator, monitor, this, connector, endpoint, adapter);
             }
         }
 
@@ -681,7 +680,7 @@ namespace ZeroC.Ice
 
         public string Transport => _delegate.Transport;
 
-        public ReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
+        public IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
 
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
 

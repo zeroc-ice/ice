@@ -176,9 +176,6 @@ namespace ZeroC.Ice.Test.Background
 
         public string Transport => "test-" + _transceiver.Transport;
 
-        public ConnectionInfo GetInfo(string adapterName, string connectionId, bool incoming) =>
-            _transceiver.GetInfo(adapterName, connectionId, incoming);
-
         public override string? ToString() => _transceiver.ToString();
 
         public string ToDetailedString() => _transceiver.ToDetailedString();
@@ -190,6 +187,13 @@ namespace ZeroC.Ice.Test.Background
         public void Destroy() => _transceiver.Destroy();
 
         public ITransceiver GetDelegate() => _transceiver;
+        public Connection CreateConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            ZeroC.Ice.Endpoint endpoint,
+            ObjectAdapter? adapter) =>
+            _transceiver.CreateConnection(communicator, monitor, connector, endpoint, adapter);
 
         //
         // Only for use by Connector, Acceptor

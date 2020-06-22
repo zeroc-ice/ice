@@ -29,8 +29,8 @@ namespace ZeroC.Ice.Test.NetworkProxy
             output.Write("testing connection information... ");
             output.Flush();
             {
-                var info = testPrx.GetConnection()!.GetConnectionInfo() as IpConnectionInfo;
-                TestHelper.Assert(info!.RemotePort == proxyPort); // make sure we are connected to the proxy port.
+                var connection = (IPConnection)testPrx.GetConnection()!;
+                TestHelper.Assert(connection.RemoteAddress!.Port == proxyPort); // make sure we are connected to the proxy port.
             }
             output.WriteLine("ok");
 

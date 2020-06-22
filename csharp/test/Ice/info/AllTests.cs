@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Test;
@@ -160,35 +161,29 @@ namespace ZeroC.Ice.Test.Info
             output.Write("testing connection information... ");
             output.Flush();
             {
-                Connection connection = testIntf.GetConnection()!;
-                connection.SetBufferSize(1024, 2048);
+                IPConnection connection = (IPConnection)testIntf.GetConnection()!;
 
-                ConnectionInfo info = connection.GetConnectionInfo();
-                TcpConnectionInfo ipInfo = (info as TcpConnectionInfo)!;
-                TestHelper.Assert(!info.Incoming);
-                TestHelper.Assert(info.AdapterName!.Length == 0);
-                TestHelper.Assert(ipInfo.RemotePort == endpointPort);
-                TestHelper.Assert(ipInfo.LocalPort > 0);
+                TestHelper.Assert(!connection.IsIncoming);
+                TestHelper.Assert(connection.Adapter == null);
+                TestHelper.Assert(connection.RemoteAddress!.Port == endpointPort);
+                TestHelper.Assert(connection.LocalAddress!.Port > 0);
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    TestHelper.Assert(ipInfo.LocalAddress.Equals(defaultHost));
-                    TestHelper.Assert(ipInfo.RemoteAddress.Equals(defaultHost));
+                    TestHelper.Assert(connection.LocalAddress!.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(connection.RemoteAddress!.Address.ToString().Equals(defaultHost));
                 }
-                TestHelper.Assert(ipInfo.ReceiveSize >= 1024);
-                TestHelper.Assert(ipInfo.SendSize >= 2048);
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
                 TestHelper.Assert(ctx["incoming"].Equals("true"));
                 TestHelper.Assert(ctx["adapterName"].Equals("TestAdapter"));
-                TestHelper.Assert(ctx["remoteAddress"].Equals(ipInfo.LocalAddress));
-                TestHelper.Assert(ctx["localAddress"].Equals(ipInfo.RemoteAddress));
-                TestHelper.Assert(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
-                TestHelper.Assert(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
+                TestHelper.Assert(ctx["remoteAddress"].Equals(connection.LocalAddress!.Address.ToString()));
+                TestHelper.Assert(ctx["localAddress"].Equals(connection.RemoteAddress!.Address.ToString()));
+                TestHelper.Assert(ctx["remotePort"].Equals(connection.LocalAddress!.Port.ToString()));
+                TestHelper.Assert(ctx["localPort"].Equals(connection.RemoteAddress!.Port.ToString()));
 
-                if (testIntf.GetConnection()!.Type().Equals("ws") || testIntf.GetConnection()!.Type().Equals("ws"))
+                if (((connection as WSConnection)?.Headers ??
+                     (connection as WssConnection)?.Headers ?? null) is IReadOnlyDictionary<string, string> headers)
                 {
-                    Dictionary<string, string> headers = info is WsConnectionInfo wsInfo ? wsInfo.Headers! :
-                        ((WssConnectionInfo)info).Headers!;
                     TestHelper.Assert(headers["Upgrade"].Equals("websocket"));
                     TestHelper.Assert(headers["Connection"].Equals("Upgrade"));
                     TestHelper.Assert(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
@@ -201,22 +196,20 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(ctx["ws.Sec-WebSocket-Key"] != null);
                 }
 
-                connection = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
-                connection.SetBufferSize(2048, 1024);
+                connection = (IPConnection)testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
 
-                UdpConnectionInfo udpInfo = (connection.GetConnectionInfo() as UdpConnectionInfo)!;
-                TestHelper.Assert(!udpInfo.Incoming);
-                TestHelper.Assert(udpInfo.AdapterName!.Length == 0);
-                TestHelper.Assert(udpInfo.LocalPort > 0);
-                TestHelper.Assert(udpInfo.RemotePort == endpointPort);
+                var udpConnection = connection as UdpConnection;
+                TestHelper.Assert(udpConnection != null);
+                TestHelper.Assert(!udpConnection.IsIncoming);
+                TestHelper.Assert(udpConnection.Adapter == null);
+                TestHelper.Assert(udpConnection.LocalAddress?.Port > 0);
+                TestHelper.Assert(udpConnection.RemoteAddress?.Port == endpointPort);
 
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    TestHelper.Assert(udpInfo.RemoteAddress.Equals(defaultHost));
-                    TestHelper.Assert(udpInfo.LocalAddress.Equals(defaultHost));
+                    TestHelper.Assert(udpConnection.RemoteAddress.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(udpConnection.LocalAddress.Address.ToString().Equals(defaultHost));
                 }
-                TestHelper.Assert(udpInfo.ReceiveSize >= 2048);
-                TestHelper.Assert(udpInfo.SendSize >= 1024);
             }
             output.WriteLine("ok");
 

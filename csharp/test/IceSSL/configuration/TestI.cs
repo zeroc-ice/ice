@@ -18,8 +18,8 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             try
             {
-                var info = (SslConnectionInfo)current.Connection!.GetConnectionInfo();
-                TestHelper.Assert(info.Certs == null);
+                var sslConnection = (SslConnection)current.Connection!;
+                TestHelper.Assert(sslConnection.Certificates == null);
             }
             catch (Exception)
             {
@@ -32,11 +32,12 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             try
             {
-                var info = (SslConnectionInfo)current.Connection!.GetConnectionInfo();
-                TestHelper.Assert(info.Certs != null &&
-                    info.Certs.Length == 2 &&
-                    info.Certs[0].Subject.Equals(subjectDN) &&
-                    info.Certs[0].Issuer.Equals(issuerDN));
+                var sslConnection = (SslConnection)current.Connection!;
+                TestHelper.Assert(
+                    sslConnection.Certificates != null &&
+                    sslConnection.Certificates.Length == 2 &&
+                    sslConnection.Certificates[0].Subject.Equals(subjectDN) &&
+                    sslConnection.Certificates[0].Issuer.Equals(issuerDN));
             }
             catch (Exception)
             {
@@ -49,8 +50,8 @@ namespace ZeroC.IceSSL.Test.Configuration
         {
             try
             {
-                var info = (SslConnectionInfo)current.Connection!.GetConnectionInfo();
-                TestHelper.Assert(info.Cipher != null && info.Cipher.Equals(cipher));
+                var sslConnection = (SslConnection)current.Connection!;
+                TestHelper.Assert(sslConnection.Cipher != null && sslConnection.Cipher.Equals(cipher));
             }
             catch (Exception)
             {
