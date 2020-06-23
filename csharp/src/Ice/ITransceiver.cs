@@ -15,6 +15,12 @@ namespace ZeroC.Ice
 
     public interface ITransceiver
     {
+        public Connection CreateConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter);
         Socket? Fd();
 
         /// <summary>
@@ -29,7 +35,7 @@ namespace ZeroC.Ice
         /// whenever the operation needs to write more data, read more data or it is done.</returns>
         int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer);
 
-        int Closing(bool initiator, System.Exception? ex);
+        int Closing(bool initiator, Exception? ex);
         void Close();
         void Destroy();
 
@@ -302,8 +308,6 @@ namespace ZeroC.Ice
 
         string TransportName { get; }
         string ToDetailedString();
-        ConnectionInfo GetInfo();
         void CheckSendSize(int size);
-        void SetBufferSize(int rcvSize, int sndSize);
     }
 }

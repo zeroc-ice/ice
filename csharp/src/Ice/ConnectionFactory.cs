@@ -455,11 +455,11 @@ namespace ZeroC.Ice
             return null;
         }
 
-        private Connection CreateConnection(ITransceiver transceiver, ConnectorInfo ci)
+        private Connection CreateConnection(ITransceiver transceiver, ConnectorInfo connectorInfo)
         {
             lock (_mutex)
             {
-                Debug.Assert(_pending.ContainsKey(ci.Connector) && transceiver != null);
+                Debug.Assert(_pending.ContainsKey(connectorInfo.Connector) && transceiver != null);
 
                 //
                 // Create and add the connection to the connection map. Adding the connection to the map
@@ -474,8 +474,8 @@ namespace ZeroC.Ice
                         throw new CommunicatorDestroyedException();
                     }
 
-                    connection = new Connection(_communicator, _monitor, transceiver, ci.Connector,
-                                                    ci.Endpoint.NewCompressionFlag(false), null);
+                    connection = transceiver.CreateConnection(_communicator, _monitor, connectorInfo.Connector,
+                        connectorInfo.Endpoint.NewCompressionFlag(false), null);
                 }
                 catch
                 {
@@ -489,7 +489,7 @@ namespace ZeroC.Ice
                     }
                     throw;
                 }
-                _connections.Add(ci.Connector, connection);
+                _connections.Add(connectorInfo.Connector, connection);
                 _connectionsByEndpoint.Add(connection.Endpoint, connection);
                 _connectionsByEndpoint.Add(connection.Endpoint.NewCompressionFlag(true), connection);
                 return connection;
@@ -973,7 +973,7 @@ namespace ZeroC.Ice
                     }
                     _endpoint = _transceiver.Bind();
 
-                    var connection = new Connection(_communicator, null, _transceiver, null, _endpoint, _adapter);
+                    var connection = _transceiver.CreateConnection(_communicator, null, null, _endpoint, _adapter);
                     _ = connection.StartAsync();
                     _connections.Add(connection);
                 }
@@ -1005,7 +1005,7 @@ namespace ZeroC.Ice
                     _transceiver?.Close();
                     _acceptor?.Close();
                 }
-                catch (System.Exception)
+                catch
                 {
                     // Ignore
                 }
@@ -1202,7 +1202,8 @@ namespace ZeroC.Ice
 
                     try
                     {
-                        connection = new Connection(_communicator, _monitor, transceiver, null, _endpoint, _adapter);
+                        connection = transceiver.CreateConnection(
+                            _communicator, _monitor, null, _endpoint, _adapter);
                     }
                     catch (Exception ex)
                     {

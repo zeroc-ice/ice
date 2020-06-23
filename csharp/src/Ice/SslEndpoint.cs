@@ -75,7 +75,9 @@ namespace ZeroC.Ice
             new SslTransceiver(Communicator,
                                SslEngine,
                                base.CreateTransceiver(transport, socket, adapterName),
-                               adapterName ?? Host, adapterName != null);
+                               adapterName ?? Host,
+                               adapterName != null,
+                               ConnectionId);
     }
 
     internal sealed class SslEndpointFactory : IEndpointFactory

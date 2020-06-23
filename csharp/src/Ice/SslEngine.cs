@@ -297,12 +297,12 @@ namespace ZeroC.Ice
             _logger.Trace(SecurityTraceCategory, s.ToString());
         }
 
-        internal void VerifyPeer(SslConnectionInfo info, string desc)
+        internal void VerifyPeer(bool incoming, X509Certificate2[] certs, string adapterName, string desc)
         {
-            if (_verifyDepthMax > 0 && info.Certs != null && info.Certs.Length > _verifyDepthMax)
+            if (_verifyDepthMax > 0 && certs.Length > _verifyDepthMax)
             {
-                string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                    "length of peer's certificate chain (" + info.Certs.Length + ") exceeds maximum of " +
+                string msg = (incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
+                    "length of peer's certificate chain (" + certs.Length + ") exceeds maximum of " +
                     _verifyDepthMax + "\n" + desc;
                 if (SecurityTraceLevel >= 1)
                 {
@@ -311,9 +311,9 @@ namespace ZeroC.Ice
                 throw new TransportException(msg);
             }
 
-            if (!_trustManager.Verify(info, desc))
+            if (!_trustManager.Verify(incoming, certs, adapterName, desc))
             {
-                string msg = (info.Incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
+                string msg = (incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" +
                     desc;
                 if (SecurityTraceLevel >= 1)
                 {

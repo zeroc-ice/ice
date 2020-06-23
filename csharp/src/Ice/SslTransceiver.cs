@@ -15,6 +15,17 @@ namespace ZeroC.Ice
 {
     internal sealed class SslTransceiver : ITransceiver
     {
+        public string? Cipher => _cipher;
+
+        public X509Certificate2[]? Certificates => _certs;
+
+        public Connection CreateConnection(
+            Communicator communicator,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            Endpoint endpoint,
+            ObjectAdapter? adapter) => new SslConnection(communicator, monitor, this, connector, endpoint, adapter);
+
         public Socket? Fd() => _delegate.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -72,7 +83,7 @@ namespace ZeroC.Ice
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            _engine.VerifyPeer((SslConnectionInfo)GetInfo(), ToString());
+            _engine.VerifyPeer(_incoming, _certs ?? Array.Empty<X509Certificate2>(), _adapterName ?? "", ToString());
 
             if (_engine.SecurityTraceLevel >= 1)
             {
@@ -292,21 +303,7 @@ namespace ZeroC.Ice
 
         public string TransportName => _delegate.TransportName;
 
-        public ConnectionInfo GetInfo()
-        {
-            var info = new SslConnectionInfo();
-            info.Underlying = _delegate.GetInfo();
-            info.Incoming = _incoming;
-            info.AdapterName = _adapterName;
-            info.Cipher = _cipher;
-            info.Certs = _certs;
-            info.Verified = _verified;
-            return info;
-        }
-
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
-
-        public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 
         public override string ToString() => _delegate.ToString()!;
 
@@ -316,11 +313,12 @@ namespace ZeroC.Ice
         // Only for use by ConnectorI, AcceptorI.
         //
         internal SslTransceiver(Communicator communicator, SslEngine engine, ITransceiver del,
-            string hostOrAdapterName, bool incoming)
+            string hostOrAdapterName, bool incoming, string connectionId)
         {
             _communicator = communicator;
             _engine = engine;
             _delegate = del;
+            _connectionId = connectionId;
             _incoming = incoming;
             if (_incoming)
             {
@@ -509,13 +507,11 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            _verified = true;
                             return true;
                         }
                     }
                     else
                     {
-                        _verified = true;
                         return true;
                     }
                 }
@@ -572,10 +568,6 @@ namespace ZeroC.Ice
                             {
                                 message += "\nuntrusted root certificate";
                                 ++errorCount;
-                            }
-                            else
-                            {
-                                _verified = true;
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)
@@ -693,6 +685,7 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly SslEngine _engine;
         private readonly ITransceiver _delegate;
+        private readonly string _connectionId;
         private readonly string? _host;
         private readonly string? _adapterName;
         private readonly bool _incoming;
@@ -708,6 +701,5 @@ namespace ZeroC.Ice
         private int _maxRecvPacketSize;
         private string? _cipher;
         private X509Certificate2[]? _certs;
-        private bool _verified;
     }
 }
