@@ -515,7 +515,7 @@ public:
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                                    const StringList&, NodeType = Real);
-    EnumPtr createEnum(const std::string&, const TypePtr&, NodeType = Real);
+    EnumPtr createEnum(const std::string&, bool, NodeType = Real);
     EnumeratorPtr createEnumerator(const std::string&);
     EnumeratorPtr createEnumerator(const std::string&, std::int64_t);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
@@ -1006,9 +1006,13 @@ public:
 
     virtual void destroy();
 
-    // The underlying numeric type. The default is varint. The only permissible explicit types are fixed-length
-    // numeric types such as byte, short, ushort.
+    // The underlying type. The default is nullptr, which means a range of 0..INT32_MAX encoded as a variable-length
+    // size. The only permissible underlying types are byte, short, ushort, int, and uint.
     BuiltinPtr underlying() const;
+
+    // A Slice enum is checked by default: the generated unmarshaling code verifies the value matches one of the enum's
+    // enumerators.
+    bool isUnchecked() const { return _unchecked; }
 
     bool explicitValue() const;
 
@@ -1024,15 +1028,19 @@ public:
     virtual void visit(ParserVisitor*, bool);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
+    // Sets the underlying type shortly after construction and before any enumerator is added.
+    void initUnderlying(const TypePtr&);
+
 protected:
 
-    Enum(const ContainerPtr&, const std::string&, const BuiltinPtr&);
+    Enum(const ContainerPtr&, const std::string&, bool);
     std::int64_t newEnumerator(const EnumeratorPtr&);
 
     friend class Container;
     friend class Enumerator;
 
-    const BuiltinPtr _underlying;
+    const bool _unchecked;
+    BuiltinPtr _underlying;
     bool _explicitValue;
     std::int64_t _minValue;
     std::int64_t _maxValue;

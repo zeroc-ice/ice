@@ -12,8 +12,8 @@ const long C4 = 0x80000001;
 const float C5 = 1.1;
 const long C6 = 2;
 
-enum E { e1, e2, e3 = 4 }
-enum Ebis { e2 }
+enum E : uint { e1, e2, e3 = 4, e4 = 0x100000000 }
+enum Ebis : short { e2, e3 = -1 }
 enum Eter { e2 }
 
 class C
@@ -32,8 +32,11 @@ class C
     tag(C6) bool? m12;          // ok
     tag(E::e1) int? m13;        // duplicate tag
     tag(e2) int? m14;           // ambiguous
-    tag(e3) int? m15;           // ok
+    tag(E::e3) int? m15;        // ok
     tag(4) int? m16;            // duplicate tag
+    optional(123) int? m17;     // deprecated
+    tag(E::e4) int? m18;        // out of range
+    tag(EBis::e3) int? m19;     // out of range
 }
 
 class Base
@@ -62,9 +65,11 @@ class Ex
     tag(C6) bool? m12;          // ok
     tag(E::e1) int? m13;        // duplicate tag
     tag(E::e2) int? m14;        // ok
-    tag(e3) int? m15;           // ok
+    tag(E::e3) int? m15;        // ok
     tag(4) int? m16;            // duplicate tag
     optional(123) int? m17;     // deprecated
+    tag(E::e4) int? m18;        // out of range
+    tag(EBis::e3) int? m19;     // out of range
 }
 
 class BaseEx

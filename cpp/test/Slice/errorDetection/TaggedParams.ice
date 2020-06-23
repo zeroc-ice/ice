@@ -12,7 +12,7 @@ const long C4 = 0x80000001;
 const float C5 = 1.1;
 const long C6 = 2;
 
-enum E { e1, e2, e3 }
+enum E : uint { e1, e2, e3, e4 = 0x100000000 }
 enum Ebis { e1 }
 
 interface I
@@ -56,6 +56,7 @@ interface I
     void o10(out tag(C5) bool? p);          // invalid tag
     void o11(out tag(C6) bool? p);          // ok
     void o12(out tag(e1) int? p);           // ambiguous
+    void o13(out tag(E::e4) int? p);        // out of range
 
     tag(1) int? io1(tag(2) int? p, out tag(3) int? o);      // ok
     tag(1) int? io2(out tag(2) int? p, out tag(3) int? o);  // ok
