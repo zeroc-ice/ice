@@ -1949,11 +1949,12 @@ enum_def
     $$ = $3;
 }
 |
-ICE_ENUM
+enum_start
 {
+    bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     unit->error("missing enumeration name");
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), nullptr, Dummy);
+    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
     unit->pushContainer(en);
     $$ = en;
 }
