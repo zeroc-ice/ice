@@ -13,7 +13,7 @@ namespace ZeroC.Ice
 {
     internal sealed class UdpTransceiver : ITransceiver
     {
-        internal IPEndPoint? McastAddress => _mcastAddr;
+        internal System.Net.IPEndPoint? McastAddress { get; private set; } = null;
 
         public Connection CreateConnection(
             Communicator communicator,
@@ -56,13 +56,9 @@ namespace ZeroC.Ice
             return SocketOperation.None;
         }
 
-        public int Closing(bool initiator, Exception? ex)
-        {
-            //
+        public int Closing(bool initiator, Exception? ex) =>
             // Nothing to do.
-            //
-            return SocketOperation.None;
-        }
+            SocketOperation.None;
 
         public void Close()
         {
@@ -84,7 +80,7 @@ namespace ZeroC.Ice
             if (Network.IsMulticast((IPEndPoint)_addr))
             {
                 Network.SetReuseAddress(_fd, true);
-                _mcastAddr = (IPEndPoint)_addr;
+                McastAddress = (IPEndPoint)_addr;
                 if (AssemblyUtil.IsWindows)
                 {
                     //
@@ -107,10 +103,10 @@ namespace ZeroC.Ice
                 _addr = Network.DoBind(_fd, _addr);
                 if (_port == 0)
                 {
-                    _mcastAddr.Port = ((IPEndPoint)_addr).Port;
+                    McastAddress.Port = ((IPEndPoint)_addr).Port;
                 }
                 Debug.Assert(_mcastInterface != null);
-                Network.SetMcastGroup(_fd, _mcastAddr.Address, _mcastInterface);
+                Network.SetMcastGroup(_fd, McastAddress.Address, _mcastInterface);
             }
             else
             {
@@ -589,9 +585,9 @@ namespace ZeroC.Ice
                     s = Network.FdToString(_fd);
                 }
 
-                if (_mcastAddr != null)
+                if (McastAddress != null)
                 {
-                    s += "\nmulticast address = " + Network.AddrToString(_mcastAddr);
+                    s += "\nmulticast address = " + Network.AddrToString(McastAddress);
                 }
                 return s;
             }
@@ -605,7 +601,7 @@ namespace ZeroC.Ice
         {
             var s = new StringBuilder(ToString());
             List<string> intfs;
-            if (_mcastAddr == null)
+            if (McastAddress == null)
             {
                 intfs = Network.GetHostsForEndpointExpand(Network.EndpointAddressToString(_addr),
                                                           _communicator.IPVersion, true);
@@ -614,7 +610,7 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_mcastInterface != null);
                 intfs = Network.GetInterfacesForMulticast(_mcastInterface,
-                                                          Network.GetIPVersion(_mcastAddr.Address));
+                                                          Network.GetIPVersion(McastAddress.Address));
             }
 
             if (intfs.Count != 0)
@@ -834,10 +830,9 @@ namespace ZeroC.Ice
         private int _rcvSize;
         private int _sndSize;
         private readonly Socket _fd;
-        private EndPoint _addr;
+        private System.Net.EndPoint _addr;
         private readonly IPEndPoint? _sourceAddr;
-        private IPEndPoint? _mcastAddr = null;
-        private EndPoint? _peerAddr = null;
+        private System.Net.EndPoint? _peerAddr = null;
         private readonly string? _mcastInterface = null;
 
         private readonly int _port = 0;

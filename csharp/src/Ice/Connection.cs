@@ -1612,7 +1612,7 @@ namespace ZeroC.Ice
 
     public abstract class IPConnection : Connection
     {
-        public IPEndPoint? LocalAddress
+        public System.Net.IPEndPoint? LocalAddress
         {
             get
             {
@@ -1621,7 +1621,7 @@ namespace ZeroC.Ice
                 {
                     try
                     {
-                        _localAddress = Transceiver.Fd()?.LocalEndPoint as IPEndPoint;
+                        _localAddress = Transceiver.Fd()?.LocalEndPoint as System.Net.IPEndPoint;
                     }
                     catch
                     {
@@ -1630,7 +1630,7 @@ namespace ZeroC.Ice
                 return _localAddress;
             }
         }
-        public IPEndPoint? RemoteAddress
+        public System.Net.IPEndPoint? RemoteAddress
         {
             get
             {
@@ -1639,7 +1639,7 @@ namespace ZeroC.Ice
                 {
                     try
                     {
-                        _remoteAddress = Transceiver.Fd()?.RemoteEndPoint as IPEndPoint;
+                        _remoteAddress = Transceiver.Fd()?.RemoteEndPoint as System.Net.IPEndPoint;
                     }
                     catch
                     {
@@ -1649,8 +1649,8 @@ namespace ZeroC.Ice
             }
         }
 
-        private IPEndPoint? _localAddress;
-        private IPEndPoint? _remoteAddress;
+        private System.Net.IPEndPoint? _localAddress;
+        private System.Net.IPEndPoint? _remoteAddress;
 
         public IPConnection(
             Communicator communicator,
@@ -1680,7 +1680,7 @@ namespace ZeroC.Ice
 
     public class UdpConnection : IPConnection
     {
-        public IPEndPoint? McastAddress
+        public System.Net.IPEndPoint? McastAddress
         {
             get
             {
@@ -1699,7 +1699,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private IPEndPoint? _mcastAddress;
+        private System.Net.IPEndPoint? _mcastAddress;
 
         public UdpConnection(
             Communicator communicator,
