@@ -14,20 +14,9 @@ namespace ZeroC.IceMX
     {
         internal object Clone() => MemberwiseClone();
     }
+
     internal class MetricsHelper<T> where T : Metrics
     {
-        private readonly AttributeResolver _attributes;
-
-        public virtual void InitMetrics(T metrics)
-        {
-            // Override in specialized helpers.
-        }
-
-        internal string Resolve(string attribute) => _attributes.Resolve(this, attribute);
-        protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
-
-        protected virtual string? DefaultResolve(string attribute) => null;
-
         internal class AttributeResolver
         {
             private readonly Dictionary<string, Func<object, object?>> _attributes =
@@ -48,6 +37,18 @@ namespace ZeroC.IceMX
                 return resolver(helper)?.ToString() ?? "";
             }
         }
+
+        private readonly AttributeResolver _attributes;
+
+        public virtual void InitMetrics(T metrics)
+        {
+            // Override in specialized helpers.
+        }
+
+        internal string Resolve(string attribute) => _attributes.Resolve(this, attribute);
+        protected MetricsHelper(AttributeResolver attributes) => _attributes = attributes;
+
+        protected virtual string? DefaultResolve(string attribute) => null;
     }
 
     internal class Observer<T> : Stopwatch, Ice.Instrumentation.IObserver where T : Metrics, new()

@@ -69,12 +69,12 @@ namespace ZeroC.Ice.Instrumentation
         /// this method for each invocation on a proxy.</summary>
         /// <param name="prx">The proxy used for the invocation.</param>
         /// <param name="operation">The name of the invocation.</param>
-        /// <param name="contex">The context specified by the user.</param>
+        /// <param name="context">The context specified by the user.</param>
         /// <returns>The invocation observer to instrument the invocation.</returns>
         IInvocationObserver? GetInvocationObserver(
             IObjectPrx prx,
             string operation,
-            IReadOnlyDictionary<string, string> contex);
+            IReadOnlyDictionary<string, string> context);
 
         /// <summary>The Ice run-time calls this method when the communicator is initialized. The add-in implementing
         /// this interface can use this object to get the Ice run-time to re-obtain observers for observed objects.

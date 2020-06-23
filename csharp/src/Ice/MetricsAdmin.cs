@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace ZeroC.Ice
         MetricsFailures[] GetFailures();
         MetricsFailures? GetFailures(string id);
         Metrics[] GetMetrics();
-        Dictionary<string, string> GetProperties();
+        IReadOnlyDictionary<string, string> GetProperties();
     }
 
     internal interface IMetricsMapFactory
@@ -47,7 +48,7 @@ namespace ZeroC.Ice
     {
         internal class Entry
         {
-            public MetricsMap<T> Map { get; }
+            internal MetricsMap<T> Map { get; }
 
             internal MetricsFailures? Failures => _failures == null ?
                 (MetricsFailures?)null : new MetricsFailures(_object.Id, new Dictionary<string, int>(_failures));
@@ -55,12 +56,13 @@ namespace ZeroC.Ice
             internal bool IsDetached => _object.Current == 0;
 
             private Dictionary<string, int>? _failures;
-            private readonly object _mutex = new object();
+            private readonly object _mutex;
             private readonly T _object;
             private Dictionary<string, ISubMap>? _subMaps;
 
-            internal Entry(MetricsMap<T> map, T obj)
+            internal Entry(object mutex, MetricsMap<T> map, T obj)
             {
+                _mutex = mutex;
                 Map = map;
                 _object = obj;
             }
@@ -110,10 +112,8 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     ++_object.Failures;
-                    if (_failures == null)
-                    {
-                        _failures = new Dictionary<string, int>();
-                    }
+                    _failures ??= new Dictionary<string, int>();
+
                     if (_failures.TryGetValue(exceptionName, out int count))
                     {
                         _failures[exceptionName] = count + 1;
@@ -149,22 +149,22 @@ namespace ZeroC.Ice
             }
         }
 
-        private readonly Dictionary<string, Regex> _accept;
+        private readonly IReadOnlyDictionary<string, Regex> _accept;
         private LinkedList<Entry>? _detachedQueue;
-        private readonly List<string> _groupByAttributes;
-        private readonly List<string> _groupBySeparators;
+        private readonly IReadOnlyList<string> _groupByAttributes;
+        private readonly IReadOnlyList<string> _groupBySeparators;
         private readonly object _mutex = new object();
-        private readonly Dictionary<string, Entry> _objects = new Dictionary<string, Entry>();
-        private readonly Dictionary<string, string> _properties;
-        private readonly Dictionary<string, Regex> _reject;
+        private readonly Dictionary<string, Entry> _entries = new Dictionary<string, Entry>();
+        private readonly IReadOnlyDictionary<string, string> _properties;
+        private readonly IReadOnlyDictionary<string, Regex> _reject;
         private readonly int _retain;
-        private readonly Dictionary<string, ISubMapCloneFactory>? _subMaps;
+        private readonly IReadOnlyDictionary<string, ISubMapCloneFactory>? _subMapCloneFactories;
 
         public MetricsFailures[] GetFailures()
         {
             lock (_mutex)
             {
-                return _objects.Values.Where(entry => entry.Failures != null).Select(
+                return _entries.Values.Where(entry => entry.Failures != null).Select(
                     entry => entry.Failures!.Value).ToArray();
             }
         }
@@ -173,11 +173,11 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                return _objects.Values.Select(entry => entry.Clone()).ToArray();
+                return _entries.Values.Select(entry => entry.Clone()).ToArray();
             }
         }
 
-        public Dictionary<string, string> GetProperties() => _properties;
+        public IReadOnlyDictionary<string, string> GetProperties() => _properties;
 
         internal MetricsMap(string mapPrefix, Communicator communicator, Dictionary<string, ISubMapFactory>? subMaps)
         {
@@ -187,8 +187,8 @@ namespace ZeroC.Ice
             _retain = communicator.GetPropertyAsInt($"{mapPrefix}RetainDetached") ?? 10;
             _accept = ParseRule(communicator, $"{mapPrefix}Accept");
             _reject = ParseRule(communicator, $"{mapPrefix}Reject");
-            _groupByAttributes = new List<string>();
-            _groupBySeparators = new List<string>();
+            var groupByAttributes = new List<string>();
+            var groupBySeparators = new List<string>();
 
             string groupBy = communicator.GetProperty($"{mapPrefix}GroupBy") ?? "id";
             if (groupBy.Length > 0)
@@ -197,7 +197,7 @@ namespace ZeroC.Ice
                 bool attribute = char.IsLetter(groupBy[0]) || char.IsDigit(groupBy[0]);
                 if (!attribute)
                 {
-                    _groupByAttributes.Add("");
+                    groupByAttributes.Add("");
                 }
 
                 foreach (char p in groupBy)
@@ -205,13 +205,13 @@ namespace ZeroC.Ice
                     bool isAlphaNum = char.IsLetter(p) || char.IsDigit(p) || p == '.';
                     if (attribute && !isAlphaNum)
                     {
-                        _groupByAttributes.Add(v);
+                        groupByAttributes.Add(v);
                         v = "" + p;
                         attribute = false;
                     }
                     else if (!attribute && isAlphaNum)
                     {
-                        _groupBySeparators.Add(v);
+                        groupBySeparators.Add(v);
                         v = "" + p;
                         attribute = true;
                     }
@@ -223,19 +223,22 @@ namespace ZeroC.Ice
 
                 if (attribute)
                 {
-                    _groupByAttributes.Add(v);
+                    groupByAttributes.Add(v);
                 }
                 else
                 {
-                    _groupBySeparators.Add(v);
+                    groupBySeparators.Add(v);
                 }
             }
+            _groupByAttributes = groupByAttributes.ToImmutableList();
+            _groupBySeparators = groupBySeparators.ToImmutableList();
 
             if (subMaps != null && subMaps.Count > 0)
             {
-                _subMaps = new Dictionary<string, ISubMapCloneFactory>();
+                _subMapCloneFactories = new Dictionary<string, ISubMapCloneFactory>();
 
                 var subMapNames = new List<string>();
+                var subMapCloneFactories = new Dictionary<string, ISubMapCloneFactory>();
                 foreach (KeyValuePair<string, ISubMapFactory> e in subMaps)
                 {
                     subMapNames.Add(e.Key);
@@ -253,12 +256,13 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    _subMaps.Add(e.Key, e.Value.CreateCloneFactory(subMapPrefix, communicator));
+                    subMapCloneFactories.Add(e.Key, e.Value.CreateCloneFactory(subMapPrefix, communicator));
                 }
+                _subMapCloneFactories = subMapCloneFactories.ToImmutableDictionary();
             }
             else
             {
-                _subMaps = null;
+                _subMapCloneFactories = null;
             }
         }
 
@@ -270,18 +274,18 @@ namespace ZeroC.Ice
             _retain = map._retain;
             _accept = map._accept;
             _reject = map._reject;
-            _subMaps = map._subMaps;
+            _subMapCloneFactories = map._subMapCloneFactories;
         }
 
         internal ISubMap? CreateSubMap(string subMapName) =>
-            _subMaps != null && _subMaps.TryGetValue(subMapName, out ISubMapCloneFactory? factory) ?
+            _subMapCloneFactories != null && _subMapCloneFactories.TryGetValue(subMapName, out ISubMapCloneFactory? factory) ?
                 factory.Create() : null;
 
         public MetricsFailures? GetFailures(string id)
         {
             lock (_mutex)
             {
-                return _objects.TryGetValue(id, out MetricsMap<T>.Entry? entry) ? entry.Failures : null;
+                return _entries.TryGetValue(id, out MetricsMap<T>.Entry? entry) ? entry.Failures : null;
             }
         }
 
@@ -338,16 +342,16 @@ namespace ZeroC.Ice
             {
                 if (previous != null && previous.Id.Equals(key))
                 {
-                    Debug.Assert(_objects[key] == previous);
+                    Debug.Assert(_entries[key] == previous);
                     return previous;
                 }
 
-                if (!_objects.TryGetValue(key, out MetricsMap<T>.Entry? e))
+                if (!_entries.TryGetValue(key, out MetricsMap<T>.Entry? e))
                 {
                     var t = new T();
                     t.Id = key;
-                    e = new Entry(this, t);
-                    _objects.Add(key, e);
+                    e = new Entry(_mutex, this, t);
+                    _entries.Add(key, e);
                 }
                 e.Attach(helper);
                 return e;
@@ -382,7 +386,7 @@ namespace ZeroC.Ice
             // If there's still no room, remove the oldest entry (at the front).
             if (_detachedQueue.Count == _retain)
             {
-                _objects.Remove(_detachedQueue.First!.Value.Id);
+                _entries.Remove(_detachedQueue.First!.Value.Id);
                 _detachedQueue.RemoveFirst();
             }
 
@@ -407,10 +411,9 @@ namespace ZeroC.Ice
         private Dictionary<string, Regex> ParseRule(Communicator communicator, string name)
         {
             var pats = new Dictionary<string, Regex>();
-            Dictionary<string, string> rules = communicator.GetProperties(forPrefix: $"{name}.");
-            foreach (KeyValuePair<string, string> e in rules)
+            foreach ((string key, string value) in communicator.GetProperties(forPrefix: $"{name}."))
             {
-                pats.Add(e.Key.Substring(name.Length + 1), new Regex(e.Value));
+                pats.Add(key.Substring(name.Length + 1), new Regex(value));
             }
             return pats;
         }
@@ -479,9 +482,14 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                MetricsView? view = GetMetricsView(viewName);
-                return (view == null ? new Dictionary<string, Metrics?[]>() :
-                    view.GetMetrics() as Dictionary<string, Metrics?[]>, Time.CurrentMonotonicTimeMillis());
+                if (GetMetricsView(viewName) is MetricsView view)
+                {
+                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>, Time.CurrentMonotonicTimeMillis());
+                }
+                else
+                {
+                    return (ImmutableDictionary<string, Metrics?[]>.Empty, Time.CurrentMonotonicTimeMillis());
+                }
             }
         }
 
@@ -489,7 +497,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                return (new List<string>(_views.Keys).ToArray(), _disabledViews.ToArray());
+                return (_views.Keys.ToArray(), _disabledViews.ToArray());
             }
         }
 
@@ -553,20 +561,16 @@ namespace ZeroC.Ice
 
         internal void Updated(IReadOnlyDictionary<string, string> props)
         {
-            foreach (KeyValuePair<string, string> e in props)
+            if (props.Keys.FirstOrDefault(key => key.IndexOf("IceMX.") == 0) != null)
             {
-                if (e.Key.IndexOf("IceMX.") == 0)
+                // Update the metrics views using the new configuration.
+                try
                 {
-                    // Update the metrics views using the new configuration.
-                    try
-                    {
-                        UpdateViews();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Warning($"unexpected exception while updating metrics view configuration:\n{ex}");
-                    }
-                    return;
+                    UpdateViews();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning($"unexpected exception while updating metrics view configuration:\n{ex}");
                 }
             }
         }
@@ -617,18 +621,9 @@ namespace ZeroC.Ice
             return updated;
         }
 
-        private MetricsView? GetMetricsView(string name)
-        {
-            if (!_views.TryGetValue(name, out MetricsView? view))
-            {
-                if (!_disabledViews.Contains(name))
-                {
-                    throw new UnknownMetricsView();
-                }
-                return null;
-            }
-            return view;
-        }
+        private MetricsView? GetMetricsView(string name) =>
+            _views.TryGetValue(name, out MetricsView? view) ? view :
+                (_disabledViews.Contains(name) ? (MetricsView?)null : throw new UnknownMetricsView());
 
         private bool RemoveMap(string mapName)
         {
@@ -680,11 +675,11 @@ namespace ZeroC.Ice
                     }
                     views[viewName] = v;
 
-                    foreach (KeyValuePair<string, IMetricsMapFactory> f in _factories)
+                    foreach ((string key, IMetricsMapFactory value) in _factories)
                     {
-                        if (v.AddOrUpdateMap(_communicator, f.Key, f.Value, Logger))
+                        if (v.AddOrUpdateMap(_communicator, key, value, Logger))
                         {
-                            updatedMaps.Add(f.Value);
+                            updatedMaps.Add(value);
                         }
                     }
                 }
@@ -837,6 +832,7 @@ namespace ZeroC.Ice
     internal class SubMapFactory<S> : ISubMapFactory where S : Metrics, new()
     {
         private readonly Action<Metrics, Metrics[]> _fieldSetter;
+
         internal SubMapFactory(Action<Metrics, Metrics[]> fieldSetter) => _fieldSetter = fieldSetter;
 
         public ISubMapCloneFactory CreateCloneFactory(string subMapPrefix, Communicator communicator) =>
