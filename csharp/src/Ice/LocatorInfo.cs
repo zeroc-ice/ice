@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -111,7 +112,7 @@ namespace ZeroC.Ice
                 if (resolvedReference == null || resolvedReference.Encoding != reference.Encoding)
                 {
                     // If the resolved reference is null or the encoding doesn't match, we can't use it.
-                    endpoints = Reference.EmptyEndpoints;
+                    endpoints = ImmutableArray<Endpoint>.Empty;
                 }
                 else if (!resolvedReference.IsIndirect)
                 {
@@ -272,7 +273,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        return Reference.EmptyEndpoints;
+                        return ImmutableArray<Endpoint>.Empty;
                     }
                 }
                 catch (AdapterNotFoundException)
@@ -436,7 +437,7 @@ namespace ZeroC.Ice
         {
             if (ttl == TimeSpan.Zero) // Locator cache disabled.
             {
-                return (Reference.EmptyEndpoints, false);
+                return (ImmutableArray<Endpoint>.Empty, false);
             }
 
             if (_adapterEndpointsTable.TryGetValue(adapter,
@@ -446,7 +447,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return (Reference.EmptyEndpoints, false);
+                return (ImmutableArray<Endpoint>.Empty, false);
             }
         }
 

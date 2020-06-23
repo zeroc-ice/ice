@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
@@ -19,7 +20,6 @@ namespace ZeroC.Ice
     public sealed class Reference : IEquatable<Reference>
     {
         internal static readonly IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
-        internal static readonly IReadOnlyList<Endpoint> EmptyEndpoints = new List<Endpoint>();
 
         internal string AdapterId { get; }
         internal Communicator Communicator { get; }
@@ -64,7 +64,7 @@ namespace ZeroC.Ice
 
         public static bool operator !=(Reference? lhs, Reference? rhs) => !(lhs == rhs);
 
-        /// <summary>Creates a reference from a string and a communucator. This an Ice-internal publicly visible static
+        /// <summary>Creates a reference from a string and a communicator. This an Ice-internal publicly visible static
         /// method.</summary>
         public static Reference Parse(string s, Communicator communicator) => Parse(s, null, communicator);
 
@@ -554,7 +554,7 @@ namespace ZeroC.Ice
 
             if (beg == -1)
             {
-                return Create(adapterId: "", communicator, encoding, endpoints: Array.Empty<Endpoint>(), facet,
+                return Create(adapterId: "", communicator, encoding, endpoints: ImmutableArray<Endpoint>.Empty, facet,
                     identity, invocationMode, propertyPrefix, protocol);
             }
 
@@ -1076,12 +1076,12 @@ namespace ZeroC.Ice
 
                 if (adapterId != null)
                 {
-                    newEndpoints = EmptyEndpoints; // make sure the clone's endpoints are empty
+                    newEndpoints = ImmutableArray<Endpoint>.Empty; // make sure the clone's endpoints are empty
                 }
                 else if (endpoints != null)
                 {
                     adapterId = ""; // make sure the clone's adapterID is empty
-                    newEndpoints = endpoints.ToArray(); // make a copy
+                    newEndpoints = endpoints.ToList(); // make a copy
                 }
 
                 LocatorInfo? locatorInfo = LocatorInfo;
@@ -1186,7 +1186,7 @@ namespace ZeroC.Ice
             Debug.Assert(!IsFixed);
 
             // Get the endpoints
-            IReadOnlyList<Endpoint> endpoints = EmptyEndpoints;
+            IReadOnlyList<Endpoint> endpoints = ImmutableArray<Endpoint>.Empty;
             bool cached = false;
             if (RouterInfo != null)
             {
