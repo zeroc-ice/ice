@@ -266,16 +266,22 @@ namespace ZeroC.Ice
             return ReferenceEquals(clone, prx.IceReference) ? prx : (T)prx.Clone(clone);
         }
 
-        /// <summary>
-        /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
-        /// it first attempts to create a connection.
-        /// </summary>
+        /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// it first attempts to create a connection.</summary>
         /// <returns>The Connection for this proxy or null if collocation optimization is used.</returns>
         public static Connection? GetConnection(this IObjectPrx prx)
         {
             try
             {
-                return (prx.IceReference.GetRequestHandlerAsync().Result as ConnectionRequestHandler)?.GetConnection();
+                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync();
+                if (task.IsCompleted)
+                {
+                    return (task.Result as ConnectionRequestHandler)?.GetConnection();
+                }
+                else
+                {
+                    return (task.AsTask().Result as ConnectionRequestHandler)?.GetConnection();
+                }
             }
             catch (AggregateException ex)
             {
@@ -318,7 +324,8 @@ namespace ZeroC.Ice
         {
             try
             {
-                return InvokeAsync(proxy, request, oneway, synchronous: true).Result;
+                ValueTask<IncomingResponseFrame> task = InvokeAsync(proxy, request, oneway, synchronous: true);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
             {

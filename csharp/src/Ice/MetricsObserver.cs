@@ -149,6 +149,7 @@ namespace ZeroC.IceMX
         private volatile bool _enabled;
         private readonly List<MetricsMap<T>> _maps = new List<MetricsMap<T>>();
         private readonly MetricsAdmin? _metrics;
+        private readonly object _mutex = new object();
         private readonly string _name;
         private Action? _updater;
 
@@ -163,7 +164,7 @@ namespace ZeroC.IceMX
 
         internal O? GetObserver(MetricsHelper<T> helper, object? observer)
         {
-            lock (this)
+            lock (_mutex)
             {
                 List<MetricsMap<T>.Entry>? metricsObjects = null;
                 var old = observer as O;
@@ -203,7 +204,7 @@ namespace ZeroC.IceMX
 
         internal void SetUpdater(Action? updater)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _updater = updater;
             }
@@ -212,7 +213,7 @@ namespace ZeroC.IceMX
         private void Update()
         {
             Action? updater;
-            lock (this)
+            lock (_mutex)
             {
                 _maps.Clear();
                 foreach (MetricsMap<T> m in _metrics!.GetMaps<T>(_name))
