@@ -19,6 +19,7 @@ namespace ZeroC.Ice
     public sealed class Reference : IEquatable<Reference>
     {
         internal static readonly IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
+        internal static readonly IReadOnlyList<Endpoint> EmptyEndpoints = new List<Endpoint>();
 
         internal string AdapterId { get; }
         internal Communicator Communicator { get; }
@@ -1075,7 +1076,7 @@ namespace ZeroC.Ice
 
                 if (adapterId != null)
                 {
-                    newEndpoints = Array.Empty<Endpoint>(); // make sure the clone's endpoints are empty
+                    newEndpoints = EmptyEndpoints; // make sure the clone's endpoints are empty
                 }
                 else if (endpoints != null)
                 {
@@ -1185,7 +1186,7 @@ namespace ZeroC.Ice
             Debug.Assert(!IsFixed);
 
             // Get the endpoints
-            IReadOnlyList<Endpoint>? endpoints = null;
+            IReadOnlyList<Endpoint> endpoints = EmptyEndpoints;
             bool cached = false;
             if (RouterInfo != null)
             {
@@ -1193,7 +1194,7 @@ namespace ZeroC.Ice
                 endpoints = await RouterInfo.GetClientEndpointsAsync().ConfigureAwait(false);
             }
 
-            if (endpoints == null || endpoints.Count == 0)
+            if (endpoints.Count == 0)
             {
                 // Get the proxy's endpoint or query the locator to get endpoints
                 if (Endpoints.Count > 0)
@@ -1207,7 +1208,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (endpoints == null || endpoints.Count == 0)
+            if (endpoints.Count == 0)
             {
                 throw new NoEndpointException(ToString());
             }

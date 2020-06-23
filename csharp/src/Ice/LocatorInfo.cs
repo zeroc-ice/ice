@@ -26,8 +26,8 @@ namespace ZeroC.Ice
             new Dictionary<string, Task<IReadOnlyList<Endpoint>>>();
         private readonly Lazy<ILocatorRegistryPrx?> _locatorRegistry;
         private readonly object _mutex = new object();
-        private readonly Dictionary<Identity, Task<Reference>> _objectRequests =
-            new Dictionary<Identity, Task<Reference>>();
+        private readonly Dictionary<Identity, Task<Reference?>> _objectRequests =
+            new Dictionary<Identity, Task<Reference?>>();
         private readonly LocatorTable _table;
 
         internal LocatorInfo(ILocatorPrx locator, LocatorTable table, bool background)
@@ -85,7 +85,7 @@ namespace ZeroC.Ice
         internal async ValueTask<(IReadOnlyList<Endpoint>, bool)> GetEndpointsAsync(Reference reference, TimeSpan ttl)
         {
             Debug.Assert(reference.IsIndirect);
-            IReadOnlyList<Endpoint>? endpoints = null;
+            IReadOnlyList<Endpoint> endpoints;
             bool cached;
             if (reference.IsWellKnown)
             {
@@ -108,54 +108,56 @@ namespace ZeroC.Ice
                     }
                 }
 
-                // If the resolved reference encoding doesn't match, we can't use it. Otherwise, we check if it's
-                // an direct reference with endpoints or an indirect reference (in which case we need to resolve
-                // its endpoints).
-                if (resolvedReference != null && resolvedReference.Encoding == reference.Encoding)
+                if (resolvedReference == null || resolvedReference.Encoding != reference.Encoding)
                 {
-                    if (resolvedReference.IsIndirect)
-                    {
-                        Debug.Assert(!resolvedReference.IsWellKnown);
+                    // If the resolved reference is null or the encoding doesn't match, we can't use it.
+                    endpoints = Reference.EmptyEndpoints;
+                }
+                else if (!resolvedReference.IsIndirect)
+                {
+                    // If it's a direct reference, just get its endpoints.
+                    endpoints = resolvedReference.Endpoints;
+                }
+                else
+                {
+                    // Otherwise, it's an indirect reference (but can't be a well-known reference because
+                    // GetObjectReferenceAsync doesn't return well-known references). We need to resolve its endpoints.
+                    Debug.Assert(!resolvedReference.IsWellKnown);
 
-                        // Get the endpoints for the adapter from the resolved reference.
-                        bool adapterCached;
-                        (endpoints, adapterCached) = _table.GetAdapterEndpoints(resolvedReference.AdapterId, ttl);
-                        if (!adapterCached)
+                    // Get the endpoints for the adapter from the resolved reference.
+                    bool adapterCached;
+                    (endpoints, adapterCached) = _table.GetAdapterEndpoints(resolvedReference.AdapterId, ttl);
+                    if (!adapterCached)
+                    {
+                        if (_background && endpoints.Count > 0)
                         {
-                            if (_background && endpoints != null)
+                            // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
+                            // are configured, we obtain new endpoints but continue using the stale endpoints to
+                            // not block the caller.
+                            _ = GetAdapterEndpointsAsync(resolvedReference);
+                        }
+                        else
+                        {
+                            bool adapterNotFound = false;
+                            try
                             {
-                                // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
-                                // are configured, we obtain new endpoints but continue using the stale endpoints to
-                                // not block the caller.
-                                _ = GetAdapterEndpointsAsync(resolvedReference);
+                                endpoints = await GetAdapterEndpointsAsync(resolvedReference).ConfigureAwait(false);
                             }
-                            else
+                            catch (AdapterNotFoundException)
                             {
-                                bool adapterNotFound = false;
-                                try
+                                adapterNotFound = true;
+                                throw;
+                            }
+                            finally
+                            {
+                                // If we can't resolve the endpoints, we clear the resolved object reference from
+                                // the cache.
+                                if (endpoints.Count == 0 || adapterNotFound)
                                 {
-                                    endpoints = await GetAdapterEndpointsAsync(resolvedReference).ConfigureAwait(false);
-                                }
-                                catch (AdapterNotFoundException)
-                                {
-                                    adapterNotFound = true;
-                                    throw;
-                                }
-                                finally
-                                {
-                                    // If we can't resolve the endpoints, we clear the resolved object reference from
-                                    // the cache.
-                                    if (endpoints == null || adapterNotFound)
-                                    {
-                                        _table.RemoveObjectReference(reference.Identity);
-                                    }
+                                    _table.RemoveObjectReference(reference.Identity);
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        endpoints = resolvedReference.Endpoints;
                     }
                 }
             }
@@ -164,7 +166,7 @@ namespace ZeroC.Ice
                 (endpoints, cached) = _table.GetAdapterEndpoints(reference.AdapterId, ttl);
                 if (!cached)
                 {
-                    if (_background && endpoints != null)
+                    if (_background && endpoints.Count > 0)
                     {
                         // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
                         // are configured, we obtain new endpoints but continue using the stale endpoints to
@@ -177,8 +179,6 @@ namespace ZeroC.Ice
                     }
                 }
             }
-
-            Debug.Assert(endpoints != null);
 
             if (reference.Communicator.TraceLevels.Location >= 1)
             {
@@ -229,7 +229,7 @@ namespace ZeroC.Ice
                     communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
                 }
             }
-            return (endpoints!, cached);
+            return (endpoints, cached);
         }
 
         private Task<IReadOnlyList<Endpoint>> GetAdapterEndpointsAsync(Reference reference)
@@ -250,6 +250,8 @@ namespace ZeroC.Ice
                     task = PerformGetAdapterEndpointsAsync(reference);
                     if (!task.IsCompleted)
                     {
+                        // If PerformGetAdapterEndpointsAsync completed, don't add the task (it would leak since
+                        // PerformGetAdapterEndpointsAsync is responsible for removing it).
                         _adapterRequests.Add(reference.AdapterId, task);
                     }
                 }
@@ -270,7 +272,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        throw new NoEndpointException(reference.ToString());
+                        return Reference.EmptyEndpoints;
                     }
                 }
                 catch (AdapterNotFoundException)
@@ -281,10 +283,6 @@ namespace ZeroC.Ice
                             $"adapter not found\nadapter = {reference.AdapterId}");
                     }
                     _table.RemoveAdapterEndpoints(reference.AdapterId);
-                    throw;
-                }
-                catch (NoEndpointException)
-                {
                     throw;
                 }
                 catch (Exception exception)
@@ -309,7 +307,7 @@ namespace ZeroC.Ice
 
         internal ILocatorRegistryPrx? GetLocatorRegistry() => _locatorRegistry.Value;
 
-        private Task<Reference> GetObjectReferenceAsync(Reference reference)
+        private Task<Reference?> GetObjectReferenceAsync(Reference reference)
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
@@ -317,7 +315,7 @@ namespace ZeroC.Ice
                     $"searching for well-known object\nwell-known proxy = {reference}");
             }
 
-            Task<Reference>? task;
+            Task<Reference?>? task;
             lock (_mutex)
             {
                 if (!_objectRequests.TryGetValue(reference.Identity, out task))
@@ -327,13 +325,15 @@ namespace ZeroC.Ice
                     task = PerformGetObjectProxyAsync(reference);
                     if (!task.IsCompleted)
                     {
+                        // If PerformGetObjectProxyAsync completed, don't add the task (it would leak since
+                        // PerformGetObjectProxyAsync is responsible for removing it).
                         _objectRequests.Add(reference.Identity, task);
                     }
                 }
             }
             return task!;
 
-            async Task<Reference> PerformGetObjectProxyAsync(Reference reference)
+            async Task<Reference?> PerformGetObjectProxyAsync(Reference reference)
             {
                 try
                 {
@@ -347,7 +347,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        throw new NoEndpointException(reference.ToString());
+                        return null;
                     }
                 }
                 catch (ObjectNotFoundException)
@@ -359,10 +359,6 @@ namespace ZeroC.Ice
                             $"object = {reference.Identity.ToString(reference.Communicator.ToStringMode)}");
                     }
                     _table.RemoveObjectReference(reference.Identity);
-                    throw;
-                }
-                catch (NoEndpointException)
-                {
                     throw;
                 }
                 catch (Exception exception)
@@ -436,11 +432,11 @@ namespace ZeroC.Ice
         internal void SetObjectReference(Identity id, Reference reference) =>
             _objectReferenceTable[id] = (Time.CurrentMonotonicTime(), reference);
 
-        internal (IReadOnlyList<Endpoint>? Endpoints, bool Cached) GetAdapterEndpoints(string adapter, TimeSpan ttl)
+        internal (IReadOnlyList<Endpoint> Endpoints, bool Cached) GetAdapterEndpoints(string adapter, TimeSpan ttl)
         {
             if (ttl == TimeSpan.Zero) // Locator cache disabled.
             {
-                return (null, false);
+                return (Reference.EmptyEndpoints, false);
             }
 
             if (_adapterEndpointsTable.TryGetValue(adapter,
@@ -450,7 +446,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return (null, false);
+                return (Reference.EmptyEndpoints, false);
             }
         }
 
