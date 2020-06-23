@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using ZeroC.Ice;
 using Test;
@@ -157,7 +158,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 adapterIds.Add("oa3");
                 ITestIntfPrx intf = ITestIntfPrx.Parse("object", communicator).Clone(
                     cacheConnection: false,
-                    locatorCacheTimeout: 0);
+                    locatorCacheTimeout: TimeSpan.Zero);
                 while (adapterIds.Count > 0)
                 {
                     adapterIds.Remove(intf.getAdapterId());
@@ -180,7 +181,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                     }
 
                     // The previous locator lookup probably didn't return all the replicas... try again.
-                    IObjectPrx.Parse("object @ rg", communicator).Clone(locatorCacheTimeout: 0).IcePing();
+                    IObjectPrx.Parse("object @ rg", communicator).Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing();
                 }
 
                 proxies[0].deactivateObjectAdapter("oa");
@@ -218,7 +219,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                         IObjectPrx.Parse("controller0@control0", comm).IcePing();
                         TestHelper.Assert(false);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                     }
                     comm.Destroy();
