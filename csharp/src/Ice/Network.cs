@@ -717,8 +717,9 @@ namespace ZeroC.Ice
             try
             {
                 // Get the addresses for the given host and return the first one
-                return GetAddressesAsync(host, port, ipVersion, EndpointSelectionType.Ordered,
-                    preferIPv6).Result.First();
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(
+                    host, port, ipVersion, EndpointSelectionType.Ordered, preferIPv6);
+                return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
             }
             catch (AggregateException ex)
             {
@@ -761,7 +762,9 @@ namespace ZeroC.Ice
             // TODO: Fix this method to be asynchronous.
             try
             {
-                return GetAddressesAsync(host, port, ipVersion, selType, preferIPv6).Result;
+                ValueTask<IEnumerable<IPEndPoint>> task =
+                    GetAddressesAsync(host, port, ipVersion, selType, preferIPv6);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
             {
@@ -931,12 +934,12 @@ namespace ZeroC.Ice
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(EndpointType.TCP);
+                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(Transport.TCP);
                     if (!winfo.RcvWarn || rcvSize != winfo.RcvSize)
                     {
                         communicator.Logger.Warning(
                             $"TCP receive buffer size: requested size of {rcvSize} adjusted to {size}");
-                        communicator.SetRcvBufSizeWarn(EndpointType.TCP, rcvSize);
+                        communicator.SetRcvBufSizeWarn(Transport.TCP, rcvSize);
                     }
                 }
             }
@@ -954,12 +957,12 @@ namespace ZeroC.Ice
                 {
                     // Warn if the size that was set is less than the requested size and
                     // we have not already warned.
-                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(EndpointType.TCP);
+                    BufSizeWarnInfo winfo = communicator.GetBufSizeWarn(Transport.TCP);
                     if (!winfo.SndWarn || sndSize != winfo.SndSize)
                     {
                         communicator.Logger.Warning(
                             $"TCP send buffer size: requested size of {sndSize} adjusted to {size}");
-                        communicator.SetSndBufSizeWarn(EndpointType.TCP, sndSize);
+                        communicator.SetSndBufSizeWarn(Transport.TCP, sndSize);
                     }
                 }
             }

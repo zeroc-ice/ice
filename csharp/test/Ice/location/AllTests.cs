@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
@@ -215,36 +216,41 @@ namespace ZeroC.Ice.Test.Location
 
             IObjectPrx basencc = IObjectPrx.Parse("test@TestAdapter", communicator).Clone(cacheConnection: false);
             int count = locator.getRequestCount();
-            basencc.Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
+            basencc.Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
             TestHelper.Assert(++count == locator.getRequestCount());
-            basencc.Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
+            basencc.Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
             TestHelper.Assert(++count == locator.getRequestCount());
-            basencc.Clone(locatorCacheTimeout: 2).IcePing(); // 2s timeout.
+            basencc.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(2)).IcePing(); // 2s timeout.
             TestHelper.Assert(count == locator.getRequestCount());
             System.Threading.Thread.Sleep(1300); // 1300ms
-            basencc.Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
+            basencc.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
             TestHelper.Assert(++count == locator.getRequestCount());
 
-            IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
+            IObjectPrx.Parse("test", communicator)
+                .Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
             count += 2;
             TestHelper.Assert(count == locator.getRequestCount());
-            IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 2).IcePing(); // 2s timeout
+            IObjectPrx.Parse("test", communicator)
+                .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(2)).IcePing(); // 2s timeout
             TestHelper.Assert(count == locator.getRequestCount());
             System.Threading.Thread.Sleep(1300); // 1300ms
-            IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout
+            IObjectPrx.Parse("test", communicator)
+                .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout
             count += 2;
             TestHelper.Assert(count == locator.getRequestCount());
 
-            IObjectPrx.Parse("test@TestAdapter", communicator).Clone(locatorCacheTimeout: -1).IcePing();
+            IObjectPrx.Parse("test@TestAdapter", communicator)
+                .Clone(locatorCacheTimeout: Timeout.InfiniteTimeSpan).IcePing();
             TestHelper.Assert(count == locator.getRequestCount());
-            IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: -1).IcePing();
+            IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: Timeout.InfiniteTimeSpan).IcePing();
             TestHelper.Assert(count == locator.getRequestCount());
             IObjectPrx.Parse("test@TestAdapter", communicator).IcePing();
             TestHelper.Assert(count == locator.getRequestCount());
             IObjectPrx.Parse("test", communicator).IcePing();
             TestHelper.Assert(count == locator.getRequestCount());
 
-            TestHelper.Assert(IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: 99).LocatorCacheTimeout == 99);
+            TestHelper.Assert(IObjectPrx.Parse("test", communicator)
+                .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(99)).LocatorCacheTimeout == TimeSpan.FromSeconds(99));
 
             output.WriteLine("ok");
 
@@ -263,7 +269,7 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing locator request queuing... ");
             output.Flush();
-            hello = obj1.getReplicatedHello()!.Clone(locatorCacheTimeout: 0, cacheConnection: false);
+            hello = obj1.getReplicatedHello()!.Clone(locatorCacheTimeout: TimeSpan.Zero, cacheConnection: false);
             TestHelper.Assert(hello != null);
             count = locator.getRequestCount();
             hello.IcePing();
@@ -331,7 +337,7 @@ namespace ZeroC.Ice.Test.Location
 
             try
             {
-                IObjectPrx.Parse("test@TestAdapter3", communicator).Clone(locatorCacheTimeout: 0).IcePing();
+                IObjectPrx.Parse("test@TestAdapter3", communicator).Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing();
                 TestHelper.Assert(false);
             }
             catch (ConnectionRefusedException)
@@ -402,7 +408,7 @@ namespace ZeroC.Ice.Test.Location
 
             try
             {
-                IObjectPrx.Parse("test@TestAdapter4", communicator).Clone(locatorCacheTimeout: 0).IcePing();
+                IObjectPrx.Parse("test@TestAdapter4", communicator).Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing();
                 TestHelper.Assert(false);
             }
             catch (ConnectionRefusedException)
@@ -456,28 +462,34 @@ namespace ZeroC.Ice.Test.Location
                 registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
 
                 count = locator.getRequestCount();
-                IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
-                IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 0).IcePing(); // No locator cache.
+                IObjectPrx.Parse("test@TestAdapter5", ic)
+                    .Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
+                IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
                 count += 3;
                 TestHelper.Assert(count == locator.getRequestCount());
                 registry.SetAdapterDirectProxy("TestAdapter5", null);
                 registry.addObject(IObjectPrx.Parse($"test3:{helper.GetTestEndpoint(99)}", communicator));
-                IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 10).IcePing(); // 10s timeout.
-                IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 10).IcePing(); // 10s timeout.
+                IObjectPrx.Parse("test@TestAdapter5", ic)
+                    .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10)).IcePing(); // 10s timeout.
+                IObjectPrx.Parse("test3", ic)
+                    .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10)).IcePing(); // 10s timeout.
                 TestHelper.Assert(count == locator.getRequestCount());
                 System.Threading.Thread.Sleep(1200);
 
                 // The following request should trigger the background
                 // updates but still use the cached endpoints and
                 // therefore succeed.
-                IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
-                IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
+                IObjectPrx.Parse("test@TestAdapter5", ic)
+                    .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
+                IObjectPrx.Parse("test3", ic)
+                    .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
 
                 try
                 {
                     while (true)
                     {
-                        IObjectPrx.Parse("test@TestAdapter5", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
+                        IObjectPrx.Parse("test@TestAdapter5", ic)
+                            .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
                         System.Threading.Thread.Sleep(10);
                     }
                 }
@@ -489,7 +501,8 @@ namespace ZeroC.Ice.Test.Location
                 {
                     while (true)
                     {
-                        IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: 1).IcePing(); // 1s timeout.
+                        IObjectPrx.Parse("test3", ic)
+                            .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
                         System.Threading.Thread.Sleep(10);
                     }
                 }

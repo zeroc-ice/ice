@@ -480,7 +480,7 @@ namespace ZeroC.Ice
         {
             if (withBitSequence)
             {
-                int count = v.Count();
+                int count = v.Count;
                 WriteSize(count);
                 BitSequence bitSequence = WriteBitSequence(count);
                 int index = 0;
@@ -516,7 +516,7 @@ namespace ZeroC.Ice
             where TKey : notnull
             where TValue : struct
         {
-            int count = v.Count();
+            int count = v.Count;
             WriteSize(count);
             BitSequence bitSequence = WriteBitSequence(count);
             int index = 0;
@@ -550,7 +550,7 @@ namespace ZeroC.Ice
         {
             if (withBitSequence)
             {
-                int count = v.Count();
+                int count = v.Count;
                 WriteSize(count);
                 BitSequence bitSequence = WriteBitSequence(count);
                 int index = 0;
@@ -584,7 +584,7 @@ namespace ZeroC.Ice
             where TKey : struct, IStreamableStruct
             where TValue : struct
         {
-            int count = v.Count();
+            int count = v.Count;
             WriteSize(count);
             BitSequence bitSequence = WriteBitSequence(count);
             int index = 0;
@@ -613,7 +613,7 @@ namespace ZeroC.Ice
             where TKey : notnull
             where TValue : struct, IStreamableStruct
         {
-            int count = v.Count();
+            int count = v.Count;
             WriteSize(count);
             BitSequence bitSequence = WriteBitSequence(count);
             int index = 0;
@@ -639,7 +639,7 @@ namespace ZeroC.Ice
             where TKey : struct, IStreamableStruct
             where TValue : struct, IStreamableStruct
         {
-            int count = v.Count();
+            int count = v.Count;
             WriteSize(count);
             BitSequence bitSequence = WriteBitSequence(count);
             int index = 0;
@@ -1636,7 +1636,7 @@ namespace ZeroC.Ice
 
             // Encoding does not change at all in this method.
 
-            WriteShort((short)endpoint.Type);
+            WriteShort((short)endpoint.Transport);
             if (endpoint is OpaqueEndpoint opaqueEndpoint)
             {
                 // 2 bytes for the encoding value (e.g. 20 for 2.0)

@@ -1160,7 +1160,7 @@ Slice::CsGenerator::writeTaggedMarshalCode(Output& out,
 }
 
 void
-Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
+Slice::CsGenerator::writeTaggedUnmarshalCode(Output& out,
                                              const OptionalPtr& optionalType,
                                              const string& scope,
                                              const string& param,
@@ -1174,9 +1174,6 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     StructPtr st = StructPtr::dynamicCast(type);
     SequencePtr seq = SequencePtr::dynamicCast(type);
-
-    // TODO: default value should be irrelevant when reading tagged data members.
-    bool hasDefaultValue = dataMember && dataMember->defaultValueType();
 
     out << param << " = ";
 
@@ -1303,12 +1300,6 @@ Slice::CsGenerator::writeTaggedUnmarshalCode(Output &out,
             out << ", fixedSize: " << (fixedSize ? "true" : "false");
         }
         out << ", " << inputStreamReader(keyType, scope) << ", " << inputStreamReader(valueType, scope) << ")";
-    }
-
-    if (hasDefaultValue)
-    {
-        out << " ?? ";
-        writeConstantValue(out, type, dataMember->defaultValueType(), dataMember->defaultValue(), scope);
     }
     out << ";";
 }

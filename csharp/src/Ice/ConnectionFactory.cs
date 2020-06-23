@@ -48,7 +48,7 @@ namespace ZeroC.Ice
 
         public void Destroy()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_destroyed)
                 {
@@ -64,13 +64,13 @@ namespace ZeroC.Ice
                 }
 
                 _destroyed = true;
-                System.Threading.Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
         }
 
         public void UpdateConnectionObservers()
         {
-            lock (this)
+            lock (_mutex)
             {
                 foreach (ICollection<Connection> connections in _connections.Values)
                 {
@@ -86,7 +86,7 @@ namespace ZeroC.Ice
         public void WaitUntilFinished()
         {
             Dictionary<IConnector, ICollection<Connection>> connections;
-            lock (this)
+            lock (_mutex)
             {
                 //
                 // First we wait until the factory is destroyed. We also
@@ -96,7 +96,7 @@ namespace ZeroC.Ice
                 //
                 while (!_destroyed || _pending.Count > 0 || _pendingConnectCount > 0)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 //
@@ -117,7 +117,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            lock (this)
+            lock (_mutex)
             {
 #if DEBUG
                 // Ensure all the connections are finished and reapable at this point.
@@ -184,15 +184,16 @@ namespace ZeroC.Ice
             IReadOnlyList<Endpoint> endpoints;
             try
             {
-                endpoints = routerInfo.GetClientEndpointsAsync().Result;
+                ValueTask<IReadOnlyList<Endpoint>> task = routerInfo.GetClientEndpointsAsync();
+                endpoints = task.IsCompleted ? task.Result : task.AsTask().Result;
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
                 throw ex.InnerException;
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_destroyed)
                 {
@@ -244,7 +245,7 @@ namespace ZeroC.Ice
 
         public void RemoveAdapter(ObjectAdapter adapter)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_destroyed)
                 {
@@ -274,7 +275,7 @@ namespace ZeroC.Ice
 
         private Connection? FindConnection(IReadOnlyList<Endpoint> endpoints, out bool compress)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_destroyed)
                 {
@@ -346,7 +347,7 @@ namespace ZeroC.Ice
             // the asynchronous requests waiting on a connection to be established.
             //
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_destroyed)
                 {
@@ -358,20 +359,20 @@ namespace ZeroC.Ice
 
         internal void DecPendingConnectCount()
         {
-            lock (this)
+            lock (_mutex)
             {
                 --_pendingConnectCount;
                 Debug.Assert(_pendingConnectCount >= 0);
                 if (_destroyed && _pendingConnectCount == 0)
                 {
-                    System.Threading.Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
             }
         }
 
         private Connection? GetConnection(List<ConnectorInfo> connectors, ConnectCallback cb, out bool compress)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_destroyed)
                 {
@@ -419,7 +420,7 @@ namespace ZeroC.Ice
                         //
                         if (cb == null)
                         {
-                            System.Threading.Monitor.Wait(this);
+                            Monitor.Wait(_mutex);
                         }
                         else
                         {
@@ -456,7 +457,7 @@ namespace ZeroC.Ice
 
         private Connection CreateConnection(ITransceiver transceiver, ConnectorInfo ci)
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_pending.ContainsKey(ci.Connector) && transceiver != null);
 
@@ -476,13 +477,13 @@ namespace ZeroC.Ice
                     connection = new Connection(_communicator, _monitor, transceiver, ci.Connector,
                                                     ci.Endpoint.NewCompressionFlag(false), null);
                 }
-                catch (System.Exception)
+                catch
                 {
                     try
                     {
                         transceiver.Close();
                     }
-                    catch (System.Exception)
+                    catch
                     {
                         // Ignore
                     }
@@ -507,7 +508,7 @@ namespace ZeroC.Ice
             }
 
             var callbacks = new HashSet<ConnectCallback>();
-            lock (this)
+            lock (_mutex)
             {
                 foreach (ConnectorInfo c in connectors)
                 {
@@ -537,7 +538,7 @@ namespace ZeroC.Ice
                 {
                     cc.RemoveFromPending();
                 }
-                System.Threading.Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
 
             bool compress = _communicator.OverrideCompress ?? ci.Endpoint.HasCompressionFlag;
@@ -561,7 +562,7 @@ namespace ZeroC.Ice
             }
 
             var callbacks = new HashSet<ConnectCallback>();
-            lock (this)
+            lock (_mutex)
             {
                 foreach (ConnectorInfo c in connectors)
                 {
@@ -587,7 +588,7 @@ namespace ZeroC.Ice
                     Debug.Assert(!failedCallbacks.Contains(cc));
                     cc.RemoveFromPending();
                 }
-                System.Threading.Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
 
             foreach (ConnectCallback cc in callbacks)
@@ -861,7 +862,7 @@ namespace ZeroC.Ice
                         if (_factory._communicator.TraceLevels.Network >= 2)
                         {
                             _factory._communicator.Logger.Trace(_factory._communicator.TraceLevels.NetworkCat,
-                                $"trying to establish {connector.Endpoint.Name} connection to " +
+                                $"trying to establish {connector.Endpoint.TransportName} connection to " +
                                 $"{connector.Connector}");
                         }
 
@@ -888,7 +889,7 @@ namespace ZeroC.Ice
                         {
                             Debug.Assert(connector != null);
                             _factory._communicator.Logger.Trace(_factory._communicator.TraceLevels.NetworkCat,
-                                $"failed to establish {connector.Endpoint.Name} connection to " +
+                                $"failed to establish {connector.Endpoint.TransportName} connection to " +
                                 $"{connector.Connector}\n{ex}");
                         }
                         if (_observer != null)
@@ -915,6 +916,7 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly FactoryACMMonitor _monitor;
         private bool _destroyed;
+        private readonly object _mutex = new object();
 
         private readonly MultiDictionary<IConnector, Connection> _connections =
             new MultiDictionary<IConnector, Connection>();
@@ -933,6 +935,7 @@ namespace ZeroC.Ice
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
         private readonly Endpoint _endpoint;
         private readonly FactoryACMMonitor _monitor;
+        private readonly object _mutex = new object();
         private readonly Endpoint? _publishedEndpoint;
         private bool _destroyed;
         private readonly ITransceiver? _transceiver;
@@ -966,7 +969,7 @@ namespace ZeroC.Ice
                     if (_communicator.TraceLevels.Network >= 2)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"attempting to bind to {_endpoint.Name} socket\n{_transceiver}");
+                            $"attempting to bind to {_endpoint.TransportName} socket\n{_transceiver}");
                     }
                     _endpoint = _transceiver.Bind();
 
@@ -981,14 +984,14 @@ namespace ZeroC.Ice
                     if (_communicator.TraceLevels.Network >= 2)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"attempting to bind to {_endpoint.Name} socket {_acceptor}");
+                            $"attempting to bind to {_endpoint.TransportName} socket {_acceptor}");
                     }
                     _endpoint = _acceptor!.Listen();
 
                     if (_communicator.TraceLevels.Network >= 1)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"listening for {_endpoint.Name} connections\n{_acceptor!.ToDetailedString()}");
+                            $"listening for {_endpoint.TransportName} connections\n{_acceptor!.ToDetailedString()}");
                     }
                 }
             }
@@ -1016,7 +1019,7 @@ namespace ZeroC.Ice
 
         public void Activate()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(!_destroyed);
                 if (_acceptor != null)
@@ -1024,7 +1027,7 @@ namespace ZeroC.Ice
                     if (_communicator.TraceLevels.Network >= 1)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"accepting {_endpoint.Name} connections at {_acceptor}");
+                            $"accepting {_endpoint.TransportName} connections at {_acceptor}");
                     }
 
                     // Start the asynchronous operation from the thread pool to prevent eventually accepting
@@ -1036,7 +1039,7 @@ namespace ZeroC.Ice
 
         public void Destroy()
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(!_destroyed);
                 if (_acceptor != null)
@@ -1044,7 +1047,7 @@ namespace ZeroC.Ice
                     if (_communicator.TraceLevels.Network >= 1)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"stopping to accept {_endpoint.Name} connections at {_acceptor}");
+                            $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
                     }
 
                     _acceptor.Close();
@@ -1056,7 +1059,7 @@ namespace ZeroC.Ice
                 }
 
                 _destroyed = true;
-                System.Threading.Monitor.PulseAll(this);
+                Monitor.PulseAll(_mutex);
             }
         }
 
@@ -1066,7 +1069,7 @@ namespace ZeroC.Ice
             {
                 return _publishedEndpoint;
             }
-            lock (this)
+            lock (_mutex)
             {
                 return _endpoint;
             }
@@ -1077,7 +1080,7 @@ namespace ZeroC.Ice
             {
                 return true;
             }
-            lock (this)
+            lock (_mutex)
             {
                 return endpoint.Equivalent(_endpoint);
             }
@@ -1097,7 +1100,7 @@ namespace ZeroC.Ice
 
         public void UpdateConnectionObservers()
         {
-            lock (this)
+            lock (_mutex)
             {
                 foreach (Connection connection in _connections)
                 {
@@ -1109,13 +1112,13 @@ namespace ZeroC.Ice
         // TODO: Remove once Destroy is async
         public void WaitUntilFinished()
         {
-            lock (this)
+            lock (_mutex)
             {
                 // First we wait until the factory is destroyed. If we are using
                 // an acceptor, we also wait for it to be closed.
                 while (!_destroyed)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
             }
 
@@ -1151,13 +1154,13 @@ namespace ZeroC.Ice
                 {
                     transceiver = await _acceptor!.AcceptAsync().ConfigureAwait(false);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     // If Accept failed because the acceptor has been closed, just return, we're done. Otherwise
                     // we print an error and wait for one second to avoid running in a tight loop in case the
                     // failures occurs immediately again. Failures here are unexpected and could be considered
                     // fatal.
-                    lock (this)
+                    lock (_mutex)
                     {
                         if (_destroyed)
                         {
@@ -1170,7 +1173,7 @@ namespace ZeroC.Ice
                 }
 
                 Connection connection;
-                lock (this)
+                lock (_mutex)
                 {
                     Debug.Assert(transceiver != null);
                     if (_destroyed)
@@ -1179,7 +1182,7 @@ namespace ZeroC.Ice
                         {
                             transceiver.Close();
                         }
-                        catch (System.Exception)
+                        catch
                         {
                         }
                         return;
@@ -1194,20 +1197,20 @@ namespace ZeroC.Ice
                     if (_communicator.TraceLevels.Network >= 2)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"trying to accept {_endpoint.Name} connection\n{transceiver}");
+                            $"trying to accept {_endpoint.TransportName} connection\n{transceiver}");
                     }
 
                     try
                     {
                         connection = new Connection(_communicator, _monitor, transceiver, null, _endpoint, _adapter);
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
                         try
                         {
                             transceiver.Close();
                         }
-                        catch (System.Exception)
+                        catch
                         {
                             // Ignore
                         }
@@ -1225,7 +1228,7 @@ namespace ZeroC.Ice
                 Debug.Assert(connection != null);
                 try
                 {
-                    // We don't wait for the connection to be activated. This could take a while for some tranports
+                    // We don't wait for the connection to be activated. This could take a while for some transports
                     // such as TLS based transports where the handshake requires few round trips between the client
                     // and server.
                     _ = connection.StartAsync();
@@ -1234,12 +1237,12 @@ namespace ZeroC.Ice
                 {
                     // Ignore
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     if (_communicator.TraceLevels.Network >= 2)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                            $"failed to accept {_endpoint.Name} connection\n{connection}\n{ex}");
+                            $"failed to accept {_endpoint.TransportName} connection\n{connection}\n{ex}");
                     }
                 }
             }

@@ -222,7 +222,7 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Network >= 2)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"{Transport} connection HTTP upgrade request failed\n{this}\n{ex}");
+                        $"{TransportName} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
             }
@@ -232,12 +232,12 @@ namespace ZeroC.Ice
                 if (_incoming)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"accepted {Transport} connection HTTP upgrade request\n{this}");
+                        $"accepted {TransportName} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"{Transport} connection HTTP upgrade request accepted\n{this}");
+                        $"{TransportName} connection HTTP upgrade request accepted\n{this}");
                 }
             }
 
@@ -249,7 +249,7 @@ namespace ZeroC.Ice
             if (_communicator.TraceLevels.Network >= 1)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"gracefully closing {Transport} connection\n{this}");
+                    $"gracefully closing {TransportName} connection\n{this}");
             }
 
             int s = _nextState == StateOpened ? _state : _nextState;
@@ -656,7 +656,7 @@ namespace ZeroC.Ice
             PostWrite(size, ref offset, SocketOperation.None);
         }
 
-        public string Transport => _delegate.Transport;
+        public string TransportName => _delegate.TransportName;
 
         public ConnectionInfo GetInfo()
         {
@@ -1095,7 +1095,7 @@ namespace ZeroC.Ice
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
                                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                        "received " + Transport + (_readOpCode == OP_DATA ? " data" : " continuation") +
+                                        "received " + TransportName + (_readOpCode == OP_DATA ? " data" : " continuation") +
                                         " frame with payload length of " + _readPayloadLength +
                                         " bytes\n" + ToString());
                                 }
@@ -1114,7 +1114,7 @@ namespace ZeroC.Ice
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
                                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                        $"received {Transport} connection close frame\n{this}");
+                                        $"received {TransportName} connection close frame\n{this}");
                                 }
 
                                 _readState = ReadStateControlFrame;
@@ -1150,7 +1150,7 @@ namespace ZeroC.Ice
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
                                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                        $"received {Transport} connection ping frame\n{this}");
+                                        $"received {TransportName} connection ping frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
@@ -1160,7 +1160,7 @@ namespace ZeroC.Ice
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
                                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                        $"received {Transport} connection pong frame\n{this}");
+                                        $"received {TransportName} connection pong frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
                                 break;
@@ -1399,7 +1399,7 @@ namespace ZeroC.Ice
                         if (_communicator.TraceLevels.Network >= 2)
                         {
                             _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                $"sent {Transport} connection ping frame\n{this}");
+                                $"sent {TransportName} connection ping frame\n{this}");
                         }
                     }
                     else if (_state == StatePongPending)
@@ -1407,7 +1407,7 @@ namespace ZeroC.Ice
                         if (_communicator.TraceLevels.Network >= 2)
                         {
                             _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                $"sent {Transport} connection pong frame\n{this}");
+                                $"sent {TransportName} connection pong frame\n{this}");
                         }
                     }
                     else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
@@ -1416,7 +1416,7 @@ namespace ZeroC.Ice
                         if (_communicator.TraceLevels.Network >= 2)
                         {
                             _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                                $"sent {Transport} connection close frame\n{this}");
+                                $"sent {TransportName} connection close frame\n{this}");
                         }
 
                         if (_state == StateClosingRequestPending && !_closingInitiator)
