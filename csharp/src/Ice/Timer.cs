@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-using ZeroC.Ice.Instrumentation;
-
 namespace ZeroC.Ice
 {
     public interface ITimerTask
@@ -22,9 +20,6 @@ namespace ZeroC.Ice
     {
         private Communicator? _communicator;
         private readonly object _mutex = new object();
-        // We use a volatile to avoid synchronization when reading _observer. Reference assignment is atomic in C#
-        // so it doesn't need to be synchronized.
-        private volatile IThreadObserver? _observer;
         private readonly IDictionary<ITimerTask, Token> _tasks = new Dictionary<ITimerTask, Token>();
         private readonly Thread _thread;
         private readonly IDictionary<Token, object?> _tokens = new SortedDictionary<Token, object?>();
@@ -141,22 +136,6 @@ namespace ZeroC.Ice
             _thread.Start();
         }
 
-        internal void UpdateObserver(ICommunicatorObserver obsv)
-        {
-            lock (_mutex)
-            {
-                Debug.Assert(obsv != null);
-                _observer = obsv.GetThreadObserver("Communicator",
-                                                   _thread.Name!,
-                                                   Instrumentation.ThreadState.ThreadStateIdle,
-                                                   _observer);
-                if (_observer != null)
-                {
-                    _observer.Attach();
-                }
-            }
-        }
-
         public void Run()
         {
             Token? token = null;
@@ -234,25 +213,7 @@ namespace ZeroC.Ice
                 {
                     try
                     {
-                        IThreadObserver? threadObserver = _observer;
-                        if (threadObserver != null)
-                        {
-                            threadObserver.StateChanged(Instrumentation.ThreadState.ThreadStateIdle,
-                                                        Instrumentation.ThreadState.ThreadStateInUseForOther);
-                            try
-                            {
-                                token.Task.RunTimerTask();
-                            }
-                            finally
-                            {
-                                threadObserver.StateChanged(Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                                            Instrumentation.ThreadState.ThreadStateIdle);
-                            }
-                        }
-                        else
-                        {
-                            token.Task.RunTimerTask();
-                        }
+                        token.Task.RunTimerTask();
                     }
                     catch (System.Exception ex)
                     {
