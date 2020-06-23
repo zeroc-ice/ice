@@ -184,9 +184,10 @@ namespace ZeroC.Ice
             IReadOnlyList<Endpoint> endpoints;
             try
             {
-                endpoints = routerInfo.GetClientEndpointsAsync().Result;
+                ValueTask<IReadOnlyList<Endpoint>> task = routerInfo.GetClientEndpointsAsync();
+                endpoints = task.IsCompleted ? task.Result : task.AsTask().Result;
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
                 throw ex.InnerException;
