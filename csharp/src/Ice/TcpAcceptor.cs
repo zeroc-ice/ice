@@ -90,11 +90,11 @@ namespace ZeroC.Ice
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return _endpoint.CreateTransceiver(Transport,
+            return _endpoint.CreateTransceiver(TransportName,
                 new StreamSocket(_communicator, acceptFd), _adapterName);
         }
 
-        public string Transport { get; }
+        public string TransportName => _endpoint.TransportName;
 
         public override string ToString() => Network.AddrToString(_addr);
 
@@ -118,7 +118,6 @@ namespace ZeroC.Ice
         internal TcpAcceptor(
             TcpEndpoint endpoint,
             Communicator communicator,
-            string transport,
             string host,
             int port,
             string adapterName)
@@ -126,7 +125,6 @@ namespace ZeroC.Ice
             _adapterName = adapterName;
             _endpoint = endpoint;
             _communicator = communicator;
-            Transport = transport;
             _backlog = communicator.GetPropertyAsInt("Ice.TCP.Backlog") ?? 511;
 
             try

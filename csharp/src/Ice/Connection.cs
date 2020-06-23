@@ -49,8 +49,7 @@ namespace ZeroC.Ice
         public bool Equals(ACM other) =>
             Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
 
-        public override bool Equals(object? other) =>
-            ReferenceEquals(this, other) || (other is ACM value && Equals(value));
+        public override bool Equals(object? other) => other is ACM value && Equals(value);
 
         public static bool operator ==(ACM lhs, ACM rhs) => Equals(lhs, rhs);
 
@@ -378,11 +377,6 @@ namespace ZeroC.Ice
         /// messages.</summary>
         /// <returns>The description of the connection as human readable text.</returns>
         public override string ToString() => _transceiver.ToString()!;
-
-        /// <summary>Returns the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
-        /// </summary>
-        /// <returns>The type of the connection.</returns>
-        public string Type() => _transceiver.Transport; // No mutex lock, _type is immutable.
 
         internal Connection(Communicator communicator,
                             IACMMonitor? monitor,
@@ -717,7 +711,7 @@ namespace ZeroC.Ice
                             s.Append("starting to ");
                             s.Append(_connector != null ? "send" : "receive");
                             s.Append(" ");
-                            s.Append(Endpoint.Name);
+                            s.Append(Endpoint.TransportName);
                             s.Append(" messages\n");
                             s.Append(_transceiver.ToDetailedString());
                         }
@@ -725,7 +719,7 @@ namespace ZeroC.Ice
                         {
                             s.Append(_connector != null ? "established" : "accepted");
                             s.Append(" ");
-                            s.Append(Endpoint.Name);
+                            s.Append(Endpoint.TransportName);
                             s.Append(" connection\n");
                             s.Append(ToString());
                         }
@@ -1146,7 +1140,7 @@ namespace ZeroC.Ice
             {
                 var s = new StringBuilder();
                 s.Append("closed ");
-                s.Append(Endpoint.Name);
+                s.Append(Endpoint.TransportName);
                 s.Append(" connection\n");
                 s.Append(ToString());
 
@@ -1633,7 +1627,7 @@ namespace ZeroC.Ice
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"received {length} bytes via {Endpoint.Name}\n{this}");
+                    $"received {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 
             if (_observer != null && length > 0)
@@ -1647,7 +1641,7 @@ namespace ZeroC.Ice
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
                 _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                    $"sent {length} bytes via {Endpoint.Name}\n{this}");
+                    $"sent {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 
             if (_observer != null && length > 0)

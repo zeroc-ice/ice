@@ -174,7 +174,7 @@ namespace ZeroC.Ice.Test.Background
             _transceiver.FinishWrite(buf, ref offset);
         }
 
-        public string Transport => "test-" + _transceiver.Transport;
+        public string TransportName => "test-" + _transceiver.TransportName;
 
         public ConnectionInfo GetInfo() => _transceiver.GetInfo();
 

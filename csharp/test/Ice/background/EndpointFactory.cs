@@ -3,29 +3,44 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using Test;
 
 namespace ZeroC.Ice.Test.Background
 {
     internal class EndpointFactory : IEndpointFactory
     {
-        internal EndpointFactory(IEndpointFactory factory) => _factory = factory;
+        public Transport Transport => (Transport)(Endpoint.TransportBase + (short)_underlyingTransport);
 
-        public EndpointType Type => (EndpointType)(Endpoint.TYPE_BASE + (short)_factory.Type);
+        public string TransportName => "test-" + _underlyingTransport.ToString().ToLowerInvariant();
 
-        public string Name => "test-" + _factory.Name;
+        private readonly IEndpointFactory _underlyingFactory;
+        private readonly Transport _underlyingTransport;
 
-        public ZeroC.Ice.Endpoint Create(string endpointString, Dictionary<string, string?> options, bool server) =>
-            new Endpoint(_factory.Create(endpointString, options, server)!);
-
-        public ZeroC.Ice.Endpoint Read(InputStream s)
+        internal EndpointFactory(IEndpointFactory underlyingFactory, Transport underlyingTransport)
         {
-            var type = (EndpointType)s.ReadShort();
-            TestHelper.Assert(type == _factory.Type);
-            ZeroC.Ice.Endpoint endpoint = new Endpoint(_factory.Read(s)!);
-            return endpoint;
+            _underlyingFactory = underlyingFactory;
+            _underlyingTransport = underlyingTransport;
         }
 
-        private readonly IEndpointFactory _factory;
+        public ZeroC.Ice.Endpoint Create(
+            Transport transport,
+            Protocol protocol,
+            Dictionary<string, string?> options,
+            bool server,
+            string endpointString)
+        {
+            Debug.Assert(transport == Transport);
+
+            return new Endpoint(_underlyingFactory.Create(
+                _underlyingTransport, protocol, options, server, endpointString));
+        }
+
+        public ZeroC.Ice.Endpoint Read(InputStream istr, Protocol protocol)
+        {
+            var transport = (Transport)istr.ReadShort();
+            TestHelper.Assert(transport == Transport);
+            return new Endpoint(_underlyingFactory.Read(istr, protocol));
+        }
     }
 }

@@ -281,7 +281,7 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Network >= 1)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"connected {Transport} socket\n{this}");
+                        $"connected {TransportName} socket\n{this}");
                 }
             }
 
@@ -408,7 +408,7 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Network >= 1)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"connected {Transport} socket\n{this}");
+                        $"connected {TransportName} socket\n{this}");
                 }
             }
 
@@ -544,7 +544,7 @@ namespace ZeroC.Ice
             return;
         }
 
-        public string Transport { get; }
+        public string TransportName { get; }
 
         public ConnectionInfo GetInfo()
         {
@@ -659,11 +659,11 @@ namespace ZeroC.Ice
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(Communicator communicator, string transport, EndPoint addr, IPAddress? sourceAddr,
+        internal UdpTransceiver(Communicator communicator, string transportName, EndPoint addr, IPAddress? sourceAddr,
             string mcastInterface, int mcastTtl)
         {
             _communicator = communicator;
-            Transport = transport;
+            TransportName = transportName;
             _addr = addr;
             if (sourceAddr != null)
             {
@@ -701,12 +701,12 @@ namespace ZeroC.Ice
         //
         // Only for use by UdpEndpoint.
         //
-        internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator, string transport, string host,
+        internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator, string host,
             int port, string mcastInterface, bool connect)
         {
             _endpoint = endpoint;
             _communicator = communicator;
-            Transport = transport;
+            TransportName = endpoint.TransportName;
             _state = connect ? StateNeedConnect : StateNotConnected;
             _mcastInterface = mcastInterface;
             _incoming = true;
@@ -815,7 +815,7 @@ namespace ZeroC.Ice
                     //
                     if (sizeSet < sizeRequested)
                     {
-                        BufSizeWarnInfo winfo = _communicator.GetBufSizeWarn(EndpointType.UDP);
+                        BufSizeWarnInfo winfo = _communicator.GetBufSizeWarn(Transport.UDP);
                         if ((isSnd && (!winfo.SndWarn || winfo.SndSize != sizeRequested)) ||
                            (!isSnd && (!winfo.RcvWarn || winfo.RcvSize != sizeRequested)))
                         {
@@ -824,11 +824,11 @@ namespace ZeroC.Ice
 
                             if (isSnd)
                             {
-                                _communicator.SetSndBufSizeWarn(EndpointType.UDP, sizeRequested);
+                                _communicator.SetSndBufSizeWarn(Transport.UDP, sizeRequested);
                             }
                             else
                             {
-                                _communicator.SetRcvBufSizeWarn(EndpointType.UDP, sizeRequested);
+                                _communicator.SetRcvBufSizeWarn(Transport.UDP, sizeRequested);
                             }
                         }
                     }

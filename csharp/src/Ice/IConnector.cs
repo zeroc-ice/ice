@@ -6,13 +6,8 @@ namespace ZeroC.Ice
 {
     public interface IConnector
     {
-        //
-        // Create a transceiver without blocking. The transceiver may not be fully connected
-        // until its initialize method is called.
-        //
+        /// <summary>Creates a transceiver without blocking. The transceiver may not be fully connected until its
+        /// Initialize method is called.</summary>
         ITransceiver Connect();
-
-        EndpointType Type { get; }
-        string Transport { get; }
     }
 }
