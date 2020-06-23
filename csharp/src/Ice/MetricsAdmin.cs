@@ -239,11 +239,11 @@ namespace ZeroC.Ice
 
                 var subMapNames = new List<string>();
                 var subMapCloneFactories = new Dictionary<string, ISubMapCloneFactory>();
-                foreach (KeyValuePair<string, ISubMapFactory> e in subMaps)
+                foreach (var (key, value) in subMaps)
                 {
-                    subMapNames.Add(e.Key);
-                    string subAllMapsPrefix = mapPrefix + "Map.";
-                    string subMapPrefix = subAllMapsPrefix + e.Key + '.';
+                    subMapNames.Add(key);
+                    string subAllMapsPrefix = $"{mapPrefix}Map.";
+                    string subMapPrefix = $"{subAllMapsPrefix}{key}.";
                     if (communicator.GetProperties(forPrefix: subMapPrefix).Count == 0)
                     {
                         if (communicator.GetProperties(forPrefix: subAllMapsPrefix).Count == 0)
@@ -256,7 +256,7 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    subMapCloneFactories.Add(e.Key, e.Value.CreateCloneFactory(subMapPrefix, communicator));
+                    subMapCloneFactories.Add(key, value.CreateCloneFactory(subMapPrefix, communicator));
                 }
                 _subMapCloneFactories = subMapCloneFactories.ToImmutableDictionary();
             }
@@ -292,18 +292,18 @@ namespace ZeroC.Ice
         internal Entry? GetMatching(MetricsHelper<T> helper, Entry? previous)
         {
             // Check the accept filters.
-            foreach (KeyValuePair<string, Regex> e in _accept)
+            foreach ((string name, Regex value) in _accept)
             {
-                if (!Match(e.Key, e.Value, helper, false))
+                if (!Match(name, value, helper, false))
                 {
                     return null;
                 }
             }
 
             // Check the reject filters.
-            foreach (KeyValuePair<string, Regex> e in _reject)
+            foreach ((string name, Regex value) in _reject)
             {
-                if (Match(e.Key, e.Value, helper, true))
+                if (Match(name, value, helper, true))
                 {
                     return null;
                 }
@@ -410,12 +410,12 @@ namespace ZeroC.Ice
 
         private Dictionary<string, Regex> ParseRule(Communicator communicator, string name)
         {
-            var pats = new Dictionary<string, Regex>();
+            var rules = new Dictionary<string, Regex>();
             foreach ((string key, string value) in communicator.GetProperties(forPrefix: $"{name}."))
             {
-                pats.Add(key.Substring(name.Length + 1), new Regex(value));
+                rules.Add(key.Substring(name.Length + 1), new Regex(value));
             }
-            return pats;
+            return rules;
         }
     }
 
@@ -641,12 +641,12 @@ namespace ZeroC.Ice
             lock (_mutex)
             {
                 string viewsPrefix = "IceMX.Metrics.";
-                Dictionary<string, string> viewsProps = _communicator.GetProperties(forPrefix: viewsPrefix);
+                Dictionary<string, string> viewsProperties = _communicator.GetProperties(forPrefix: viewsPrefix);
                 var views = new Dictionary<string, MetricsView>();
                 _disabledViews.Clear();
-                foreach (KeyValuePair<string, string> e in viewsProps)
+                foreach (string propery in viewsProperties.Keys)
                 {
-                    string viewName = e.Key.Substring(viewsPrefix.Length);
+                    string viewName = propery.Substring(viewsPrefix.Length);
                     int dotPos = viewName.IndexOf('.');
                     if (dotPos > 0)
                     {
