@@ -80,6 +80,19 @@ namespace ZeroC.Ice.Test.Enums
             FLIntEnum[]? i1,
             Current current) => (i1, i1);
 
+        public (MyFlags ReturnValue, MyFlags f2) OpMyFlags(MyFlags f1, Current current) =>
+            (f1, f1);
+
+        public (ReadOnlyMemory<MyFlags> ReturnValue, ReadOnlyMemory<MyFlags> f2) OpMyFlagsSeq(
+            MyFlags[] f1,
+            Current current) => (f1, f1);
+
+        public (MyFlags? ReturnValue, MyFlags? f2) OpTaggedMyFlags(MyFlags? f1, Current current) => (f1, f1);
+
+        public (ReadOnlyMemory<MyFlags> ReturnValue, ReadOnlyMemory<MyFlags> f2) OpTaggedMyFlagsSeq(
+            MyFlags[]? f1,
+            Current current) => (f1, f1);
+
         public void Shutdown(Current current) => current.Adapter.Communicator.Shutdown();
     }
 }

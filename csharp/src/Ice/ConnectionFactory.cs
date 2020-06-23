@@ -365,7 +365,7 @@ namespace ZeroC.Ice
                 Debug.Assert(_pendingConnectCount >= 0);
                 if (_destroyed && _pendingConnectCount == 0)
                 {
-                    Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
             }
         }

@@ -62,6 +62,8 @@ namespace ZeroC.Ice
 
     internal class CommunicatorObserver : ICommunicatorObserver
     {
+        public MetricsAdmin AdminFacet { get; }
+
         private readonly ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserver,
             IConnectionObserver> _connections;
         private readonly ObserverFactoryWithDelegate<Metrics, ObserverWithDelegate,
@@ -94,14 +96,14 @@ namespace ZeroC.Ice
                 (obj, metrics) => (obj as InvocationMetrics)!.Collocated = metrics);
         }
 
-        public IObserver? GetConnectionEstablishmentObserver(Endpoint endpt, string connector)
+        public IObserver? GetConnectionEstablishmentObserver(Endpoint endpoint, string connector)
         {
             if (_connects.IsEnabled)
             {
                 try
                 {
-                    return _connects.GetObserver(new EndpointHelper(endpt, connector),
-                        _delegate?.GetConnectionEstablishmentObserver(endpt, connector));
+                    return _connects.GetObserver(new EndpointHelper(endpoint, connector),
+                        _delegate?.GetConnectionEstablishmentObserver(endpoint, connector));
                 }
                 catch (Exception ex)
                 {
@@ -121,8 +123,7 @@ namespace ZeroC.Ice
                 try
                 {
                     return _connections.GetObserver(
-                        new ConnectionHelper(connection, connectionState),
-                        observer,
+                        new ConnectionHelper(connection, connectionState), observer,
                         _delegate?.GetConnectionObserver(connection, connectionState,
                             (observer as ConnectionObserver)?.Delegate ?? observer));
                 }
@@ -167,8 +168,6 @@ namespace ZeroC.Ice
             }
             return null;
         }
-
-        public MetricsAdmin AdminFacet { get; }
 
         public IInvocationObserver? GetInvocationObserver(
             IObjectPrx prx,
@@ -238,25 +237,25 @@ namespace ZeroC.Ice
 
         private readonly Connection _connection;
         private string? _id;
-        private readonly string _parent;
-        private readonly ConnectionState _connectionState;
+        private readonly ConnectionState _state;
 
-        internal ConnectionHelper(Connection connection, ConnectionState connectionState)
+        internal ConnectionHelper(Connection connection, ConnectionState state)
             : base(_attributeResolver)
         {
             _connection = connection;
-            _parent = string.IsNullOrEmpty(_connection.Adapter?.Name) ? "Communicator" : _connection.Adapter!.Name;
-            _connectionState = connectionState;
+            _state = state;
         }
 
         private class AttributeResolverI : AttributeResolver
         {
             internal AttributeResolverI()
             {
-                Add("parent", obj => (obj as ConnectionHelper)?._parent);
+                Add("parent", obj =>
+                    {
+                        return (obj as ConnectionHelper)?._connection?.Adapter?.Name ?? "Communicator";
+                    });
                 Add("id", obj => (obj as ConnectionHelper)?.Id);
-
-                Add("state", obj => (obj as ConnectionHelper)?._connectionState.ToString().ToLowerInvariant());
+                Add("state", obj => (obj as ConnectionHelper)?._state.ToString().ToLowerInvariant());
                 Add("incoming", obj => (obj as ConnectionHelper)?._connection.IsIncoming);
                 Add("adapterName", obj => (obj as ConnectionHelper)?._connection.Adapter?.Name);
                 Add("connectionId", obj => (obj as ConnectionHelper)?._connection.Endpoint.ConnectionId);
@@ -316,25 +315,12 @@ namespace ZeroC.Ice
     {
         // It is important to throw here when there isn't a connection, so that the filters doesn't use the
         // connection attributes for a collocated dispatch.
-        private Connection Connection => _current.Connection ?? throw new NotSupportedException();
-
-        private string Id
-        {
-            get
-            {
-                _id ??= $"{_current.Identity} [{_current.Operation}]";
-                return _id;
-            }
-        }
-
-        private string Identity => _current.Identity.ToString(_current.Adapter!.Communicator.ToStringMode);
+        private Connection Connection => _current.Connection ?? throw new MissingFieldException();
 
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Current _current;
         private string? _id;
-        private readonly string _mode;
-        private readonly string _parent;
         private readonly int _size;
 
         public override void InitMetrics(DispatchMetrics v) => v.Size += _size;
@@ -343,26 +329,24 @@ namespace ZeroC.Ice
             : base(_attributeResolver)
         {
             _current = current;
-            _mode = _current.RequestId == 0 ? "oneway" : "twoway";
-            _parent = _current.Adapter.Name;
             _size = size;
         }
 
-        protected override string DefaultResolve(string attribute)
-        {
-            if (attribute.StartsWith("context.") && _current.Context.TryGetValue(attribute.Substring(8), out string? v))
-            {
-                return v;
-            }
-            throw new ArgumentOutOfRangeException(attribute);
-        }
+        protected override string DefaultResolve(string attribute) =>
+            attribute.StartsWith("context.") && _current.Context.TryGetValue(attribute.Substring(8), out string? v) ?
+                v : throw new MissingFieldException(attribute);
 
         private class AttributeResolverI : AttributeResolver
         {
             internal AttributeResolverI()
             {
-                Add("parent", obj => (obj as DispatchHelper)?._parent);
-                Add("id", obj => (obj as DispatchHelper)?.Id);
+                Add("parent", obj => (obj as DispatchHelper)?._current.Adapter.Name);
+                Add("id", obj =>
+                    {
+                        DispatchHelper? helper = (obj as DispatchHelper)!;
+                        return helper._id ??= $"{helper._current.Identity} [{helper._current.Operation}]";
+                    });
+
                 Add("incoming", obj => (obj as DispatchHelper)?.Connection.IsIncoming);
                 Add("adapterName", obj => (obj as DispatchHelper)?.Connection.Adapter?.Name);
                 Add("connectionId", obj => (obj as DispatchHelper)?.Connection.Endpoint.ConnectionId);
@@ -395,10 +379,14 @@ namespace ZeroC.Ice
                 Add("endpointPort", obj => ((obj as DispatchHelper)?.Connection.Endpoint as IPEndpoint)?.Port);
 
                 Add("operation", obj => (obj as DispatchHelper)?._current.Operation);
-                Add("identity", obj => (obj as DispatchHelper)?.Identity);
+                Add("identity", obj =>
+                    {
+                        Current? current = (obj as DispatchHelper)?._current;
+                        return current?.Identity.ToString(current.Adapter!.Communicator.ToStringMode);
+                    });
                 Add("facet", obj => (obj as DispatchHelper)?._current.Facet);
                 Add("requestId", obj => (obj as DispatchHelper)?._current.RequestId);
-                Add("mode", obj => (obj as DispatchHelper)?._mode);
+                Add("mode", obj => (obj as DispatchHelper)?._current.RequestId == 0 ? "oneway" : "twoway");
             }
         }
     }
@@ -420,15 +408,6 @@ namespace ZeroC.Ice
 
     internal class EndpointHelper : MetricsHelper<Metrics>
     {
-        private string Id
-        {
-            get
-            {
-                _id ??= _endpoint.ToString();
-                return _id;
-            }
-        }
-
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Endpoint _endpoint;
@@ -447,7 +426,11 @@ namespace ZeroC.Ice
             internal AttributeResolverI()
             {
                 Add("parent", obj => "Communicator");
-                Add("id", obj => (obj as EndpointHelper)?.Id);
+                Add("id", obj =>
+                    {
+                        EndpointHelper helper = (obj as EndpointHelper)!;
+                        return helper._id ??= helper._endpoint.ToString();
+                    });
                 Add("endpoint", obj => (obj as EndpointHelper)?._endpoint);
                 Add("endpointTransport", obj => (obj as EndpointHelper)?._endpoint?.Transport);
                 Add("endpointIsDatagram", obj => (obj as EndpointHelper)?._endpoint?.IsDatagram);
@@ -486,8 +469,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private string Identity => _proxy.Identity.ToString(_proxy.Communicator.ToStringMode);
-
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
         private readonly IReadOnlyDictionary<string, string> _context;
         private string? _id;
@@ -502,14 +483,9 @@ namespace ZeroC.Ice
             _context = context;
         }
 
-        protected override string DefaultResolve(string attribute)
-        {
-            if (attribute.StartsWith("context.") && _context.TryGetValue(attribute.Substring(8), out string? v))
-            {
-                return v;
-            }
-            throw new ArgumentOutOfRangeException(attribute);
-        }
+        protected override string DefaultResolve(string attribute) =>
+            attribute.StartsWith("context.") && _context.TryGetValue(attribute.Substring(8), out string? v) ?
+                v : throw new MissingFieldException(attribute);
 
         private class AttributeResolverI : AttributeResolver
         {
@@ -519,7 +495,11 @@ namespace ZeroC.Ice
                 Add("id", obj => (obj as InvocationHelper)?.Id);
 
                 Add("operation", obj => (obj as InvocationHelper)?._operation);
-                Add("identity", obj => (obj as InvocationHelper)?.Identity);
+                Add("identity", obj =>
+                {
+                    IObjectPrx? proxy = (obj as InvocationHelper)?._proxy;
+                    return proxy?.Identity.ToString(proxy.Communicator.ToStringMode);
+                });
 
                 Add("facet", obj => (obj as InvocationHelper)?._proxy.Facet);
                 Add("encoding", obj => (obj as InvocationHelper)?._proxy.Encoding);
@@ -651,7 +631,6 @@ namespace ZeroC.Ice
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Connection _connection;
-        private readonly string _parent;
         private readonly int _requestId;
         private readonly int _size;
         private string? _id;
@@ -662,7 +641,6 @@ namespace ZeroC.Ice
             : base(_attributeResolver)
         {
             _connection = connection;
-            _parent = string.IsNullOrEmpty(_connection.Adapter?.Name) ? "Communicator" : _connection.Adapter!.Name;
             _requestId = requestId;
             _size = size;
         }
@@ -671,10 +649,13 @@ namespace ZeroC.Ice
         {
             internal AttributeResolverI()
             {
-                Add("parent", obj => (obj as RemoteInvocationHelper)?._parent);
+                Add("parent", obj =>
+                    {
+                        Connection connection = ((RemoteInvocationHelper)obj)._connection;
+                        return string.IsNullOrEmpty(connection.Adapter?.Name) ? "Communicator" : connection.Adapter?.Name;
+                    });
                 Add("id", obj => (obj as RemoteInvocationHelper)?.Id);
                 Add("requestId", obj => (obj as RemoteInvocationHelper)?._requestId);
-
                 Add("incoming", obj => (obj as RemoteInvocationHelper)?._connection.IsIncoming);
                 Add("adapterName", obj => (obj as RemoteInvocationHelper)?._connection.Adapter?.Name);
                 Add("connectionId", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.ConnectionId);

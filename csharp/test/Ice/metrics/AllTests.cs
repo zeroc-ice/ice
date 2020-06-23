@@ -60,9 +60,9 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 map += "Map." + m + '.';
             }
-            props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin";
-            props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(p);
-            props["IceMX.Metrics.View." + map + "Reject.identity"] = ".*/admin|controller";
+            props[$"IceMX.Metrics.View.{map}Reject.parent"] = "Ice\\.Admin";
+            props[$"IceMX.Metrics.View.{map}Accept.endpointPort"] = getPort(p);
+            props[$"IceMX.Metrics.View.{map}Reject.identity"] = ".*/admin|controller";
             return props;
         }
 
@@ -83,8 +83,8 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 map += "Map." + m + '.';
             }
-            props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
-            props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(p);
+            props[$"IceMX.Metrics.View.{map}Reject.parent"] = "Ice\\.Admin|Controller";
+            props[$"IceMX.Metrics.View.{map}Accept.endpointPort"] = getPort(p);
             return props;
         }
 
@@ -202,13 +202,13 @@ namespace ZeroC.Ice.Test.Metrics
             {
                 if (value.Length > 0)
                 {
-                    output.WriteLine("no map `" + map + "' for group by = `" + attr + "'");
+                    output.WriteLine($"no map `{map}' for group by = `{attr}'");
                     TestHelper.Assert(false);
                 }
             }
             else if (!view[map][0]!.Id.Equals(value))
             {
-                output.WriteLine("invalid attribute value: " + attr + " = `" + value + "' got `" + view[map][0]!.Id + "'");
+                output.WriteLine($"invalid attribute value: {attr} = `{value}' got `{view[map][0]!.Id}'");
                 TestHelper.Assert(false);
             }
 
@@ -328,12 +328,12 @@ namespace ZeroC.Ice.Test.Metrics
             MetricsFailures f = m.GetMetricsFailures("View", map, id);
             if (!f.Failures.ContainsKey(failure))
             {
-                output.WriteLine("couldn't find failure `" + failure + "' for `" + id + "'");
+                output.WriteLine($"couldn't find failure `{failure}' for `{id}'");
                 TestHelper.Assert(false);
             }
             if (count > 0 && f.Failures[failure] != count)
             {
-                output.Write("count for failure `" + failure + "' of `" + id + "' is different from expected: ");
+                output.Write($"count for failure `{failure}' of `{id}' is different from expected: ");
                 output.WriteLine(count + " != " + f.Failures[failure]);
                 TestHelper.Assert(false);
             }
