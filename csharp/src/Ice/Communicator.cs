@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
@@ -99,7 +100,7 @@ namespace ZeroC.Ice
         public IReadOnlyDictionary<string, string> DefaultContext
         {
             get => _defaultContext;
-            set => _defaultContext = value.Count == 0 ? Reference.EmptyContext : new Dictionary<string, string>(value);
+            set => _defaultContext = value.ToImmutableDictionary();
         }
 
         public Encoding DefaultEncoding { get; }
@@ -190,7 +191,8 @@ namespace ZeroC.Ice
             new ConcurrentDictionary<int, IClassFactory?>();
         private readonly ThreadLocal<Dictionary<string, string>> _currentContext
             = new ThreadLocal<Dictionary<string, string>>();
-        private volatile IReadOnlyDictionary<string, string> _defaultContext = Reference.EmptyContext;
+        private volatile IReadOnlyDictionary<string, string> _defaultContext =
+            ImmutableDictionary<string, string>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
         private bool _isShutdown = false;
@@ -216,7 +218,7 @@ namespace ZeroC.Ice
         private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
             new ConcurrentDictionary<string, (IEndpointFactory, Transport)>();
 
-        public Communicator(Dictionary<string, string>? properties,
+        public Communicator(IReadOnlyDictionary<string, string> properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
@@ -238,7 +240,7 @@ namespace ZeroC.Ice
         }
 
         public Communicator(ref string[] args,
-                            Dictionary<string, string>? properties,
+                            IReadOnlyDictionary<string, string> properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
@@ -260,7 +262,7 @@ namespace ZeroC.Ice
         }
 
         public Communicator(NameValueCollection? appSettings = null,
-                            Dictionary<string, string>? properties = null,
+                            IReadOnlyDictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
@@ -283,7 +285,7 @@ namespace ZeroC.Ice
 
         public Communicator(ref string[] args,
                             NameValueCollection? appSettings,
-                            Dictionary<string, string>? properties = null,
+                            IReadOnlyDictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
                             X509Certificate2Collection? certificates = null,
@@ -296,15 +298,9 @@ namespace ZeroC.Ice
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
 
-            if (properties == null)
-            {
-                properties = new Dictionary<string, string>();
-            }
-            else
-            {
-                // clone properties as we don't want to modify the properties given to this constructor
-                properties = new Dictionary<string, string>(properties);
-            }
+            // clone properties as we don't want to modify the properties given to this constructor
+            Dictionary<string, string> combinedProperties = properties == null ?
+                new Dictionary<string, string>() : new Dictionary<string, string>(properties);
 
             if (appSettings != null)
             {
@@ -313,23 +309,23 @@ namespace ZeroC.Ice
                     string[]? values = appSettings.GetValues(key);
                     if (values == null)
                     {
-                        properties[key] = "";
+                        combinedProperties[key] = "";
                     }
                     else
                     {
                         // TODO: this join is not sufficient to create a string compatible with GetPropertyAsList
-                        properties[key] = string.Join(",", values);
+                        combinedProperties[key] = string.Join(",", values);
                     }
                 }
             }
 
-            if (!properties.ContainsKey("Ice.ProgramName"))
+            if (!combinedProperties.ContainsKey("Ice.ProgramName"))
             {
-                properties["Ice.ProgramName"] = AppDomain.CurrentDomain.FriendlyName;
+                combinedProperties["Ice.ProgramName"] = AppDomain.CurrentDomain.FriendlyName;
             }
 
-            properties.ParseIceArgs(ref args);
-            SetProperties(properties);
+            combinedProperties.ParseIceArgs(ref args);
+            SetProperties(combinedProperties);
 
             try
             {
@@ -1039,7 +1035,7 @@ namespace ZeroC.Ice
         /// servants of the Admin object.
         ///
         /// </returns>
-        public Dictionary<string, IObject> FindAllAdminFacets()
+        public IReadOnlyDictionary<string, IObject> FindAllAdminFacets()
         {
             lock (_mutex)
             {
@@ -1047,7 +1043,7 @@ namespace ZeroC.Ice
                 {
                     throw new CommunicatorDestroyedException();
                 }
-                return new Dictionary<string, IObject>(_adminFacets); // TODO, return a read-only collection
+                return _adminFacets.ToImmutableDictionary();
             }
         }
 

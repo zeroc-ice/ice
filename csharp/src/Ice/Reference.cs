@@ -19,8 +19,6 @@ namespace ZeroC.Ice
     /// options can share the same Reference object, even if these proxies have different types.</summary>
     public sealed class Reference : IEquatable<Reference>
     {
-        internal static readonly IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
-
         internal string AdapterId { get; }
         internal Communicator Communicator { get; }
         internal bool? Compress { get; }
@@ -949,14 +947,7 @@ namespace ZeroC.Ice
             if (context != null)
             {
                 // We never want to hold onto the context provided by the application.
-                if (context.Count == 0)
-                {
-                    context = EmptyContext;
-                }
-                else
-                {
-                    context = new Dictionary<string, string>(context);
-                }
+                context = context.ToImmutableDictionary();
             }
 
             if (IsFixed || fixedConnection != null)
