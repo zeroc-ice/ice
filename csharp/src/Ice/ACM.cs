@@ -101,7 +101,7 @@ namespace ZeroC.Ice
 
         internal void Destroy()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_communicator == null)
                 {
@@ -111,7 +111,7 @@ namespace ZeroC.Ice
                     //
                     while (_connections.Count > 0)
                     {
-                        System.Threading.Monitor.Wait(this);
+                        System.Threading.Monitor.Wait(_mutex);
                     }
                     return;
                 }
@@ -134,7 +134,7 @@ namespace ZeroC.Ice
                 //
                 while (_connections.Count > 0)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    System.Threading.Monitor.Wait(_mutex);
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace ZeroC.Ice
                 return;
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 if (_connections.Count == 0)
                 {
@@ -168,7 +168,7 @@ namespace ZeroC.Ice
                 return;
             }
 
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_communicator != null);
                 _changes.Add(new Change(connection, true));
@@ -177,7 +177,7 @@ namespace ZeroC.Ice
 
         public void Reap(Connection connection)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _reapedConnections.Add(connection);
             }
@@ -215,7 +215,7 @@ namespace ZeroC.Ice
 
         internal IEnumerable<Connection> SwapReapedConnections()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_reapedConnections.Count == 0)
                 {
@@ -229,12 +229,12 @@ namespace ZeroC.Ice
 
         public void RunTimerTask()
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_communicator == null)
                 {
                     _connections.Clear();
-                    System.Threading.Monitor.PulseAll(this);
+                    System.Threading.Monitor.PulseAll(_mutex);
                     return;
                 }
 
@@ -278,7 +278,7 @@ namespace ZeroC.Ice
 
         internal void HandleException(System.Exception ex)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_communicator == null)
                 {
@@ -293,6 +293,7 @@ namespace ZeroC.Ice
 
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
         private readonly List<Change> _changes = new List<Change>();
+        private readonly object _mutex = new object();
         private List<Connection> _reapedConnections = new List<Connection>();
     }
 
@@ -307,7 +308,7 @@ namespace ZeroC.Ice
 
         public void Add(Connection connection)
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_connection == null);
                 _connection = connection;
@@ -320,7 +321,7 @@ namespace ZeroC.Ice
 
         public void Remove(Connection connection)
         {
-            lock (this)
+            lock (_mutex)
             {
                 Debug.Assert(_connection == connection);
                 _connection = null;
@@ -348,7 +349,7 @@ namespace ZeroC.Ice
         public void RunTimerTask()
         {
             Connection connection;
-            lock (this)
+            lock (_mutex)
             {
                 if (_connection == null)
                 {
@@ -370,7 +371,7 @@ namespace ZeroC.Ice
         private readonly FactoryACMMonitor _parent;
         private readonly Timer _timer;
         private readonly ACMConfig _config;
-
         private Connection? _connection;
+        private readonly object _mutex = new object();
     }
 }

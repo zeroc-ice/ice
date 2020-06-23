@@ -717,8 +717,9 @@ namespace ZeroC.Ice
             try
             {
                 // Get the addresses for the given host and return the first one
-                return GetAddressesAsync(host, port, ipVersion, EndpointSelectionType.Ordered,
-                    preferIPv6).Result.First();
+                ValueTask<IEnumerable<IPEndPoint>> task = GetAddressesAsync(
+                    host, port, ipVersion, EndpointSelectionType.Ordered, preferIPv6);
+                return (task.IsCompleted ? task.Result : task.AsTask().Result).First();
             }
             catch (AggregateException ex)
             {
@@ -761,7 +762,9 @@ namespace ZeroC.Ice
             // TODO: Fix this method to be asynchronous.
             try
             {
-                return GetAddressesAsync(host, port, ipVersion, selType, preferIPv6).Result;
+                ValueTask<IEnumerable<IPEndPoint>> task =
+                    GetAddressesAsync(host, port, ipVersion, selType, preferIPv6);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
             }
             catch (AggregateException ex)
             {
