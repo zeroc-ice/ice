@@ -5233,6 +5233,7 @@ Slice::Enum::initUnderlying(const TypePtr& type)
 {
     assert(_contents.empty());
 
+    // initUnderlying is called with a null parameter when the Slice definition does not specify an underlying type.
     if (type)
     {
         BuiltinPtr underlying = BuiltinPtr::dynamicCast(type);

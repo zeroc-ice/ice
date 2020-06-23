@@ -1879,44 +1879,48 @@ dictionary_def
 ;
 
 // ----------------------------------------------------------------------
+enum_start
+// ----------------------------------------------------------------------
+: ICE_UNCHECKED ICE_ENUM
+{
+    BoolTokPtr unchecked = new BoolTok;
+    unchecked->v = true;
+    $$ = unchecked;
+}
+| ICE_ENUM
+{
+    BoolTokPtr unchecked = new BoolTok;
+    unchecked->v = false;
+    $$ = unchecked;
+}
+;
+
+// ----------------------------------------------------------------------
 enum_id
 // ----------------------------------------------------------------------
-: ICE_UNCHECKED ICE_ENUM ICE_IDENTIFIER
+: enum_start ICE_IDENTIFIER
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v, true);
-    if (en)
-    {
-        cont->checkIntroduced(ident->v, en);
-    }
-    else
-    {
-        en = cont->createEnum(IceUtil::generateUUID(), true, Dummy);
-    }
-    $$ = en;
-}
-| ICE_ENUM ICE_IDENTIFIER
-{
+    bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v, false);
+    EnumPtr en = cont->createEnum(ident->v, unchecked);
     if (en)
     {
         cont->checkIntroduced(ident->v, en);
     }
     else
     {
-        en = cont->createEnum(IceUtil::generateUUID(), false, Dummy);
+        en = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
     }
     $$ = en;
 }
-| ICE_ENUM keyword
+| enum_start keyword
 {
+    bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
-    $$ = cont->createEnum(IceUtil::generateUUID(), false, Dummy);
+    $$ = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
 }
 ;
 
