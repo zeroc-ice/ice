@@ -1611,7 +1611,7 @@ namespace ZeroC.Ice
     public abstract class IPConnection : Connection
     {
         /// <summary>The socket local IP-endpoint or null if it is not available.</summary>
-        public System.Net.IPEndPoint? LocalAddress
+        public System.Net.IPEndPoint? LocalEndpoint
         {
             get
             {
@@ -1627,7 +1627,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>The socket remote IP-endpoint or null if it is not available.</summary>
-        public System.Net.IPEndPoint? RemoteAddress
+        public System.Net.IPEndPoint? RemoteEndpoint
         {
             get
             {
@@ -1677,7 +1677,7 @@ namespace ZeroC.Ice
     public class UdpConnection : IPConnection
     {
         /// <summary>The multicast IP-endpoint for a multicast connection otherwise null.</summary>
-        public System.Net.IPEndPoint? McastAddress => (Transceiver as UdpTransceiver)?.McastAddress;
+        public System.Net.IPEndPoint? McastEndpoint => (Transceiver as UdpTransceiver)?.McastAddress;
 
         protected internal UdpConnection(
             Endpoint endpoint,

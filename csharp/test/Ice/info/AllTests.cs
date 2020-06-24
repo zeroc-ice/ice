@@ -165,21 +165,21 @@ namespace ZeroC.Ice.Test.Info
 
                 TestHelper.Assert(!connection.IsIncoming);
                 TestHelper.Assert(connection.Adapter == null);
-                TestHelper.Assert(connection.RemoteAddress!.Port == endpointPort);
-                TestHelper.Assert(connection.LocalAddress!.Port > 0);
+                TestHelper.Assert(connection.RemoteEndpoint!.Port == endpointPort);
+                TestHelper.Assert(connection.LocalEndpoint!.Port > 0);
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    TestHelper.Assert(connection.LocalAddress!.Address.ToString().Equals(defaultHost));
-                    TestHelper.Assert(connection.RemoteAddress!.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(connection.LocalEndpoint!.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(connection.RemoteEndpoint!.Address.ToString().Equals(defaultHost));
                 }
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
                 TestHelper.Assert(ctx["incoming"].Equals("true"));
                 TestHelper.Assert(ctx["adapterName"].Equals("TestAdapter"));
-                TestHelper.Assert(ctx["remoteAddress"].Equals(connection.LocalAddress!.Address.ToString()));
-                TestHelper.Assert(ctx["localAddress"].Equals(connection.RemoteAddress!.Address.ToString()));
-                TestHelper.Assert(ctx["remotePort"].Equals(connection.LocalAddress!.Port.ToString()));
-                TestHelper.Assert(ctx["localPort"].Equals(connection.RemoteAddress!.Port.ToString()));
+                TestHelper.Assert(ctx["remoteAddress"].Equals(connection.LocalEndpoint!.Address.ToString()));
+                TestHelper.Assert(ctx["localAddress"].Equals(connection.RemoteEndpoint!.Address.ToString()));
+                TestHelper.Assert(ctx["remotePort"].Equals(connection.LocalEndpoint!.Port.ToString()));
+                TestHelper.Assert(ctx["localPort"].Equals(connection.RemoteEndpoint!.Port.ToString()));
 
                 if ((connection as WSConnection)?.Headers is IReadOnlyDictionary<string, string> headers)
                 {
@@ -201,13 +201,13 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(udpConnection != null);
                 TestHelper.Assert(!udpConnection.IsIncoming);
                 TestHelper.Assert(udpConnection.Adapter == null);
-                TestHelper.Assert(udpConnection.LocalAddress?.Port > 0);
-                TestHelper.Assert(udpConnection.RemoteAddress?.Port == endpointPort);
+                TestHelper.Assert(udpConnection.LocalEndpoint?.Port > 0);
+                TestHelper.Assert(udpConnection.RemoteEndpoint?.Port == endpointPort);
 
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    TestHelper.Assert(udpConnection.RemoteAddress.Address.ToString().Equals(defaultHost));
-                    TestHelper.Assert(udpConnection.LocalAddress.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(udpConnection.RemoteEndpoint.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(udpConnection.LocalEndpoint.Address.ToString().Equals(defaultHost));
                 }
             }
             output.WriteLine("ok");

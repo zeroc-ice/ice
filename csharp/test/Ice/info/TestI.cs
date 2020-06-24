@@ -45,10 +45,10 @@ namespace ZeroC.Ice.Test.Info
 
             var ipConnection = current.Connection as IPConnection;
             TestHelper.Assert(ipConnection != null);
-            ctx["localAddress"] = ipConnection.LocalAddress?.Address.ToString() ?? "";
-            ctx["localPort"] = ipConnection.LocalAddress?.Port.ToString() ?? "";
-            ctx["remoteAddress"] = ipConnection.RemoteAddress?.Address.ToString() ?? "";
-            ctx["remotePort"] = ipConnection.RemoteAddress?.Port.ToString() ?? "";
+            ctx["localAddress"] = ipConnection.LocalEndpoint?.Address.ToString() ?? "";
+            ctx["localPort"] = ipConnection.LocalEndpoint?.Port.ToString() ?? "";
+            ctx["remoteAddress"] = ipConnection.RemoteEndpoint?.Address.ToString() ?? "";
+            ctx["remotePort"] = ipConnection.RemoteEndpoint?.Port.ToString() ?? "";
 
             if ((current.Connection as WSConnection)?.Headers is IReadOnlyDictionary<string, string> headers)
             {

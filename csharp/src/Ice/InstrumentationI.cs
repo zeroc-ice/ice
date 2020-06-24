@@ -213,10 +213,10 @@ namespace ZeroC.Ice
                 if (_id == null)
                 {
                     var os = new StringBuilder();
-                    if ((_connection as IPConnection)?.LocalAddress?.ToString() is string localAddress)
+                    if ((_connection as IPConnection)?.LocalEndpoint?.ToString() is string localAddress)
                     {
                         os.Append(localAddress);
-                        if ((_connection as IPConnection)?.RemoteAddress?.ToString() is string remoteAddress)
+                        if ((_connection as IPConnection)?.RemoteEndpoint?.ToString() is string remoteAddress)
                         {
                             os.Append(" -> ");
                             os.Append(remoteAddress);
@@ -261,22 +261,22 @@ namespace ZeroC.Ice
                 Add("connectionId", obj => (obj as ConnectionHelper)?._connection.Endpoint.ConnectionId);
 
                 Add("localHost", obj =>
-                    ((obj as ConnectionHelper)?._connection as IPConnection)?.LocalAddress?.Address);
+                    ((obj as ConnectionHelper)?._connection as IPConnection)?.LocalEndpoint?.Address);
 
                 Add("localPort", obj =>
-                    ((obj as ConnectionHelper)?._connection as IPConnection)?.LocalAddress?.Port);
+                    ((obj as ConnectionHelper)?._connection as IPConnection)?.LocalEndpoint?.Port);
 
                 Add("remoteHost", obj =>
-                    ((obj as ConnectionHelper)?._connection as IPConnection)?.RemoteAddress?.Address);
+                    ((obj as ConnectionHelper)?._connection as IPConnection)?.RemoteEndpoint?.Address);
 
                 Add("remotePort", obj =>
-                    ((obj as ConnectionHelper)?._connection as IPConnection)?.RemoteAddress?.Port);
+                    ((obj as ConnectionHelper)?._connection as IPConnection)?.RemoteEndpoint?.Port);
 
                 Add("mcastHost", obj =>
-                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.McastAddress?.Address);
+                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.McastEndpoint?.Address);
 
                 Add("mcastPort", obj =>
-                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.McastAddress?.Port);
+                    ((obj as ConnectionHelper)?._connection as UdpConnection)?.McastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as ConnectionHelper)?._connection.Endpoint);
                 Add("endpointTransport", obj => (obj as ConnectionHelper)?._connection.Endpoint?.Transport);
@@ -352,22 +352,22 @@ namespace ZeroC.Ice
                 Add("connectionId", obj => (obj as DispatchHelper)?.Connection.Endpoint.ConnectionId);
 
                 Add("localHost", obj =>
-                    ((obj as DispatchHelper)?.Connection as IPConnection)?.LocalAddress?.Address);
+                    ((obj as DispatchHelper)?.Connection as IPConnection)?.LocalEndpoint?.Address);
 
                 Add("localPort", obj =>
-                    ((obj as DispatchHelper)?.Connection as IPConnection)?.LocalAddress?.Port);
+                    ((obj as DispatchHelper)?.Connection as IPConnection)?.LocalEndpoint?.Port);
 
                 Add("remoteHost", obj =>
-                    ((obj as DispatchHelper)?.Connection as IPConnection)?.RemoteAddress?.Address);
+                    ((obj as DispatchHelper)?.Connection as IPConnection)?.RemoteEndpoint?.Address);
 
                 Add("remotePort", obj =>
-                    ((obj as DispatchHelper)?.Connection as IPConnection)?.RemoteAddress?.Port);
+                    ((obj as DispatchHelper)?.Connection as IPConnection)?.RemoteEndpoint?.Port);
 
                 Add("mcastHost", obj =>
-                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.McastAddress?.Address);
+                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.McastEndpoint?.Address);
 
                 Add("mcastPort", obj =>
-                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.McastAddress?.Port);
+                    ((obj as DispatchHelper)?.Connection as UdpConnection)?.McastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as DispatchHelper)?.Connection.Endpoint);
                 Add("endpointTransport", obj => (obj as DispatchHelper)?.Connection.Endpoint.Transport);
@@ -661,22 +661,22 @@ namespace ZeroC.Ice
                 Add("connectionId", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.ConnectionId);
 
                 Add("localHost", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.LocalAddress?.Address);
+                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.LocalEndpoint?.Address);
 
                 Add("localPort", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.LocalAddress?.Port);
+                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.LocalEndpoint?.Port);
 
                 Add("remoteHost", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.RemoteAddress?.Address);
+                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.RemoteEndpoint?.Address);
 
                 Add("remotePort", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.RemoteAddress?.Port);
+                    ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.RemoteEndpoint?.Port);
 
                 Add("mcastHost", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.McastAddress?.Address);
+                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.McastEndpoint?.Address);
 
                 Add("mcastPort", obj =>
-                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.McastAddress?.Port);
+                    ((obj as RemoteInvocationHelper)?._connection as UdpConnection)?.McastEndpoint?.Port);
 
                 Add("endpoint", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint);
                 Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Transport);

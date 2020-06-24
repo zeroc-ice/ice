@@ -30,7 +30,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
             output.Flush();
             {
                 var connection = (IPConnection)testPrx.GetConnection()!;
-                TestHelper.Assert(connection.RemoteAddress!.Port == proxyPort); // make sure we are connected to the proxy port.
+                TestHelper.Assert(connection.RemoteEndpoint!.Port == proxyPort); // make sure we are connected to the proxy port.
             }
             output.WriteLine("ok");
 
