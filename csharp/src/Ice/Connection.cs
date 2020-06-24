@@ -651,7 +651,7 @@ namespace ZeroC.Ice
                 }
 
                 // Initialize the transport
-                await _transceiver.InitializeAsync().WaitAsync(timeoutToken).ConfigureAwait(false);
+                await _transceiver.InitializeAsync(timeoutToken).ConfigureAwait(false);
 
                 ArraySegment<byte> readBuffer = default;
                 if (!Endpoint.IsDatagram) // Datagram connections are always implicitly validated.
@@ -661,8 +661,9 @@ namespace ZeroC.Ice
                         int offset = 0;
                         while (offset < _validateConnectionFrame.GetByteCount())
                         {
-                            ValueTask<int> writeTask = _transceiver.WriteAsync(_validateConnectionFrame, offset);
-                            offset += await writeTask.WaitAsync(timeoutToken).ConfigureAwait(false);
+                            offset += await _transceiver.WriteAsync(_validateConnectionFrame,
+                                                                    offset,
+                                                                    timeoutToken).ConfigureAwait(false);
                         }
                         Debug.Assert(offset == _validateConnectionFrame.GetByteCount());
                     }
@@ -672,8 +673,9 @@ namespace ZeroC.Ice
                         int offset = 0;
                         while (offset < Ice1Definitions.HeaderSize)
                         {
-                            ValueTask<int> readTask = _transceiver.ReadAsync(readBuffer, offset);
-                            offset += await readTask.WaitAsync(timeoutToken).ConfigureAwait(false);
+                            offset += await _transceiver.ReadAsync(readBuffer,
+                                                                   offset,
+                                                                   timeoutToken).ConfigureAwait(false);
                         }
 
                         Ice1Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
