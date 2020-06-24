@@ -114,9 +114,9 @@ namespace ZeroC.Ice
         {
             Debug.Assert(IsLoaded);
 
-            // Compress the message body, but not the header.
+            // Compress the frame body, but not the header.
             int decompressedLen = size - headerSize;
-            // Compress the message body, but not the header.
+            // Compress the frame body, but not the header.
             byte[] compressed = new byte[(int)((decompressedLen * 1.01) + 600)];
 
             // Prevent GC from moving the byte array, this allow to take the object address
@@ -193,7 +193,7 @@ namespace ZeroC.Ice
                 headerSegment[9] = 2;
                 OutputStream.WriteInt(compressedSize, headerSegment.AsSpan(10, 4));
 
-                // Add the size of the decompressed stream before the message body.
+                // Add the size of the decompressed stream before the frame body.
                 OutputStream.WriteInt(size, compressedHeader.AsSpan(headerSize, 4));
 
                 return new List<ArraySegment<byte>>(2)
@@ -212,7 +212,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int messageSizeMax)
+        internal static ArraySegment<byte> Decompress(ArraySegment<byte> compressed, int headerSize, int frameSizeMax)
         {
             Debug.Assert(IsLoaded);
             int decompressedSize = InputStream.ReadInt(compressed.AsSpan(headerSize, 4));
@@ -221,7 +221,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException(
                     $"received compressed ice1 frame with a decompressed size of only {decompressedSize} bytes");
             }
-            if (decompressedSize > messageSizeMax)
+            if (decompressedSize > frameSizeMax)
             {
                 throw new InvalidDataException(
                     $"decompressed size of {decompressedSize} bytes is greater than Ice.MessageSizeMax value");

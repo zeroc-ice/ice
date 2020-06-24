@@ -53,7 +53,7 @@ namespace ZeroC.Ice
             // the data in several chunks. Otherwise, we would only be
             // notified when all the data is received/written. The
             // connection timeout could easily be triggered when
-            // receiving/sending large messages.
+            // receiving/sending large frames.
             //
             _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(fd));
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(fd));
@@ -625,7 +625,7 @@ namespace ZeroC.Ice
                         if (message.Length > 0)
                         {
                             _communicator.Logger.Trace(_engine.SecurityTraceCategory,
-                                $"SSL certificate validation failed:{message}");
+                                $"SSL certificate validation failed: {message}");
                         }
                         else
                         {
@@ -637,7 +637,7 @@ namespace ZeroC.Ice
                 else if (message.Length > 0 && _engine.SecurityTraceLevel >= 1)
                 {
                     _communicator.Logger.Trace(_engine.SecurityTraceCategory,
-                        $"SSL certificate validation status:{message}");
+                        $"SSL certificate validation status: {message}");
                 }
                 return true;
             }

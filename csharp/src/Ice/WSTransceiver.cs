@@ -140,7 +140,7 @@ namespace ZeroC.Ice
                         (_state == StateUpgradeResponsePending && !_incoming))
                     {
                         //
-                        // Check if we have enough data for a complete message.
+                        // Check if we have enough data for a complete frame.
                         //
                         int p = HttpParser.IsCompleteMessage(_readBuffer.AsSpan(0, _readBufferOffset));
                         if (p == -1)
@@ -153,7 +153,7 @@ namespace ZeroC.Ice
                             //
                             // Enlarge the buffer and try to read more.
                             //
-                            if (_readBufferOffset + 1024 > _communicator.MessageSizeMax)
+                            if (_readBufferOffset + 1024 > _communicator.FrameSizeMax)
                             {
                                 throw new WSMemoryLimitException();
                             }
@@ -164,7 +164,7 @@ namespace ZeroC.Ice
                         }
 
                         //
-                        // Set _readBufferPos at the end of the response/request message.
+                        // Set _readBufferPos at the end of the response/request frame.
                         //
                         _readBufferPos = p;
                     }
@@ -189,7 +189,7 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            throw new WSProtocolException("incomplete request message");
+                            throw new WSProtocolException("incomplete request frame");
                         }
                     }
 
@@ -217,7 +217,7 @@ namespace ZeroC.Ice
                             }
                             else
                             {
-                                throw new WSProtocolException("incomplete response message");
+                                throw new WSProtocolException("incomplete response frame");
                             }
                         }
                     }
@@ -1002,7 +1002,7 @@ namespace ZeroC.Ice
                     ch = _readBuffer[_readBufferPos++];
                     //
                     // Check the MASK bit. Messages sent by a client must be masked;
-                    // messages sent by a server must not be masked.
+                    // frames sent by a server must not be masked.
                     //
                     bool masked = (ch & FLAG_MASKED) == FLAG_MASKED;
                     if (masked != _incoming)
@@ -1237,7 +1237,7 @@ namespace ZeroC.Ice
                     }
 
                     //
-                    // Continue reading if we didn't read the full message, otherwise give back
+                    // Continue reading if we didn't read the full frame, otherwise give back
                     // the control to the connection
                     //
                     return offset < buffer.Count && n < _readPayloadLength;
@@ -1344,8 +1344,8 @@ namespace ZeroC.Ice
             if (_writeState == WriteStatePayload)
             {
                 //
-                // For an outgoing connection, each message must be masked with a random
-                // 32-bit value, so we copy the entire message into the internal buffer
+                // For an outgoing connection, each frame must be masked with a random
+                // 32-bit value, so we copy the entire frame into the internal buffer
                 // for writing. For incoming connections we borrow the segments and add
                 // them after the header.
                 //
