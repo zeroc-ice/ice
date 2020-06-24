@@ -16,6 +16,9 @@ namespace ZeroC.Ice
      /// information. The Endpoint class is the base class for all endpoint classes.</summary>
     public abstract class Endpoint : IEquatable<Endpoint>
     {
+        /// <summary>Get the communicator from which the endpoint was created.</summary>
+        public abstract Communicator Communicator { get; }
+
         /// <summary>The connection ID of this endpoint.</summary>
         public abstract string ConnectionId { get; }
 
@@ -193,7 +196,7 @@ namespace ZeroC.Ice
             // of the known endpoints.
             if (!oaEndpoint && transportName == "opaque")
             {
-                var opaqueEndpoint = new OpaqueEndpoint(protocol, options, endpointString);
+                var opaqueEndpoint = new OpaqueEndpoint(communicator, protocol, options, endpointString);
                 if (options.Count > 0)
                 {
                     throw new FormatException(

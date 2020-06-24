@@ -474,8 +474,11 @@ namespace ZeroC.Ice
                         throw new CommunicatorDestroyedException();
                     }
 
-                    connection = transceiver.CreateConnection(_communicator, _monitor, connectorInfo.Connector,
-                        connectorInfo.Endpoint.NewCompressionFlag(false), null);
+                    connection = transceiver.CreateConnection(
+                        connectorInfo.Endpoint.NewCompressionFlag(false),
+                        _monitor,
+                        connectorInfo.Connector,
+                        null);
                 }
                 catch
                 {
@@ -973,7 +976,7 @@ namespace ZeroC.Ice
                     }
                     _endpoint = _transceiver.Bind();
 
-                    var connection = _transceiver.CreateConnection(_communicator, null, null, _endpoint, _adapter);
+                    var connection = _transceiver.CreateConnection(_endpoint, null, null, _adapter);
                     _ = connection.StartAsync();
                     _connections.Add(connection);
                 }
@@ -1202,8 +1205,7 @@ namespace ZeroC.Ice
 
                     try
                     {
-                        connection = transceiver.CreateConnection(
-                            _communicator, _monitor, null, _endpoint, _adapter);
+                        connection = transceiver.CreateConnection(_endpoint, _monitor, null, _adapter);
                     }
                     catch (Exception ex)
                     {

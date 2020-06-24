@@ -43,15 +43,14 @@ namespace ZeroC.Ice.Test.Info
             ctx["adapterName"] = current.Connection.Adapter?.Name ?? "";
             ctx["incoming"] = current.Connection.IsIncoming ? "true" : "false";
 
-            var iPConnection = current.Connection as IPConnection;
-            TestHelper.Assert(iPConnection != null);
-            ctx["localAddress"] = iPConnection.LocalAddress?.Address.ToString() ?? "";
-            ctx["localPort"] = iPConnection.LocalAddress?.Port.ToString() ?? "";
-            ctx["remoteAddress"] = iPConnection.RemoteAddress?.Address.ToString() ?? "";
-            ctx["remotePort"] = iPConnection.RemoteAddress?.Port.ToString() ?? "";
+            var ipConnection = current.Connection as IPConnection;
+            TestHelper.Assert(ipConnection != null);
+            ctx["localAddress"] = ipConnection.LocalAddress?.Address.ToString() ?? "";
+            ctx["localPort"] = ipConnection.LocalAddress?.Port.ToString() ?? "";
+            ctx["remoteAddress"] = ipConnection.RemoteAddress?.Address.ToString() ?? "";
+            ctx["remotePort"] = ipConnection.RemoteAddress?.Port.ToString() ?? "";
 
-            if (((current.Connection as WSConnection)?.Headers ?? (current.Connection as WssConnection)?.Headers ?? null) is
-                IReadOnlyDictionary<string, string> headers)
+            if ((current.Connection as WSConnection)?.Headers is IReadOnlyDictionary<string, string> headers)
             {
                 foreach ((string key, string value) in headers)
                 {

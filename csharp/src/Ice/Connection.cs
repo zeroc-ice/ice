@@ -5,15 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
-
 using ZeroC.Ice.Instrumentation;
-using System.Net;
-using System.Net.Sockets;
-using System.Collections.ObjectModel;
 
 namespace ZeroC.Ice
 {
@@ -67,6 +63,7 @@ namespace ZeroC.Ice
         GracefullyWithWait
     }
 
+    /// <summary>Represents a connection used to send and receive Ice frames.</summary>
     public abstract class Connection
     {
         /// <summary>Gets or sets the object adapter that dispatches requests received over this connection.
@@ -99,7 +96,8 @@ namespace ZeroC.Ice
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
 
-        public bool IsIncoming { get; }
+        /// <summary>True for incoming connections false otherwise.</summary>
+        public bool IsIncoming => _connector == null;
 
         // TODO: Remove Timeout after reviewing its usages, it's no longer used by the connection
         internal int Timeout => Endpoint.Timeout;
@@ -116,6 +114,8 @@ namespace ZeroC.Ice
                 }
             }
         }
+
+        protected ITransceiver Transceiver { get; }
 
         private long _acmLastActivity;
         private ObjectAdapter? _adapter;
@@ -138,7 +138,6 @@ namespace ZeroC.Ice
             new Dictionary<int, TaskCompletionSource<IncomingResponseFrame>>();
         private Task _sendTask = Task.CompletedTask;
         private State _state; // The current state.
-        protected readonly ITransceiver Transceiver;
         private bool _validated = false;
         private readonly bool _warn;
         private readonly bool _warnUdp;
@@ -351,22 +350,20 @@ namespace ZeroC.Ice
         /// <returns>The description of the connection as human readable text.</returns>
         public override string ToString() => Transceiver.ToString()!;
 
-        internal Connection(Communicator communicator,
+        internal Connection(Endpoint endpoint,
                             IACMMonitor? monitor,
                             ITransceiver transceiver,
                             IConnector? connector,
-                            Endpoint endpoint,
                             ObjectAdapter? adapter)
         {
-            _communicator = communicator;
+            _communicator = endpoint.Communicator;
             _monitor = monitor;
             Transceiver = transceiver;
             _connector = connector;
             Endpoint = endpoint;
             _adapter = adapter;
-            IsIncoming = adapter != null;
-            _warn = communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-            _warnUdp = communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
+            _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
+            _warnUdp = _communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
 
             if (_monitor != null && _monitor.GetACM().Timeout > 0)
             {
@@ -377,11 +374,11 @@ namespace ZeroC.Ice
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
-            _messageSizeMax = adapter != null ? adapter.MessageSizeMax : communicator.MessageSizeMax;
+            _messageSizeMax = adapter != null ? adapter.MessageSizeMax : _communicator.MessageSizeMax;
             _dispatchCount = 0;
             _state = State.NotInitialized;
 
-            _compressionLevel = communicator.GetPropertyAsInt("Ice.Compression.Level") ?? 1;
+            _compressionLevel = _communicator.GetPropertyAsInt("Ice.Compression.Level") ?? 1;
             if (_compressionLevel < 1)
             {
                 _compressionLevel = 1;
@@ -1134,7 +1131,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + Transceiver.ToString());
+                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
             }
 
             // Notify pending requests of the failure and the close callback. We use the thread pool to ensure the
@@ -1610,156 +1607,102 @@ namespace ZeroC.Ice
         };
     }
 
+    /// <summary>Represents a connection to an IP-endpoint.</summary>
     public abstract class IPConnection : Connection
     {
+        /// <summary>The socket local IP-endpoint or null if it is not available.</summary>
         public System.Net.IPEndPoint? LocalAddress
         {
             get
             {
-                // Cache the address to be able to access it after the socket is dispose
-                if (_localAddress == null)
+                try
                 {
-                    try
-                    {
-                        _localAddress = Transceiver.Fd()?.LocalEndPoint as System.Net.IPEndPoint;
-                    }
-                    catch
-                    {
-                    }
+                    return Transceiver.Fd()?.LocalEndPoint as System.Net.IPEndPoint;
                 }
-                return _localAddress;
+                catch
+                {
+                    return null;
+                }
             }
         }
+
+        /// <summary>The socket remote IP-endpoint or null if it is not available.</summary>
         public System.Net.IPEndPoint? RemoteAddress
         {
             get
             {
-                // Cache the address to be able to access it after the socket is dispose
-                if (_remoteAddress == null)
+                try
                 {
-                    try
-                    {
-                        _remoteAddress = Transceiver.Fd()?.RemoteEndPoint as System.Net.IPEndPoint;
-                    }
-                    catch
-                    {
-                    }
+                    return Transceiver.Fd()?.RemoteEndPoint as System.Net.IPEndPoint;
                 }
-                return _remoteAddress;
+                catch
+                {
+                    return null;
+                }
             }
         }
 
-        private System.Net.IPEndPoint? _localAddress;
-        private System.Net.IPEndPoint? _remoteAddress;
-
-        public IPConnection(
-            Communicator communicator,
+        protected IPConnection(
+            Endpoint endpoint,
             IACMMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
-            Endpoint endpoint,
             ObjectAdapter? adapter)
-            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+            : base(endpoint, monitor, transceiver, connector, adapter)
         {
         }
     }
 
+    /// <summary>Represents a connection to a TCP-endpoint.</summary>
     public class TcpConnection : IPConnection
     {
-        public TcpConnection(
-            Communicator communicator,
-            IACMMonitor? monitor,
-            ITransceiver transceiver,
-            IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter)
-            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
-        {
-        }
-    }
-
-    public class UdpConnection : IPConnection
-    {
-        public System.Net.IPEndPoint? McastAddress
-        {
-            get
-            {
-                // Cache the address to be able to access it after the socket is dispose
-                if (_mcastAddress == null)
-                {
-                    try
-                    {
-                        _mcastAddress = (Transceiver as UdpTransceiver)?.McastAddress;
-                    }
-                    catch
-                    {
-                    }
-                }
-                return _mcastAddress;
-            }
-        }
-
-        private System.Net.IPEndPoint? _mcastAddress;
-
-        public UdpConnection(
-            Communicator communicator,
-            IACMMonitor? monitor,
-            ITransceiver transceiver,
-            IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter)
-            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
-        {
-        }
-    }
-
-    public class WSConnection : TcpConnection
-    {
-        public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
-
-        public WSConnection(
-            Communicator communicator,
-            IACMMonitor? monitor,
-            ITransceiver transceiver,
-            IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter)
-            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
-        {
-        }
-    }
-
-    public class SslConnection : TcpConnection
-    {
+        /// <summary>The socket local IP-endpoint or null if it is not available.</summary>
         public string? Cipher => (Transceiver as SslTransceiver)?.Cipher ??
             (Transceiver as WSTransceiver)?.Cipher;
         public X509Certificate2[]? Certificates => (Transceiver as SslTransceiver)?.Certificates ??
             (Transceiver as WSTransceiver)?.Certificates;
 
-        public SslConnection(
-            Communicator communicator,
+        protected internal TcpConnection(
+            Endpoint endpoint,
             IACMMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
-            Endpoint endpoint,
             ObjectAdapter? adapter)
-            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+            : base(endpoint, monitor, transceiver, connector, adapter)
         {
         }
     }
 
-    public class WssConnection : SslConnection
+    /// <summary>Represents a connection to a UDP-endpoint.</summary>
+    public class UdpConnection : IPConnection
     {
-        public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
+        /// <summary>The multicast IP-endpoint for a multicast connection otherwise null.</summary>
+        public System.Net.IPEndPoint? McastAddress => (Transceiver as UdpTransceiver)?.McastAddress;
 
-        public WssConnection(
-            Communicator communicator,
+        protected internal UdpConnection(
+            Endpoint endpoint,
             IACMMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
-            Endpoint endpoint,
             ObjectAdapter? adapter)
-            : base(communicator, monitor, transceiver, connector, endpoint, adapter)
+            : base(endpoint, monitor, transceiver, connector, adapter)
+        {
+        }
+    }
+
+    /// <summary>Represents a connection to a WS-endpoint.</summary>
+    public class WSConnection : TcpConnection
+    {
+        /// <summary>The HTTP headers in the WebSocket upgrade request.</summary>
+        public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
+
+        protected internal WSConnection(
+            Endpoint endpoint,
+            IACMMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            ObjectAdapter? adapter)
+            : base(endpoint, monitor, transceiver, connector, adapter)
         {
         }
     }

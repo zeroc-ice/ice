@@ -181,8 +181,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(ctx["remotePort"].Equals(connection.LocalAddress!.Port.ToString()));
                 TestHelper.Assert(ctx["localPort"].Equals(connection.RemoteAddress!.Port.ToString()));
 
-                if (((connection as WSConnection)?.Headers ??
-                     (connection as WssConnection)?.Headers ?? null) is IReadOnlyDictionary<string, string> headers)
+                if ((connection as WSConnection)?.Headers is IReadOnlyDictionary<string, string> headers)
                 {
                     TestHelper.Assert(headers["Upgrade"].Equals("websocket"));
                     TestHelper.Assert(headers["Connection"].Equals("Upgrade"));

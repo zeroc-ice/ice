@@ -36,21 +36,11 @@ namespace ZeroC.Ice
         public X509Certificate2[]? Certificates => (_delegate as SslTransceiver)?.Certificates;
 
         public Connection CreateConnection(
-            Communicator communicator,
+            Endpoint endpoint,
             IACMMonitor? monitor,
             IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter)
-        {
-            if (_delegate is SslTransceiver)
-            {
-                return new WssConnection(communicator, monitor, this, connector, endpoint, adapter);
-            }
-            else
-            {
-                return new WSConnection(communicator, monitor, this, connector, endpoint, adapter);
-            }
-        }
+            ObjectAdapter? adapter) =>
+            new WSConnection(endpoint, monitor, this, connector, adapter);
 
         public Socket? Fd() => _delegate.Fd();
 

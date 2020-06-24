@@ -20,11 +20,14 @@ namespace ZeroC.Ice
         public X509Certificate2[]? Certificates => _certs;
 
         public Connection CreateConnection(
-            Communicator communicator,
+            Endpoint endpoint,
             IACMMonitor? monitor,
             IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter) => new SslConnection(communicator, monitor, this, connector, endpoint, adapter);
+            ObjectAdapter? adapter)
+        {
+            Debug.Assert(endpoint.IsSecure);
+            return new TcpConnection(endpoint, monitor, this, connector, adapter);
+        }
 
         public Socket? Fd() => _delegate.Fd();
 
@@ -313,12 +316,11 @@ namespace ZeroC.Ice
         // Only for use by ConnectorI, AcceptorI.
         //
         internal SslTransceiver(Communicator communicator, SslEngine engine, ITransceiver del,
-            string hostOrAdapterName, bool incoming, string connectionId)
+            string hostOrAdapterName, bool incoming)
         {
             _communicator = communicator;
             _engine = engine;
             _delegate = del;
-            _connectionId = connectionId;
             _incoming = incoming;
             if (_incoming)
             {
@@ -685,7 +687,6 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly SslEngine _engine;
         private readonly ITransceiver _delegate;
-        private readonly string _connectionId;
         private readonly string? _host;
         private readonly string? _adapterName;
         private readonly bool _incoming;

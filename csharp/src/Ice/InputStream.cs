@@ -1169,7 +1169,8 @@ namespace ZeroC.Ice
             }
             else
             {
-                endpoint = new OpaqueEndpoint(transport, protocol, encoding, _buffer.Slice(_pos, size - 2).ToArray());
+                endpoint = new OpaqueEndpoint(
+                    Communicator, transport, protocol, encoding, _buffer.Slice(_pos, size - 2).ToArray());
                 _pos += size - 2;
             }
 

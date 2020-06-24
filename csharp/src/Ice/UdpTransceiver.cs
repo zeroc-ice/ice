@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -16,11 +15,10 @@ namespace ZeroC.Ice
         internal System.Net.IPEndPoint? McastAddress { get; private set; } = null;
 
         public Connection CreateConnection(
-            Communicator communicator,
+            Endpoint endpoint,
             IACMMonitor? monitor,
             IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter) => new UdpConnection(communicator, monitor, this, connector, endpoint, adapter);
+            ObjectAdapter? adapter) => new UdpConnection(endpoint, monitor, this, connector, adapter);
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -56,9 +54,8 @@ namespace ZeroC.Ice
             return SocketOperation.None;
         }
 
-        public int Closing(bool initiator, Exception? ex) =>
-            // Nothing to do.
-            SocketOperation.None;
+        // Nothing to do.
+        public int Closing(bool initiator, Exception? ex) => SocketOperation.None;
 
         public void Close()
         {
@@ -77,10 +74,10 @@ namespace ZeroC.Ice
         public Endpoint Bind()
         {
             Debug.Assert(_fd != null);
-            if (Network.IsMulticast((IPEndPoint)_addr))
+            if (Network.IsMulticast((System.Net.IPEndPoint)_addr))
             {
                 Network.SetReuseAddress(_fd, true);
-                McastAddress = (IPEndPoint)_addr;
+                McastAddress = (System.Net.IPEndPoint)_addr;
                 if (AssemblyUtil.IsWindows)
                 {
                     //
@@ -92,18 +89,18 @@ namespace ZeroC.Ice
                     //
                     if (_addr.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        _addr = new IPEndPoint(IPAddress.Any, _port);
+                        _addr = new System.Net.IPEndPoint(System.Net.IPAddress.Any, _port);
                     }
                     else
                     {
-                        _addr = new IPEndPoint(IPAddress.IPv6Any, _port);
+                        _addr = new System.Net.IPEndPoint(System.Net.IPAddress.IPv6Any, _port);
                     }
                 }
 
                 _addr = Network.DoBind(_fd, _addr);
                 if (_port == 0)
                 {
-                    McastAddress.Port = ((IPEndPoint)_addr).Port;
+                    McastAddress.Port = ((System.Net.IPEndPoint)_addr).Port;
                 }
                 Debug.Assert(_mcastInterface != null);
                 Network.SetMcastGroup(_fd, McastAddress.Address, _mcastInterface);
@@ -206,17 +203,17 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    EndPoint? peerAddr = _peerAddr;
+                    System.Net.EndPoint? peerAddr = _peerAddr;
                     if (peerAddr == null)
                     {
                         if (_addr.AddressFamily == AddressFamily.InterNetwork)
                         {
-                            peerAddr = new IPEndPoint(IPAddress.Any, 0);
+                            peerAddr = new System.Net.IPEndPoint(System.Net.IPAddress.Any, 0);
                         }
                         else
                         {
                             Debug.Assert(_addr.AddressFamily == AddressFamily.InterNetworkV6);
-                            peerAddr = new IPEndPoint(IPAddress.IPv6Any, 0);
+                            peerAddr = new System.Net.IPEndPoint(System.Net.IPAddress.IPv6Any, 0);
                         }
                     }
 
@@ -229,7 +226,7 @@ namespace ZeroC.Ice
                     else
                     {
                         ret = _fd.ReceiveFrom(buffer.Array, 0, packetSize, SocketFlags.None, ref peerAddr);
-                        _peerAddr = (IPEndPoint)peerAddr;
+                        _peerAddr = (System.Net.IPEndPoint)peerAddr;
                     }
                     break;
                 }
@@ -626,15 +623,20 @@ namespace ZeroC.Ice
         //
         // Only for use by UdpConnector.
         //
-        internal UdpTransceiver(Communicator communicator, string transportName, EndPoint addr, IPAddress? sourceAddr,
-            string mcastInterface, int mcastTtl)
+        internal UdpTransceiver(
+            Communicator communicator,
+            string transportName,
+            System.Net.EndPoint addr,
+            System.Net.IPAddress? sourceAddr,
+            string mcastInterface,
+            int mcastTtl)
         {
             _communicator = communicator;
             TransportName = transportName;
             _addr = addr;
             if (sourceAddr != null)
             {
-                _sourceAddr = new IPEndPoint(sourceAddr, 0);
+                _sourceAddr = new System.Net.IPEndPoint(sourceAddr, 0);
             }
 
             _readEventArgs = new SocketAsyncEventArgs();
@@ -652,7 +654,7 @@ namespace ZeroC.Ice
             _fd = Network.CreateSocket(true, _addr.AddressFamily);
             SetBufSize(-1, -1);
             Network.SetBlock(_fd, false);
-            if (Network.IsMulticast((IPEndPoint)_addr))
+            if (Network.IsMulticast((System.Net.IPEndPoint)_addr))
             {
                 if (_mcastInterface.Length > 0)
                 {
@@ -831,7 +833,7 @@ namespace ZeroC.Ice
         private int _sndSize;
         private readonly Socket _fd;
         private System.Net.EndPoint _addr;
-        private readonly IPEndPoint? _sourceAddr;
+        private readonly System.Net.IPEndPoint? _sourceAddr;
         private System.Net.EndPoint? _peerAddr = null;
         private readonly string? _mcastInterface = null;
 

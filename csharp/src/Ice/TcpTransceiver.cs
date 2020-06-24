@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Net.Sockets;
 
 namespace ZeroC.Ice
@@ -13,11 +12,10 @@ namespace ZeroC.Ice
     internal sealed class TcpTransceiver : ITransceiver
     {
         public Connection CreateConnection(
-            Communicator communicator,
+            Endpoint endpoint,
             IACMMonitor? monitor,
             IConnector? connector,
-            Endpoint endpoint,
-            ObjectAdapter? adapter) => new TcpConnection(communicator, monitor, this, connector, endpoint, adapter);
+            ObjectAdapter? adapter) => new TcpConnection(endpoint, monitor, this, connector, adapter);
         public Socket? Fd() => _stream.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer) =>

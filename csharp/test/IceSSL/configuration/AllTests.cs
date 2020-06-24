@@ -287,11 +287,12 @@ namespace ZeroC.IceSSL.Test.Configuration
                             new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
                         X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                        var sslConnection = (SslConnection)server.GetConnection()!;
-                        TestHelper.Assert(sslConnection.Certificates!.Length == 2);
+                        var tcpConnection = (TcpConnection)server.GetConnection()!;
+                        TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                        TestHelper.Assert(tcpConnection.Certificates!.Length == 2);
 
-                        TestHelper.Assert(caCert.Equals(sslConnection.Certificates[1]));
-                        TestHelper.Assert(serverCert.Equals(sslConnection.Certificates[0]));
+                        TestHelper.Assert(caCert.Equals(tcpConnection.Certificates[1]));
+                        TestHelper.Assert(serverCert.Equals(tcpConnection.Certificates[0]));
                     }
                     catch (Exception ex)
                     {
@@ -918,8 +919,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                             server = fact.createServer(serverProperties);
                             try
                             {
-                                var sslConnection = (SslConnection)server!.GetConnection()!;
-                                TestHelper.Assert(sslConnection.Certificates!.Length == 2);
+                                var tcpConnection = (TcpConnection)server!.GetConnection()!;
+                                TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                                TestHelper.Assert(tcpConnection.Certificates!.Length == 2);
                             }
                             catch (Exception ex)
                             {
@@ -982,8 +984,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 server = fact.createServer(serverProperties);
                                 try
                                 {
-                                    var sslConnection = (SslConnection)server!.GetConnection()!;
-                                    TestHelper.Assert(sslConnection.Certificates!.Length == 3);
+                                    var tcpConnection = (TcpConnection)server!.GetConnection()!;
+                                    TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                                    TestHelper.Assert(tcpConnection.Certificates!.Length == 3);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1025,8 +1028,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 server = fact.createServer(serverProperties);
                                 try
                                 {
-                                    var sslConnection = (SslConnection)server!.GetConnection()!;
-                                    TestHelper.Assert(sslConnection.Certificates!.Length == 4);
+                                    var tcpConnection = (TcpConnection)server!.GetConnection()!;
+                                    TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                                    TestHelper.Assert(tcpConnection.Certificates!.Length == 4);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1120,9 +1124,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         TestHelper.Assert(server != null);
-                        var sslConnection = (SslConnection)server.GetConnection()!;
-                        TestHelper.Assert(sslConnection.Cipher != null);
-                        server.checkCipher(sslConnection.Cipher);
+                        var tcpConnection = (TcpConnection)server.GetConnection()!;
+                        TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
+                        TestHelper.Assert(tcpConnection.Cipher != null);
+                        server.checkCipher(tcpConnection.Cipher);
                     }
                     catch (Exception ex)
                     {

@@ -13,6 +13,7 @@ namespace ZeroC.Ice.Test.Background
     // TODO: Endpoint is an awful name for this class.
     internal class Endpoint : ZeroC.Ice.Endpoint
     {
+        public override Communicator Communicator => _endpoint.Communicator;
         public override string ConnectionId => _endpoint.ConnectionId;
         public override bool HasCompressionFlag => _endpoint.HasCompressionFlag;
         public override bool IsDatagram => _endpoint.IsDatagram;

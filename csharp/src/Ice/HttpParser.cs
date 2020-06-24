@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 
@@ -702,7 +701,7 @@ namespace ZeroC.Ice
             {
                 dict[_headerNames[key]] = value.Trim();
             }
-            return dict.ToImmutableDictionary();
+            return dict;
         }
 
         private Type _type;

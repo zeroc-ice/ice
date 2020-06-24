@@ -15,6 +15,9 @@ namespace ZeroC.Ice
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
     public abstract class IPEndpoint : Endpoint
     {
+        /// <summary>The communicator used to create this endpoint.</summary>
+        public override Communicator Communicator { get; }
+
         public override string ConnectionId { get; } = "";
 
         /// <summary>The hostname of this IP endpoint.</summary>
@@ -26,8 +29,6 @@ namespace ZeroC.Ice
 
         /// <summary>The source address of this IP endpoint.</summary>
         public IPAddress? SourceAddress { get; }
-
-        protected Communicator Communicator { get; }
 
         public override bool Equals(Endpoint? other)
         {
