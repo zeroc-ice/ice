@@ -234,9 +234,9 @@ namespace ZeroC.Ice
                 {
                     if (Network.RecvTruncated(e))
                     {
-                        // The message was truncated and the whole buffer is filled. We ignore
+                        // The frame was truncated and the whole buffer is filled. We ignore
                         // this error here, it will be detected at the connection level when
-                        // the Ice message size is checked against the buffer size.
+                        // the Ice frame size is checked against the buffer size.
                         ret = buffer.Count;
                         break;
                     }
@@ -365,9 +365,9 @@ namespace ZeroC.Ice
             {
                 if (Network.RecvTruncated(ex))
                 {
-                    // The message was truncated and the whole buffer is filled. We ignore
+                    // The frame was truncated and the whole buffer is filled. We ignore
                     // this error here, it will be detected at the connection level when
-                    // the Ice message size is checked against the buffer size.
+                    // the Ice frame size is checked against the buffer size.
                     ret = buffer.Count;
                 }
                 else

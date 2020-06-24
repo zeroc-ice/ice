@@ -149,8 +149,8 @@ namespace ZeroC.Ice
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
         internal ACMConfig ClientACM { get; }
+        internal int FrameSizeMax { get; }
         internal int IPVersion { get; }
-        internal int MessageSizeMax { get; }
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int[] RetryIntervals { get; }
@@ -520,11 +520,11 @@ namespace ZeroC.Ice
                     int num = GetPropertyAsInt("Ice.MessageSizeMax") ?? 1024;
                     if (num < 1 || num > 0x7fffffff / 1024)
                     {
-                        MessageSizeMax = 0x7fffffff;
+                        FrameSizeMax = 0x7fffffff;
                     }
                     else
                     {
-                        MessageSizeMax = num * 1024; // Property is in kilobytes, MessageSizeMax in bytes
+                        FrameSizeMax = num * 1024; // Property is in kilobytes, FrameSizeMax in bytes
                     }
                 }
 
