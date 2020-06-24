@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ZeroC.Ice.Instrumentation;
@@ -69,7 +70,7 @@ namespace ZeroC.Ice
                 // Don't invoke from the user thread if async or invocation timeout is set. We also don't dispatch
                 // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
                 // request returns as soon as it's sent over the transport.
-                task = Task.Factory.StartNew(() => InvokeAllAsync(outgoingRequestFrame, requestId),
+                task = Task.Factory.StartNew(() => InvokeAllAsync(outgoingRequestFrame, requestId, cancel),
                                              cancel,
                                              TaskCreationOptions.None,
                                              _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
@@ -83,7 +84,7 @@ namespace ZeroC.Ice
             else // Optimization: directly call invokeAll
             {
                 Debug.Assert(!oneway);
-                task = InvokeAllAsync(outgoingRequestFrame, requestId);
+                task = InvokeAllAsync(outgoingRequestFrame, requestId, cancel);
             }
             return new ValueTask<Task<IncomingResponseFrame>?>(WaitForResponseAsync(task, childObserver, cancel));
 
@@ -102,7 +103,7 @@ namespace ZeroC.Ice
                     }
                     else
                     {
-                        // Wait for response async is only called for twoway invocations and InvokeAllAsync only
+                        // WaitForResponseAsync is only called for twoway invocations and InvokeAllAsync only
                         // returns null for oneway invocations so we should never get a null incoming response
                         // frame here.
                         Debug.Assert(false);
@@ -128,7 +129,10 @@ namespace ZeroC.Ice
             _requestId = 0;
         }
 
-        private async Task<IncomingResponseFrame?> InvokeAllAsync(OutgoingRequestFrame outgoingRequest, int requestId)
+        private async Task<IncomingResponseFrame?> InvokeAllAsync(
+            OutgoingRequestFrame outgoingRequest,
+            int requestId,
+            CancellationToken cancel)
         {
             // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
             // upon completion.
@@ -137,7 +141,7 @@ namespace ZeroC.Ice
             try
             {
                 var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
-                var current = new Current(_adapter, incomingRequest, requestId);
+                var current = new Current(_adapter, incomingRequest, requestId, cancel);
 
                 // Then notify and set dispatch observer, if any.
                 ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
@@ -157,10 +161,11 @@ namespace ZeroC.Ice
                         throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
-                    // TODO: provide the cancellation token to DispatchAsync instead of using WaitAsync (with Current?)
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
                     if (requestId != 0)
                     {
+                        // We don't cancel the await here if the request is canceled. The asynchronous dispatch is
+                        // still going and we want to make sure the observer reports when the dispatch terminates.
                         outgoingResponseFrame = await vt.ConfigureAwait(false);
                     }
                 }

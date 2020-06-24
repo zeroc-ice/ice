@@ -1005,7 +1005,10 @@ namespace ZeroC.Ice
                             {
                                 adapter = _adapter;
                                 int requestId = InputStream.ReadInt(readBuffer.AsSpan(Ice1Definitions.HeaderSize, 4));
-                                var current = new Current(_adapter, request, requestId, this);
+                                // TODO: instead of a default cancellation token, we'll have to create a cancellation
+                                // token source here and keep track of them in a dictionnary for each dispatch. When a
+                                // stream is cancelled with ice2, we'll request cancellation on the cached token source.
+                                var current = new Current(_adapter, request, requestId, cancel: default, this);
                                 incoming = () => InvokeAsync(current, request, compressionStatus);
                                 ++_dispatchCount;
                             }

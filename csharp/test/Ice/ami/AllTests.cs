@@ -559,58 +559,115 @@ namespace ZeroC.Ice.Test.AMI
                 }
             }).Wait();
 
-            if (p.GetConnection() != null)
+            output.Write("testing async Task cancellation... ");
+            output.Flush();
             {
-                output.Write("testing async Task cancellation... ");
-                output.Flush();
+                var cs1 = new CancellationTokenSource();
+                var cs2 = new CancellationTokenSource();
+                var cs3 = new CancellationTokenSource();
+                Task t1;
+                Task t2;
+                Task t3;
+                try
                 {
-                    var cs1 = new CancellationTokenSource();
-                    var cs2 = new CancellationTokenSource();
-                    var cs3 = new CancellationTokenSource();
-                    Task t1;
-                    Task t2;
-                    Task t3;
+                    var cancelCtx = new Dictionary<string, string> { { "cancel", "" } };
+                    t1 = p.sleepAsync(300, cancel: cs1.Token, context: cancelCtx);
+                    t2 = p.sleepAsync(300, cancel: cs2.Token, context: cancelCtx);
+                    cs1.Cancel();
+                    cs2.Cancel();
+                    cs3.Cancel();
                     try
                     {
-                        t1 = p.sleepAsync(300, cancel: cs1.Token);
-                        t2 = p.sleepAsync(300, cancel: cs2.Token);
-                        cs1.Cancel();
-                        cs2.Cancel();
-                        cs3.Cancel();
-                        try
-                        {
-                            t3 = p.IcePingAsync(cancel: cs3.Token);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            // expected
-                        }
-                        try
-                        {
-                            t1.Wait();
-                            TestHelper.Assert(false);
-                        }
-                        catch (AggregateException ae)
-                        {
-                            ae.Handle(ex => ex is OperationCanceledException);
-                        }
-                        try
-                        {
-                            t2.Wait();
-                            TestHelper.Assert(false);
-                        }
-                        catch (AggregateException ae)
-                        {
-                            ae.Handle(ex => ex is OperationCanceledException);
-                        }
+                        t3 = p.IcePingAsync(cancel: cs3.Token);
                     }
-                    finally
+                    catch (OperationCanceledException)
                     {
-                        p.IcePing();
+                        // expected
+                    }
+                    try
+                    {
+                        t1.Wait();
+                        TestHelper.Assert(false);
+                    }
+                    catch (AggregateException ae)
+                    {
+                        ae.Handle(ex => ex is OperationCanceledException);
+                    }
+                    try
+                    {
+                        t2.Wait();
+                        TestHelper.Assert(false);
+                    }
+                    catch (AggregateException ae)
+                    {
+                        ae.Handle(ex => ex is OperationCanceledException);
                     }
                 }
-                output.WriteLine("ok");
+                finally
+                {
+                    p.IcePing();
+                }
             }
+            if (p.GetConnection() != null)
+            {
+                // Stress test cancellation to ensure we exercise the various cancellation points.
+                for (int i = 0; i < 20; ++i)
+                {
+                    var source = new CancellationTokenSource();
+                    source.CancelAfter(TimeSpan.FromMilliseconds(i));
+                    try
+                    {
+                        p.Clone(connectionId: $"cancel{i}").sleepAsync(10 + i * 2, cancel: source.Token).Wait();
+                        TestHelper.Assert(false);
+                    }
+                    catch (AggregateException ae)
+                    {
+                        ae.Handle(ex => ex is OperationCanceledException);
+                    }
+                }
+
+                // Set the value on the servant to 20 and sleep for 500ms. We send a large payload to fill up the
+                // send buffer and ensure other requests won't be sent.
+                serialized.set(20);
+                serialized.sleepAsync(400);
+                serialized.opWithPayloadAsync(new byte[512 * 1024]);
+                serialized.opWithPayloadAsync(new byte[512 * 1024]);
+                serialized.opWithPayloadAsync(new byte[512 * 1024]);
+                serialized.opWithPayloadAsync(new byte[512 * 1024]);
+
+                // The send queue is blocked, we send 4 set requests and cancel 2 of them. We make sure that the
+                // requests are canceled and not sent by checking the response of set which sends the previous set
+                // value.
+                var source0 = new CancellationTokenSource();
+                Task<int> t0 = serialized.setAsync(0, cancel: source0.Token);
+                Task<int> t1 = serialized.setAsync(1);
+                var source2 = new CancellationTokenSource();
+                Task<int> t2 = serialized.setAsync(2, cancel: source2.Token);
+                Task<int> t3 = serialized.setAsync(3);
+                source0.Cancel();
+                source2.Cancel();
+                try
+                {
+                    t0.Wait();
+                    TestHelper.Assert(false);
+                }
+                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                {
+                }
+                try
+                {
+                    t2.Wait();
+                }
+                catch (AggregateException ex) when (ex.InnerException is OperationCanceledException)
+                {
+                }
+                TestHelper.Assert(t0.Status == TaskStatus.Canceled);
+                TestHelper.Assert(t2.Status == TaskStatus.Canceled);
+                TestHelper.Assert(t1.Result == 20);
+                TestHelper.Assert(t3.Result == 1);
+                TestHelper.Assert(serialized.set(0) == 3);
+            }
+            output.WriteLine("ok");
 
             if (p.GetConnection() != null && p.supportsAMD())
             {
