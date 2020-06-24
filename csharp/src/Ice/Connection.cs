@@ -131,8 +131,8 @@ namespace ZeroC.Ice
         private int _nextRequestId;
         private IConnectionObserver? _observer;
         private Task _receiveTask = Task.CompletedTask;
-        private readonly Dictionary<int, TaskCompletionSource<IncomingResponseFrame>> _requests =
-            new Dictionary<int, TaskCompletionSource<IncomingResponseFrame>>();
+        private readonly Dictionary<int, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
+            new Dictionary<int, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
         private Task _sendTask = Task.CompletedTask;
         private State _state; // The current state.
         private readonly ITransceiver _transceiver;
@@ -248,9 +248,9 @@ namespace ZeroC.Ice
                 {
                     throw _exception!;
                 }
-                writeTask = SendFrameAsync(() => GetProtocolFrameData(_validateConnectionFrame));
+                writeTask = SendFrameAsync(() => GetProtocolFrameData(_validateConnectionFrame), cancel);
             }
-            await writeTask.WaitAsync(cancel).ConfigureAwait(false);
+            await writeTask.ConfigureAwait(false);
             progress?.Report(true);
         }
 
@@ -528,8 +528,13 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<Task<IncomingResponseFrame>?> SendRequestAsync(OutgoingRequestFrame request,
-            bool oneway, bool compress, IInvocationObserver? observer)
+        internal async ValueTask<Task<IncomingResponseFrame>?> SendRequestAsync(
+            OutgoingRequestFrame request,
+            bool oneway,
+            bool compress,
+            bool synchronous,
+            IInvocationObserver? observer,
+            CancellationToken cancel)
         {
             IChildInvocationObserver? childObserver = null;
             Task writeTask;
@@ -548,35 +553,40 @@ namespace ZeroC.Ice
                 Debug.Assert(_state > State.NotInitialized);
                 Debug.Assert(_state < State.Closing);
 
-                int requestId = 0;
-                if (!oneway)
-                {
-                    //
-                    // Create a new unique request ID.
-                    //
-                    requestId = _nextRequestId++;
-                    if (requestId <= 0)
-                    {
-                        _nextRequestId = 1;
-                        requestId = _nextRequestId++;
-                    }
-
-                    var responseTaskSource = new TaskCompletionSource<IncomingResponseFrame>();
-                    _requests[requestId] = responseTaskSource;
-                    responseTask = responseTaskSource.Task;
-                }
-
                 // Ensure the message isn't bigger than what we can send with the transport.
                 // TODO: remove?
                 _transceiver.CheckSendSize(request.Size + Ice1Definitions.HeaderSize + 4);
 
-                if (observer != null)
+                writeTask = SendFrameAsync(() =>
                 {
-                    childObserver = observer.GetRemoteObserver(InitConnectionInfo(), Endpoint, requestId, request.Size);
-                    childObserver?.Attach();
-                }
+                    // This is called with _mutex locked.
 
-                writeTask = SendFrameAsync(() => GetRequestFrameData(request, requestId, compress));
+                    int requestId = 0;
+                    if (!oneway)
+                    {
+                        //
+                        // Create a new unique request ID.
+                        //
+                        requestId = _nextRequestId++;
+                        if (requestId <= 0)
+                        {
+                            _nextRequestId = 1;
+                            requestId = _nextRequestId++;
+                        }
+
+                        var responseTaskSource = new TaskCompletionSource<IncomingResponseFrame>();
+                        _requests[requestId] = (responseTaskSource, synchronous);
+                        responseTask = responseTaskSource.Task;
+                    }
+
+                    if (observer != null)
+                    {
+                        childObserver = observer.GetRemoteObserver(InitConnectionInfo(), Endpoint, requestId, request.Size);
+                        childObserver?.Attach();
+                    }
+
+                    return GetRequestFrameData(request, requestId, compress);
+                }, cancel);
             }
 
             try
@@ -597,15 +607,18 @@ namespace ZeroC.Ice
             }
             else
             {
-                return WaitForResponseAsync(responseTask!, childObserver);
+                // TODO: support cancelation of requests.
+                return WaitForResponseAsync(responseTask!, childObserver, cancel);
             }
 
-            static async Task<IncomingResponseFrame> WaitForResponseAsync(Task<IncomingResponseFrame> task,
-                IChildInvocationObserver? observer)
+            static async Task<IncomingResponseFrame> WaitForResponseAsync(
+                Task<IncomingResponseFrame> task,
+                IChildInvocationObserver? observer,
+                CancellationToken cancel)
             {
                 try
                 {
-                    IncomingResponseFrame response = await task.ConfigureAwait(false);
+                    IncomingResponseFrame response = await task.WaitAsync(cancel).ConfigureAwait(false);
                     observer?.Reply(response.Size);
                     return response;
                 }
@@ -621,7 +634,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask StartAsync()
+        internal async Task StartAsync()
         {
             try
             {
@@ -649,8 +662,7 @@ namespace ZeroC.Ice
                         while (offset < _validateConnectionFrame.GetByteCount())
                         {
                             ValueTask<int> writeTask = _transceiver.WriteAsync(_validateConnectionFrame, offset);
-                            await writeTask.WaitAsync(timeoutToken).ConfigureAwait(false);
-                            offset += writeTask.Result;
+                            offset += await writeTask.WaitAsync(timeoutToken).ConfigureAwait(false);
                         }
                         Debug.Assert(offset == _validateConnectionFrame.GetByteCount());
                     }
@@ -661,8 +673,7 @@ namespace ZeroC.Ice
                         while (offset < Ice1Definitions.HeaderSize)
                         {
                             ValueTask<int> readTask = _transceiver.ReadAsync(readBuffer, offset);
-                            await readTask.WaitAsync(timeoutToken).ConfigureAwait(false);
-                            offset += readTask.Result;
+                            offset += await readTask.WaitAsync(timeoutToken).ConfigureAwait(false);
                         }
 
                         Ice1Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
@@ -1031,21 +1042,27 @@ namespace ZeroC.Ice
                         var responseFrame = new IncomingResponseFrame(_communicator,
                             readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                         ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
-                        if (_requests.TryGetValue(requestId,
-                                out TaskCompletionSource<IncomingResponseFrame>? responseTaskCompletionSource))
+
+                        if (_requests.Remove(requestId,
+                                out (TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource,
+                                     bool Synchronous) request))
                         {
-                            _requests.Remove(requestId);
                             // We can't call SetResult directly from here as it might be trigger the continuations
                             // to run synchronously and it wouldn't be safe to run a continuation with the mutex
                             // locked.
                             //
-                            // TODO: Running continuations of synchronous call would be safe but we don't know
-                            // here if this is a synchronous call or not. We could if we provided this information
-                            // to SendRequestAsync and kept track.
-                            incoming = () => {
-                                responseTaskCompletionSource.SetResult(responseFrame);
-                                return new ValueTask(Task.CompletedTask);
-                            };
+                            if (request.Synchronous)
+                            {
+                                request.TaskCompletionSource.SetResult(responseFrame);
+                            }
+                            else
+                            {
+                                incoming = () =>
+                                {
+                                    request.TaskCompletionSource.SetResult(responseFrame);
+                                    return new ValueTask(Task.CompletedTask);
+                                };
+                            }
                             if (_requests.Count == 0)
                             {
                                 System.Threading.Monitor.PulseAll(_mutex); // Notify threads blocked in Close()
@@ -1189,9 +1206,10 @@ namespace ZeroC.Ice
             // continuations or the callback are not run from this thread which might still lock the connection's mutex.
             _ = Task.Run(() =>
             {
-                foreach (TaskCompletionSource<IncomingResponseFrame> responseTaskCompletionSource in _requests.Values)
+                foreach ((TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource, bool synchronous) request in
+                    _requests.Values)
                 {
-                    responseTaskCompletionSource.SetException(_exception!);
+                    request.TaskCompletionSource.SetException(_exception!);
                 }
 
                 // Invoke the close callback
@@ -1331,8 +1349,6 @@ namespace ZeroC.Ice
             }
 
             // Compress the frame if needed and possible
-            // TODO: Benoit: we should consider doing the compression at an earlier stage from the application
-            // user thread instead?
             int size = writeBuffer.GetByteCount();
             if (BZip2.IsLoaded && compress)
             {
@@ -1436,7 +1452,7 @@ namespace ZeroC.Ice
                 await CloseAsync(ex);
             }
 
-            static async ValueTask TaskRun(Func<ValueTask> func, TaskScheduler scheduler)
+            static async Task TaskRun(Func<ValueTask> func, TaskScheduler scheduler)
             {
                 // First await for the dispatch to be ran on the task scheduler.
                 ValueTask task = await Task.Factory.StartNew(func, default, TaskCreationOptions.None,
@@ -1488,21 +1504,38 @@ namespace ZeroC.Ice
             }
         }
 
-        private Task SendFrameAsync(Func<(List<ArraySegment<byte>>, bool)> getFrameData)
+        private Task SendFrameAsync(
+            Func<(List<ArraySegment<byte>>, bool)> getFrameData,
+            CancellationToken cancel = default)
         {
             lock (_mutex)
             {
                 Debug.Assert(_state < State.Closed);
-                ValueTask sendTask = QueueAsync(this, _sendTask, getFrameData);
+                cancel.ThrowIfCancellationRequested();
+                ValueTask sendTask = QueueAsync(this, _sendTask, getFrameData, cancel);
                 _sendTask = sendTask.IsCompleted ? Task.CompletedTask : sendTask.AsTask();
                 return _sendTask;
             }
 
-            static async ValueTask QueueAsync(Connection self, Task previous,
-                Func<(List<ArraySegment<byte>>, bool)> getFrameData)
+            static async ValueTask QueueAsync(
+                Connection self,
+                Task previous,
+                Func<(List<ArraySegment<byte>>, bool)> getFrameData,
+                CancellationToken cancel)
             {
-                // Wait for the previous write to complete
-                await previous.ConfigureAwait(false);
+                // Wait for the previous send to complete
+                try
+                {
+                    await previous.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // If the previous send was canceled, ignore and continue sending.
+                }
+
+                // If the send got cancelled, throw now. This isn't a fatal connection error, the next pending
+                // outgoing will be sent because we ignore the cancelation exception above.
+                cancel.ThrowIfCancellationRequested();
 
                 // Perform the write
                 try

@@ -21,9 +21,15 @@ namespace ZeroC.Ice
 
         public Connection? GetConnection() => null;
 
-        public ValueTask<Task<IncomingResponseFrame>?> SendRequestAsync(OutgoingRequestFrame outgoingRequestFrame,
-            bool oneway, bool synchronous, IInvocationObserver? observer)
+        public ValueTask<Task<IncomingResponseFrame>?> SendRequestAsync(
+            OutgoingRequestFrame outgoingRequestFrame,
+            bool oneway,
+            bool synchronous,
+            IInvocationObserver? observer,
+            CancellationToken cancel)
         {
+            cancel.ThrowIfCancellationRequested();
+
             //
             // Increase the direct count to prevent the thread pool from being destroyed before
             // invokeAll is called. This will also throw if the object adapter has been deactivated.
@@ -52,8 +58,10 @@ namespace ZeroC.Ice
 
                 if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                 {
-                    ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator, (byte)Ice1Definitions.FrameType.Request,
-                        requestId, outgoingRequestFrame);
+                    ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
+                                                       (byte)Ice1Definitions.FrameType.Request,
+                                                       requestId,
+                                                       outgoingRequestFrame);
                 }
             }
 
@@ -63,8 +71,10 @@ namespace ZeroC.Ice
                 // Don't invoke from the user thread if async or invocation timeout is set. We also don't dispatch
                 // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
                 // request returns as soon as it's sent over the transport.
-                task = Task.Factory.StartNew(() => InvokeAllAsync(outgoingRequestFrame, requestId), default,
-                    TaskCreationOptions.None, _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
+                task = Task.Factory.StartNew(() => InvokeAllAsync(outgoingRequestFrame, requestId),
+                                             cancel,
+                                             TaskCreationOptions.None,
+                                             _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
 
                 if (oneway)
                 {
@@ -77,14 +87,16 @@ namespace ZeroC.Ice
                 Debug.Assert(!oneway);
                 task = InvokeAllAsync(outgoingRequestFrame, requestId);
             }
-            return new ValueTask<Task<IncomingResponseFrame>?>(WaitForResponseAsync(task, childObserver));
+            return new ValueTask<Task<IncomingResponseFrame>?>(WaitForResponseAsync(task, childObserver, cancel));
 
-            static async Task<IncomingResponseFrame> WaitForResponseAsync(Task<IncomingResponseFrame?> task,
-                IChildInvocationObserver? observer)
+            static async Task<IncomingResponseFrame> WaitForResponseAsync(
+                Task<IncomingResponseFrame?> task,
+                IChildInvocationObserver? observer,
+                CancellationToken cancel)
             {
                 try
                 {
-                    IncomingResponseFrame? incomingResponseFrame = await task.ConfigureAwait(false);
+                    IncomingResponseFrame? incomingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
                     if (incomingResponseFrame != null)
                     {
                         observer?.Reply(incomingResponseFrame.Size);
@@ -118,8 +130,7 @@ namespace ZeroC.Ice
             _requestId = 0;
         }
 
-        private async Task<IncomingResponseFrame?> InvokeAllAsync(OutgoingRequestFrame outgoingRequest,
-            int requestId)
+        private async Task<IncomingResponseFrame?> InvokeAllAsync(OutgoingRequestFrame outgoingRequest, int requestId)
         {
             // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
             // upon completion.
@@ -148,6 +159,7 @@ namespace ZeroC.Ice
                         throw new ObjectNotExistException(current.Identity, current.Facet, current.Operation);
                     }
 
+                    // TODO: provide the cancellation token to DispatchAsync instead of using WaitAsync (with Current?)
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
                     if (requestId != 0)
                     {
@@ -177,12 +189,16 @@ namespace ZeroC.Ice
                 {
                     dispatchObserver?.Reply(outgoingResponseFrame.Size);
 
-                    var incomingResponseFrame = new IncomingResponseFrame(_adapter.Communicator,
+                    var incomingResponseFrame = new IncomingResponseFrame(
+                        _adapter.Communicator,
                         VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
+
                     if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator, (byte)Ice1Definitions.FrameType.Reply,
-                            requestId, incomingResponseFrame);
+                        ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
+                                                           (byte)Ice1Definitions.FrameType.Reply,
+                                                           requestId,
+                                                           incomingResponseFrame);
                     }
                     return incomingResponseFrame;
                 }
