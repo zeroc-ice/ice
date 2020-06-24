@@ -78,12 +78,37 @@ namespace ZeroC.Ice.Test.Enums
             }
 
             {
+                // 42 does not correspond to a ByteEnum enumerator, so we expect failure since ByteEnum is checked.
+                try
+                {
+                    _ = proxy.OpByte((ByteEnum)42);
+                    TestHelper.Assert(false);
+                }
+                catch (UnhandledException) // unhandled dispatch exception
+                {
+                    // expected
+                }
+            }
+
+            {
                 (ByteEnum? r, ByteEnum? o) = proxy.OpTaggedByte(ByteEnum.benum1);
                 TestHelper.Assert(r == ByteEnum.benum1 && o == ByteEnum.benum1);
                 (r, o) = proxy.OpTaggedByte(ByteEnum.benum11);
                 TestHelper.Assert(r == ByteEnum.benum11 && o == ByteEnum.benum11);
                 (r, o) = proxy.OpTaggedByte(null);
                 TestHelper.Assert(r == null && o == null);
+            }
+
+            {
+                try
+                {
+                    _ = proxy.OpTaggedByte((ByteEnum)42);
+                    TestHelper.Assert(false);
+                }
+                catch (UnhandledException) // unhandled dispatch exception
+                {
+                    // expected
+                }
             }
 
             {
@@ -184,6 +209,34 @@ namespace ZeroC.Ice.Test.Enums
                 (ByteEnum[] b3, ByteEnum[] b2) = proxy.OpByteSeq(b1);
                 TestHelper.Assert(b1.SequenceEqual(b2));
                 TestHelper.Assert(b1.SequenceEqual(b3));
+            }
+
+            {
+                var b1 = new ByteEnum[12]
+                {
+                    ByteEnum.benum1,
+                    ByteEnum.benum2,
+                    (ByteEnum)42,
+                    ByteEnum.benum3,
+                    ByteEnum.benum4,
+                    ByteEnum.benum5,
+                    ByteEnum.benum6,
+                    ByteEnum.benum7,
+                    ByteEnum.benum8,
+                    ByteEnum.benum9,
+                    ByteEnum.benum10,
+                    ByteEnum.benum11
+                };
+
+                try
+                {
+                    _ = proxy.OpByteSeq(b1);
+                    TestHelper.Assert(false);
+                }
+                catch (UnhandledException)
+                {
+                    // expected
+                }
             }
 
             {
@@ -386,6 +439,34 @@ namespace ZeroC.Ice.Test.Enums
             }
 
             {
+                var b1 = new ByteEnum[12]
+                {
+                    ByteEnum.benum1,
+                    ByteEnum.benum2,
+                    ByteEnum.benum3,
+                    ByteEnum.benum4,
+                    ByteEnum.benum5,
+                    ByteEnum.benum6,
+                    ByteEnum.benum7,
+                    ByteEnum.benum8,
+                    (ByteEnum)42,
+                    ByteEnum.benum9,
+                    ByteEnum.benum10,
+                    ByteEnum.benum11
+                };
+
+                try
+                {
+                    _ = proxy.OpTaggedByteSeq(b1);
+                    TestHelper.Assert(false);
+                }
+                catch (UnhandledException)
+                {
+                    // expected
+                }
+            }
+
+            {
                 var b1 = new FLByteEnum[11]
                 {
                     FLByteEnum.benum1,
@@ -435,6 +516,39 @@ namespace ZeroC.Ice.Test.Enums
 
                 (i3, i2) = proxy.OpTaggedFLIntSeq(null);
                 TestHelper.Assert(i2 == null && i3 == null);
+            }
+
+            output.WriteLine("ok");
+
+            output.Write("testing unchecked enums... ");
+            output.Flush();
+            {
+                (MyFlags r, MyFlags f2) = proxy.OpMyFlags(MyFlags.E31);
+                TestHelper.Assert(r == MyFlags.E31 && f2 == r);
+                (r, f2) = proxy.OpMyFlags(MyFlags.E10 | MyFlags.E11);
+                TestHelper.Assert(r == (MyFlags.E10 | MyFlags.E11) && f2 == r);
+            }
+
+            output.Flush();
+            {
+                (MyFlags? r, MyFlags? f2) = proxy.OpTaggedMyFlags(null);
+                TestHelper.Assert(r == null && f2 == r);
+                (r, f2) = proxy.OpTaggedMyFlags(MyFlags.E10 | MyFlags.E11);
+                TestHelper.Assert(r == (MyFlags.E10 | MyFlags.E11) && f2 == r);
+            }
+
+            output.Flush();
+            {
+                var myFlagsSeq = new MyFlags[] { MyFlags.E10, MyFlags.E0, MyFlags.E5 | MyFlags.E6 };
+                (MyFlags[] r, MyFlags[] f2) = proxy.OpMyFlagsSeq(myFlagsSeq);
+                TestHelper.Assert(r.SequenceEqual(myFlagsSeq) && f2.SequenceEqual(myFlagsSeq));
+            }
+
+            output.Flush();
+            {
+                var myFlagsSeq = new MyFlags[] { MyFlags.E10, MyFlags.E0, MyFlags.E5 | MyFlags.E6 };
+                (MyFlags[]? r, MyFlags[]? f2) = proxy.OpTaggedMyFlagsSeq(myFlagsSeq);
+                TestHelper.Assert(r!.SequenceEqual(myFlagsSeq) && f2!.SequenceEqual(myFlagsSeq));
             }
 
             output.WriteLine("ok");

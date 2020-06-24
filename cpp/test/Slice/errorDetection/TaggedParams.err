@@ -1,14 +1,13 @@
+TaggedParams.ice:15: value 4_294_967_296 for enumerator `e4' is outside the range of uint: [0..4_294_967_295]
 TaggedParams.ice:20: missing tag
 TaggedParams.ice:21: missing tag
 TaggedParams.ice:22: `abc' is not defined
 TaggedParams.ice:23: tag is out of range
 TaggedParams.ice:24: tag is out of range
 TaggedParams.ice:25: tag is out of range
-TaggedParams.ice:27: tag is out of range
-TaggedParams.ice:27: invalid tag `C3'
-TaggedParams.ice:28: tag is out of range
-TaggedParams.ice:28: invalid tag `C4'
-TaggedParams.ice:29: invalid tag `C5'
+TaggedParams.ice:27: cannot use value of `C3' as a tag
+TaggedParams.ice:28: cannot use value of `C4' as a tag
+TaggedParams.ice:29: cannot use value of `C5' as a tag
 TaggedParams.ice:32: syntax error
 TaggedParams.ice:34: missing tag
 TaggedParams.ice:35: missing tag
@@ -16,11 +15,9 @@ TaggedParams.ice:36: `abc' is not defined
 TaggedParams.ice:37: tag is out of range
 TaggedParams.ice:38: tag is out of range
 TaggedParams.ice:39: tag is out of range
-TaggedParams.ice:41: tag is out of range
-TaggedParams.ice:41: invalid tag `C3'
-TaggedParams.ice:42: tag is out of range
-TaggedParams.ice:42: invalid tag `C4'
-TaggedParams.ice:43: invalid tag `C5'
+TaggedParams.ice:41: cannot use value of `C3' as a tag
+TaggedParams.ice:42: cannot use value of `C4' as a tag
+TaggedParams.ice:43: cannot use value of `C5' as a tag
 TaggedParams.ice:45: warning: referencing enumerator `::Test::E::e2' without its enumeration's scope is deprecated
 TaggedParams.ice:47: missing tag
 TaggedParams.ice:48: missing tag
@@ -28,16 +25,15 @@ TaggedParams.ice:49: `abc' is not defined
 TaggedParams.ice:50: tag is out of range
 TaggedParams.ice:51: tag is out of range
 TaggedParams.ice:52: tag is out of range
-TaggedParams.ice:54: tag is out of range
-TaggedParams.ice:54: invalid tag `C3'
-TaggedParams.ice:55: tag is out of range
-TaggedParams.ice:55: invalid tag `C4'
-TaggedParams.ice:56: invalid tag `C5'
+TaggedParams.ice:54: cannot use value of `C3' as a tag
+TaggedParams.ice:55: cannot use value of `C4' as a tag
+TaggedParams.ice:56: cannot use value of `C5' as a tag
 TaggedParams.ice:58: enumerator `e1' could designate `::Test::E::e1' or `::Test::Ebis::e1'
-TaggedParams.ice:62: tag for parameter `o' is already in use
+TaggedParams.ice:59: cannot use value of `E::e4' as a tag
 TaggedParams.ice:63: tag for parameter `o' is already in use
 TaggedParams.ice:64: tag for parameter `o' is already in use
 TaggedParams.ice:65: tag for parameter `o' is already in use
-TaggedParams.ice:67: warning: The `optional' keyword is deprecated, use `tag' instead
+TaggedParams.ice:66: tag for parameter `o' is already in use
 TaggedParams.ice:68: warning: The `optional' keyword is deprecated, use `tag' instead
 TaggedParams.ice:69: warning: The `optional' keyword is deprecated, use `tag' instead
+TaggedParams.ice:70: warning: The `optional' keyword is deprecated, use `tag' instead

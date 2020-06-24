@@ -2003,7 +2003,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     // consecutive and we need to use a set to validate the value during unmarshaling.
     // Note that the values are not necessarily in order, e.g. we can use a simple range check for
     // enum E { A = 3, B = 2, C = 1 } during unmarshaling.
-    const bool useSet = static_cast<int64_t>(enumerators.size()) < p->maxValue() - p->minValue() + 1;
+    const bool useSet = !p->isUnchecked() &&
+        static_cast<int64_t>(enumerators.size()) < p->maxValue() - p->minValue() + 1;
     string underlying = p->underlying() ? typeToString(p->underlying(), "") : "int";
 
     _out << sp;
@@ -2077,20 +2078,26 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     _out << sp;
     _out << nl << "public static " << name << " As" << p->name() << "(this " << underlying << " value) =>";
-    _out.inc();
-
-    if (useSet)
+    if (p->isUnchecked())
     {
-        _out << nl << "EnumeratorValues.Contains(value)";
+        _out << " (" << name << ")value;";
     }
     else
     {
-        _out << nl << p->minValue() << " <= value && value <= " << p->maxValue();
+        _out.inc();
+        if (useSet)
+        {
+            _out << nl << "EnumeratorValues.Contains(value)";
+        }
+        else
+        {
+            _out << nl << p->minValue() << " <= value && value <= " << p->maxValue();
+        }
+        _out << " ? (" << name
+             << ")value : throw new ZeroC.Ice.InvalidDataException($\"invalid enumerator value `{value}' for "
+             << fixId(p->scoped()) << "\");";
+        _out.dec();
     }
-    _out << " ? (" << name
-        << ")value : throw new ZeroC.Ice.InvalidDataException($\"invalid enumerator value `{value}' for "
-        << fixId(p->scoped()) << "\");";
-    _out.dec();
 
     _out << sp;
     _out << nl << "public static " << name << " Read" << p->name() << "(this ZeroC.Ice.InputStream istr) =>";

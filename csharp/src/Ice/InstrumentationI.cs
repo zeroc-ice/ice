@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using ZeroC.Ice.Instrumentation;
-using ZeroC.IceMX;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
+using ZeroC.Ice.Instrumentation;
+using ZeroC.IceMX;
 
 namespace ZeroC.IceMX
 {
@@ -23,427 +22,460 @@ namespace ZeroC.IceMX
 
 namespace ZeroC.Ice
 {
-    internal class ObserverWithDelegate<T, O> : Observer<T>
-        where T : Metrics, new()
-        where O : class, IObserver
+    internal class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
     {
-        public override void
-        Attach()
+        private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
+        private readonly int _requestId;
+        private readonly string _id;
+        private readonly int _size;
+
+        public override void InitMetrics(CollocatedMetrics v) => v.Size += _size;
+
+        internal CollocatedInvocationHelper(ObjectAdapter adapter, int requestId, int size)
+            : base(_attributeResolver)
         {
-            base.Attach();
-            if (Delegate != null)
-            {
-                Delegate.Attach();
-            }
+            _id = adapter.Name;
+            _requestId = requestId;
+            _size = size;
         }
 
-        public override void
-        Detach()
+        private class AttributeResolverI : AttributeResolver
         {
-            base.Detach();
-            if (Delegate != null)
+            public AttributeResolverI()
             {
-                Delegate.Detach();
+                Add("parent", obj => "Communicator");
+                Add("id", obj => (obj as CollocatedInvocationHelper)?._id);
+                Add("requestId", obj => (obj as CollocatedInvocationHelper)?._requestId);
             }
-        }
-
-        public override void
-        Failed(string exceptionName)
-        {
-            base.Failed(exceptionName);
-            if (Delegate != null)
-            {
-                Delegate.Failed(exceptionName);
-            }
-        }
-
-        public O?
-        GetDelegate() => Delegate;
-
-        public void
-        SetDelegate(O? del) => Delegate = del;
-
-        public Observer? GetObserver<S, ObserverImpl, Observer>(string mapName, MetricsHelper<S> helper, Observer? del)
-            where S : Metrics, new()
-            where ObserverImpl : ObserverWithDelegate<S, Observer>, Observer, new()
-            where Observer : class, IObserver
-        {
-            ObserverImpl? obsv = GetObserver<S, ObserverImpl>(mapName, helper);
-            if (obsv != null)
-            {
-                obsv.SetDelegate(del);
-                return obsv;
-            }
-            return del;
-        }
-
-        protected O? Delegate;
-    }
-
-    internal class ObserverFactoryWithDelegate<T, OImpl, O> : ObserverFactory<T, OImpl>
-        where T : Metrics, new()
-        where OImpl : ObserverWithDelegate<T, O>, O, new()
-        where O : class, IObserver
-    {
-        public ObserverFactoryWithDelegate(MetricsAdminI metrics, string name)
-            : base(metrics, name)
-        {
-        }
-
-        public O? GetObserver(MetricsHelper<T> helper, O? del)
-        {
-            OImpl? o = GetObserver(helper);
-            if (o != null)
-            {
-                o.SetDelegate(del);
-                return o;
-            }
-            return del;
-        }
-
-        public O? GetObserver(MetricsHelper<T> helper, object? observer, O? del)
-        {
-            OImpl? o = GetObserver(helper, observer);
-            if (o != null)
-            {
-                o.SetDelegate(del);
-                return o;
-            }
-            return del;
         }
     }
 
-    internal static class AttrsUtil
+    internal class CollocatedObserver : ObserverWithDelegate<CollocatedMetrics, ICollocatedObserver>,
+        ICollocatedObserver
     {
-        public static void
-        AddEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : Metrics
+        public void Reply(int size)
         {
-            r.Add("endpoint", cl.GetMethod("GetEndpoint")!);
+            ForEach(v => v.ReplySize += size);
+            Delegate?.Reply(size);
+        }
+    }
 
-            Type cli = typeof(Endpoint);
+    internal class CommunicatorObserver : ICommunicatorObserver
+    {
+        public MetricsAdmin AdminFacet { get; }
 
-            r.Add("endpointTransport", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Transport")!);
-            r.Add("endpointIsDatagram", cl.GetMethod("GetEndpoint")!, cli.GetProperty("IsDatagram")!);
-            r.Add("endpointIsSecure", cl.GetMethod("GetEndpoint")!, cli.GetProperty("IsSecure")!);
-            r.Add("endpointTimeout", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Timeout")!);
-            r.Add("endpointCompress", cl.GetMethod("GetEndpoint")!, cli.GetProperty("HasCompressionFlag")!);
+        private readonly ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserver,
+            IConnectionObserver> _connections;
+        private readonly ObserverFactoryWithDelegate<Metrics, ObserverWithDelegate,
+            IObserver> _connects;
+        private readonly ICommunicatorObserver? _delegate;
+        private readonly ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserver,
+            IDispatchObserver> _dispatch;
+        private readonly ObserverFactoryWithDelegate<Metrics, ObserverWithDelegate,
+            IObserver> _endpointLookups;
+        private readonly ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserver,
+            IInvocationObserver> _invocations;
 
-            cli = typeof(IPEndpoint);
-            r.Add("endpointHost", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Host")!);
-            r.Add("endpointPort", cl.GetMethod("GetEndpoint")!, cli.GetProperty("Port")!);
+        internal CommunicatorObserver(Communicator communicator, ILogger logger)
+        {
+            AdminFacet = new MetricsAdmin(communicator, logger);
+            _delegate = communicator.Observer;
+            _connections = new ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserver,
+                IConnectionObserver>(AdminFacet, "Connection");
+            _dispatch = new ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserver, IDispatchObserver>(
+                AdminFacet, "Dispatch");
+            _invocations = new ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserver,
+                IInvocationObserver>(AdminFacet, "Invocation");
+            _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegate,
+                IObserver>(AdminFacet, "ConnectionEstablishment");
+            _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegate,
+                IObserver>(AdminFacet, "EndpointLookup");
+            _invocations.RegisterSubMap<RemoteMetrics>("Remote",
+                (obj, metrics) => (obj as InvocationMetrics)!.Remotes = metrics);
+            _invocations.RegisterSubMap<CollocatedMetrics>("Collocated",
+                (obj, metrics) => (obj as InvocationMetrics)!.Collocated = metrics);
         }
 
-        public static void
-        AddConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : Metrics
+        public IObserver? GetConnectionEstablishmentObserver(Endpoint endpt, string connector)
         {
-            Type cli = typeof(ConnectionInfo);
-            r.Add("incoming", cl.GetMethod("GetConnectionInfo")!, cli.GetField("Incoming")!);
-            r.Add("adapterName", cl.GetMethod("GetConnectionInfo")!, cli.GetField("AdapterName")!);
-            r.Add("connectionId", cl.GetMethod("GetConnectionInfo")!, cli.GetField("ConnectionId")!);
+            if (_connects.IsEnabled)
+            {
+                try
+                {
+                    return _connects.GetObserver(new EndpointHelper(endpt, connector),
+                        _delegate?.GetConnectionEstablishmentObserver(endpt, connector));
+                }
+                catch (Exception ex)
+                {
+                    AdminFacet.Logger.Error($"unexpected exception trying to obtain observer:\n{ex}");
+                }
+            }
+            return null;
+        }
 
-            cli = typeof(IPConnectionInfo);
-            r.Add("localHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("LocalAddress")!);
-            r.Add("localPort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("LocalPort")!);
-            r.Add("remoteHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("RemoteAddress")!);
-            r.Add("remotePort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("RemotePort")!);
+        public IConnectionObserver? GetConnectionObserver(
+            ConnectionInfo connectionInfo,
+            Endpoint endpoint,
+            ConnectionState connectionState,
+            IConnectionObserver? observer)
+        {
+            if (_connections.IsEnabled)
+            {
+                try
+                {
+                    return _connections.GetObserver(
+                        new ConnectionHelper(connectionInfo, endpoint, connectionState), observer,
+                        _delegate?.GetConnectionObserver(connectionInfo, endpoint, connectionState,
+                            (observer as ConnectionObserver)?.Delegate ?? observer));
+                }
+                catch (Exception ex)
+                {
+                    AdminFacet.Logger.Error($"unexpected exception trying to obtain observer:\n{ex}");
+                }
+            }
+            return null;
+        }
 
-            cli = typeof(UDPConnectionInfo);
-            r.Add("mcastHost", cl.GetMethod("GetConnectionInfo")!, cli.GetField("McastAddress")!);
-            r.Add("mcastPort", cl.GetMethod("GetConnectionInfo")!, cli.GetField("McastPort")!);
+        public IDispatchObserver? GetDispatchObserver(Current current, int size)
+        {
+            if (_dispatch.IsEnabled)
+            {
+                try
+                {
+                    return _dispatch.GetObserver(new DispatchHelper(current, size),
+                        _delegate?.GetDispatchObserver(current, size));
+                }
+                catch (Exception ex)
+                {
+                    AdminFacet.Logger.Error($"unexpected exception trying to obtain observer:\n{ex}");
+                }
+            }
+            return null;
+        }
 
-            AddEndpointAttributes(r, cl);
+        public IObserver? GetEndpointLookupObserver(Endpoint endpoint)
+        {
+            if (_endpointLookups.IsEnabled)
+            {
+                try
+                {
+                    return _endpointLookups.GetObserver(new EndpointHelper(endpoint),
+                        _delegate?.GetEndpointLookupObserver(endpoint));
+                }
+                catch (Exception ex)
+                {
+                    AdminFacet.Logger.Error($"unexpected exception trying to obtain observer:\n{ex}");
+                }
+            }
+            return null;
+        }
+
+        public IInvocationObserver? GetInvocationObserver(
+            IObjectPrx prx,
+            string operation,
+            IReadOnlyDictionary<string, string> context)
+        {
+            if (_invocations.IsEnabled)
+            {
+                try
+                {
+                    return _invocations.GetObserver(new InvocationHelper(prx, operation, context),
+                        _delegate?.GetInvocationObserver(prx, operation, context));
+                }
+                catch (Exception ex)
+                {
+                    AdminFacet.Logger.Error($"unexpected exception trying to obtain observer:\n{ex}");
+                }
+            }
+            return null;
+        }
+
+        public void SetObserverUpdater(IObserverUpdater? updater)
+        {
+            if (updater == null)
+            {
+                _connections.SetUpdater(null);
+            }
+            else
+            {
+                _connections.SetUpdater(updater.UpdateConnectionObservers);
+            }
+
+            _delegate?.SetObserverUpdater(updater);
         }
     }
 
     internal class ConnectionHelper : MetricsHelper<ConnectionMetrics>
     {
-        private class AttributeResolverI : AttributeResolver
+        private string Id
         {
-            public AttributeResolverI()
+            get
             {
-                try
+                if (_id == null)
                 {
-                    Type cl = typeof(ConnectionHelper);
-                    Add("parent", cl.GetMethod("GetParent")!);
-                    Add("id", cl.GetMethod("GetId")!);
-                    Add("state", cl.GetMethod("GetState")!);
-                    AttrsUtil.AddConnectionAttributes(this, cl);
+                    var os = new StringBuilder();
+                    IPConnectionInfo? info = IPConnectionInfo;
+                    if (info != null)
+                    {
+                        os.Append(info.LocalAddress).Append(':').Append(info.LocalPort);
+                        os.Append(" -> ");
+                        os.Append(info.RemoteAddress).Append(':').Append(info.RemotePort);
+                    }
+                    else
+                    {
+                        os.Append("connection-").Append(_connectionInfo);
+                    }
+                    if (_connectionInfo.ConnectionId.Length > 0)
+                    {
+                        os.Append(" [").Append(_connectionInfo.ConnectionId).Append("]");
+                    }
+                    _id = os.ToString();
                 }
-                catch (Exception)
-                {
-                    Debug.Assert(false);
-                }
-            }
-        }
-        private static readonly AttributeResolver _attributes = new AttributeResolverI();
-
-        public ConnectionHelper(ConnectionInfo con, Endpoint endpt, ConnectionState state)
-            : base(_attributes)
-        {
-            _connectionInfo = con;
-            _endpoint = endpt;
-            _state = state;
-        }
-
-        public string GetId()
-        {
-            if (_id == null)
-            {
-                var os = new StringBuilder();
-                IPConnectionInfo? info = GetIPConnectionInfo();
-                if (info != null)
-                {
-                    os.Append(info.LocalAddress).Append(':').Append(info.LocalPort);
-                    os.Append(" -> ");
-                    os.Append(info.RemoteAddress).Append(':').Append(info.RemotePort);
-                }
-                else
-                {
-                    os.Append("connection-").Append(_connectionInfo);
-                }
-                if (_connectionInfo.ConnectionId.Length > 0)
-                {
-                    os.Append(" [").Append(_connectionInfo.ConnectionId).Append("]");
-                }
-                _id = os.ToString();
-            }
-            return _id;
-        }
-
-        public string GetState()
-        {
-            switch (_state)
-            {
-                case ConnectionState.ConnectionStateValidating:
-                    return "validating";
-                case ConnectionState.ConnectionStateActive:
-                    return "active";
-                case ConnectionState.ConnectionStateClosing:
-                    return "closing";
-                case ConnectionState.ConnectionStateClosed:
-                    return "closed";
-                default:
-                    Debug.Assert(false);
-                    return "";
+                return _id;
             }
         }
 
-        public string GetParent()
+        // TODO temporary until ConnectionInfo refactoring
+        private IPConnectionInfo? IPConnectionInfo
         {
-            if (_connectionInfo.AdapterName != null && _connectionInfo.AdapterName.Length > 0)
+            get
             {
-                return _connectionInfo.AdapterName;
-            }
-            else
-            {
-                return "Communicator";
-            }
-        }
-
-        public ConnectionInfo GetConnectionInfo() => _connectionInfo;
-
-        public Endpoint GetEndpoint() => _endpoint;
-
-        private IPConnectionInfo? GetIPConnectionInfo()
-        {
-            for (ConnectionInfo? p = _connectionInfo; p != null; p = p.Underlying)
-            {
-                if (p is IPConnectionInfo)
+                for (ConnectionInfo? p = _connectionInfo; p != null; p = p.Underlying)
                 {
-                    return (IPConnectionInfo)p;
+                    if (p is IPConnectionInfo info)
+                    {
+                        return info;
+                    }
                 }
+                return null;
             }
-            return null;
         }
+
+        private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly ConnectionInfo _connectionInfo;
         private readonly Endpoint _endpoint;
-        private readonly ConnectionState _state;
         private string? _id;
+        private readonly ConnectionState _state;
+
+        internal ConnectionHelper(ConnectionInfo connectionInfo, Endpoint endpoint, ConnectionState state)
+            : base(_attributeResolver)
+        {
+            _connectionInfo = connectionInfo;
+            _endpoint = endpoint;
+            _state = state;
+        }
+
+        private class AttributeResolverI : AttributeResolver
+        {
+            internal AttributeResolverI()
+            {
+                Add("parent", obj =>
+                    {
+                        ConnectionInfo? info = (obj as ConnectionHelper)?._connectionInfo;
+                        return string.IsNullOrEmpty(info?.AdapterName) ? "Communicator" : info.AdapterName;
+                    });
+                Add("id", obj => (obj as ConnectionHelper)?.Id);
+                Add("state", obj => (obj as ConnectionHelper)?._state.ToString().ToLowerInvariant());
+                Add("incoming", obj => (obj as ConnectionHelper)?._connectionInfo.Incoming);
+                Add("adapterName", obj => (obj as ConnectionHelper)?._connectionInfo.AdapterName);
+                Add("connectionId", obj => (obj as ConnectionHelper)?._connectionInfo.ConnectionId);
+
+                Add("localHost", obj => (obj as ConnectionHelper)?.IPConnectionInfo?.LocalAddress);
+                Add("localPort", obj => (obj as ConnectionHelper)?.IPConnectionInfo?.LocalPort);
+                Add("remoteHost", obj => (obj as ConnectionHelper)?.IPConnectionInfo?.RemoteAddress);
+                Add("remotePort", obj => (obj as ConnectionHelper)?.IPConnectionInfo?.RemotePort);
+
+                Add("mcastHost",
+                    obj => ((obj as ConnectionHelper)?._connectionInfo as UDPConnectionInfo)?.McastAddress);
+                Add("mcastPort",
+                    obj => ((obj as ConnectionHelper)?._connectionInfo as UDPConnectionInfo)?.McastPort);
+
+                Add("endpoint", obj => (obj as ConnectionHelper)?._endpoint);
+                Add("endpointTransport", obj => (obj as ConnectionHelper)?._endpoint?.Transport);
+                Add("endpointIsDatagram", obj => (obj as ConnectionHelper)?._endpoint?.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as ConnectionHelper)?._endpoint?.IsSecure);
+                Add("endpointTimeout", obj => (obj as ConnectionHelper)?._endpoint?.Timeout);
+                Add("endpointCompress", obj => (obj as ConnectionHelper)?._endpoint?.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as ConnectionHelper)?._endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as ConnectionHelper)?._endpoint as IPEndpoint)?.Port);
+            }
+        }
+    }
+
+    internal class ConnectionObserver
+        : ObserverWithDelegate<ConnectionMetrics, IConnectionObserver>, IConnectionObserver
+    {
+        private int _receivedBytes;
+        private int _sentBytes;
+
+        public void ReceivedBytes(int num)
+        {
+            _receivedBytes = num;
+            ForEach(v => v.ReceivedBytes += _receivedBytes);
+            Delegate?.ReceivedBytes(num);
+        }
+
+        public void SentBytes(int num)
+        {
+            _sentBytes = num;
+            ForEach(v => v.SentBytes += _sentBytes);
+            Delegate?.SentBytes(num);
+        }
     }
 
     internal class DispatchHelper : MetricsHelper<DispatchMetrics>
     {
-        private class AttributeResolverI : AttributeResolver
+        // It is important to throw here when there isn't a connection, so that the filters doesn't use the
+        // connection attributes for a collocated dispatch.
+        private ConnectionInfo? ConnectionInfo => _current.Connection?.GetConnectionInfo() ??
+            throw new NotSupportedException();
+
+        // It is important to throw here when there isn't a connection, so that the filters doesn't use the
+        // connection attributes for a collocated dispatch.
+        private Endpoint? Endpoint => _current.Connection?.Endpoint ?? throw new NotSupportedException();
+
+        // TODO temporary until ConnectionInfo refactoring
+        private IPConnectionInfo? IPConnectionInfo
         {
-            public AttributeResolverI()
+            get
             {
-                try
+                for (ConnectionInfo? p = ConnectionInfo; p != null; p = p.Underlying)
                 {
-                    Type cl = typeof(DispatchHelper);
-                    Add("parent", cl.GetMethod("GetParent")!);
-                    Add("id", cl.GetMethod("GetId")!);
-
-                    AttrsUtil.AddConnectionAttributes(this, cl);
-
-                    Type clc = typeof(Current);
-                    Add("operation", cl.GetMethod("GetCurrent")!, clc.GetProperty("Operation")!);
-                    Add("identity", cl.GetMethod("GetIdentity")!);
-                    Add("facet", cl.GetMethod("GetCurrent")!, clc.GetProperty("Facet")!);
-                    Add("current", cl.GetMethod("GetCurrent")!, clc.GetProperty("RequestId")!);
-                    Add("mode", cl.GetMethod("GetMode")!);
+                    if (p is IPConnectionInfo info)
+                    {
+                        return info;
+                    }
                 }
-                catch (Exception)
-                {
-                    Debug.Assert(false);
-                }
+                return null;
             }
         }
-        private static readonly AttributeResolver _attributes = new AttributeResolverI();
 
-        public DispatchHelper(Current current, int size)
-            : base(_attributes)
+        private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
+
+        private readonly Current _current;
+        private string? _id;
+        private readonly int _size;
+
+        public override void InitMetrics(DispatchMetrics v) => v.Size += _size;
+
+        internal DispatchHelper(Current current, int size)
+            : base(_attributeResolver)
         {
             _current = current;
             _size = size;
         }
 
-        protected override string DefaultResolve(string attribute)
+        protected override string DefaultResolve(string attribute) =>
+            attribute.StartsWith("context.") && _current.Context.TryGetValue(attribute.Substring(8), out string? v) ?
+                v : throw new MissingFieldException(attribute);
+
+        private class AttributeResolverI : AttributeResolver
         {
-            if (attribute.IndexOf("context.", 0) == 0)
+            internal AttributeResolverI()
             {
-                if (_current.Context.TryGetValue(attribute.Substring(8), out string? v))
-                {
-                    return v;
-                }
+                Add("parent", obj => (obj as DispatchHelper)?._current.Adapter.Name);
+                Add("id", obj =>
+                    {
+                        DispatchHelper? helper = (obj as DispatchHelper)!;
+                        return helper._id ??= $"{helper._current.Identity} [{helper._current.Operation}]";
+                    });
+
+                Add("incoming", obj => (obj as DispatchHelper)?.ConnectionInfo?.Incoming);
+                Add("adapterName", obj => (obj as DispatchHelper)?.ConnectionInfo?.AdapterName);
+                Add("connectionId", obj => (obj as DispatchHelper)?.ConnectionInfo?.ConnectionId);
+
+                Add("localHost", obj => (obj as DispatchHelper)?.IPConnectionInfo?.LocalAddress);
+                Add("localPort", obj => (obj as DispatchHelper)?.IPConnectionInfo?.LocalPort);
+                Add("remoteHost", obj => (obj as DispatchHelper)?.IPConnectionInfo?.RemoteAddress);
+                Add("remotePort", obj => (obj as DispatchHelper)?.IPConnectionInfo?.RemotePort);
+
+                Add("mcastHost",
+                    obj => ((obj as DispatchHelper)?.ConnectionInfo as UDPConnectionInfo)?.McastAddress);
+                Add("mcastPort",
+                    obj => ((obj as DispatchHelper)?.ConnectionInfo as UDPConnectionInfo)?.McastPort);
+
+                Add("endpoint", obj => (obj as DispatchHelper)?.Endpoint);
+                Add("endpointTransport", obj => (obj as DispatchHelper)?.Endpoint?.Transport);
+                Add("endpointIsDatagram", obj => (obj as DispatchHelper)?.Endpoint?.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as DispatchHelper)?.Endpoint?.IsSecure);
+                Add("endpointTimeout", obj => (obj as DispatchHelper)?.Endpoint?.Timeout);
+                Add("endpointCompress", obj => (obj as DispatchHelper)?.Endpoint?.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as DispatchHelper)?.Endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as DispatchHelper)?.Endpoint as IPEndpoint)?.Port);
+
+                Add("operation", obj => (obj as DispatchHelper)?._current.Operation);
+                Add("identity", obj =>
+                    {
+                        Current? current = (obj as DispatchHelper)?._current;
+                        return current?.Identity.ToString(current.Adapter!.Communicator.ToStringMode);
+                    });
+                Add("facet", obj => (obj as DispatchHelper)?._current.Facet);
+                Add("requestId", obj => (obj as DispatchHelper)?._current.RequestId);
+                Add("mode", obj => (obj as DispatchHelper)?._current.RequestId == 0 ? "oneway" : "twoway");
             }
-            throw new ArgumentOutOfRangeException(attribute);
+        }
+    }
+
+    internal class DispatchObserver : ObserverWithDelegate<DispatchMetrics, IDispatchObserver>, IDispatchObserver
+    {
+        public void RemoteException()
+        {
+            ForEach(v => ++v.UserException);
+            Delegate?.RemoteException();
         }
 
-        public override void InitMetrics(DispatchMetrics v) => v.Size += _size;
-
-        public string GetMode() => _current.RequestId == 0 ? "oneway" : "twoway";
-
-        public string GetId()
+        public void Reply(int size)
         {
-            if (_id == null)
-            {
-                var os = new StringBuilder();
-                if (_current.Identity.Category != null && _current.Identity.Category.Length > 0)
-                {
-                    os.Append(_current.Identity.Category).Append('/');
-                }
-                os.Append(_current.Identity.Name).Append(" [").Append(_current.Operation).Append(']');
-                _id = os.ToString();
-            }
-            return _id;
+            ForEach(v => v.ReplySize += size);
+            Delegate?.Reply(size);
         }
+    }
 
-        public string GetParent() => _current.Adapter.Name;
+    internal class EndpointHelper : MetricsHelper<Metrics>
+    {
+        private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
-        public ConnectionInfo? GetConnectionInfo()
-        {
-            if (_current.Connection != null)
-            {
-                return _current.Connection.GetConnectionInfo();
-            }
-            return null;
-        }
-
-        public Endpoint? GetEndpoint()
-        {
-            if (_current.Connection != null)
-            {
-                return _current.Connection.Endpoint;
-            }
-            return null;
-        }
-
-        public Connection? GetConnection() => _current.Connection;
-
-        public Current GetCurrent() => _current;
-
-        public string GetIdentity() => _current.Identity.ToString(_current.Adapter!.Communicator.ToStringMode);
-
-        private readonly Current _current;
-        private readonly int _size;
+        private readonly Endpoint _endpoint;
         private string? _id;
+
+        internal EndpointHelper(Endpoint endpoint, string id) : base(_attributeResolver)
+        {
+            _endpoint = endpoint;
+            _id = id;
+        }
+
+        internal EndpointHelper(Endpoint endpoint) : base(_attributeResolver) => _endpoint = endpoint;
+
+        private class AttributeResolverI : AttributeResolver
+        {
+            internal AttributeResolverI()
+            {
+                Add("parent", obj => "Communicator");
+                Add("id", obj =>
+                    {
+                        EndpointHelper helper = (obj as EndpointHelper)!;
+                        return helper._id ??= helper._endpoint.ToString();
+                    });
+                Add("endpoint", obj => (obj as EndpointHelper)?._endpoint);
+                Add("endpointTransport", obj => (obj as EndpointHelper)?._endpoint?.Transport);
+                Add("endpointIsDatagram", obj => (obj as EndpointHelper)?._endpoint?.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as EndpointHelper)?._endpoint?.IsSecure);
+                Add("endpointTimeout", obj => (obj as EndpointHelper)?._endpoint?.Timeout);
+                Add("endpointCompress", obj => (obj as EndpointHelper)?._endpoint?.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as EndpointHelper)?._endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as EndpointHelper)?._endpoint as IPEndpoint)?.Port);
+            }
+        }
     }
 
     internal class InvocationHelper : MetricsHelper<InvocationMetrics>
     {
-        internal class AttributeResolverI : AttributeResolver
+        private string Id
         {
-            public AttributeResolverI()
+            get
             {
-                try
-                {
-                    Type cl = typeof(InvocationHelper);
-                    Add("parent", cl.GetMethod("GetParent")!);
-                    Add("id", cl.GetMethod("GetId")!);
-
-                    Add("operation", cl.GetMethod("GetOperation")!);
-                    Add("identity", cl.GetMethod("GetIdentity")!);
-
-                    Type cli = typeof(IObjectPrx);
-                    Add("facet", cl.GetMethod("GetProxy")!, cli.GetProperty("Facet")!);
-                    Add("encoding", cl.GetMethod("GetEncoding")!);
-                    Add("mode", cl.GetMethod("GetMode")!);
-                    Add("proxy", cl.GetMethod("GetProxy")!);
-                }
-                catch (Exception)
-                {
-                    Debug.Assert(false);
-                }
-            }
-        }
-        private static readonly AttributeResolver _attributes = new AttributeResolverI();
-
-        public InvocationHelper(IObjectPrx? proxy, string op, IReadOnlyDictionary<string, string> ctx)
-            : base(_attributes)
-        {
-            _proxy = proxy;
-            _operation = op;
-            _context = ctx;
-        }
-
-        protected override string DefaultResolve(string attribute)
-        {
-            if (attribute.IndexOf("context.", 0) == 0)
-            {
-                if (_context.TryGetValue(attribute.Substring(8), out string? v))
-                {
-                    return v;
-                }
-            }
-            throw new ArgumentOutOfRangeException(attribute);
-        }
-
-        public string GetMode()
-        {
-            if (_proxy == null)
-            {
-                throw new ArgumentOutOfRangeException("mode");
-            }
-
-            switch (_proxy.InvocationMode)
-            {
-                case InvocationMode.Twoway:
-                    {
-                        return "twoway";
-                    }
-                case InvocationMode.Oneway:
-                    {
-                        return "oneway";
-                    }
-                case InvocationMode.Datagram:
-                    {
-                        return "datagram";
-                    }
-                default:
-                    {
-                        // Note: it's not possible to invoke on a batch proxy, but it's
-                        // possible to receive a batch request.
-                        throw new ArgumentOutOfRangeException("mode");
-                    }
-            }
-        }
-
-        public string GetId()
-        {
-            if (_id == null)
-            {
-                if (_proxy != null)
+                if (_id == null)
                 {
                     var sb = new StringBuilder();
                     try
@@ -459,636 +491,247 @@ namespace ZeroC.Ice
                     }
                     _id = sb.ToString();
                 }
-                else
-                {
-                    _id = _operation;
-                }
-            }
-            return _id;
-        }
-
-        public string GetParent() => "Communicator";
-
-        public IObjectPrx? GetProxy() => _proxy;
-
-        public string GetEncoding() => _proxy?.Encoding.ToString() ?? "";
-
-        public string GetIdentity()
-        {
-            if (_proxy != null)
-            {
-                return _proxy.Identity.ToString(_proxy.Communicator.ToStringMode);
-            }
-            else
-            {
-                return "";
+                return _id;
             }
         }
 
-        public string GetOperation() => _operation;
-
-        private readonly IObjectPrx? _proxy;
-        private readonly string _operation;
+        private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
         private readonly IReadOnlyDictionary<string, string> _context;
         private string? _id;
-    }
+        private readonly string _operation;
+        private readonly IObjectPrx _proxy;
 
-    internal class ThreadHelper : MetricsHelper<ThreadMetrics>
-    {
+        internal InvocationHelper(IObjectPrx proxy, string operation, IReadOnlyDictionary<string, string> context)
+            : base(_attributeResolver)
+        {
+            _proxy = proxy;
+            _operation = operation;
+            _context = context;
+        }
+
+        protected override string DefaultResolve(string attribute) =>
+            attribute.StartsWith("context.") && _context.TryGetValue(attribute.Substring(8), out string? v) ?
+                v : throw new MissingFieldException(attribute);
+
         private class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
-                try
+                Add("parent", obj => "Communicator");
+                Add("id", obj => (obj as InvocationHelper)?.Id);
+
+                Add("operation", obj => (obj as InvocationHelper)?._operation);
+                Add("identity", obj =>
                 {
-                    Type cl = typeof(ThreadHelper);
-                    Add("parent", cl.GetField("Parent")!);
-                    Add("id", cl.GetField("Id")!);
-                }
-                catch (Exception)
-                {
-                    Debug.Assert(false);
-                }
-            }
-        }
-        private static readonly AttributeResolver _attributes = new AttributeResolverI();
+                    IObjectPrx? proxy = (obj as InvocationHelper)?._proxy;
+                    return proxy?.Identity.ToString(proxy.Communicator.ToStringMode);
+                });
 
-        public ThreadHelper(string parent, string id, ZeroC.Ice.Instrumentation.ThreadState state)
-            : base(_attributes)
-        {
-            Parent = parent;
-            Id = id;
-            _state = state;
-        }
-
-        public override void InitMetrics(ThreadMetrics v)
-        {
-            switch (_state)
-            {
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                    ++v.InUseForIO;
-                    break;
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                    ++v.InUseForUser;
-                    break;
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                    ++v.InUseForOther;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public readonly string Parent;
-        public readonly string Id;
-        private readonly ZeroC.Ice.Instrumentation.ThreadState _state;
-    }
-
-    internal class EndpointHelper : MetricsHelper<Metrics>
-    {
-        private class AttributeResolverI : AttributeResolver
-        {
-            public AttributeResolverI()
-            {
-                try
-                {
-                    Type cl = typeof(EndpointHelper);
-                    Add("parent", cl.GetMethod("GetParent")!);
-                    Add("id", cl.GetMethod("GetId")!);
-                    AttrsUtil.AddEndpointAttributes(this, cl);
-                }
-                catch (Exception ex)
-                {
-                    Debug.Assert(false, ex.ToString());
-                }
-            }
-        }
-
-        private static readonly AttributeResolver _attributes = new AttributeResolverI();
-
-        public EndpointHelper(Endpoint endpt, string id)
-            : base(_attributes)
-        {
-            _endpoint = endpt;
-            _id = id;
-        }
-
-        public EndpointHelper(Endpoint endpt)
-            : base(_attributes) => _endpoint = endpt;
-
-        public string GetParent() => "Communicator";
-
-        public string GetId()
-        {
-            if (_id == null)
-            {
-                _id = _endpoint.ToString();
-            }
-            Debug.Assert(_id != null);
-            return _id;
-        }
-
-        public Endpoint GetEndpoint() => _endpoint;
-
-        private readonly Endpoint _endpoint;
-        private string? _id;
-    }
-
-    public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
-    {
-        private class AttributeResolverI : AttributeResolver
-        {
-            public AttributeResolverI()
-            {
-                try
-                {
-                    Type cl = typeof(RemoteInvocationHelper);
-                    Add("parent", cl.GetMethod("GetParent")!);
-                    Add("id", cl.GetMethod("GetId")!);
-                    Add("requestId", cl.GetMethod("GetRequestId")!);
-                    AttrsUtil.AddConnectionAttributes(this, cl);
-                }
-                catch (Exception)
-                {
-                    Debug.Assert(false);
-                }
-            }
-        }
-        private static readonly AttributeResolver _attributes = new AttributeResolverI();
-
-        public RemoteInvocationHelper(ConnectionInfo con, Endpoint endpt, int requestId, int size)
-            : base(_attributes)
-        {
-            _connectionInfo = con;
-            _endpoint = endpt;
-            _requestId = requestId;
-            _size = size;
-        }
-
-        public override void InitMetrics(RemoteMetrics v) => v.Size += _size;
-
-        public string GetId()
-        {
-            if (_id == null)
-            {
-                _id = _endpoint.ToString();
-                if (_connectionInfo.ConnectionId != null && _connectionInfo.ConnectionId.Length > 0)
-                {
-                    _id += " [" + _connectionInfo.ConnectionId + "]";
-                }
-            }
-            Debug.Assert(_id != null);
-            return _id;
-        }
-
-        public int GetRequestId() => _requestId;
-
-        public string GetParent()
-        {
-            if (_connectionInfo.AdapterName != null && _connectionInfo.AdapterName.Length > 0)
-            {
-                return _connectionInfo.AdapterName;
-            }
-            else
-            {
-                return "Communicator";
-            }
-        }
-
-        public ConnectionInfo GetConnectionInfo() => _connectionInfo;
-
-        public Endpoint GetEndpoint() => _endpoint;
-
-        private readonly ConnectionInfo _connectionInfo;
-        private readonly Endpoint _endpoint;
-        private readonly int _size;
-        private readonly int _requestId;
-        private string? _id;
-    }
-
-    public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
-    {
-        private class AttributeResolverI : AttributeResolver
-        {
-            public AttributeResolverI()
-            {
-                try
-                {
-                    Type cl = typeof(CollocatedInvocationHelper);
-                    Add("parent", cl.GetMethod("GetParent")!);
-                    Add("id", cl.GetMethod("GetId")!);
-                    Add("requestId", cl.GetMethod("GetRequestId")!);
-                }
-                catch (Exception)
-                {
-                    Debug.Assert(false);
-                }
-            }
-        }
-        private static readonly AttributeResolver _attributes = new AttributeResolverI();
-
-        public CollocatedInvocationHelper(ObjectAdapter adapter, int requestId, int size)
-            : base(_attributes)
-        {
-            _id = adapter.Name;
-            _requestId = requestId;
-            _size = size;
-        }
-
-        public override void InitMetrics(CollocatedMetrics v) => v.Size += _size;
-
-        public string GetId() => _id;
-
-        public int GetRequestId() => _requestId;
-
-        public static string GetParent() => "Communicator";
-
-        private readonly int _size;
-        private readonly int _requestId;
-        private readonly string _id;
-    }
-
-    internal class ObserverWithDelegateI : ObserverWithDelegate<Metrics, IObserver>
-    {
-    }
-
-    internal class ConnectionObserverI : ObserverWithDelegate<ConnectionMetrics, IConnectionObserver>,
-        IConnectionObserver
-    {
-        public void SentBytes(int num)
-        {
-            _sentBytes = num;
-            ForEach(SentBytesUpdate);
-            if (Delegate != null)
-            {
-                Delegate.SentBytes(num);
-            }
-        }
-
-        public void ReceivedBytes(int num)
-        {
-            _receivedBytes = num;
-            ForEach(ReceivedBytesUpdate);
-            if (Delegate != null)
-            {
-                Delegate.ReceivedBytes(num);
-            }
-        }
-
-        private void SentBytesUpdate(ConnectionMetrics v) => v.SentBytes += _sentBytes;
-
-        private void ReceivedBytesUpdate(ConnectionMetrics v) => v.ReceivedBytes += _receivedBytes;
-
-        private int _sentBytes;
-        private int _receivedBytes;
-    }
-
-    internal class DispatchObserverI : ObserverWithDelegate<DispatchMetrics, IDispatchObserver>, IDispatchObserver
-    {
-        public void
-        RemoteException()
-        {
-            ForEach(RemoteException);
-            if (Delegate != null)
-            {
-                Delegate.RemoteException();
-            }
-        }
-
-        public void Reply(int size)
-        {
-            ForEach((DispatchMetrics v) => v.ReplySize += size);
-            if (Delegate != null)
-            {
-                Delegate.Reply(size);
-            }
-        }
-
-        private void RemoteException(DispatchMetrics v) => ++v.UserException;
-    }
-
-    internal class RemoteObserverI : ObserverWithDelegate<RemoteMetrics, IRemoteObserver>, IRemoteObserver
-    {
-        public void Reply(int size)
-        {
-            ForEach((RemoteMetrics v) => v.ReplySize += size);
-            if (Delegate != null)
-            {
-                Delegate.Reply(size);
+                Add("facet", obj => (obj as InvocationHelper)?._proxy.Facet);
+                Add("encoding", obj => (obj as InvocationHelper)?._proxy.Encoding);
+                Add("mode", obj => (obj as InvocationHelper)?._proxy.InvocationMode.ToString().ToLowerInvariant());
+                Add("proxy", obj => (obj as InvocationHelper)?._proxy);
             }
         }
     }
 
-    internal class CollocatedObserverI : ObserverWithDelegate<CollocatedMetrics, ICollocatedObserver>,
-        ICollocatedObserver
-    {
-        public void Reply(int size)
-        {
-            ForEach((CollocatedMetrics v) => v.ReplySize += size);
-            if (Delegate != null)
-            {
-                Delegate.Reply(size);
-            }
-        }
-    }
-
-    internal class InvocationObserverI : ObserverWithDelegate<InvocationMetrics, IInvocationObserver>,
+    internal class InvocationObserver : ObserverWithDelegate<InvocationMetrics, IInvocationObserver>,
         IInvocationObserver
     {
-        public void
-        RemoteException()
+        public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, int requestId, int size) =>
+            GetObserver<CollocatedMetrics, CollocatedObserver, ICollocatedObserver>(
+                "Collocated",
+                new CollocatedInvocationHelper(adapter, requestId, size),
+                Delegate?.GetCollocatedObserver(adapter, requestId, size));
+
+        public IRemoteObserver? GetRemoteObserver(
+            ConnectionInfo connectionInfo,
+            Endpoint endpoint,
+            int requestId,
+            int size) =>
+            GetObserver<RemoteMetrics, RemoteObserver, IRemoteObserver>(
+                "Remote",
+                new RemoteInvocationHelper(connectionInfo, endpoint, requestId, size),
+                Delegate?.GetRemoteObserver(connectionInfo, endpoint, requestId, size));
+
+        public void RemoteException()
         {
-            ForEach(RemoteException);
-            if (Delegate != null)
-            {
-                Delegate.RemoteException();
-            }
+            ForEach(v => ++v.UserException);
+            Delegate?.RemoteException();
         }
 
         public void Retried()
         {
-            ForEach(IncrementRetry);
-            if (Delegate != null)
-            {
-                Delegate.Retried();
-            }
+            ForEach(v => ++v.Retry);
+            Delegate?.Retried();
         }
-
-        public IRemoteObserver? GetRemoteObserver(ConnectionInfo con, Endpoint endpt,
-                                                                    int requestId, int size)
-        {
-            IRemoteObserver? del = null;
-            if (Delegate != null)
-            {
-                del = Delegate.GetRemoteObserver(con, endpt, requestId, size);
-            }
-            return GetObserver<RemoteMetrics, RemoteObserverI,
-                IRemoteObserver>("Remote", new RemoteInvocationHelper(con, endpt, requestId, size), del);
-        }
-
-        public ICollocatedObserver? GetCollocatedObserver(ObjectAdapter adapter, int requestId, int size)
-        {
-            ICollocatedObserver? del = null;
-            if (Delegate != null)
-            {
-                del = Delegate.GetCollocatedObserver(adapter, requestId, size);
-            }
-            return GetObserver<CollocatedMetrics, CollocatedObserverI,
-                ICollocatedObserver>("Collocated", new CollocatedInvocationHelper(adapter, requestId, size), del);
-        }
-
-        private void IncrementRetry(InvocationMetrics v) => ++v.Retry;
-
-        private void RemoteException(InvocationMetrics v) => ++v.UserException;
     }
 
-    internal class ThreadObserverI : ObserverWithDelegate<ThreadMetrics, IThreadObserver>, IThreadObserver
+    internal class ObserverFactoryWithDelegate<T, OImpl, O> : ObserverFactory<T, OImpl>
+        where T : Metrics, new()
+        where OImpl : ObserverWithDelegate<T, O>, O, new()
+        where O : class, IObserver
     {
-        public void StateChanged(Instrumentation.ThreadState oldState, Instrumentation.ThreadState newState)
+        public ObserverFactoryWithDelegate(MetricsAdmin metrics, string name)
+            : base(metrics, name)
         {
-            _oldState = oldState;
-            _newState = newState;
-            ForEach(ThreadStateUpdate);
-            if (Delegate != null)
-            {
-                Delegate.StateChanged(oldState, newState);
-            }
         }
 
-        private void ThreadStateUpdate(ThreadMetrics v)
+        public O? GetObserver(MetricsHelper<T> helper, O? del)
         {
-            switch (_oldState)
+            OImpl? o = GetObserver(helper);
+            if (o != null)
             {
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                    --v.InUseForIO;
-                    break;
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                    --v.InUseForUser;
-                    break;
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                    --v.InUseForOther;
-                    break;
-                default:
-                    break;
+                o.Delegate = del;
+                return o;
             }
-            switch (_newState)
-            {
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForIO:
-                    ++v.InUseForIO;
-                    break;
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForUser:
-                    ++v.InUseForUser;
-                    break;
-                case ZeroC.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther:
-                    ++v.InUseForOther;
-                    break;
-                default:
-                    break;
-            }
+            return del;
         }
 
-        private ZeroC.Ice.Instrumentation.ThreadState _oldState;
-        private ZeroC.Ice.Instrumentation.ThreadState _newState;
+        public O? GetObserver(MetricsHelper<T> helper, object? observer, O? del)
+        {
+            OImpl? o = GetObserver(helper, observer);
+            if (o != null)
+            {
+                o.Delegate = del;
+                return o;
+            }
+            return del;
+        }
     }
 
-    public class CommunicatorObserverI : ICommunicatorObserver
+    internal class ObserverWithDelegate<T, O> : Observer<T>
+        where T : Metrics, new()
+        where O : class, IObserver
     {
-        public CommunicatorObserverI(Communicator communicator, ILogger logger)
-        {
-            _metrics = new MetricsAdminI(communicator, logger);
-            _delegate = communicator.Observer;
-            _connections = new ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
-                IConnectionObserver>(_metrics, "Connection");
-            _dispatch = new ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
-                IDispatchObserver>(_metrics, "Dispatch");
-            _invocations = new ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
-                IInvocationObserver>(_metrics, "Invocation");
-            _threads = new ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
-                IThreadObserver>(_metrics, "Thread");
-            _connects = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-                IObserver>(_metrics, "ConnectionEstablishment");
-            _endpointLookups = new ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-                IObserver>(_metrics, "EndpointLookup");
+        public O? Delegate { get; set; }
 
-            try
+        public override void Attach()
+        {
+            base.Attach();
+            Delegate?.Attach();
+        }
+
+        public override void Detach()
+        {
+            base.Detach();
+            Delegate?.Detach();
+        }
+
+        public override void Failed(string exceptionName)
+        {
+            base.Failed(exceptionName);
+            Delegate?.Failed(exceptionName);
+        }
+
+        public Observer? GetObserver<S, ObserverImpl, Observer>(string mapName, MetricsHelper<S> helper, Observer? del)
+            where S : Metrics, new()
+            where ObserverImpl : ObserverWithDelegate<S, Observer>, Observer, new()
+            where Observer : class, IObserver
+        {
+            ObserverImpl? obsv = GetObserver<S, ObserverImpl>(mapName, helper);
+            if (obsv != null)
             {
-                Type cl = typeof(InvocationMetrics);
-                _invocations.RegisterSubMap<RemoteMetrics>("Remote", cl.GetField("Remotes")!);
-                _invocations.RegisterSubMap<CollocatedMetrics>("Collocated", cl.GetField("Collocated")!);
+                obsv.Delegate = del;
+                return obsv;
             }
-            catch (Exception)
+            return del;
+        }
+    }
+
+    internal class ObserverWithDelegate : ObserverWithDelegate<Metrics, IObserver>
+    {
+    }
+
+    internal class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
+    {
+        private string Id
+        {
+            get
             {
-                Debug.Assert(false);
+                _id ??= string.IsNullOrEmpty(_connectionInfo.ConnectionId) ?
+                        _endpoint.ToString() : $"{_endpoint} [" + _connectionInfo.ConnectionId + "]";
+                return _id;
             }
         }
 
-        public IObserver? GetConnectionEstablishmentObserver(Endpoint endpt, string connector)
+        // TODO temporary until ConnectionInfo refactoring
+        private IPConnectionInfo? IPConnectionInfo
         {
-            if (_connects.IsEnabled())
+            get
             {
-                try
+                for (ConnectionInfo? p = _connectionInfo; p != null; p = p.Underlying)
                 {
-                    IObserver? del = null;
-                    if (_delegate != null)
+                    if (p is IPConnectionInfo info)
                     {
-                        del = _delegate.GetConnectionEstablishmentObserver(endpt, connector);
+                        return info;
                     }
-                    return _connects.GetObserver(new EndpointHelper(endpt, connector), del);
                 }
-                catch (Exception ex)
-                {
-                    _metrics.GetLogger().Error("unexpected exception trying to obtain observer:\n" + ex);
-                }
+                return null;
             }
-            return null;
         }
 
-        public IObserver? GetEndpointLookupObserver(Endpoint endpt)
+        private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
+
+        private readonly ConnectionInfo _connectionInfo;
+        private readonly Endpoint _endpoint;
+        private readonly int _requestId;
+        private readonly int _size;
+        private string? _id;
+
+        public override void InitMetrics(RemoteMetrics v) => v.Size += _size;
+
+        internal RemoteInvocationHelper(ConnectionInfo connectionInfo, Endpoint endpoint, int requestId, int size)
+            : base(_attributeResolver)
         {
-            if (_endpointLookups.IsEnabled())
+            _connectionInfo = connectionInfo;
+            _endpoint = endpoint;
+            _requestId = requestId;
+            _size = size;
+        }
+
+        private class AttributeResolverI : AttributeResolver
+        {
+            internal AttributeResolverI()
             {
-                try
-                {
-                    IObserver? del = null;
-                    if (_delegate != null)
+                Add("parent", obj =>
                     {
-                        del = _delegate.GetEndpointLookupObserver(endpt);
-                    }
-                    return _endpointLookups.GetObserver(new EndpointHelper(endpt), del);
-                }
-                catch (Exception ex)
-                {
-                    _metrics.GetLogger().Error("unexpected exception trying to obtain observer:\n" + ex);
-                }
-            }
-            return null;
-        }
+                        ConnectionInfo? info = (obj as RemoteInvocationHelper)?._connectionInfo;
+                        return string.IsNullOrEmpty(info?.AdapterName) ? "Communicator" : info.AdapterName;
+                    });
+                Add("id", obj => (obj as RemoteInvocationHelper)?.Id);
+                Add("requestId", obj => (obj as RemoteInvocationHelper)?._requestId);
+                Add("incoming", obj => (obj as RemoteInvocationHelper)?._connectionInfo.Incoming);
+                Add("adapterName", obj => (obj as RemoteInvocationHelper)?._connectionInfo.AdapterName);
+                Add("connectionId", obj => (obj as RemoteInvocationHelper)?._connectionInfo.ConnectionId);
 
-        public IConnectionObserver? GetConnectionObserver(ConnectionInfo c,
-                                                          Endpoint e,
-                                                          ConnectionState s,
-                                                          IConnectionObserver? obsv)
+                Add("localHost", obj => (obj as RemoteInvocationHelper)?.IPConnectionInfo?.LocalAddress);
+                Add("localPort", obj => (obj as RemoteInvocationHelper)?.IPConnectionInfo?.LocalPort);
+                Add("remoteHost", obj => (obj as RemoteInvocationHelper)?.IPConnectionInfo?.RemoteAddress);
+                Add("remotePort", obj => (obj as RemoteInvocationHelper)?.IPConnectionInfo?.RemotePort);
+
+                Add("mcastHost",
+                    obj => ((obj as RemoteInvocationHelper)?._connectionInfo as UDPConnectionInfo)?.McastAddress);
+                Add("mcastPort",
+                    obj => ((obj as RemoteInvocationHelper)?._connectionInfo as UDPConnectionInfo)?.McastPort);
+                Add("endpoint", obj => (obj as RemoteInvocationHelper)?._endpoint);
+                Add("endpointTransport", obj => (obj as RemoteInvocationHelper)?._endpoint?.Transport);
+                Add("endpointIsDatagram", obj => (obj as RemoteInvocationHelper)?._endpoint?.IsDatagram);
+                Add("endpointIsSecure", obj => (obj as RemoteInvocationHelper)?._endpoint?.IsSecure);
+                Add("endpointTimeout", obj => (obj as RemoteInvocationHelper)?._endpoint?.Timeout);
+                Add("endpointCompress", obj => (obj as RemoteInvocationHelper)?._endpoint?.HasCompressionFlag);
+                Add("endpointHost", obj => ((obj as RemoteInvocationHelper)?._endpoint as IPEndpoint)?.Host);
+                Add("endpointPort", obj => ((obj as RemoteInvocationHelper)?._endpoint as IPEndpoint)?.Port);
+            }
+        }
+    }
+
+    internal class RemoteObserver : ObserverWithDelegate<RemoteMetrics, IRemoteObserver>, IRemoteObserver
+    {
+        public void Reply(int size)
         {
-            if (_connections.IsEnabled())
-            {
-                try
-                {
-                    IConnectionObserver? del = null;
-                    ConnectionObserverI? o = obsv is ConnectionObserverI ? (ConnectionObserverI)obsv : null;
-                    if (_delegate != null)
-                    {
-                        del = _delegate.GetConnectionObserver(c, e, s, o != null ? o.GetDelegate() : obsv);
-                    }
-                    return _connections.GetObserver(new ConnectionHelper(c, e, s), obsv, del);
-                }
-                catch (Exception ex)
-                {
-                    _metrics.GetLogger().Error("unexpected exception trying to obtain observer:\n" + ex);
-                }
-            }
-            return null;
+            ForEach(v => v.ReplySize += size);
+            Delegate?.Reply(size);
         }
-
-        public IThreadObserver? GetThreadObserver(string parent, string id,
-                                                  ZeroC.Ice.Instrumentation.ThreadState s,
-                                                  IThreadObserver? oldObsv)
-        {
-            if (_threads.IsEnabled())
-            {
-                try
-                {
-                    IThreadObserver? newDelegate = null;
-                    if (_delegate != null)
-                    {
-                        ThreadObserverI? o = oldObsv is ThreadObserverI ? (ThreadObserverI)oldObsv : null;
-                        newDelegate = _delegate.GetThreadObserver(parent, id, s, o != null ? o.GetDelegate() : oldObsv);
-                    }
-                    return _threads.GetObserver(new ThreadHelper(parent, id, s), oldObsv, newDelegate);
-                }
-                catch (Exception ex)
-                {
-                    _metrics.GetLogger().Error("unexpected exception trying to obtain observer:\n" + ex);
-                }
-            }
-            return null;
-        }
-
-        public IInvocationObserver? GetInvocationObserver(IObjectPrx? prx, string operation,
-                                                                              IReadOnlyDictionary<string, string> ctx)
-        {
-            if (_invocations.IsEnabled())
-            {
-                try
-                {
-                    IInvocationObserver? del = null;
-                    if (_delegate != null)
-                    {
-                        del = _delegate.GetInvocationObserver(prx, operation, ctx);
-                    }
-                    return _invocations.GetObserver(new InvocationHelper(prx, operation, ctx), del);
-                }
-                catch (Exception ex)
-                {
-                    _metrics.GetLogger().Error("unexpected exception trying to obtain observer:\n" + ex);
-                }
-            }
-            return null;
-        }
-
-        public IDispatchObserver? GetDispatchObserver(Current c, int size)
-        {
-            if (_dispatch.IsEnabled())
-            {
-                try
-                {
-                    IDispatchObserver? del = null;
-                    if (_delegate != null)
-                    {
-                        del = _delegate.GetDispatchObserver(c, size);
-                    }
-                    return _dispatch.GetObserver(new DispatchHelper(c, size), del);
-                }
-                catch (Exception ex)
-                {
-                    _metrics.GetLogger().Error("unexpected exception trying to obtain observer:\n" + ex);
-                }
-            }
-            return null;
-        }
-
-        public void SetObserverUpdater(IObserverUpdater? updater)
-        {
-            if (updater == null)
-            {
-                _connections.SetUpdater(null);
-                _threads.SetUpdater(null);
-            }
-            else
-            {
-                _connections.SetUpdater(updater.UpdateConnectionObservers);
-                _threads.SetUpdater(updater.UpdateThreadObservers);
-            }
-            if (_delegate != null)
-            {
-                _delegate.SetObserverUpdater(updater);
-            }
-        }
-
-        public MetricsAdminI GetFacet() => _metrics;
-
-        private readonly MetricsAdminI _metrics;
-        private readonly ICommunicatorObserver? _delegate;
-        private readonly ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
-            IConnectionObserver> _connections;
-        private readonly ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI,
-            IDispatchObserver> _dispatch;
-        private readonly ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI,
-            IInvocationObserver> _invocations;
-        private readonly ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI,
-            IThreadObserver> _threads;
-        private readonly ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-            IObserver> _connects;
-        private readonly ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI,
-            IObserver> _endpointLookups;
     }
 }

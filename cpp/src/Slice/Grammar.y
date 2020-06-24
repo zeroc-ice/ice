@@ -162,6 +162,7 @@ slice_error(const char* s)
 %token ICE_OPTIONAL
 %token ICE_ANYCLASS
 %token ICE_VALUE
+%token ICE_UNCHECKED
 
 // Other tokens.
 %token ICE_STRING_LITERAL
@@ -631,20 +632,15 @@ tag
     }
     cont->checkIntroduced(scoped->v);
 
-    int tag = -1;
+    std::int64_t tag = -1;
     EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
     ConstPtr constant = ConstPtr::dynamicCast(cl.front());
-    if(constant)
+    if (constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
-        if(b && b->isIntegralType())
+        if (b && b->isIntegralType())
         {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-            if(l < 0 || l > Int32Max)
-            {
-                unit->error("tag is out of range");
-            }
-            tag = static_cast<int>(l);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
         }
     }
     else if(enumerator)
@@ -652,12 +648,12 @@ tag
         tag = enumerator->value();
     }
 
-    if(tag < 0)
+    if (tag < 0 || tag > INT32_MAX)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        unit->error("cannot use value of `" + scoped->v + "' as a tag");
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(static_cast<int>(tag));
     $$ = m;
 }
 | ICE_TAG_OPEN ')'
@@ -753,20 +749,15 @@ optional
     }
     cont->checkIntroduced(scoped->v);
 
-    int tag = -1;
+    std::int64_t tag = -1;
     EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
     ConstPtr constant = ConstPtr::dynamicCast(cl.front());
-    if(constant)
+    if (constant)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if(b && b->isIntegralType())
         {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-            if(l < 0 || l > Int32Max)
-            {
-                unit->error("tag is out of range");
-            }
-            tag = static_cast<int>(l);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
         }
     }
     else if(enumerator)
@@ -774,12 +765,12 @@ optional
         tag = enumerator->value();
     }
 
-    if(tag < 0)
+    if (tag < 0 || tag > INT32_MAX)
     {
-        unit->error("invalid tag `" + scoped->v + "'");
+        unit->error("cannot use value of `" + scoped->v + "' as a tag");
     }
 
-    TaggedDefTokPtr m = new TaggedDefTok(tag);
+    TaggedDefTokPtr m = new TaggedDefTok(static_cast<int>(tag));
     $$ = m;
 }
 | ICE_OPTIONAL_OPEN ')'
@@ -1888,17 +1879,48 @@ dictionary_def
 ;
 
 // ----------------------------------------------------------------------
+enum_start
+// ----------------------------------------------------------------------
+: ICE_UNCHECKED ICE_ENUM
+{
+    BoolTokPtr unchecked = new BoolTok;
+    unchecked->v = true;
+    $$ = unchecked;
+}
+| ICE_ENUM
+{
+    BoolTokPtr unchecked = new BoolTok;
+    unchecked->v = false;
+    $$ = unchecked;
+}
+;
+
+// ----------------------------------------------------------------------
 enum_id
 // ----------------------------------------------------------------------
-: ICE_ENUM ICE_IDENTIFIER
+: enum_start ICE_IDENTIFIER
 {
-    $$ = $2;
-}
-| ICE_ENUM keyword
-{
+    bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+    EnumPtr en = cont->createEnum(ident->v, unchecked);
+    if (en)
+    {
+        cont->checkIntroduced(ident->v, en);
+    }
+    else
+    {
+        en = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
+    }
+    $$ = en;
+}
+| enum_start keyword
+{
+    bool unchecked = BoolTokPtr::dynamicCast($1)->v;
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
     unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
-    $$ = $2; // Dummy
+    $$ = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
 }
 ;
 
@@ -1907,17 +1929,8 @@ enum_def
 // ----------------------------------------------------------------------
 : enum_id enum_underlying
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v, TypePtr::dynamicCast($2));
-    if (en)
-    {
-        cont->checkIntroduced(ident->v, en);
-    }
-    else
-    {
-        en = cont->createEnum(IceUtil::generateUUID(), nullptr, Dummy);
-    }
+    EnumPtr en = EnumPtr::dynamicCast($1);
+    en->initUnderlying(TypePtr::dynamicCast($2));
     unit->pushContainer(en);
     $$ = en;
 }
@@ -1936,11 +1949,12 @@ enum_def
     $$ = $3;
 }
 |
-ICE_ENUM
+enum_start
 {
+    bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     unit->error("missing enumeration name");
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), nullptr, Dummy);
+    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
     unit->pushContainer(en);
     $$ = en;
 }
