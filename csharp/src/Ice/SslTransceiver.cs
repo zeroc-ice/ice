@@ -315,11 +315,14 @@ namespace ZeroC.Ice
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal SslTransceiver(Communicator communicator, SslEngine engine, ITransceiver del,
-            string hostOrAdapterName, bool incoming)
+        internal SslTransceiver(
+            Communicator communicator,
+            ITransceiver del,
+            string hostOrAdapterName,
+            bool incoming)
         {
             _communicator = communicator;
-            _engine = engine;
+            _engine = communicator.SslEngine;
             _delegate = del;
             _incoming = incoming;
             if (_incoming)

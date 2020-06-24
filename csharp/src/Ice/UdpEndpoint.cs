@@ -276,7 +276,11 @@ namespace ZeroC.Ice
             return new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString);
         }
 
-        public Endpoint Read(InputStream istr, Protocol protocol) => new UdpEndpoint(istr, protocol);
+        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport)
+        {
+            Debug.Assert(transport == Transport.UDP);
+            return new UdpEndpoint(istr, protocol);
+        }
 
         internal UdpEndpointFactory(Communicator communicator) => _communicator = communicator;
     }
