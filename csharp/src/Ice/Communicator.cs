@@ -299,8 +299,8 @@ namespace ZeroC.Ice
             Observer = observer;
 
             // clone properties as we don't want to modify the properties given to this constructor
-            Dictionary<string, string> combinedProperties = properties == null ?
-                new Dictionary<string, string>() : new Dictionary<string, string>(properties);
+            var combinedProperties =
+                new Dictionary<string, string>(properties ?? ImmutableDictionary<string, string>.Empty);
 
             if (appSettings != null)
             {

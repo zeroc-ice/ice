@@ -944,12 +944,6 @@ namespace ZeroC.Ice
                     nameof(invocationTimeout));
             }
 
-            if (context != null)
-            {
-                // We never want to hold onto the context provided by the application.
-                context = context.ToImmutableDictionary();
-            }
-
             if (IsFixed || fixedConnection != null)
             {
                 // Note that Clone does not allow to clear the fixedConnection
@@ -1025,7 +1019,7 @@ namespace ZeroC.Ice
 
                 var clone = new Reference(Communicator,
                                           compress ?? Compress,
-                                          context ?? Context,
+                                          context?.ToImmutableDictionary() ?? Context,
                                           encoding ?? Encoding,
                                           facet ?? Facet,
                                           (fixedConnection ?? _fixedConnection)!,
@@ -1128,7 +1122,7 @@ namespace ZeroC.Ice
                                       compress ?? Compress,
                                       connectionId ?? ConnectionId,
                                       connectionTimeout ?? ConnectionTimeout,
-                                      context ?? Context,
+                                      context?.ToImmutableDictionary() ?? Context,
                                       encoding ?? Encoding,
                                       endpointSelection ?? EndpointSelection,
                                       newEndpoints ?? Endpoints,
