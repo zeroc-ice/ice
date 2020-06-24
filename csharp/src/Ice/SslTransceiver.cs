@@ -15,6 +15,20 @@ namespace ZeroC.Ice
 {
     internal sealed class SslTransceiver : ITransceiver
     {
+        public string? Cipher => _cipher;
+
+        public X509Certificate2[]? Certificates => _certs;
+
+        public Connection CreateConnection(
+            Endpoint endpoint,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            ObjectAdapter? adapter)
+        {
+            Debug.Assert(endpoint.IsSecure);
+            return new TcpConnection(endpoint, monitor, this, connector, adapter);
+        }
+
         public Socket? Fd() => _delegate.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -72,7 +86,7 @@ namespace ZeroC.Ice
             _authenticated = true;
 
             _cipher = _sslStream.CipherAlgorithm.ToString();
-            _engine.VerifyPeer((SslConnectionInfo)GetInfo(), ToString());
+            _engine.VerifyPeer(_incoming, _certs ?? Array.Empty<X509Certificate2>(), _adapterName ?? "", ToString());
 
             if (_engine.SecurityTraceLevel >= 1)
             {
@@ -292,21 +306,7 @@ namespace ZeroC.Ice
 
         public string TransportName => _delegate.TransportName;
 
-        public ConnectionInfo GetInfo()
-        {
-            var info = new SslConnectionInfo();
-            info.Underlying = _delegate.GetInfo();
-            info.Incoming = _incoming;
-            info.AdapterName = _adapterName;
-            info.Cipher = _cipher;
-            info.Certs = _certs;
-            info.Verified = _verified;
-            return info;
-        }
-
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
-
-        public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 
         public override string ToString() => _delegate.ToString()!;
 
@@ -509,13 +509,11 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            _verified = true;
                             return true;
                         }
                     }
                     else
                     {
-                        _verified = true;
                         return true;
                     }
                 }
@@ -572,10 +570,6 @@ namespace ZeroC.Ice
                             {
                                 message += "\nuntrusted root certificate";
                                 ++errorCount;
-                            }
-                            else
-                            {
-                                _verified = true;
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.Revoked)
@@ -708,6 +702,5 @@ namespace ZeroC.Ice
         private int _maxRecvPacketSize;
         private string? _cipher;
         private X509Certificate2[]? _certs;
-        private bool _verified;
     }
 }

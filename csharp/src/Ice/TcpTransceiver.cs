@@ -5,13 +5,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using System.Net.Sockets;
 
 namespace ZeroC.Ice
 {
     internal sealed class TcpTransceiver : ITransceiver
     {
+        public Connection CreateConnection(
+            Endpoint endpoint,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            ObjectAdapter? adapter) => new TcpConnection(endpoint, monitor, this, connector, adapter);
         public Socket? Fd() => _stream.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer) =>
@@ -51,24 +55,6 @@ namespace ZeroC.Ice
             _stream.FinishWrite(buffer, ref offset);
 
         public string TransportName { get; }
-
-        public ConnectionInfo GetInfo()
-        {
-            var info = new TCPConnectionInfo();
-            Socket? fd = _stream.Fd();
-            if (fd != null)
-            {
-                EndPoint localEndpoint = Network.GetLocalAddress(fd);
-                info.LocalAddress = Network.EndpointAddressToString(localEndpoint);
-                info.LocalPort = Network.EndpointPort(localEndpoint);
-                EndPoint? remoteEndpoint = Network.GetRemoteAddress(fd);
-                info.RemoteAddress = Network.EndpointAddressToString(remoteEndpoint);
-                info.RemotePort = Network.EndpointPort(remoteEndpoint);
-                info.RcvSize = Network.GetRecvBufferSize(fd);
-                info.SndSize = Network.GetSendBufferSize(fd);
-            }
-            return info;
-        }
 
         public void CheckSendSize(int size)
         {

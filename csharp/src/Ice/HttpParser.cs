@@ -694,12 +694,12 @@ namespace ZeroC.Ice
             return null;
         }
 
-        internal Dictionary<string, string> GetHeaders()
+        internal IReadOnlyDictionary<string, string> GetHeaders()
         {
             var dict = new Dictionary<string, string>();
-            foreach (KeyValuePair<string, string> e in _headers)
+            foreach ((string key, string value) in _headers)
             {
-                dict[_headerNames[e.Key]] = e.Value.Trim();
+                dict[_headerNames[key]] = value.Trim();
             }
             return dict;
         }

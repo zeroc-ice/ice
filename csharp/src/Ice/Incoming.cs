@@ -46,24 +46,10 @@ namespace ZeroC.Ice
             output.Append("\nfacet: ").Append(StringUtil.EscapeString(current.Facet, "",
                 current.Adapter.Communicator.ToStringMode));
             output.Append("\noperation: ").Append(current.Operation);
-            if (current.Connection != null)
+
+            if ((current.Connection as IPConnection)?.RemoteEndpoint is System.Net.IPEndPoint remoteEndpoint)
             {
-                try
-                {
-                    for (ConnectionInfo? p = current.Connection.GetConnectionInfo(); p != null; p = p.Underlying)
-                    {
-                        if (p is IPConnectionInfo ipinfo)
-                        {
-                            output.Append("\nremote host: ").Append(ipinfo.RemoteAddress)
-                                  .Append(" remote port: ")
-                                  .Append(ipinfo.RemotePort);
-                            break;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
+                output.Append("\nremote address: ").Append(remoteEndpoint);
             }
             output.Append("\n");
             output.Append(ex.ToString());

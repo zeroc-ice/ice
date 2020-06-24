@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace ZeroC.Ice
@@ -30,6 +31,17 @@ namespace ZeroC.Ice
 
     internal sealed class WSTransceiver : ITransceiver
     {
+        public string? Cipher => (_delegate as SslTransceiver)?.Cipher;
+
+        public X509Certificate2[]? Certificates => (_delegate as SslTransceiver)?.Certificates;
+
+        public Connection CreateConnection(
+            Endpoint endpoint,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            ObjectAdapter? adapter) =>
+            new WSConnection(endpoint, monitor, this, connector, adapter);
+
         public Socket? Fd() => _delegate.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)
@@ -658,17 +670,9 @@ namespace ZeroC.Ice
 
         public string TransportName => _delegate.TransportName;
 
-        public ConnectionInfo GetInfo()
-        {
-            var info = new WSConnectionInfo();
-            info.Headers = _parser.GetHeaders();
-            info.Underlying = _delegate.GetInfo();
-            return info;
-        }
+        public IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
 
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
-
-        public void SetBufferSize(int rcvSize, int sndSize) => _delegate.SetBufferSize(rcvSize, sndSize);
 
         public override string ToString() => _delegate.ToString()!;
 

@@ -77,7 +77,7 @@ namespace ZeroC.Ice.Test.Admin
             }
             TestHelper.Assert(com.FindAdminFacet("Bogus") == null);
 
-            Dictionary<string, IObject> facetMap = com.FindAllAdminFacets();
+            IReadOnlyDictionary<string, IObject> facetMap = com.FindAllAdminFacets();
             if (builtInFacets)
             {
                 TestHelper.Assert(facetMap.Count == 7);

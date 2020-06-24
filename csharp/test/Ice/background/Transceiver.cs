@@ -176,19 +176,21 @@ namespace ZeroC.Ice.Test.Background
 
         public string TransportName => "test-" + _transceiver.TransportName;
 
-        public ConnectionInfo GetInfo() => _transceiver.GetInfo();
-
         public override string? ToString() => _transceiver.ToString();
 
         public string ToDetailedString() => _transceiver.ToDetailedString();
 
         public void CheckSendSize(int sz) => _transceiver.CheckSendSize(sz);
 
-        public void SetBufferSize(int rcvSize, int sndSize) => _transceiver.SetBufferSize(rcvSize, sndSize);
-
         public void Destroy() => _transceiver.Destroy();
 
         public ITransceiver GetDelegate() => _transceiver;
+        public Connection CreateConnection(
+            ZeroC.Ice.Endpoint endpoint,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            ObjectAdapter? adapter) =>
+            _transceiver.CreateConnection(endpoint, monitor, connector, adapter);
 
         //
         // Only for use by Connector, Acceptor

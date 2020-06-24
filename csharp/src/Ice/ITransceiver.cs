@@ -16,6 +16,19 @@ namespace ZeroC.Ice
 
     public interface ITransceiver
     {
+        /// <summary>Creates a new connection to the given endpoint.</summary>
+        /// <param name="endpoint">The endpoint to connect to.</param>
+        /// <param name="monitor">The ACM monitor object.</param>
+        /// <param name="connector">The connector associated with the new connection, this is always null for incoming
+        /// connections.</param>
+        /// <param name="adapter">The adapter associated with the new connection, this is always null for outgoing
+        /// connections.</param>
+        /// <returns>A new connection to the given endpoint.</returns>
+        public Connection CreateConnection(
+            Endpoint endpoint,
+            IACMMonitor? monitor,
+            IConnector? connector,
+            ObjectAdapter? adapter);
         Socket? Fd();
 
         /// <summary>
@@ -30,7 +43,7 @@ namespace ZeroC.Ice
         /// whenever the operation needs to write more data, read more data or it is done.</returns>
         int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer);
 
-        int Closing(bool initiator, System.Exception? ex);
+        int Closing(bool initiator, Exception? ex);
         void Close();
         void Destroy();
 
@@ -306,8 +319,6 @@ namespace ZeroC.Ice
 
         string TransportName { get; }
         string ToDetailedString();
-        ConnectionInfo GetInfo();
         void CheckSendSize(int size);
-        void SetBufferSize(int rcvSize, int sndSize);
     }
 }

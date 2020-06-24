@@ -14,6 +14,7 @@ namespace ZeroC.Ice
 {
     public sealed class OpaqueEndpoint : Endpoint
     {
+        public override Communicator Communicator { get; }
         public ReadOnlyMemory<byte> Bytes { get; }
         public override string ConnectionId => "";
 
@@ -122,9 +123,14 @@ namespace ZeroC.Ice
         public override IAcceptor? GetAcceptor(string adapterName) => null;
         public override ITransceiver? GetTransceiver() => null;
 
-        internal OpaqueEndpoint(Protocol protocol, Dictionary<string, string?> options, string endpointString)
+        internal OpaqueEndpoint(
+            Communicator communicator,
+            Protocol protocol,
+            Dictionary<string, string?> options,
+            string endpointString)
             : base(protocol)
         {
+            Communicator = communicator;
             if (options.TryGetValue("-t", out string? argument))
             {
                 if (argument == null)
@@ -203,9 +209,15 @@ namespace ZeroC.Ice
             // the caller deals with remaining options, if any
         }
 
-        internal OpaqueEndpoint(Transport transport, Protocol protocol, Encoding encoding, byte[] bytes)
+        internal OpaqueEndpoint(
+            Communicator communicator,
+            Transport transport,
+            Protocol protocol,
+            Encoding encoding,
+            byte[] bytes)
             : base(protocol)
         {
+            Communicator = communicator;
             Transport = transport;
             Encoding = encoding;
             Bytes = bytes;
