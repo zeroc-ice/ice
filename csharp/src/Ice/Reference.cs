@@ -19,8 +19,6 @@ namespace ZeroC.Ice
     /// options can share the same Reference object, even if these proxies have different types.</summary>
     public sealed class Reference : IEquatable<Reference>
     {
-        internal static readonly IReadOnlyDictionary<string, string> EmptyContext = new Dictionary<string, string>();
-
         internal string AdapterId { get; }
         internal Communicator Communicator { get; }
         internal bool? Compress { get; }
@@ -946,19 +944,6 @@ namespace ZeroC.Ice
                     nameof(invocationTimeout));
             }
 
-            if (context != null)
-            {
-                // We never want to hold onto the context provided by the application.
-                if (context.Count == 0)
-                {
-                    context = EmptyContext;
-                }
-                else
-                {
-                    context = new Dictionary<string, string>(context);
-                }
-            }
-
             if (IsFixed || fixedConnection != null)
             {
                 // Note that Clone does not allow to clear the fixedConnection
@@ -1034,7 +1019,7 @@ namespace ZeroC.Ice
 
                 var clone = new Reference(Communicator,
                                           compress ?? Compress,
-                                          context ?? Context,
+                                          context?.ToImmutableDictionary() ?? Context,
                                           encoding ?? Encoding,
                                           facet ?? Facet,
                                           (fixedConnection ?? _fixedConnection)!,
@@ -1137,7 +1122,7 @@ namespace ZeroC.Ice
                                       compress ?? Compress,
                                       connectionId ?? ConnectionId,
                                       connectionTimeout ?? ConnectionTimeout,
-                                      context ?? Context,
+                                      context?.ToImmutableDictionary() ?? Context,
                                       encoding ?? Encoding,
                                       endpointSelection ?? EndpointSelection,
                                       newEndpoints ?? Endpoints,
