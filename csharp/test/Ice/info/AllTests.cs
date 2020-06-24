@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Test;
@@ -10,27 +11,6 @@ namespace ZeroC.Ice.Test.Info
 {
     public class AllTests
     {
-        private static TcpEndpoint? getTCPEndpoint(Endpoint? endpoint)
-        {
-            if (endpoint is TcpEndpoint)
-            {
-                return (TcpEndpoint)endpoint;
-            }
-            return null;
-        }
-
-        private static TCPConnectionInfo? getTCPConnectionInfo(ConnectionInfo? info)
-        {
-            for (; info != null; info = info.Underlying)
-            {
-                if (info is TCPConnectionInfo)
-                {
-                    return (TCPConnectionInfo)info;
-                }
-            }
-            return null;
-        }
-
         public static void allTests(TestHelper helper)
         {
             Communicator? communicator = helper.Communicator();
@@ -47,7 +27,7 @@ namespace ZeroC.Ice.Test.Info
                 var endps = p1.Endpoints;
 
                 Endpoint endpoint = endps[0];
-                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoint);
+                var tcpEndpoint = endpoint as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(tcpEndpoint.Host.Equals("tcphost"));
                 TestHelper.Assert(tcpEndpoint.Port == 10000);
@@ -97,7 +77,7 @@ namespace ZeroC.Ice.Test.Info
                 var publishedEndpoints = adapter.GetPublishedEndpoints();
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
-                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoints[0]);
+                var tcpEndpoint = endpoints[0] as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(
                         tcpEndpoint.Transport == Transport.TCP ||
@@ -135,11 +115,11 @@ namespace ZeroC.Ice.Test.Info
 
                 foreach (var endpoint in endpoints)
                 {
-                    tcpEndpoint = getTCPEndpoint(endpoint);
+                    tcpEndpoint = endpoint as TcpEndpoint;
                     TestHelper.Assert(tcpEndpoint!.Port == port);
                 }
 
-                tcpEndpoint = getTCPEndpoint(publishedEndpoints[0]);
+                tcpEndpoint = publishedEndpoints[0] as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint!.Host == "127.0.0.1");
                 TestHelper.Assert(tcpEndpoint!.Port == port);
 
@@ -159,7 +139,7 @@ namespace ZeroC.Ice.Test.Info
             output.Flush();
             {
                 Endpoint endpoint = testIntf.GetConnection()!.Endpoint;
-                TcpEndpoint? tcpEndpoint = getTCPEndpoint(endpoint);
+                var tcpEndpoint = endpoint as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(tcpEndpoint.Port == endpointPort);
                 TestHelper.Assert(!tcpEndpoint.HasCompressionFlag);
@@ -181,35 +161,28 @@ namespace ZeroC.Ice.Test.Info
             output.Write("testing connection information... ");
             output.Flush();
             {
-                Connection connection = testIntf.GetConnection()!;
-                connection.SetBufferSize(1024, 2048);
+                IPConnection connection = (IPConnection)testIntf.GetConnection()!;
 
-                ConnectionInfo info = connection.GetConnectionInfo();
-                TCPConnectionInfo ipInfo = getTCPConnectionInfo(info)!;
-                TestHelper.Assert(!info.Incoming);
-                TestHelper.Assert(info.AdapterName!.Length == 0);
-                TestHelper.Assert(ipInfo.RemotePort == endpointPort);
-                TestHelper.Assert(ipInfo.LocalPort > 0);
+                TestHelper.Assert(!connection.IsIncoming);
+                TestHelper.Assert(connection.Adapter == null);
+                TestHelper.Assert(connection.RemoteEndpoint!.Port == endpointPort);
+                TestHelper.Assert(connection.LocalEndpoint!.Port > 0);
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    TestHelper.Assert(ipInfo.LocalAddress.Equals(defaultHost));
-                    TestHelper.Assert(ipInfo.RemoteAddress.Equals(defaultHost));
+                    TestHelper.Assert(connection.LocalEndpoint!.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(connection.RemoteEndpoint!.Address.ToString().Equals(defaultHost));
                 }
-                TestHelper.Assert(ipInfo.RcvSize >= 1024);
-                TestHelper.Assert(ipInfo.SndSize >= 2048);
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
                 TestHelper.Assert(ctx["incoming"].Equals("true"));
                 TestHelper.Assert(ctx["adapterName"].Equals("TestAdapter"));
-                TestHelper.Assert(ctx["remoteAddress"].Equals(ipInfo.LocalAddress));
-                TestHelper.Assert(ctx["localAddress"].Equals(ipInfo.RemoteAddress));
-                TestHelper.Assert(ctx["remotePort"].Equals(ipInfo.LocalPort.ToString()));
-                TestHelper.Assert(ctx["localPort"].Equals(ipInfo.RemotePort.ToString()));
+                TestHelper.Assert(ctx["remoteAddress"].Equals(connection.LocalEndpoint!.Address.ToString()));
+                TestHelper.Assert(ctx["localAddress"].Equals(connection.RemoteEndpoint!.Address.ToString()));
+                TestHelper.Assert(ctx["remotePort"].Equals(connection.LocalEndpoint!.Port.ToString()));
+                TestHelper.Assert(ctx["localPort"].Equals(connection.RemoteEndpoint!.Port.ToString()));
 
-                if (testIntf.GetConnection()!.Endpoint.TransportName.Equals("ws") ||
-                    testIntf.GetConnection()!.Endpoint.TransportName.Equals("wss"))
+                if ((connection as WSConnection)?.Headers is IReadOnlyDictionary<string, string> headers)
                 {
-                    Dictionary<string, string> headers = ((WSConnectionInfo)info).Headers!;
                     TestHelper.Assert(headers["Upgrade"].Equals("websocket"));
                     TestHelper.Assert(headers["Connection"].Equals("Upgrade"));
                     TestHelper.Assert(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
@@ -222,22 +195,20 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(ctx["ws.Sec-WebSocket-Key"] != null);
                 }
 
-                connection = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
-                connection.SetBufferSize(2048, 1024);
+                connection = (IPConnection)testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!;
 
-                UDPConnectionInfo udpInfo = (UDPConnectionInfo)connection.GetConnectionInfo();
-                TestHelper.Assert(!udpInfo.Incoming);
-                TestHelper.Assert(udpInfo.AdapterName!.Length == 0);
-                TestHelper.Assert(udpInfo.LocalPort > 0);
-                TestHelper.Assert(udpInfo.RemotePort == endpointPort);
+                var udpConnection = connection as UdpConnection;
+                TestHelper.Assert(udpConnection != null);
+                TestHelper.Assert(!udpConnection.IsIncoming);
+                TestHelper.Assert(udpConnection.Adapter == null);
+                TestHelper.Assert(udpConnection.LocalEndpoint?.Port > 0);
+                TestHelper.Assert(udpConnection.RemoteEndpoint?.Port == endpointPort);
 
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    TestHelper.Assert(udpInfo.RemoteAddress.Equals(defaultHost));
-                    TestHelper.Assert(udpInfo.LocalAddress.Equals(defaultHost));
+                    TestHelper.Assert(udpConnection.RemoteEndpoint.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(udpConnection.LocalEndpoint.Address.ToString().Equals(defaultHost));
                 }
-                TestHelper.Assert(udpInfo.RcvSize >= 2048);
-                TestHelper.Assert(udpInfo.SndSize >= 1024);
             }
             output.WriteLine("ok");
 

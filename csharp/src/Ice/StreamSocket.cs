@@ -557,7 +557,7 @@ namespace ZeroC.Ice
         private readonly EndPoint? _addr;
         private readonly IPAddress? _sourceAddr;
 
-        private Socket? _fd;
+        private readonly Socket _fd;
         private readonly int _maxSendPacketSize;
         private readonly int _maxRecvPacketSize;
         private int _state;

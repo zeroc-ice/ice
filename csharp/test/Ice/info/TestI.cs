@@ -9,27 +9,6 @@ namespace ZeroC.Ice.Test.Info
 {
     public class TestIntf : ITestIntf
     {
-        private static IPEndpoint? getIPEndpoint(Endpoint endpoint)
-        {
-            if (endpoint is IPEndpoint)
-            {
-                return (IPEndpoint)endpoint;
-            }
-            return null;
-        }
-
-        private static IPConnectionInfo? getIPConnectionInfo(ConnectionInfo info)
-        {
-            for (ConnectionInfo? i = info; i != null; i = i.Underlying)
-            {
-                if (i is IPConnectionInfo)
-                {
-                    return (IPConnectionInfo)i;
-                }
-            }
-            return null;
-        }
-
         public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
 
         public IReadOnlyDictionary<string, string> getEndpointInfoAsContext(Current current)
@@ -43,7 +22,7 @@ namespace ZeroC.Ice.Test.Info
             ctx["secure"] = endpoint.IsDatagram ? "true" : "false";
             ctx["transport"] = endpoint.Transport.ToString();
 
-            IPEndpoint? ipEndpoint = getIPEndpoint(endpoint);
+            IPEndpoint? ipEndpoint = endpoint as IPEndpoint;
             TestHelper.Assert(ipEndpoint != null);
             ctx["host"] = ipEndpoint.Host;
             ctx["port"] = ipEndpoint.Port.ToString();
@@ -61,26 +40,23 @@ namespace ZeroC.Ice.Test.Info
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
-            ConnectionInfo info = current.Connection.GetConnectionInfo();
-            ctx["adapterName"] = info.AdapterName!;
-            ctx["incoming"] = info.Incoming ? "true" : "false";
+            ctx["adapterName"] = current.Connection.Adapter?.Name ?? "";
+            ctx["incoming"] = current.Connection.IsIncoming ? "true" : "false";
 
-            IPConnectionInfo? ipinfo = getIPConnectionInfo(info);
-            TestHelper.Assert(ipinfo != null);
-            ctx["localAddress"] = ipinfo.LocalAddress;
-            ctx["localPort"] = ipinfo.LocalPort.ToString();
-            ctx["remoteAddress"] = ipinfo.RemoteAddress;
-            ctx["remotePort"] = ipinfo.RemotePort.ToString();
+            var ipConnection = current.Connection as IPConnection;
+            TestHelper.Assert(ipConnection != null);
+            ctx["localAddress"] = ipConnection.LocalEndpoint?.Address.ToString() ?? "";
+            ctx["localPort"] = ipConnection.LocalEndpoint?.Port.ToString() ?? "";
+            ctx["remoteAddress"] = ipConnection.RemoteEndpoint?.Address.ToString() ?? "";
+            ctx["remotePort"] = ipConnection.RemoteEndpoint?.Port.ToString() ?? "";
 
-            if (info is WSConnectionInfo)
+            if ((current.Connection as WSConnection)?.Headers is IReadOnlyDictionary<string, string> headers)
             {
-                var wsinfo = (WSConnectionInfo)info;
-                foreach (KeyValuePair<string, string> e in wsinfo.Headers!)
+                foreach ((string key, string value) in headers)
                 {
-                    ctx["ws." + e.Key] = e.Value;
+                    ctx[$"ws.{key}"] = value;
                 }
             }
-
             return ctx;
         }
     }
