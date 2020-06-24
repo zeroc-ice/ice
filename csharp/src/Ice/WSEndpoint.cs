@@ -153,8 +153,11 @@ namespace ZeroC.Ice
             return new WSEndpoint(Communicator, protocol, transport, options, oaEndpoint, endpointString);
         }
 
-        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport) =>
-            new WSEndpoint(istr, protocol, transport);
+        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport)
+        {
+            Debug.Assert(transport == Transport.WS || transport == Transport.WSS);
+            return new WSEndpoint(istr, protocol, transport);
+        }
 
         internal WSEndpointFactory(Communicator communicator) => Communicator = communicator;
     }

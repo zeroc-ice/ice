@@ -252,8 +252,11 @@ namespace ZeroC.Ice
             return new TcpEndpoint(_communicator, protocol, transport, options, oaEndpoint, endpointString);
         }
 
-        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport) =>
-            new TcpEndpoint(istr, protocol, transport);
+        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport)
+        {
+            Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
+            return new TcpEndpoint(istr, protocol, transport);
+        }
 
         internal TcpEndpointFactory(Communicator communicator) => _communicator = communicator;
     }
