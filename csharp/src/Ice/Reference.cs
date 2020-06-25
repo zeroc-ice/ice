@@ -1166,7 +1166,7 @@ namespace ZeroC.Ice
 
         internal Connection? GetCachedConnection() => _requestHandler?.GetConnection();
 
-        internal async ValueTask<IRequestHandler> GetConnectionRequestHandlerAsync()
+        internal async ValueTask<IRequestHandler> GetConnectionRequestHandlerAsync(CancellationToken cancel)
         {
             Debug.Assert(!IsFixed);
 
@@ -1176,7 +1176,7 @@ namespace ZeroC.Ice
             if (RouterInfo != null)
             {
                 // Get the router client endpoints if a router is configured
-                endpoints = await RouterInfo.GetClientEndpointsAsync().ConfigureAwait(false);
+                endpoints = await RouterInfo.GetClientEndpointsAsync(cancel).ConfigureAwait(false);
             }
 
             if (endpoints.Count == 0)
@@ -1189,7 +1189,7 @@ namespace ZeroC.Ice
                 else if (LocatorInfo != null)
                 {
                     (endpoints, cached) =
-                        await LocatorInfo.GetEndpointsAsync(this, LocatorCacheTimeout).ConfigureAwait(false);
+                        await LocatorInfo.GetEndpointsAsync(this, LocatorCacheTimeout, cancel).ConfigureAwait(false);
                 }
             }
 
@@ -1344,13 +1344,13 @@ namespace ZeroC.Ice
                         Communicator.Logger.Trace(traceLevels.RetryCat, "connection to cached endpoints failed\n" +
                             $"removing endpoints from cache and trying again\n{ex}");
                     }
-                    return await GetConnectionRequestHandlerAsync();
+                    return await GetConnectionRequestHandlerAsync(cancel);
                 }
                 throw;
             }
         }
 
-        internal async ValueTask<IRequestHandler> GetRequestHandlerAsync()
+        internal async ValueTask<IRequestHandler> GetRequestHandlerAsync(CancellationToken cancel)
         {
             IRequestHandler? handler = _requestHandler;
             if (handler == null)
@@ -1368,7 +1368,7 @@ namespace ZeroC.Ice
 
                 if (handler == null)
                 {
-                    handler = await GetConnectionRequestHandlerAsync().ConfigureAwait(false);
+                    handler = await GetConnectionRequestHandlerAsync(cancel).ConfigureAwait(false);
                 }
 
                 if (IsConnectionCached)

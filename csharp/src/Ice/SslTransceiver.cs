@@ -15,8 +15,6 @@ namespace ZeroC.Ice
 {
     internal sealed class SslTransceiver : ITransceiver
     {
-        public string TransportName => _delegate.TransportName;
-
         internal SslStream? SslStream { get; private set; }
 
         private readonly string? _adapterName;
@@ -330,11 +328,10 @@ namespace ZeroC.Ice
             offset < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.None;
 
         // Only for use by ConnectorI, AcceptorI.
-        internal SslTransceiver(Communicator communicator, SslEngine engine, ITransceiver del,
-            string hostOrAdapterName, bool incoming)
+        internal SslTransceiver(Communicator communicator, ITransceiver del, string hostOrAdapterName, bool incoming)
         {
             _communicator = communicator;
-            _engine = engine;
+            _engine = communicator.SslEngine;
             _delegate = del;
             _incoming = incoming;
             if (_incoming)
@@ -553,12 +550,24 @@ namespace ZeroC.Ice
                                 message += "\ncertificate revoked (ignored)";
                             }
                         }
+                        else if (status.Status == X509ChainStatusFlags.OfflineRevocation)
+                        {
+                            // If a certificate's revocation status cannot be determined, the strictest policy is to
+                            // reject the connection.
+                            if (_engine.CheckCRL > 1)
+                            {
+                                message += "\ncertificate revocation list is offline";
+                                ++errorCount;
+                            }
+                            else
+                            {
+                                message += "\ncertificate revocation list is offline (ignored)";
+                            }
+                        }
                         else if (status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
                         {
-                            //
-                            // If a certificate's revocation status cannot be determined, the strictest
-                            // policy is to reject the connection.
-                            //
+                            // If a certificate's revocation status cannot be determined, the strictest policy is to
+                            // reject the connection.
                             if (_engine.CheckCRL > 1)
                             {
                                 message += "\ncertificate revocation status unknown";

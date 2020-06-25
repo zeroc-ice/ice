@@ -174,8 +174,6 @@ namespace ZeroC.Ice.Test.Background
             _transceiver.FinishWrite(buf, ref offset);
         }
 
-        public string TransportName => "test-" + _transceiver.TransportName;
-
         public override string? ToString() => _transceiver.ToString();
 
         public string ToDetailedString() => _transceiver.ToDetailedString();

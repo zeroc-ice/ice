@@ -142,6 +142,28 @@ namespace ZeroC.IceSSL.Test.Configuration
                     comm.Destroy();
                 }
                 {
+                    clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
+                    clientProperties["IceSSL.CheckCRL"] = "1";
+                    var comm = new Communicator(ref args, clientProperties);
+                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
+                    IServerPrx? server = fact.createServer(serverProperties);
+                    try
+                    {
+                        server!.IcePing();
+                        var connection = server.GetCachedConnection() as TcpConnection;
+                        TestHelper.Assert(connection != null);
+                        TestHelper.Assert(connection.CheckCertRevocationStatus);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        TestHelper.Assert(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.Destroy();
+                }
+                {
                     // Supply our own certificate.
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.CAs"] = caCert1File;
@@ -719,6 +741,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         server.IcePing();
+                        var connection = server.GetCachedConnection() as TcpConnection;
+                        TestHelper.Assert(connection != null);
+                        TestHelper.Assert(connection.LocalCertificate == myCerts[0]);
                         TestHelper.Assert(called);
                     }
                     catch (Exception ex)
