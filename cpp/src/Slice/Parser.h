@@ -531,7 +531,7 @@ public:
     SequenceList sequences() const;
     DictionaryList dictionaries() const;
     EnumList enums() const;
-    EnumeratorList enumerators() const;
+    // Finds enumerators using the deprecated unscoped enumerators lookup
     EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
     ContainedList contents() const;
@@ -566,7 +566,6 @@ protected:
 
     bool checkFileMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
-    EnumeratorPtr validateEnumerator(const std::string&);
 
     ContainedList _contents;
     std::map<std::string, ContainedPtr, CICompare> _introducedMap;
@@ -1008,6 +1007,7 @@ public:
     void destroy() override;
     EnumeratorPtr createEnumerator(const std::string&);
     EnumeratorPtr createEnumerator(const std::string&, std::int64_t);
+    EnumeratorList enumerators() const;
 
     // The underlying type. The default is nullptr, which means a range of 0..INT32_MAX encoded as a variable-length
     // size. The only permissible underlying types are byte, short, ushort, int, and uint.
@@ -1030,6 +1030,7 @@ public:
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
     void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
+    EnumeratorPtr validateEnumerator(const std::string&);
 
     // Sets the underlying type shortly after construction and before any enumerator is added.
     void initUnderlying(const TypePtr&);
@@ -1042,6 +1043,7 @@ protected:
     friend class Container;
     friend class Enumerator;
 
+    std::list<EnumeratorPtr> _enumerators;
     const bool _unchecked;
     BuiltinPtr _underlying;
     bool _explicitValue;
@@ -1068,8 +1070,8 @@ public:
 
 protected:
 
-    Enumerator(const ContainerPtr&, const std::string&);
-    Enumerator(const ContainerPtr&, const std::string&, std::int64_t);
+    Enumerator(const EnumPtr&, const std::string&);
+    Enumerator(const EnumPtr&, const std::string&, std::int64_t);
     friend class Enum;
 
     bool _explicitValue;

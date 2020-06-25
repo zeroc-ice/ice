@@ -2197,21 +2197,6 @@ Slice::Container::enums() const
     return result;
 }
 
-EnumeratorList
-Slice::Container::enumerators() const
-{
-    EnumeratorList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        EnumeratorPtr q = EnumeratorPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
 //
 // Find enumerators using the old unscoped enumerators lookup
 //
@@ -3153,37 +3138,6 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
     }
 
     return true;
-}
-
-EnumeratorPtr
-Slice::Container::validateEnumerator(const string& name)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        EnumeratorPtr p = EnumeratorPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            _unit->error(string("redefinition of enumerator `") + name + "'");
-        }
-        else
-        {
-            string msg = "enumerator `" + name + "' differs only in capitalization from ";
-            msg += "`" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-    }
-
-    checkIdentifier(name); // Ignore return value.
-    return 0;
 }
 
 // ----------------------------------------------------------------------
@@ -5123,7 +5077,9 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
 void
 Slice::Enum::destroy()
 {
-    SyntaxTreeBase::destroy();
+    _enumerators.clear();
+    _underlying = 0;
+    Container::destroy();
 }
 
 EnumeratorPtr
@@ -5133,7 +5089,7 @@ Slice::Enum::createEnumerator(const string& name)
     if(!p)
     {
         p = new Enumerator(this, name);
-        _contents.push_back(p);
+        _enumerators.push_back(p);
     }
     return p;
 }
@@ -5145,9 +5101,16 @@ Slice::Enum::createEnumerator(const string& name, int64_t value)
     if(!p)
     {
         p = new Enumerator(this, name, value);
-        _contents.push_back(p);
+        _enumerators.push_back(p);
     }
     return p;
+}
+
+
+EnumeratorList
+Slice::Enum::enumerators() const
+{
+    return _enumerators;
 }
 
 BuiltinPtr
@@ -5228,10 +5191,39 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
     // An Enum does not have any dependencies.
 }
 
+EnumeratorPtr
+Slice::Enum::validateEnumerator(const string& name)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+        if (EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(matches.front()))
+        {
+            if (_unit->ignRedefs())
+            {
+                enumerator->updateIncludeLevel();
+                return enumerator;
+            }
+        }
+        if (matches.front()->name() == name)
+        {
+            _unit->error("redefinition of enumerator `" + name + "'");
+        }
+        else
+        {
+            _unit->error("enumerator `" + name + "' differs only in capitalization from `" + matches.front()->name()
+                         + "'");
+        }
+    }
+
+    checkIdentifier(name); // Ignore return value.
+    return 0;
+}
+
 void
 Slice::Enum::initUnderlying(const TypePtr& type)
 {
-    assert(_contents.empty());
+    assert(_enumerators.empty());
 
     // initUnderlying is called with a null parameter when the Slice definition does not specify an underlying type.
     if (type)
@@ -5265,7 +5257,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool unchec
 }
 
 int64_t
-Slice::Enum::newEnumerator(const EnumeratorPtr& p)
+Slice::Enum::newEnumerator(const EnumeratorPtr& enumerator)
 {
     int64_t rangeMin = 0;
     uint64_t rangeMax = INT32_MAX;
@@ -5274,10 +5266,10 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
         tie(rangeMin, rangeMax) = _underlying->integralRange();
     }
 
-    if (p->explicitValue())
+    if (enumerator->explicitValue())
     {
         _explicitValue = true;
-        _lastValue  = p->value();
+        _lastValue  = enumerator->value();
     }
     else
     {
@@ -5288,7 +5280,7 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
     {
         ostringstream oss;
         oss.imbue(underscoreSeparatorLocale);
-        oss << "value " << _lastValue << " for enumerator `" << p->name() << "'";
+        oss << "value " << _lastValue << " for enumerator `" << enumerator->name() << "'";
 
         oss << " is outside the range of " << (_underlying ? _underlying->kindAsString() : "its enum") << ": ["
             << rangeMin << ".." << rangeMax << "]";
@@ -5309,11 +5301,12 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
 
     if (checkForDuplicates)
     {
-        for (const auto& en : enumerators())
+        for (const auto& en : _enumerators)
         {
-            if (en != p && en->value() == _lastValue)
+            if (en != enumerator && en->value() == _lastValue)
             {
-                _unit->error("enumerator `" + p->name() + "' has the same value as enumerator `" + en->name() + "'");
+                _unit->error("enumerator `" + enumerator->name() + "' has the same value as enumerator `" +
+                             en->name() + "'");
             }
         }
     }
@@ -5361,22 +5354,22 @@ Slice::Enumerator::value() const
     return _value;
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
+Slice::Enumerator::Enumerator(const EnumPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _explicitValue(false),
     _value(-1)
 {
-    _value = EnumPtr::dynamicCast(container)->newEnumerator(this);
+    _value = container->newEnumerator(this);
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int64_t value) :
+Slice::Enumerator::Enumerator(const EnumPtr& container, const string& name, int64_t value) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _explicitValue(true),
     _value(value)
 {
-    EnumPtr::dynamicCast(container)->newEnumerator(this);
+    container->newEnumerator(this);
 }
 
 // ----------------------------------------------------------------------
@@ -5592,8 +5585,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-        ParamDeclPtr param = ParamDeclPtr::dynamicCast(matches.front());
-        if (param)
+        if (ParamDeclPtr param = ParamDeclPtr::dynamicCast(matches.front()))
         {
             if (_unit->ignRedefs())
             {
