@@ -1809,30 +1809,6 @@ Slice::Container::createEnum(const string& name, bool unchecked, NodeType nt)
     return p;
 }
 
-EnumeratorPtr
-Slice::Container::createEnumerator(const string& name)
-{
-    EnumeratorPtr p = validateEnumerator(name);
-    if(!p)
-    {
-        p = new Enumerator(this, name);
-        _contents.push_back(p);
-    }
-    return p;
-}
-
-EnumeratorPtr
-Slice::Container::createEnumerator(const string& name, int64_t value)
-{
-    EnumeratorPtr p = validateEnumerator(name);
-    if(!p)
-    {
-        p = new Enumerator(this, name, value);
-        _contents.push_back(p);
-    }
-    return p;
-}
-
 ConstPtr
 Slice::Container::createConst(const string name, const TypePtr& constType, const StringList& metaData,
                               const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
@@ -5148,6 +5124,30 @@ void
 Slice::Enum::destroy()
 {
     SyntaxTreeBase::destroy();
+}
+
+EnumeratorPtr
+Slice::Enum::createEnumerator(const string& name)
+{
+    EnumeratorPtr p = validateEnumerator(name);
+    if(!p)
+    {
+        p = new Enumerator(this, name);
+        _contents.push_back(p);
+    }
+    return p;
+}
+
+EnumeratorPtr
+Slice::Enum::createEnumerator(const string& name, int64_t value)
+{
+    EnumeratorPtr p = validateEnumerator(name);
+    if(!p)
+    {
+        p = new Enumerator(this, name, value);
+        _contents.push_back(p);
+    }
+    return p;
 }
 
 BuiltinPtr

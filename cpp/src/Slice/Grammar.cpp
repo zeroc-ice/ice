@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.6.4.  */
+/* A Bison parser, made by GNU Bison 3.6.3.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
@@ -49,7 +49,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.6.4"
+#define YYBISON_VERSION "3.6.3"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -4122,7 +4122,7 @@ yyreduce:
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    ContainerPtr cont = unit->currentContainer();
+    EnumPtr cont = EnumPtr::dynamicCast(unit->currentContainer());
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
@@ -4138,7 +4138,7 @@ yyreduce:
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[-2]);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    ContainerPtr cont = unit->currentContainer();
+    EnumPtr cont = EnumPtr::dynamicCast(unit->currentContainer());
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast(yyvsp[0]);
     if (intVal)
     {

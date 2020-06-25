@@ -516,8 +516,6 @@ public:
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                                    const StringList&, NodeType = Real);
     EnumPtr createEnum(const std::string&, bool, NodeType = Real);
-    EnumeratorPtr createEnumerator(const std::string&);
-    EnumeratorPtr createEnumerator(const std::string&, std::int64_t);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
                          const std::string&, const std::string&, NodeType = Real);
     TypeList lookupType(const std::string&, bool = true);
@@ -1005,6 +1003,8 @@ class Enum : public virtual Container, public virtual Constructed
 public:
 
     virtual void destroy();
+    EnumeratorPtr createEnumerator(const std::string&);
+    EnumeratorPtr createEnumerator(const std::string&, std::int64_t);
 
     // The underlying type. The default is nullptr, which means a range of 0..INT32_MAX encoded as a variable-length
     // size. The only permissible underlying types are byte, short, ushort, int, and uint.
@@ -1067,7 +1067,7 @@ protected:
 
     Enumerator(const ContainerPtr&, const std::string&);
     Enumerator(const ContainerPtr&, const std::string&, std::int64_t);
-    friend class Container;
+    friend class Enum;
 
     bool _explicitValue;
     std::int64_t _value;

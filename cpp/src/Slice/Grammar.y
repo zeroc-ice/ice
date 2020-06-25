@@ -1999,7 +1999,7 @@ enumerator
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    ContainerPtr cont = unit->currentContainer();
+    EnumPtr cont = EnumPtr::dynamicCast(unit->currentContainer());
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
@@ -2011,7 +2011,7 @@ enumerator
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    ContainerPtr cont = unit->currentContainer();
+    EnumPtr cont = EnumPtr::dynamicCast(unit->currentContainer());
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($3);
     if (intVal)
     {
