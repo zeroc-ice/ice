@@ -181,4 +181,27 @@
     <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.17\build\native\mcpp.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v140.2.7.2.17\build\native\mcpp.v140.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v141.2.7.2.17\build\native\mcpp.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v141.2.7.2.17\build\native\mcpp.v141.targets'))" />
   </Target>
+
+  <PropertyGroup>
+      <TargetSuffix Condition="'$(Configuration)' == 'Debug'">d</TargetSuffix>
+  </PropertyGroup>
+
+  <Target Name="CopyDependencies">
+      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\bzip2$(TargetSuffix).dll"
+            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\ice$(IceSoVersion)$(TargetSuffix).dll"
+            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icessl$(IceSoVersion)$(TargetSuffix).dll"
+            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icediscovery$(IceSoVersion)$(TargetSuffix).dll"
+            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+      <Copy SourceFiles="..\..\..\..\cpp\bin\$(Platform)\$(Configuration)\icelocatordiscovery$(IceSoVersion)$(TargetSuffix).dll"
+            DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
+  </Target>
+  <PropertyGroup>
+        <BuildDependsOn>
+            $(BuildDependsOn);
+            CopyDependencies
+        </BuildDependsOn>
+  </PropertyGroup>
 </Project>
