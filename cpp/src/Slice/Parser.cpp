@@ -4808,12 +4808,7 @@ bool
 Slice::Sequence::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    if(contained2 && contained2 == contained)
-    {
-        return true;
-    }
-
-    return false;
+    return (contained2 && contained2 == contained);
 }
 
 bool
@@ -4913,7 +4908,7 @@ Slice::Dictionary::uses(const ContainedPtr& contained) const
 {
     {
         ContainedPtr contained2 = ContainedPtr::dynamicCast(_keyType);
-        if(contained2 && contained2 == contained)
+        if (contained2 && contained2 == contained)
         {
             return true;
         }
@@ -4921,7 +4916,7 @@ Slice::Dictionary::uses(const ContainedPtr& contained) const
 
     {
         ContainedPtr contained2 = ContainedPtr::dynamicCast(_valueType);
-        if(contained2 && contained2 == contained)
+        if (contained2 && contained2 == contained)
         {
             return true;
         }
@@ -4971,7 +4966,7 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 {
     {
         ConstructedPtr constructed = ConstructedPtr::dynamicCast(_keyType);
-        if(constructed && dependencies.find(constructed) != dependencies.end())
+        if (constructed && dependencies.find(constructed) != dependencies.end())
         {
             dependencies.insert(constructed);
             constructed->recDependencies(dependencies);
@@ -4980,7 +4975,7 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 
     {
         ConstructedPtr constructed = ConstructedPtr::dynamicCast(_valueType);
-        if(constructed && dependencies.find(constructed) != dependencies.end())
+        if (constructed && dependencies.find(constructed) != dependencies.end())
         {
             dependencies.insert(constructed);
             constructed->recDependencies(dependencies);
@@ -4999,10 +4994,9 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 bool
 Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-    if(bp)
+    if (BuiltinPtr builtin = BuiltinPtr::dynamicCast(type))
     {
-        switch(bp->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindBool:
             case Builtin::KindByte:
@@ -5023,29 +5017,25 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
         }
     }
 
-    EnumPtr ep = EnumPtr::dynamicCast(type);
-    if(ep)
+    if(EnumPtr::dynamicCast(type))
     {
         return true;
     }
 
-    SequencePtr seqp = SequencePtr::dynamicCast(type);
-    if(seqp)
+    if (SequencePtr seq = SequencePtr::dynamicCast(type))
     {
         containsSequence = true;
-        if(legalKeyType(seqp->type(), containsSequence))
+        if (legalKeyType(seq->type(), containsSequence))
         {
             return true;
         }
     }
 
-    StructPtr strp = StructPtr::dynamicCast(type);
-    if(strp)
+    if (StructPtr str = StructPtr::dynamicCast(type))
     {
-        DataMemberList dml = strp->dataMembers();
-        for (DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
+        for (const auto& member : str->dataMembers())
         {
-            if(!legalKeyType((*mem)->type(), containsSequence))
+            if (!legalKeyType(member->type(), containsSequence))
             {
                 return false;
             }
@@ -5105,7 +5095,6 @@ Slice::Enum::createEnumerator(const string& name, int64_t value)
     }
     return p;
 }
-
 
 EnumeratorList
 Slice::Enum::enumerators() const
