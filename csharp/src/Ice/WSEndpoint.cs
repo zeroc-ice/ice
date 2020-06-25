@@ -71,8 +71,8 @@ namespace ZeroC.Ice
             bool compressionFlag,
             string resource)
             : base(communicator,
-                   protocol,
                    transport,
+                   protocol,
                    host,
                    port,
                    sourceAddress,
@@ -83,12 +83,12 @@ namespace ZeroC.Ice
 
         internal WSEndpoint(
             Communicator communicator,
-            Protocol protocol,
             Transport transport,
+            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(communicator, protocol, transport, options, oaEndpoint, endpointString)
+            : base(communicator, transport, protocol, options, oaEndpoint, endpointString)
         {
             if (options.TryGetValue("-r", out string? argument))
             {
@@ -103,8 +103,8 @@ namespace ZeroC.Ice
             }
         }
 
-        internal WSEndpoint(InputStream istr, Protocol protocol, Transport transport)
-            : base(istr, protocol, transport) =>
+        internal WSEndpoint(InputStream istr, Transport transport, Protocol protocol)
+            : base(istr, transport, protocol) =>
             Resource = istr.ReadString();
 
         private protected override IPEndpoint CreateIPEndpoint(
@@ -124,41 +124,17 @@ namespace ZeroC.Ice
                            compressionFlag,
                            Resource);
 
-        internal override ITransceiver CreateTransceiver(string transport, StreamSocket socket, string? adapterName)
+        internal override ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {
             if (adapterName != null)
             {
-                return new WSTransceiver(Communicator, base.CreateTransceiver(transport, socket, adapterName));
+                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName));
             }
             else
             {
-                return new WSTransceiver(Communicator, base.CreateTransceiver(transport, socket, adapterName),
+                return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName),
                     Host, Resource);
             }
         }
-    }
-
-    internal class WSEndpointFactory : IEndpointFactory
-    {
-        private Communicator Communicator { get; }
-
-        public Endpoint Create(
-            Transport transport,
-            Protocol protocol,
-            Dictionary<string, string?> options,
-            bool oaEndpoint,
-            string endpointString)
-        {
-            Debug.Assert(transport == Transport.WS || transport == Transport.WSS);
-            return new WSEndpoint(Communicator, protocol, transport, options, oaEndpoint, endpointString);
-        }
-
-        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport)
-        {
-            Debug.Assert(transport == Transport.WS || transport == Transport.WSS);
-            return new WSEndpoint(istr, protocol, transport);
-        }
-
-        internal WSEndpointFactory(Communicator communicator) => Communicator = communicator;
     }
 }

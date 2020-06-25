@@ -29,9 +29,9 @@ namespace ZeroC.Ice
 
         /// <summary>Reads an endpoint from the given input stream.</summary>
         /// <param name="istr">The input stream to read from.</param>
-        /// <param name="protocol">The protocol of the enclosing proxy.</param>
         /// <param name="transport">The transport of the endpoint.</param>
+        /// <param name="protocol">The protocol of the enclosing proxy.</param>
         /// <returns>Returns the endpoint read from the stream</returns>
-        Endpoint Read(InputStream istr, Protocol protocol, Transport transport);
+        Endpoint Read(InputStream istr, Transport transport, Protocol protocol);
     }
 }

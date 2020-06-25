@@ -237,7 +237,7 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Communicator, TransportName, addr, SourceAddress, McastInterface, McastTtl, ConnectionId);
+            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, McastTtl, ConnectionId);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
@@ -255,33 +255,5 @@ namespace ZeroC.Ice
                             _connect,
                             connectionId,
                             compressionFlag);
-    }
-
-    internal sealed class UdpEndpointFactory : IEndpointFactory
-    {
-        private Communicator _communicator;
-
-        public Endpoint Create(
-            Transport transport,
-            Protocol protocol,
-            Dictionary<string, string?> options,
-            bool oaEndpoint,
-            string endpointString)
-        {
-            Debug.Assert(transport == Transport.UDP); // we register this factory only for UDP
-            if (protocol != Protocol.Ice1)
-            {
-                throw new NotSupportedException("the UDP transport supports only the ice1 protocol");
-            }
-            return new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString);
-        }
-
-        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport)
-        {
-            Debug.Assert(transport == Transport.UDP);
-            return new UdpEndpoint(istr, protocol);
-        }
-
-        internal UdpEndpointFactory(Communicator communicator) => _communicator = communicator;
     }
 }

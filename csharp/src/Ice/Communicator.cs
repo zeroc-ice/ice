@@ -196,6 +196,7 @@ namespace ZeroC.Ice
             ImmutableDictionary<string, string>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
+        private readonly IEndpointFactory _endpointFactory;
         private bool _isShutdown = false;
         private readonly object _mutex = new object();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
@@ -627,11 +628,12 @@ namespace ZeroC.Ice
                     certificateValidationCallback,
                     passwordCallback);
 
-                IceAddEndpointFactory(Transport.TCP, "tcp", new TcpEndpointFactory(this));
-                IceAddEndpointFactory(Transport.SSL, "ssl", new TcpEndpointFactory(this));
-                IceAddEndpointFactory(Transport.UDP, "udp", new UdpEndpointFactory(this));
-                IceAddEndpointFactory(Transport.WS, "ws", new WSEndpointFactory(this));
-                IceAddEndpointFactory(Transport.WSS, "wss", new WSEndpointFactory(this));
+                _endpointFactory = new EndpointFactory(this);
+                IceAddEndpointFactory(Transport.TCP, "tcp", _endpointFactory);
+                IceAddEndpointFactory(Transport.SSL, "ssl", _endpointFactory);
+                IceAddEndpointFactory(Transport.UDP, "udp", _endpointFactory);
+                IceAddEndpointFactory(Transport.WS, "ws", _endpointFactory);
+                IceAddEndpointFactory(Transport.WSS, "wss", _endpointFactory);
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 

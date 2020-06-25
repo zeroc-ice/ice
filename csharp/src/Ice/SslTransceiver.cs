@@ -304,8 +304,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public string TransportName => _delegate.TransportName;
-
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
 
         public override string ToString() => _delegate.ToString()!;

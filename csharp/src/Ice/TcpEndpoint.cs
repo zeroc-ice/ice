@@ -41,10 +41,6 @@ namespace ZeroC.Ice
                     return false;
                 }
 
-                if (Transport != tcpEndpoint.Transport)
-                {
-                    return false;
-                }
                 return base.Equals(tcpEndpoint);
             }
             else
@@ -67,7 +63,6 @@ namespace ZeroC.Ice
                 hash.Add(base.GetHashCode());
                 hash.Add(HasCompressionFlag);
                 hash.Add(Timeout);
-                hash.Add(Transport);
                 int hashCode = hash.ToHashCode();
                 if (hashCode == 0) // 0 is not a valid value as it means "not initialized".
                 {
@@ -115,8 +110,8 @@ namespace ZeroC.Ice
 
         internal TcpEndpoint(
             Communicator communicator,
-            Protocol protocol,
             Transport transport,
+            Protocol protocol,
             string host,
             int port,
             IPAddress? sourceAddress,
@@ -130,7 +125,7 @@ namespace ZeroC.Ice
             Timeout = timeout;
         }
 
-        internal TcpEndpoint(InputStream istr, Protocol protocol, Transport transport)
+        internal TcpEndpoint(InputStream istr, Transport transport, Protocol protocol)
             : base(istr, protocol)
         {
             Transport = transport;
@@ -140,8 +135,8 @@ namespace ZeroC.Ice
 
         internal TcpEndpoint(
             Communicator communicator,
-            Protocol protocol,
             Transport transport,
+            Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
@@ -209,8 +204,8 @@ namespace ZeroC.Ice
             bool compressionFlag,
             int timeout) =>
             new TcpEndpoint(Communicator,
-                            Protocol,
                             Transport,
+                            Protocol,
                             host,
                             port,
                             SourceAddress,
@@ -218,46 +213,19 @@ namespace ZeroC.Ice
                             connectionId,
                             compressionFlag);
 
-        internal virtual ITransceiver CreateTransceiver(
-            string transport,
-            StreamSocket socket,
-            string? adapterName)
+        internal virtual ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {
-            if (transport == "ssl" || transport == "wss")
+            if (IsSecure)
             {
                 return new SslTransceiver(Communicator,
-                                          new TcpTransceiver(transport, socket),
+                                          new TcpTransceiver(socket),
                                           adapterName ?? Host,
                                           adapterName != null);
             }
             else
             {
-                return new TcpTransceiver(transport, socket);
+                return new TcpTransceiver(socket);
             }
         }
-    }
-
-    internal sealed class TcpEndpointFactory : IEndpointFactory
-    {
-        private readonly Communicator _communicator;
-
-        public Endpoint Create(
-            Transport transport,
-            Protocol protocol,
-            Dictionary<string, string?> options,
-            bool oaEndpoint,
-            string endpointString)
-        {
-            Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
-            return new TcpEndpoint(_communicator, protocol, transport, options, oaEndpoint, endpointString);
-        }
-
-        public Endpoint Read(InputStream istr, Protocol protocol, Transport transport)
-        {
-            Debug.Assert(transport == Transport.TCP || transport == Transport.SSL);
-            return new TcpEndpoint(istr, protocol, transport);
-        }
-
-        internal TcpEndpointFactory(Communicator communicator) => _communicator = communicator;
     }
 }
