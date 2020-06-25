@@ -132,7 +132,7 @@ private:
 
         PackageVisitor(const std::string&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
+        bool visitModuleStart(const ModulePtr&) override;
     };
 
     class TypesVisitor : public JavaVisitor
@@ -141,18 +141,18 @@ private:
 
         TypesVisitor(const std::string&);
 
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitExceptionEnd(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitStructEnd(const StructPtr&);
-        virtual void visitDataMember(const DataMemberPtr&);
-        virtual void visitEnum(const EnumPtr&);
-        virtual void visitConst(const ConstPtr&);
+        bool visitClassDefStart(const ClassDefPtr&) override;
+        void visitClassDefEnd(const ClassDefPtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
+        bool visitExceptionStart(const ExceptionPtr&) override;
+        void visitExceptionEnd(const ExceptionPtr&) override;
+        bool visitStructStart(const StructPtr&) override;
+        void visitStructEnd(const StructPtr&) override;
+        void visitDataMember(const DataMemberPtr&) override;
+        void visitEnum(const EnumPtr&) override;
+        void visitConst(const ConstPtr&) override;
     };
 
     class CompactIdVisitor : public JavaVisitor
@@ -161,7 +161,7 @@ private:
 
         CompactIdVisitor(const std::string&);
 
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        bool visitClassDefStart(const ClassDefPtr&) override;
     };
 
     class HelperVisitor : public JavaVisitor
@@ -170,8 +170,8 @@ private:
 
         HelperVisitor(const std::string&);
 
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
+        void visitSequence(const SequencePtr&) override;
+        void visitDictionary(const DictionaryPtr&) override;
     };
 
     class ProxyVisitor : public JavaVisitor
@@ -180,9 +180,9 @@ private:
 
         ProxyVisitor(const std::string&);
 
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
     };
 
     class ImplVisitor : public JavaVisitor
@@ -191,7 +191,7 @@ private:
 
         ImplVisitor(const std::string&);
 
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
 
     protected:
 
