@@ -16,11 +16,11 @@ namespace ZeroC.Ice
         /// <returns>The stringified TimeSpan.</returns>
         public static string ToPropertyString(this TimeSpan ts)
         {
-            if (ts.Equals(TimeSpan.Zero))
+            if (ts == TimeSpan.Zero)
             {
                 return "0ms";
             }
-            else if (ts.Equals(Timeout.InfiniteTimeSpan))
+            else if (ts == Timeout.InfiniteTimeSpan)
             {
                 return "infinite";
             }
