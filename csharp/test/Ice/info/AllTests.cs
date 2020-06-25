@@ -35,15 +35,10 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint.Timeout == 1200);
                 TestHelper.Assert(tcpEndpoint.HasCompressionFlag);
                 TestHelper.Assert(!tcpEndpoint.IsDatagram);
-
-                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP && !tcpEndpoint.IsSecure ||
-                        tcpEndpoint.Transport == Transport.SSL && tcpEndpoint.IsSecure ||
-                        tcpEndpoint.Transport == Transport.WS && !tcpEndpoint.IsSecure ||
-                        tcpEndpoint.Transport == Transport.WSS && tcpEndpoint.IsSecure);
-                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP && endpoint is TcpEndpoint ||
-                        tcpEndpoint.Transport == Transport.SSL && endpoint is SslEndpoint ||
-                        tcpEndpoint.Transport == Transport.WS && endpoint is WSEndpoint ||
-                        tcpEndpoint.Transport == Transport.WSS && endpoint is WSEndpoint);
+                TestHelper.Assert((tcpEndpoint.Transport == Transport.TCP && !endpoint.IsSecure) ||
+                                  (tcpEndpoint.Transport == Transport.SSL && endpoint.IsSecure) ||
+                                  (tcpEndpoint.Transport == Transport.WS && !endpoint.IsSecure) ||
+                                  (tcpEndpoint.Transport == Transport.WSS && endpoint.IsSecure));
 
                 UdpEndpoint udpEndpoint = (UdpEndpoint)endps[1];
                 TestHelper.Assert(udpEndpoint.Host.Equals("udphost"));
@@ -79,11 +74,10 @@ namespace ZeroC.Ice.Test.Info
 
                 var tcpEndpoint = endpoints[0] as TcpEndpoint;
                 TestHelper.Assert(tcpEndpoint != null);
-                TestHelper.Assert(
-                        tcpEndpoint.Transport == Transport.TCP ||
-                        tcpEndpoint.Transport == Transport.SSL ||
-                        tcpEndpoint.Transport == Transport.WS ||
-                        tcpEndpoint.Transport == Transport.WSS);
+                TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP ||
+                                  tcpEndpoint.Transport == Transport.SSL ||
+                                  tcpEndpoint.Transport == Transport.WS ||
+                                  tcpEndpoint.Transport == Transport.WSS);
 
                 TestHelper.Assert(tcpEndpoint.Host.Equals(host));
                 TestHelper.Assert(tcpEndpoint.Port > 0);
