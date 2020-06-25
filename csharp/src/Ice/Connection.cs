@@ -127,8 +127,8 @@ namespace ZeroC.Ice
         private int _dispatchCount;
         private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
+        private readonly int _frameSizeMax;
         private Action<Connection>? _heartbeatCallback;
-        private readonly int _messageSizeMax;
         private IACMMonitor? _monitor;
         private readonly object _mutex = new object();
         private int _nextRequestId;
@@ -210,7 +210,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Sends a heartbeat message.</summary>
+        /// <summary>Sends a heartbeat frame.</summary>
         public void Heartbeat()
         {
             try
@@ -224,7 +224,7 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Sends an asynchronous heartbeat message.</summary>
+        /// <summary>Sends an asynchronous heartbeat frame.</summary>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public async ValueTask HeartbeatAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
@@ -374,7 +374,7 @@ namespace ZeroC.Ice
                 _acmLastActivity = -1;
             }
             _nextRequestId = 1;
-            _messageSizeMax = adapter != null ? adapter.MessageSizeMax : _communicator.MessageSizeMax;
+            _frameSizeMax = adapter != null ? adapter.FrameSizeMax : _communicator.FrameSizeMax;
             _dispatchCount = 0;
             _state = State.NotInitialized;
 
@@ -524,7 +524,7 @@ namespace ZeroC.Ice
                 Debug.Assert(_state > State.NotInitialized);
                 Debug.Assert(_state < State.Closing);
 
-                // Ensure the message isn't bigger than what we can send with the transport.
+                // Ensure the frame isn't bigger than what we can send with the transport.
                 // TODO: remove?
                 Transceiver.CheckSendSize(request.Size + Ice1Definitions.HeaderSize + 4);
 
@@ -650,11 +650,11 @@ namespace ZeroC.Ice
                         }
 
                         Ice1Definitions.CheckHeader(readBuffer.AsSpan(0, 8));
-                        var messageType = (Ice1Definitions.FrameType)readBuffer[8];
-                        if (messageType != Ice1Definitions.FrameType.ValidateConnection)
+                        var frameType = (Ice1Definitions.FrameType)readBuffer[8];
+                        if (frameType != Ice1Definitions.FrameType.ValidateConnection)
                         {
-                            throw new InvalidDataException(@$"received ice1 frame with message type `{messageType
-                                }' before receiving the validate connection message");
+                            throw new InvalidDataException(@$"received ice1 frame with frame type `{frameType
+                                }' before receiving the validate connection frame");
                         }
 
                         int size = InputStream.ReadInt(readBuffer.AsSpan(10, 4));
@@ -696,7 +696,7 @@ namespace ZeroC.Ice
                             s.Append(_connector != null ? "send" : "receive");
                             s.Append(" ");
                             s.Append(Endpoint.TransportName);
-                            s.Append(" messages\n");
+                            s.Append(" datagrams\n");
                             s.Append(Transceiver.ToDetailedString());
                         }
                         else
@@ -899,13 +899,13 @@ namespace ZeroC.Ice
                 }
 
                 // The magic and version fields have already been checked.
-                var messageType = (Ice1Definitions.FrameType)readBuffer[8];
+                var frameType = (Ice1Definitions.FrameType)readBuffer[8];
                 byte compressionStatus = readBuffer[9];
                 if (compressionStatus == 2)
                 {
                     if (BZip2.IsLoaded)
                     {
-                        readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, _messageSizeMax);
+                        readBuffer = BZip2.Decompress(readBuffer, Ice1Definitions.HeaderSize, _frameSizeMax);
                     }
                     else
                     {
@@ -913,7 +913,7 @@ namespace ZeroC.Ice
                     }
                 }
 
-                switch (messageType)
+                switch (frameType)
                 {
                     case Ice1Definitions.FrameType.CloseConnection:
                     {
@@ -923,7 +923,7 @@ namespace ZeroC.Ice
                             if (_warn)
                             {
                                 _communicator.Logger.Warning(
-                                    $"ignoring close connection message for datagram connection:\n{this}");
+                                    $"ignoring close connection frame for datagram connection:\n{this}");
                             }
                         }
                         else
@@ -1050,11 +1050,11 @@ namespace ZeroC.Ice
                     default:
                     {
                         ProtocolTrace.Trace(
-                            "received unknown message\n(invalid, closing connection)",
+                            "received unknown frame\n(invalid, closing connection)",
                             _communicator,
                             readBuffer);
                         throw new InvalidDataException(
-                            $"received ice1 frame with unknown message type `{messageType}'");
+                            $"received ice1 frame with unknown frame type `{frameType}'");
                     }
                 }
             }
@@ -1213,7 +1213,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received ice1 frame with only {size} bytes");
             }
 
-            if (size > _messageSizeMax)
+            if (size > _frameSizeMax)
             {
                 throw new InvalidDataException($"frame with {size} bytes exceeds Ice.MessageSizeMax value");
             }
@@ -1232,13 +1232,13 @@ namespace ZeroC.Ice
                     _acmLastActivity = Time.CurrentMonotonicTimeMillis();
                 }
 
-                // Connection is validated on first message. This is only used by setState() to check whether or
+                // Connection is validated on the first frame. This is only used by setState() to check whether or
                 // not we can print a connection warning (a client might close the connection forcefully if the
                 // connection isn't validated, we don't want to print a warning in this case).
                 _validated = true;
             }
 
-            // Read the remainder of the message if needed
+            // Read the remainder of the frame if needed
             if (!Endpoint.IsDatagram)
             {
                 if (size > readBuffer.Array!.Length)

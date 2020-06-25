@@ -15,7 +15,7 @@ namespace ZeroC.Ice
             TraceRequest(
                 "sending request",
                 communicator,
-                header[8], // Message Type
+                header[8], // Frame type
                 header[9], // Compression Status
                 InputStream.ReadInt(header.Slice(10, 4)), // Request size
                 InputStream.ReadInt(header.Slice(14, 4)), // Request-Id
@@ -31,7 +31,7 @@ namespace ZeroC.Ice
             TraceResponse(
                 "sending response",
                 communicator,
-                header[8], // Message Type
+                header[8], // Frame type
                 header[9], // Compression Status
                 InputStream.ReadInt(header.Slice(10, 4)), // Request size
                 InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
@@ -43,7 +43,7 @@ namespace ZeroC.Ice
             TraceRequest(
                 "received request",
                 communicator,
-                header[8], // Message Type
+                header[8], // Frame type
                 header[9], // Compression Status
                 InputStream.ReadInt(header.Slice(10, 4)), // Request size
                 InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
@@ -59,19 +59,19 @@ namespace ZeroC.Ice
             TraceResponse(
                 "received response",
                 communicator,
-                header[8], // Message Type
+                header[8], // Frame type
                 header[9], // Compression Status
                 InputStream.ReadInt(header.Slice(10, 4)), // Request size
                 InputStream.ReadInt(header.Slice(14, 4)), // Request-Id,
                 frame.ReplyStatus,
                 frame.Encoding);
 
-        internal static void TraceCollocatedFrame(Communicator communicator, byte messageType, int requestId,
+        internal static void TraceCollocatedFrame(Communicator communicator, byte frameType, int requestId,
             OutgoingRequestFrame frame) =>
             TraceRequest(
                 "sending request",
                 communicator,
-                messageType,
+                frameType,
                 0,
                 frame.Size + Ice1Definitions.HeaderSize + 4,
                 requestId,
@@ -82,12 +82,12 @@ namespace ZeroC.Ice
                 frame.Context,
                 frame.Encoding);
 
-        internal static void TraceCollocatedFrame(Communicator communicator, byte messageType, int requestId,
+        internal static void TraceCollocatedFrame(Communicator communicator, byte frameType, int requestId,
             IncomingResponseFrame frame) =>
             TraceResponse(
                 "received response",
                 communicator,
-                messageType,
+                frameType,
                 0,
                 frame.Size + Ice1Definitions.HeaderSize + 4,
                 requestId,
@@ -95,9 +95,9 @@ namespace ZeroC.Ice
                 frame.Encoding);
 
         private static void TraceRequest(
-            string traceMessagePrefix,
+            string traceFramePrefix,
             Communicator communicator,
-            byte messageType,
+            byte frameType,
             byte compress,
             int size,
             int requestId,
@@ -111,8 +111,8 @@ namespace ZeroC.Ice
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 var s = new StringBuilder();
-                s.Append(traceMessagePrefix);
-                PrintHeader(messageType, compress, size, s);
+                s.Append(traceFramePrefix);
+                PrintHeader(frameType, compress, size, s);
                 PrintRequestId(requestId, s);
 
                 ToStringMode toStringMode = communicator.ToStringMode;
@@ -156,9 +156,9 @@ namespace ZeroC.Ice
         }
 
         private static void TraceResponse(
-            string traceMessagePrefix,
+            string traceFramePrefix,
             Communicator communicator,
-            byte messageType,
+            byte frameType,
             byte compress,
             int size,
             int requestId,
@@ -168,8 +168,8 @@ namespace ZeroC.Ice
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 var s = new StringBuilder();
-                s.Append(traceMessagePrefix);
-                PrintHeader(messageType, compress, size, s);
+                s.Append(traceFramePrefix);
+                PrintHeader(frameType, compress, size, s);
                 PrintRequestId(requestId, s);
                 s.Append("\nreply status = ");
                 s.Append(replyStatus);
@@ -185,22 +185,22 @@ namespace ZeroC.Ice
         internal static void TraceReceived(Communicator communicator, ReadOnlySpan<byte> header) =>
             Trace("received ", communicator, header);
 
-        internal static void Trace(string traceMessagePrefix, Communicator communicator, ReadOnlySpan<byte> header)
+        internal static void Trace(string traceFramePrefix, Communicator communicator, ReadOnlySpan<byte> header)
         {
             if (communicator.TraceLevels.Protocol >= 1)
             {
                 var s = new StringBuilder();
-                s.Append(traceMessagePrefix);
+                s.Append(traceFramePrefix);
                 s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)header[8]));
                 PrintHeader(header[8], header[9], InputStream.ReadInt(header.Slice(10, 4)), s);
                 communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
             }
         }
 
-        private static void PrintHeader(byte messageType, byte compress, int size, StringBuilder s)
+        private static void PrintHeader(byte frameType, byte compress, int size, StringBuilder s)
         {
-            s.Append("\nmessage type = ");
-            s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)messageType));
+            s.Append("\nframe type = ");
+            s.Append(GetFrameTypeAsString((Ice1Definitions.FrameType)frameType));
 
             s.Append("\ncompression status = ");
             s.Append(compress);
@@ -212,7 +212,7 @@ namespace ZeroC.Ice
                 _ => " (unknown)"
             });
 
-            s.Append("\nmessage size = ");
+            s.Append("\nframe size = ");
             s.Append(size);
         }
 

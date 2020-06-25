@@ -50,11 +50,11 @@ namespace ZeroC.Ice
             Response
         }
 
-        /// <summary>Check if the buffer contains a complete HTTP message, if the buffer contains
-        /// a complete HTTP message it returns the end index of the HTTP message, otherwise
+        /// <summary>Check if the buffer contains a complete HTTP frame, if the buffer contains
+        /// a complete HTTP frame it returns the end index of the HTTP frame, otherwise
         /// it returns -1.</summary>
-        /// <param name="buffer">The buffer to check for HTTP messages.</param>
-        /// <returns>The last index of the HTTP message if the buffer contains a complete HTTP message,
+        /// <param name="buffer">The buffer to check for HTTP frames.</param>
+        /// <returns>The last index of the HTTP frame if the buffer contains a complete HTTP frame,
         /// otherwise -1.</returns>
         internal static int IsCompleteMessage(ReadOnlySpan<byte> buffer)
         {

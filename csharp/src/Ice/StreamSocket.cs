@@ -35,7 +35,7 @@ namespace ZeroC.Ice
             // the data in several chunks. Otherwise, we would only be
             // notified when all the data is received/written. The
             // connection timeout could easily be triggered when
-            // receiving/sending large messages.
+            // receiving/sending large frames.
             //
             _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd));
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));
@@ -71,7 +71,7 @@ namespace ZeroC.Ice
             // the data in several chunks. Otherwise, we would only be
             // notified when all the data is received/written. The
             // connection timeout could easily be triggered when
-            // receiving/sending large messages.
+            // receiving/sending large frames.
             //
             _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(_fd));
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(_fd));

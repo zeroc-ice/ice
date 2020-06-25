@@ -1350,7 +1350,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<IRequestHandler> GetRequestHandlerAsync(CancellationToken cancel = default)
+        internal async ValueTask<IRequestHandler> GetRequestHandlerAsync(CancellationToken cancel)
         {
             IRequestHandler? handler = _requestHandler;
             if (handler == null)

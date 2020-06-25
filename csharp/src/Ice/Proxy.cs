@@ -273,7 +273,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync();
+                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync(cancel: default);
                 if (task.IsCompleted)
                 {
                     return (task.Result as ConnectionRequestHandler)?.GetConnection();

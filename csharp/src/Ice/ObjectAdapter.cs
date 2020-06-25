@@ -39,7 +39,7 @@ namespace ZeroC.Ice
         /// <summary>Returns the TaskScheduler used to dispatch requests.</summary>
         public TaskScheduler? TaskScheduler { get; }
 
-        internal int MessageSizeMax { get; }
+        internal int FrameSizeMax { get; }
 
         private static readonly string[] _suffixes =
         {
@@ -803,15 +803,15 @@ namespace ZeroC.Ice
 
             _acm = new ACMConfig(Communicator, Communicator.Logger, $"{Name}.ACM", Communicator.ServerACM);
             {
-                int defaultMessageSizeMax = Communicator.MessageSizeMax / 1024;
-                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultMessageSizeMax;
+                int defaultFrameSizeMax = Communicator.FrameSizeMax / 1024;
+                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultFrameSizeMax;
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
-                    MessageSizeMax = 0x7fffffff;
+                    FrameSizeMax = 0x7fffffff;
                 }
                 else
                 {
-                    MessageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                    FrameSizeMax = num * 1024; // Property is in kilobytes, FrameSizeMax in bytes
                 }
             }
 
