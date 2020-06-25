@@ -289,10 +289,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                         var tcpConnection = (TcpConnection)server.GetConnection()!;
                         TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                        TestHelper.Assert(tcpConnection.Certificates!.Length == 2);
-
-                        TestHelper.Assert(caCert.Equals(tcpConnection.Certificates[1]));
-                        TestHelper.Assert(serverCert.Equals(tcpConnection.Certificates[0]));
+                        TestHelper.Assert(serverCert.Equals(tcpConnection.RemoteCertificate));
                     }
                     catch (Exception ex)
                     {
@@ -921,7 +918,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                             {
                                 var tcpConnection = (TcpConnection)server!.GetConnection()!;
                                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                                TestHelper.Assert(tcpConnection.Certificates!.Length == 2);
                             }
                             catch (Exception ex)
                             {
@@ -986,7 +982,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 {
                                     var tcpConnection = (TcpConnection)server!.GetConnection()!;
                                     TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                                    TestHelper.Assert(tcpConnection.Certificates!.Length == 3);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1030,7 +1025,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 {
                                     var tcpConnection = (TcpConnection)server!.GetConnection()!;
                                     TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                                    TestHelper.Assert(tcpConnection.Certificates!.Length == 4);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1126,8 +1120,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         TestHelper.Assert(server != null);
                         var tcpConnection = (TcpConnection)server.GetConnection()!;
                         TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                        TestHelper.Assert(tcpConnection.Cipher != null);
-                        server.checkCipher(tcpConnection.Cipher);
+                        server.checkCipher(tcpConnection.NegotiatedCipherSuite!.ToString()!);
                     }
                     catch (Exception ex)
                     {
