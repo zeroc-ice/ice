@@ -929,6 +929,8 @@ protected:
 
     Struct(const ContainerPtr&, const std::string&);
     friend class Container;
+
+    std::list<DataMemberPtr> _dataMembers;
 };
 
 // ----------------------------------------------------------------------

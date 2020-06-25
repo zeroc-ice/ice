@@ -4558,115 +4558,85 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
-        if(p)
+        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                member->updateIncludeLevel();
+                return member;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "member `" + name + "' differs only in capitalization from ";
-            msg += "member `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("member `" + name + "' differs only in capitalization from member `"
+                         + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of struct member `" + name + "'";
-            _unit->error(msg);
+            _unit->error("redefinition of struct member `" + name + "'");
             return 0;
         }
     }
 
-    //
-    // Structures cannot contain themselves.
-    //
-    if(type.get() == this)
+    // Structs cannot contain themselves.
+    if (type.get() == this)
     {
-        string msg = "struct `";
-        msg += this->name();
-        msg += "' cannot contain itself";
-        _unit->error(msg);
+        _unit->error("struct `" + this->name() + "' cannot contain itself");
         return 0;
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
+    SyntaxTreeBasePtr dvt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
+    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
-        if(!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, dvt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dvt = 0;
             dv.clear();
             dl.clear();
         }
     }
 
-    if(tagged)
+    if (tagged)
     {
-        //
         // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for (DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& member : _dataMembers)
         {
-            if((*q)->tagged() && tag == (*q)->tag())
+            if (member->tagged() && tag == member->tag())
             {
-                string msg = "tag for data member `" + name + "' is already in use";
-                _unit->error(msg);
-                break;
+                _unit->error("tag for data member `" + name + "' is already in use");
             }
         }
     }
 
-    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
-    _contents.push_back(p);
+    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    _dataMembers.push_back(p);
     return p;
 }
 
 DataMemberList
 Slice::Struct::dataMembers() const
 {
-    DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _dataMembers;
 }
 
 DataMemberList
 Slice::Struct::classDataMembers() const
 {
     DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        TypePtr type = unwrapIfOptional(member->type());
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
         {
-            TypePtr memberType = unwrapIfOptional(q->type());
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(memberType))
-            {
-                result.push_back(q);
-            }
+            result.push_back(member);
         }
     }
     return result;
@@ -4687,16 +4657,11 @@ Slice::Struct::uses(const ContainedPtr&) const
 bool
 Slice::Struct::usesClasses() const
 {
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        if (member->type()->usesClasses())
         {
-            TypePtr t = q->type();
-            if(t->usesClasses())
-            {
-                return true;
-            }
+            return true;
         }
     }
     return false;
@@ -4705,14 +4670,11 @@ Slice::Struct::usesClasses() const
 size_t
 Slice::Struct::minWireSize() const
 {
-    //
     // At least the sum of the minimum member sizes.
-    //
     size_t sz = 0;
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        sz += (*i)->type()->minWireSize();
+        sz += member->type()->minWireSize();
     }
     return sz;
 }
@@ -4726,10 +4688,9 @@ Slice::Struct::getTagFormat() const
 bool
 Slice::Struct::isVariableLength() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->type()->isVariableLength())
+        if (member->type()->isVariableLength())
         {
             return true;
         }
@@ -4740,10 +4701,9 @@ Slice::Struct::isVariableLength() const
 bool
 Slice::Struct::hasDefaultValues() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->defaultValueType())
+        if (member->defaultValueType())
         {
             return true;
         }
@@ -4762,7 +4722,14 @@ Slice::Struct::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitStructStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& member : _dataMembers)
+        {
+            if (all || member->includeLevel() == 0)
+            {
+                member->visit(visitor, all);
+            }
+        }
+
         visitor->visitStructEnd(this);
     }
 }
@@ -5584,21 +5551,17 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
         if (matches.front()->name() != name)
         {
-            string msg = "parameter `" + name + "' differs only in capitalization from ";
-            msg += "parameter `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("parameter `" + name + "' differs only in capitalization from parameter `"
+                         + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of parameter `" + name + "'";
-            _unit->error(msg);
+            _unit->error("redefinition of parameter `" + name + "'");
             return 0;
         }
     }
 
-    //
     // Check that in parameters don't follow out parameters.
-    //
     if (!_outParameters.empty() && !isOutParam)
     {
         _unit->error("`" + name + "': in parameters cannot follow out parameters");
@@ -5606,9 +5569,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
 
     if (tagged)
     {
-        //
         // Check for a duplicate tag.
-        //
         const string msg = "tag for parameter `" + name + "' is already in use";
         if (_returnIsTagged && tag == _returnTag)
         {
@@ -5684,17 +5645,13 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
 {
     _throws = el;
 
-    //
     // Check that no exception occurs more than once in the throws clause.
-    //
     ExceptionList uniqueExceptions = el;
     uniqueExceptions.sort();
     uniqueExceptions.unique();
     if (uniqueExceptions.size() != el.size())
     {
-        //
         // At least one exception appears twice.
-        //
         ExceptionList tmp = el;
         tmp.sort();
         ExceptionList duplicates;
