@@ -20,7 +20,7 @@ namespace ZeroC.Ice
 
         public Connection? GetConnection() => null;
 
-        public ValueTask<Task<IncomingResponseFrame>?> SendRequestAsync(
+        public ValueTask<Task<IncomingResponseFrame>> SendRequestAsync(
             OutgoingRequestFrame outgoingRequestFrame,
             bool oneway,
             bool synchronous,
@@ -64,13 +64,13 @@ namespace ZeroC.Ice
                 }
             }
 
-            Task<IncomingResponseFrame?> task;
+            Task<OutgoingResponseFrame> task;
             if (_adapter.TaskScheduler != null || !synchronous || oneway || _reference.InvocationTimeout > 0)
             {
                 // Don't invoke from the user thread if async or invocation timeout is set. We also don't dispatch
                 // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
                 // request returns as soon as it's sent over the transport.
-                task = Task.Factory.StartNew(() => InvokeAllAsync(outgoingRequestFrame, requestId, cancel),
+                task = Task.Factory.StartNew(() => DispatchAsync(outgoingRequestFrame, requestId, cancel),
                                              cancel,
                                              TaskCreationOptions.None,
                                              _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
@@ -78,37 +78,40 @@ namespace ZeroC.Ice
                 if (oneway)
                 {
                     childObserver?.Detach();
-                    return default;
+                    return new ValueTask<Task<IncomingResponseFrame>>(
+                        IncomingResponseFrame.CompletedTaskWithVoidReturnValue());
                 }
             }
             else // Optimization: directly call invokeAll
             {
                 Debug.Assert(!oneway);
-                task = InvokeAllAsync(outgoingRequestFrame, requestId, cancel);
+                task = DispatchAsync(outgoingRequestFrame, requestId, cancel);
             }
-            return new ValueTask<Task<IncomingResponseFrame>?>(WaitForResponseAsync(task, childObserver, cancel));
+            return new ValueTask<Task<IncomingResponseFrame>>(WaitForResponseAsync(task, childObserver, cancel));
 
-            static async Task<IncomingResponseFrame> WaitForResponseAsync(
-                Task<IncomingResponseFrame?> task,
+            async Task<IncomingResponseFrame> WaitForResponseAsync(
+                Task<OutgoingResponseFrame> task,
                 IChildInvocationObserver? observer,
                 CancellationToken cancel)
             {
                 try
                 {
-                    IncomingResponseFrame? incomingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
-                    if (incomingResponseFrame != null)
+                    OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
+
+                    var incomingResponseFrame = new IncomingResponseFrame(
+                        _adapter.Communicator,
+                        VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
+
+                    if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                     {
-                        observer?.Reply(incomingResponseFrame.Size);
-                        return incomingResponseFrame;
+                        ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
+                                                           (byte)Ice1Definitions.FrameType.Reply,
+                                                           requestId,
+                                                           incomingResponseFrame);
                     }
-                    else
-                    {
-                        // WaitForResponseAsync is only called for twoway invocations and InvokeAllAsync only
-                        // returns null for oneway invocations so we should never get a null incoming response
-                        // frame here.
-                        Debug.Assert(false);
-                        return null!;
-                    }
+
+                    observer?.Reply(incomingResponseFrame.Size);
+                    return incomingResponseFrame;
                 }
                 catch (Exception ex)
                 {
@@ -129,7 +132,7 @@ namespace ZeroC.Ice
             _requestId = 0;
         }
 
-        private async Task<IncomingResponseFrame?> InvokeAllAsync(
+        private async Task<OutgoingResponseFrame> DispatchAsync(
             OutgoingRequestFrame outgoingRequest,
             int requestId,
             CancellationToken cancel)
@@ -167,48 +170,33 @@ namespace ZeroC.Ice
                         // We don't cancel the await here if the request is canceled. The asynchronous dispatch is
                         // still going and we want to make sure the observer reports when the dispatch terminates.
                         outgoingResponseFrame = await vt.ConfigureAwait(false);
+                        dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
                 catch (Exception ex)
                 {
+                    RemoteException actualEx;
+                    if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
+                    {
+                        actualEx = remoteEx;
+                    }
+                    else
+                    {
+                        actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
+                    }
+
+                    Incoming.ReportException(actualEx, dispatchObserver, current);
+
                     if (requestId != 0)
                     {
-                        RemoteException actualEx;
-                        if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
-                        {
-                            actualEx = remoteEx;
-                        }
-                        else
-                        {
-                            actualEx = new UnhandledException(current.Identity, current.Facet, current.Operation, ex);
-                        }
-
-                        Incoming.ReportException(actualEx, dispatchObserver, current);
                         outgoingResponseFrame = new OutgoingResponseFrame(current, actualEx);
+                        dispatchObserver?.Reply(outgoingResponseFrame.Size);
                     }
                 }
 
-                if (outgoingResponseFrame != null)
-                {
-                    dispatchObserver?.Reply(outgoingResponseFrame.Size);
-
-                    var incomingResponseFrame = new IncomingResponseFrame(
-                        _adapter.Communicator,
-                        VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
-
-                    if (_adapter.Communicator.TraceLevels.Protocol >= 1)
-                    {
-                        ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
-                                                           (byte)Ice1Definitions.FrameType.Reply,
-                                                           requestId,
-                                                           incomingResponseFrame);
-                    }
-                    return incomingResponseFrame;
-                }
-                else
-                {
-                    return null;
-                }
+                // TODO: avoid creating a new response frame all the time for oneway, especially since it's not used
+                // anyway since the caller doesn't use it.
+                return outgoingResponseFrame ?? OutgoingResponseFrame.WithVoidReturnValue(current);
             }
             finally
             {

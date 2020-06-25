@@ -439,7 +439,7 @@ namespace ZeroC.Ice
                             handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
-                            Task<IncomingResponseFrame>? responseTask =
+                            Task<IncomingResponseFrame> responseTask =
                                 await handler!.SendRequestAsync(request,
                                                                 oneway,
                                                                 synchronous,
@@ -455,43 +455,33 @@ namespace ZeroC.Ice
                                 _ = Task.Run(() => progress.Report(false));
                             }
 
-                            Debug.Assert((oneway && responseTask == null) || (!oneway && responseTask != null));
-
-                            // If there's a response task, wait for the response
-                            if (responseTask != null)
+                            // Wait for the response
+                            IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
+                            switch (response.ReplyStatus)
                             {
-                                IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
-                                switch (response.ReplyStatus)
+                                case ReplyStatus.OK:
                                 {
-                                    case ReplyStatus.OK:
-                                    {
-                                        break;
-                                    }
-                                    case ReplyStatus.UserException:
-                                    {
-                                        observer?.RemoteException();
-                                        break;
-                                    }
-                                    case ReplyStatus.ObjectNotExistException:
-                                    case ReplyStatus.FacetNotExistException:
-                                    case ReplyStatus.OperationNotExistException:
-                                    {
-                                        throw response.ReadDispatchException();
-                                    }
-                                    case ReplyStatus.UnknownException:
-                                    case ReplyStatus.UnknownLocalException:
-                                    case ReplyStatus.UnknownUserException:
-                                    {
-                                        throw response.ReadUnhandledException();
-                                    }
+                                    break;
                                 }
-                                return response;
+                                case ReplyStatus.UserException:
+                                {
+                                    observer?.RemoteException();
+                                    break;
+                                }
+                                case ReplyStatus.ObjectNotExistException:
+                                case ReplyStatus.FacetNotExistException:
+                                case ReplyStatus.OperationNotExistException:
+                                {
+                                    throw response.ReadDispatchException();
+                                }
+                                case ReplyStatus.UnknownException:
+                                case ReplyStatus.UnknownLocalException:
+                                case ReplyStatus.UnknownUserException:
+                                {
+                                    throw response.ReadUnhandledException();
+                                }
                             }
-                            else
-                            {
-                                return new IncomingResponseFrame(proxy.Communicator,
-                                                                 Ice1Definitions.EmptyResponsePayload);
-                            }
+                            return response;
                         }
                         catch (RetryException)
                         {
@@ -515,8 +505,10 @@ namespace ZeroC.Ice
 
                             // TODO: revisit retry logic
                             // We only retry after failing with a DispatchException or a local exception.
-                            int delay = reference.CheckRetryAfterException(ex, sent, request.IsIdempotent,
-                                ref retryCount);
+                            int delay = reference.CheckRetryAfterException(ex,
+                                                                           sent,
+                                                                           request.IsIdempotent,
+                                                                           ref retryCount);
                             if (delay > 0)
                             {
                                 // The delay task can be cancelled either by the user code using the provided

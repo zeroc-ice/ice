@@ -5,12 +5,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
+        private static readonly Task<IncomingResponseFrame> _ice1VoidReturnValueTask = Task.FromResult(
+            new IncomingResponseFrame(null, Ice1Definitions.EmptyResponsePayload));
+
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
 
@@ -27,7 +31,11 @@ namespace ZeroC.Ice
         /// <summary>The frame byte count.</summary>
         public int Size => Payload.Count;
 
-        private readonly Communicator _communicator;
+        private readonly Communicator? _communicator;
+
+        // TODO: provide the protocol to allow return different frames based on the protocol
+        public static IncomingResponseFrame WithVoidReturnValue() => _ice1VoidReturnValueTask.Result;
+        public static Task<IncomingResponseFrame> CompletedTaskWithVoidReturnValue() => _ice1VoidReturnValueTask;
 
         /// <summary>Reads the return value carried by this response frame. If the response frame carries
         /// a failure, reads and throws this exception.</summary>
@@ -38,7 +46,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                return InputStream.ReadEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1), reader);
+                return InputStream.ReadEncapsulation(_communicator!, Ice1Definitions.Encoding, Payload.Slice(1), reader);
             }
             else
             {
@@ -52,7 +60,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                InputStream.ReadEmptyEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1));
+                InputStream.ReadEmptyEncapsulation(_communicator!, Ice1Definitions.Encoding, Payload.Slice(1));
             }
             else
             {
@@ -63,7 +71,7 @@ namespace ZeroC.Ice
         /// <summary>Creates a new IncomingResponse Frame</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="payload">The frame data as an array segment.</param>
-        public IncomingResponseFrame(Communicator communicator, ArraySegment<byte> payload)
+        public IncomingResponseFrame(Communicator? communicator, ArraySegment<byte> payload)
         {
             _communicator = communicator;
             byte replyStatus = payload[0];
@@ -102,8 +110,9 @@ namespace ZeroC.Ice
             {
                 case ReplyStatus.UserException:
                 {
-                    return InputStream.ReadEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1),
-                        istr => istr.ReadException());
+                    return InputStream.ReadEncapsulation(_communicator!,
+                                                         Ice1Definitions.Encoding, Payload.Slice(1),
+                                                         istr => istr.ReadException());
                 }
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.FacetNotExistException:
@@ -126,7 +135,7 @@ namespace ZeroC.Ice
 
         internal DispatchException ReadDispatchException()
         {
-            var istr = new InputStream(_communicator, Ice1Definitions.Encoding, Payload, 1);
+            var istr = new InputStream(_communicator!, Ice1Definitions.Encoding, Payload, 1);
             var identity = new Identity(istr);
             string facet = istr.ReadFacet();
             string operation = istr.ReadString();

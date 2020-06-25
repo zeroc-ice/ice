@@ -499,7 +499,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<Task<IncomingResponseFrame>?> SendRequestAsync(
+        internal async ValueTask<Task<IncomingResponseFrame>> SendRequestAsync(
             OutgoingRequestFrame request,
             bool oneway,
             bool compress,
@@ -574,7 +574,7 @@ namespace ZeroC.Ice
             if (oneway)
             {
                 childObserver?.Detach();
-                return null;
+                return IncomingResponseFrame.CompletedTaskWithVoidReturnValue();
             }
             else
             {
