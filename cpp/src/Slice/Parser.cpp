@@ -5449,7 +5449,7 @@ Slice::Const::Const(const ContainerPtr& container, const string& name, const Typ
     _value(value),
     _literal(literal)
 {
-    if(valueType == 0)
+    if (valueType == 0)
     {
         cerr << "const " << name << " created with null valueType" << endl;
     }
@@ -5891,12 +5891,7 @@ bool
 Slice::ParamDecl::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    if(contained2 && contained2 == contained)
-    {
-        return true;
-    }
-
-    return false;
+    return (contained2 && contained2 == contained);
 }
 
 string
@@ -5972,12 +5967,7 @@ bool
 Slice::DataMember::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    if(contained2 && contained2 == contained)
-    {
-        return true;
-    }
-
-    return false;
+    return (contained2 && contained2 == contained);
 }
 
 string
