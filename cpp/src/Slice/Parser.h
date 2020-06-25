@@ -900,6 +900,7 @@ protected:
     friend class Container;
 
     ExceptionPtr _base;
+    std::list<DataMemberPtr> _dataMembers;
 };
 
 // ----------------------------------------------------------------------
@@ -910,6 +911,7 @@ class Struct : public virtual Container, public virtual Constructed
 {
 public:
 
+    void destroy() override;
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                                    const std::string&, const std::string&);
     DataMemberList dataMembers() const;

@@ -4225,6 +4225,7 @@ void
 Slice::Exception::destroy()
 {
     _base = 0;
+    _dataMembers.clear();
     Container::destroy();
 }
 
@@ -4235,115 +4236,84 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
-        if(p)
+        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                member->updateIncludeLevel();
+                return member;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "exception member `" + name + "' differs only in capitalization from ";
-            msg += "exception member `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("exception member `" + name + "' differs only in capitalization from exception member `"
+                         + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of exception member `" + name + "'";
-            _unit->error(msg);
+            _unit->error("redefinition of exception member `" + name + "'");
             return 0;
         }
     }
 
-    //
     // Check whether any bases have defined a member with the same name already.
-    //
-    ExceptionList bl = allBases();
-    for (ExceptionList::const_iterator q = bl.begin(); q != bl.end(); ++q)
+    for (const auto& base : allBases())
     {
-        ContainedList cl;
-        DataMemberList dml = (*q)->dataMembers();
-        copy(dml.begin(), dml.end(), back_inserter(cl));
-        for (ContainedList::const_iterator r = cl.begin(); r != cl.end(); ++r)
+        for (const auto& member : base->dataMembers())
         {
-            if((*r)->name() == name)
+            if (member->name() == name)
             {
-                string msg = "exception member `" + name + "' is already defined in a base exception";
-                _unit->error(msg);
+                _unit->error("exception member `" + name + "' is already defined in a base exception");
                 return 0;
             }
 
-            string baseName = IceUtilInternal::toLower((*r)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            if (ciequals(member->name(), name))
             {
-                string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
-                msg += (*r)->name() + "', which is defined in a base exception";
-                _unit->error(msg);
+                _unit->error("exception member `" + name + "' differs only in capitalization from exception member `"
+                             + member->name() + "', which is defined in a base exception");
             }
         }
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
+    SyntaxTreeBasePtr dvt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
+    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
-        if(!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, dvt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dvt = 0;
             dv.clear();
             dl.clear();
         }
     }
 
-    if(tagged)
+    if (tagged)
     {
-        //
         // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for (DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& member : _dataMembers)
         {
-            if((*q)->tagged() && tag == (*q)->tag())
+            if (member->tagged() && tag == member->tag())
             {
-                string msg = "tag for data member `" + name + "' is already in use";
-                _unit->error(msg);
-                break;
+                _unit->error("tag for data member `" + name + "' is already in use");
             }
         }
     }
 
-    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
-    _contents.push_back(p);
-    return p;
+    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    _dataMembers.push_back(member);
+    return member;
 }
 
 DataMemberList
 Slice::Exception::dataMembers() const
 {
-    DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _dataMembers;
 }
 
 DataMemberList
@@ -4352,28 +4322,21 @@ Slice::Exception::sortedTaggedDataMembers() const
     return filterSortedTaggedDataMembers(dataMembers());
 }
 
-//
 // Return the data members of this exception and its parent exceptions, in base-to-derived order.
-//
 DataMemberList
 Slice::Exception::allDataMembers() const
 {
     DataMemberList result;
 
-    //
     // Check if we have a base exception. If so, recursively
     // get the data members of the base exception(s).
-    //
-    if(base())
+    if (_base)
     {
-        result = base()->allDataMembers();
+        result = _base->allDataMembers();
     }
 
-    //
     // Append this exceptions's data members.
-    //
-    DataMemberList myMembers = dataMembers();
-    result.splice(result.end(), myMembers);
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
 
     return result;
 }
@@ -4382,45 +4345,32 @@ DataMemberList
 Slice::Exception::classDataMembers() const
 {
     DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        TypePtr type = unwrapIfOptional(member->type());
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
         {
-            TypePtr memberType = unwrapIfOptional(q->type());
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(memberType))
-            {
-                result.push_back(q);
-            }
+            result.push_back(member);
         }
     }
     return result;
 }
 
-//
 // Return the class data members of this exception and its parent exceptions, in base-to-derived order.
-//
 DataMemberList
 Slice::Exception::allClassDataMembers() const
 {
     DataMemberList result;
 
-    //
-    // Check if we have a base exception. If so, recursively
-    // get the class data members of the base exception(s).
-    //
-    if(base())
+    // Check if we have a base exception. If so, recursively get the class data members of the base exception(s).
+    if (_base)
     {
-        result = base()->allClassDataMembers();
+        result = _base->allClassDataMembers();
     }
 
-    //
     // Append this exceptions's class data members.
-    //
-    DataMemberList myMembers = classDataMembers();
-    result.splice(result.end(), myMembers);
-
+    result.splice(result.end(), classDataMembers());
     return result;
 }
 
@@ -4434,7 +4384,7 @@ ExceptionList
 Slice::Exception::allBases() const
 {
     ExceptionList result;
-    if(_base)
+    if (_base)
     {
         result = _base->allBases();
         result.push_front(_base);
@@ -4445,14 +4395,14 @@ Slice::Exception::allBases() const
 bool
 Slice::Exception::isBaseOf(const ExceptionPtr& other) const
 {
-    if(this->scoped() == other->scoped())
+    if (this->scoped() == other->scoped())
     {
         return false;
     }
-    ExceptionList bases = other->allBases();
-    for (ExceptionList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+
+    for (const auto& base : other->allBases())
     {
-        if((*i)->scoped() == scoped())
+        if (this->scoped() == base->scoped())
         {
             return true;
         }
@@ -4476,45 +4426,33 @@ Slice::Exception::uses(const ContainedPtr&) const
 bool
 Slice::Exception::usesClasses(bool includeTagged) const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
+        if (member->type()->usesClasses() && (includeTagged || !member->tagged()))
         {
             return true;
         }
     }
-    if(_base)
-    {
-        return _base->usesClasses(includeTagged);
-    }
-    return false;
+    return (_base && _base->usesClasses(includeTagged));
 }
 
 bool
 Slice::Exception::hasDefaultValues() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->defaultValueType())
+        if (member->defaultValueType())
         {
             return true;
         }
     }
-
     return false;
 }
 
 bool
 Slice::Exception::inheritsMetaData(const string& meta) const
 {
-    if(_base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta)))
-    {
-        return true;
-    }
-
-    return false;
+    return (_base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta)));
 }
 
 bool
@@ -4534,7 +4472,13 @@ Slice::Exception::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitExceptionStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& member : _dataMembers)
+        {
+            if (all || member->includeLevel() == 0)
+            {
+                member->visit(visitor, all);
+            }
+        }
         visitor->visitExceptionEnd(this);
     }
 }
@@ -4550,6 +4494,13 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // ----------------------------------------------------------------------
 // Struct
 // ----------------------------------------------------------------------
+
+void
+Slice::Struct::destroy()
+{
+    _dataMembers.clear();
+    Container::destroy();
+}
 
 DataMemberPtr
 Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
@@ -4615,9 +4566,9 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
         }
     }
 
-    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
-    _dataMembers.push_back(p);
-    return p;
+    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    _dataMembers.push_back(member);
+    return member;
 }
 
 DataMemberList
@@ -4729,7 +4680,6 @@ Slice::Struct::visit(ParserVisitor* visitor, bool all)
                 member->visit(visitor, all);
             }
         }
-
         visitor->visitStructEnd(this);
     }
 }
