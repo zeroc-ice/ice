@@ -146,8 +146,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Gets the value of a property as a TimeSpan. If the property is not set, returns null.
-        /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', or 'h'.
-        /// These correspond to milliseconds, seconds, minutes, and hours, respectively.
+        /// The value must be an integer followed immediately by a time unit of 'ms', 's', 'm', 'h', or 'd'.
+        /// These correspond to milliseconds, seconds, minutes, hours, and days, respectively.
         /// A value of "infinite" can be used to specify an infinite duration.
         /// e.g. 50ms, 3m</summary>
         /// <param name="name">The property name.</param>
@@ -160,7 +160,8 @@ namespace ZeroC.Ice
                 {
                     pv.Used = true;
 
-                    if (pv.Val == "infinite") {
+                    if (pv.Val == "infinite")
+                    {
                         return Timeout.InfiniteTimeSpan;
                     }
 
@@ -183,6 +184,7 @@ namespace ZeroC.Ice
                             "s" => TimeSpan.FromSeconds(value),
                             "m" => TimeSpan.FromMinutes(value),
                             "h" => TimeSpan.FromHours(value),
+                            "d" => TimeSpan.FromDays(value),
                             _ => throw new FormatException($"unknown time unit `{unit}'"),
                         };
                     }

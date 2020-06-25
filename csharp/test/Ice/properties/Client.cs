@@ -80,10 +80,11 @@ namespace ZeroC.Ice.Test.Properties
                 Console.Out.Write("testing configuration properties as TimeSpan... ");
                 var timeSpanProperties = new Dictionary<string, string>
                 {
-                    { "Duration.Milliseconds", "10000ms" },
+                    { "Duration.Milliseconds", "100ms" },
                     { "Duration.Seconds", "5s" },
-                    { "Duration.Minutes", "1m" },
+                    { "Duration.Minutes", "9m" },
                     { "Duration.Hours", "64h" },
+                    { "Duration.Days", "7d" },
                     { "Duration.Infinite", "infinite" },
 
                     { "Duration.Bad.Double", "1.1ms" },
@@ -96,20 +97,48 @@ namespace ZeroC.Ice.Test.Properties
 
                 using var communicator = new Communicator(timeSpanProperties);
 
-                var duration = communicator.GetPropertyAsTimeSpan("Duration.Milliseconds");
-                TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(10000)));
+                {
+                    var duration = communicator.GetPropertyAsTimeSpan("Duration.Milliseconds");
+                    TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(100)));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyString().Equals("100ms"));
 
-                duration = communicator.GetPropertyAsTimeSpan("Duration.Seconds");
-                TestHelper.Assert(duration.Equals(TimeSpan.FromSeconds(5)));
+                    duration = communicator.GetPropertyAsTimeSpan("Duration.Seconds");
+                    TestHelper.Assert(duration.Equals(TimeSpan.FromSeconds(5)));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyString().Equals("5s"));
 
-                duration = communicator.GetPropertyAsTimeSpan("Duration.Minutes");
-                TestHelper.Assert(duration.Equals(TimeSpan.FromMinutes(1)));
+                    duration = communicator.GetPropertyAsTimeSpan("Duration.Minutes");
+                    TestHelper.Assert(duration.Equals(TimeSpan.FromMinutes(9)));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyString().Equals("9m"));
 
-                duration = communicator.GetPropertyAsTimeSpan("Duration.Hours");
-                TestHelper.Assert(duration.Equals(TimeSpan.FromHours(64)));
+                    duration = communicator.GetPropertyAsTimeSpan("Duration.Hours");
+                    TestHelper.Assert(duration.Equals(TimeSpan.FromHours(64)));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyString().Equals("64h"));
 
-                duration = communicator.GetPropertyAsTimeSpan("Duration.Infinite");
-                TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(-1)));
+                    duration = communicator.GetPropertyAsTimeSpan("Duration.Days");
+                    TestHelper.Assert(duration.Equals(TimeSpan.FromDays(7)));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyString().Equals("7d"));
+
+                    duration = communicator.GetPropertyAsTimeSpan("Duration.Infinite");
+                    TestHelper.Assert(duration.Equals(TimeSpan.FromMilliseconds(-1)));
+                    TestHelper.Assert(duration.HasValue && duration.Value.ToPropertyString().Equals("infinite"));
+                }
+
+                {
+                    var duration = TimeSpan.Zero;
+                    TestHelper.Assert(duration.ToPropertyString().Equals("0ms"));
+
+                    duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromMilliseconds(1));
+                    TestHelper.Assert(duration.ToPropertyString().Equals("60001ms"));
+
+                    duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromSeconds(1));
+                    TestHelper.Assert(duration.ToPropertyString().Equals("61s"));
+
+                    duration = TimeSpan.FromMinutes(1).Add(TimeSpan.FromSeconds(60));
+                    TestHelper.Assert(duration.ToPropertyString().Equals("2m"));
+
+                    duration = TimeSpan.FromDays(1).Add(TimeSpan.FromMilliseconds(10));
+                    TestHelper.Assert(duration.ToPropertyString().Equals("86400010ms"));
+                }
 
                 foreach (string property in communicator.GetProperties("Duration.Bad").Keys)
                 {
