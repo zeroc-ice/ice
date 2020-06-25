@@ -519,7 +519,7 @@ namespace ZeroC.Ice
                                 ref retryCount);
                             if (delay > 0)
                             {
-                                // The delay task can be cancelled either by the user code using the provided
+                                // The delay task can be canceled either by the user code using the provided
                                 // cancellation token or if the communicator is destroyed.
                                 CancellationToken token = CancellationTokenSource.CreateLinkedTokenSource(
                                     cancel,

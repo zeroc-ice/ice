@@ -164,8 +164,9 @@ namespace ZeroC.Ice
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(incomingRequest, current);
                     if (requestId != 0)
                     {
-                        // We don't cancel the await here if the request is canceled. The asynchronous dispatch is
-                        // still going and we want to make sure the observer reports when the dispatch terminates.
+                        // We don't use the cancelable WaitAsync for the await here. The asynchronous dispatch is
+                        // not completed yet and we want to make sure the observer is detached only when the dispatch
+                        // completes, not when the caller cancels the request.
                         outgoingResponseFrame = await vt.ConfigureAwait(false);
                     }
                 }

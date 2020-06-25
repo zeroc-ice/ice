@@ -22,11 +22,12 @@ namespace ZeroC.Ice
         public string Operation { get; }
         public int RequestId { get; }
 
-        internal Current(ObjectAdapter adapter,
-                         IncomingRequestFrame request,
-                         int requestId,
-                         CancellationToken cancel,
-                         Connection? connection = null)
+        internal Current(
+            ObjectAdapter adapter,
+            IncomingRequestFrame request,
+            int requestId,
+            CancellationToken cancel,
+            Connection? connection = null)
         {
             Adapter = adapter;
             CancellationToken = cancel;

@@ -264,7 +264,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            return await task!.WaitAsync(cancel).ConfigureAwait(false);
+            return await task.WaitAsync(cancel).ConfigureAwait(false);
 
             async Task<IReadOnlyList<Endpoint>> PerformGetAdapterEndpointsAsync(Reference reference)
             {
@@ -340,7 +340,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            return await task!.WaitAsync(cancel).ConfigureAwait(false);
+            return await task.WaitAsync(cancel).ConfigureAwait(false);
 
             async Task<Reference?> PerformGetObjectProxyAsync(Reference reference)
             {
