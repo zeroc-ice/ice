@@ -843,7 +843,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            internal async ValueTask NextConnectorAsync()
+            internal async Task NextConnectorAsync()
             {
                 System.Exception? lastException = null;
                 for (int i = 0; i < _connectors.Count; ++i)
@@ -869,7 +869,7 @@ namespace ZeroC.Ice
                                 $"{connector.Connector}");
                         }
 
-                        // TODO: Connection establishement code needs to be re-factored to use async/await
+                        // TODO: Connection establishment code needs to be re-factored to use async/await
                         Connection connection = _factory.CreateConnection(connector.Connector.Connect(), connector);
                         await connection.StartAsync().ConfigureAwait(false);
 

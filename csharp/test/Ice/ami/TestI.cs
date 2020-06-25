@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +27,19 @@ namespace ZeroC.Ice.Test.AMI
         public void
         close(CloseMode mode, Current current) => current.Connection!.Close((ConnectionClose)(int)mode);
 
-        public void sleep(int ms, Current current) => Thread.Sleep(ms);
+        public void sleep(int ms, Current current)
+        {
+            try
+            {
+                Task.Delay(ms, current.CancellationToken).Wait();
+                TestHelper.Assert(!current.Context.ContainsKey("cancel") || current.Connection != null);
+            }
+            catch (TaskCanceledException)
+            {
+                // Expected if the request is canceled.
+                TestHelper.Assert(current.Context.ContainsKey("cancel") && current.Connection == null);
+            }
+        }
 
         public void
         shutdown(Current current)

@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -92,7 +93,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<IReadOnlyList<Endpoint>> GetClientEndpointsAsync()
+        internal async ValueTask<IReadOnlyList<Endpoint>> GetClientEndpointsAsync(CancellationToken cancel = default)
         {
             lock (_mutex)
             {
@@ -102,7 +103,8 @@ namespace ZeroC.Ice
                 }
             }
 
-            (IObjectPrx? clientProxy, bool? hasRoutingTable) = await Router.GetClientProxyAsync().ConfigureAwait(false);
+            (IObjectPrx? clientProxy, bool? hasRoutingTable) =
+                await Router.GetClientProxyAsync(cancel: cancel).ConfigureAwait(false);
 
             lock (_mutex)
             {
@@ -125,6 +127,7 @@ namespace ZeroC.Ice
                         // router, we must use the same timeout as the already
                         // existing connection.
                         //
+                        // TODO: Remove the following?
                         Connection? connection = Router.GetConnection();
                         if (connection != null)
                         {

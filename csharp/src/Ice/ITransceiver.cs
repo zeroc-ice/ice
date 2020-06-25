@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -114,9 +115,9 @@ namespace ZeroC.Ice
         }
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask InitializeAsync()
+        async ValueTask InitializeAsync(CancellationToken token)
         {
-            await Initialize(this).ConfigureAwait(false);
+            await Initialize(this).WaitAsync(token).ConfigureAwait(false);
 
             static async Task Initialize(ITransceiver self)
             {
@@ -175,15 +176,16 @@ namespace ZeroC.Ice
         }
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, int offset)
-        {
-            return WriteImplAsync(buffer, offset, true);
-        }
+        ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, int offset, CancellationToken cancel = default) =>
+            WriteImplAsync(buffer, offset, true, cancel);
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        private async ValueTask<int> WriteImplAsync(IList<ArraySegment<byte>> buffer, int offset, bool partial)
+        private async ValueTask<int> WriteImplAsync(IList<ArraySegment<byte>> buffer,
+                                                    int offset,
+                                                    bool partial,
+                                                    CancellationToken cancel = default)
         {
-            return await Write(this, buffer, offset, partial).ConfigureAwait(false) - offset;
+            return await Write(this, buffer, offset, partial).WaitAsync(cancel).ConfigureAwait(false) - offset;
 
             static async Task<int> Write(ITransceiver self, IList<ArraySegment<byte>> buffer, int offset, bool partial)
             {
@@ -246,16 +248,18 @@ namespace ZeroC.Ice
         };
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask<ArraySegment<byte>> ReadAsync()
+        async ValueTask<ArraySegment<byte>> ReadAsync(CancellationToken cancel = default)
         {
-            var received = await ReadImplAsync(ArraySegment<byte>.Empty, 0, true).ConfigureAwait(false);
+            ArraySegmentAndOffset received =
+                await ReadImplAsync(ArraySegment<byte>.Empty, 0, true).WaitAsync(cancel).ConfigureAwait(false);
             return received.buffer;
         }
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask<int> ReadAsync(ArraySegment<byte> buffer, int offset)
+        async ValueTask<int> ReadAsync(ArraySegment<byte> buffer, int offset, CancellationToken cancel = default)
         {
-            var received = await ReadImplAsync(buffer, offset, true).ConfigureAwait(false);
+            ArraySegmentAndOffset received =
+                await ReadImplAsync(buffer, offset, true).WaitAsync(cancel).ConfigureAwait(false);
             return received.offset - offset;
         }
 
