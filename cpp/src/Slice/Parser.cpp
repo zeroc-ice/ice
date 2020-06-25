@@ -5470,11 +5470,11 @@ size_t
 Slice::Operation::inBitSequenceSize() const
 {
     size_t length = 0;
-    for (const auto& p : inParameters())
+    for (const auto& param : _inParameters)
     {
-        if (!p->tagged())
+        if (!param->tagged())
         {
-            if (auto optional = OptionalPtr::dynamicCast(p->type()))
+            if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
                 if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
                 {
@@ -5490,11 +5490,11 @@ size_t
 Slice::Operation::returnBitSequenceSize() const
 {
     size_t length = 0;
-    for (const auto& p : outParameters())
+    for (const auto& param : _outParameters)
     {
-        if (!p->tagged())
+        if (!param->tagged())
         {
-            if (auto optional = OptionalPtr::dynamicCast(p->type()))
+            if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
                 if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
                 {
@@ -5515,6 +5515,15 @@ Slice::Operation::returnBitSequenceSize() const
         }
     }
     return length;
+}
+
+void
+Slice::Operation::destroy()
+{
+    _inParameters.clear();
+    _outParameters.clear();
+    _throws.clear();
+    Container::destroy();
 }
 
 TypePtr
@@ -5559,16 +5568,15 @@ Slice::Operation::hasMarshaledResult() const
 {
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(container());
     assert(interface);
-    if(interface->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
+    if (interface->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
     {
-        if(returnType() && isMutableAfterReturnType(returnType()))
+        if (returnType() && isMutableAfterReturnType(returnType()))
         {
             return true;
         }
-        for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+        for (const auto& param : _outParameters)
         {
-            ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-            if(q->isOutParam() && isMutableAfterReturnType(q->type()))
+            if (isMutableAfterReturnType(param->type()))
             {
                 return true;
             }
@@ -5582,18 +5590,18 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        ParamDeclPtr p = ParamDeclPtr::dynamicCast(matches.front());
-        if(p)
+        ParamDeclPtr param = ParamDeclPtr::dynamicCast(matches.front());
+        if (param)
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                param->updateIncludeLevel();
+                return param;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
             string msg = "parameter `" + name + "' differs only in capitalization from ";
             msg += "parameter `" + matches.front()->name() + "'";
@@ -5610,125 +5618,77 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     //
     // Check that in parameters don't follow out parameters.
     //
-    if(!_contents.empty())
+    if (!_outParameters.empty() && !isOutParam)
     {
-        ParamDeclPtr p = ParamDeclPtr::dynamicCast(_contents.back());
-        assert(p);
-        if(p->isOutParam() && !isOutParam)
-        {
-            _unit->error("`" + name + "': in parameters cannot follow out parameters");
-        }
+        _unit->error("`" + name + "': in parameters cannot follow out parameters");
     }
 
-    if(tagged)
+    if (tagged)
     {
         //
         // Check for a duplicate tag.
         //
         const string msg = "tag for parameter `" + name + "' is already in use";
-        if(_returnIsTagged && tag == _returnTag)
+        if (_returnIsTagged && tag == _returnTag)
         {
             _unit->error(msg);
         }
         else
         {
-            ParamDeclList params = parameters();
-            for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+            ParamDeclList params = isOutParam ? _outParameters : _inParameters;
+            for (const auto& param : params)
             {
-                if((*p)->tagged() && (*p)->tag() == tag)
+                if (param->tagged() && param->tag() == tag)
                 {
                     _unit->error(msg);
-                    break;
                 }
             }
         }
     }
 
-    ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam, tagged, tag);
-    _contents.push_back(p);
-    return p;
+    ParamDeclPtr param = new ParamDecl(this, name, type, isOutParam, tagged, tag);
+    (isOutParam ? _outParameters : _inParameters).push_back(param);
+    return param;
 }
 
 ParamDeclList
 Slice::Operation::parameters() const
 {
     ParamDeclList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
+    result.insert(result.end(), _inParameters.begin(), _inParameters.end());
+    result.insert(result.end(), _outParameters.begin(), _outParameters.end());
     return result;
 }
 
 ParamDeclList
 Slice::Operation::inParameters() const
 {
-    ParamDeclList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-        if(q && !q->isOutParam())
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _inParameters;
 }
 
 void
 Slice::Operation::inParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
 {
-    const ParamDeclList params = inParameters();
-    for (ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    for (const auto& param : _inParameters)
     {
-        if((*pli)->tagged())
-        {
-            taggedParams.push_back(*pli);
-        }
-        else
-        {
-            requiredParams.push_back(*pli);
-        }
+        (param->tagged() ? taggedParams : requiredParams).push_back(param);
     }
-
     sortTaggedParameters(taggedParams);
 }
 
 ParamDeclList
 Slice::Operation::outParameters() const
 {
-    ParamDeclList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-        if(q && q->isOutParam())
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _outParameters;
 }
 
 void
 Slice::Operation::outParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
 {
-    const ParamDeclList params = outParameters();
-    for (ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    for (const auto& param : _outParameters)
     {
-        if((*pli)->tagged())
-        {
-            taggedParams.push_back(*pli);
-        }
-        else
-        {
-            requiredParams.push_back(*pli);
-        }
+        (param->tagged() ? taggedParams : requiredParams).push_back(param);
     }
-
     sortTaggedParameters(taggedParams);
 }
 
@@ -5749,7 +5709,7 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     ExceptionList uniqueExceptions = el;
     uniqueExceptions.sort();
     uniqueExceptions.unique();
-    if(uniqueExceptions.size() != el.size())
+    if (uniqueExceptions.size() != el.size())
     {
         //
         // At least one exception appears twice.
@@ -5761,12 +5721,12 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
                        uniqueExceptions.begin(), uniqueExceptions.end(),
                        back_inserter(duplicates));
         string msg = "operation `" + name() + "' has a throws clause with ";
-        if(duplicates.size() == 1)
+        if (duplicates.size() == 1)
         {
             msg += "a ";
         }
         msg += "duplicate exception";
-        if(duplicates.size() > 1)
+        if (duplicates.size() > 1)
         {
             msg += "s";
         }
@@ -5791,16 +5751,16 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 {
     {
         ContainedPtr contained2 = ContainedPtr::dynamicCast(_returnType);
-        if(contained2 && contained2 == contained)
+        if (contained2 && contained2 == contained)
         {
             return true;
         }
     }
 
-    for (ExceptionList::const_iterator q = _throws.begin(); q != _throws.end(); ++q)
+    for (const auto& exception : _throws)
     {
-        ContainedPtr contained2 = ContainedPtr::dynamicCast(*q);
-        if(contained2 && contained2 == contained)
+        ContainedPtr contained2 = ContainedPtr::dynamicCast(exception);
+        if (contained2 && contained2 == contained)
         {
             return true;
         }
@@ -5812,10 +5772,9 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 bool
 Slice::Operation::sendsClasses(bool includeTagged) const
 {
-    ParamDeclList pdl = parameters();
-    for (ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    for (const auto& param : _inParameters)
     {
-        if(!(*i)->isOutParam() && (*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
+        if (param->type()->usesClasses() && (includeTagged || !param->tagged()))
         {
             return true;
         }
@@ -5826,15 +5785,14 @@ Slice::Operation::sendsClasses(bool includeTagged) const
 bool
 Slice::Operation::returnsClasses(bool includeTagged) const
 {
-    TypePtr t = returnType();
-    if(t && t->usesClasses() && (includeTagged || !_returnIsTagged))
+    TypePtr type = returnType();
+    if (type && type->usesClasses() && (includeTagged || !_returnIsTagged))
     {
         return true;
     }
-    ParamDeclList pdl = parameters();
-    for (ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    for (const auto& param : _outParameters)
     {
-        if((*i)->isOutParam() && (*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
+        if (param->type()->usesClasses() && (includeTagged || !param->tagged()))
         {
             return true;
         }
@@ -5845,44 +5803,20 @@ Slice::Operation::returnsClasses(bool includeTagged) const
 bool
 Slice::Operation::returnsData() const
 {
-    TypePtr t = returnType();
-    if(t)
-    {
-        return true;
-    }
-    ParamDeclList pdl = parameters();
-    for (ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
-    {
-        if((*i)->isOutParam())
-        {
-            return true;
-        }
-    }
-    if(!throws().empty())
-    {
-        return true;
-    }
-    return false;
+    return returnType() || !_outParameters.empty() || !_throws.empty();
 }
 
 bool
 Slice::Operation::returnsMultipleValues() const
 {
-    size_t count = outParameters().size();
-
-    if(returnType())
-    {
-        ++count;
-    }
-
-    return count > 1;
+    return _outParameters.size() + (returnType() ? 1 : 0) > 1;
 }
 
 FormatType
 Slice::Operation::format() const
 {
     FormatType format = parseFormatMetaData(getMetaData());
-    if(format == DefaultFormat)
+    if (format == DefaultFormat)
     {
         ContainedPtr cont = ContainedPtr::dynamicCast(container());
         assert(cont);

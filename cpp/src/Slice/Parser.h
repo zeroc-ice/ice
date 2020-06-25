@@ -761,6 +761,7 @@ public:
     // not class/proxy and that are not tagged.
     size_t returnBitSequenceSize() const;
 
+    void destroy() override;
     TypePtr returnType() const;
     bool returnIsTagged() const;
     int returnTag() const;
@@ -791,10 +792,12 @@ protected:
     Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
     friend class InterfaceDef;
 
+    std::list<ParamDeclPtr> _inParameters;
+    std::list<ParamDeclPtr> _outParameters;
     TypePtr _returnType;
     bool _returnIsTagged;
     int _returnTag;
-    ExceptionList _throws;
+    std::list<ExceptionPtr> _throws;
     Mode _mode;
 };
 
