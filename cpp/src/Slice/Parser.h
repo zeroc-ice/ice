@@ -839,7 +839,7 @@ protected:
 
     InterfaceDeclPtr _declaration;
     InterfaceList _bases;
-    bool _hasOperations;
+    std::list<OperationPtr> _operations;
 };
 
 // ----------------------------------------------------------------------

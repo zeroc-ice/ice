@@ -3919,6 +3919,7 @@ Slice::InterfaceDef::destroy()
 {
     _declaration = 0;
     _bases.clear();
+    _operations.clear();
     Container::destroy();
 }
 
@@ -3931,78 +3932,62 @@ Slice::InterfaceDef::createOperation(const string& name,
 {
     _unit->checkType(returnType);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        OperationPtr p = OperationPtr::dynamicCast(matches.front());
-        if(p)
+        if (OperationPtr operation = OperationPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                operation->updateIncludeLevel();
+                return operation;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "operation `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("operation `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
-        string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-        msg += "' as operation `" + name + "'";
-        _unit->error(msg);
+        _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                     + "' as operation `" + name + "'");
         return 0;
     }
 
-    //
     // Check whether enclosing interface has the same name.
-    //
-    if(name == this->name())
+    if (name == this->name())
     {
-        string msg = "interface name `" + name + "' cannot be used as operation name";
-        _unit->error(msg);
+        _unit->error("interface name `" + name + "' cannot be used as operation name");
         return 0;
     }
 
-    string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
-    if(newName == thisName)
+    if (ciequals(name, this->name()))
     {
-        string msg = "operation `" + name + "' differs only in capitalization from enclosing ";
-        msg += "interface name `" + this->name() + "'";
-        _unit->error(msg);
+        _unit->error("operation `" + name + "' differs only in capitalization from enclosing interface name `"
+                     + this->name() + "'");
         return 0;
     }
 
-    //
     // Check whether any base has an operation with the same name already
-    //
-    for (const auto& baseInterface : _bases)
+    for (const auto& base : _bases)
     {
-        for (const auto& op : baseInterface->allOperations())
+        for (const auto& operation : base->allOperations())
         {
-            if(op->name() == name)
+            if (operation->name() == name)
             {
-                string msg = "operation `" + name + "' is already defined as an operation in a base interface";
-                _unit->error(msg);
+                _unit->error("operation `" + name + "' is already defined as an operation in a base interface");
                 return 0;
             }
 
-            string baseName = IceUtilInternal::toLower(op->name());
-            string newName2 = IceUtilInternal::toLower(name);
-            if(baseName == newName2)
+            if (ciequals(operation->name(), name))
             {
-                string msg = "operation `" + name + "' differs only in capitalization from operation";
-                msg += " `" + op->name() + "', which is defined in a base interface";
-                _unit->error(msg);
+                _unit->error("operation `" + name + "' differs only in capitalization from operation `"
+                             + operation->name() + "', which is defined in a base interface");
                 return 0;
             }
         }
     }
 
-    _hasOperations = true;
     OperationPtr op = new Operation(this, name, returnType, tagged, tag, mode);
-    _contents.push_back(op);
+    _operations.push_back(op);
     return op;
 }
 
@@ -4024,10 +4009,9 @@ Slice::InterfaceDef::allBases() const
     InterfaceList result = _bases;
     result.sort();
     result.unique();
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        InterfaceList li = (*p)->allBases();
-        result.merge(li);
+        result.merge(base->allBases());
         result.unique();
     }
     return result;
@@ -4036,55 +4020,45 @@ Slice::InterfaceDef::allBases() const
 OperationList
 Slice::InterfaceDef::operations() const
 {
-    OperationList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        OperationPtr q = OperationPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _operations;
 }
 
 OperationList
 Slice::InterfaceDef::allOperations() const
 {
     OperationList result;
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        OperationList li = (*p)->allOperations();
-        for (OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+        for (const auto& operation : base->allOperations())
         {
-            if(find(result.begin(), result.end(), *q) == result.end())
+            if (find(result.begin(), result.end(), operation) == result.end())
             {
-                result.push_back(*q);
+                result.push_back(operation);
             }
         }
     }
 
-    OperationList li = operations();
-    for (OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+    for (const auto& operation : _operations)
     {
-        if(find(result.begin(), result.end(), *q) == result.end())
+        if (find(result.begin(), result.end(), operation) == result.end())
         {
-            result.push_back(*q);
+            result.push_back(operation);
         }
     }
+
     return result;
 }
 
 bool
 Slice::InterfaceDef::isA(const string& id) const
 {
-    if(id == _scoped)
+    if (id == _scoped)
     {
         return true;
     }
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        if((*p)->isA(id))
+        if (base->isA(id))
         {
             return true;
         }
@@ -4095,20 +4069,19 @@ Slice::InterfaceDef::isA(const string& id) const
 bool
 Slice::InterfaceDef::hasOperations() const
 {
-    return _hasOperations;
+    return !_operations.empty();
 }
 
 bool
 Slice::InterfaceDef::inheritsMetaData(const string& meta) const
 {
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        if((*p)->hasMetaData(meta) || (*p)->inheritsMetaData(meta))
+        if (base->hasMetaData(meta) || base->inheritsMetaData(meta))
         {
             return true;
         }
     }
-
     return false;
 }
 
@@ -4134,9 +4107,15 @@ Slice::InterfaceDef::kindOf() const
 void
 Slice::InterfaceDef::visit(ParserVisitor* visitor, bool all)
 {
-    if(visitor->visitInterfaceDefStart(this))
+    if (visitor->visitInterfaceDefStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& operation : _operations)
+        {
+            if (all || operation->includeLevel() == 0)
+            {
+                operation->visit(visitor, all);
+            }
+        }
         visitor->visitInterfaceDefEnd(this);
     }
 }
@@ -4160,8 +4139,7 @@ Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& n
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
-    _bases(bases),
-    _hasOperations(false)
+    _bases(bases)
 {
 }
 
