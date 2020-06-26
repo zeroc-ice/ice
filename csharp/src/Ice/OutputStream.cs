@@ -1562,6 +1562,10 @@ namespace ZeroC.Ice
 
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
+        // TODO: this is a temporary helper method that writes a 2.0 size on 4 bytes.
+        internal static void WriteSize20(int size, Span<byte> data) =>
+            WriteFixedLengthSize20(size, data);
+
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
@@ -1796,7 +1800,7 @@ namespace ZeroC.Ice
         /// <param name="value">The value to encoded.</param>
         /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
         /// </returns>
-        private int GetEncodedSize(long value)
+        private static int GetEncodedSize(long value)
         {
             if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
             {
@@ -1816,7 +1820,7 @@ namespace ZeroC.Ice
         /// <param name="value">The value to encoded.</param>
         /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
         /// </returns>
-        private int GetEncodedSize(ulong value)
+        private static int GetEncodedSize(ulong value)
         {
             if (value > EncodingDefinitions.VarULongMaxValue)
             {

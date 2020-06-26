@@ -65,6 +65,9 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>The Ice protocol of this frame.</summary>
+        public Protocol Protocol { get; }
+
         /// <summary>The frame byte count.</summary>
         public int Size { get; private set; }
 
@@ -74,7 +77,7 @@ namespace ZeroC.Ice
         // Store the Payload property data
         private List<ArraySegment<byte>>? _payload;
 
-        // Position of the end of the payload, for Ice1 this is always the frame end.
+        // Position of the end of the payload, for ice1 this is always the frame end.
         private OutputStream.Position? _payloadEnd;
 
         // Position of the start of the payload.
@@ -98,7 +101,7 @@ namespace ZeroC.Ice
             T value, OutputStreamWriter<T> writer)
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
-            var ostr = new OutputStream(Ice1Definitions.Encoding, request.Data, request._payloadStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request._payloadStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
@@ -124,7 +127,7 @@ namespace ZeroC.Ice
             in T value, OutputStreamValueWriter<T> writer) where T : struct
         {
             var request = new OutgoingRequestFrame(proxy, operation, idempotent, context);
-            var ostr = new OutputStream(Ice1Definitions.Encoding, request.Data, request._payloadStart,
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), request.Data, request._payloadStart,
                 request.Encoding, format ?? proxy.Communicator.DefaultFormat);
             writer(ostr, value);
             request.Finish(ostr.Save());
@@ -163,7 +166,7 @@ namespace ZeroC.Ice
                     $"payload should contain at least 6 bytes, but it contains {payload.Count} bytes",
                     nameof(payload));
             }
-            int size = InputStream.ReadInt(payload.AsSpan(0, 4));
+            int size = InputStream.ReadFixedLengthSize(proxy.Protocol.GetEncoding(), payload.AsSpan(0, 4));
             if (size != payload.Count)
             {
                 throw new ArgumentException($"invalid payload size `{size}' expected `{payload.Count}'",
@@ -187,15 +190,15 @@ namespace ZeroC.Ice
                                      IReadOnlyDictionary<string, string>? context,
                                      bool writeEmptyParamList = false)
         {
+            Protocol = proxy.Protocol;
+            Protocol.CheckSupported();
             Encoding = proxy.Encoding;
             Data = new List<ArraySegment<byte>>();
-            proxy.IceReference.Protocol.CheckSupported();
-
             Identity = proxy.Identity;
             Facet = proxy.Facet;
             Operation = operation;
             IsIdempotent = idempotent;
-            var ostr = new OutputStream(Ice1Definitions.Encoding, Data, new OutputStream.Position(0, 0));
+            var ostr = new OutputStream(proxy.Protocol.GetEncoding(), Data, new OutputStream.Position(0, 0));
             Identity.IceWrite(ostr);
             ostr.WriteFacet(Facet);
             ostr.WriteString(operation);

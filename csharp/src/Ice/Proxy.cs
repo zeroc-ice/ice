@@ -374,8 +374,9 @@ namespace ZeroC.Ice
             static async ValueTask<OutgoingResponseFrame> WaitResponseAsync(IncomingRequestFrame request,
                 ValueTask<IncomingResponseFrame> task)
             {
+                // TODO: need protocol bridging when the protocols are not the same.
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
-                return new OutgoingResponseFrame(request.Encoding, response.Payload);
+                return new OutgoingResponseFrame(request.Protocol, request.Encoding, response.Payload);
             }
         }
 
@@ -485,7 +486,10 @@ namespace ZeroC.Ice
                             else
                             {
                                 return new IncomingResponseFrame(proxy.Communicator,
-                                    Ice1Definitions.EmptyResponsePayload);
+                                                                 proxy.Protocol,
+                                                                 proxy.Protocol == Protocol.Ice1 ?
+                                                                    Ice1Definitions.EmptyResponsePayload :
+                                                                    Ice2Definitions.EmptyResponsePayload);
                             }
                         }
                         catch (RetryException)

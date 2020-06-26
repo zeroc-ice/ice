@@ -185,6 +185,9 @@ namespace ZeroC.Ice
         /// connection. The fallback to a non-secure connection applies only when using the ice1 protocol.</value>
         public bool PreferNonSecure => IceReference.PreferNonSecure;
 
+        /// <summary>The Ice protocol of this proxy. Requests sent with this proxy use only this Ice protocol.</summary>
+        public Protocol Protocol => IceReference.Protocol;
+
         /// <summary>The router associated with this proxy. This property is null when no router is associated with this
         /// proxy.</summary>
         public IRouterPrx? Router => IceReference.RouterInfo?.Router;

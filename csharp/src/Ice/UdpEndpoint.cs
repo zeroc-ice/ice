@@ -269,10 +269,14 @@ namespace ZeroC.Ice
             string endpointString)
         {
             Debug.Assert(transport == Transport.UDP); // we register this factory only for UDP
+
+            // TODO: check disabled for now
+            /*
             if (protocol != Protocol.Ice1)
             {
                 throw new NotSupportedException("the UDP transport supports only the ice1 protocol");
             }
+            */
             return new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString);
         }
 

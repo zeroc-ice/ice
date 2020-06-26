@@ -1051,7 +1051,10 @@ namespace ZeroC.Ice
                 }
 
                 string s = endpts[beg..end];
-                endpoints.Add(Endpoint.Parse(s, Protocol.Ice1, Communicator, oaEndpoints));
+
+                // TODO: the DefaultProtocol should not be used for endpoints. We need a separate property that
+                // controls the protocol(s) that an OA listens on.
+                endpoints.Add(Endpoint.Parse(s, Communicator.DefaultProtocol, Communicator, oaEndpoints));
                 ++end;
             }
 

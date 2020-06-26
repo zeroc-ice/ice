@@ -1062,7 +1062,8 @@ namespace ZeroC.Ice
         }
 
         internal static (int Size, Encoding Encoding) ReadEncapsulationHeader(
-            Encoding encoding, ReadOnlySpan<byte> buffer)
+            Encoding encoding,
+            ReadOnlySpan<byte> buffer)
         {
             int sizeLength;
             int size;
@@ -1092,20 +1093,54 @@ namespace ZeroC.Ice
             return (size, new Encoding(buffer[sizeLength], buffer[sizeLength + 1]));
         }
 
+        internal static int ReadFixedLengthSize(Encoding encoding, ReadOnlySpan<byte> buffer)
+        {
+            if (encoding == Encoding.V1_1)
+            {
+                return ReadInt(buffer);
+            }
+            else
+            {
+                return ReadSize20(buffer);
+            }
+        }
+
         internal static int ReadInt(ReadOnlySpan<byte> buffer) => BitConverter.ToInt32(buffer);
         internal static long ReadLong(ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
 
-        internal static string ReadString11(ArraySegment<byte> buffer)
+        // TODO: temporary helper for ice1-style unhandled exception
+        internal static string ReadString(Encoding encoding, ReadOnlySpan<byte> span)
         {
-            int size = ReadSize11(buffer.AsSpan());
+            if (encoding == Encoding.V1_1)
+            {
+                return ReadString11(span);
+            }
+            else
+            {
+                int size = ReadSize20(span);
+                if (size == 0)
+                {
+                    return "";
+                }
+                else
+                {
+                    int sizeLength = 1 << (span[0] & 0x03);
+                    return _utf8.GetString(span.Slice(sizeLength, size));
+                }
+            }
+        }
+
+        internal static string ReadString11(ReadOnlySpan<byte> span)
+        {
+            int size = ReadSize11(span);
             if (size == 0)
             {
                 return "";
             }
             else
             {
-                return _utf8.GetString(buffer.AsSpan(size < 255 ? 1 : 5, size));
+                return _utf8.GetString(span.Slice(size < 255 ? 1 : 5, size));
             }
         }
 
@@ -1249,6 +1284,7 @@ namespace ZeroC.Ice
                 Encoding.CheckSupported();
 
                 (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
+
                 // We slice the provided buffer to the encapsulation (minus its header). This way, we can easily prevent
                 // reads past the end of the encapsulation.
                 _buffer = buffer.Slice(_pos, size - 2);

@@ -28,19 +28,22 @@ namespace ZeroC.Ice
             {
                 Protocol.Ice1 => Encoding.V1_1,
                 Protocol.Ice2 => Encoding.V2_0,
-                _ => throw new NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
+                _ => throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
                     }' is not supported by this Ice runtime ({Runtime.StringVersion})")
             };
+
+        /// <summary>Returns the name of the protocol, e.g. ice2 for Protocol.Ice1.</summary>
+        public static string GetName(this Protocol protocol) =>
+            protocol.ToString().ToLowerInvariant();
 
         /// <summary>Checks if this protocol is supported by the Ice runtime. If not supported, throws
         /// NotSupportedException.</summary>
         /// <param name="protocol">The protocol.</param>
         internal static void CheckSupported(this Protocol protocol)
         {
-            // For now, we support only ice1
-            if (protocol != Protocol.Ice1)
+            if (protocol != Protocol.Ice1 && protocol != Protocol.Ice2)
             {
-                throw new NotSupportedException(@$"Ice protocol `{protocol.ToString().ToLower()
+                throw new NotSupportedException(@$"Ice protocol `{protocol.GetName()
                     }' is not supported by this Ice runtime ({Runtime.StringVersion})");
             }
         }

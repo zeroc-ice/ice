@@ -175,8 +175,10 @@ namespace ZeroC.Ice
                 {
                     dispatchObserver?.Reply(outgoingResponseFrame.Size);
 
-                    var incomingResponseFrame = new IncomingResponseFrame(_adapter.Communicator,
-                        VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
+                    var incomingResponseFrame =
+                        new IncomingResponseFrame(_adapter.Communicator,
+                                                  outgoingResponseFrame.Protocol,
+                                                  VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
                     if (_adapter.Communicator.TraceLevels.Protocol >= 1)
                     {
                         ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator, (byte)Ice1Definitions.FrameType.Reply,

@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
 using Test;
 using ZeroC.Ice;
 
@@ -11,7 +12,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
     {
         public override void Run(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
+            properties["Ice.Default.Protocol"] = "ice1";
+            using Communicator communicator = Initialize(properties);
             communicator.SetProperty("DeactivatedAdapter.Endpoints", GetTestEndpoint(1));
             communicator.CreateObjectAdapter("DeactivatedAdapter");
 

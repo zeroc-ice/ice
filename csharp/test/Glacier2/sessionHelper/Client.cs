@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Test;
 using ZeroC.Ice;
@@ -143,8 +144,9 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
         public override void Run(string[] args)
         {
-            System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
+            Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
+            properties["Ice.Default.Protocol"] = "ice1";
             properties["Ice.Default.Encoding"] = "1.1";
             properties["Ice.Default.Router"] = $"Glacier2/router:{GetTestEndpoint(properties, 50)}";
 

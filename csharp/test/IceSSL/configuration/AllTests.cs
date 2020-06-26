@@ -2315,7 +2315,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
 
                     var comm = new Communicator(clientProperties);
-                    var p = IObjectPrx.Parse("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
+                    var p = IObjectPrx.Parse("dummy -p ice1:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2",
+                                             comm);
                     while (true)
                     {
                         try
@@ -2358,7 +2359,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     clientProperties["IceSSL.UsePlatformCAs"] = "1";
 
                     comm = new Communicator(clientProperties);
-                    p = IObjectPrx.Parse("dummy:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
+                    p = IObjectPrx.Parse("dummy -p ice1:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
                     while (true)
                     {
                         try
