@@ -1109,7 +1109,7 @@ namespace ZeroC.Ice
         internal static long ReadLong(ReadOnlySpan<byte> buffer) => BitConverter.ToInt64(buffer);
         internal static short ReadShort(ReadOnlySpan<byte> buffer) => BitConverter.ToInt16(buffer);
 
-        // TODO: temporary helper for ice1-style unhandled exception
+        // TODO: this is a temporary helper for ice1-style unhandled exceptions.
         internal static string ReadString(Encoding encoding, ReadOnlySpan<byte> span)
         {
             if (encoding == Encoding.V1_1)

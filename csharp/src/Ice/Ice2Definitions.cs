@@ -18,7 +18,7 @@ namespace ZeroC.Ice
 
         // Size of an ice2 frame header for now:
         // Magic number (4 bytes)
-        // Post magic (4 bytes)
+        // Protocol bytes (4 bytes)
         // Frame type (Byte)
         // Compression status (Byte) (not used)
         // Frame size (size = varulong on 4 bytes)
@@ -35,7 +35,6 @@ namespace ZeroC.Ice
         internal enum FrameType : byte
         {
             Request = 0,
-            RequestBatch = 1,
             Reply = 2,
             ValidateConnection = 3,
             CloseConnection = 4
@@ -66,7 +65,7 @@ namespace ZeroC.Ice
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             (byte)FrameType.ValidateConnection,
             0, // Compression status.
-            (HeaderSize * 4) | 2, 0, 0, 0 // Frame size on 2^2 = 4 bytes
+            (HeaderSize << 2) | 2, 0, 0, 0 // Frame size on 2^2 = 4 bytes
         };
 
         internal static readonly byte[] CloseConnectionFrame = new byte[]
@@ -75,13 +74,13 @@ namespace ZeroC.Ice
             ProtocolBytes[0], ProtocolBytes[1], ProtocolBytes[2], ProtocolBytes[3],
             (byte)FrameType.CloseConnection,
             0, // Compression status.
-            (HeaderSize * 4) | 2, 0, 0, 0 // Frame size on 2^2 = 4 bytes
+            (HeaderSize << 2) | 2, 0, 0, 0 // Frame size on 2^2 = 4 bytes
         };
 
         internal static readonly byte[] EmptyResponsePayload = new byte[]
         {
             (byte) ReplyStatus.OK,
-            2 * 4,                  // Encapsulation size
+            2 << 2,                  // Encapsulation size
             Encoding.V2_0.Major,
             Encoding.V2_0.Minor
         };

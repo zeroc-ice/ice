@@ -17,7 +17,7 @@ namespace ZeroC.Ice
 
         // Size of an ice1 frame header:
         // Magic number (4 bytes)
-        // Post magic (4 bytes)
+        // Protocol bytes (4 bytes)
         // Frame type (Byte)
         // Compression status (Byte)
         // Frame size (Int - 4 bytes)

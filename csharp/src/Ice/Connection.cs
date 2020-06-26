@@ -245,8 +245,9 @@ namespace ZeroC.Ice
                 {
                     throw _exception!;
                 }
-                writeTask = SendFrameAsync(() => GetProtocolFrameData(
-                    OldProtocol ? _validateConnectionFrameIce1 : _validateConnectionFrameIce2));
+                writeTask = SendFrameAsync(() => GetProtocolFrameData(OldProtocol ? _validateConnectionFrameIce1 :
+                                           _validateConnectionFrameIce2),
+                                           cancel);
             }
             await writeTask.ConfigureAwait(false);
             progress?.Report(true);

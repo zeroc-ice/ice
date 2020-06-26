@@ -32,7 +32,7 @@ namespace ZeroC.Ice
                     }' is not supported by this Ice runtime ({Runtime.StringVersion})")
             };
 
-        /// <summary>Returns the name of the protocol, e.g. ice2 for Protocol.Ice1.</summary>
+        /// <summary>Returns the name of this protocol in lowercase, e.g. "ice1" or "ice2".</summary>
         public static string GetName(this Protocol protocol) =>
             protocol.ToString().ToLowerInvariant();
 

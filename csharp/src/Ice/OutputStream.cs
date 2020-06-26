@@ -1699,6 +1699,46 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
+        /// <param name="value">The value to encoded.</param>
+        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
+        /// </returns>
+        private static int GetEncodedSize(long value)
+        {
+            if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"varlong value `{value}' is out of range", nameof(value));
+            }
+
+            return (value << 2) switch
+            {
+                long b when b >= sbyte.MinValue && b <= sbyte.MaxValue => 0,
+                long s when s >= short.MinValue && s <= short.MaxValue => 1,
+                long i when i >= int.MinValue && i <= int.MaxValue => 2,
+                _ => 3
+            };
+        }
+
+        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
+        /// <param name="value">The value to encoded.</param>
+        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
+        /// </returns>
+        private static int GetEncodedSize(ulong value)
+        {
+            if (value > EncodingDefinitions.VarULongMaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"varulong value `{value}' is out of range", nameof(value));
+            }
+
+            return (value << 2) switch
+            {
+                ulong b when b <= byte.MaxValue => 0,
+                ulong s when s <= ushort.MaxValue => 1,
+                ulong i when i <= uint.MaxValue => 2,
+                _ => 3
+            };
+        }
+
         /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
         /// <param name="size">The size to write.</param>
         /// <param name="data">The destination byte buffer, which must be 1, 2 or 4 bytes long.</param>
@@ -1794,46 +1834,6 @@ namespace ZeroC.Ice
 
             // Once Expand returns, _tail points to a writeable byte.
             Debug.Assert(_tail.Offset < _currentSegment.Count);
-        }
-
-        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
-        /// <param name="value">The value to encoded.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
-        /// </returns>
-        private static int GetEncodedSize(long value)
-        {
-            if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
-            {
-                throw new ArgumentOutOfRangeException($"varlong value `{value}' is out of range", nameof(value));
-            }
-
-            return (value << 2) switch
-            {
-                long b when b >= sbyte.MinValue && b <= sbyte.MaxValue => 0,
-                long s when s >= short.MinValue && s <= short.MaxValue => 1,
-                long i when i >= int.MinValue && i <= int.MaxValue => 2,
-                _ => 3
-            };
-        }
-
-        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
-        /// <param name="value">The value to encoded.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
-        /// </returns>
-        private static int GetEncodedSize(ulong value)
-        {
-            if (value > EncodingDefinitions.VarULongMaxValue)
-            {
-                throw new ArgumentOutOfRangeException($"varulong value `{value}' is out of range", nameof(value));
-            }
-
-            return (value << 2) switch
-            {
-                ulong b when b <= byte.MaxValue => 0,
-                ulong s when s <= ushort.MaxValue => 1,
-                ulong i when i <= uint.MaxValue => 2,
-                _ => 3
-            };
         }
 
         /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the current
