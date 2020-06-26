@@ -670,6 +670,7 @@ public:
     bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
     bool hasBaseDataMembers() const;
+    ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
@@ -683,8 +684,8 @@ protected:
     friend class Container;
 
     ClassDeclPtr _declaration;
-    bool _hasDataMembers;
     ClassDefPtr _base;
+    std::list<DataMemberPtr> _dataMembers;
     int _compactId;
 };
 

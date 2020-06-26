@@ -3309,6 +3309,7 @@ Slice::ClassDef::destroy()
 {
     _declaration = 0;
     _base = 0;
+    _dataMembers.clear();
     Container::destroy();
 }
 
@@ -3319,99 +3320,79 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
-        if(p)
+        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                member->updateIncludeLevel();
+                return member;
             }
         }
 
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "data member `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("data member `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as data member `" + name + "'";
-            _unit->error(msg);
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "' as data member `" + name + "'");
             return 0;
         }
     }
 
-    //
     // Check whether any bases have defined something with the same name already.
-    //
     if (_base)
     {
-        for (const auto& dataMember : _base->allDataMembers())
+        for (const auto& member : _base->allDataMembers())
         {
-            if(dataMember->name() == name)
+            if (member->name() == name)
             {
-                string msg = "data member `" + name;
-                msg += "' is already defined as data member in a base class";
-                _unit->error(msg);
+                _unit->error("data member `" + name + "' is already defined as data member in a base class");
                 return 0;
             }
 
-            string baseName = IceUtilInternal::toLower(dataMember->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            if (ciequals(member->name(), name))
             {
-                string msg = "data member `" + name + "' differs only in capitalization from data member";
-                msg += " `" + dataMember->name() + "', which is defined in a base class";
-                _unit->error(msg);
+                _unit->error("data member `" + name + "' differs only in capitalization from data member" + " `"
+                             + member->name() + "', which is defined in a base class");
             }
         }
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
+    SyntaxTreeBasePtr dvt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
+    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
-        if(!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, dvt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dvt = 0;
             dv.clear();
             dl.clear();
         }
     }
 
-    if(tagged)
+    if (tagged)
     {
-        //
         // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for (DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& member : _dataMembers)
         {
-            if((*q)->tagged() && tag == (*q)->tag())
+            if (member->tagged() && tag == member->tag())
             {
-                string msg = "tag for data member `" + name + "' is already in use";
-                _unit->error(msg);
-                break;
+                _unit->error("tag for data member `" + name + "' is already in use");
             }
         }
     }
 
-    _hasDataMembers = true;
-    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
-    _contents.push_back(member);
+    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    _dataMembers.push_back(member);
     return member;
 }
 
@@ -3442,16 +3423,7 @@ Slice::ClassDef::allBases() const
 DataMemberList
 Slice::ClassDef::dataMembers() const
 {
-    DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _dataMembers;
 }
 
 DataMemberList
@@ -3460,27 +3432,20 @@ Slice::ClassDef::sortedTaggedDataMembers() const
     return filterSortedTaggedDataMembers(dataMembers());
 }
 
-//
 // Return the data members of this class and its parent classes, in base-to-derived order.
-//
 DataMemberList
 Slice::ClassDef::allDataMembers() const
 {
     DataMemberList result;
 
-    //
     // Check if we have a base class. If so, recursively get the data members of the base(s).
-    //
     if (_base)
     {
         result = _base->allDataMembers();
     }
 
-    //
     // Append this class's data members.
-    //
-    DataMemberList myMembers = dataMembers();
-    result.splice(result.end(), myMembers);
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
 
     return result;
 }
@@ -3489,25 +3454,19 @@ DataMemberList
 Slice::ClassDef::classDataMembers() const
 {
     DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        TypePtr type = unwrapIfOptional(member->type());
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
         {
-            TypePtr memberType = unwrapIfOptional(q->type());
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(memberType))
-            {
-                result.push_back(q);
-            }
+            result.push_back(member);
         }
     }
     return result;
 }
 
-//
 // Return the class data members of this class and its parent classes, in base-to-derived order.
-//
 DataMemberList
 Slice::ClassDef::allClassDataMembers() const
 {
@@ -3518,26 +3477,21 @@ Slice::ClassDef::allClassDataMembers() const
         result = _base->allClassDataMembers();
     }
 
-    //
     // Append this class's class members.
-    //
-    DataMemberList myMembers = classDataMembers();
-    result.splice(result.end(), myMembers);
-
+    result.splice(result.end(), classDataMembers());
     return result;
 }
 
 bool
 Slice::ClassDef::canBeCyclic() const
 {
-    if(_base && _base->canBeCyclic())
+    if (_base && _base->canBeCyclic())
     {
         return true;
     }
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->type()->usesClasses())
+        if (member->type()->usesClasses())
         {
             return true;
         }
@@ -3548,7 +3502,7 @@ Slice::ClassDef::canBeCyclic() const
 bool
 Slice::ClassDef::isA(const string& id) const
 {
-    if(id == _scoped)
+    if (id == _scoped)
     {
         return true;
     }
@@ -3558,16 +3512,15 @@ Slice::ClassDef::isA(const string& id) const
 bool
 Slice::ClassDef::hasDataMembers() const
 {
-    return _hasDataMembers;
+    return !_dataMembers.empty();
 }
 
 bool
 Slice::ClassDef::hasDefaultValues() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->defaultValueType())
+        if (member->defaultValueType())
         {
             return true;
         }
@@ -3586,6 +3539,14 @@ bool
 Slice::ClassDef::hasBaseDataMembers() const
 {
     return _base && !_base->allDataMembers().empty();
+}
+
+ContainedList
+Slice::ClassDef::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
+    return result;
 }
 
 Contained::ContainedType
@@ -3610,9 +3571,15 @@ Slice::ClassDef::kindOf() const
 void
 Slice::ClassDef::visit(ParserVisitor* visitor, bool all)
 {
-    if(visitor->visitClassDefStart(this))
+    if (visitor->visitClassDefStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& member : _dataMembers)
+        {
+            if (all || member->includeLevel() == 0)
+            {
+                member->visit(visitor, all);
+            }
+        }
         visitor->visitClassDefEnd(this);
     }
 }
@@ -3642,11 +3609,10 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
-    _hasDataMembers(false),
     _base(base),
     _compactId(id)
 {
-    if(_compactId >= 0)
+    if (_compactId >= 0)
     {
         _unit->addTypeId(_compactId, scoped());
     }
@@ -3854,9 +3820,9 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
         ++cursor;
         for (StringPartitionList::const_iterator j = cursor; j != l.end(); ++j)
         {
-            for (const auto& s1 : i)
+            for (const auto& s1 : *i)
             {
-                for (const auto& s2 : j)
+                for (const auto& s2 : *j)
                 {
                     if(s1 == s2 && reported.find(s1) == reported.end())
                     {
