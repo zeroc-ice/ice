@@ -633,7 +633,7 @@ Slice::Builtin::integralRange() const
         case KindVarULong:
             return make_pair<int64_t, uint64_t>(0, UINT64_MAX / 4);
         default:
-            assert(0);
+            assert(false);
             return make_pair<int64_t, uint64_t>(0, 0);
     }
 }
@@ -5853,19 +5853,16 @@ Slice::Unit::compatMode() const
 void
 Slice::Unit::checkType(const TypePtr& type)
 {
-    if (compatMode())
+    if (compatMode() && InterfaceDeclPtr::dynamicCast(type))
     {
-        if (InterfaceDeclPtr::dynamicCast(type))
-        {
-            error("interface by value is no longer supported: remove [[3.7]] or specify an optional proxy");
-        }
+        error("interface by value is no longer supported: remove [[3.7]] or specify an optional proxy");
     }
 }
 
 void
 Slice::Unit::setComment(const string& comment)
 {
-    if(comment.empty() || comment[0] != '*')
+    if (comment.empty() || comment[0] != '*')
     {
         return;
     }
@@ -6411,8 +6408,8 @@ Slice::Unit::getTopLevelModules(const string& file) const
 }
 
 Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultFileMetadata) :
-    SyntaxTreeBase(0),
-    Container(0),
+    SyntaxTreeBase(nullptr),
+    Container(nullptr),
     _ignRedefs(ignRedefs),
     _all(all),
     _defaultFileMetaData(defaultFileMetadata),
@@ -6421,21 +6418,6 @@ Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultFileMetadat
 
 {
     _unit = this;
-}
-
-void
-Slice::Unit::eraseWhiteSpace(string& s)
-{
-    string::size_type idx = s.find_first_not_of(" \t\r");
-    if(idx != string::npos)
-    {
-        s.erase(0, idx);
-    }
-    idx = s.find_last_not_of(" \t\r");
-    if(idx != string::npos)
-    {
-        s.erase(++idx);
-    }
 }
 
 // ----------------------------------------------------------------------

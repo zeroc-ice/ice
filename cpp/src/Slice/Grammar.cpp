@@ -2578,7 +2578,7 @@ yyreduce:
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if (b && b->isIntegralType())
         {
-            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), nullptr, 0);
         }
     }
     else if(enumerator)
@@ -2706,7 +2706,7 @@ yyreduce:
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if(b && b->isIntegralType())
         {
-            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), nullptr, 0);
         }
     }
     else if(enumerator)
@@ -3021,7 +3021,7 @@ yyreduce:
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if(b && b->isIntegralType())
         {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), nullptr, 0);
             if(l < 0 || l > Int32Max)
             {
                 unit->error("compact id for class is out of range");
@@ -3218,17 +3218,17 @@ yyreduce:
     DataMemberPtr dm;
     if(cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag);
     }
     unit->currentContainer()->checkIntroduced(def->name, dm);
     yyval = dm;
@@ -3275,17 +3275,17 @@ yyreduce:
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        yyval = cl->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        yyval = cl->createDataMember(name, type, false, 0); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        yyval = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        yyval = st->createDataMember(name, type, false, 0); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        yyval = ex->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        yyval = ex->createDataMember(name, type, false, 0); // Dummy
     }
     assert(yyval);
     unit->error("keyword `" + name + "' cannot be used as data member name");
@@ -3300,17 +3300,17 @@ yyreduce:
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        yyval = cl->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        yyval = cl->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        yyval = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        yyval = ex->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
     assert(yyval);
     unit->error("missing data member name");
@@ -3324,7 +3324,7 @@ yyreduce:
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, 0, "", "");
+    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1);
     unit->currentContainer()->checkIntroduced(ts->v.second, dm);
     yyval = dm;
 }
@@ -3352,7 +3352,7 @@ yyreduce:
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
@@ -3365,7 +3365,7 @@ yyreduce:
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[-2]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
@@ -3378,7 +3378,7 @@ yyreduce:
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
@@ -3391,7 +3391,7 @@ yyreduce:
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast(yyvsp[-2]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    yyval = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
     assert(yyval);
     unit->error("tagged data members are not supported in structs");
 }
@@ -3405,7 +3405,7 @@ yyreduce:
     string name = StringTokPtr::dynamicCast(yyvsp[0])->v;
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    yyval = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+    yyval = st->createDataMember(name, type, false, 0); // Dummy
     assert(yyval);
     unit->error("keyword `" + name + "' cannot be used as data member name");
 }
@@ -3418,7 +3418,7 @@ yyreduce:
     TypePtr type = TypePtr::dynamicCast(yyvsp[0]);
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+    yyval = st->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     assert(yyval);
     unit->error("missing data member name");
 }
@@ -3909,7 +3909,7 @@ yyreduce:
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-        exception = cont->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+        exception = cont->createException(IceUtil::generateUUID(), nullptr, Dummy); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     yyval = exception;
@@ -3922,7 +3922,7 @@ yyreduce:
 {
     StringTokPtr ident = StringTokPtr::dynamicCast(yyvsp[0]);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    yyval = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+    yyval = unit->currentContainer()->createException(IceUtil::generateUUID(), nullptr, Dummy); // Dummy
 }
 #line 3928 "src/Slice/Grammar.cpp"
     break;
@@ -4724,7 +4724,7 @@ yyreduce:
     if(cl.empty())
     {
         // Could be an enumerator
-        def = new ConstDefTok(SyntaxTreeBasePtr(0), scoped->v, scoped->v);
+        def = new ConstDefTok(SyntaxTreeBasePtr(nullptr), scoped->v, scoped->v);
     }
     else
     {

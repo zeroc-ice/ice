@@ -133,7 +133,7 @@ StringLiteralGenerator::escapeASCIIChar(char c)
             default:
             {
                 // The caller cannot add additional non-printable ASCII characters!
-                assert(0);
+                assert(false);
             }
         }
     }

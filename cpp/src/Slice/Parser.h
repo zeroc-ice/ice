@@ -654,8 +654,8 @@ class ClassDef : public virtual Container, public virtual Contained
 public:
 
     void destroy() override;
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-                                   const std::string&, const std::string&);
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+                                   const std::string& = "", const std::string& = "");
     ClassDeclPtr declaration() const;
     ClassDefPtr base() const;
     ClassList allBases() const;
@@ -876,8 +876,8 @@ class Exception : public virtual Container, public virtual Contained
 public:
 
     void destroy() override;
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-                                   const std::string&, const std::string&);
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+                                   const std::string& = "", const std::string& = "");
     DataMemberList dataMembers() const;
     DataMemberList sortedTaggedDataMembers() const;
     DataMemberList allDataMembers() const;
@@ -914,8 +914,8 @@ class Struct : public virtual Container, public virtual Constructed
 public:
 
     void destroy() override;
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-                                   const std::string&, const std::string&);
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+                                   const std::string& = "", const std::string& = "");
     DataMemberList dataMembers() const;
     DataMemberList classDataMembers() const;
     ContainedList contents() const override;
@@ -1256,7 +1256,6 @@ public:
 private:
 
     Unit(bool, bool, const StringList&);
-    static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
     bool _all;
