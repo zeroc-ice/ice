@@ -2108,7 +2108,7 @@ yyreduce:
   case 13:
 #line 271 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ModulePtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || ModulePtr::dynamicCast(yyvsp[0]));
 }
 #line 2114 "src/Slice/Grammar.cpp"
     break;
@@ -2116,7 +2116,7 @@ yyreduce:
   case 15:
 #line 276 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ClassDeclPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || ClassDeclPtr::dynamicCast(yyvsp[0]));
 }
 #line 2122 "src/Slice/Grammar.cpp"
     break;
@@ -2132,7 +2132,7 @@ yyreduce:
   case 18:
 #line 285 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ClassDefPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || ClassDefPtr::dynamicCast(yyvsp[0]));
 }
 #line 2138 "src/Slice/Grammar.cpp"
     break;
@@ -2140,7 +2140,7 @@ yyreduce:
   case 20:
 #line 290 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || InterfaceDeclPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || InterfaceDeclPtr::dynamicCast(yyvsp[0]));
 }
 #line 2146 "src/Slice/Grammar.cpp"
     break;
@@ -2156,7 +2156,7 @@ yyreduce:
   case 23:
 #line 299 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || InterfaceDefPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || InterfaceDefPtr::dynamicCast(yyvsp[0]));
 }
 #line 2162 "src/Slice/Grammar.cpp"
     break;
@@ -2164,7 +2164,7 @@ yyreduce:
   case 25:
 #line 304 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0);
+    assert(yyvsp[0] == nullptr);
 }
 #line 2170 "src/Slice/Grammar.cpp"
     break;
@@ -2180,7 +2180,7 @@ yyreduce:
   case 28:
 #line 313 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ExceptionPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || ExceptionPtr::dynamicCast(yyvsp[0]));
 }
 #line 2186 "src/Slice/Grammar.cpp"
     break;
@@ -2188,7 +2188,7 @@ yyreduce:
   case 30:
 #line 318 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0);
+    assert(yyvsp[0] == nullptr);
 }
 #line 2194 "src/Slice/Grammar.cpp"
     break;
@@ -2204,7 +2204,7 @@ yyreduce:
   case 33:
 #line 327 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || StructPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || StructPtr::dynamicCast(yyvsp[0]));
 }
 #line 2210 "src/Slice/Grammar.cpp"
     break;
@@ -2212,7 +2212,7 @@ yyreduce:
   case 35:
 #line 332 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || SequencePtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || SequencePtr::dynamicCast(yyvsp[0]));
 }
 #line 2218 "src/Slice/Grammar.cpp"
     break;
@@ -2228,7 +2228,7 @@ yyreduce:
   case 38:
 #line 341 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || DictionaryPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || DictionaryPtr::dynamicCast(yyvsp[0]));
 }
 #line 2234 "src/Slice/Grammar.cpp"
     break;
@@ -2244,7 +2244,7 @@ yyreduce:
   case 41:
 #line 350 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || EnumPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || EnumPtr::dynamicCast(yyvsp[0]));
 }
 #line 2250 "src/Slice/Grammar.cpp"
     break;
@@ -2252,7 +2252,7 @@ yyreduce:
   case 43:
 #line 355 "src/Slice/Grammar.y"
 {
-    assert(yyvsp[0] == 0 || ConstPtr::dynamicCast(yyvsp[0]));
+    assert(yyvsp[0] == nullptr || ConstPtr::dynamicCast(yyvsp[0]));
 }
 #line 2258 "src/Slice/Grammar.cpp"
     break;
@@ -2287,7 +2287,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 2294 "src/Slice/Grammar.cpp"
@@ -2303,7 +2303,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 2310 "src/Slice/Grammar.cpp"
@@ -2343,7 +2343,7 @@ yyreduce:
             {
                 unit->popContainer();
             }
-            yyval = 0;
+            yyval = nullptr;
             break;
         }
     }
@@ -2367,7 +2367,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 2374 "src/Slice/Grammar.cpp"
@@ -2395,7 +2395,7 @@ yyreduce:
 #line 477 "src/Slice/Grammar.y"
 {
     unit->error("exceptions cannot be forward declared");
-    yyval = 0;
+    yyval = nullptr;
 }
 #line 2401 "src/Slice/Grammar.cpp"
     break;
@@ -2444,7 +2444,7 @@ yyreduce:
   case 57:
 #line 521 "src/Slice/Grammar.y"
 {
-    yyval = 0;
+    yyval = nullptr;
 }
 #line 2450 "src/Slice/Grammar.cpp"
     break;
@@ -2831,7 +2831,7 @@ yyreduce:
 #line 872 "src/Slice/Grammar.y"
 {
     unit->error("structs cannot be forward declared");
-    yyval = 0; // Dummy
+    yyval = nullptr; // Dummy
 }
 #line 2837 "src/Slice/Grammar.cpp"
     break;
@@ -3093,7 +3093,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3100 "src/Slice/Grammar.cpp"
@@ -3109,7 +3109,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3116 "src/Slice/Grammar.cpp"
@@ -3121,7 +3121,7 @@ yyreduce:
     StringTokPtr scoped = StringTokPtr::dynamicCast(yyvsp[0]);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
-    yyval = 0;
+    yyval = nullptr;
     if(!types.empty())
     {
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
@@ -3156,7 +3156,7 @@ yyreduce:
   case 94:
 #line 1175 "src/Slice/Grammar.y"
 {
-    yyval = 0;
+    yyval = nullptr;
 }
 #line 3162 "src/Slice/Grammar.cpp"
     break;
@@ -3499,12 +3499,12 @@ yyreduce:
         }
         else
         {
-            yyval = 0;
+            yyval = nullptr;
         }
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3511 "src/Slice/Grammar.cpp"
@@ -3528,12 +3528,12 @@ yyreduce:
         }
         else
         {
-            yyval = 0;
+            yyval = nullptr;
         }
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3540 "src/Slice/Grammar.cpp"
@@ -3556,12 +3556,12 @@ yyreduce:
         }
         else
         {
-            yyval = 0;
+            yyval = nullptr;
         }
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3568 "src/Slice/Grammar.cpp"
@@ -3585,12 +3585,12 @@ yyreduce:
         }
         else
         {
-            return 0;
+            yyval = nullptr;
         }
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3597 "src/Slice/Grammar.cpp"
@@ -3606,7 +3606,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3613 "src/Slice/Grammar.cpp"
@@ -3697,7 +3697,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3704 "src/Slice/Grammar.cpp"
@@ -3713,7 +3713,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 3720 "src/Slice/Grammar.cpp"
@@ -4095,7 +4095,7 @@ yyreduce:
   case 160:
 #line 1976 "src/Slice/Grammar.y"
 {
-    yyval = 0;
+    yyval = nullptr;
 }
 #line 4101 "src/Slice/Grammar.cpp"
     break;
@@ -4581,7 +4581,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 4588 "src/Slice/Grammar.cpp"
@@ -4617,7 +4617,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 4624 "src/Slice/Grammar.cpp"
@@ -4644,7 +4644,7 @@ yyreduce:
     }
     else
     {
-        yyval = 0;
+        yyval = nullptr;
     }
 }
 #line 4651 "src/Slice/Grammar.cpp"

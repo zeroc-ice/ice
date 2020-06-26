@@ -322,7 +322,7 @@ public:
 
 protected:
 
-    SyntaxTreeBase(const UnitPtr&, const DefinitionContextPtr& = 0);
+    SyntaxTreeBase(const UnitPtr&, const DefinitionContextPtr& = nullptr);
 
     UnitPtr _unit;
     DefinitionContextPtr _definitionContext;
@@ -556,7 +556,7 @@ public:
     void visit(ParserVisitor*, bool) override;
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
-    bool checkIntroduced(const std::string&, ContainedPtr = 0);
+    bool checkIntroduced(const std::string&, ContainedPtr = nullptr);
     bool checkForGlobalDef(const std::string&, const char *);
 
 protected:

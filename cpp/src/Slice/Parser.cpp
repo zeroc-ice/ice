@@ -396,7 +396,7 @@ Slice::Comment::Comment()
 void
 Slice::SyntaxTreeBase::destroy()
 {
-    _unit = 0;
+    _unit = nullptr;
 }
 
 UnitPtr
@@ -671,7 +671,7 @@ Slice::Builtin::Builtin(const UnitPtr& ut, Kind kind) :
     //
     // Builtin types do not have a definition context.
     //
-    _definitionContext = 0;
+    _definitionContext = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -909,7 +909,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
 
     if(!comment->_isDeprecated && _comment.empty())
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -1239,7 +1239,7 @@ Slice::Container::createModule(const string& name)
                 string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
                 msg += module->name() + "'";
                 _unit->error(msg);
-                return 0;
+                return nullptr;
             }
         }
         else if(!differsOnlyInCase)
@@ -1247,20 +1247,20 @@ Slice::Container::createModule(const string& name)
             string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
             msg += "' as module";
             _unit->error(msg);
-            return 0;
+            return nullptr;
         }
         else
         {
             string msg = "module `" + name + "' differs only in capitalization from ";
             msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
             _unit->error(msg);
-            return 0;
+            return nullptr;
         }
     }
 
     if(!checkIdentifier(name))
     {
-        return 0;
+        return nullptr;
     }
 
     ModulePtr q = new Module(this, name);
@@ -1315,14 +1315,14 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
                 + " as " + prependA(matches.front()->kindOf());
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
     // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
     {
-        return 0;
+        return nullptr;
     }
 
     ClassDefPtr def = new ClassDef(this, name, id, base);
@@ -1379,14 +1379,14 @@ Slice::Container::createClassDecl(const string& name)
                 + " as " + prependA(matches.front()->kindOf());
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
     // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -1469,14 +1469,14 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
                 + " as " + prependA(matches.front()->kindOf());
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
     // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
     {
-        return 0;
+        return nullptr;
     }
 
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
@@ -1535,14 +1535,14 @@ Slice::Container::createInterfaceDecl(const string& name)
                 + " as " + prependA(matches.front()->kindOf());
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
     // and skip the second check, so we use '|' here instead, which will never short-circuit.
     if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
     {
-        return 0;
+        return nullptr;
     }
 
     // Multiple declarations are permissible. But if we do already have a declaration for the interface in this
@@ -1601,7 +1601,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the exception anyway.
@@ -1643,7 +1643,7 @@ Slice::Container::createStruct(const string& name, NodeType nt)
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the struct anyway.
@@ -1687,7 +1687,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the sequence anyway.
@@ -1732,7 +1732,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
@@ -1748,7 +1748,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         if(!Dictionary::legalKeyType(keyType, containsSequence))
         {
             _unit->error("dictionary `" + name + "' uses an illegal key type");
-            return 0;
+            return nullptr;
         }
         if(containsSequence)
         {
@@ -1788,7 +1788,7 @@ Slice::Container::createEnum(const string& name, bool unchecked, NodeType nt)
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the enumeration anyway.
@@ -1832,7 +1832,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
-        return 0;
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the constant anyway.
@@ -1849,7 +1849,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
     //
     if(nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
     {
-        return 0;
+        return nullptr;
     }
 
     ConstPtr p = new Const(this, name, constType, metaData, resolvedValueType, value, literal);
@@ -2056,7 +2056,7 @@ Slice::Container::lookupException(const string& scoped, bool printError)
     ContainedList contained = lookupContained(scoped, printError);
     if(contained.empty())
     {
-        return 0;
+        return nullptr;
     }
 
     ExceptionList exceptions;
@@ -2072,7 +2072,7 @@ Slice::Container::lookupException(const string& scoped, bool printError)
                 msg += "' is not an exception";
                 _unit->error(msg);
             }
-            return 0;
+            return nullptr;
         }
         exceptions.push_back(ex);
     }
@@ -2223,7 +2223,7 @@ Slice::Container::enumerators(const string& scoped) const
             }
             else
             {
-                container = 0;
+                container = nullptr;
             }
         }
         while(result.empty() && container);
@@ -3219,7 +3219,7 @@ Slice::Constructed::Constructed(const ContainerPtr& container, const string& nam
 void
 Slice::ClassDecl::destroy()
 {
-    _definition = 0;
+    _definition = nullptr;
     SyntaxTreeBase::destroy();
 }
 
@@ -3307,8 +3307,8 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) :
 void
 Slice::ClassDef::destroy()
 {
-    _declaration = 0;
-    _base = 0;
+    _declaration = nullptr;
+    _base = nullptr;
     _dataMembers.clear();
     Container::destroy();
 }
@@ -3340,7 +3340,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         {
             _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
                          + "' as data member `" + name + "'");
-            return 0;
+            return nullptr;
         }
     }
 
@@ -3352,7 +3352,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
             if (member->name() == name)
             {
                 _unit->error("data member `" + name + "' is already defined as data member in a base class");
-                return 0;
+                return nullptr;
             }
 
             if (ciequals(member->name(), name))
@@ -3373,7 +3373,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         if (!validateConstant(name, type, dvt, dv, false))
         {
             // Create the data member anyway, just without the default value.
-            dvt = 0;
+            dvt = nullptr;
             dv.clear();
             dl.clear();
         }
@@ -3625,7 +3625,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
 void
 Slice::InterfaceDecl::destroy()
 {
-    _definition = 0;
+    _definition = nullptr;
     SyntaxTreeBase::destroy();
 }
 
@@ -3851,7 +3851,7 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
 void
 Slice::InterfaceDef::destroy()
 {
-    _declaration = 0;
+    _declaration = nullptr;
     _bases.clear();
     _operations.clear();
     Container::destroy();
@@ -3883,21 +3883,21 @@ Slice::InterfaceDef::createOperation(const string& name,
         }
         _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
                      + "' as operation `" + name + "'");
-        return 0;
+        return nullptr;
     }
 
     // Check whether enclosing interface has the same name.
     if (name == this->name())
     {
         _unit->error("interface name `" + name + "' cannot be used as operation name");
-        return 0;
+        return nullptr;
     }
 
     if (ciequals(name, this->name()))
     {
         _unit->error("operation `" + name + "' differs only in capitalization from enclosing interface name `"
                      + this->name() + "'");
-        return 0;
+        return nullptr;
     }
 
     // Check whether any base has an operation with the same name already
@@ -3908,14 +3908,14 @@ Slice::InterfaceDef::createOperation(const string& name,
             if (operation->name() == name)
             {
                 _unit->error("operation `" + name + "' is already defined as an operation in a base interface");
-                return 0;
+                return nullptr;
             }
 
             if (ciequals(operation->name(), name))
             {
                 _unit->error("operation `" + name + "' differs only in capitalization from operation `"
                              + operation->name() + "', which is defined in a base interface");
-                return 0;
+                return nullptr;
             }
         }
     }
@@ -4144,7 +4144,7 @@ Slice::Optional::isVariableLength() const
 void
 Slice::Exception::destroy()
 {
-    _base = 0;
+    _base = nullptr;
     _dataMembers.clear();
     Container::destroy();
 }
@@ -4174,7 +4174,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         else
         {
             _unit->error("redefinition of exception member `" + name + "'");
-            return 0;
+            return nullptr;
         }
     }
 
@@ -4186,7 +4186,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             if (member->name() == name)
             {
                 _unit->error("exception member `" + name + "' is already defined in a base exception");
-                return 0;
+                return nullptr;
             }
 
             if (ciequals(member->name(), name))
@@ -4207,7 +4207,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         if (!validateConstant(name, type, dvt, dv, false))
         {
             // Create the data member anyway, just without the default value.
-            dvt = 0;
+            dvt = nullptr;
             dv.clear();
             dl.clear();
         }
@@ -4455,7 +4455,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
         else
         {
             _unit->error("redefinition of struct member `" + name + "'");
-            return 0;
+            return nullptr;
         }
     }
 
@@ -4463,7 +4463,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
     if (type.get() == this)
     {
         _unit->error("struct `" + this->name() + "' cannot contain itself");
-        return 0;
+        return nullptr;
     }
 
     SyntaxTreeBasePtr dvt = defaultValueType;
@@ -4476,7 +4476,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
         if (!validateConstant(name, type, dvt, dv, false))
         {
             // Create the data member anyway, just without the default value.
-            dvt = 0;
+            dvt = nullptr;
             dv.clear();
             dl.clear();
         }
@@ -4921,7 +4921,7 @@ void
 Slice::Enum::destroy()
 {
     _enumerators.clear();
-    _underlying = 0;
+    _underlying = nullptr;
     Container::destroy();
 }
 
@@ -5067,7 +5067,7 @@ Slice::Enum::validateEnumerator(const string& name)
     }
 
     checkIdentifier(name); // Ignore return value.
-    return 0;
+    return nullptr;
 }
 
 void
@@ -5292,7 +5292,7 @@ Slice::Const::Const(const ContainerPtr& container, const string& name, const Typ
     _value(value),
     _literal(literal)
 {
-    if (valueType == 0)
+    if (!valueType)
     {
         cerr << "const " << name << " created with null valueType" << endl;
     }
@@ -5451,7 +5451,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         else
         {
             _unit->error("redefinition of parameter `" + name + "'");
-            return 0;
+            return nullptr;
         }
     }
 
@@ -6123,7 +6123,7 @@ Slice::Unit::findDefinitionContext(const string& file) const
     {
         return p->second;
     }
-    return 0;
+    return nullptr;
 }
 
 void
@@ -6332,7 +6332,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
         popDefinitionContext();
     }
 
-    Slice::unit = 0;
+    Slice::unit = nullptr;
     return status;
 }
 
