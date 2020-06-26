@@ -10,7 +10,7 @@ namespace ZeroC.Ice
 {
     internal class EndpointFactory : IEndpointFactory
     {
-        private Communicator _communicator;
+        private readonly Communicator _communicator;
 
         public Endpoint Create(
             Transport transport,
