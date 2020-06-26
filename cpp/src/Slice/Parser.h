@@ -234,7 +234,6 @@ public:
 
     void setFilename(const std::string&);
 
-    bool hasMetaData() const;
     void setMetaData(const StringList&);
     std::string findMetaData(const std::string&) const;
     StringList getMetaData() const;
@@ -534,7 +533,7 @@ public:
     // Finds enumerators using the deprecated unscoped enumerators lookup
     EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
-    ContainedList contents() const;
+    virtual ContainedList contents() const;
     bool hasSequences() const;
     bool hasStructs() const;
     bool hasExceptions() const;
@@ -826,6 +825,7 @@ public:
     bool isA(const std::string&) const;
     bool hasOperations() const;
     bool inheritsMetaData(const std::string&) const;
+    ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
@@ -885,6 +885,7 @@ public:
     ExceptionPtr base() const;
     ExceptionList allBases() const;
     bool isBaseOf(const ExceptionPtr&) const;
+    ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses(bool) const;
@@ -916,6 +917,7 @@ public:
                                    const std::string&, const std::string&);
     DataMemberList dataMembers() const;
     DataMemberList classDataMembers() const;
+    ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
@@ -1025,6 +1027,7 @@ public:
 
     std::int64_t minValue() const;
     std::int64_t maxValue() const;
+    ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;

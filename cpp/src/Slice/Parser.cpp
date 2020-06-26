@@ -214,12 +214,6 @@ Slice::DefinitionContext::setFilename(const string& filename)
     _filename = filename;
 }
 
-bool
-Slice::DefinitionContext::hasMetaData() const
-{
-    return !_metaData.empty();
-}
-
 void
 Slice::DefinitionContext::setMetaData(const StringList& metaData)
 {
@@ -2551,7 +2545,8 @@ Slice::Container::hasOtherConstructedOrExceptions() const
 bool
 Slice::Container::hasContentsWithMetaData(const string& meta) const
 {
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    ContainedList contained = contents();
+    for (ContainedList::const_iterator p = contained.begin(); p != contained.end(); ++p)
     {
         if((*p)->hasMetaData(meta))
         {
@@ -3725,13 +3720,12 @@ Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
 void
 Slice::InterfaceDecl::recDependencies(set<ConstructedPtr>& dependencies)
 {
-    if(_definition)
+    if (_definition)
     {
         _definition->containerRecDependencies(dependencies);
-        InterfaceList bases = _definition->bases();
-        for (InterfaceList::iterator p = bases.begin(); p != bases.end(); ++p)
+        for (auto& base : _definition->bases())
         {
-            (*p)->declaration()->recDependencies(dependencies);
+            base->declaration()->recDependencies(dependencies);
         }
     }
 }
@@ -3740,39 +3734,31 @@ void
 Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList& bases,
                                      const UnitPtr& ut)
 {
-    //
     // Check whether, for multiple inheritance, any of the bases define
     // the same operations.
-    //
-    if(bases.size() > 1)
+    if (bases.size() > 1)
     {
-        //
         // We have multiple inheritance. Build a list of paths through the
         // inheritance graph, such that multiple inheritance is legal if
         // the union of the names defined in classes on each path are disjoint.
-        //
         GraphPartitionList gpl;
-        for (InterfaceList::const_iterator p = bases.begin(); p != bases.end(); ++p)
+        for (const auto& base : bases)
         {
             InterfaceList cl;
             gpl.push_back(cl);
-            addPartition(gpl, gpl.rbegin(), *p);
+            addPartition(gpl, gpl.rbegin(), base);
         }
 
-        //
         // We now have a list of partitions, with each partition containing
         // a list of class definitions. Turn the list of partitions of class
         // definitions into a list of sets of strings, with each
         // set containing the names of operations and data members defined in
         // the classes in each partition.
-        //
         StringPartitionList spl = toStringPartitionList(gpl);
 
-        //
         // Multiple inheritance is legal if no two partitions contain a common
         // name (that is, if the union of the intersections of all possible pairs
         // of partitions is empty).
-        //
         checkPairIntersections(spl, name, ut);
     }
 }
@@ -3786,15 +3772,13 @@ Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string&
     _unit->currentContainer();
 }
 
-//
 // Return true if the interface definition cdp is on one of the interface lists in gpl, false otherwise.
-//
 bool
 Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& cdp)
 {
-    for (GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    for (const auto& i : gpl)
     {
-        if(find(i->begin(), i->end(), cdp) != i->end())
+        if (find(i.begin(), i.end(), cdp) != i.end())
         {
             return true;
         }
@@ -3807,35 +3791,27 @@ Slice::InterfaceDecl::addPartition(GraphPartitionList& gpl,
                                GraphPartitionList::reverse_iterator tail,
                                const InterfaceDefPtr& base)
 {
-    //
     // If this base is on one of the partition lists already, do nothing.
-    //
-    if(isInList(gpl, base))
+    if (isInList(gpl, base))
     {
         return;
     }
-    //
     // Put the current base at the end of the current partition.
-    //
     tail->push_back(base);
-    //
     // If the base has bases in turn, recurse, adding the first base
     // of base (the left-most "grandbase") to the current partition.
-    //
-    if(base->bases().size())
+    if (base->bases().size())
     {
         addPartition(gpl, tail, *(base->bases().begin()));
     }
-    //
     // If the base has multiple bases, each of the "grandbases"
     // except for the left-most (which we just dealt with)
     // adds a new partition.
-    //
-    if(base->bases().size() > 1)
+    if (base->bases().size() > 1)
     {
         InterfaceList grandBases = base->bases();
         InterfaceList::const_iterator i = grandBases.begin();
-        while(++i != grandBases.end())
+        while (++i != grandBases.end())
         {
             InterfaceList cl;
             gpl.push_back(cl);
@@ -3844,35 +3820,30 @@ Slice::InterfaceDecl::addPartition(GraphPartitionList& gpl,
     }
 }
 
-//
 // Convert the list of partitions of interface definitions into a
 // list of lists, with each member list containing the operation
 // names defined by the interfaces in each partition.
-//
 Slice::InterfaceDecl::StringPartitionList
 Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& gpl)
 {
     StringPartitionList spl;
-    for (GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    for (const auto& part : gpl)
     {
         StringList sl;
         spl.push_back(sl);
-        for (InterfaceList::const_iterator j = i->begin(); j != i->end(); ++j)
+        for (const auto& interface : part)
         {
-            OperationList operations = (*j)->operations();
-            for (OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
+            for (const auto& operation : interface->operations())
             {
-                spl.rbegin()->push_back((*l)->name());
+                sl.push_back(operation->name());
             }
         }
     }
     return spl;
 }
 
-//
 // For all (unique) pairs of string lists, check whether an identifier in one list occurs
 // in the other and, if so, complain.
-//
 void
 Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const string& name, const UnitPtr& ut)
 {
@@ -3883,26 +3854,23 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
         ++cursor;
         for (StringPartitionList::const_iterator j = cursor; j != l.end(); ++j)
         {
-            for (StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
+            for (const auto& s1 : i)
             {
-                for (StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
+                for (const auto& s2 : j)
                 {
-                    if((*s1) == (*s2) && reported.find(*s1) == reported.end())
+                    if(s1 == s2 && reported.find(s1) == reported.end())
                     {
-                        string msg = "ambiguous multiple inheritance: `" + name;
-                        msg += "' inherits operation `" + *s1 + "' from two or more unrelated base interfaces";
-                        ut->error(msg);
-                        reported.insert(*s1);
+                        ut->error("ambiguous multiple inheritance: `" + name + "' inherits operation `" + s1
+                                  + "' from two or more unrelated base interfaces");
+                        reported.insert(s1);
                     }
-                    else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
-                            reported.find(*s1) == reported.end() && reported.find(*s2) == reported.end())
+                    else if(!ciequals(s1, s2) && !ciequals(s2, s1) && reported.find(s1) == reported.end()
+                            && reported.find(s2) == reported.end())
                     {
-                        string msg = "ambiguous multiple inheritance: `" + name;
-                        msg += "' inherits operations `" + *s1 + "' and `" + *s2;
-                        msg += "', which differ only in capitalization, from unrelated base interfaces";
-                        ut->error(msg);
-                        reported.insert(*s1);
-                        reported.insert(*s2);
+                        ut->error("ambiguous multiple inheritance: `" + name + "' inherits operations `" + s1 + "' and `"
+                                  + s2 + "', which differ only in capitalization, from unrelated base interfaces");
+                        reported.insert(s1);
+                        reported.insert(s2);
                     }
                 }
             }
@@ -4083,6 +4051,14 @@ Slice::InterfaceDef::inheritsMetaData(const string& meta) const
         }
     }
     return false;
+}
+
+ContainedList
+Slice::InterfaceDef::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _operations.begin(), _operations.end());
+    return result;
 }
 
 Contained::ContainedType
@@ -4388,6 +4364,14 @@ Slice::Exception::isBaseOf(const ExceptionPtr& other) const
     return false;
 }
 
+ContainedList
+Slice::Exception::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
+    return result;
+}
+
 Contained::ContainedType
 Slice::Exception::containedType() const
 {
@@ -4568,6 +4552,14 @@ Slice::Struct::classDataMembers() const
             result.push_back(member);
         }
     }
+    return result;
+}
+
+ContainedList
+Slice::Struct::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
     return result;
 }
 
@@ -5019,6 +5011,14 @@ int64_t
 Slice::Enum::maxValue() const
 {
     return _maxValue;
+}
+
+ContainedList
+Slice::Enum::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _enumerators.begin(), _enumerators.end());
+    return result;
 }
 
 Contained::ContainedType
