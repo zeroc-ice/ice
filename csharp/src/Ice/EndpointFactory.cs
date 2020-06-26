@@ -10,7 +10,7 @@ namespace ZeroC.Ice
 {
     internal class EndpointFactory : IEndpointFactory
     {
-        private Communicator Communicator { get; }
+        private Communicator _communicator;
 
         public Endpoint Create(
             Transport transport,
@@ -23,12 +23,12 @@ namespace ZeroC.Ice
             {
                 case Transport.TCP:
                 case Transport.SSL:
-                    return new TcpEndpoint(Communicator, transport, protocol, options, oaEndpoint, endpointString);
+                    return new TcpEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString);
                 case Transport.WS:
                 case Transport.WSS:
-                    return new WSEndpoint(Communicator, transport, protocol, options, oaEndpoint, endpointString);
+                    return new WSEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString);
                 case Transport.UDP:
-                    return new UdpEndpoint(Communicator, protocol, options, oaEndpoint, endpointString);
+                    return new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString);
                 default:
                     Debug.Assert(false);
                     throw new NotSupportedException($"the transport `{transport}' is not supported");
@@ -53,6 +53,6 @@ namespace ZeroC.Ice
             }
         }
 
-        internal EndpointFactory(Communicator communicator) => Communicator = communicator;
+        internal EndpointFactory(Communicator communicator) => _communicator = communicator;
     }
 }
