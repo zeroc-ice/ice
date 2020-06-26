@@ -1393,7 +1393,7 @@ namespace ZeroC.Ice
                 [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
                 [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
                 [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture),
-                [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToString(),
+                [prefix + ".LocatorCacheTimeout"] = LocatorCacheTimeout.ToPropertyString(),
                 [prefix + ".PreferNonSecure"] = PreferNonSecure ? "1" : "0"
             };
 
