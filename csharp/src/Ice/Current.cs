@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading;
 using System.Collections.Generic;
 
 namespace ZeroC.Ice
@@ -9,6 +10,7 @@ namespace ZeroC.Ice
     public class Current
     {
         public ObjectAdapter Adapter { get; }
+        public CancellationToken CancellationToken { get; }
         public Connection? Connection { get; }
         // TODO: should this be a IReadOnlyDictionary<string, string>?
         public Dictionary<string, string> Context { get; }
@@ -22,10 +24,15 @@ namespace ZeroC.Ice
 
         public int RequestId { get; }
 
-        internal Current(ObjectAdapter adapter, IncomingRequestFrame request, int requestId,
+        internal Current(
+            ObjectAdapter adapter,
+            IncomingRequestFrame request,
+            int requestId,
+            CancellationToken cancel,
             Connection? connection = null)
         {
             Adapter = adapter;
+            CancellationToken = cancel;
             Connection = connection;
             Context = new Dictionary<string, string>(request.Context);
             Encoding = request.Encoding;

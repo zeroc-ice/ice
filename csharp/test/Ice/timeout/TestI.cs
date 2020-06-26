@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using Test;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +19,26 @@ namespace ZeroC.Ice.Test.Timeout
         {
         }
 
-        public void sleep(int to, Current current) => Thread.Sleep(to);
+        public void sleep(int to, Current current)
+        {
+            if (current.Connection == null)
+            {
+                // Ensure the collocated dispatch is canceled when the invocation is canceled because of the invocation
+                // timeout.
+                try
+                {
+                    Task.Delay(to, current.CancellationToken).Wait();
+                    TestHelper.Assert(false);
+                }
+                catch (TaskCanceledException)
+                {
+                }
+            }
+            else
+            {
+                Thread.Sleep(to);
+            }
+        }
     }
 
     internal class Controller : IController

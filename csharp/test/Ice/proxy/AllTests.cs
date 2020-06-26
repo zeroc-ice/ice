@@ -561,7 +561,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.ConnectionCached"] == "1");
             TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "0");
             TestHelper.Assert(proxyProps["Test.EndpointSelection"] == "Ordered");
-            TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"] == "00:01:40");
+            TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"] == "100s");
             TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "1234");
 
             TestHelper.Assert(proxyProps["Test.Locator"] == $"locator -t -p {defaultProtocolName} -e {Encoding.V2_0}");
@@ -570,7 +570,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"] == "0");
             TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.EndpointSelection"] == "Random");
-            TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"] == "00:05:00");
+            TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"] == "5m");
             TestHelper.Assert(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
             TestHelper.Assert(proxyProps["Test.Locator.Router"] ==
@@ -579,7 +579,7 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
-            TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "00:03:20");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200s");
             TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
 
             output.WriteLine("ok");

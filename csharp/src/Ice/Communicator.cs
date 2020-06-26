@@ -149,16 +149,17 @@ namespace ZeroC.Ice
 
         public ToStringMode ToStringMode { get; }
 
+        // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
+        internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
         internal ACMConfig ClientACM { get; }
         internal int FrameSizeMax { get; }
+        internal int IPVersion { get; }
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
-        internal int IPVersion { get; }
-        // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
-        internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int[] RetryIntervals { get; }
         internal ACMConfig ServerACM { get; }
+        internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
         private static string[] _emptyArgs = Array.Empty<string>();
@@ -214,7 +215,6 @@ namespace ZeroC.Ice
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
-        private readonly SslEngine _sslEngine;
         private int _state;
         private readonly Timer _timer;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
@@ -641,7 +641,7 @@ namespace ZeroC.Ice
                         nameof(caCertificates));
                 }
 
-                _sslEngine = new SslEngine(
+                SslEngine = new SslEngine(
                     this,
                     certificates,
                     caCertificates,
@@ -649,12 +649,12 @@ namespace ZeroC.Ice
                     certificateValidationCallback,
                     passwordCallback);
 
-                IceAddEndpointFactory(Transport.TCP, "tcp", new TcpEndpointFactory(this));
-                IceAddEndpointFactory(Transport.UDP, "udp", new UdpEndpointFactory(this));
-                IceAddEndpointFactory(Transport.WS, "ws", new WSEndpointFactory(this));
-
-                IceAddEndpointFactory(Transport.SSL, "ssl", new SslEndpointFactory(this, _sslEngine));
-                IceAddEndpointFactory(Transport.WSS, "wss", new WSSEndpointFactory(this, _sslEngine));
+                var endpointFactory = new EndpointFactory(this);
+                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory);
+                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory);
+                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory);
+                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory);
+                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory);
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 

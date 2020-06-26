@@ -304,8 +304,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public string TransportName => _delegate.TransportName;
-
         public void CheckSendSize(int size) => _delegate.CheckSendSize(size);
 
         public override string ToString() => _delegate.ToString()!;
@@ -315,11 +313,14 @@ namespace ZeroC.Ice
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal SslTransceiver(Communicator communicator, SslEngine engine, ITransceiver del,
-            string hostOrAdapterName, bool incoming)
+        internal SslTransceiver(
+            Communicator communicator,
+            ITransceiver del,
+            string hostOrAdapterName,
+            bool incoming)
         {
             _communicator = communicator;
-            _engine = engine;
+            _engine = communicator.SslEngine;
             _delegate = del;
             _incoming = incoming;
             if (_incoming)

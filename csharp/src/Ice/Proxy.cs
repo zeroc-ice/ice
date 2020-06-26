@@ -273,7 +273,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync();
+                ValueTask<IRequestHandler> task = prx.IceReference.GetRequestHandlerAsync(cancel: default);
                 if (task.IsCompleted)
                 {
                     return (task.Result as ConnectionRequestHandler)?.GetConnection();
@@ -298,8 +298,7 @@ namespace ZeroC.Ice
         public static async ValueTask<Connection?> GetConnectionAsync(this IObjectPrx prx,
                                                                       CancellationToken cancel = default)
         {
-            IRequestHandler handler =
-                await prx.IceReference.GetRequestHandlerAsync().WaitAsync(cancel).ConfigureAwait(false);
+            IRequestHandler handler = await prx.IceReference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
             return (handler as ConnectionRequestHandler)?.GetConnection();
         }
 
@@ -365,13 +364,16 @@ namespace ZeroC.Ice
                                                                     IProgress<bool>? progress = null,
                                                                     CancellationToken cancel = default)
         {
-            var forwardedRequest = new OutgoingRequestFrame(proxy, request.Operation, request.IsIdempotent,
-                request.Context, request.Payload);
-            ValueTask<IncomingResponseFrame> task =
-                proxy.InvokeAsync(forwardedRequest, oneway: oneway, progress, cancel);
-            return WaitResponseAsync(request, task);
+            var forwardedRequest = new OutgoingRequestFrame(proxy,
+                                                            request.Operation,
+                                                            request.IsIdempotent,
+                                                            request.Context,
+                                                            request.Payload);
 
-            static async ValueTask<OutgoingResponseFrame> WaitResponseAsync(IncomingRequestFrame request,
+            return WaitResponseAsync(request, proxy.InvokeAsync(forwardedRequest, oneway: oneway, progress, cancel));
+
+            static async ValueTask<OutgoingResponseFrame> WaitResponseAsync(
+                IncomingRequestFrame request,
                 ValueTask<IncomingResponseFrame> task)
             {
                 // TODO: need protocol bridging when the protocols are not the same.
@@ -435,11 +437,15 @@ namespace ZeroC.Ice
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
-                            handler = await reference.GetRequestHandlerAsync().WaitAsync(cancel).ConfigureAwait(false);
+                            handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
-                            Task<IncomingResponseFrame>? responseTask = await handler!.SendRequestAsync(request, oneway,
-                                synchronous, observer).WaitAsync(cancel).ConfigureAwait(false);
+                            Task<IncomingResponseFrame>? responseTask =
+                                await handler!.SendRequestAsync(request,
+                                                                oneway,
+                                                                synchronous,
+                                                                observer,
+                                                                cancel).ConfigureAwait(false);
 
                             sent = true; // Mark the request as sent, it's important for the retry logic
 
@@ -455,8 +461,7 @@ namespace ZeroC.Ice
                             // If there's a response task, wait for the response
                             if (responseTask != null)
                             {
-                                IncomingResponseFrame response =
-                                    await responseTask.WaitAsync(cancel).ConfigureAwait(false);
+                                IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
                                 switch (response.ReplyStatus)
                                 {
                                     case ReplyStatus.OK:
@@ -518,9 +523,10 @@ namespace ZeroC.Ice
                                 ref retryCount);
                             if (delay > 0)
                             {
-                                // The delay task can be cancelled either by the user code using the provided
+                                // The delay task can be canceled either by the user code using the provided
                                 // cancellation token or if the communicator is destroyed.
-                                CancellationToken token = CancellationTokenSource.CreateLinkedTokenSource(cancel,
+                                CancellationToken token = CancellationTokenSource.CreateLinkedTokenSource(
+                                    cancel,
                                     proxy.Communicator.CancellationToken).Token;
                                 await Task.Delay(delay, token).ConfigureAwait(false);
                             }

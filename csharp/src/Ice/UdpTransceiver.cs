@@ -282,7 +282,7 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Network >= 1)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"connected {TransportName} socket\n{this}");
+                        $"connected udp socket\n{this}");
                 }
             }
 
@@ -409,7 +409,7 @@ namespace ZeroC.Ice
                 if (_communicator.TraceLevels.Network >= 1)
                 {
                     _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
-                        $"connected {TransportName} socket\n{this}");
+                        $"connected udp socket\n{this}");
                 }
             }
 
@@ -545,8 +545,6 @@ namespace ZeroC.Ice
             return;
         }
 
-        public string TransportName { get; }
-
         public void CheckSendSize(int size)
         {
             // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send buffer size
@@ -625,14 +623,12 @@ namespace ZeroC.Ice
         //
         internal UdpTransceiver(
             Communicator communicator,
-            string transportName,
             System.Net.EndPoint addr,
             System.Net.IPAddress? sourceAddr,
             string mcastInterface,
             int mcastTtl)
         {
             _communicator = communicator;
-            TransportName = transportName;
             _addr = addr;
             if (sourceAddr != null)
             {
@@ -675,7 +671,6 @@ namespace ZeroC.Ice
         {
             _endpoint = endpoint;
             _communicator = communicator;
-            TransportName = endpoint.TransportName;
             _state = connect ? StateNeedConnect : StateNotConnected;
             _mcastInterface = mcastInterface;
             _incoming = true;

@@ -13,7 +13,6 @@ namespace ZeroC.Ice
         bool StartAccept(AsyncCallback callback, object state);
         void FinishAccept();
         ITransceiver Accept();
-        string TransportName { get; }
         string ToString();
         string ToDetailedString();
 

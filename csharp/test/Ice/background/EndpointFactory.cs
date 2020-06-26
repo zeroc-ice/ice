@@ -36,11 +36,11 @@ namespace ZeroC.Ice.Test.Background
                 _underlyingTransport, protocol, options, server, endpointString));
         }
 
-        public ZeroC.Ice.Endpoint Read(InputStream istr, Protocol protocol)
+        public ZeroC.Ice.Endpoint Read(InputStream istr, Transport transport, Protocol protocol)
         {
-            var transport = (Transport)istr.ReadShort();
-            TestHelper.Assert(transport == Transport);
-            return new Endpoint(_underlyingFactory.Read(istr, protocol));
+            var delegateTransport = (Transport)istr.ReadShort();
+            TestHelper.Assert(delegateTransport == Transport);
+            return new Endpoint(_underlyingFactory.Read(istr, transport, protocol));
         }
     }
 }

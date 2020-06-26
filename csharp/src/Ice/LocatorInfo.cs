@@ -83,7 +83,10 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<(IReadOnlyList<Endpoint>, bool)> GetEndpointsAsync(Reference reference, TimeSpan ttl)
+        internal async ValueTask<(IReadOnlyList<Endpoint>, bool)> GetEndpointsAsync(
+            Reference reference,
+            TimeSpan ttl,
+            CancellationToken cancel)
         {
             Debug.Assert(reference.IsIndirect);
             IReadOnlyList<Endpoint> endpoints;
@@ -101,11 +104,11 @@ namespace ZeroC.Ice
                         // Reference is returned from the cache but TTL was reached, if backgrounds updates
                         // are configured, we obtain a new reference to refresh the cache but use the stale
                         // reference to not block the caller.
-                        _ = GetObjectReferenceAsync(reference);
+                        _ = GetObjectReferenceAsync(reference, cancel: default);
                     }
                     else
                     {
-                        resolvedReference = await GetObjectReferenceAsync(reference).ConfigureAwait(false);
+                        resolvedReference = await GetObjectReferenceAsync(reference, cancel).ConfigureAwait(false);
                     }
                 }
 
@@ -135,14 +138,15 @@ namespace ZeroC.Ice
                             // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
                             // are configured, we obtain new endpoints but continue using the stale endpoints to
                             // not block the caller.
-                            _ = GetAdapterEndpointsAsync(resolvedReference);
+                            _ = GetAdapterEndpointsAsync(resolvedReference, cancel: default);
                         }
                         else
                         {
                             bool adapterNotFound = false;
                             try
                             {
-                                endpoints = await GetAdapterEndpointsAsync(resolvedReference).ConfigureAwait(false);
+                                endpoints =
+                                    await GetAdapterEndpointsAsync(resolvedReference, cancel).ConfigureAwait(false);
                             }
                             catch (AdapterNotFoundException)
                             {
@@ -172,11 +176,11 @@ namespace ZeroC.Ice
                         // Endpoints are returned from the cache but TTL was reached, if backgrounds updates
                         // are configured, we obtain new endpoints but continue using the stale endpoints to
                         // not block the caller.
-                        _ = GetAdapterEndpointsAsync(reference);
+                        _ = GetAdapterEndpointsAsync(reference, cancel: default);
                     }
                     else
                     {
-                        endpoints = await GetAdapterEndpointsAsync(reference).ConfigureAwait(false);
+                        endpoints = await GetAdapterEndpointsAsync(reference, cancel).ConfigureAwait(false);
                     }
                 }
             }
@@ -233,7 +237,9 @@ namespace ZeroC.Ice
             return (endpoints, cached);
         }
 
-        private Task<IReadOnlyList<Endpoint>> GetAdapterEndpointsAsync(Reference reference)
+        private async Task<IReadOnlyList<Endpoint>> GetAdapterEndpointsAsync(
+            Reference reference,
+            CancellationToken cancel)
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
@@ -257,7 +263,8 @@ namespace ZeroC.Ice
                     }
                 }
             }
-            return task!;
+
+            return await task.WaitAsync(cancel).ConfigureAwait(false);
 
             async Task<IReadOnlyList<Endpoint>> PerformGetAdapterEndpointsAsync(Reference reference)
             {
@@ -308,7 +315,7 @@ namespace ZeroC.Ice
 
         internal ILocatorRegistryPrx? GetLocatorRegistry() => _locatorRegistry.Value;
 
-        private Task<Reference?> GetObjectReferenceAsync(Reference reference)
+        private async Task<Reference?> GetObjectReferenceAsync(Reference reference, CancellationToken cancel)
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
@@ -332,7 +339,8 @@ namespace ZeroC.Ice
                     }
                 }
             }
-            return task!;
+
+            return await task.WaitAsync(cancel).ConfigureAwait(false);
 
             async Task<Reference?> PerformGetObjectProxyAsync(Reference reference)
             {

@@ -1192,7 +1192,7 @@ namespace ZeroC.Ice
                 _pos = 0;
                 _minTotalSeqSize = 0;
 
-                endpoint = factory.Read(this, protocol);
+                endpoint = factory.Read(this, transport, protocol);
                 CheckEndOfBuffer();
 
                 // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
