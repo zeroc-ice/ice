@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Globalization;
 using System.Threading;
 
 namespace ZeroC.Ice
@@ -16,6 +17,7 @@ namespace ZeroC.Ice
         /// <returns>The stringified TimeSpan.</returns>
         public static string ToPropertyString(this TimeSpan ts)
         {
+            FormattableString message;
             if (ts == TimeSpan.Zero)
             {
                 return "0ms";
@@ -26,28 +28,30 @@ namespace ZeroC.Ice
             }
             else if (ts.Milliseconds != 0)
             {
-                return $"{ts.TotalMilliseconds}ms";
+                message = $"{ts.TotalMilliseconds}ms";
             }
             else if (ts.Seconds != 0)
             {
-                return $"{ts.TotalSeconds}s";
+                message = $"{ts.TotalSeconds}s";
             }
             else if (ts.Minutes != 0)
             {
-                return $"{ts.TotalMinutes}m";
+                message = $"{ts.TotalMinutes}m";
             }
             else if (ts.Hours != 0)
             {
-                return $"{ts.TotalHours}h";
+                message = $"{ts.TotalHours}h";
             }
             else if (ts.Days != 0)
             {
-                return $"{ts.TotalDays}d";
+                message = $"{ts.TotalDays}d";
             }
             else
             {
-                return $"{ts.TotalMilliseconds}ms";
+                message = $"{ts.TotalMilliseconds}ms";
             }
+
+            return message.ToString(CultureInfo.InvariantCulture);
         }
     }
 }
