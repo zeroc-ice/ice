@@ -240,18 +240,9 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public async ValueTask HeartbeatAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
         {
-            Task writeTask;
-            lock (_mutex)
-            {
-                if (_state >= State.Closed)
-                {
-                    throw _exception!;
-                }
-                writeTask = SendFrameAsync(() => GetProtocolFrameData(OldProtocol ? _validateConnectionFrameIce1 :
-                                           _validateConnectionFrameIce2),
-                                           cancel);
-            }
-            await writeTask.ConfigureAwait(false);
+            await SendFrameAsync(() => GetProtocolFrameData(OldProtocol ? _validateConnectionFrameIce1 :
+                                                            _validateConnectionFrameIce2),
+                                 cancel).ConfigureAwait(false);
             progress?.Report(true);
         }
 
@@ -430,7 +421,13 @@ namespace ZeroC.Ice
                             {
                                 _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
                             }
-                            closingTask = _closeTask = PerformGracefulCloseAsync();
+                            closingTask = PerformGracefulCloseAsync();
+                            if (_closeTask == null)
+                            {
+                                // _closeTask might already be assigned if CloseAsync() got called if the send of the
+                                // closing frame failed.
+                                _closeTask = closingTask;
+                            }
                         }
                         else if (_state == State.Closing)
                         {
@@ -476,8 +473,15 @@ namespace ZeroC.Ice
                         Debug.Assert(_state == State.Active);
                         if (!Endpoint.IsDatagram)
                         {
-                            SendFrameAsync(() => GetProtocolFrameData(
-                                OldProtocol ? _validateConnectionFrameIce1 : _validateConnectionFrameIce2));
+                            try
+                            {
+                                SendFrameAsync(() => GetProtocolFrameData(
+                                    OldProtocol ? _validateConnectionFrameIce1 : _validateConnectionFrameIce2));
+                            }
+                            catch
+                            {
+                                // Ignore
+                            }
                         }
                     }
                 }
@@ -951,7 +955,16 @@ namespace ZeroC.Ice
                     // Send the response if there's a response
                     if (_state < State.Closed && response != null)
                     {
-                        SendFrameAsync(() => GetResponseFrameData(response, current.RequestId, compressionStatus > 0));
+                        try
+                        {
+                            SendFrameAsync(() => GetResponseFrameData(response,
+                                                                      current.RequestId,
+                                                                      compressionStatus > 0));
+                        }
+                        catch
+                        {
+                            // Ignore
+                        }
                     }
 
                     // Decrease the dispatch count
@@ -1290,41 +1303,6 @@ namespace ZeroC.Ice
             return (incoming, adapter);
         }
 
-        private async Task PerformGracefulCloseAsync()
-        {
-            if (!(_exception is ConnectionClosedByPeerException))
-            {
-                // Wait for the all the dispatch to be completed to ensure the responses are sent.
-                if (_dispatchTaskCompletionSource != null)
-                {
-                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
-                }
-
-                // Write and wait for the close connection frame to be written
-                await SendFrameAsync(() => GetProtocolFrameData(
-                    OldProtocol ? _closeConnectionFrameIce1 : _closeConnectionFrameIce2)).ConfigureAwait(false);
-            }
-
-            // Notify the transport of the graceful connection closure.
-            try
-            {
-                await Transceiver.ClosingAsync(_exception!).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
-            }
-
-            // Wait for the connection closure from the peer
-            try
-            {
-                await _receiveTask.ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-        }
-
         private async Task PerformCloseAsync()
         {
             // Close the transceiver, this should cause pending IO async calls to return.
@@ -1388,7 +1366,7 @@ namespace ZeroC.Ice
 
             // Notify pending requests of the failure and the close callback. We use the thread pool to ensure the
             // continuations or the callback are not run from this thread which might still lock the connection's mutex.
-            _ = Task.Run(() =>
+            await Task.Run(() =>
             {
                 foreach ((TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource, bool synchronous) request in
                     _requests.Values)
@@ -1415,6 +1393,48 @@ namespace ZeroC.Ice
 
             _monitor?.Reap(this);
             _observer?.Detach();
+        }
+
+        private async Task PerformGracefulCloseAsync()
+        {
+            if (!(_exception is ConnectionClosedByPeerException))
+            {
+                // Wait for the all the dispatch to be completed to ensure the responses are sent.
+                if (_dispatchTaskCompletionSource != null)
+                {
+                    await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
+                }
+
+                // Write and wait for the close connection frame to be written
+                try
+                {
+                    await SendFrameAsync(() => GetProtocolFrameData(
+                        OldProtocol ? _closeConnectionFrameIce1 : _closeConnectionFrameIce2)).ConfigureAwait(false);
+                }
+                catch
+                {
+                    // Ignore
+                }
+            }
+
+            // Notify the transport of the graceful connection closure.
+            try
+            {
+                await Transceiver.ClosingAsync(_exception!).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
+            }
+
+            // Wait for the connection closure from the peer
+            try
+            {
+                await _receiveTask.ConfigureAwait(false);
+            }
+            catch
+            {
+            }
         }
 
         private async ValueTask<ArraySegment<byte>> PerformReceiveFrameAsync()
@@ -1681,7 +1701,7 @@ namespace ZeroC.Ice
                     throw _exception!;
                 }
                 ValueTask<ArraySegment<byte>> readTask = PerformAsync(this);
-                if (readTask.IsCompleted)
+                if (readTask.IsCompletedSuccessfully)
                 {
                     _receiveTask = Task.CompletedTask;
                     return readTask.Result;
@@ -1718,10 +1738,13 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                Debug.Assert(_state < State.Closed);
+                if (_state >= State.Closed)
+                {
+                    throw _exception!;
+                }
                 cancel.ThrowIfCancellationRequested();
                 ValueTask sendTask = QueueAsync(this, _sendTask, getFrameData, cancel);
-                _sendTask = sendTask.IsCompleted ? Task.CompletedTask : sendTask.AsTask();
+                _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
                 return _sendTask;
             }
 
