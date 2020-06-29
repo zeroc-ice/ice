@@ -83,7 +83,7 @@ namespace ZeroC.Ice
             {
                 int size;
                 (size, Encoding) = InputStream.ReadEncapsulationHeader(Protocol.GetEncoding(), Payload.AsSpan(1));
-                if (protocol == Protocol.Ice1 && size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
+                if (Protocol == Protocol.Ice1 && size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
                 {
                     throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
                 }

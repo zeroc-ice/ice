@@ -119,7 +119,8 @@ namespace ZeroC.Ice
 
         public bool DefaultPreferNonSecure { get; }
 
-        /// <summary>The Ice protocol used when parsing a proxy that does not specify an Ice protocol.</summary>
+        /// <summary>The Ice protocol used when parsing a stringified proxy that does not specify an Ice protocol.
+        /// </summary>
         public Protocol DefaultProtocol { get; }
 
         public IPAddress? DefaultSourceAddress { get; }

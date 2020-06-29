@@ -222,7 +222,6 @@ namespace ZeroC.Ice
 
             if (writeEmptyParamList)
             {
-                Encoding.CheckSupported();
                 _payloadEnd = ostr.WriteEmptyEncapsulation(Encoding);
                 Size = Data.GetByteCount();
                 IsSealed = true;

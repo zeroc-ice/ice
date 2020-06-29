@@ -720,6 +720,9 @@ namespace ZeroC.Ice
                                     }' before receiving the validate connection frame");
                             }
 
+                            // TODO: this is temporary code. With the 2.0 encoding, sizes are always variable-length
+                            // with the length encoded on the first 2 bits of the size. Assuming the size is encoded
+                            // on 4 bytes (like we do below) is not correct.
                             int size = InputStream.ReadFixedLengthSize(Endpoint.Protocol.GetEncoding(),
                                                                        readBuffer.AsSpan(10, 4));
                             if (size != Ice2Definitions.HeaderSize)

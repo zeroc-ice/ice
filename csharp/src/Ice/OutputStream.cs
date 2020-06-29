@@ -1629,6 +1629,7 @@ namespace ZeroC.Ice
         /// <summary>Writes an empty encapsulation.</summary>
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
+            encoding.CheckSupported();
             WriteEncapsulationHeader(size: 2, encoding, sizeLength: 1);
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;

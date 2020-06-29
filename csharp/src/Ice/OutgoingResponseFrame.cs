@@ -183,14 +183,19 @@ namespace ZeroC.Ice
             Data = new List<ArraySegment<byte>>();
             if (writeVoidReturnValue)
             {
-                // TODO: use encoding instead of the protocol's encoding for the empty encaps?
-                if (Protocol == Protocol.Ice1)
+                if (Protocol == Protocol.Ice1 && Encoding == Encoding.V1_1)
                 {
                     Data.Add(Ice1Definitions.EmptyResponsePayload);
                 }
-                else
+                else if (Protocol == Protocol.Ice2 && Encoding == Encoding.V2_0)
                 {
                     Data.Add(Ice2Definitions.EmptyResponsePayload);
+                }
+                else
+                {
+                    var ostr = new OutputStream(Protocol.GetEncoding(), Data, new OutputStream.Position(0, 0));
+                    ostr.WriteByte((byte)ReplyStatus.OK);
+                    _ = ostr.WriteEmptyEncapsulation(Encoding);
                 }
                 Size = Data.GetByteCount();
                 IsSealed = true;

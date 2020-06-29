@@ -57,7 +57,7 @@ namespace ZeroC.Ice
             (int size, Encoding encoding) = istr.ReadEncapsulationHeader();
             if (protocol == Protocol.Ice1 && size + 4 != Payload.Count)
             {
-                // The payload holds en encaps and the encaps must use up the full buffer with ice1.
+                // The payload holds an encapsulation and the encapsulation must use up the full buffer with ice1.
                 // "4" corresponds to fixed-length size with the 1.1 encoding.
                 throw new InvalidDataException($"invalid request encapsulation size: {size}");
             }
