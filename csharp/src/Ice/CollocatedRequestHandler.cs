@@ -141,7 +141,7 @@ namespace ZeroC.Ice
             try
             {
                 var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
-                var current = new Current(_adapter, incomingRequest, requestId, cancel);
+                var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
 
                 // Then notify and set dispatch observer, if any.
                 ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;

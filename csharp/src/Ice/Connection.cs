@@ -897,7 +897,11 @@ namespace ZeroC.Ice
             return (writeBuffer, compress);
         }
 
-        private async ValueTask InvokeAsync(Current current, IncomingRequestFrame request, byte compressionStatus)
+        private async ValueTask InvokeAsync(
+            IncomingRequestFrame request,
+            Current current,
+            int requestId,
+            byte compressionStatus)
         {
             IDispatchObserver? dispatchObserver = null;
             OutgoingResponseFrame? response = null;
@@ -920,14 +924,14 @@ namespace ZeroC.Ice
                     }
 
                     ValueTask<OutgoingResponseFrame> vt = servant.DispatchAsync(request, current);
-                    if (current.RequestId != 0)
+                    if (!current.IsOneway)
                     {
                         response = await vt.ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex)
                 {
-                    if (current.RequestId != 0)
+                    if (!current.IsOneway)
                     {
                         RemoteException actualEx;
                         if (ex is RemoteException remoteEx && !remoteEx.ConvertToUnhandled)
@@ -957,9 +961,7 @@ namespace ZeroC.Ice
                     {
                         try
                         {
-                            SendFrameAsync(() => GetResponseFrameData(response,
-                                                                      current.RequestId,
-                                                                      compressionStatus > 0));
+                            SendFrameAsync(() => GetResponseFrameData(response, requestId, compressionStatus > 0));
                         }
                         catch
                         {
@@ -1054,8 +1056,12 @@ namespace ZeroC.Ice
                                 // TODO: instead of a default cancellation token, we'll have to create a cancellation
                                 // token source here and keep track of them in a dictionnary for each dispatch. When a
                                 // stream is cancelled with ice2, we'll request cancellation on the cached token source.
-                                var current = new Current(_adapter, request, requestId, cancel: default, this);
-                                incoming = () => InvokeAsync(current, request, compressionStatus);
+                                var current = new Current(_adapter,
+                                                          request,
+                                                          oneway: requestId == 0,
+                                                          cancel: default,
+                                                          this);
+                                incoming = () => InvokeAsync(request, current, requestId, compressionStatus);
                                 ++_dispatchCount;
                             }
                         }
@@ -1223,8 +1229,12 @@ namespace ZeroC.Ice
                                 // TODO: instead of a default cancellation token, we'll have to create a cancellation
                                 // token source here and keep track of them in a dictionnary for each dispatch. When a
                                 // stream is cancelled with ice2, we'll request cancellation on the cached token source.
-                                var current = new Current(_adapter, request, requestId, cancel: default, this);
-                                incoming = () => InvokeAsync(current, request, compressionStatus: 0);
+                                var current = new Current(_adapter,
+                                                          request,
+                                                          oneway: requestId == 0,
+                                                          cancel: default,
+                                                          this);
+                                incoming = () => InvokeAsync(request, current, requestId, compressionStatus: 0);
                                 ++_dispatchCount;
                             }
                         }

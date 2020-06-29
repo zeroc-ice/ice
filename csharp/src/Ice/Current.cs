@@ -18,16 +18,14 @@ namespace ZeroC.Ice
         public string Facet { get; }
         public Identity Identity { get; }
         public bool IsIdempotent { get; }
-        public bool IsOneway => RequestId == 0;
+        public bool IsOneway { get; }
         public string Operation { get; }
         public Protocol Protocol { get; }
-
-        public int RequestId { get; }
 
         internal Current(
             ObjectAdapter adapter,
             IncomingRequestFrame request,
-            int requestId,
+            bool oneway,
             CancellationToken cancel,
             Connection? connection = null)
         {
@@ -41,7 +39,7 @@ namespace ZeroC.Ice
             IsIdempotent = request.IsIdempotent;
             Operation = request.Operation;
             Protocol = request.Protocol;
-            RequestId = requestId;
+            IsOneway = oneway;
         }
     }
 }

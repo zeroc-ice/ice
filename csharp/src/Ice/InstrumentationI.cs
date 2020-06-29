@@ -385,8 +385,7 @@ namespace ZeroC.Ice
                         return current?.Identity.ToString(current.Adapter!.Communicator.ToStringMode);
                     });
                 Add("facet", obj => (obj as DispatchHelper)?._current.Facet);
-                Add("requestId", obj => (obj as DispatchHelper)?._current.RequestId);
-                Add("mode", obj => (obj as DispatchHelper)?._current.RequestId == 0 ? "oneway" : "twoway");
+                Add("mode", obj => (obj as DispatchHelper)?._current.IsOneway == true ? "oneway" : "twoway");
             }
         }
     }
