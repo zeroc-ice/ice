@@ -21,6 +21,7 @@ namespace ZeroC.Glacier2.Test.Router
             // ConnectionLostException.
             //
             properties["Ice.Warn.Connections"] = "0";
+            properties["Ice.Default.Protocol"] = "ice1";
             using (var communicator = Initialize(properties))
             {
                 IObjectPrx routerBase;

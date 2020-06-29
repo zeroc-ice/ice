@@ -495,10 +495,22 @@ namespace ZeroC.Ice.Test.Metrics
 
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
                 sm2 = getServerConnectionMetrics(serverMetrics, 50)!;
-                TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 45); // 45 for IcePing request
-                TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 25); // 25 bytes for IcePing response
-                TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 45);
-                TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 25);
+
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 45); // ice_ping request
+                    TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 25); // ice_ping response
+                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 45);
+                    TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 25);
+                }
+                else
+                {
+                    // Currently we're saving 3 bytes in the encaps with the 2.0 encoding
+                    TestHelper.Assert(cm2.SentBytes - cm1.SentBytes == 42); // ice_ping request
+                    TestHelper.Assert(cm2.ReceivedBytes - cm1.ReceivedBytes == 22); // ice_ping response
+                    TestHelper.Assert(sm2.ReceivedBytes - sm1.ReceivedBytes == 42);
+                    TestHelper.Assert(sm2.SentBytes - sm1.SentBytes == 22);
+                }
 
                 cm1 = cm2;
                 sm1 = sm2;
@@ -802,31 +814,36 @@ namespace ZeroC.Ice.Test.Metrics
             map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Dispatch"]!);
             TestHelper.Assert(collocated ? map.Count == 5 : map.Count == 6);
 
+            // TODO: temporary, currently we often save 3 bytes (on encaps size) with the ice2 protocol
+            int protocolSizeAdjustment = communicator.DefaultProtocol == Protocol.Ice1 ? 0 : -3;
+
             DispatchMetrics dm1;
             dm1 = (DispatchMetrics)map["op"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 0);
-            TestHelper.Assert(dm1.Size == 21 && dm1.ReplySize == 7);
+            TestHelper.Assert(dm1.Size == (21 + protocolSizeAdjustment) &&
+                dm1.ReplySize == (7 + protocolSizeAdjustment));
 
             dm1 = (DispatchMetrics)map["opWithUserException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
 
             // We assume the error message is encoded in ASCII (each character uses 1-byte when encoded in UTF-8).
-            TestHelper.Assert(dm1.Size == 38 &&
+            TestHelper.Assert(dm1.Size == (38 + protocolSizeAdjustment) &&
                 dm1.ReplySize == (metrics.Encoding == Encoding.V1_1 ? 48 : 50 + userExErrorMessageSize));
 
             dm1 = (DispatchMetrics)map["opWithLocalException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
             checkFailure(serverMetrics, "Dispatch", dm1.Id, "ZeroC.Ice.InvalidConfigurationException", 1, output);
-            TestHelper.Assert(dm1.Size == 39 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
 
+            // Reply contains the exception stack depending on the OS.
+            TestHelper.Assert(dm1.Size == (39 + protocolSizeAdjustment) && dm1.ReplySize > 7);
             dm1 = (DispatchMetrics)map["opWithRequestFailedException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 0 && dm1.UserException == 1);
-            TestHelper.Assert(dm1.Size == 47 && dm1.ReplySize == 40);
+            TestHelper.Assert(dm1.Size == (47 + protocolSizeAdjustment) && dm1.ReplySize == 40);
 
             dm1 = (DispatchMetrics)map["opWithUnknownException"];
             TestHelper.Assert(dm1.Current <= 1 && dm1.Total == 1 && dm1.Failures == 1 && dm1.UserException == 0);
             checkFailure(serverMetrics, "Dispatch", dm1.Id, "System.ArgumentOutOfRangeException", 1, output);
-            TestHelper.Assert(dm1.Size == 41 && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
+            TestHelper.Assert(dm1.Size == (41 + protocolSizeAdjustment) && dm1.ReplySize > 7); // Reply contains the exception stack depending on the OS.
 
             System.Action op = () => { invokeOp(metrics); };
             testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op, output);
@@ -990,7 +1007,14 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
             rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == 42 && rim1.ReplySize == 14);
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                TestHelper.Assert(rim1.Size == 42 && rim1.ReplySize == 14);
+            }
+            else
+            {
+                TestHelper.Assert(rim1.Size == 36 && rim1.ReplySize == 8);
+            }
 
             im1 = (InvocationMetrics)map["opWithUserException"];
             TestHelper.Assert(im1.Current <= 1 && im1.Total == 2 && im1.Failures == 0 && im1.Retry == 0);
@@ -1005,7 +1029,14 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
             rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == 78 && rim1.ReplySize > 7);
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                TestHelper.Assert(rim1.Size == 78 && rim1.ReplySize > 7);
+            }
+            else
+            {
+                TestHelper.Assert(rim1.Size == 72 && rim1.ReplySize > 7);
+            }
             checkFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
 
             im1 = (InvocationMetrics)map["opWithRequestFailedException"];
@@ -1013,7 +1044,14 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
             rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == 94 && rim1.ReplySize == 80);
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                TestHelper.Assert(rim1.Size == 94 && rim1.ReplySize == 80);
+            }
+            else
+            {
+                TestHelper.Assert(rim1.Size == 88 && rim1.ReplySize == 80);
+            }
             checkFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.ObjectNotExistException", 2, output);
 
             im1 = (InvocationMetrics)map["opWithUnknownException"];
@@ -1021,7 +1059,14 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? im1.Collocated.Length == 1 : im1.Remotes.Length == 1);
             rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
             TestHelper.Assert(rim1.Current == 0 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == 82 && rim1.ReplySize > 7);
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                TestHelper.Assert(rim1.Size == 82 && rim1.ReplySize > 7);
+            }
+            else
+            {
+                TestHelper.Assert(rim1.Size == 76 && rim1.ReplySize > 7);
+            }
             checkFailure(clientMetrics, "Invocation", im1.Id, "ZeroC.Ice.UnhandledException", 2, output);
 
             if (!collocated)
@@ -1036,10 +1081,11 @@ namespace ZeroC.Ice.Test.Metrics
             }
 
             Encoding defaultEncoding = communicator.DefaultEncoding;
+            string defaultProtocolName = communicator.DefaultProtocol.GetName();
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
-                $"metrics -t -p ice1 -e {defaultEncoding} [op]", op, output);
+                $"metrics -t -p {defaultProtocolName} -e {defaultEncoding} [op]", op, output);
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, output);
@@ -1047,7 +1093,7 @@ namespace ZeroC.Ice.Test.Metrics
             testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", $"{defaultEncoding}", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                        $"metrics -t -p ice1 -e {defaultEncoding}:{endpoint} -t {timeout}", op, output);
+                $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint} -t {timeout}", op, output);
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);
@@ -1073,7 +1119,14 @@ namespace ZeroC.Ice.Test.Metrics
             TestHelper.Assert(collocated ? (im1.Collocated.Length == 1) : (im1.Remotes.Length == 1));
             rim1 = (ChildInvocationMetrics)(collocated ? im1.Collocated[0]! : im1.Remotes[0]!);
             TestHelper.Assert(rim1.Current <= 1 && rim1.Total == 2 && rim1.Failures == 0);
-            TestHelper.Assert(rim1.Size == 42 && rim1.ReplySize == 0);
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                TestHelper.Assert(rim1.Size == 42 && rim1.ReplySize == 0);
+            }
+            else
+            {
+                TestHelper.Assert(rim1.Size == 36 && rim1.ReplySize == 0);
+            }
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "oneway",
                         () => invokeOp(metricsOneway), output);

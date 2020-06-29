@@ -314,7 +314,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                s.Append(Protocol.ToString().ToLower());
+                s.Append(Protocol.GetName());
             }
 
             // Always print the encoding version to ensure a stringified proxy will convert back to a proxy with the
@@ -398,7 +398,7 @@ namespace ZeroC.Ice
             string facet = "";
             InvocationMode invocationMode = InvocationMode.Twoway;
             Encoding encoding = communicator.DefaultEncoding;
-            Protocol protocol = Protocol.Ice1;
+            Protocol protocol = communicator.DefaultProtocol;
             string adapterId;
 
             while (true)
@@ -1636,7 +1636,7 @@ namespace ZeroC.Ice
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
             PreferNonSecure = false;
-            Protocol = Protocol.Ice1; // it's really the connection's protocol
+            Protocol = fixedConnection.Endpoint.Protocol;
             RouterInfo = null;
 
             _fixedConnection = fixedConnection;

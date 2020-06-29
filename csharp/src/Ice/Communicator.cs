@@ -118,6 +118,11 @@ namespace ZeroC.Ice
         }
 
         public bool DefaultPreferNonSecure { get; }
+
+        /// <summary>The Ice protocol used when parsing a stringified proxy that does not specify an Ice protocol.
+        /// </summary>
+        public Protocol DefaultProtocol { get; }
+
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
         public int DefaultTimeout { get; }
@@ -404,6 +409,24 @@ namespace ZeroC.Ice
                 else
                 {
                     DefaultEncoding = Encoding.Latest;
+                }
+
+                if (GetProperty("Ice.Default.Protocol") is string protocol)
+                {
+                    try
+                    {
+                        DefaultProtocol = ProtocolExtensions.Parse(protocol);
+                        DefaultProtocol.CheckSupported();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for for Ice.Default.Protocol: `{protocol}'", ex);
+                    }
+                }
+                else
+                {
+                    DefaultProtocol = Protocol.Ice2;
                 }
 
                 string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";

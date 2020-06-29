@@ -21,6 +21,9 @@ namespace ZeroC.Ice
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; }
 
+        /// <summary>The Ice protocol of this frame.</summary>
+        public Protocol Protocol { get; }
+
         /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus { get; }
 
@@ -38,7 +41,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                return InputStream.ReadEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1), reader);
+                return InputStream.ReadEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1), reader);
             }
             else
             {
@@ -52,7 +55,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                InputStream.ReadEmptyEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1));
+                InputStream.ReadEmptyEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1));
             }
             else
             {
@@ -62,37 +65,40 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
+        /// <param name="protocol">The Ice protocol of this frame.</param>
         /// <param name="payload">The frame data as an array segment.</param>
-        public IncomingResponseFrame(Communicator communicator, ArraySegment<byte> payload)
+        public IncomingResponseFrame(Communicator communicator, Protocol protocol, ArraySegment<byte> payload)
         {
             _communicator = communicator;
+            Protocol = protocol;
             byte replyStatus = payload[0];
             if (replyStatus > 7)
             {
                 throw new InvalidDataException(
-                    $"received ice1 response frame with unknown reply status `{replyStatus}'");
+                    $"received {Protocol.GetName()} response frame with unknown reply status `{replyStatus}'");
             }
             ReplyStatus = (ReplyStatus)replyStatus;
             Payload = payload;
             if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
             {
                 int size;
-                (size, Encoding) = InputStream.ReadEncapsulationHeader(Ice1Definitions.Encoding, Payload.AsSpan(1));
-                if (size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
+                (size, Encoding) = InputStream.ReadEncapsulationHeader(Protocol.GetEncoding(), Payload.AsSpan(1));
+                if (Protocol == Protocol.Ice1 && size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
                 {
                     throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
                 }
+                // TODO: ice2
             }
             else
             {
-                Encoding = Ice1Definitions.Encoding;
+                Encoding = Protocol.GetEncoding();
             }
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
         // the frame has a single segment.
         public IncomingResponseFrame(Communicator communicator, OutgoingResponseFrame frame)
-            : this(communicator, frame.Payload.ToArray())
+            : this(communicator, frame.Protocol, frame.Payload.ToArray())
         {
         }
 
@@ -102,7 +108,7 @@ namespace ZeroC.Ice
             {
                 case ReplyStatus.UserException:
                 {
-                    return InputStream.ReadEncapsulation(_communicator, Ice1Definitions.Encoding, Payload.Slice(1),
+                    return InputStream.ReadEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1),
                         istr => istr.ReadException());
                 }
                 case ReplyStatus.ObjectNotExistException:
@@ -122,11 +128,14 @@ namespace ZeroC.Ice
         }
 
         internal UnhandledException ReadUnhandledException() =>
-            new UnhandledException(InputStream.ReadString11(Payload.Slice(1)), Identity.Empty, "", "");
+            new UnhandledException(InputStream.ReadString(Protocol.GetEncoding(), Payload.Slice(1).AsSpan()),
+                                   Identity.Empty,
+                                   "",
+                                   "");
 
         internal DispatchException ReadDispatchException()
         {
-            var istr = new InputStream(_communicator, Ice1Definitions.Encoding, Payload, 1);
+            var istr = new InputStream(_communicator, Protocol.GetEncoding(), Payload, 1);
             var identity = new Identity(istr);
             string facet = istr.ReadFacet();
             string operation = istr.ReadString();

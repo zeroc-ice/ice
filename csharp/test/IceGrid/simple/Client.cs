@@ -13,7 +13,7 @@ namespace ZeroC.IceGrid.Test.Simple
         public override void Run(string[] args)
         {
             using var communicator = Initialize(ref args,
-                new Dictionary<string, string> { ["Ice.Default.Encoding"] = "1.1" });
+                new Dictionary<string, string> { ["Ice.Default.Protocol"] = "ice1", ["Ice.Default.Encoding"] = "1.1" });
             if (args.Any(v => v.Equals("--with-deploy")))
             {
                 AllTests.allTestsWithDeploy(this);
