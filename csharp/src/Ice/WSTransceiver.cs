@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -31,9 +32,7 @@ namespace ZeroC.Ice
 
     internal sealed class WSTransceiver : ITransceiver
     {
-        public string? Cipher => (_delegate as SslTransceiver)?.Cipher;
-
-        public X509Certificate2[]? Certificates => (_delegate as SslTransceiver)?.Certificates;
+        internal SslStream? SslStream => (_delegate as SslTransceiver)?.SslStream;
 
         public Connection CreateConnection(
             Endpoint endpoint,

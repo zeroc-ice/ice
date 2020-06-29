@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using Test;
 
 namespace ZeroC.Ice.Test.Info
@@ -165,6 +166,41 @@ namespace ZeroC.Ice.Test.Info
                 {
                     TestHelper.Assert(connection.LocalEndpoint!.Address.ToString().Equals(defaultHost));
                     TestHelper.Assert(connection.RemoteEndpoint!.Address.ToString().Equals(defaultHost));
+                }
+
+                if (connection.Endpoint.IsSecure)
+                {
+                    TestHelper.Assert(((TcpConnection)connection).IsEncrypted);
+                    // WSS tests run with IceSSL.VerifyPeer set to 0 so the connection is no mutually
+                    // authenticated for compatibility with web browser testing.
+                    if (connection.Endpoint.Transport == Transport.SSL)
+                    {
+                        TestHelper.Assert(((TcpConnection)connection).IsMutuallyAuthenticated);
+                        TestHelper.Assert(((TcpConnection)connection).LocalCertificate != null);
+                    }
+                    else
+                    {
+                        TestHelper.Assert(!((TcpConnection)connection).IsMutuallyAuthenticated);
+                        TestHelper.Assert(((TcpConnection)connection).LocalCertificate == null);
+                    }
+                    TestHelper.Assert(((TcpConnection)connection).IsSigned);
+
+                    TestHelper.Assert(((TcpConnection)connection).RemoteCertificate != null);
+                    TestHelper.Assert(((TcpConnection)connection).NegotiatedApplicationProtocol != null);
+                    TestHelper.Assert(((TcpConnection)connection).NegotiatedCipherSuite != null);
+                    TestHelper.Assert(((TcpConnection)connection).SslProtocol == SslProtocols.Tls12 ||
+                                      ((TcpConnection)connection).SslProtocol == SslProtocols.Tls13);
+                }
+                else
+                {
+                    TestHelper.Assert(!((TcpConnection)connection).IsEncrypted);
+                    TestHelper.Assert(!((TcpConnection)connection).IsMutuallyAuthenticated);
+                    TestHelper.Assert(!((TcpConnection)connection).IsSigned);
+                    TestHelper.Assert(((TcpConnection)connection).LocalCertificate == null);
+                    TestHelper.Assert(((TcpConnection)connection).RemoteCertificate == null);
+                    TestHelper.Assert(((TcpConnection)connection).NegotiatedApplicationProtocol == null);
+                    TestHelper.Assert(((TcpConnection)connection).NegotiatedCipherSuite == null);
+                    TestHelper.Assert(((TcpConnection)connection).SslProtocol == null);
                 }
 
                 Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();

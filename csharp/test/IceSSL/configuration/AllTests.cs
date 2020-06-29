@@ -142,6 +142,28 @@ namespace ZeroC.IceSSL.Test.Configuration
                     comm.Destroy();
                 }
                 {
+                    clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
+                    clientProperties["IceSSL.CheckCRL"] = "1";
+                    var comm = new Communicator(ref args, clientProperties);
+                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
+                    IServerPrx? server = fact.createServer(serverProperties);
+                    try
+                    {
+                        server!.IcePing();
+                        var connection = server.GetCachedConnection() as TcpConnection;
+                        TestHelper.Assert(connection != null);
+                        TestHelper.Assert(connection.CheckCertRevocationStatus);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        TestHelper.Assert(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.Destroy();
+                }
+                {
                     // Supply our own certificate.
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.CAs"] = caCert1File;
@@ -289,10 +311,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                         var tcpConnection = (TcpConnection)server.GetConnection()!;
                         TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                        TestHelper.Assert(tcpConnection.Certificates!.Length == 2);
-
-                        TestHelper.Assert(caCert.Equals(tcpConnection.Certificates[1]));
-                        TestHelper.Assert(serverCert.Equals(tcpConnection.Certificates[0]));
+                        TestHelper.Assert(serverCert.Equals(tcpConnection.RemoteCertificate));
                     }
                     catch (Exception ex)
                     {
@@ -722,6 +741,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         server.IcePing();
+                        var connection = server.GetCachedConnection() as TcpConnection;
+                        TestHelper.Assert(connection != null);
+                        TestHelper.Assert(connection.LocalCertificate == myCerts[0]);
                         TestHelper.Assert(called);
                     }
                     catch (Exception ex)
@@ -921,7 +943,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                             {
                                 var tcpConnection = (TcpConnection)server!.GetConnection()!;
                                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                                TestHelper.Assert(tcpConnection.Certificates!.Length == 2);
                             }
                             catch (Exception ex)
                             {
@@ -929,166 +950,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                                 TestHelper.Assert(false);
                             }
                             fact.destroyServer(server);
-                        }
-
-                        //
-                        // Try certificate with one intermediate and VerifyDepthMax=2
-                        //
-                        clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                        clientProperties["IceSSL.VerifyDepthMax"] = "2";
-                        comm = new Communicator(clientProperties);
-
-                        fact = IServerFactoryPrx.Parse(factoryRef, comm);
-
-                        {
-                            serverProperties = CreateProperties(defaultProperties, "s_rsa_cai1");
-                            serverProperties["IceSSL.VerifyPeer"] = "0";
-                            server = fact.createServer(serverProperties);
-                            try
-                            {
-                                server!.IcePing();
-                                TestHelper.Assert(false);
-                            }
-                            catch (TransportException)
-                            {
-                                // Chain length too long
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
-                                TestHelper.Assert(false);
-                            }
-                            fact.destroyServer(server);
-                        }
-                        comm.Destroy();
-
-                        if (AssemblyUtil.IsWindows)
-                        {
-                            //
-                            // The certificate chain on Linux doesn't include the intermeidate
-                            // certificates see ICE-8576
-                            //
-
-                            //
-                            // Set VerifyDepthMax to 3 (the default)
-                            //
-                            clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            //clientProperties["IceSSL.VerifyDepthMax", "3");
-                            comm = new Communicator(clientProperties);
-
-                            fact = IServerFactoryPrx.Parse(factoryRef, comm);
-
-                            {
-                                serverProperties = CreateProperties(defaultProperties, "s_rsa_cai1");
-                                serverProperties["IceSSL.VerifyPeer"] = "0";
-                                server = fact.createServer(serverProperties);
-                                try
-                                {
-                                    var tcpConnection = (TcpConnection)server!.GetConnection()!;
-                                    TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                                    TestHelper.Assert(tcpConnection.Certificates!.Length == 3);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                    TestHelper.Assert(false);
-                                }
-                                fact.destroyServer(server);
-                            }
-
-                            {
-                                serverProperties = CreateProperties(defaultProperties, "s_rsa_cai2");
-                                serverProperties["IceSSL.VerifyPeer"] = "0";
-                                server = fact.createServer(serverProperties);
-                                try
-                                {
-                                    server!.IcePing();
-                                    TestHelper.Assert(false);
-                                }
-                                catch (TransportException)
-                                {
-                                    // Chain length too long
-                                }
-                                fact.destroyServer(server);
-                            }
-                            comm.Destroy();
-
-                            //
-                            // Increase VerifyDepthMax to 4
-                            //
-                            clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            clientProperties["IceSSL.VerifyDepthMax"] = "4";
-                            comm = new Communicator(clientProperties);
-
-                            fact = IServerFactoryPrx.Parse(factoryRef, comm);
-
-                            {
-                                serverProperties = CreateProperties(defaultProperties, "s_rsa_cai2");
-                                serverProperties["IceSSL.VerifyPeer"] = "0";
-                                server = fact.createServer(serverProperties);
-                                try
-                                {
-                                    var tcpConnection = (TcpConnection)server!.GetConnection()!;
-                                    TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                                    TestHelper.Assert(tcpConnection.Certificates!.Length == 4);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                    TestHelper.Assert(false);
-                                }
-                                fact.destroyServer(server);
-                            }
-
-                            comm.Destroy();
-
-                            //
-                            // Increase VerifyDepthMax to 4
-                            //
-                            clientProperties = CreateProperties(defaultProperties, "c_rsa_cai2", "cacert1");
-                            clientProperties["IceSSL.VerifyDepthMax"] = "4";
-                            comm = new Communicator(clientProperties);
-
-                            fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                            {
-                                serverProperties = CreateProperties(defaultProperties, "s_rsa_cai2", "cacert1");
-                                serverProperties["IceSSL.VerifyPeer"] = "2";
-                                server = fact.createServer(serverProperties);
-                                try
-                                {
-                                    server!.GetConnection();
-                                    TestHelper.Assert(false);
-                                }
-                                catch (ConnectionLostException)
-                                {
-                                    // Expected
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                    TestHelper.Assert(false);
-                                }
-                                fact.destroyServer(server);
-                            }
-
-                            {
-                                serverProperties = CreateProperties(defaultProperties, "s_rsa_cai2", "cacert1");
-                                serverProperties["IceSSL.VerifyPeer"] = "2";
-                                serverProperties["IceSSL.VerifyDepthMax"] = "4";
-                                server = fact.createServer(serverProperties);
-                                try
-                                {
-                                    server!.GetConnection();
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                    TestHelper.Assert(false);
-                                }
-                                fact.destroyServer(server);
-                            }
-
-                            comm.Destroy();
                         }
                     }
                     finally
@@ -1126,8 +987,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         TestHelper.Assert(server != null);
                         var tcpConnection = (TcpConnection)server.GetConnection()!;
                         TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                        TestHelper.Assert(tcpConnection.Cipher != null);
-                        server.checkCipher(tcpConnection.Cipher);
+                        server.checkCipher(tcpConnection.NegotiatedCipherSuite!.ToString()!);
                     }
                     catch (Exception ex)
                     {
@@ -1177,19 +1037,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     {
                         // Setting IceSSL.CAs and the certificate verifier results in InvalidConfigurationException
                         clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting IceSSL.VerifyDepthMax and the certificate verifier results in InvalidConfigurationException
-                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                        clientProperties["IceSSL.VerifyDepthMax"] = "2";
                         comm = new Communicator(ref args, clientProperties,
                             certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
                         TestHelper.Assert(false);
@@ -2311,7 +2158,6 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.DefaultDir"] = "";
-                    clientProperties["IceSSL.VerifyDepthMax"] = "4";
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
 
                     var comm = new Communicator(clientProperties);
@@ -2353,7 +2199,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     retryCount = 0;
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.DefaultDir"] = "";
-                    clientProperties["IceSSL.VerifyDepthMax"] = "4";
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
                     clientProperties["IceSSL.UsePlatformCAs"] = "1";
 

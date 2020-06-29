@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Security;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -1694,11 +1696,36 @@ namespace ZeroC.Ice
     /// <summary>Represents a connection to a TCP-endpoint.</summary>
     public class TcpConnection : IPConnection
     {
-        /// <summary>The socket local IP-endpoint or null if it is not available.</summary>
-        public string? Cipher => (Transceiver as SslTransceiver)?.Cipher ??
-            (Transceiver as WSTransceiver)?.Cipher;
-        public X509Certificate2[]? Certificates => (Transceiver as SslTransceiver)?.Certificates ??
-            (Transceiver as WSTransceiver)?.Certificates;
+        /// <summary>Gets a Boolean value that indicates whether the certificate revocation list is checked during the
+        /// certificate validation process.</summary>
+        public bool CheckCertRevocationStatus => SslStream?.CheckCertRevocationStatus ?? false;
+        /// <summary>Gets a Boolean value that indicates whether this SslStream uses data encryption.</summary>
+        public bool IsEncrypted => SslStream?.IsEncrypted ?? false;
+        /// <summary>Gets a Boolean value that indicates whether both server and client have been authenticated.
+        /// </summary>
+        public bool IsMutuallyAuthenticated => SslStream?.IsMutuallyAuthenticated ?? false;
+        /// <summary>Gets a Boolean value that indicates whether the data sent using this stream is signed.</summary>
+        public bool IsSigned => SslStream?.IsSigned ?? false;
+
+        /// <summary>Gets the certificate used to authenticate the local endpoint or null if no certificate was
+        /// supplied.</summary>
+        public X509Certificate? LocalCertificate => SslStream?.LocalCertificate;
+
+        /// <summary>The negotiated application protocol in TLS handshake.</summary>
+        public SslApplicationProtocol? NegotiatedApplicationProtocol => SslStream?.NegotiatedApplicationProtocol;
+
+        /// <summary>Gets the cipher suite which was negotiated for this connection.</summary>
+        public TlsCipherSuite? NegotiatedCipherSuite => SslStream?.NegotiatedCipherSuite;
+        /// <summary>Gets the certificate used to authenticate the remote endpoint or null if no certificate was
+        /// supplied.</summary>
+        public X509Certificate? RemoteCertificate => SslStream?.RemoteCertificate;
+
+        /// <summary>Gets a value that indicates the security protocol used to authenticate this connection or
+        /// null if the connection is not secure.</summary>
+        public SslProtocols? SslProtocol => SslStream?.SslProtocol;
+
+        private SslStream? SslStream => (Transceiver as SslTransceiver)?.SslStream ??
+            (Transceiver as WSTransceiver)?.SslStream;
 
         protected internal TcpConnection(
             Endpoint endpoint,
