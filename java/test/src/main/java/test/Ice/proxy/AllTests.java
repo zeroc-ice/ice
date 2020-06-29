@@ -27,7 +27,7 @@ public class AllTests
     public static MyClassPrx allTests(test.TestHelper helper)
     {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
-        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Transport").indexOf("bt") == 0;
         PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
@@ -1115,8 +1115,8 @@ public class AllTests
         if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
         {
             // Working?
-            boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
-            boolean tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("tcp");
+            boolean ssl = communicator.getProperties().getProperty("Ice.Default.Transport").equals("ssl");
+            boolean tcp = communicator.getProperties().getProperty("Ice.Default.Transport").equals("tcp");
 
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");

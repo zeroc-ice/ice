@@ -12,7 +12,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
                              current: Ice.Current) throws -> RemoteObjectAdapterPrx? {
         let communicator = current.adapter!.getCommunicator()
         let properties = communicator.getProperties()
-        let defaultProtocol = properties.getPropertyWithDefault(key: "Ice.Default.Protocol", value: "tcp")
+        let defaultProtocol = properties.getPropertyWithDefault(key: "Ice.Default.Transport", value: "tcp")
         let defaultHost = properties.getPropertyWithDefault(key: "Ice.Default.Host", value: "127.0.0.1")
 
         let name = UUID().uuidString

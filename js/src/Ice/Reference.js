@@ -1341,7 +1341,7 @@ class Reference
         {
             //
             // We only print the protocol if it's not 1.0. It's fine as
-            // long as we don't add Ice.Default.ProtocolVersion, a
+            // long as we don't add Ice.Default.TransportVersion, a
             // stringified proxy will convert back to the same proxy with
             // stringToProxy.
             //

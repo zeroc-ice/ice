@@ -11,7 +11,7 @@ public final class DefaultsAndOverrides
         String value;
         int intValue;
 
-        defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Transport", "tcp");
 
         value = properties.getProperty("Ice.Default.Host");
         if(!value.isEmpty())

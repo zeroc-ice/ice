@@ -60,7 +60,7 @@ export class Client extends TestHelper
 
         let mult = 1;
         if(["ssl", "wss"].includes(
-            communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp")))
+            communicator.getProperties().getPropertyWithDefault("Ice.Default.Transport", "tcp")))
         {
             mult = 4;
         }

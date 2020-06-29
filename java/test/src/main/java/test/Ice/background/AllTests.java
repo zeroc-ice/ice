@@ -280,8 +280,8 @@ public class AllTests
         }
         out.println("ok");
 
-        final boolean ws = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("test-ws");
-        final boolean wss = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("test-wss");
+        final boolean ws = communicator.getProperties().getProperty("Ice.Default.Transport").equals("test-ws");
+        final boolean wss = communicator.getProperties().getProperty("Ice.Default.Transport").equals("test-wss");
         if(!ws && !wss)
         {
             out.print("testing buffered transport... ");
@@ -726,7 +726,7 @@ public class AllTests
             configuration.readException(null);
         }
 
-        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol").equals("test-ssl"))
+        if(!background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Transport").equals("test-ssl"))
         {
             try
             {

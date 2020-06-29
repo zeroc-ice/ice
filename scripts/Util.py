@@ -734,8 +734,7 @@ class Mapping(object):
             if isinstance(process, IceProcess):
                 props["Ice.Warn.Connections"] = True
                 if self.transport:
-                    # TODO: rename once all the mapping support Ice.Default.Transport
-                    props["Ice.Default.Protocol"] = self.transport
+                    props["Ice.Default.Transport"] = self.transport
                 if self.compress:
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:
@@ -3381,8 +3380,8 @@ class CSharpMapping(Mapping):
         def getProps(self, process, current):
             props = Mapping.Config.getProps(self, process, current)
             # TODO: Remove once all the mapping supports the new Ice.Default.Transport property
-            if "Ice.Default.Protocol" in props and isinstance(process.getMapping(current), CSharpMapping):
-                del props["Ice.Default.Protocol"]
+            if "Ice.Default.Transport" in props and isinstance(process.getMapping(current), CSharpMapping):
+                del props["Ice.Default.Transport"]
                 props["Ice.Default.Transport"] = self.transport
             return props
 

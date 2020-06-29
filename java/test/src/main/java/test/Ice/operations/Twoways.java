@@ -46,7 +46,7 @@ class Twoways
     static void twoways(test.TestHelper helper, MyClassPrx p)
     {
         Communicator communicator = helper.communicator();
-        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Transport").indexOf("bt") == 0;
 
         String[] literals = p.opStringLiterals();
 

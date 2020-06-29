@@ -881,8 +881,8 @@ public func allTests(_ helper: TestHelper) throws -> MyClassPrx {
 
     if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0 {
         // Working?
-        let ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
-        let tcp = communicator.getProperties().getProperty("Ice.Default.Protocol") == "tcp"
+        let ssl = communicator.getProperties().getProperty("Ice.Default.Transport") == "ssl"
+        let tcp = communicator.getProperties().getProperty("Ice.Default.Transport") == "tcp"
 
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = try communicator.stringToProxy("test -e 1.0:" +

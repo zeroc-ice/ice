@@ -64,7 +64,7 @@ class TwowaysAMI
     static void twowaysAMI(test.TestHelper helper, MyClassPrx p)
     {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
-        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Transport").indexOf("bt") == 0;
 
         {
             Callback cb = new Callback();

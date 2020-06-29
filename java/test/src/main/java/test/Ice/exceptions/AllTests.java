@@ -27,7 +27,7 @@ public class AllTests
     public static ThrowerPrx allTests(test.TestHelper helper)
     {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
-        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Transport").indexOf("bt") == 0;
         PrintWriter out = helper.getWriter();
 
         {

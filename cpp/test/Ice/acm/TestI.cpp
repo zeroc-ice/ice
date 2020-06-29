@@ -28,7 +28,7 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
 {
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     Ice::PropertiesPtr properties = com->getProperties();
-    string protocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    string protocol = properties->getPropertyWithDefault("Ice.Default.Transport", "tcp");
     string opts;
     if(protocol != "bt")
     {

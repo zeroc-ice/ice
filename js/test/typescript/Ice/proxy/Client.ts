@@ -19,7 +19,7 @@ export class Client extends TestHelper
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        const defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        const defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Transport", "tcp");
 
         out.write("testing stringToProxy... ");
         const ref = "test:" + this.getTestEndpoint();
@@ -991,7 +991,7 @@ export class Client extends TestHelper
         {
             const ref = "test:" + this.getTestEndpoint();
 
-            const ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") === "ssl";
+            const ssl = communicator.getProperties().getProperty("Ice.Default.Transport") === "ssl";
             // TODO: p1 contains 127.0.0.1 - OK to invoke?
             //   if(!ssl)
             //   {

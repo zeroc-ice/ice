@@ -386,7 +386,7 @@ ThrowerPrxPtr
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Transport");
 
     cout << "testing ice_print()/what()... " << flush;
     {
@@ -457,7 +457,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        if(communicator->getProperties()->getProperty("Ice.Default.Transport") == "bt")
         {
             ostr << "default -a *";
         }
