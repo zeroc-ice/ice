@@ -3387,6 +3387,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
             if (member->tagged() && tag == member->tag())
             {
                 _unit->error("tag for data member `" + name + "' is already in use");
+                break;
             }
         }
     }
@@ -3801,7 +3802,7 @@ Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& gpl)
         {
             for (const auto& operation : interface->operations())
             {
-                sl.push_back(operation->name());
+                spl.rbegin()->push_back(operation->name());
             }
         }
     }
@@ -3830,7 +3831,7 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
                                   + "' from two or more unrelated base interfaces");
                         reported.insert(s1);
                     }
-                    else if(!ciequals(s1, s2) && !ciequals(s2, s1) && reported.find(s1) == reported.end()
+                    else if(ciequals(s1, s2) && reported.find(s1) == reported.end()
                             && reported.find(s2) == reported.end())
                     {
                         ut->error("ambiguous multiple inheritance: `" + name + "' inherits operations `" + s1 + "' and `"
@@ -4221,6 +4222,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             if (member->tagged() && tag == member->tag())
             {
                 _unit->error("tag for data member `" + name + "' is already in use");
+                break;
             }
         }
     }
@@ -4490,6 +4492,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
             if (member->tagged() && tag == member->tag())
             {
                 _unit->error("tag for data member `" + name + "' is already in use");
+                break;
             }
         }
     }
