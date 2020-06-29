@@ -240,18 +240,9 @@ namespace ZeroC.Ice
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
         public async ValueTask HeartbeatAsync(IProgress<bool>? progress = null, CancellationToken cancel = default)
         {
-            Task writeTask;
-            lock (_mutex)
-            {
-                if (_state >= State.Closed)
-                {
-                    throw _exception!;
-                }
-                writeTask = SendFrameAsync(() => GetProtocolFrameData(OldProtocol ? _validateConnectionFrameIce1 :
-                                           _validateConnectionFrameIce2),
-                                           cancel);
-            }
-            await writeTask.ConfigureAwait(false);
+            await SendFrameAsync(() => GetProtocolFrameData(OldProtocol ? _validateConnectionFrameIce1 :
+                                                            _validateConnectionFrameIce2),
+                                 cancel).ConfigureAwait(false);
             progress?.Report(true);
         }
 
@@ -1747,7 +1738,10 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                Debug.Assert(_state < State.Closed);
+                if (_state >= State.Closed)
+                {
+                    throw _exception!;
+                }
                 cancel.ThrowIfCancellationRequested();
                 ValueTask sendTask = QueueAsync(this, _sendTask, getFrameData, cancel);
                 _sendTask = sendTask.IsCompletedSuccessfully ? Task.CompletedTask : sendTask.AsTask();
