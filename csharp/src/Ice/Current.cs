@@ -37,9 +37,9 @@ namespace ZeroC.Ice
             Facet = request.Facet;
             Identity = request.Identity;
             IsIdempotent = request.IsIdempotent;
+            IsOneway = oneway;
             Operation = request.Operation;
             Protocol = request.Protocol;
-            IsOneway = oneway;
         }
     }
 }
