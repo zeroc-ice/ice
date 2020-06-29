@@ -19,7 +19,6 @@ namespace ZeroC.Ice
 
         private readonly string? _adapterName;
         private bool _authenticated;
-        private X509Certificate2[]? _certificates;
         private readonly Communicator _communicator;
         private readonly ITransceiver _delegate;
         private readonly SslEngine _engine;
@@ -100,7 +99,22 @@ namespace ZeroC.Ice
             Debug.Assert(SslStream.IsAuthenticated);
             _authenticated = true;
 
-            _engine.VerifyPeer(_incoming, _certificates ?? Array.Empty<X509Certificate2>(), _adapterName ?? "", ToString());
+            string description = ToString();
+            if (!_engine.TrustManager.Verify(_incoming,
+                                             SslStream.RemoteCertificate as X509Certificate2,
+                                             _adapterName ?? "",
+                                             description))
+            {
+                string msg = string.Format("{0} connection rejected by trust manager\n{1}",
+                    _incoming ? "incoming" : "outgoing",
+                    description);
+                if (_engine.SecurityTraceLevel >= 1)
+                {
+                    _communicator.Logger.Trace(_engine.SecurityTraceCategory, msg);
+                }
+
+                throw new TransportException(msg);
+            }
 
             if (_engine.SecurityTraceLevel >= 1)
             {
@@ -621,15 +635,6 @@ namespace ZeroC.Ice
             }
             finally
             {
-                if (chain.ChainElements != null && chain.ChainElements.Count > 0)
-                {
-                    _certificates = new X509Certificate2[chain.ChainElements.Count];
-                    for (int i = 0; i < chain.ChainElements.Count; ++i)
-                    {
-                        _certificates[i] = chain.ChainElements[i].Certificate;
-                    }
-                }
-
                 try
                 {
                     chain.Dispose();
