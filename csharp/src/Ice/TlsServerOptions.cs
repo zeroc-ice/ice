@@ -31,7 +31,7 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Gets or sets the certificates collection that will be used as trusted certificate authorities
-        /// to verify the client certificate used for authentication. Setting this is incompatible with setting
+        /// to verify the client certificate. Setting this is incompatible with setting
         /// <see cref="ClientCertificateValidationCallback"/> and IceSSL.CAs configuration property.</summary>
         public X509Certificate2Collection? ClientCertificateCertificateAuthorities
         {
@@ -47,9 +47,10 @@ namespace ZeroC.Ice
                 _clientCertificateCertificateAuthorities = value;
             }
         }
-        /// <summary>Gets or sets the callback that will be used to verify the client certificate used for
-        /// authentication. Setting this is incompatible with setting
-        /// <see cref="ClientCertificateCertificateAuthorities"/> and IceSSL.CAs configuration property.</summary>
+
+        /// <summary>Gets or sets the callback that will be used to verify the client certificate. Setting this is
+        /// incompatible with setting <see cref="ClientCertificateCertificateAuthorities"/> and IceSSL.CAs
+        /// configuration property.</summary>
         public RemoteCertificateValidationCallback? ClientCertificateValidationCallback
         {
             get => _clientCertificateValidationCallback;
@@ -72,18 +73,20 @@ namespace ZeroC.Ice
                 _clientCertificateValidationCallback = value;
             }
         }
-        /// <summary>The list of SSL protocols to enable for server side endpoints, the default is None that allows
-        /// the OS to choose the best protocol to use. It can be set to Tls12, Tls13, None or a combination of those,
-        /// other values are not accepted.</summary>
+
+        /// <summary>The list of SSL protocols to enable for incoming connections, the default is None that allows the
+        /// OS to choose the best protocol to use. It can be set to Tls12, Tls13, None or a combination of those, other
+        /// values are not accepted.</summary>
         public SslProtocols? EnabledSslProtocols { get; set; }
 
         /// <summary>Gets or sets a boolean value that specifies whether the client is asked for a certificate for
-        /// authentication. Note that this is only a request -- if no certificate is provided, the server still accepts
-        /// the connection request.</summary>
+        /// authentication.</summary>
         public bool RequireClientCertificate { get; set; }
-        /// <summary>A collection of X509 certificates to use by server side connections.</summary>
+
+        /// <summary>Gets or sets the certificate user for incoming connections.</summary>
         public X509Certificate2? ServerCertificate { get; set; }
-        /// <summary>A certificate selection callback used to select the server side certificate.</summary>
+
+        /// <summary>Gets or set a certificate selection callback used to select the server side certificate.</summary>
         public LocalCertificateSelectionCallback? ServerCertificateSelectionCallback { get; set; }
 
         private X509RevocationMode? _certificateRevocationCheckMode;

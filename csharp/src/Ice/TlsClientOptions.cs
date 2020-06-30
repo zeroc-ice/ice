@@ -29,14 +29,17 @@ namespace ZeroC.Ice
                 _certificateRevocationCheckMode = value;
             }
         }
-        /// <summary>A collection of X509 certificates to use by client side connections.</summary>
+
+        /// <summary>Gets or set the collection of X509 certificates to use by outgoing connections.</summary>
         public X509Certificate2Collection? ClientCertificates { get; set; }
-        /// <summary>A certificate selection callback used to select the client side certificate.</summary>
+
+        /// <summary>Gets or set the certificate selection callback used to select the client side certificate.
+        /// </summary>
         public LocalCertificateSelectionCallback? ClientCertificateSelectionCallback { get; set; }
 
-        /// <summary>The list of SSL protocols to enable for outgoing connections, the default is None that allows
-        /// the OS to choose the best protocol to use. It can be set to Tls12, Tls13, None or a combination of those,
-        /// other values are not accepted.</summary>
+        /// <summary>Gets or set the list of SSL protocols to enable for outgoing connections, the default is None,
+        /// that allows the OS to choose the best protocol to use. It can be set to Tls12, Tls13, None or a combination
+        /// of those, other values are not accepted.</summary>
         public SslProtocols? EnabledSslProtocols { get; set; }
 
         /// <summary>Gets or sets the certificates collection that will be used as trusted certificate authorities
@@ -57,9 +60,9 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Gets or sets the callback that will be used to verify the client certificate used for
-        /// authentication. Setting this is incompatible with setting
-        /// <see cref="ServerCertificateCertificateAuthorities"/> and IceSSL.CAs configuration property.</summary>
+        /// <summary>Gets or sets the callback that will be used to verify the server certificate. Setting this is
+        /// incompatible with setting <see cref="ServerCertificateCertificateAuthorities"/> and IceSSL.CAs
+        /// configuration property.</summary>
         public RemoteCertificateValidationCallback? ServerCertificateValidationCallback
         {
             get => _serverCertificateValidationCallback;
