@@ -29,12 +29,6 @@ namespace ZeroC.Ice
         {
             cancel.ThrowIfCancellationRequested();
 
-            //
-            // Increase the direct count to prevent the thread pool from being destroyed before
-            // invokeAll is called. This will also throw if the object adapter has been deactivated.
-            //
-            _adapter.IncDirectCount();
-
             IChildInvocationObserver? childObserver = null;
             int requestId = 0;
 
@@ -134,8 +128,11 @@ namespace ZeroC.Ice
             int requestId,
             CancellationToken cancel)
         {
-            // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
-            // upon completion.
+            //
+            // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is
+            // in progress. This will also throw if the object adapter has been deactivated.
+            //
+            _adapter.IncDirectCount();
 
             IDispatchObserver? dispatchObserver = null;
             try
