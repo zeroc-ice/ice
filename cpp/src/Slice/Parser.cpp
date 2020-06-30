@@ -2347,18 +2347,6 @@ Slice::Container::sortContents(bool sortFields)
 }
 
 void
-Slice::Container::visit(ParserVisitor* visitor, bool all)
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(all || (*p)->includeLevel() == 0)
-        {
-            (*p)->visit(visitor, all);
-        }
-    }
-}
-
-void
 Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 {
     for (ContainedList::iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2489,8 +2477,8 @@ Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct
     return true;
 }
 
-Slice::Container::Container(const UnitPtr& unit) :
-    SyntaxTreeBase(unit)
+Slice::Container::Container(const UnitPtr& ut) :
+    SyntaxTreeBase(ut)
 {
 }
 
@@ -2777,7 +2765,13 @@ Slice::Module::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitModuleStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& content : _contents)
+        {
+            if(all || content->includeLevel() == 0)
+            {
+                content->visit(visitor, all);
+            }
+        }
         visitor->visitModuleEnd(this);
     }
 }

@@ -538,7 +538,6 @@ public:
     std::string thisScope() const;
     void sort();
     void sortContents(bool);
-    void visit(ParserVisitor*, bool) override;
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = nullptr);
