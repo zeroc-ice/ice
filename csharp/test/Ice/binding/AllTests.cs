@@ -879,7 +879,7 @@ namespace ZeroC.Ice.Test.Binding
                     var prx = oa.CreateProxy("dummy", IObjectPrx.Factory);
                     try
                     {
-                        prx.Clone(collocationOptimized: false).IcePing();
+                        prx.IcePing();
                     }
                     catch (DNSException) // TODO: is this really an expected exception?
                     {

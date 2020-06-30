@@ -403,7 +403,7 @@ namespace ZeroC.Ice.Test.Proxy
             var b2 = IObjectPrx.Parse(b1.ToString()!, communicator);
             TestHelper.Assert(b1.Equals(b2));
 
-            if (b1.GetConnection() is Connection connection) // not colloc-optimized target
+            if (b1.GetConnection() is Connection connection) // not coloc-optimized target
             {
                 b2 = connection.CreateProxy(Identity.Parse("fixed"), IObjectPrx.Factory);
                 TestHelper.Assert(b2.ToString() == b2.ToString());
@@ -498,13 +498,6 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(b1 != null && b1.EndpointSelection == EndpointSelectionType.Ordered);
             communicator.RemoveProperty(property);
 
-            property = propertyPrefix + ".CollocationOptimized";
-            TestHelper.Assert(b1.IsCollocationOptimized);
-            communicator.SetProperty(property, "0");
-            b1 = communicator.GetPropertyAsProxy(propertyPrefix, IObjectPrx.Factory);
-            TestHelper.Assert(b1 != null && !b1.IsCollocationOptimized);
-            communicator.RemoveProperty(property);
-
             property = propertyPrefix + ".Context.c1";
             TestHelper.Assert(!b1.Context.ContainsKey("c1"));
             communicator.SetProperty(property, "TEST");
@@ -526,7 +519,6 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
 
             var router = IRouterPrx.Parse("router", communicator).Clone(
-                collocationOptimized: false,
                 cacheConnection: true,
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
@@ -534,7 +526,6 @@ namespace ZeroC.Ice.Test.Proxy
                 invocationTimeout: 1500);
 
             var locator = ILocatorPrx.Parse("locator", communicator).Clone(
-                collocationOptimized: true,
                 cacheConnection: false,
                 preferNonSecure: true,
                 endpointSelection: EndpointSelectionType.Random,
@@ -543,7 +534,6 @@ namespace ZeroC.Ice.Test.Proxy
                 router: router);
 
             b1 = IObjectPrx.Parse("test", communicator).Clone(
-                collocationOptimized: true,
                 cacheConnection: true,
                 preferNonSecure: false,
                 endpointSelection: EndpointSelectionType.Ordered,
@@ -553,11 +543,10 @@ namespace ZeroC.Ice.Test.Proxy
                 locator: locator);
 
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
-            TestHelper.Assert(proxyProps.Count == 21);
+            TestHelper.Assert(proxyProps.Count == 18);
 
             string defaultProtocolName = communicator.DefaultProtocol.GetName();
             TestHelper.Assert(proxyProps["Test"] == $"test -t -p {defaultProtocolName} -e 2.0");
-            TestHelper.Assert(proxyProps["Test.CollocationOptimized"] == "1");
             TestHelper.Assert(proxyProps["Test.ConnectionCached"] == "1");
             TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "0");
             TestHelper.Assert(proxyProps["Test.EndpointSelection"] == "Ordered");
@@ -565,8 +554,6 @@ namespace ZeroC.Ice.Test.Proxy
             TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "1234");
 
             TestHelper.Assert(proxyProps["Test.Locator"] == $"locator -t -p {defaultProtocolName} -e {Encoding.V2_0}");
-            // Locator collocation optimization is always disabled.
-            //TestHelper.Assert(proxyProps["Test.Locator.CollocationOptimized"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"] == "0");
             TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.EndpointSelection"] == "Random");
@@ -575,7 +562,6 @@ namespace ZeroC.Ice.Test.Proxy
 
             TestHelper.Assert(proxyProps["Test.Locator.Router"] ==
                 $"router -t -p {defaultProtocolName} -e {communicator.DefaultEncoding}");
-            TestHelper.Assert(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
             TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"] == "1");
             TestHelper.Assert(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
@@ -602,8 +588,6 @@ namespace ZeroC.Ice.Test.Proxy
                 InvocationMode.Datagram);
             TestHelper.Assert(baseProxy.Clone(invocationMode: InvocationMode.BatchDatagram).InvocationMode ==
                 InvocationMode.BatchDatagram);
-            TestHelper.Assert(baseProxy.Clone(collocationOptimized: true).IsCollocationOptimized);
-            TestHelper.Assert(!baseProxy.Clone(collocationOptimized: false).IsCollocationOptimized);
             TestHelper.Assert(baseProxy.Clone(preferNonSecure: true).PreferNonSecure);
             TestHelper.Assert(!baseProxy.Clone(preferNonSecure: false).PreferNonSecure);
 
@@ -707,9 +691,6 @@ namespace ZeroC.Ice.Test.Proxy
                               compObj.Clone(invocationMode: InvocationMode.Oneway)));
             TestHelper.Assert(!compObj.Clone(invocationMode: InvocationMode.Oneway).Equals(
                               compObj.Clone(invocationMode: InvocationMode.Twoway)));
-
-            TestHelper.Assert(compObj.Clone(collocationOptimized: true).Equals(compObj.Clone(collocationOptimized: true)));
-            TestHelper.Assert(!compObj.Clone(collocationOptimized: false).Equals(compObj.Clone(collocationOptimized: true)));
 
             TestHelper.Assert(compObj.Clone(cacheConnection: true).Equals(compObj.Clone(cacheConnection: true)));
             TestHelper.Assert(!compObj.Clone(cacheConnection: false).Equals(compObj.Clone(cacheConnection: true)));
