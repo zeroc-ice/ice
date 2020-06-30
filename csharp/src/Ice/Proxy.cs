@@ -382,24 +382,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private class ProgressWrapper : IProgress<bool>
-        {
-            private IProgress<bool>? _progress;
-
-            public bool IsSent { get; private set; }
-
-            public void Report(bool sentSynchronously)
-            {
-                if (_progress != null)
-                {
-                    Task.Run(() => _progress.Report(sentSynchronously));
-                }
-                IsSent = true;
-            }
-
-            internal ProgressWrapper(IProgress<bool>? progress) => _progress = progress;
-        }
-
         private static ValueTask<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
                                                                     OutgoingRequestFrame request,
                                                                     bool oneway,
@@ -555,6 +537,24 @@ namespace ZeroC.Ice
                     observer?.Detach();
                 }
             }
+        }
+
+        private class ProgressWrapper : IProgress<bool>
+        {
+            private readonly IProgress<bool>? _progress;
+
+            public bool IsSent { get; private set; }
+
+            public void Report(bool sentSynchronously)
+            {
+                if (_progress != null)
+                {
+                    Task.Run(() => _progress.Report(sentSynchronously));
+                }
+                IsSent = true;
+            }
+
+            internal ProgressWrapper(IProgress<bool>? progress) => _progress = progress;
         }
     }
 }
