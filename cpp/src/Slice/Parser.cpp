@@ -2263,325 +2263,6 @@ Slice::Container::contents() const
 }
 
 bool
-Slice::Container::hasSequences() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        SequencePtr s = SequencePtr::dynamicCast(*p);
-        if(s)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasSequences())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasStructs() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        StructPtr q = StructPtr::dynamicCast(*p);
-        if(q)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasStructs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasExceptions() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-        if(q)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasExceptions())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasClassDecls() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(ClassDeclPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasClassDecls())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasInterfaceDecls() const
-{
-    for (const auto& p : _contents)
-    {
-        if (InterfaceDeclPtr::dynamicCast(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(p);
-        if (container && container->hasInterfaceDecls())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasDictionaries() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
-        if(d)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasDictionaries())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasClassDefs() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(ClassDefPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasInterfaceDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-        if (def)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(p);
-        if (container && container->hasInterfaceDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasOnlyClassDecls() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr m = ModulePtr::dynamicCast(*p);
-        if(m)
-        {
-            if(!m->hasOnlyClassDecls())
-            {
-                return false;
-            }
-        }
-        else if(!ClassDeclPtr::dynamicCast(*p))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool
-Slice::Container::hasOnlyInterfaces() const
-{
-    for (const auto& p : _contents)
-    {
-        ModulePtr m = ModulePtr::dynamicCast(p);
-        if (m)
-        {
-            if (!m->hasOnlyInterfaces())
-            {
-                return false;
-            }
-        }
-        else
-        {
-            InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(p);
-            if (!decl)
-            {
-                InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-                if (!def)
-                {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-bool
-Slice::Container::hasOperations() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(*p);
-        if(def && def->hasOperations())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasOperations())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasOtherConstructedOrExceptions() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(ConstructedPtr::dynamicCast(*p) && !ClassDeclPtr::dynamicCast(*p) && !ClassDefPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        if(ExceptionPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        if(ConstPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasOtherConstructedOrExceptions())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasContentsWithMetaData(const string& meta) const
-{
-    ContainedList contained = contents();
-    for (ContainedList::const_iterator p = contained.begin(); p != contained.end(); ++p)
-    {
-        if((*p)->hasMetaData(meta))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasContentsWithMetaData(meta))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasAsyncOps() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(*p);
-        if(interface)
-        {
-            OperationList ops = interface->operations();
-            if(!ops.empty() && interface->hasMetaData("amd"))
-            {
-                return true;
-            }
-            for (OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
-            {
-                OperationPtr op = *i;
-                if(op->hasMetaData("amd"))
-                {
-                    return true;
-                }
-            }
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasAsyncOps())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 Slice::Container::hasContained(Contained::ContainedType type) const
 {
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2593,6 +2274,26 @@ Slice::Container::hasContained(Contained::ContainedType type) const
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
         if(container && container->hasContained(type))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+Slice::Container::hasContentsWithMetaData(const string& meta) const
+{
+    for (const auto& content : contents())
+    {
+        if(content->hasMetaData(meta))
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(content);
+        if(container && container->hasContentsWithMetaData(meta))
         {
             return true;
         }
@@ -3085,6 +2786,274 @@ Slice::Module::visit(ParserVisitor* visitor, bool all)
         Container::visit(visitor, all);
         visitor->visitModuleEnd(this);
     }
+}
+
+bool
+Slice::Module::hasSequences() const
+{
+    for (const auto& content : _contents)
+    {
+        if (SequencePtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasSequences())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasStructs() const
+{
+    for (const auto& content : _contents)
+    {
+        if (StructPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasStructs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasExceptions() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ExceptionPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasExceptions())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasDictionaries() const
+{
+    for (const auto& content : _contents)
+    {
+        if (DictionaryPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasDictionaries())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasClassDecls() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ClassDeclPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasClassDecls())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasClassDefs() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ClassDefPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasClassDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasInterfaceDecls() const
+{
+    for (const auto& content : _contents)
+    {
+        if (InterfaceDeclPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasInterfaceDecls())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasInterfaceDefs() const
+{
+    for (const auto& content : _contents)
+    {
+        if (InterfaceDefPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasInterfaceDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasOnlyClassDecls() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ModulePtr submodule = ModulePtr::dynamicCast(content))
+        {
+            if(!submodule->hasOnlyClassDecls())
+            {
+                return false;
+            }
+        }
+        else if (!ClassDeclPtr::dynamicCast(content))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+Slice::Module::hasOnlyInterfaces() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ModulePtr submodule = ModulePtr::dynamicCast(content))
+        {
+            if (!submodule->hasOnlyInterfaces())
+            {
+                return false;
+            }
+        }
+        else if (!InterfaceDeclPtr::dynamicCast(content) && !InterfaceDefPtr::dynamicCast(content))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+Slice::Module::hasOperations() const
+{
+    for (const auto& content : _contents)
+    {
+        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(content);
+        if (def && def->hasOperations())
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasOperations())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasOtherConstructedOrExceptions() const
+{
+    for (const auto& content : _contents)
+    {
+        if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content)
+            && ConstructedPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        if (ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasOtherConstructedOrExceptions())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasAsyncOps() const
+{
+    for (const auto& content : _contents)
+    {
+        if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(content))
+        {
+            OperationList ops = interface->operations();
+            if (!ops.empty() && interface->hasMetaData("amd"))
+            {
+                return true;
+            }
+            for (const auto& op : ops)
+            {
+                if (op->hasMetaData("amd"))
+                {
+                    return true;
+                }
+            }
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if(submodule && submodule->hasAsyncOps())
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 Slice::Module::Module(const ContainerPtr& container, const string& name) :
@@ -6338,6 +6307,175 @@ Slice::Unit::contents() const
     ContainedList result;
     result.insert(result.end(), _modules.begin(), _modules.end());
     return result;
+}
+
+bool
+Slice::Unit::hasSequences() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasSequences())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasStructs() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasStructs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasExceptions() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasExceptions())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasDictionaries() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasDictionaries())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasClassDecls() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasClassDecls())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasClassDefs() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasClassDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasInterfaceDecls() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasInterfaceDecls())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasInterfaceDefs() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasInterfaceDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasOnlyClassDecls() const
+{
+    for (const auto& module : _modules)
+    {
+        if (!module->hasOnlyClassDecls())
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+Slice::Unit::hasOnlyInterfaces() const
+{
+    for (const auto& module : _modules)
+    {
+        if (!module->hasOnlyInterfaces())
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+Slice::Unit::hasOperations() const
+{
+    for (const auto& module : _modules)
+    {
+        if (!module->hasOperations())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasOtherConstructedOrExceptions() const
+{
+    for (const auto& module : _modules)
+    {
+        if(module->hasOtherConstructedOrExceptions())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasAsyncOps() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasAsyncOps())
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 BuiltinPtr

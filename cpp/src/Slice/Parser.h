@@ -534,21 +534,8 @@ public:
     EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
     virtual ContainedList contents() const;
-    bool hasSequences() const;
-    bool hasStructs() const;
-    bool hasExceptions() const;
-    bool hasDictionaries() const;
-    bool hasClassDecls() const;
-    bool hasClassDefs() const;
-    bool hasInterfaceDecls() const;
-    bool hasInterfaceDefs() const;
-    bool hasOnlyClassDecls() const;
-    bool hasOnlyInterfaces() const;
-    bool hasOperations() const; // interfaces or classes with operations
-    bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
-    bool hasContentsWithMetaData(const std::string&) const;
-    bool hasAsyncOps() const;
     bool hasContained(Contained::ContainedType) const;
+    bool hasContentsWithMetaData(const std::string&) const;
     std::string thisScope() const;
     void sort();
     void sortContents(bool);
@@ -581,6 +568,19 @@ public:
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
+    bool hasSequences() const;
+    bool hasStructs() const;
+    bool hasExceptions() const;
+    bool hasDictionaries() const;
+    bool hasClassDecls() const;
+    bool hasClassDefs() const;
+    bool hasInterfaceDecls() const;
+    bool hasInterfaceDefs() const;
+    bool hasOnlyClassDecls() const;
+    bool hasOnlyInterfaces() const;
+    bool hasOperations() const; // interfaces or classes with operations
+    bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
+    bool hasAsyncOps() const;
     bool hasOnlySubModules() const;
 
 protected:
@@ -1248,6 +1248,19 @@ public:
     ModuleList modules() const;
     ContainedList contents() const override;
     void visit(ParserVisitor*, bool) override;
+    bool hasSequences() const;
+    bool hasStructs() const;
+    bool hasExceptions() const;
+    bool hasDictionaries() const;
+    bool hasClassDecls() const;
+    bool hasClassDefs() const;
+    bool hasInterfaceDecls() const;
+    bool hasInterfaceDefs() const;
+    bool hasOnlyClassDecls() const;
+    bool hasOnlyInterfaces() const;
+    bool hasOperations() const; // interfaces or classes with operations
+    bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
+    bool hasAsyncOps() const;
 
     // Not const, as builtins are created on the fly. (Lazy initialization.)
     BuiltinPtr builtin(Builtin::Kind);
