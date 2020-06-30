@@ -2080,21 +2080,6 @@ Slice::Container::lookupException(const string& scoped, bool printError)
     return exceptions.front();
 }
 
-EnumList
-Slice::Container::enums() const
-{
-    EnumList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        EnumPtr q = EnumPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
 //
 // Find enumerators using the old unscoped enumerators lookup
 //
@@ -2110,13 +2095,16 @@ Slice::Container::enumerators(const string& scoped) const
         ContainerPtr container = const_cast<Container*>(this);
         do
         {
-            EnumList enums = container->enums();
-            for (EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
+            if (ModulePtr module = ModulePtr::dynamicCast(container))
             {
-                ContainedList cl = (*p)->lookupContained(scoped, false);
-                if(!cl.empty())
+                EnumList enums = module->enums();
+                for (EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
                 {
-                    result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                    ContainedList cl = (*p)->lookupContained(scoped, false);
+                    if(!cl.empty())
+                    {
+                        result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                    }
                 }
             }
 
@@ -2140,10 +2128,9 @@ Slice::Container::enumerators(const string& scoped) const
         ContainedList cl = container->lookupContained(scope, false);
         if(!cl.empty())
         {
-            container = ContainerPtr::dynamicCast(cl.front());
-            if(container)
+            if(ModulePtr module = ModulePtr::dynamicCast(cl.front()))
             {
-                EnumList enums = container->enums();
+                EnumList enums = module->enums();
                 string name = scoped.substr(lastColon + 1);
                 for (EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
                 {
@@ -2157,21 +2144,6 @@ Slice::Container::enumerators(const string& scoped) const
         }
     }
 
-    return result;
-}
-
-ConstList
-Slice::Container::consts() const
-{
-    ConstList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ConstPtr q = ConstPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
     return result;
 }
 
@@ -2705,6 +2677,34 @@ Slice::Module::visit(ParserVisitor* visitor, bool all)
         }
         visitor->visitModuleEnd(this);
     }
+}
+
+EnumList
+Slice::Module::enums() const
+{
+    EnumList result;
+    for (const auto& content : _contents)
+    {
+        if (EnumPtr e = EnumPtr::dynamicCast(content))
+        {
+            result.push_back(e);
+        }
+    }
+    return result;
+}
+
+ConstList
+Slice::Module::consts() const
+{
+    ConstList result;
+    for (const auto& content : _contents)
+    {
+        if (ConstPtr c = ConstPtr::dynamicCast(content))
+        {
+            result.push_back(c);
+        }
+    }
+    return result;
 }
 
 bool

@@ -521,10 +521,8 @@ public:
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
     ContainedList lookupContained(const std::string&, bool = true);
     ExceptionPtr lookupException(const std::string&, bool = true);
-    EnumList enums() const;
     // Finds enumerators using the deprecated unscoped enumerators lookup
     EnumeratorList enumerators(const std::string&) const;
-    ConstList consts() const;
     virtual ContainedList contents() const = 0;
     bool hasContained(Contained::ContainedType) const;
     bool hasContentsWithMetaData(const std::string&) const;
@@ -560,6 +558,8 @@ public:
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
+    EnumList enums() const;
+    ConstList consts() const;
     bool hasSequences() const;
     bool hasStructs() const;
     bool hasExceptions() const;
