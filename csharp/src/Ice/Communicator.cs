@@ -226,21 +226,15 @@ namespace ZeroC.Ice
         public Communicator(IReadOnlyDictionary<string, string> properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            X509Certificate2Collection? certificates = null,
-                            X509Certificate2Collection? caCertificates = null,
-                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
-                            RemoteCertificateValidationCallback? certificateValidationCallback = null,
-                            IPasswordCallback? passwordCallback = null)
+                            TlsClientOptions? tlsClientOptions = null,
+                            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    null,
                    properties,
                    logger,
                    observer,
-                   certificates,
-                   caCertificates,
-                   certificateSelectionCallback,
-                   certificateValidationCallback,
-                   passwordCallback)
+                   tlsClientOptions,
+                   tlsServerOptions)
         {
         }
 
@@ -248,21 +242,15 @@ namespace ZeroC.Ice
                             IReadOnlyDictionary<string, string> properties,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            X509Certificate2Collection? certificates = null,
-                            X509Certificate2Collection? caCertificates = null,
-                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
-                            RemoteCertificateValidationCallback? certificateValidationCallback = null,
-                            IPasswordCallback? passwordCallback = null)
+                            TlsClientOptions? tlsClientOptions = null,
+                            TlsServerOptions? tlsServerOptions = null)
             : this(ref args,
                    null,
                    properties,
                    logger,
                    observer,
-                   certificates,
-                   caCertificates,
-                   certificateSelectionCallback,
-                   certificateValidationCallback,
-                   passwordCallback)
+                   tlsClientOptions,
+                   tlsServerOptions)
         {
         }
 
@@ -270,21 +258,15 @@ namespace ZeroC.Ice
                             IReadOnlyDictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            X509Certificate2Collection? certificates = null,
-                            X509Certificate2Collection? caCertificates = null,
-                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
-                            RemoteCertificateValidationCallback? certificateValidationCallback = null,
-                            IPasswordCallback? passwordCallback = null)
+                            TlsClientOptions? tlsClientOptions = null,
+                            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    appSettings,
                    properties,
                    logger,
                    observer,
-                   certificates,
-                   caCertificates,
-                   certificateSelectionCallback,
-                   certificateValidationCallback,
-                   passwordCallback)
+                   tlsClientOptions,
+                   tlsServerOptions)
         {
         }
 
@@ -293,11 +275,8 @@ namespace ZeroC.Ice
                             IReadOnlyDictionary<string, string>? properties = null,
                             ILogger? logger = null,
                             Instrumentation.ICommunicatorObserver? observer = null,
-                            X509Certificate2Collection? certificates = null,
-                            X509Certificate2Collection? caCertificates = null,
-                            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
-                            RemoteCertificateValidationCallback? certificateValidationCallback = null,
-                            IPasswordCallback? passwordCallback = null)
+                            TlsClientOptions? tlsClientOptions = null,
+                            TlsServerOptions? tlsServerOptions = null)
         {
             _state = StateActive;
             Logger = logger ?? Runtime.Logger;
@@ -618,37 +597,7 @@ namespace ZeroC.Ice
 
                 NetworkProxy = CreateNetworkProxy(IPVersion);
 
-                if (passwordCallback != null && certificateSelectionCallback != null)
-                {
-                    throw new ArgumentException(
-                        @$"the `{nameof(passwordCallback)}' and `{nameof(certificateSelectionCallback)
-                        }' optional arguments are incompatible with each other",
-                        nameof(passwordCallback));
-                }
-
-                if (certificates != null && certificateSelectionCallback != null)
-                {
-                    throw new ArgumentException(
-                        @$"the `{nameof(certificates)}' and `{nameof(certificateSelectionCallback)
-                        }' optional arguments are incompatible with each other",
-                        nameof(certificates));
-                }
-
-                if (caCertificates != null && certificateValidationCallback != null)
-                {
-                    throw new ArgumentException(
-                        @$"the `{nameof(caCertificates)}' and `{nameof(certificateValidationCallback)
-                        }' optional arguments are incompatible with each other",
-                        nameof(caCertificates));
-                }
-
-                SslEngine = new SslEngine(
-                    this,
-                    certificates,
-                    caCertificates,
-                    certificateSelectionCallback,
-                    certificateValidationCallback,
-                    passwordCallback);
+                SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
                 var endpointFactory = new EndpointFactory(this);
                 IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory);

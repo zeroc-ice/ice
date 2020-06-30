@@ -1322,7 +1322,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + Transceiver.ToString());
+                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
             }
 
             if (_state > State.NotInitialized && _communicator.TraceLevels.Network >= 1)
@@ -1381,7 +1381,7 @@ namespace ZeroC.Ice
                 foreach ((TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource, bool synchronous) request in
                     _requests.Values)
                 {
-                    request.TaskCompletionSource.SetException(_exception!);
+                    request.TaskCompletionSource.TrySetException(_exception!);
                 }
 
                 // Invoke the close callback

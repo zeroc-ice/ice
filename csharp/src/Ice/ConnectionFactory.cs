@@ -1135,8 +1135,8 @@ namespace ZeroC.Ice
             if (_transceiver == null)
             {
 #if DEBUG
-                IEnumerable<Connection> cons = _monitor.SwapReapedConnections();
-                Debug.Assert(cons.Count() == _connections.Count);
+                IEnumerable<Connection> connections = _monitor.SwapReapedConnections();
+                Debug.Assert(connections.Count() == _connections.Count);
 #else
                 _monitor.SwapReapedConnections();
 #endif

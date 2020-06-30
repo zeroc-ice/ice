@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
@@ -19,6 +20,7 @@ namespace ZeroC.Ice
 
         private readonly string? _adapterName;
         private bool _authenticated;
+        private X509Certificate2[]? _certificates;
         private readonly Communicator _communicator;
         private readonly ITransceiver _delegate;
         private readonly SslEngine _engine;
@@ -62,13 +64,9 @@ namespace ZeroC.Ice
 
             Network.SetBlock(fd, true); // SSL requires a blocking socket
 
-            //
-            // For timeouts to work properly, we need to receive/send
-            // the data in several chunks. Otherwise, we would only be
-            // notified when all the data is received/written. The
-            // connection timeout could easily be triggered when
-            // receiving/sending large frames.
-            //
+            // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise, we would
+            // only be notified when all the data is received/written. The connection timeout could easily be triggered
+            // when receiving/sending large frames.
             _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(fd));
             _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(fd));
 
@@ -76,11 +74,22 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    SslStream = new SslStream(
-                        new NetworkStream(fd, false),
-                        false,
-                        _engine.RemoteCertificateValidationCallback ?? RemoteCertificateValidationCallback,
-                        _engine.CertificateSelectionCallback ?? CertificateSelectionCallback);
+                    if (_incoming)
+                    {
+                        SslStream = new SslStream(
+                            new NetworkStream(fd, false),
+                            false,
+                            _engine.ClientCertificateValidationCallback ?? RemoteCertificateValidationCallback,
+                            _engine.ServerCertificateSelectionCallback ?? CertificateSelectionCallback);
+                    }
+                    else
+                    {
+                        SslStream = new SslStream(
+                            new NetworkStream(fd, false),
+                            false,
+                            _engine.ServerCertificateValidationCallback ?? RemoteCertificateValidationCallback,
+                            _engine.ClientCertificateSelectionCallback ?? CertificateSelectionCallback);
+                    }
                 }
                 catch (IOException ex)
                 {
@@ -100,10 +109,10 @@ namespace ZeroC.Ice
             _authenticated = true;
 
             string description = ToString();
-            if (!_engine.TrustManager.Verify(_incoming,
-                                             SslStream.RemoteCertificate as X509Certificate2,
-                                             _adapterName ?? "",
-                                             description))
+            if (!_engine.SslTrustManager.Verify(_incoming,
+                                                SslStream.RemoteCertificate as X509Certificate2,
+                                                _adapterName ?? "",
+                                                description))
             {
                 string msg = string.Format("{0} connection rejected by trust manager\n{1}",
                     _incoming ? "incoming" : "outgoing",
@@ -118,7 +127,7 @@ namespace ZeroC.Ice
 
             if (_engine.SecurityTraceLevel >= 1)
             {
-                _engine.TraceStream(SslStream, ToString());
+                _engine.TraceStream(SslStream, description);
             }
             return SocketOperation.None;
         }
@@ -302,10 +311,7 @@ namespace ZeroC.Ice
                 return StartAuthenticate(cb, state);
             }
 
-            //
-            // We limit the packet size for beingWrite to ensure connection timeouts are based
-            // on a fixed packet size.
-            //
+            // We limit the write packet size to ensure connection timeouts are based on a fixed packet size.
             int remaining = buffer.GetByteCount() - offset;
             int packetSize = GetSendPacketSize(remaining);
             try
@@ -341,7 +347,7 @@ namespace ZeroC.Ice
         public int Write(IList<ArraySegment<byte>> buffer, ref int offset) =>
             offset < buffer.GetByteCount() ? SocketOperation.Write : SocketOperation.None;
 
-        // Only for use by ConnectorI, AcceptorI.
+        // Only for use by TcpEndpoint.
         internal SslTransceiver(Communicator communicator, ITransceiver del, string hostOrAdapterName, bool incoming)
         {
             _communicator = communicator;
@@ -373,14 +379,8 @@ namespace ZeroC.Ice
             {
                 return null;
             }
-            else if (certs.Count == 1)
-            {
-                return certs[0];
-            }
 
-            //
             // Use the first certificate that match the acceptable issuers.
-            //
             if (acceptableIssuers != null && acceptableIssuers.Length > 0)
             {
                 foreach (X509Certificate certificate in certs)
@@ -446,23 +446,20 @@ namespace ZeroC.Ice
         private bool RemoteCertificateValidationCallback(
             object sender,
             X509Certificate certificate,
-            X509Chain chainEngine,
+            X509Chain _,
             SslPolicyErrors policyErrors)
         {
             var chain = new X509Chain(_engine.UseMachineContext);
             try
             {
-                if (_engine.CheckCRL == 0)
-                {
-                    chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-                }
+                chain.ChainPolicy.RevocationMode = _incoming ? _engine.ServerCertificateRevocationCheckMode :
+                                                               _engine.ClientCertificateRevocationCheckMode;
 
-                X509Certificate2Collection? caCerts = _engine.CaCerts;
+                X509Certificate2Collection? caCerts = _incoming ? _engine.ClientCertificateCertificateAuthorities :
+                                                                  _engine.ServerCertificateCertificateAuthorities;
                 if (caCerts != null)
                 {
-                    //
                     // We need to set this flag to be able to use a certificate authority from the extra store.
-                    //
                     chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
                     foreach (X509Certificate2 cert in caCerts)
                     {
@@ -479,9 +476,9 @@ namespace ZeroC.Ice
                     {
                         errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
-                    else if (_engine.CaCerts != null)
+                    else if (caCerts != null)
                     {
-                        X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
+                        X509ChainElement e = chain.ChainElements[^1];
                         if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                         {
                             message += "\nuntrusted root certificate";
@@ -500,13 +497,9 @@ namespace ZeroC.Ice
 
                 if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
                 {
-                    //
-                    // The RemoteCertificateNotAvailable case does not appear to be possible
-                    // for an outgoing connection. Since .NET requires an authenticated
-                    // connection, the remote peer closes the socket if it does not have a
-                    // certificate to provide.
-                    //
-
+                    // The RemoteCertificateNotAvailable case does not appear to be possible for an outgoing
+                    // connection. Since .NET requires an authenticated connection, the remote peer closes the socket
+                    // if it does not have a certificate to provide.
                     if (_incoming)
                     {
                         if (_verifyPeer > 1)
@@ -539,57 +532,15 @@ namespace ZeroC.Ice
                     int errorCount = 0;
                     foreach (X509ChainStatus status in chain.ChainStatus)
                     {
-                        if (status.Status == X509ChainStatusFlags.UntrustedRoot && _engine.CaCerts != null)
+                        if (status.Status == X509ChainStatusFlags.UntrustedRoot && caCerts != null)
                         {
-                            //
-                            // Untrusted root is OK when using our custom chain engine if
-                            // the CA certificate is present in the chain policy extra store.
-                            //
-                            X509ChainElement e = chain.ChainElements[chain.ChainElements.Count - 1];
-                            if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
+                            // Untrusted root is OK when using our custom chain engine if the CA certificate is present
+                            // in the chain policy extra store.
+                            X509ChainElement root = chain.ChainElements[^1];
+                            if (!chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
                             {
                                 message += "\nuntrusted root certificate";
                                 ++errorCount;
-                            }
-                        }
-                        else if (status.Status == X509ChainStatusFlags.Revoked)
-                        {
-                            if (_engine.CheckCRL > 0)
-                            {
-                                message += "\ncertificate revoked";
-                                ++errorCount;
-                            }
-                            else
-                            {
-                                message += "\ncertificate revoked (ignored)";
-                            }
-                        }
-                        else if (status.Status == X509ChainStatusFlags.OfflineRevocation)
-                        {
-                            // If a certificate's revocation status cannot be determined, the strictest policy is to
-                            // reject the connection.
-                            if (_engine.CheckCRL > 1)
-                            {
-                                message += "\ncertificate revocation list is offline";
-                                ++errorCount;
-                            }
-                            else
-                            {
-                                message += "\ncertificate revocation list is offline (ignored)";
-                            }
-                        }
-                        else if (status.Status == X509ChainStatusFlags.RevocationStatusUnknown)
-                        {
-                            // If a certificate's revocation status cannot be determined, the strictest policy is to
-                            // reject the connection.
-                            if (_engine.CheckCRL > 1)
-                            {
-                                message += "\ncertificate revocation status unknown";
-                                ++errorCount;
-                            }
-                            else
-                            {
-                                message += "\ncertificate revocation status unknown (ignored)";
                             }
                         }
                         else if (status.Status == X509ChainStatusFlags.PartialChain)
@@ -635,6 +586,15 @@ namespace ZeroC.Ice
             }
             finally
             {
+                if (chain.ChainElements != null && chain.ChainElements.Count > 0)
+                {
+                    _certificates = new X509Certificate2[chain.ChainElements.Count];
+                    for (int i = 0; i < chain.ChainElements.Count; ++i)
+                    {
+                        _certificates[i] = chain.ChainElements[i].Certificate;
+                    }
+                }
+
                 try
                 {
                     chain.Dispose();
@@ -651,38 +611,23 @@ namespace ZeroC.Ice
             try
             {
                 _writeCallback = callback;
-                if (!_incoming)
+                if (_incoming)
                 {
-                    //
-                    // Client authentication.
-                    //
-                    _writeResult = SslStream.BeginAuthenticateAsClient(_host,
-                                                                        _engine.Certs,
-                                                                        _engine.SslProtocols,
-                                                                        _engine.CheckCRL > 0,
-                                                                        WriteCompleted,
-                                                                        state);
+                    _writeResult = SslStream.BeginAuthenticateAsServer(_engine.ServerCertificate,
+                                                                       _engine.RequireClientCertificate,
+                                                                       _engine.ServerEnabledSslProtocols,
+                                                                       false,
+                                                                       WriteCompleted,
+                                                                       state);
                 }
                 else
                 {
-                    //
-                    // Server authentication.
-                    //
-                    // Get the certificate collection and select the first one.
-                    //
-                    X509Certificate2Collection? certs = _engine.Certs;
-                    X509Certificate2? cert = null;
-                    if (certs != null && certs.Count > 0)
-                    {
-                        cert = certs[0];
-                    }
-
-                    _writeResult = SslStream.BeginAuthenticateAsServer(cert,
-                                                                        _verifyPeer > 0,
-                                                                        _engine.SslProtocols,
-                                                                        _engine.CheckCRL > 0,
-                                                                        WriteCompleted,
-                                                                        state);
+                    _writeResult = SslStream.BeginAuthenticateAsClient(_host,
+                                                                       _engine.ClientCertificates,
+                                                                       _engine.ClientEnabledSslProtocols,
+                                                                       false,
+                                                                       WriteCompleted,
+                                                                       state);
                 }
             }
             catch (IOException ex)
