@@ -951,14 +951,14 @@ namespace ZeroC.Ice
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections
             // to be finished.
             Shutdown();
-            _outgoingConnectionFactory?.Destroy();
+            _outgoingConnectionFactory?.DestroyAsync();
 
             // First wait for shutdown to finish.
             WaitForShutdown();
 
             DestroyAllObjectAdapters();
 
-            _outgoingConnectionFactory?.WaitUntilFinished();
+            _outgoingConnectionFactory?.DestroyAsync().Wait();
 
             Observer?.SetObserverUpdater(null);
 
