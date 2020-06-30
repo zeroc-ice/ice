@@ -12,9 +12,10 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
-        private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
-            _emptyResultFrames =
-                new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
+        private static readonly ConcurrentDictionary<(Communicator Communicator, Protocol Protocol, Encoding Encoding),
+            IncomingResponseFrame> _cachedVoidReturnValueFrames =
+                new ConcurrentDictionary<(Communicator Communicator, Protocol Protocol, Encoding Encoding),
+                    IncomingResponseFrame>();
 
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
@@ -39,18 +40,16 @@ namespace ZeroC.Ice
 
         public static IncomingResponseFrame WithVoidReturnValue(Communicator communicator,
                                                                 Protocol protocol,
-                                                                Encoding encoding)
-        {
-            return _emptyResultFrames.GetOrAdd((protocol, encoding), key =>
+                                                                Encoding encoding) =>
+            _cachedVoidReturnValueFrames.GetOrAdd((communicator, protocol, encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
                 var stream = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
                 stream.WriteByte((byte)ReplyStatus.OK);
                 _ = stream.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
-                return new IncomingResponseFrame(communicator, key.Protocol, data[0]);
+                return new IncomingResponseFrame(key.Communicator, key.Protocol, data[0]);
             });
-        }
 
         /// <summary>Reads the return value carried by this response frame. If the response frame carries
         /// a failure, reads and throws this exception.</summary>

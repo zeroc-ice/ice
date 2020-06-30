@@ -195,8 +195,6 @@ namespace ZeroC.Ice
                     }
                 }
 
-                // TODO: avoid creating a new response frame all the time for oneway, especially since it's not used
-                // anyway since the caller doesn't use it.
                 return outgoingResponseFrame ?? OutgoingResponseFrame.WithVoidReturnValue(current);
             }
             finally
