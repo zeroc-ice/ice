@@ -521,13 +521,6 @@ public:
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
     ContainedList lookupContained(const std::string&, bool = true);
     ExceptionPtr lookupException(const std::string&, bool = true);
-    ModuleList modules() const;
-    ClassList classes() const;
-    InterfaceList interfaces() const;
-    ExceptionList exceptions() const;
-    StructList structs() const;
-    SequenceList sequences() const;
-    DictionaryList dictionaries() const;
     EnumList enums() const;
     // Finds enumerators using the deprecated unscoped enumerators lookup
     EnumeratorList enumerators(const std::string&) const;
@@ -1244,7 +1237,6 @@ public:
     int parse(const std::string&, FILE*, bool);
 
     void destroy() override;
-    ModuleList modules() const;
     ContainedList contents() const override;
     void visit(ParserVisitor*, bool) override;
     bool hasSequences() const;

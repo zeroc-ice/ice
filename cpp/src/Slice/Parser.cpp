@@ -2080,81 +2080,6 @@ Slice::Container::lookupException(const string& scoped, bool printError)
     return exceptions.front();
 }
 
-ClassList
-Slice::Container::classes() const
-{
-    ClassList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-ExceptionList
-Slice::Container::exceptions() const
-{
-    ExceptionList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-StructList
-Slice::Container::structs() const
-{
-    StructList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        StructPtr q = StructPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-SequenceList
-Slice::Container::sequences() const
-{
-    SequenceList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        SequencePtr q = SequencePtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-DictionaryList
-Slice::Container::dictionaries() const
-{
-    DictionaryList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DictionaryPtr q = DictionaryPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
 EnumList
 Slice::Container::enums() const
 {
@@ -6300,12 +6225,6 @@ Slice::Unit::visit(ParserVisitor* visitor, bool all)
         }
         visitor->visitUnitEnd(this);
     }
-}
-
-ModuleList
-Slice::Unit::modules() const
-{
-    return _modules;
 }
 
 ContainedList
