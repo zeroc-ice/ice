@@ -1309,7 +1309,7 @@ Slice::Container::createClassDef(const string& name, int, const ClassDefPtr&)
     }
 
     checkIdentifier(name);
-    _unit->error("`" + name + "': class can only be defined at module scope");
+    _unit->error("`" + name + "': a class can only be defined at module scope");
     return nullptr;
 }
 
@@ -1351,7 +1351,7 @@ Slice::Container::createClassDecl(const string& name)
     }
 
     checkIdentifier(name);
-    _unit->error("`" + name + "': class can only be defined at module scope");
+    _unit->error("`" + name + "': a class can only be defined at module scope");
     return nullptr;
 }
 
@@ -1407,7 +1407,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList&)
     }
 
     checkIdentifier(name);
-    _unit->error("`" + name + "': interface can only be defined at module scope");
+    _unit->error("`" + name + "': an interface can only be defined at module scope");
     return nullptr;
 }
 
@@ -1449,7 +1449,7 @@ Slice::Container::createInterfaceDecl(const string& name)
     }
 
     checkIdentifier(name);
-    _unit->error("`" + name + "': interface can only be defined at module scope");
+    _unit->error("`" + name + "': an interface can only be defined at module scope");
     return nullptr;
 }
 
@@ -1487,7 +1487,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 
     if(nt == Real)
     {
-        _unit->error("`" + name + "': exception can only be defined at module scope");
+        _unit->error("`" + name + "': an exception can only be defined at module scope");
     }
     return new Exception(this, name, base);
 }
@@ -1526,7 +1526,7 @@ Slice::Container::createStruct(const string& name, NodeType nt)
 
     if(nt == Real)
     {
-        _unit->error("`" + name + "': structure can only be defined at module scope");
+        _unit->error("`" + name + "': a structure can only be defined at module scope");
     }
     return new Struct(this, name);
 }
@@ -1567,7 +1567,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
 
     if(nt == Real)
     {
-        _unit->error("`" + name + "': sequence can only be defined at module scope");
+        _unit->error("`" + name + "': a sequence can only be defined at module scope");
     }
     return new Sequence(this, name, type, metaData);
 }
@@ -1609,7 +1609,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 
     if(nt == Real)
     {
-        _unit->error("`" + name + "': dictionary can only be defined at module scope");
+        _unit->error("`" + name + "': a dictionary can only be defined at module scope");
     }
 
     if(nt == Real)
@@ -1662,7 +1662,7 @@ Slice::Container::createEnum(const string& name, bool unchecked, NodeType nt)
 
     if(nt == Real)
     {
-        _unit->error("`" + name + "': enumeration can only be defined at module scope");
+        _unit->error("`" + name + "': an enumeration can only be defined at module scope");
     }
     return new Enum(this, name, unchecked);
 }
@@ -1703,7 +1703,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
 
     if(nt == Real)
     {
-        _unit->error("`" + name + "': constant can only be defined at module scope");
+        _unit->error("`" + name + "': a constant can only be defined at module scope");
     }
 
     SyntaxTreeBasePtr resolvedValueType = valueType;
