@@ -31,7 +31,6 @@ namespace ZeroC.Ice
         private int _maxSendPacketSize;
         private AsyncCallback? _readCallback;
         private IAsyncResult? _readResult;
-        private readonly int _verifyPeer;
         private AsyncCallback? _writeCallback;
         private IAsyncResult? _writeResult;
 
@@ -364,8 +363,6 @@ namespace ZeroC.Ice
             }
 
             SslStream = null;
-
-            _verifyPeer = _communicator.GetPropertyAsInt("IceSSL.VerifyPeer") ?? 2;
         }
 
         private X509Certificate? CertificateSelectionCallback(
@@ -497,12 +494,12 @@ namespace ZeroC.Ice
 
                 if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
                 {
-                    // The RemoteCertificateNotAvailable case does not appear to be possible for an outgoing
-                    // connection. Since .NET requires an authenticated connection, the remote peer closes the socket
-                    // if it does not have a certificate to provide.
+                    // The RemoteCertificateNotAvailable case is not possible for an outgoing connection. Since .NET
+                    // requires an authenticated connection, the remote peer closes the socket if it does not have a
+                    // certificate to provide.
                     if (_incoming)
                     {
-                        if (_verifyPeer > 1)
+                        if (_engine.RequireClientCertificate)
                         {
                             if (_engine.SecurityTraceLevel >= 1)
                             {
@@ -511,6 +508,7 @@ namespace ZeroC.Ice
                             }
                             return false;
                         }
+
                         errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
                         message += "\nremote certificate not provided (ignored)";
                     }

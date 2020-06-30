@@ -198,8 +198,8 @@ namespace ZeroC.Glacier2
         /// <param name="properties">Optional properties used for communicator initialization.</param>
         /// <param name="logger">Optional logger used for communicator initialization.</param>
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
-        /// <param name="tlsClientOptions">Optional certificates used by secure transports.</param>
-        /// <param name="tlsServerOptions">Optional CA certificates used by secure transports.</param>
+        /// <param name="tlsClientOptions">TLS transport client side configuration options.</param>
+        /// <param name="tlsServerOptions">TLS transport server side configuration options.</param>
         public SessionFactoryHelper(
             ISessionCallback callback,
             Dictionary<string, string> properties,

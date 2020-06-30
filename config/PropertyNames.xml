@@ -597,6 +597,7 @@ generated from the section label.
         <property name="TruststorePassword" />
         <property name="TruststoreType" />
         <property name="UsePlatformCAs" />
+        <property name="UseMachineContext" />
         <property name="VerifyDepthMax" />
         <property name="VerifyPeer" />
     </section>

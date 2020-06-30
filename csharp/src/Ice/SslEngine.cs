@@ -13,7 +13,7 @@ namespace ZeroC.Ice
 {
     internal class SslEngine
     {
-        // Specifies the mode used to check for X509 certificate revocation when validation client certificates.
+        // Specifies the mode used to check for X509 certificate revocation when validating client certificates.
         internal X509RevocationMode ClientCertificateRevocationCheckMode { get; }
 
         // A collection of X509 certificates to use by outgoing connections
@@ -29,15 +29,16 @@ namespace ZeroC.Ice
         // certificate.
         internal X509Certificate2Collection? ClientCertificateCertificateAuthorities { get; }
 
-        // The callback that will be used to verify the client certificates.</summary>
+        // The callback that will be used to verify the client certificates.
         internal RemoteCertificateValidationCallback? ClientCertificateValidationCallback { get; }
 
+        // A boolean value indicating whenever or not a client certificate is required by the server
         internal bool RequireClientCertificate { get; }
 
-        // Specifies the mode used to check for X509 certificate revocation when validation client certificates.
+        // Specifies the mode used to check for X509 certificate revocation when validating server certificates.
         internal X509RevocationMode ServerCertificateRevocationCheckMode { get; }
 
-        // A collection of X509 certificates to use by incoming connections
+        // An X509 certificate to use by incoming connections
         internal X509Certificate2? ServerCertificate;
 
         // A certificate selection callback used to select the server side certificate.
@@ -50,7 +51,7 @@ namespace ZeroC.Ice
         // certificate.
         internal X509Certificate2Collection? ServerCertificateCertificateAuthorities { get; }
 
-        // The callback that will be used to verify the server certificates.</summary>
+        // The callback that will be used to verify the server certificates.
         internal RemoteCertificateValidationCallback? ServerCertificateValidationCallback { get; }
 
         internal int SecurityTraceLevel { get; }

@@ -1381,7 +1381,7 @@ namespace ZeroC.Ice
                 foreach ((TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource, bool synchronous) request in
                     _requests.Values)
                 {
-                    request.TaskCompletionSource.TrySetException(_exception!);
+                    request.TaskCompletionSource.SetException(_exception!);
                 }
 
                 // Invoke the close callback
