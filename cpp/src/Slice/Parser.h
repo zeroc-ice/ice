@@ -550,7 +550,6 @@ public:
     bool hasAsyncOps() const;
     bool hasContained(Contained::ContainedType) const;
     std::string thisScope() const;
-    void mergeModules();
     void sort();
     void sortContents(bool);
     void visit(ParserVisitor*, bool) override;
@@ -588,6 +587,7 @@ protected:
 
     Module(const ContainerPtr&, const std::string&);
     friend class Container;
+    friend class Unit;
 };
 
 // ----------------------------------------------------------------------
@@ -1189,6 +1189,7 @@ class Unit : public virtual Container
 public:
 
     static UnitPtr createUnit(bool, bool, const StringList& = StringList());
+    ModulePtr createModule(const std::string& name) override;
 
     bool ignRedefs() const;
     bool compatMode() const;
@@ -1244,6 +1245,8 @@ public:
     int parse(const std::string&, FILE*, bool);
 
     void destroy() override;
+    ModuleList modules() const;
+    ContainedList contents() const override;
     void visit(ParserVisitor*, bool) override;
 
     // Not const, as builtins are created on the fly. (Lazy initialization.)
@@ -1266,6 +1269,7 @@ private:
     std::string _topLevelFile;
     std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;
+    std::list<ModulePtr> _modules;
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;
     std::map<Builtin::Kind, OptionalPtr> _optionalBuiltins;

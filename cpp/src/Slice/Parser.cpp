@@ -2086,21 +2086,6 @@ Slice::Container::unit() const
     return SyntaxTreeBase::unit();
 }
 
-ModuleList
-Slice::Container::modules() const
-{
-    ModuleList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr q = ModulePtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
 ClassList
 Slice::Container::classes() const
 {
@@ -2627,71 +2612,6 @@ Slice::Container::thisScope() const
     }
     s += "::";
     return s;
-}
-
-void
-Slice::Container::mergeModules()
-{
-    for (ContainedList::iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr mod1 = ModulePtr::dynamicCast(*p);
-        if(!mod1)
-        {
-            continue;
-        }
-
-        DefinitionContextPtr dc1 = mod1->definitionContext();
-        assert(dc1);
-        StringList metaData1 = dc1->getMetaData();
-        metaData1.sort();
-        metaData1.unique();
-
-        ContainedList::iterator q = p;
-        ++q;
-        while(q != _contents.end())
-        {
-            ModulePtr mod2 = ModulePtr::dynamicCast(*q);
-            if(!mod2)
-            {
-                ++q;
-                continue;
-            }
-
-            if(mod1->name() != mod2->name())
-            {
-                ++q;
-                continue;
-            }
-
-            //
-            // Compare the file metadata of the two modules being merged.
-            //
-            DefinitionContextPtr dc2 = mod2->definitionContext();
-            assert(dc2);
-            StringList metaData2 = dc2->getMetaData();
-            metaData2.sort();
-            metaData2.unique();
-            if(!checkFileMetaData(metaData1, metaData2))
-            {
-                unit()->warning(All, "file metadata mismatch for module `" + mod1->name() + "' in files " +
-                                dc1->filename() + " and " + dc2->filename());
-            }
-
-            mod1->_contents.splice(mod1->_contents.end(), mod2->_contents);
-
-            if(mod1->_comment.length() < mod2->_comment.length())
-            {
-                mod1->_comment.swap(mod2->_comment);
-            }
-
-            mod1->_includeLevel = min(mod1->_includeLevel, mod2->_includeLevel);
-
-            _unit->removeContent(*q);
-            q = _contents.erase(q);
-        }
-
-        mod1->mergeModules();
-    }
 }
 
 void
@@ -5841,6 +5761,51 @@ Slice::Unit::createUnit(bool ignRedefs, bool all, const StringList& defaultFileM
     return new Unit(ignRedefs, all, defaultFileMetadata);
 }
 
+ModulePtr
+Slice::Unit::createModule(const string& name)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    matches.sort(); // Modules can occur many times...
+    matches.unique(); // ... but we only want one instance of each.
+
+    _unit->addTopLevelModule(_unit->currentFile(), name);
+
+    for (const auto& match : matches)
+    {
+        bool differsOnlyInCase = matches.front()->name() != name;
+        if (ModulePtr module = ModulePtr::dynamicCast(match))
+        {
+            if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
+            {
+                _unit->error("module `" + name + "' is capitalized inconsistently with its previous name: `"
+                             + module->name() + "'");
+                return nullptr;
+            }
+        }
+        else if (!differsOnlyInCase)
+        {
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "' as module");
+            return nullptr;
+        }
+        else
+        {
+            _unit->error("module `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " name `" + matches.front()->name() + "'");
+            return nullptr;
+        }
+    }
+
+    if (!checkIdentifier(name))
+    {
+        return nullptr;
+    }
+
+    ModulePtr q = new Module(this, name);
+    _modules.push_back(q);
+    return q;
+}
+
 bool
 Slice::Unit::ignRedefs() const
 {
@@ -6340,6 +6305,7 @@ void
 Slice::Unit::destroy()
 {
     _contentMap.clear();
+    _modules.clear();
     _builtins.clear();
     Container::destroy();
 }
@@ -6349,9 +6315,29 @@ Slice::Unit::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitUnitStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& module : _modules)
+        {
+            if (all || module->includeLevel() == 0)
+            {
+                module->visit(visitor, all);
+            }
+        }
         visitor->visitUnitEnd(this);
     }
+}
+
+ModuleList
+Slice::Unit::modules() const
+{
+    return _modules;
+}
+
+ContainedList
+Slice::Unit::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _modules.begin(), _modules.end());
+    return result;
 }
 
 BuiltinPtr
