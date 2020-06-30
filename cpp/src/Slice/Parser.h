@@ -521,7 +521,6 @@ public:
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
     ContainedList lookupContained(const std::string&, bool = true);
     ExceptionPtr lookupException(const std::string&, bool = true);
-    UnitPtr unit() const;
     ModuleList modules() const;
     ClassList classes() const;
     InterfaceList interfaces() const;
@@ -572,6 +571,7 @@ public:
     bool hasStructs() const;
     bool hasExceptions() const;
     bool hasDictionaries() const;
+    bool hasEnums() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasInterfaceDecls() const;
@@ -1252,6 +1252,7 @@ public:
     bool hasStructs() const;
     bool hasExceptions() const;
     bool hasDictionaries() const;
+    bool hasEnums() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasInterfaceDecls() const;

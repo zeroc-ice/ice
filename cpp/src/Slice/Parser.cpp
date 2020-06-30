@@ -2080,12 +2080,6 @@ Slice::Container::lookupException(const string& scoped, bool printError)
     return exceptions.front();
 }
 
-UnitPtr
-Slice::Container::unit() const
-{
-    return SyntaxTreeBase::unit();
-}
-
 ClassList
 Slice::Container::classes() const
 {
@@ -2857,6 +2851,25 @@ Slice::Module::hasDictionaries() const
 
         ModulePtr submodule = ModulePtr::dynamicCast(content);
         if (submodule && submodule->hasDictionaries())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasEnums() const
+{
+    for (const auto& content : _contents)
+    {
+        if (EnumPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasEnums())
         {
             return true;
         }
@@ -6354,6 +6367,19 @@ Slice::Unit::hasDictionaries() const
     for (const auto& module : _modules)
     {
         if (module->hasDictionaries())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Unit::hasEnums() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasEnums())
         {
             return true;
         }
