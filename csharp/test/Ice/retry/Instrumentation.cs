@@ -74,7 +74,7 @@ namespace ZeroC.Ice.Test.Retry
             public IInvocationObserver? GetInvocationObserver(IObjectPrx? p, string o,
                 IReadOnlyDictionary<string, string> c) => invocationObserver;
 
-            public IDispatchObserver? GetDispatchObserver(Current c, int i) => null;
+            public IDispatchObserver? GetDispatchObserver(Current c, int requestId, int i) => null;
 
             public void SetObserverUpdater(IObserverUpdater? u)
             {
