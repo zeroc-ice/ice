@@ -2667,6 +2667,12 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
 // Module
 // ----------------------------------------------------------------------
 
+ContainedList
+Slice::Module::contents() const
+{
+    return _contents;
+}
+
 Contained::ContainedType
 Slice::Module::containedType() const
 {
@@ -5394,6 +5400,16 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
         }
         _unit->error(msg);
     }
+}
+
+ContainedList
+Slice::Operation::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _inParameters.begin(), _inParameters.end());
+    result.insert(result.end(), _outParameters.begin(), _outParameters.end());
+    return result;
+
 }
 
 Contained::ContainedType

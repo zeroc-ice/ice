@@ -525,7 +525,7 @@ public:
     // Finds enumerators using the deprecated unscoped enumerators lookup
     EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
-    virtual ContainedList contents() const;
+    virtual ContainedList contents() const = 0;
     bool hasContained(Contained::ContainedType) const;
     bool hasContentsWithMetaData(const std::string&) const;
     std::string thisScope() const;
@@ -555,6 +555,7 @@ class Module : public virtual Container, public virtual Contained
 {
 public:
 
+    ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
@@ -767,6 +768,7 @@ public:
     void outParameters(ParamDeclList&, ParamDeclList&) const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
+    ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool sendsClasses(bool) const;
