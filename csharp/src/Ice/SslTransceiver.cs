@@ -6,11 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace ZeroC.Ice
 {
@@ -20,7 +20,6 @@ namespace ZeroC.Ice
 
         private readonly string? _adapterName;
         private bool _authenticated;
-        private X509Certificate2[]? _certificates;
         private readonly Communicator _communicator;
         private readonly ITransceiver _delegate;
         private readonly SslEngine _engine;
@@ -447,160 +446,142 @@ namespace ZeroC.Ice
             SslPolicyErrors policyErrors)
         {
             var chain = new X509Chain(_engine.UseMachineContext);
-            try
+
+            chain.ChainPolicy.RevocationMode = _incoming ? _engine.ServerCertificateRevocationCheckMode :
+                                                           _engine.ClientCertificateRevocationCheckMode;
+
+            X509Certificate2Collection? caCerts = _incoming ? _engine.ClientCertificateCertificateAuthorities :
+                                                              _engine.ServerCertificateCertificateAuthorities;
+            if (caCerts != null)
             {
-                chain.ChainPolicy.RevocationMode = _incoming ? _engine.ServerCertificateRevocationCheckMode :
-                                                               _engine.ClientCertificateRevocationCheckMode;
-
-                X509Certificate2Collection? caCerts = _incoming ? _engine.ClientCertificateCertificateAuthorities :
-                                                                  _engine.ServerCertificateCertificateAuthorities;
-                if (caCerts != null)
+                // We need to set this flag to be able to use a certificate authority from the extra store.
+                chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+                foreach (X509Certificate2 cert in caCerts)
                 {
-                    // We need to set this flag to be able to use a certificate authority from the extra store.
-                    chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-                    foreach (X509Certificate2 cert in caCerts)
-                    {
-                        chain.ChainPolicy.ExtraStore.Add(cert);
-                    }
+                    chain.ChainPolicy.ExtraStore.Add(cert);
                 }
+            }
 
-                string message = "";
-                int errors = (int)policyErrors;
-                if (certificate != null)
+            var message = new StringBuilder();
+            int errors = (int)policyErrors;
+            if (certificate != null)
+            {
+                chain.Build(new X509Certificate2(certificate));
+                if (chain.ChainStatus != null && chain.ChainStatus.Length > 0)
                 {
-                    chain.Build(new X509Certificate2(certificate));
-                    if (chain.ChainStatus != null && chain.ChainStatus.Length > 0)
+                    errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                }
+                else if (caCerts != null)
+                {
+                    X509ChainElement e = chain.ChainElements[^1];
+                    if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
                     {
+                        message.Append("\nuntrusted root certificate");
                         errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
-                    else if (caCerts != null)
-                    {
-                        X509ChainElement e = chain.ChainElements[^1];
-                        if (!chain.ChainPolicy.ExtraStore.Contains(e.Certificate))
-                        {
-                            message += "\nuntrusted root certificate";
-                            errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
-                        }
-                        else
-                        {
-                            return true;
-                        }
                     }
                     else
                     {
                         return true;
                     }
                 }
-
-                if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
+                else
                 {
-                    // The RemoteCertificateNotAvailable case is not possible for an outgoing connection. Since .NET
-                    // requires an authenticated connection, the remote peer closes the socket if it does not have a
-                    // certificate to provide.
-                    if (_incoming)
-                    {
-                        if (_engine.RequireClientCertificate)
-                        {
-                            if (_engine.SecurityTraceLevel >= 1)
-                            {
-                                _communicator.Logger.Trace(_engine.SecurityTraceCategory,
-                                    "SSL certificate validation failed - client certificate not provided");
-                            }
-                            return false;
-                        }
+                    return true;
+                }
+            }
 
-                        errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
-                        message += "\nremote certificate not provided (ignored)";
+            if ((errors & (int)SslPolicyErrors.RemoteCertificateNotAvailable) > 0)
+            {
+                // The RemoteCertificateNotAvailable case is not possible for an outgoing connection. Since .NET
+                // requires an authenticated connection, the remote peer closes the socket if it does not have a
+                // certificate to provide.
+                if (_incoming)
+                {
+                    if (_engine.RequireClientCertificate)
+                    {
+                        if (_engine.SecurityTraceLevel >= 1)
+                        {
+                            _communicator.Logger.Trace(
+                                _engine.SecurityTraceCategory,
+                                "SSL certificate validation failed - client certificate not provided");
+                        }
+                        return false;
+                    }
+
+                    errors ^= (int)SslPolicyErrors.RemoteCertificateNotAvailable;
+                    message.Append("\nremote certificate not provided (ignored)");
+                }
+            }
+
+            if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
+            {
+                if (_engine.SecurityTraceLevel >= 1)
+                {
+                    _communicator.Logger.Trace(
+                        _engine.SecurityTraceCategory,
+                        "SSL certificate validation failed - Hostname mismatch");
+                }
+                return false;
+            }
+
+            if ((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
+                chain.ChainStatus != null && chain.ChainStatus.Length > 0)
+            {
+                int errorCount = 0;
+                foreach (X509ChainStatus status in chain.ChainStatus)
+                {
+                    if (status.Status == X509ChainStatusFlags.UntrustedRoot && caCerts != null)
+                    {
+                        // Untrusted root is OK when using our custom chain engine if the CA certificate is present
+                        // in the chain policy extra store.
+                        X509ChainElement root = chain.ChainElements[^1];
+                        if (!chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
+                        {
+                            message.Append("\nuntrusted root certificate");
+                            ++errorCount;
+                        }
+                    }
+                    else if (status.Status == X509ChainStatusFlags.PartialChain)
+                    {
+                        message.Append("\npartial certificate chain");
+                        ++errorCount;
+                    }
+                    else if (status.Status != X509ChainStatusFlags.NoError)
+                    {
+                        message.Append("\ncertificate chain error: ");
+                        message.Append(status.Status);
+                        ++errorCount;
                     }
                 }
 
-                if ((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
+                if (errorCount == 0)
                 {
-                    if (_engine.SecurityTraceLevel >= 1)
+                    errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                }
+            }
+
+            if (errors > 0)
+            {
+                if (_engine.SecurityTraceLevel >= 1)
+                {
+                    if (message.Length > 0)
                     {
                         _communicator.Logger.Trace(_engine.SecurityTraceCategory,
-                            "SSL certificate validation failed - Hostname mismatch");
+                            $"SSL certificate validation failed: {message}");
                     }
-                    return false;
-                }
-
-                if ((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
-                   chain.ChainStatus != null && chain.ChainStatus.Length > 0)
-                {
-                    int errorCount = 0;
-                    foreach (X509ChainStatus status in chain.ChainStatus)
+                    else
                     {
-                        if (status.Status == X509ChainStatusFlags.UntrustedRoot && caCerts != null)
-                        {
-                            // Untrusted root is OK when using our custom chain engine if the CA certificate is present
-                            // in the chain policy extra store.
-                            X509ChainElement root = chain.ChainElements[^1];
-                            if (!chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
-                            {
-                                message += "\nuntrusted root certificate";
-                                ++errorCount;
-                            }
-                        }
-                        else if (status.Status == X509ChainStatusFlags.PartialChain)
-                        {
-                            message += "\npartial certificate chain";
-                            ++errorCount;
-                        }
-                        else if (status.Status != X509ChainStatusFlags.NoError)
-                        {
-                            message = message + "\ncertificate chain error: " + status.Status.ToString();
-                            ++errorCount;
-                        }
-                    }
-
-                    if (errorCount == 0)
-                    {
-                        errors ^= (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                        _communicator.Logger.Trace(_engine.SecurityTraceCategory, "SSL certificate validation failed");
                     }
                 }
-
-                if (errors > 0)
-                {
-                    if (_engine.SecurityTraceLevel >= 1)
-                    {
-                        if (message.Length > 0)
-                        {
-                            _communicator.Logger.Trace(_engine.SecurityTraceCategory,
-                                $"SSL certificate validation failed: {message}");
-                        }
-                        else
-                        {
-                            _communicator.Logger.Trace(_engine.SecurityTraceCategory, "SSL certificate validation failed");
-                        }
-                    }
-                    return false;
-                }
-                else if (message.Length > 0 && _engine.SecurityTraceLevel >= 1)
-                {
-                    _communicator.Logger.Trace(_engine.SecurityTraceCategory,
-                        $"SSL certificate validation status: {message}");
-                }
-                return true;
+                return false;
             }
-            finally
+            else if (message.Length > 0 && _engine.SecurityTraceLevel >= 1)
             {
-                if (chain.ChainElements != null && chain.ChainElements.Count > 0)
-                {
-                    _certificates = new X509Certificate2[chain.ChainElements.Count];
-                    for (int i = 0; i < chain.ChainElements.Count; ++i)
-                    {
-                        _certificates[i] = chain.ChainElements[i].Certificate;
-                    }
-                }
-
-                try
-                {
-                    chain.Dispose();
-                }
-                catch (Exception)
-                {
-                }
+                _communicator.Logger.Trace(_engine.SecurityTraceCategory,
+                    $"SSL certificate validation status: {message}");
             }
+            return true;
         }
 
         private bool StartAuthenticate(AsyncCallback callback, object state)
