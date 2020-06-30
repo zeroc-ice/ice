@@ -113,7 +113,7 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
     }
 
     if(batch->ice_getConnection() &&
-       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Transport") != "bt")
     {
         shared_ptr<Test::MyClassPrx> batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
         shared_ptr<Test::MyClassPrx> batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());

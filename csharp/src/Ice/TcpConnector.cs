@@ -9,9 +9,7 @@ namespace ZeroC.Ice
     internal sealed class TcpConnector : IConnector
     {
         public ITransceiver Connect() =>
-            _endpoint.CreateTransceiver(
-                _endpoint.TransportName,
-                new StreamSocket(_communicator, _proxy, _addr, _sourceAddr), null);
+            _endpoint.CreateTransceiver(new StreamSocket(_communicator, _proxy, _addr, _sourceAddr), null);
 
         // TODO: why are we copying all these readonly fields of the endpoint?
         internal TcpConnector(

@@ -13,6 +13,7 @@ namespace ZeroC.IceBox.Test.Admin
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Default.Host"] = "127.0.0.1";
+            properties["Ice.Default.Protocol"] = "ice1";
             using var communicator = Initialize(properties);
             AllTests.allTests(this);
             //

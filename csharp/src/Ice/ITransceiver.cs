@@ -317,7 +317,6 @@ namespace ZeroC.Ice
             }
         }
 
-        string TransportName { get; }
         string ToDetailedString();
         void CheckSendSize(int size);
     }

@@ -194,7 +194,7 @@ Test::TestHelper::getTestEndpoint(const Ice::PropertiesPtr& properties, int num,
     std::string protocol = prot;
     if(protocol.empty())
     {
-        protocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "default");
+        protocol = properties->getPropertyWithDefault("Ice.Default.Transport", "default");
     }
 
     int basePort = properties->getPropertyAsIntWithDefault("Test.BasePort", 12010);
@@ -258,7 +258,7 @@ Test::TestHelper::getTestProtocol()
 string
 Test::TestHelper::getTestProtocol(const Ice::PropertiesPtr& properties)
 {
-    return properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    return properties->getPropertyWithDefault("Ice.Default.Transport", "tcp");
 }
 
 int

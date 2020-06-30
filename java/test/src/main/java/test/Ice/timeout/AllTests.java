@@ -100,7 +100,7 @@ public class AllTests
         test(obj != null);
 
         int mult = 1;
-        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp") ||
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Transport", "tcp").equals("tcp") ||
            helper.isAndroid())
         {
             mult = 4;

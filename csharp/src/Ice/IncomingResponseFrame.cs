@@ -4,16 +4,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
-        private static readonly Task<IncomingResponseFrame> _ice1VoidReturnValueTask = Task.FromResult(
-            new IncomingResponseFrame(null, Ice1Definitions.EmptyResponsePayload));
+        private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
+            _emptyResultFrames =
+                new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
@@ -25,17 +26,31 @@ namespace ZeroC.Ice
         /// they are writable because of the <see cref="System.Net.Sockets.Socket"/> methods for sending.</summary>
         public ArraySegment<byte> Payload { get; }
 
+        /// <summary>The Ice protocol of this frame.</summary>
+        public Protocol Protocol { get; }
+
         /// <summary>The frame reply status <see cref="ReplyStatus"/>.</summary>
         public ReplyStatus ReplyStatus { get; }
 
         /// <summary>The frame byte count.</summary>
         public int Size => Payload.Count;
 
-        private readonly Communicator? _communicator;
+        private readonly Communicator _communicator;
 
-        // TODO: provide the protocol to allow return different frames based on the protocol
-        public static IncomingResponseFrame WithVoidReturnValue() => _ice1VoidReturnValueTask.Result;
-        public static Task<IncomingResponseFrame> CompletedTaskWithVoidReturnValue() => _ice1VoidReturnValueTask;
+        public static IncomingResponseFrame WithVoidReturnValue(Communicator communicator,
+                                                                Protocol protocol,
+                                                                Encoding encoding)
+        {
+            return _emptyResultFrames.GetOrAdd((protocol, encoding), key =>
+            {
+                var data = new List<ArraySegment<byte>>();
+                var stream = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
+                stream.WriteByte((byte)ReplyStatus.OK);
+                _ = stream.WriteEmptyEncapsulation(key.Encoding);
+                Debug.Assert(data.Count == 1);
+                return new IncomingResponseFrame(communicator, key.Protocol, data[0]);
+            });
+        }
 
         /// <summary>Reads the return value carried by this response frame. If the response frame carries
         /// a failure, reads and throws this exception.</summary>
@@ -46,7 +61,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                return InputStream.ReadEncapsulation(_communicator!, Ice1Definitions.Encoding, Payload.Slice(1), reader);
+                return InputStream.ReadEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1), reader);
             }
             else
             {
@@ -60,7 +75,7 @@ namespace ZeroC.Ice
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                InputStream.ReadEmptyEncapsulation(_communicator!, Ice1Definitions.Encoding, Payload.Slice(1));
+                InputStream.ReadEmptyEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1));
             }
             else
             {
@@ -70,37 +85,40 @@ namespace ZeroC.Ice
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
         /// <param name="communicator">The communicator to use when initializing the stream.</param>
+        /// <param name="protocol">The Ice protocol of this frame.</param>
         /// <param name="payload">The frame data as an array segment.</param>
-        public IncomingResponseFrame(Communicator? communicator, ArraySegment<byte> payload)
+        public IncomingResponseFrame(Communicator communicator, Protocol protocol, ArraySegment<byte> payload)
         {
             _communicator = communicator;
+            Protocol = protocol;
             byte replyStatus = payload[0];
             if (replyStatus > 7)
             {
                 throw new InvalidDataException(
-                    $"received ice1 response frame with unknown reply status `{replyStatus}'");
+                    $"received {Protocol.GetName()} response frame with unknown reply status `{replyStatus}'");
             }
             ReplyStatus = (ReplyStatus)replyStatus;
             Payload = payload;
             if (ReplyStatus == ReplyStatus.UserException || ReplyStatus == ReplyStatus.OK)
             {
                 int size;
-                (size, Encoding) = InputStream.ReadEncapsulationHeader(Ice1Definitions.Encoding, Payload.AsSpan(1));
-                if (size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
+                (size, Encoding) = InputStream.ReadEncapsulationHeader(Protocol.GetEncoding(), Payload.AsSpan(1));
+                if (Protocol == Protocol.Ice1 && size + 4 + 1 != Payload.Count) // 4 = size length with 1.1 encoding
                 {
                     throw new InvalidDataException($"invalid response encapsulation size: `{size}'");
                 }
+                // TODO: ice2
             }
             else
             {
-                Encoding = Ice1Definitions.Encoding;
+                Encoding = Protocol.GetEncoding();
             }
         }
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
         // the frame has a single segment.
         public IncomingResponseFrame(Communicator communicator, OutgoingResponseFrame frame)
-            : this(communicator, frame.Payload.ToArray())
+            : this(communicator, frame.Protocol, frame.Payload.ToArray())
         {
         }
 
@@ -110,8 +128,9 @@ namespace ZeroC.Ice
             {
                 case ReplyStatus.UserException:
                 {
-                    return InputStream.ReadEncapsulation(_communicator!,
-                                                         Ice1Definitions.Encoding, Payload.Slice(1),
+                    return InputStream.ReadEncapsulation(_communicator,
+                                                         Protocol.GetEncoding(),
+                                                         Payload.Slice(1),
                                                          istr => istr.ReadException());
                 }
                 case ReplyStatus.ObjectNotExistException:
@@ -131,11 +150,14 @@ namespace ZeroC.Ice
         }
 
         internal UnhandledException ReadUnhandledException() =>
-            new UnhandledException(InputStream.ReadString11(Payload.Slice(1)), Identity.Empty, "", "");
+            new UnhandledException(InputStream.ReadString(Protocol.GetEncoding(), Payload.Slice(1).AsSpan()),
+                                   Identity.Empty,
+                                   "",
+                                   "");
 
         internal DispatchException ReadDispatchException()
         {
-            var istr = new InputStream(_communicator!, Ice1Definitions.Encoding, Payload, 1);
+            var istr = new InputStream(_communicator, Protocol.GetEncoding(), Payload, 1);
             var identity = new Identity(istr);
             string facet = istr.ReadFacet();
             string operation = istr.ReadString();

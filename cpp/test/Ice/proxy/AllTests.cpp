@@ -18,7 +18,7 @@ Test::MyClassPrxPtr
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Transport");
 
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
@@ -1187,7 +1187,7 @@ allTests(Test::TestHelper* helper)
             ssl = false;
         }
 
-        const bool tcp = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
+        const bool tcp = communicator->getProperties()->getProperty("Ice.Default.Transport") == "tcp";
 
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");

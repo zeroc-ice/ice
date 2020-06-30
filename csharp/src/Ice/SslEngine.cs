@@ -30,14 +30,12 @@ namespace ZeroC.Ice
         internal IPasswordCallback? PasswordCallback { get; }
         internal int SecurityTraceLevel { get; }
         internal string SecurityTraceCategory => "Security";
-
         internal SslProtocols SslProtocols { get; }
+        internal SslTrustManager TrustManager { get; }
         internal bool UseMachineContext { get; }
 
         private readonly string _defaultDir = string.Empty;
         private readonly ILogger _logger;
-        private readonly SslTrustManager _trustManager;
-        private readonly int _verifyDepthMax;
 
         internal SslEngine(
             Communicator communicator,
@@ -49,7 +47,7 @@ namespace ZeroC.Ice
         {
             _logger = communicator.Logger;
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
-            _trustManager = new SslTrustManager(communicator);
+            TrustManager = new SslTrustManager(communicator);
 
             CertificateSelectionCallback = certificateSelectionCallback;
             RemoteCertificateValidationCallback = certificateValidationCallback;
@@ -86,16 +84,6 @@ namespace ZeroC.Ice
 
             // Protocols selects which protocols to enable
             SslProtocols = ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
-
-            // VerifyDepthMax establishes the maximum length of a peer's certificate chain, including the peer's
-            // certificate. A value of 0 means there is no maximum.
-            int? verifyDepthMax = communicator.GetPropertyAsInt("IceSSL.VerifyDepthMax");
-            if (verifyDepthMax != null && RemoteCertificateValidationCallback != null)
-            {
-                throw new InvalidConfigurationException(
-                    "the property `IceSSL.VerifyDepthMax' check is incompatible with the custom remote certificate validation callback");
-            }
-            _verifyDepthMax = verifyDepthMax ?? 3;
 
             // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
             CheckCRL = communicator.GetPropertyAsInt("IceSSL.CheckCRL") ?? 0;
@@ -295,37 +283,6 @@ namespace ZeroC.Ice
             s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
             s.Append("\nprotocol = " + stream.SslProtocol);
             _logger.Trace(SecurityTraceCategory, s.ToString());
-        }
-
-        internal void VerifyPeer(bool incoming, X509Certificate2[] certs, string adapterName, string description)
-        {
-            if (_verifyDepthMax > 0 && certs.Length > _verifyDepthMax)
-            {
-                string msg = string.Format(
-                    "{0} connection rejected:\nlength of peer's certificate chain ({1}) exceeds maximum of {2}\n{3}",
-                    incoming ? "incoming" : "outgoing",
-                    certs.Length,
-                    _verifyDepthMax,
-                    description);
-                if (SecurityTraceLevel >= 1)
-                {
-                    _logger.Trace(SecurityTraceCategory, msg);
-                }
-                throw new TransportException(msg);
-            }
-
-            if (!_trustManager.Verify(incoming, certs, adapterName, description))
-            {
-                string msg = string.Format("{0} connection rejected by trust manager\n{1}",
-                    incoming ? "incoming" : "outgoing",
-                    description);
-                if (SecurityTraceLevel >= 1)
-                {
-                    _logger.Trace(SecurityTraceCategory, msg);
-                }
-
-                throw new TransportException(msg);
-            }
         }
 
         private static SecureString CreateSecureString(string s)

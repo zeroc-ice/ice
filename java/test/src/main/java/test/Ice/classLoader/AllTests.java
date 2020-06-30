@@ -91,7 +91,7 @@ public class AllTests
         //
         // Verify that the class loader is used for IceSSL certificate verifiers and password callbacks.
         //
-        if(communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl"))
+        if(communicator.getProperties().getProperty("Ice.Default.Transport").equals("ssl"))
         {
             out.print("testing IceSSL certificate verifier and password callback... ");
             out.flush();

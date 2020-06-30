@@ -13,14 +13,13 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         internal SSLServer(Communicator communicator) => _communicator = communicator;
 
-        public void
-        noCert(Current current)
+        public void noCert(Current current)
         {
             try
             {
                 var tcpConnection = (TcpConnection)current.Connection!;
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                TestHelper.Assert(tcpConnection.Certificates == null);
+                TestHelper.Assert(tcpConnection.RemoteCertificate == null);
             }
             catch (Exception)
             {
@@ -28,17 +27,15 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        public void
-        checkCert(string subjectDN, string issuerDN, Current current)
+        public void checkCert(string subjectDN, string issuerDN, Current current)
         {
             try
             {
                 var tcpConnection = (TcpConnection)current.Connection!;
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                TestHelper.Assert(tcpConnection.Certificates != null);
-                TestHelper.Assert(tcpConnection.Certificates.Length == 2);
-                TestHelper.Assert(tcpConnection.Certificates[0].Subject.Equals(subjectDN));
-                TestHelper.Assert(tcpConnection.Certificates[0].Issuer.Equals(issuerDN));
+                TestHelper.Assert(tcpConnection.RemoteCertificate != null);
+                TestHelper.Assert(tcpConnection.RemoteCertificate.Subject.Equals(subjectDN));
+                TestHelper.Assert(tcpConnection.RemoteCertificate.Issuer.Equals(issuerDN));
             }
             catch (Exception)
             {
@@ -53,8 +50,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             {
                 var tcpConnection = (TcpConnection)current.Connection!;
                 TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                TestHelper.Assert(tcpConnection.Cipher != null);
-                TestHelper.Assert(tcpConnection.Cipher.Equals(cipher));
+                TestHelper.Assert(tcpConnection.NegotiatedCipherSuite!.ToString()!.Equals(cipher));
             }
             catch (Exception)
             {

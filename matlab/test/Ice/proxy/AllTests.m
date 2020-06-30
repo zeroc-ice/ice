@@ -850,8 +850,8 @@ classdef AllTests
 
             if communicator.getProperties().getPropertyAsInt('Ice.IPv6') == 0
                 % Working?
-                ssl = strcmp(communicator.getProperties().getProperty('Ice.Default.Protocol'), 'ssl');
-                tcp = strcmp(communicator.getProperties().getProperty('Ice.Default.Protocol'), 'tcp');
+                ssl = strcmp(communicator.getProperties().getProperty('Ice.Default.Transport'), 'ssl');
+                tcp = strcmp(communicator.getProperties().getProperty('Ice.Default.Transport'), 'tcp');
                 if tcp
                     p1.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
                 end

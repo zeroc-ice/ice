@@ -106,7 +106,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
     }
 
     if(batch->ice_getConnection() &&
-       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Transport") != "bt")
     {
         Test::MyClassPrxPtr batch1 = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
         Test::MyClassPrxPtr batch2 = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
@@ -141,7 +141,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
     }
 
     if(batch->ice_getConnection() &&
-       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Transport") != "bt")
     {
         Ice::InitializationData initData;
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();

@@ -44,7 +44,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        if(communicator->getProperties()->getProperty("Ice.Default.Transport") == "bt")
         {
             ostr << "default -a *";
         }
@@ -55,8 +55,8 @@ allTests(Test::TestHelper* helper)
         localOAEndpoint = ostr.str();
     }
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
-    if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-       communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+    if(communicator->getProperties()->getProperty("Ice.Default.Transport") != "ssl" &&
+       communicator->getProperties()->getProperty("Ice.Default.Transport") != "wss")
     {
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
         Ice::ObjectPtr obj = std::make_shared<EmptyI>();

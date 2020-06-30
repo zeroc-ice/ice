@@ -25,7 +25,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     overrideSecure(false),
     overrideSecureValue(false)
 {
-    const_cast<string&>(defaultProtocol) = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    const_cast<string&>(defaultProtocol) = properties->getPropertyWithDefault("Ice.Default.Transport", "tcp");
 
     const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
 

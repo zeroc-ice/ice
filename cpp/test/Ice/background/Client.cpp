@@ -57,8 +57,8 @@ Client::run(int argc, char** argv)
     // Setup the test transport plug-in.
     //
     properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
-    string defaultProtocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-    properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
+    string defaultProtocol = properties->getPropertyWithDefault("Ice.Default.Transport", "tcp");
+    properties->setProperty("Ice.Default.Transport", "test-" + defaultProtocol);
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     BackgroundPrxPtr allTests(Test::TestHelper*);

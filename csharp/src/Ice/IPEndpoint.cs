@@ -223,10 +223,10 @@ namespace ZeroC.Ice
             else
             {
                 return addresses.Select(address => CreateIPEndpoint(Network.EndpointAddressToString(address),
-                                                                  Network.EndpointPort(address),
-                                                                  ConnectionId,
-                                                                  HasCompressionFlag,
-                                                                  Timeout));
+                                                                    Network.EndpointPort(address),
+                                                                    ConnectionId,
+                                                                    HasCompressionFlag,
+                                                                    Timeout));
             }
         }
 

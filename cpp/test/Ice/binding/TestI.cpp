@@ -19,7 +19,7 @@ shared_ptr<Test::RemoteObjectAdapterPrx>
 RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::Current& current)
 {
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
-    const string defaultProtocol = com->getProperties()->getProperty("Ice.Default.Protocol");
+    const string defaultProtocol = com->getProperties()->getProperty("Ice.Default.Transport");
     int retry = 5;
     while(true)
     {

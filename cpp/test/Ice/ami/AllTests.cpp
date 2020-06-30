@@ -77,7 +77,7 @@ void
 allTests(Test::TestHelper* helper, bool collocated)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Transport");
 
     string sref = "test:" + helper->getTestEndpoint();
     auto prx = communicator->stringToProxy(sref);

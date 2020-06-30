@@ -53,7 +53,7 @@
 
             if(protocol == "")
             {
-                protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
+                protocol = properties.getPropertyWithDefault("Ice.Default.Transport", "default");
             }
 
             const port = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
@@ -76,7 +76,7 @@
             {
                 properties = this._communicator.getProperties();
             }
-            return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            return properties.getPropertyWithDefault("Ice.Default.Transport", "tcp");
         }
 
         getTestPort(...args)

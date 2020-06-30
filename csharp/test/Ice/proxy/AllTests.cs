@@ -555,31 +555,32 @@ namespace ZeroC.Ice.Test.Proxy
             Dictionary<string, string> proxyProps = b1.ToProperty("Test");
             TestHelper.Assert(proxyProps.Count == 21);
 
-            TestHelper.Assert(proxyProps["Test"].Equals("test -t -p ice1 -e 2.0"));
-            TestHelper.Assert(proxyProps["Test.CollocationOptimized"].Equals("1"));
-            TestHelper.Assert(proxyProps["Test.ConnectionCached"].Equals("1"));
-            TestHelper.Assert(proxyProps["Test.PreferNonSecure"].Equals("0"));
-            TestHelper.Assert(proxyProps["Test.EndpointSelection"].Equals("Ordered"));
-            TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"].Equals("00:01:40"));
-            TestHelper.Assert(proxyProps["Test.InvocationTimeout"].Equals("1234"));
+            string defaultProtocolName = communicator.DefaultProtocol.GetName();
+            TestHelper.Assert(proxyProps["Test"] == $"test -t -p {defaultProtocolName} -e 2.0");
+            TestHelper.Assert(proxyProps["Test.CollocationOptimized"] == "1");
+            TestHelper.Assert(proxyProps["Test.ConnectionCached"] == "1");
+            TestHelper.Assert(proxyProps["Test.PreferNonSecure"] == "0");
+            TestHelper.Assert(proxyProps["Test.EndpointSelection"] == "Ordered");
+            TestHelper.Assert(proxyProps["Test.LocatorCacheTimeout"] == "100s");
+            TestHelper.Assert(proxyProps["Test.InvocationTimeout"] == "1234");
 
-            TestHelper.Assert(proxyProps["Test.Locator"].Equals($"locator -t -p ice1 -e {Encoding.V2_0}"));
+            TestHelper.Assert(proxyProps["Test.Locator"] == $"locator -t -p {defaultProtocolName} -e {Encoding.V2_0}");
             // Locator collocation optimization is always disabled.
-            //TestHelper.Assert(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
-            TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"].Equals("0"));
-            TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"].Equals("1"));
-            TestHelper.Assert(proxyProps["Test.Locator.EndpointSelection"].Equals("Random"));
-            TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"].Equals("00:05:00"));
-            TestHelper.Assert(proxyProps["Test.Locator.InvocationTimeout"].Equals("1500"));
+            //TestHelper.Assert(proxyProps["Test.Locator.CollocationOptimized"] == "1");
+            TestHelper.Assert(proxyProps["Test.Locator.ConnectionCached"] == "0");
+            TestHelper.Assert(proxyProps["Test.Locator.PreferNonSecure"] == "1");
+            TestHelper.Assert(proxyProps["Test.Locator.EndpointSelection"] == "Random");
+            TestHelper.Assert(proxyProps["Test.Locator.LocatorCacheTimeout"] == "5m");
+            TestHelper.Assert(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
-            TestHelper.Assert(proxyProps["Test.Locator.Router"].Equals(
-                $"router -t -p ice1 -e {communicator.DefaultEncoding}"));
-            TestHelper.Assert(proxyProps["Test.Locator.Router.CollocationOptimized"].Equals("0"));
-            TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"].Equals("1"));
-            TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"].Equals("1"));
-            TestHelper.Assert(proxyProps["Test.Locator.Router.EndpointSelection"].Equals("Random"));
-            TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"].Equals("00:03:20"));
-            TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"].Equals("1500"));
+            TestHelper.Assert(proxyProps["Test.Locator.Router"] ==
+                $"router -t -p {defaultProtocolName} -e {communicator.DefaultEncoding}");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.PreferNonSecure"] == "1");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200s");
+            TestHelper.Assert(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
 
             output.WriteLine("ok");
 
@@ -1026,24 +1027,24 @@ namespace ZeroC.Ice.Test.Proxy
 
             // Legal TCP endpoint expressed as opaque endpoint
             // Opaque endpoint encoded with 1.1 encoding.
-            var p1 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
-                communicator);
-            TestHelper.Assert(p1.ToString()!.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+            var p1 = IObjectPrx.Parse("test -e 1.1 -p ice2:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
+                                      communicator);
+            TestHelper.Assert(p1.ToString()!.Equals("test -t -p ice2 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
             if (!(communicator.GetPropertyAsBool("Ice.IPv6") ?? false))
             {
                 // Two legal TCP endpoints expressed as opaque endpoints
-                p1 = IObjectPrx.Parse("test -e 1.1:" + "" +
+                p1 = IObjectPrx.Parse("test -e 1.1 -p ice2:" + "" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==", communicator);
-                var pstr = p1.ToString()!;
-                TestHelper.Assert(pstr.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
+                TestHelper.Assert(p1.ToString() ==
+                    "test -t -p ice2 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
                 // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
-                p1 = IObjectPrx.Parse("test -e 1.1:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
-                    communicator);
-                pstr = p1.ToString()!;
-                TestHelper.Assert(pstr.Equals("test -t -p ice1 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch"));
+                p1 = IObjectPrx.Parse("test -e 1.1 -p ice2:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
+                                      communicator);
+                TestHelper.Assert(p1.ToString() ==
+                    "test -t -p ice2 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch");
             }
 
             output.WriteLine("ok");

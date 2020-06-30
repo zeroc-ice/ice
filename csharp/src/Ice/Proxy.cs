@@ -376,8 +376,9 @@ namespace ZeroC.Ice
                 IncomingRequestFrame request,
                 ValueTask<IncomingResponseFrame> task)
             {
+                // TODO: need protocol bridging when the protocols are not the same.
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
-                return new OutgoingResponseFrame(request.Encoding, response.Payload);
+                return new OutgoingResponseFrame(request.Protocol, request.Encoding, response.Payload);
             }
         }
 

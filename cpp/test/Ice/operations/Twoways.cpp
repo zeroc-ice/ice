@@ -1726,7 +1726,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             }
         }
 
-        if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+        if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Transport") != "bt")
         {
             //
             // Test implicit context propagation

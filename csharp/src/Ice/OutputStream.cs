@@ -1562,6 +1562,10 @@ namespace ZeroC.Ice
 
         internal static void WriteInt(int v, Span<byte> data) => MemoryMarshal.Write(data, ref v);
 
+        // TODO: this is a temporary helper method that writes a 2.0 size on 4 bytes.
+        internal static void WriteSize20(int size, Span<byte> data) =>
+            WriteFixedLengthSize20(size, data);
+
         // Constructor for protocol frame header and other non-encapsulated data.
         internal OutputStream(Encoding encoding, List<ArraySegment<byte>> data, Position? startAt = null)
         {
@@ -1625,6 +1629,7 @@ namespace ZeroC.Ice
         /// <summary>Writes an empty encapsulation.</summary>
         internal Position WriteEmptyEncapsulation(Encoding encoding)
         {
+            encoding.CheckSupported();
             WriteEncapsulationHeader(size: 2, encoding, sizeLength: 1);
             _segmentList[_tail.Segment] = _segmentList[_tail.Segment].Slice(0, _tail.Offset);
             return _tail;
@@ -1693,6 +1698,46 @@ namespace ZeroC.Ice
             {
                 return size + end.Offset;
             }
+        }
+
+        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
+        /// <param name="value">The value to encoded.</param>
+        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
+        /// </returns>
+        private static int GetEncodedSize(long value)
+        {
+            if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"varlong value `{value}' is out of range", nameof(value));
+            }
+
+            return (value << 2) switch
+            {
+                long b when b >= sbyte.MinValue && b <= sbyte.MaxValue => 0,
+                long s when s >= short.MinValue && s <= short.MaxValue => 1,
+                long i when i >= int.MinValue && i <= int.MaxValue => 2,
+                _ => 3
+            };
+        }
+
+        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
+        /// <param name="value">The value to encoded.</param>
+        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
+        /// </returns>
+        private static int GetEncodedSize(ulong value)
+        {
+            if (value > EncodingDefinitions.VarULongMaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"varulong value `{value}' is out of range", nameof(value));
+            }
+
+            return (value << 2) switch
+            {
+                ulong b when b <= byte.MaxValue => 0,
+                ulong s when s <= ushort.MaxValue => 1,
+                ulong i when i <= uint.MaxValue => 2,
+                _ => 3
+            };
         }
 
         /// <summary>Writes a size into a span of bytes using a fixed number of bytes.</summary>
@@ -1790,46 +1835,6 @@ namespace ZeroC.Ice
 
             // Once Expand returns, _tail points to a writeable byte.
             Debug.Assert(_tail.Offset < _currentSegment.Count);
-        }
-
-        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
-        /// <param name="value">The value to encoded.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
-        /// </returns>
-        private int GetEncodedSize(long value)
-        {
-            if (value < EncodingDefinitions.VarLongMinValue || value > EncodingDefinitions.VarLongMaxValue)
-            {
-                throw new ArgumentOutOfRangeException($"varlong value `{value}' is out of range", nameof(value));
-            }
-
-            return (value << 2) switch
-            {
-                long b when b >= sbyte.MinValue && b <= sbyte.MaxValue => 0,
-                long s when s >= short.MinValue && s <= short.MaxValue => 1,
-                long i when i >= int.MinValue && i <= int.MaxValue => 2,
-                _ => 3
-            };
-        }
-
-        /// <summary>Gets the number of bytes needed to encode a long value.</summary>
-        /// <param name="value">The value to encoded.</param>
-        /// <returns>N where 2^N is the number of bytes needed to encode value with Ice's var-size integer encoding.
-        /// </returns>
-        private int GetEncodedSize(ulong value)
-        {
-            if (value > EncodingDefinitions.VarULongMaxValue)
-            {
-                throw new ArgumentOutOfRangeException($"varulong value `{value}' is out of range", nameof(value));
-            }
-
-            return (value << 2) switch
-            {
-                ulong b when b <= byte.MaxValue => 0,
-                ulong s when s <= ushort.MaxValue => 1,
-                ulong i when i <= uint.MaxValue => 2,
-                _ => 3
-            };
         }
 
         /// <summary>Computes the minimum number of bytes needed to write a variable-length size with the current

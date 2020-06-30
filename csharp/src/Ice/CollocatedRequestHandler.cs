@@ -21,19 +21,13 @@ namespace ZeroC.Ice
         public Connection? GetConnection() => null;
 
         public ValueTask<Task<IncomingResponseFrame>> SendRequestAsync(
-            OutgoingRequestFrame outgoingRequestFrame,
+            OutgoingRequestFrame outgoingRequest,
             bool oneway,
             bool synchronous,
             IInvocationObserver? observer,
             CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
-
-            //
-            // Increase the direct count to prevent the thread pool from being destroyed before
-            // invokeAll is called. This will also throw if the object adapter has been deactivated.
-            //
-            _adapter.IncDirectCount();
 
             IChildInvocationObserver? childObserver = null;
             int requestId = 0;
@@ -51,7 +45,7 @@ namespace ZeroC.Ice
 
                 if (observer != null)
                 {
-                    childObserver = observer.GetCollocatedObserver(_adapter, requestId, outgoingRequestFrame.Size);
+                    childObserver = observer.GetCollocatedObserver(_adapter, requestId, outgoingRequest.Size);
                     childObserver?.Attach();
                 }
 
@@ -60,7 +54,7 @@ namespace ZeroC.Ice
                     ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
                                                        (byte)Ice1Definitions.FrameType.Request,
                                                        requestId,
-                                                       outgoingRequestFrame);
+                                                       outgoingRequest);
                 }
             }
 
@@ -70,7 +64,7 @@ namespace ZeroC.Ice
                 // Don't invoke from the user thread if async or invocation timeout is set. We also don't dispatch
                 // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
                 // request returns as soon as it's sent over the transport.
-                task = Task.Factory.StartNew(() => DispatchAsync(outgoingRequestFrame, requestId, cancel),
+                task = Task.Factory.StartNew(() => DispatchAsync(outgoingRequest, requestId, cancel),
                                              cancel,
                                              TaskCreationOptions.None,
                                              _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
@@ -78,14 +72,16 @@ namespace ZeroC.Ice
                 if (oneway)
                 {
                     childObserver?.Detach();
-                    return new ValueTask<Task<IncomingResponseFrame>>(
-                        IncomingResponseFrame.CompletedTaskWithVoidReturnValue());
+                    return new ValueTask<Task<IncomingResponseFrame>>(Task.FromResult(
+                        IncomingResponseFrame.WithVoidReturnValue(_adapter.Communicator,
+                                                                  outgoingRequest.Protocol,
+                                                                  outgoingRequest.Encoding)));
                 }
             }
             else // Optimization: directly call invokeAll
             {
                 Debug.Assert(!oneway);
-                task = DispatchAsync(outgoingRequestFrame, requestId, cancel);
+                task = DispatchAsync(outgoingRequest, requestId, cancel);
             }
             return new ValueTask<Task<IncomingResponseFrame>>(WaitForResponseAsync(task, childObserver, cancel));
 
@@ -100,6 +96,7 @@ namespace ZeroC.Ice
 
                     var incomingResponseFrame = new IncomingResponseFrame(
                         _adapter.Communicator,
+                        outgoingRequest.Protocol,
                         VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
 
                     if (_adapter.Communicator.TraceLevels.Protocol >= 1)
@@ -137,8 +134,11 @@ namespace ZeroC.Ice
             int requestId,
             CancellationToken cancel)
         {
-            // The object adapter DirectCount was incremented by the caller and we are responsible to decrement it
-            // upon completion.
+            //
+            // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is
+            // in progress. This will also throw if the object adapter has been deactivated.
+            //
+            _adapter.IncDirectCount();
 
             IDispatchObserver? dispatchObserver = null;
             try

@@ -90,11 +90,8 @@ namespace ZeroC.Ice
             Socket acceptFd = _acceptFd;
             _acceptFd = null;
             _acceptError = null;
-            return _endpoint.CreateTransceiver(TransportName,
-                new StreamSocket(_communicator, acceptFd), _adapterName);
+            return _endpoint.CreateTransceiver(new StreamSocket(_communicator, acceptFd), _adapterName);
         }
-
-        public string TransportName => _endpoint.TransportName;
 
         public override string ToString() => Network.AddrToString(_addr);
 

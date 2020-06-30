@@ -14,7 +14,7 @@ public class RemoteCommunicatorI implements RemoteCommunicator
     {
         com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
         com.zeroc.Ice.Properties properties = com.getProperties();
-        String protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        String protocol = properties.getPropertyWithDefault("Ice.Default.Transport", "tcp");
         String host = properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
 
         String name = java.util.UUID.randomUUID().toString();

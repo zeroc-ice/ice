@@ -50,7 +50,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal bool Verify(bool incoming, X509Certificate2[] certs, string adapterName, string desc)
+        internal bool Verify(bool incoming, X509Certificate2? certificate, string adapterName, string desc)
         {
             List<List<List<RFC2253.RDNPair>>> reject = new List<List<List<RFC2253.RDNPair>>>(),
                 accept = new List<List<List<RFC2253.RDNPair>>>();
@@ -118,9 +118,9 @@ namespace ZeroC.Ice
             //
             // If there is no certificate then we match false.
             //
-            if (certs != null && certs.Length > 0)
+            if (certificate != null)
             {
-                X500DistinguishedName subjectDN = certs[0].SubjectName;
+                X500DistinguishedName subjectDN = certificate.SubjectName;
                 string subjectName = subjectDN.Name;
                 Debug.Assert(subjectName != null);
                 try

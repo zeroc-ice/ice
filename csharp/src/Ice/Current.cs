@@ -20,6 +20,8 @@ namespace ZeroC.Ice
         public bool IsIdempotent { get; }
         public bool IsOneway => RequestId == 0;
         public string Operation { get; }
+        public Protocol Protocol { get; }
+
         public int RequestId { get; }
 
         internal Current(
@@ -38,6 +40,7 @@ namespace ZeroC.Ice
             Identity = request.Identity;
             IsIdempotent = request.IsIdempotent;
             Operation = request.Operation;
+            Protocol = request.Protocol;
             RequestId = requestId;
         }
     }
