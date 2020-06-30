@@ -433,69 +433,38 @@ namespace ZeroC.Ice
                     while (true)
                     {
                         IRequestHandler? handler = null;
-                        bool sent = false;
+                        var progressWrapper = new ProgressWrapper(progress);
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
                             handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
-                            Task<IncomingResponseFrame>? responseTask =
-                                await handler!.SendRequestAsync(request,
-                                                                oneway,
-                                                                synchronous,
-                                                                observer,
-                                                                cancel).ConfigureAwait(false);
+                            IncomingResponseFrame response =
+                                await handler.SendRequestAsync(request,
+                                                               oneway,
+                                                               synchronous,
+                                                               observer,
+                                                               progressWrapper,
+                                                               cancel).ConfigureAwait(false);
 
-                            sent = true; // Mark the request as sent, it's important for the retry logic
-
-                            // Notify the progress callback
-                            if (progress != null)
+                            switch (response.ReplyStatus)
                             {
-                                // TODO: Remove the bool sentSynchronously since it's not longer useful?
-                                _ = Task.Run(() => progress.Report(false));
+                                case ReplyStatus.OK:
+                                    break;
+                                case ReplyStatus.UserException:
+                                    observer?.RemoteException();
+                                    break;
+                                case ReplyStatus.ObjectNotExistException:
+                                case ReplyStatus.FacetNotExistException:
+                                case ReplyStatus.OperationNotExistException:
+                                    throw response.ReadDispatchException();
+                                case ReplyStatus.UnknownException:
+                                case ReplyStatus.UnknownLocalException:
+                                case ReplyStatus.UnknownUserException:
+                                    throw response.ReadUnhandledException();
                             }
-
-                            Debug.Assert((oneway && responseTask == null) || (!oneway && responseTask != null));
-
-                            // If there's a response task, wait for the response
-                            if (responseTask != null)
-                            {
-                                IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
-                                switch (response.ReplyStatus)
-                                {
-                                    case ReplyStatus.OK:
-                                    {
-                                        break;
-                                    }
-                                    case ReplyStatus.UserException:
-                                    {
-                                        observer?.RemoteException();
-                                        break;
-                                    }
-                                    case ReplyStatus.ObjectNotExistException:
-                                    case ReplyStatus.FacetNotExistException:
-                                    case ReplyStatus.OperationNotExistException:
-                                    {
-                                        throw response.ReadDispatchException();
-                                    }
-                                    case ReplyStatus.UnknownException:
-                                    case ReplyStatus.UnknownLocalException:
-                                    case ReplyStatus.UnknownUserException:
-                                    {
-                                        throw response.ReadUnhandledException();
-                                    }
-                                }
-                                return response;
-                            }
-                            else
-                            {
-                                return new IncomingResponseFrame(proxy.Communicator,
-                                                                 proxy.Protocol,
-                                                                 proxy.Protocol == Protocol.Ice1 ?
-                                                                    Ice1Definitions.EmptyResponsePayload :
-                                                                    Ice2Definitions.EmptyResponsePayload);
-                            }
+                            return response;
                         }
                         catch (RetryException)
                         {
@@ -519,8 +488,10 @@ namespace ZeroC.Ice
 
                             // TODO: revisit retry logic
                             // We only retry after failing with a DispatchException or a local exception.
-                            int delay = reference.CheckRetryAfterException(ex, sent, request.IsIdempotent,
-                                ref retryCount);
+                            int delay = reference.CheckRetryAfterException(ex,
+                                                                           progressWrapper.IsSent,
+                                                                           request.IsIdempotent,
+                                                                           ref retryCount);
                             if (delay > 0)
                             {
                                 // The delay task can be canceled either by the user code using the provided
@@ -558,6 +529,24 @@ namespace ZeroC.Ice
                     observer?.Detach();
                 }
             }
+        }
+
+        private class ProgressWrapper : IProgress<bool>
+        {
+            private readonly IProgress<bool>? _progress;
+
+            internal bool IsSent { get; private set; }
+
+            public void Report(bool sentSynchronously)
+            {
+                if (_progress != null)
+                {
+                    Task.Run(() => _progress.Report(sentSynchronously));
+                }
+                IsSent = true;
+            }
+
+            internal ProgressWrapper(IProgress<bool>? progress) => _progress = progress;
         }
     }
 }

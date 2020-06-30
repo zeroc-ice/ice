@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace ZeroC.Ice
@@ -11,6 +12,11 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
+        private static readonly ConcurrentDictionary<(Communicator Communicator, Protocol Protocol, Encoding Encoding),
+            IncomingResponseFrame> _cachedVoidReturnValueFrames =
+                new ConcurrentDictionary<(Communicator Communicator, Protocol Protocol, Encoding Encoding),
+                    IncomingResponseFrame>();
+
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
 
@@ -31,6 +37,19 @@ namespace ZeroC.Ice
         public int Size => Payload.Count;
 
         private readonly Communicator _communicator;
+
+        public static IncomingResponseFrame WithVoidReturnValue(Communicator communicator,
+                                                                Protocol protocol,
+                                                                Encoding encoding) =>
+            _cachedVoidReturnValueFrames.GetOrAdd((communicator, protocol, encoding), key =>
+            {
+                var data = new List<ArraySegment<byte>>();
+                var ostr = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
+                ostr.WriteByte((byte)ReplyStatus.OK);
+                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                Debug.Assert(data.Count == 1);
+                return new IncomingResponseFrame(key.Communicator, key.Protocol, data[0]);
+            });
 
         /// <summary>Reads the return value carried by this response frame. If the response frame carries
         /// a failure, reads and throws this exception.</summary>
@@ -108,8 +127,10 @@ namespace ZeroC.Ice
             {
                 case ReplyStatus.UserException:
                 {
-                    return InputStream.ReadEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1),
-                        istr => istr.ReadException());
+                    return InputStream.ReadEncapsulation(_communicator,
+                                                         Protocol.GetEncoding(),
+                                                         Payload.Slice(1),
+                                                         istr => istr.ReadException());
                 }
                 case ReplyStatus.ObjectNotExistException:
                 case ReplyStatus.FacetNotExistException:

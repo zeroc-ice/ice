@@ -77,14 +77,6 @@ namespace ZeroC.Ice
             (HeaderSize << 2) | 2, 0, 0, 0 // Frame size on 2^2 = 4 bytes
         };
 
-        internal static readonly byte[] EmptyResponsePayload = new byte[]
-        {
-            (byte) ReplyStatus.OK,
-            2 << 2,                  // Encapsulation size
-            Encoding.V2_0.Major,
-            Encoding.V2_0.Minor
-        };
-
         // Verify that the first 8 bytes correspond to Magic + ProtocolBytes
         internal static void CheckHeader(Span<byte> header)
         {

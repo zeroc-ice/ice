@@ -4,12 +4,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace ZeroC.Ice
 {
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame
     {
+        private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>
+            _cachedVoidReturnValueFrames =
+                new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>();
+
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
 
@@ -34,8 +39,15 @@ namespace ZeroC.Ice
         /// <summary>Creates a new outgoing response frame with an OK reply status and a void return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
         /// <returns>A new OutgoingResponseFrame.</returns>
-        public static OutgoingResponseFrame WithVoidReturnValue(Current current)
-            => new OutgoingResponseFrame(current.Protocol, current.Encoding, writeVoidReturnValue: true);
+        public static OutgoingResponseFrame WithVoidReturnValue(Current current) =>
+            _cachedVoidReturnValueFrames.GetOrAdd((current.Protocol, current.Encoding), key =>
+            {
+                var data = new List<ArraySegment<byte>>();
+                var ostr = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
+                ostr.WriteByte((byte)ReplyStatus.OK);
+                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                return new OutgoingResponseFrame(key.Protocol, key.Encoding, data);
+            });
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>
@@ -79,8 +91,11 @@ namespace ZeroC.Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
-            var ostr = new OutputStream(current.Protocol.GetEncoding(), response.Data, new OutputStream.Position(0, 1),
-                response.Encoding, format ?? current.Adapter.Communicator.DefaultFormat);
+            var ostr = new OutputStream(current.Protocol.GetEncoding(),
+                                        response.Data,
+                                        new OutputStream.Position(0, 1),
+                                        response.Encoding,
+                                        format ?? current.Adapter.Communicator.DefaultFormat);
             writer(ostr, value);
             ostr.Save();
             response.Finish();
@@ -166,8 +181,11 @@ namespace ZeroC.Ice
                 byte[] buffer = new byte[256];
                 buffer[0] = (byte)ReplyStatus.UserException;
                 Data.Add(buffer);
-                ostr = new OutputStream(current.Protocol.GetEncoding(), Data, new OutputStream.Position(0, 1),
-                    Encoding, FormatType.Sliced);
+                ostr = new OutputStream(current.Protocol.GetEncoding(),
+                                        Data,
+                                        new OutputStream.Position(0, 1),
+                                        Encoding,
+                                        FormatType.Sliced);
                 ostr.WriteException(exception);
             }
 
@@ -176,27 +194,17 @@ namespace ZeroC.Ice
             IsSealed = true;
         }
 
-        private OutgoingResponseFrame(Protocol protocol, Encoding encoding, bool writeVoidReturnValue = false)
+        private OutgoingResponseFrame(Protocol protocol, Encoding encoding, List<ArraySegment<byte>>? data = null)
         {
             Protocol = protocol;
             Encoding = encoding;
-            Data = new List<ArraySegment<byte>>();
-            if (writeVoidReturnValue)
+            if (data == null)
             {
-                if (Protocol == Protocol.Ice1 && Encoding == Encoding.V1_1)
-                {
-                    Data.Add(Ice1Definitions.EmptyResponsePayload);
-                }
-                else if (Protocol == Protocol.Ice2 && Encoding == Encoding.V2_0)
-                {
-                    Data.Add(Ice2Definitions.EmptyResponsePayload);
-                }
-                else
-                {
-                    var ostr = new OutputStream(Protocol.GetEncoding(), Data, new OutputStream.Position(0, 0));
-                    ostr.WriteByte((byte)ReplyStatus.OK);
-                    _ = ostr.WriteEmptyEncapsulation(Encoding);
-                }
+                Data = new List<ArraySegment<byte>>();
+            }
+            else
+            {
+                Data = data;
                 Size = Data.GetByteCount();
                 IsSealed = true;
             }
