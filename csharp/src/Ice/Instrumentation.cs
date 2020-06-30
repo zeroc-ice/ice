@@ -50,11 +50,12 @@ namespace ZeroC.Ice.Instrumentation
             IConnectionObserver? oldObserver);
 
         /// <summary>This method should return a dispatch observer for the given dispatch. The Ice run-time calls this
-        /// method each time it receives an incoming invocation to be dispatched for an Ice object.</summary>
-        /// <param name="current">The current object as provided to the Ice servant dispatching the invocation.</param>
+        /// method each time it receives an incoming request to be dispatched for an Ice object.</summary>
+        /// <param name="current">The current object as provided to the Ice servant dispatching the request.</param>
+        /// <param name="requestId">The request ID of the request being dispatched.</param>
         /// <param name="size">The size of the dispatch.</param>
         /// <returns>The dispatch observer to instrument the dispatch.</returns>
-        IDispatchObserver? GetDispatchObserver(Current current, int size);
+        IDispatchObserver? GetDispatchObserver(Current current, int requestId, int size);
 
         /// <summary>This method should return an observer for the given endpoint information. The Ice run-time calls
         /// this method to resolve an endpoint and obtain the list of connectors. For IP endpoints, this typically

@@ -147,7 +147,9 @@ namespace ZeroC.Ice
                 ICommunicatorObserver? communicatorObserver = _adapter.Communicator.Observer;
                 if (communicatorObserver != null)
                 {
-                    dispatchObserver = communicatorObserver.GetDispatchObserver(current, incomingRequest.Size);
+                    dispatchObserver = communicatorObserver.GetDispatchObserver(current,
+                                                                                requestId,
+                                                                                incomingRequest.Size);
                     dispatchObserver?.Attach();
                 }
 
