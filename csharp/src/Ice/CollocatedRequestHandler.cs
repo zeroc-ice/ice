@@ -20,11 +20,12 @@ namespace ZeroC.Ice
 
         public Connection? GetConnection() => null;
 
-        public ValueTask<Task<IncomingResponseFrame>> SendRequestAsync(
+        public async ValueTask<IncomingResponseFrame> SendRequestAsync(
             OutgoingRequestFrame outgoingRequest,
             bool oneway,
             bool synchronous,
             IInvocationObserver? observer,
+            IProgress<bool> progress,
             CancellationToken cancel)
         {
             cancel.ThrowIfCancellationRequested();
@@ -64,7 +65,11 @@ namespace ZeroC.Ice
                 // Don't invoke from the user thread if async or invocation timeout is set. We also don't dispatch
                 // oneway from the user thread to match the non-collocated behavior where the oneway synchronous
                 // request returns as soon as it's sent over the transport.
-                task = Task.Factory.StartNew(() => DispatchAsync(outgoingRequest, requestId, cancel),
+                task = Task.Factory.StartNew(() =>
+                                             {
+                                                progress.Report(false);
+                                                return DispatchAsync(outgoingRequest, requestId, cancel);
+                                             },
                                              cancel,
                                              TaskCreationOptions.None,
                                              _adapter.TaskScheduler ?? TaskScheduler.Default).Unwrap();
@@ -72,53 +77,46 @@ namespace ZeroC.Ice
                 if (oneway)
                 {
                     childObserver?.Detach();
-                    return new ValueTask<Task<IncomingResponseFrame>>(Task.FromResult(
-                        IncomingResponseFrame.WithVoidReturnValue(_adapter.Communicator,
-                                                                  outgoingRequest.Protocol,
-                                                                  outgoingRequest.Encoding)));
+                    return IncomingResponseFrame.WithVoidReturnValue(_adapter.Communicator,
+                                                                     outgoingRequest.Protocol,
+                                                                     outgoingRequest.Encoding);
                 }
             }
             else // Optimization: directly call invokeAll
             {
                 Debug.Assert(!oneway);
+                progress.Report(false);
                 task = DispatchAsync(outgoingRequest, requestId, cancel);
             }
-            return new ValueTask<Task<IncomingResponseFrame>>(WaitForResponseAsync(task, childObserver, cancel));
 
-            async Task<IncomingResponseFrame> WaitForResponseAsync(
-                Task<OutgoingResponseFrame> task,
-                IChildInvocationObserver? observer,
-                CancellationToken cancel)
+            try
             {
-                try
-                {
-                    OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
+                OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
 
-                    var incomingResponseFrame = new IncomingResponseFrame(
-                        _adapter.Communicator,
-                        outgoingRequest.Protocol,
-                        VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
+                var incomingResponseFrame = new IncomingResponseFrame(
+                    _adapter.Communicator,
+                    outgoingRequest.Protocol,
+                    VectoredBufferExtensions.ToArray(outgoingResponseFrame!.Data));
 
-                    if (_adapter.Communicator.TraceLevels.Protocol >= 1)
-                    {
-                        ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
-                                                           (byte)Ice1Definitions.FrameType.Reply,
-                                                           requestId,
-                                                           incomingResponseFrame);
-                    }
+                if (_adapter.Communicator.TraceLevels.Protocol >= 1)
+                {
+                    ProtocolTrace.TraceCollocatedFrame(_adapter.Communicator,
+                                                        (byte)Ice1Definitions.FrameType.Reply,
+                                                        requestId,
+                                                        incomingResponseFrame);
+                }
 
-                    observer?.Reply(incomingResponseFrame.Size);
-                    return incomingResponseFrame;
-                }
-                catch (Exception ex)
-                {
-                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    throw;
-                }
-                finally
-                {
-                    observer?.Detach();
-                }
+                childObserver?.Reply(incomingResponseFrame.Size);
+                return incomingResponseFrame;
+            }
+            catch (Exception ex)
+            {
+                childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
+                throw;
+            }
+            finally
+            {
+                childObserver?.Detach();
             }
         }
 

@@ -517,12 +517,13 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<Task<IncomingResponseFrame>> SendRequestAsync(
+        internal async ValueTask<IncomingResponseFrame> SendRequestAsync(
             OutgoingRequestFrame request,
             bool oneway,
             bool compress,
             bool synchronous,
             IInvocationObserver? observer,
+            IProgress<bool> progress,
             CancellationToken cancel)
         {
             IChildInvocationObserver? childObserver = null;
@@ -595,39 +596,29 @@ namespace ZeroC.Ice
                 childObserver?.Detach();
                 throw;
             }
+            progress.Report(false); // sentSynchronously: false
 
-            if (oneway)
+            if (responseTask == null)
             {
                 childObserver?.Detach();
-                return Task.FromResult(IncomingResponseFrame.WithVoidReturnValue(_communicator,
-                                                                                 request.Protocol,
-                                                                                 request.Encoding));
+                return IncomingResponseFrame.WithVoidReturnValue(_communicator, request.Protocol, request.Encoding);
             }
             else
             {
-                // TODO: support cancelation of requests.
-                return WaitForResponseAsync(responseTask!, childObserver, cancel);
-            }
-
-            static async Task<IncomingResponseFrame> WaitForResponseAsync(
-                Task<IncomingResponseFrame> task,
-                IChildInvocationObserver? observer,
-                CancellationToken cancel)
-            {
                 try
                 {
-                    IncomingResponseFrame response = await task.WaitAsync(cancel).ConfigureAwait(false);
-                    observer?.Reply(response.Size);
+                    IncomingResponseFrame response = await responseTask.WaitAsync(cancel).ConfigureAwait(false);
+                    childObserver?.Reply(response.Size);
                     return response;
                 }
                 catch (Exception ex)
                 {
-                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                     throw;
                 }
                 finally
                 {
-                    observer?.Detach();
+                    childObserver?.Detach();
                 }
             }
         }

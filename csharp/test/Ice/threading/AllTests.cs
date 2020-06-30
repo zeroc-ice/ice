@@ -147,8 +147,8 @@ namespace ZeroC.Ice.Test.Threading
                 {
                     // On Windows, it's not un-common that the .NET thread pool creates one or two additional threads
                     // and doesn't striclty respect the number of configured maximum threads. So we tolerate a lest
-                    // 2 additional concurrent calls.
-                    TestHelper.Assert(ex.InnerExceptions.Count < 3);
+                    // 4 additional concurrent calls.
+                    TestHelper.Assert(ex.InnerExceptions.Count < 5);
                 }
                 proxy.reset();
             }

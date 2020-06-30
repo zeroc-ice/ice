@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,14 +27,16 @@ namespace ZeroC.Ice
         /// useful for the collocated request handler implementation to figure out whether or not the request can be
         /// invoked on the user thread or not.</param>
         /// <param name="observer">The invocation observer.</param>
+        /// <param name="progress">The progress callback.</param>
         /// <param name="cancel">The cancellation token to cancel the sending of the request</param>
         /// <returns>A task if the request is a twoway request or null if it's a oneway request. The returned task can
         /// be used to wait for the receipt of the response.</returns>
-        ValueTask<Task<IncomingResponseFrame>> SendRequestAsync(
+        ValueTask<IncomingResponseFrame> SendRequestAsync(
             OutgoingRequestFrame frame,
             bool oneway,
             bool synchronous,
             IInvocationObserver? observer,
+            IProgress<bool> progress,
             CancellationToken cancel);
 
         /// <summary>Returns the Ice network connection associated with the request handler if any.</summary>

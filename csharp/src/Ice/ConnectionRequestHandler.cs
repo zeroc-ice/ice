@@ -12,13 +12,20 @@ namespace ZeroC.Ice
 {
     internal class ConnectionRequestHandler : IRequestHandler
     {
-        public ValueTask<Task<IncomingResponseFrame>> SendRequestAsync(
+        public ValueTask<IncomingResponseFrame> SendRequestAsync(
             OutgoingRequestFrame outgoingRequestFrame,
             bool oneway,
             bool synchronous,
             IInvocationObserver? observer,
+            IProgress<bool> progress,
             CancellationToken cancel) =>
-            _connection.SendRequestAsync(outgoingRequestFrame, oneway, _compress, synchronous, observer, cancel);
+            _connection.SendRequestAsync(outgoingRequestFrame,
+                                         oneway,
+                                         _compress,
+                                         synchronous,
+                                         observer,
+                                         progress,
+                                         cancel);
 
         public Connection GetConnection() => _connection;
 

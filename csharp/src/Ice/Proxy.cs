@@ -382,6 +382,24 @@ namespace ZeroC.Ice
             }
         }
 
+        private class ProgressWrapper : IProgress<bool>
+        {
+            private IProgress<bool>? _progress;
+
+            public bool IsSent { get; private set; }
+
+            public void Report(bool sentSynchronously)
+            {
+                if (_progress != null)
+                {
+                    Task.Run(() => _progress.Report(sentSynchronously));
+                }
+                IsSent = true;
+            }
+
+            internal ProgressWrapper(IProgress<bool>? progress) => _progress = progress;
+        }
+
         private static ValueTask<IncomingResponseFrame> InvokeAsync(this IObjectPrx proxy,
                                                                     OutgoingRequestFrame request,
                                                                     bool oneway,
@@ -433,31 +451,21 @@ namespace ZeroC.Ice
                     while (true)
                     {
                         IRequestHandler? handler = null;
-                        bool sent = false;
+                        var progressWrapper = new ProgressWrapper(progress);
                         try
                         {
                             // Get the request handler, this will eventually establish a connection if needed.
                             handler = await reference.GetRequestHandlerAsync(cancel).ConfigureAwait(false);
 
                             // Send the request and if it's a twoway request get the task to wait for the response
-                            Task<IncomingResponseFrame> responseTask =
-                                await handler!.SendRequestAsync(request,
-                                                                oneway,
-                                                                synchronous,
-                                                                observer,
-                                                                cancel).ConfigureAwait(false);
+                            IncomingResponseFrame response =
+                                await handler.SendRequestAsync(request,
+                                                               oneway,
+                                                               synchronous,
+                                                               observer,
+                                                               progressWrapper,
+                                                               cancel).ConfigureAwait(false);
 
-                            sent = true; // Mark the request as sent, it's important for the retry logic
-
-                            // Notify the progress callback
-                            if (progress != null)
-                            {
-                                // TODO: Remove the bool sentSynchronously since it's not longer useful?
-                                _ = Task.Run(() => progress.Report(false));
-                            }
-
-                            // Wait for the response
-                            IncomingResponseFrame response = await responseTask.ConfigureAwait(false);
                             switch (response.ReplyStatus)
                             {
                                 case ReplyStatus.OK:
@@ -507,7 +515,7 @@ namespace ZeroC.Ice
                             // TODO: revisit retry logic
                             // We only retry after failing with a DispatchException or a local exception.
                             int delay = reference.CheckRetryAfterException(ex,
-                                                                           sent,
+                                                                           progressWrapper.IsSent,
                                                                            request.IsIdempotent,
                                                                            ref retryCount);
                             if (delay > 0)
