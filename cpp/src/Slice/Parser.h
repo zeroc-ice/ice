@@ -420,6 +420,7 @@ public:
 protected:
 
     Builtin(const UnitPtr&, Kind);
+
     friend class Unit;
 
     const Kind _kind;
@@ -465,7 +466,6 @@ public:
 protected:
 
     Contained(const ContainerPtr&, const std::string&);
-    friend class Container;
 
     ContainerPtr _container;
     std::string _name;
@@ -571,7 +571,7 @@ public:
 protected:
 
     Module(const ContainerPtr&, const std::string&);
-    friend class Container;
+
     friend class Unit;
 
     ContainedList _contents;
@@ -618,8 +618,8 @@ public:
 protected:
 
     ClassDecl(const ContainerPtr&, const std::string&);
-    friend class Container;
-    friend class ClassDef;
+
+    friend class Module;
 
     ClassDefPtr _definition;
 };
@@ -666,7 +666,8 @@ public:
 protected:
 
     ClassDef(const ContainerPtr&, const std::string&, int, const ClassDefPtr&);
-    friend class Container;
+
+    friend class Module;
 
     ClassDeclPtr _declaration;
     ClassDefPtr _base;
@@ -699,8 +700,8 @@ public:
 protected:
 
     InterfaceDecl(const ContainerPtr&, const std::string&);
-    friend class Container;
-    friend class InterfaceDef;
+
+    friend class Module;
 
     InterfaceDefPtr _definition;
 
@@ -773,6 +774,7 @@ public:
 protected:
 
     Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
+
     friend class InterfaceDef;
 
     std::list<ParamDeclPtr> _inParameters;
@@ -819,7 +821,8 @@ public:
 protected:
 
     InterfaceDef(const ContainerPtr&, const std::string&, const InterfaceList&);
-    friend class Container;
+
+    friend class Module;
 
     InterfaceDeclPtr _declaration;
     InterfaceList _bases;
@@ -881,7 +884,9 @@ public:
 protected:
 
     Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&);
+
     friend class Container;
+    friend class Module;
 
     ExceptionPtr _base;
     std::list<DataMemberPtr> _dataMembers;
@@ -914,7 +919,9 @@ public:
 protected:
 
     Struct(const ContainerPtr&, const std::string&);
+
     friend class Container;
+    friend class Module;
 
     std::list<DataMemberPtr> _dataMembers;
 };
@@ -941,7 +948,9 @@ public:
 protected:
 
     Sequence(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&);
+
     friend class Container;
+    friend class Module;
 
     TypePtr _type;
     StringList _typeMetaData;
@@ -974,7 +983,9 @@ protected:
 
     Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&,
                const StringList&);
+
     friend class Container;
+    friend class Module;
 
     TypePtr _keyType;
     TypePtr _valueType;
@@ -1027,6 +1038,7 @@ protected:
     std::int64_t newEnumerator(const EnumeratorPtr&);
 
     friend class Container;
+    friend class Module;
     friend class Enumerator;
 
     std::list<EnumeratorPtr> _enumerators;
@@ -1057,6 +1069,7 @@ protected:
 
     Enumerator(const EnumPtr&, const std::string&);
     Enumerator(const EnumPtr&, const std::string&, std::int64_t);
+
     friend class Enum;
 
     bool _explicitValue;
@@ -1084,7 +1097,9 @@ protected:
 
     Const(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
           const std::string&, const std::string&);
+
     friend class Container;
+    friend class Module;
 
     TypePtr _type;
     StringList _typeMetaData;
@@ -1112,6 +1127,7 @@ public:
 protected:
 
     ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
+
     friend class Operation;
 
     TypePtr _type;
@@ -1142,6 +1158,7 @@ protected:
 
     DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                const std::string&, const std::string&);
+
     friend class ClassDef;
     friend class Struct;
     friend class Exception;

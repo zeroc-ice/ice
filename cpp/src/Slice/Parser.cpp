@@ -1259,7 +1259,7 @@ Slice::Container::createModule(const string& name)
 }
 
 ClassDefPtr
-Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& base)
+Slice::Container::createClassDef(const string& name, int, const ClassDefPtr&)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
@@ -1356,7 +1356,7 @@ Slice::Container::createClassDecl(const string& name)
 }
 
 InterfaceDefPtr
-Slice::Container::createInterfaceDef(const string& name, const InterfaceList& bases)
+Slice::Container::createInterfaceDef(const string& name, const InterfaceList&)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
@@ -2858,7 +2858,7 @@ Slice::Module::createInterfaceDecl(const string& name)
 }
 
 ExceptionPtr
-Slice::Module::createException(const string& name, const ExceptionPtr& base, NodeType nt)
+Slice::Module::createException(const string& name, const ExceptionPtr& base, NodeType)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2895,7 +2895,7 @@ Slice::Module::createException(const string& name, const ExceptionPtr& base, Nod
 }
 
 StructPtr
-Slice::Module::createStruct(const string& name, NodeType nt)
+Slice::Module::createStruct(const string& name, NodeType)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2932,8 +2932,7 @@ Slice::Module::createStruct(const string& name, NodeType nt)
 }
 
 SequencePtr
-Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metaData,
-                                 NodeType nt)
+Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType)
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -3024,7 +3023,7 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
 }
 
 EnumPtr
-Slice::Module::createEnum(const string& name, bool unchecked, NodeType nt)
+Slice::Module::createEnum(const string& name, bool unchecked, NodeType)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
