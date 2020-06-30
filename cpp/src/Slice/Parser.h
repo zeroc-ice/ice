@@ -513,7 +513,6 @@ public:
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = nullptr);
-    bool checkForGlobalDef(const std::string&, const char *);
 
 protected:
 
@@ -538,6 +537,19 @@ public:
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
+    ModulePtr createModule(const std::string&) override;
+    ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&) override;
+    ClassDeclPtr createClassDecl(const std::string&) override;
+    InterfaceDefPtr createInterfaceDef(const std::string&, const InterfaceList&) override;
+    InterfaceDeclPtr createInterfaceDecl(const std::string&) override;
+    ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real) override;
+    StructPtr createStruct(const std::string&, NodeType = Real) override;
+    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real) override;
+    DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
+                                           const StringList&, NodeType = Real) override;
+    EnumPtr createEnum(const std::string&, bool, NodeType = Real) override;
+    ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
+                                 const std::string&, const std::string&, NodeType = Real) override;
     EnumList enums() const;
     ConstList consts() const;
     bool hasSequences() const;
