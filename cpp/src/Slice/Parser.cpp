@@ -1207,11 +1207,6 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 void
 Slice::Container::destroy()
 {
-    for (const auto& content : _contents)
-    {
-        content->destroy();
-    }
-    _contents.clear();
     _introducedMap.clear();
     SyntaxTreeBase::destroy();
 }
@@ -2147,12 +2142,6 @@ Slice::Container::enumerators(const string& scoped) const
     return result;
 }
 
-ContainedList
-Slice::Container::contents() const
-{
-    return _contents;
-}
-
 bool
 Slice::Container::hasContained(Contained::ContainedType type) const
 {
@@ -2209,13 +2198,14 @@ Slice::Container::thisScope() const
 void
 Slice::Container::sort()
 {
-    _contents.sort();
+    content().sort();
 }
 
 void
 Slice::Container::sortContents(bool sortFields)
 {
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    ContainedList contents = content();
+    for (ContainedList::const_iterator p = contents.begin(); p != contents.end(); ++p)
     {
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
         if(container)
@@ -2246,7 +2236,8 @@ Slice::Container::sortContents(bool sortFields)
 void
 Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 {
-    for (ContainedList::iterator p = _contents.begin(); p != _contents.end(); ++p)
+    ContainedList contents = content();
+    for (ContainedList::iterator p = contents.begin(); p != contents.end(); ++p)
     {
         ConstructedPtr constructed = ConstructedPtr::dynamicCast(*p);
         if(constructed && dependencies.find(constructed) != dependencies.end())
@@ -2638,6 +2629,17 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
+
+void
+Slice::Module::destroy()
+{
+    for (const auto& content : _contents)
+    {
+        content->destroy();
+    }
+    _contents.clear();
+    Container::destroy();
+}
 
 ContainedList
 Slice::Module::contents() const

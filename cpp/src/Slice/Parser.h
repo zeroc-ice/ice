@@ -541,7 +541,6 @@ protected:
     bool checkFileMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
 
-    ContainedList _contents;
     std::map<std::string, ContainedPtr, CICompare> _introducedMap;
 };
 
@@ -553,6 +552,7 @@ class Module : public virtual Container, public virtual Contained
 {
 public:
 
+    void destroy() override;
     ContainedList contents() const override;
     ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
@@ -581,6 +581,8 @@ protected:
     Module(const ContainerPtr&, const std::string&);
     friend class Container;
     friend class Unit;
+
+    ContainedList _contents;
 };
 
 // ----------------------------------------------------------------------
