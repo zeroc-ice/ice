@@ -325,7 +325,7 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public IDispatchObserver
-        GetDispatchObserver(Current current, int s)
+        GetDispatchObserver(Current current, int requestId, int s)
         {
             lock (this)
             {

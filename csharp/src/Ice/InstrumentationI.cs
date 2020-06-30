@@ -135,14 +135,14 @@ namespace ZeroC.Ice
             return null;
         }
 
-        public IDispatchObserver? GetDispatchObserver(Current current, int size)
+        public IDispatchObserver? GetDispatchObserver(Current current, int requestId, int size)
         {
             if (_dispatch.IsEnabled)
             {
                 try
                 {
-                    return _dispatch.GetObserver(new DispatchHelper(current, size),
-                        _delegate?.GetDispatchObserver(current, size));
+                    return _dispatch.GetObserver(new DispatchHelper(current, requestId, size),
+                        _delegate?.GetDispatchObserver(current, requestId, size));
                 }
                 catch (Exception ex)
                 {
@@ -320,15 +320,18 @@ namespace ZeroC.Ice
         private static readonly AttributeResolver _attributeResolver = new AttributeResolverI();
 
         private readonly Current _current;
+        private readonly int _requestId;
+
         private string? _id;
         private readonly int _size;
 
         public override void InitMetrics(DispatchMetrics v) => v.Size += _size;
 
-        internal DispatchHelper(Current current, int size)
+        internal DispatchHelper(Current current, int requestId, int size)
             : base(_attributeResolver)
         {
             _current = current;
+            _requestId = requestId;
             _size = size;
         }
 
@@ -385,8 +388,8 @@ namespace ZeroC.Ice
                         return current?.Identity.ToString(current.Adapter!.Communicator.ToStringMode);
                     });
                 Add("facet", obj => (obj as DispatchHelper)?._current.Facet);
-                Add("requestId", obj => (obj as DispatchHelper)?._current.RequestId);
-                Add("mode", obj => (obj as DispatchHelper)?._current.RequestId == 0 ? "oneway" : "twoway");
+                Add("requestId", obj => (obj as DispatchHelper)?._requestId);
+                Add("mode", obj => (obj as DispatchHelper)?._current.IsOneway == true ? "oneway" : "twoway");
             }
         }
     }
