@@ -451,26 +451,18 @@ namespace ZeroC.Ice
                             switch (response.ReplyStatus)
                             {
                                 case ReplyStatus.OK:
-                                {
                                     break;
-                                }
                                 case ReplyStatus.UserException:
-                                {
                                     observer?.RemoteException();
                                     break;
-                                }
                                 case ReplyStatus.ObjectNotExistException:
                                 case ReplyStatus.FacetNotExistException:
                                 case ReplyStatus.OperationNotExistException:
-                                {
                                     throw response.ReadDispatchException();
-                                }
                                 case ReplyStatus.UnknownException:
                                 case ReplyStatus.UnknownLocalException:
                                 case ReplyStatus.UnknownUserException:
-                                {
                                     throw response.ReadUnhandledException();
-                                }
                             }
                             return response;
                         }
@@ -543,7 +535,7 @@ namespace ZeroC.Ice
         {
             private readonly IProgress<bool>? _progress;
 
-            public bool IsSent { get; private set; }
+            internal bool IsSent { get; private set; }
 
             public void Report(bool sentSynchronously)
             {

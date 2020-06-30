@@ -44,9 +44,9 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames.GetOrAdd((communicator, protocol, encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
-                var stream = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
-                stream.WriteByte((byte)ReplyStatus.OK);
-                _ = stream.WriteEmptyEncapsulation(key.Encoding);
+                var ostr = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
+                ostr.WriteByte((byte)ReplyStatus.OK);
+                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
                 return new IncomingResponseFrame(key.Communicator, key.Protocol, data[0]);
             });

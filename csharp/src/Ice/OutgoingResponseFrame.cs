@@ -43,10 +43,10 @@ namespace ZeroC.Ice
             _cachedVoidReturnValueFrames.GetOrAdd((current.Protocol, current.Encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
-                var stream = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
-                stream.WriteByte((byte)ReplyStatus.OK);
-                _ = stream.WriteEmptyEncapsulation(key.Encoding);
-                return new OutgoingResponseFrame(current.Protocol, current.Encoding, data);
+                var ostr = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
+                ostr.WriteByte((byte)ReplyStatus.OK);
+                _ = ostr.WriteEmptyEncapsulation(key.Encoding);
+                return new OutgoingResponseFrame(key.Protocol, key.Encoding, data);
             });
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a return value.</summary>
@@ -91,13 +91,13 @@ namespace ZeroC.Ice
             byte[] buffer = new byte[256];
             buffer[0] = (byte)ReplyStatus.OK;
             response.Data.Add(buffer);
-            var stream = new OutputStream(current.Protocol.GetEncoding(),
-                                          response.Data,
-                                          new OutputStream.Position(0, 1),
-                                          response.Encoding,
-                                          format ?? current.Adapter.Communicator.DefaultFormat);
-            writer(stream, value);
-            stream.Save();
+            var ostr = new OutputStream(current.Protocol.GetEncoding(),
+                                        response.Data,
+                                        new OutputStream.Position(0, 1),
+                                        response.Encoding,
+                                        format ?? current.Adapter.Communicator.DefaultFormat);
+            writer(ostr, value);
+            ostr.Save();
             response.Finish();
             return response;
         }
