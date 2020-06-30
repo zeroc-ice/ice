@@ -2143,26 +2143,6 @@ Slice::Container::enumerators(const string& scoped) const
 }
 
 bool
-Slice::Container::hasContained(Contained::ContainedType type) const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if((*p)->containedType() == type)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasContained(type))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 Slice::Container::hasContentsWithMetaData(const string& meta) const
 {
     for (const auto& content : contents())
@@ -2198,16 +2178,15 @@ Slice::Container::thisScope() const
 void
 Slice::Container::sort()
 {
-    content().sort();
+    contents().sort();
 }
 
 void
 Slice::Container::sortContents(bool sortFields)
 {
-    ContainedList contents = content();
-    for (ContainedList::const_iterator p = contents.begin(); p != contents.end(); ++p)
+    for (const auto& content : contents())
     {
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        ContainerPtr container = ContainerPtr::dynamicCast(content);
         if(container)
         {
             if(!sortFields)
@@ -2236,10 +2215,9 @@ Slice::Container::sortContents(bool sortFields)
 void
 Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 {
-    ContainedList contents = content();
-    for (ContainedList::iterator p = contents.begin(); p != contents.end(); ++p)
+    for (const auto& content : contents())
     {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(*p);
+        ConstructedPtr constructed = ConstructedPtr::dynamicCast(content);
         if(constructed && dependencies.find(constructed) != dependencies.end())
         {
             dependencies.insert(constructed);
@@ -2647,12 +2625,6 @@ Slice::Module::contents() const
     return _contents;
 }
 
-Contained::ContainedType
-Slice::Module::containedType() const
-{
-    return ContainedTypeModule;
-}
-
 bool
 Slice::Module::uses(const ContainedPtr&) const
 {
@@ -3058,12 +3030,6 @@ Slice::ClassDecl::definition() const
     return _definition;
 }
 
-Contained::ContainedType
-Slice::ClassDecl::containedType() const
-{
-    return ContainedTypeClass;
-}
-
 bool
 Slice::ClassDecl::uses(const ContainedPtr&) const
 {
@@ -3379,12 +3345,6 @@ Slice::ClassDef::contents() const
     return result;
 }
 
-Contained::ContainedType
-Slice::ClassDef::containedType() const
-{
-    return ContainedTypeClass;
-}
-
 bool
 Slice::ClassDef::uses(const ContainedPtr&) const
 {
@@ -3463,12 +3423,6 @@ InterfaceDefPtr
 Slice::InterfaceDecl::definition() const
 {
     return _definition;
-}
-
-Contained::ContainedType
-Slice::InterfaceDecl::containedType() const
-{
-    return ContainedTypeInterface;
 }
 
 bool
@@ -3857,12 +3811,6 @@ Slice::InterfaceDef::contents() const
     return result;
 }
 
-Contained::ContainedType
-Slice::InterfaceDef::containedType() const
-{
-    return ContainedTypeInterface;
-}
-
 bool
 Slice::InterfaceDef::uses(const ContainedPtr&) const
 {
@@ -4169,12 +4117,6 @@ Slice::Exception::contents() const
     return result;
 }
 
-Contained::ContainedType
-Slice::Exception::containedType() const
-{
-    return ContainedTypeException;
-}
-
 bool
 Slice::Exception::uses(const ContainedPtr&) const
 {
@@ -4361,12 +4303,6 @@ Slice::Struct::contents() const
     return result;
 }
 
-Contained::ContainedType
-Slice::Struct::containedType() const
-{
-    return ContainedTypeStruct;
-}
-
 bool
 Slice::Struct::uses(const ContainedPtr&) const
 {
@@ -4483,12 +4419,6 @@ Slice::Sequence::typeMetaData() const
     return _typeMetaData;
 }
 
-Contained::ContainedType
-Slice::Sequence::containedType() const
-{
-    return ContainedTypeSequence;
-}
-
 bool
 Slice::Sequence::uses(const ContainedPtr& contained) const
 {
@@ -4580,12 +4510,6 @@ StringList
 Slice::Dictionary::valueMetaData() const
 {
     return _valueMetaData;
-}
-
-Contained::ContainedType
-Slice::Dictionary::containedType() const
-{
-    return ContainedTypeDictionary;
 }
 
 bool
@@ -4819,12 +4743,6 @@ Slice::Enum::contents() const
     return result;
 }
 
-Contained::ContainedType
-Slice::Enum::containedType() const
-{
-    return ContainedTypeEnum;
-}
-
 bool
 Slice::Enum::uses(const ContainedPtr&) const
 {
@@ -5006,12 +4924,6 @@ Slice::Enumerator::type() const
     return EnumPtr::dynamicCast(container());
 }
 
-Contained::ContainedType
-Slice::Enumerator::containedType() const
-{
-    return ContainedTypeEnumerator;
-}
-
 bool
 Slice::Enumerator::uses(const ContainedPtr&) const
 {
@@ -5086,12 +4998,6 @@ string
 Slice::Const::literal() const
 {
     return _literal;
-}
-
-Contained::ContainedType
-Slice::Const::containedType() const
-{
-    return ContainedTypeConstant;
 }
 
 bool
@@ -5414,12 +5320,6 @@ Slice::Operation::contents() const
 
 }
 
-Contained::ContainedType
-Slice::Operation::containedType() const
-{
-    return ContainedTypeOperation;
-}
-
 bool
 Slice::Operation::uses(const ContainedPtr& contained) const
 {
@@ -5555,12 +5455,6 @@ Slice::ParamDecl::tag() const
     return _tag;
 }
 
-Contained::ContainedType
-Slice::ParamDecl::containedType() const
-{
-    return ContainedTypeDataMember;
-}
-
 bool
 Slice::ParamDecl::uses(const ContainedPtr& contained) const
 {
@@ -5629,12 +5523,6 @@ SyntaxTreeBasePtr
 Slice::DataMember::defaultValueType() const
 {
     return _defaultValueType;
-}
-
-Contained::ContainedType
-Slice::DataMember::containedType() const
-{
-    return ContainedTypeDataMember;
 }
 
 bool

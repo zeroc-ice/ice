@@ -456,24 +456,6 @@ public:
 
     static FormatType parseFormatMetaData(const std::list<std::string>&);
 
-    enum ContainedType
-    {
-        ContainedTypeSequence,
-        ContainedTypeDictionary,
-        ContainedTypeEnum,
-        ContainedTypeEnumerator,
-        ContainedTypeModule,
-        ContainedTypeClass,
-        ContainedTypeInterface,
-        ContainedTypeException,
-        ContainedTypeStruct,
-        ContainedTypeOperation,
-        ContainedTypeParamDecl,
-        ContainedTypeDataMember,
-        ContainedTypeConstant
-    };
-    virtual ContainedType containedType() const = 0;
-
     virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
 
@@ -524,7 +506,6 @@ public:
     // Finds enumerators using the deprecated unscoped enumerators lookup
     EnumeratorList enumerators(const std::string&) const;
     virtual ContainedList contents() const = 0;
-    bool hasContained(Contained::ContainedType) const;
     bool hasContentsWithMetaData(const std::string&) const;
     std::string thisScope() const;
     void sort();
@@ -554,7 +535,6 @@ public:
 
     void destroy() override;
     ContainedList contents() const override;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
@@ -613,7 +593,6 @@ public:
 
     void destroy() override;
     ClassDefPtr definition() const;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     bool isClassType() const override { return true; }
@@ -666,7 +645,6 @@ public:
     bool inheritsMetaData(const std::string&) const;
     bool hasBaseDataMembers() const;
     ContainedList contents() const override;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
@@ -694,7 +672,6 @@ public:
 
     void destroy() override;
     InterfaceDefPtr definition() const;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     bool isInterfaceType() const override { return true; }
@@ -771,7 +748,6 @@ public:
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     ContainedList contents() const override;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool sendsClasses(bool) const;
     bool returnsClasses(bool) const;
@@ -823,7 +799,6 @@ public:
     bool hasOperations() const;
     bool inheritsMetaData(const std::string&) const;
     ContainedList contents() const override;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
@@ -883,7 +858,6 @@ public:
     ExceptionList allBases() const;
     bool isBaseOf(const ExceptionPtr&) const;
     ContainedList contents() const override;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses(bool) const;
     bool hasDefaultValues() const;
@@ -915,7 +889,6 @@ public:
     DataMemberList dataMembers() const;
     DataMemberList classDataMembers() const;
     ContainedList contents() const override;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -944,7 +917,6 @@ public:
 
     TypePtr type() const;
     StringList typeMetaData() const;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -975,7 +947,6 @@ public:
     TypePtr valueType() const;
     StringList keyMetaData() const;
     StringList valueMetaData() const;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -1025,7 +996,6 @@ public:
     std::int64_t minValue() const;
     std::int64_t maxValue() const;
     ContainedList contents() const override;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     bool usesClasses() const override;
     size_t minWireSize() const override;
@@ -1066,7 +1036,6 @@ public:
 
     EnumPtr type() const;
     bool uses(const ContainedPtr&) const override;
-    ContainedType containedType() const override;
     std::string kindOf() const override;
 
     bool explicitValue() const;
@@ -1096,7 +1065,6 @@ public:
     std::string value() const;
     std::string literal() const;
     bool uses(const ContainedPtr&) const override;
-    ContainedType containedType() const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
 
@@ -1125,7 +1093,6 @@ public:
     bool isOutParam() const;
     bool tagged() const;
     int tag() const;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
@@ -1155,7 +1122,6 @@ public:
     std::string defaultValue() const;
     std::string defaultLiteral() const;
     SyntaxTreeBasePtr defaultValueType() const;
-    ContainedType containedType() const override;
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
