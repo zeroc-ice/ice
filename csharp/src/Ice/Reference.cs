@@ -1277,15 +1277,13 @@ namespace ZeroC.Ice
             {
                 OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
                 Connection? connection = null;
-                bool compress = false;
                 if (IsConnectionCached)
                 {
                     //
                     // Get an existing connection or create one if there's no existing connection to one of
                     // the given endpoints.
                     //
-                    (connection, compress) = await factory.CreateAsync(endpoints, false,
-                        EndpointSelection).ConfigureAwait(false);
+                    connection = await factory.CreateAsync(endpoints, false, EndpointSelection).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1299,8 +1297,9 @@ namespace ZeroC.Ice
                     {
                         try
                         {
-                            (connection, compress) = await factory.CreateAsync(new Endpoint[] { endpoint },
-                                endpoint != lastEndpoint, EndpointSelection).ConfigureAwait(false);
+                            connection = await factory.CreateAsync(new Endpoint[] { endpoint },
+                                                                   endpoint != lastEndpoint,
+                                                                   EndpointSelection).ConfigureAwait(false);
                             break;
                         }
                         catch (Exception)
@@ -1326,6 +1325,19 @@ namespace ZeroC.Ice
                     {
                         connection.Adapter = RouterInfo.Adapter;
                     }
+                }
+
+                // If it's an Ice1 proxy, we check if the connection matches an endpoint with the compression flag
+                // enabled. If it's the case, we'll use compression.
+                bool compress = false;
+                if (Protocol == Protocol.Ice1)
+                {
+                    // The connection endpoint is always a non-compressed endpoint. If we one of the resolved endpoints
+                    // matches the connection endpoint, we don't use compression. Otherwise, if we don't find the
+                    // matching endpoint, it implies that we got a connection for one the compressed resolved endpoints.
+                    compress = !endpoints.Select(endpoint => connection.Endpoint == endpoint).Any();
+
+                    Debug.Assert(!compress || endpoints.Contains(connection.Endpoint.NewCompressionFlag(true)));
                 }
                 return new ConnectionRequestHandler(connection, compress);
             }
