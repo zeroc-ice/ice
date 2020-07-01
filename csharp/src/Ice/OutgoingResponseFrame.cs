@@ -11,10 +11,6 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame sent by the application.</summary>
     public sealed class OutgoingResponseFrame
     {
-        private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>
-            _cachedVoidReturnValueFrames =
-                new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>();
-
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
 
@@ -35,6 +31,10 @@ namespace ZeroC.Ice
 
         // Contents of the Frame
         internal List<ArraySegment<byte>> Data { get; private set; }
+
+        private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>
+            _cachedVoidReturnValueFrames =
+                new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), OutgoingResponseFrame>();
 
         /// <summary>Creates a new outgoing response frame with an OK reply status and a void return value.</summary>
         /// <param name="current">The Current object for the corresponding incoming request.</param>

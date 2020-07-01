@@ -663,8 +663,9 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a reference from the input stream.</summary>
         /// <param name="istr">The input stream to read from.</param>
+        /// <param name="communicator">The communicator.</param>
         /// <returns>The reference read from the stream (can be null).</returns>
-        internal static Reference? Read(InputStream istr)
+        internal static Reference? Read(InputStream istr, Communicator communicator)
         {
             var identity = new Identity(istr);
             if (identity.Name.Length == 0)
@@ -702,7 +703,7 @@ namespace ZeroC.Ice
                 endpoints = new Endpoint[sz];
                 for (int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = istr.ReadEndpoint(protocol);
+                    endpoints[i] = istr.ReadEndpoint(protocol, communicator);
                 }
             }
             else
@@ -711,9 +712,14 @@ namespace ZeroC.Ice
                 adapterId = istr.ReadString();
             }
 
-            return new Reference(adapterId: adapterId, communicator: istr.Communicator, encoding: encoding,
-                endpoints: endpoints, facet: facet, identity: identity, invocationMode: (InvocationMode)mode,
-                protocol: protocol);
+            return new Reference(adapterId,
+                                 communicator,
+                                 encoding,
+                                 endpoints,
+                                 facet,
+                                 identity,
+                                 invocationMode: (InvocationMode)mode,
+                                 protocol);
         }
 
         // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.

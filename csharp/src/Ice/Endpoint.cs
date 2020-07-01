@@ -221,7 +221,7 @@ namespace ZeroC.Ice
                     Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);
 
                     return
-                        new InputStream(communicator, Ice1Definitions.Encoding, bufferList[0]).ReadEndpoint(protocol);
+                        new InputStream(Ice1Definitions.Encoding, bufferList[0]).ReadEndpoint(protocol, communicator);
                 }
                 else
                 {

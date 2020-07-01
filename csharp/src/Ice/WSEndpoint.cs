@@ -103,8 +103,8 @@ namespace ZeroC.Ice
             }
         }
 
-        internal WSEndpoint(InputStream istr, Transport transport, Protocol protocol)
-            : base(istr, transport, protocol) =>
+        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
+            : base(istr, communicator, transport, protocol) =>
             Resource = istr.ReadString();
 
         private protected override IPEndpoint CreateIPEndpoint(

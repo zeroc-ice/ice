@@ -77,8 +77,7 @@ namespace ZeroC.Ice
                 if (oneway)
                 {
                     childObserver?.Detach();
-                    return IncomingResponseFrame.WithVoidReturnValue(_adapter.Communicator,
-                                                                     outgoingRequest.Protocol,
+                    return IncomingResponseFrame.WithVoidReturnValue(outgoingRequest.Protocol,
                                                                      outgoingRequest.Encoding);
                 }
             }
@@ -94,7 +93,6 @@ namespace ZeroC.Ice
                 OutgoingResponseFrame outgoingResponseFrame = await task.WaitAsync(cancel).ConfigureAwait(false);
 
                 var incomingResponseFrame = new IncomingResponseFrame(
-                    _adapter.Communicator,
                     outgoingRequest.Protocol,
                     VectoredBufferExtensions.ToArray(outgoingResponseFrame.Data));
 
@@ -141,7 +139,7 @@ namespace ZeroC.Ice
             IDispatchObserver? dispatchObserver = null;
             try
             {
-                var incomingRequest = new IncomingRequestFrame(_adapter.Communicator, outgoingRequest);
+                var incomingRequest = new IncomingRequestFrame(outgoingRequest);
                 var current = new Current(_adapter, incomingRequest, oneway: requestId == 0, cancel);
 
                 // Then notify and set dispatch observer, if any.

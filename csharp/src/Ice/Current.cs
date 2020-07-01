@@ -11,6 +11,7 @@ namespace ZeroC.Ice
     {
         public ObjectAdapter Adapter { get; }
         public CancellationToken CancellationToken { get; }
+        public Communicator Communicator => Adapter.Communicator;
         public Connection? Connection { get; }
         // TODO: should this be a IReadOnlyDictionary<string, string>?
         public Dictionary<string, string> Context { get; }

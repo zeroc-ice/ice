@@ -12,11 +12,6 @@ namespace ZeroC.Ice
     /// <summary>Represents a response protocol frame received by the application.</summary>
     public sealed class IncomingResponseFrame
     {
-        private static readonly ConcurrentDictionary<(Communicator Communicator, Protocol Protocol, Encoding Encoding),
-            IncomingResponseFrame> _cachedVoidReturnValueFrames =
-                new ConcurrentDictionary<(Communicator Communicator, Protocol Protocol, Encoding Encoding),
-                    IncomingResponseFrame>();
-
         /// <summary>The encoding of the frame payload</summary>
         public Encoding Encoding { get; }
 
@@ -36,59 +31,59 @@ namespace ZeroC.Ice
         /// <summary>The frame byte count.</summary>
         public int Size => Payload.Count;
 
-        private readonly Communicator _communicator;
+        private static readonly ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>
+            _cachedVoidReturnValueFrames =
+                new ConcurrentDictionary<(Protocol Protocol, Encoding Encoding), IncomingResponseFrame>();
 
-        public static IncomingResponseFrame WithVoidReturnValue(Communicator communicator,
-                                                                Protocol protocol,
-                                                                Encoding encoding) =>
-            _cachedVoidReturnValueFrames.GetOrAdd((communicator, protocol, encoding), key =>
+        public static IncomingResponseFrame WithVoidReturnValue(Protocol protocol, Encoding encoding) =>
+            _cachedVoidReturnValueFrames.GetOrAdd((protocol, encoding), key =>
             {
                 var data = new List<ArraySegment<byte>>();
                 var ostr = new OutputStream(key.Protocol.GetEncoding(), data, new OutputStream.Position(0, 0));
                 ostr.WriteByte((byte)ReplyStatus.OK);
                 _ = ostr.WriteEmptyEncapsulation(key.Encoding);
                 Debug.Assert(data.Count == 1);
-                return new IncomingResponseFrame(key.Communicator, key.Protocol, data[0]);
+                return new IncomingResponseFrame(key.Protocol, data[0]);
             });
 
         /// <summary>Reads the return value carried by this response frame. If the response frame carries
         /// a failure, reads and throws this exception.</summary>
+        /// <param name="communicator">The communicator.</param>
         /// <param name="reader">An input stream reader used to read the frame return value, when the frame
         /// return value contain multiple values the reader must use a tuple to return the values.</param>
         /// <returns>The frame return value.</returns>
-        public T ReadReturnValue<T>(InputStreamReader<T> reader)
+        public T ReadReturnValue<T>(Communicator communicator, InputStreamReader<T> reader)
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                return InputStream.ReadEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1), reader);
+                return InputStream.ReadEncapsulation(communicator, Protocol.GetEncoding(), Payload.Slice(1), reader);
             }
             else
             {
-                throw ReadException();
+                throw ReadException(communicator);
             }
         }
 
         /// <summary>Reads an empty return value from the response frame. If the response frame carries
         /// a failure, reads and throws this exception.</summary>
-        public void ReadVoidReturnValue()
+        /// <param name="communicator">The communicator.</param>
+        public void ReadVoidReturnValue(Communicator communicator)
         {
             if (ReplyStatus == ReplyStatus.OK)
             {
-                InputStream.ReadEmptyEncapsulation(_communicator, Protocol.GetEncoding(), Payload.Slice(1));
+                InputStream.ReadEmptyEncapsulation(communicator, Protocol.GetEncoding(), Payload.Slice(1));
             }
             else
             {
-                throw ReadException();
+                throw ReadException(communicator);
             }
         }
 
         /// <summary>Creates a new IncomingResponse Frame</summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="protocol">The Ice protocol of this frame.</param>
         /// <param name="payload">The frame data as an array segment.</param>
-        public IncomingResponseFrame(Communicator communicator, Protocol protocol, ArraySegment<byte> payload)
+        public IncomingResponseFrame(Protocol protocol, ArraySegment<byte> payload)
         {
-            _communicator = communicator;
             Protocol = protocol;
             byte replyStatus = payload[0];
             if (replyStatus > 7)
@@ -116,18 +111,18 @@ namespace ZeroC.Ice
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
         // the frame has a single segment.
-        public IncomingResponseFrame(Communicator communicator, OutgoingResponseFrame frame)
-            : this(communicator, frame.Protocol, frame.Payload.ToArray())
+        public IncomingResponseFrame(OutgoingResponseFrame frame)
+            : this(frame.Protocol, frame.Payload.ToArray())
         {
         }
 
-        private Exception ReadException()
+        private Exception ReadException(Communicator communicator)
         {
             switch (ReplyStatus)
             {
                 case ReplyStatus.UserException:
                 {
-                    return InputStream.ReadEncapsulation(_communicator,
+                    return InputStream.ReadEncapsulation(communicator,
                                                          Protocol.GetEncoding(),
                                                          Payload.Slice(1),
                                                          istr => istr.ReadException());
@@ -156,7 +151,7 @@ namespace ZeroC.Ice
 
         internal DispatchException ReadDispatchException()
         {
-            var istr = new InputStream(_communicator, Protocol.GetEncoding(), Payload, 1);
+            var istr = new InputStream(Protocol.GetEncoding(), Payload, 1);
             var identity = new Identity(istr);
             string facet = istr.ReadFacet();
             string operation = istr.ReadString();

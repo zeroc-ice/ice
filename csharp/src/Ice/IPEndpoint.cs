@@ -271,10 +271,10 @@ namespace ZeroC.Ice
             ConnectionId = connectionId;
         }
 
-        private protected IPEndpoint(InputStream istr, Protocol protocol)
+        private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
             : base(protocol)
         {
-            Communicator = istr.Communicator;
+            Communicator = communicator;
             Host = istr.ReadString();
             Port = istr.ReadInt();
         }
