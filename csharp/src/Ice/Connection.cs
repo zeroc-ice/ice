@@ -601,7 +601,7 @@ namespace ZeroC.Ice
             if (responseTask == null)
             {
                 childObserver?.Detach();
-                return IncomingResponseFrame.WithVoidReturnValue(_communicator, request.Protocol, request.Encoding);
+                return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
             }
             else
             {
@@ -1034,8 +1034,8 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            var request = new IncomingRequestFrame(_communicator, Endpoint.Protocol,
-                                readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
+                            var request = new IncomingRequestFrame(Endpoint.Protocol,
+                                                                   readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                             ProtocolTrace.TraceFrame(_communicator, readBuffer, request);
                             if (_adapter == null)
                             {
@@ -1088,8 +1088,8 @@ namespace ZeroC.Ice
                     case Ice1Definitions.FrameType.Reply:
                     {
                         int requestId = InputStream.ReadInt(readBuffer.AsSpan(14, 4));
-                        var responseFrame = new IncomingResponseFrame(_communicator, Endpoint.Protocol,
-                            readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
+                        var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
+                                                                      readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                         ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
 
                         if (_requests.Remove(requestId,
@@ -1207,8 +1207,8 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            var request = new IncomingRequestFrame(_communicator, Endpoint.Protocol,
-                                readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
+                            var request = new IncomingRequestFrame(Endpoint.Protocol,
+                                                                   readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
                             ProtocolTrace.TraceFrame(_communicator, readBuffer, request);
                             if (_adapter == null)
                             {
@@ -1237,8 +1237,8 @@ namespace ZeroC.Ice
                     case Ice2Definitions.FrameType.Reply:
                     {
                         int requestId = InputStream.ReadInt(readBuffer.AsSpan(14, 4));
-                        var responseFrame = new IncomingResponseFrame(_communicator, Endpoint.Protocol,
-                            readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
+                        var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
+                                                                      readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
                         ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
 
                         if (_requests.Remove(requestId,

@@ -157,8 +157,8 @@ namespace ZeroC.Ice
             HasCompressionFlag = compressionFlag;
         }
 
-        internal UdpEndpoint(InputStream istr, Protocol protocol)
-            : base(istr, protocol)
+        internal UdpEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
+            : base(istr, communicator, protocol)
         {
             _connect = false;
             HasCompressionFlag = istr.ReadBool();

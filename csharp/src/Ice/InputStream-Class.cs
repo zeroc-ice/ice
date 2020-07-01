@@ -61,6 +61,7 @@ namespace ZeroC.Ice
         /// <returns>The remote exception.</returns>
         public RemoteException ReadException()
         {
+            Debug.Assert(_communicator != null);
             Debug.Assert(_current.InstanceType == InstanceType.None);
             _current.InstanceType = InstanceType.Exception;
 
@@ -83,7 +84,7 @@ namespace ZeroC.Ice
 
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (Communicator.FindRemoteExceptionFactory(typeId) is IRemoteExceptionFactory factory)
+                    if (_communicator.FindRemoteExceptionFactory(typeId) is IRemoteExceptionFactory factory)
                     {
                         // The 1.1 encoding does not carry the error message so it's always null.
                         remoteEx = factory.Create(errorMessage);
@@ -115,7 +116,7 @@ namespace ZeroC.Ice
                     }
                     ReadIndirectionTableIntoCurrent(); // we read the indirection table immediately.
 
-                    if (Communicator.FindRemoteExceptionFactory(typeId) is IRemoteExceptionFactory factory)
+                    if (_communicator.FindRemoteExceptionFactory(typeId) is IRemoteExceptionFactory factory)
                     {
                         remoteEx = factory.Create(errorMessage);
                         break; // foreach
@@ -336,6 +337,7 @@ namespace ZeroC.Ice
         /// </param>
         private AnyClass ReadInstance(int index, string? formalTypeId)
         {
+            Debug.Assert(_communicator != null);
             Debug.Assert(index > 0);
 
             if (index > 1)
@@ -347,7 +349,7 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"could not find index {index} in {nameof(_instanceMap)}");
             }
 
-            if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
+            if (++_classGraphDepth > _communicator.ClassGraphDepthMax)
             {
                 throw new InvalidDataException("maximum class graph depth reached");
             }
@@ -374,11 +376,11 @@ namespace ZeroC.Ice
                     IClassFactory? factory = null;
                     if (typeId != null)
                     {
-                        factory = Communicator.FindClassFactory(typeId);
+                        factory = _communicator.FindClassFactory(typeId);
                     }
                     else if (compactId is int compactIdValue)
                     {
-                        factory = Communicator.FindClassFactory(compactIdValue);
+                        factory = _communicator.FindClassFactory(compactIdValue);
                     }
 
                     if (factory != null)
@@ -434,7 +436,7 @@ namespace ZeroC.Ice
                     int skipCount = 0;
                     foreach (string typeId in allTypeIds)
                     {
-                        if (Communicator.FindClassFactory(typeId) is IClassFactory factory)
+                        if (_communicator.FindClassFactory(typeId) is IClassFactory factory)
                         {
                             instance = factory.Create();
                             break; // foreach
@@ -472,7 +474,7 @@ namespace ZeroC.Ice
                 else if (formalTypeId != null)
                 {
                     // received null and formalTypeId is not null, apply formal type optimization.
-                    if (Communicator.FindClassFactory(formalTypeId) is IClassFactory factory)
+                    if (_communicator.FindClassFactory(formalTypeId) is IClassFactory factory)
                     {
                         instance = factory.Create();
                         _instanceMap.Add(instance);
@@ -638,6 +640,7 @@ namespace ZeroC.Ice
         /// SkipIndirectionTable11 itself.</summary>
         private void SkipIndirectionTable11()
         {
+            Debug.Assert(_communicator != null);
             // We should never skip an exception's indirection table
             Debug.Assert(_current.InstanceType == InstanceType.Class);
 
@@ -654,7 +657,7 @@ namespace ZeroC.Ice
                 }
                 if (index == 1)
                 {
-                    if (++_classGraphDepth > Communicator.ClassGraphDepthMax)
+                    if (++_classGraphDepth > _communicator.ClassGraphDepthMax)
                     {
                         throw new InvalidDataException("maximum class graph depth reached");
                     }
@@ -695,6 +698,8 @@ namespace ZeroC.Ice
         /// <returns>True when the current slice is the last slice; otherwise, false.</returns>
         private bool SkipSlice(string? typeId, int? compactId = null)
         {
+            Debug.Assert(_communicator != null);
+
             // With the 2.0 encoding, typeId is not null and compactId is always null.
             // With the 1.1 encoding, they are potentially both null (but this will result in an exception below).
             Debug.Assert(OldEncoding || (typeId != null && compactId == null));
@@ -712,11 +717,11 @@ namespace ZeroC.Ice
                         }' and compact format prevents slicing (the sender should use the sliced format instead)");
             }
 
-            if (Communicator.TraceLevels.Slicing > 0)
+            if (_communicator.TraceLevels.Slicing > 0)
             {
                 string printableId = typeId ?? compactId?.ToString() ?? "(none)";
                 string kind = _current.InstanceType.ToString().ToLowerInvariant();
-                Communicator.Logger.Trace(Communicator.TraceLevels.SlicingCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.SlicingCat,
                     $"slicing unknown {kind} type `{printableId}'");
             }
 
