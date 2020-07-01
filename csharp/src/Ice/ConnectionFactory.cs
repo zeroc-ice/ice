@@ -495,7 +495,7 @@ namespace ZeroC.Ice
                     }
                 }
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 //
                 // Clean up.
