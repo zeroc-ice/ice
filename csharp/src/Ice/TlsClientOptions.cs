@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     /// <summary>This class represents the client side TLS configuration.</summary>
     public class TlsClientOptions
     {
-        /// <summary>Gets or sets a value that specifies the mode used to check for X509 certificate revocation. The
+        /// <summary>Gets or sets a value that specifies the mode used to check for server certificate revocation. The
         /// default is <see cref="X509RevocationMode.NoCheck"/> that indicates no revocation check is performed on the
         /// certificate.</summary>
         public X509RevocationMode? CertificateRevocationCheckMode
@@ -30,7 +30,11 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Gets or set the collection of X509 certificates to use by outgoing connections.</summary>
+        /// <summary>Gets or set the collection of X509 certificates to use by outgoing connections, if the
+        /// <see cref="ClientCertificateSelectionCallback"/> is defined the certificates collections is pass as the
+        /// certificates parameter to the certificate selection callback, otherwise the collection is pass to the
+        /// default certificate selection callback that will select a certificate that matches one of the server
+        /// accepted issuers or the first certificate if none matches the list of accepted issuers.</summary>
         public X509Certificate2Collection? ClientCertificates { get; set; }
 
         /// <summary>Gets or set the certificate selection callback used to select the client side certificate.
@@ -44,7 +48,7 @@ namespace ZeroC.Ice
 
         /// <summary>Gets or sets the certificates collection that will be used as trusted certificate authorities
         /// to verify the server certificate used for authentication. Setting this is incompatible with setting
-        /// <see cref="ServerCertificateValidationCallback"/> and IceSSL.CAs configuration property.</summary>
+        /// <see cref="ServerCertificateValidationCallback"/>.</summary>
         public X509Certificate2Collection? ServerCertificateCertificateAuthorities
         {
             get => _serverCertificateCertificateAuthorities;

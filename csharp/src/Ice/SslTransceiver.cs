@@ -77,8 +77,7 @@ namespace ZeroC.Ice
                         SslStream = new SslStream(
                             new NetworkStream(fd, false),
                             false,
-                            _engine.ClientCertificateValidationCallback ?? RemoteCertificateValidationCallback,
-                            _engine.ServerCertificateSelectionCallback ?? CertificateSelectionCallback);
+                            _engine.ClientCertificateValidationCallback ?? RemoteCertificateValidationCallback);
                     }
                     else
                     {

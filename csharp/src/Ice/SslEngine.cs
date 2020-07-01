@@ -41,9 +41,6 @@ namespace ZeroC.Ice
         // An X509 certificate to use by incoming connections
         internal X509Certificate2? ServerCertificate;
 
-        // A certificate selection callback used to select the server side certificate.
-        internal LocalCertificateSelectionCallback? ServerCertificateSelectionCallback { get; }
-
         // The list of SSL protocols to enable for incoming connections.
         internal SslProtocols ServerEnabledSslProtocols { get; }
 
@@ -119,7 +116,6 @@ namespace ZeroC.Ice
             ServerCertificate = tlsServerOptions?.ServerCertificate ?? certificates?[0];
 
             ClientCertificateSelectionCallback = tlsClientOptions?.ClientCertificateSelectionCallback;
-            ServerCertificateSelectionCallback = tlsServerOptions?.ServerCertificateSelectionCallback;
 
             X509Certificate2Collection? caCertificates = null;
 

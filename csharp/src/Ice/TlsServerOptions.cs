@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     /// <summary>This class represents the server side TLS configuration.</summary>
     public class TlsServerOptions
     {
-        /// <summary>Gets or sets a value that specifies the mode used to check for X509 certificate revocation. The
+        /// <summary>Gets or sets a value that specifies the mode used to check for client certificate revocation. The
         /// default is <see cref="X509RevocationMode.NoCheck"/> that indicates no revocation check is performed on the
         /// certificate.</summary>
         public X509RevocationMode? CertificateRevocationCheckMode
@@ -31,8 +31,8 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Gets or sets the certificates collection that will be used as trusted certificate authorities
-        /// to verify the client certificate. Setting this is incompatible with setting
-        /// <see cref="ClientCertificateValidationCallback"/> and IceSSL.CAs configuration property.</summary>
+        /// to verify the client certificate used for authentication. Setting this is incompatible with setting
+        /// <see cref="ClientCertificateValidationCallback"/>.</summary>
         public X509Certificate2Collection? ClientCertificateCertificateAuthorities
         {
             get => _clientCertificateCertificateAuthorities;
@@ -48,9 +48,9 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Gets or sets the callback that will be used to verify the client certificate. Setting this is
-        /// incompatible with setting <see cref="ClientCertificateCertificateAuthorities"/> and IceSSL.CAs
-        /// configuration property.</summary>
+        /// <summary>Gets or sets the callback that will be used to verify the client certificate used for
+        /// authentication. Setting this is incompatible with setting
+        /// <see cref="ClientCertificateCertificateAuthorities"/>.</summary>
         public RemoteCertificateValidationCallback? ClientCertificateValidationCallback
         {
             get => _clientCertificateValidationCallback;
@@ -85,9 +85,6 @@ namespace ZeroC.Ice
 
         /// <summary>Gets or sets the certificate user for incoming connections.</summary>
         public X509Certificate2? ServerCertificate { get; set; }
-
-        /// <summary>Gets or set a certificate selection callback used to select the server side certificate.</summary>
-        public LocalCertificateSelectionCallback? ServerCertificateSelectionCallback { get; set; }
 
         private X509RevocationMode? _certificateRevocationCheckMode;
         private RemoteCertificateValidationCallback? _clientCertificateValidationCallback;

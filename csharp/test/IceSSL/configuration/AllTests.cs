@@ -10,15 +10,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
+    public class Blobject : IObject
+    {
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        {
+            if (current.Operation.Equals("ice_ping"))
+            {
+                return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
+            }
+            else
+            {
+                throw new OperationNotExistException(current.Identity, current.Facet, current.Operation);
+            }
+        }
+    }
+
     public class AllTests
     {
         private static bool IsCatalinaOrGreater =>
@@ -171,6 +186,47 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
 
                 {
+                    // Supply our own certificate.
+                    clientProperties = CreateProperties(defaultProperties);
+                    clientProperties["IceSSL.CAs"] = caCert1File;
+
+                    var cert0 = new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca1.p12"), "password");
+                    var cert1 = new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca2.p12"), "password");
+
+                    var comm = new Communicator(ref args, clientProperties,
+                        tlsClientOptions: new TlsClientOptions()
+                        {
+                            ClientCertificates = new X509Certificate2Collection
+                            {
+                                cert0,
+                                cert1
+                            },
+                            ClientCertificateSelectionCallback =
+                                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                                {
+                                    TestHelper.Assert(certs.Count == 2);
+                                    TestHelper.Assert(certs[0] == cert0);
+                                    TestHelper.Assert(certs[1] == cert1);
+                                    return certs[0];
+                                }
+                        });
+                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
+                    IServerPrx? server = fact.createServer(serverProperties, true);
+                    try
+                    {
+                        server!.IcePing();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        TestHelper.Assert(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.Destroy();
+                }
+
+                {
                     // Supply our own CA certificate.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                     var comm = new Communicator(ref args, clientProperties,
@@ -178,7 +234,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         {
                             ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
                             {
-                                new X509Certificate2(defaultDir + "/cacert1.pem")
+                                new X509Certificate2(Path.Combine(defaultDir, "cacert1.pem"))
                             }
                         });
 
@@ -196,6 +252,200 @@ namespace ZeroC.IceSSL.Test.Configuration
                     }
                     fact.destroyServer(server);
                     comm.Destroy();
+                }
+
+                {
+                    // Initialization using TlsClientOptions and TlsServerOptions options
+                    using var clientCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
+                        tlsClientOptions: new TlsClientOptions()
+                        {
+                            ClientCertificates = new X509Certificate2Collection()
+                            {
+                                new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca1.p12"), "password")
+                            },
+                            ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
+                            {
+                                new X509Certificate2(Path.Combine(defaultDir, "cacert1.pem"))
+                            }
+                        });
+
+                    using var serverCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
+                        tlsServerOptions: new TlsServerOptions()
+                        {
+                            ServerCertificate = new X509Certificate2(
+                                Path.Combine(defaultDir, "s_rsa_ca1.p12"), "password"),
+                            RequireClientCertificate = true,
+                            ClientCertificateCertificateAuthorities = new X509Certificate2Collection()
+                            {
+                                new X509Certificate2(Path.Combine(defaultDir, "cacert1.pem"))
+                            }
+                        });
+
+                    ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
+                    IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
+                    adapter.Activate();
+                    prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
+                    prx.IcePing();
+                }
+                {
+                    // Initialization using TlsClientOptions and TlsServerOptions options, validate using
+                    // validation callbacks
+                    var clientCertificate =
+                        new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca1.p12"), "password");
+                    var serverCertificate =
+                        new X509Certificate2(Path.Combine(defaultDir, "s_rsa_ca1.p12"), "password");
+
+                    bool clientCertificateValidationCallbackCalled = false;
+                    bool serverCertificateValidationCallbackCalled = false;
+
+                    clientProperties = CreateProperties(defaultProperties);
+                    using var clientCommunicator = new Communicator(ref args, clientProperties,
+                        tlsClientOptions: new TlsClientOptions()
+                        {
+                            ClientCertificateSelectionCallback =
+                                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                                    clientCertificate,
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                serverCertificateValidationCallbackCalled = true;
+                                return certificate.GetCertHashString() == serverCertificate.GetCertHashString();
+                            }
+                        });
+
+                    serverProperties = CreateProperties(defaultProperties);
+                    using var serverCommunicator = new Communicator(ref args, serverProperties,
+                        tlsServerOptions: new TlsServerOptions()
+                        {
+                            ServerCertificate = serverCertificate,
+                            RequireClientCertificate = true,
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                clientCertificateValidationCallbackCalled = true;
+                                return certificate.GetCertHashString() == clientCertificate.GetCertHashString();
+                            }
+                        });
+
+                    ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
+                    IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
+                    adapter.Activate();
+                    prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
+                    prx.IcePing();
+                    TestHelper.Assert(clientCertificateValidationCallbackCalled);
+                    TestHelper.Assert(serverCertificateValidationCallbackCalled);
+                }
+
+                {
+                    try
+                    {
+                        // Setting CertificateRevocationCheckMode is incompatible with ServerCertificateValidationCallback
+                        new TlsClientOptions()
+                        {
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+                            CertificateRevocationCheckMode = X509RevocationMode.Online
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ServerCertificateCertificateAuthorities is incompatible with ServerCertificateValidationCallback
+                        new TlsClientOptions()
+                        {
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+                            ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ServerCertificateValidationCallback is incompatible with CertificateRevocationCheckMode
+                        new TlsClientOptions()
+                        {
+                            CertificateRevocationCheckMode = X509RevocationMode.Online,
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ServerCertificateValidationCallback is incompatible with ServerCertificateCertificateAuthorities
+                        new TlsClientOptions()
+                        {
+                            ServerCertificateCertificateAuthorities = new X509Certificate2Collection(),
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting CertificateRevocationCheckMode is incompatible with ClientCertificateValidationCallback
+                        new TlsServerOptions()
+                        {
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+                            CertificateRevocationCheckMode = X509RevocationMode.Online
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ClientCertificateCertificateAuthorities is incompatible with ClientCertificateValidationCallback
+                        new TlsServerOptions()
+                        {
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+                            ClientCertificateCertificateAuthorities = new X509Certificate2Collection()
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ClientCertificateValidationCallback is incompatible with CertificateRevocationCheckMode
+                        new TlsServerOptions()
+                        {
+                            CertificateRevocationCheckMode = X509RevocationMode.Online,
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ClientCertificateValidationCallback is incompatible with ClientCertificateCertificateAuthorities
+                        new TlsServerOptions()
+                        {
+                            ClientCertificateCertificateAuthorities = new X509Certificate2Collection(),
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
                 Console.Out.WriteLine("ok");
 
