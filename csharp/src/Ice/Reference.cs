@@ -1331,7 +1331,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                if (LocatorInfo != null)
+                if (LocatorInfo != null && IsIndirect)
                 {
                     LocatorInfo.ClearCache(this);
                 }
