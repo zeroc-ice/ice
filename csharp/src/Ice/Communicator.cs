@@ -93,8 +93,6 @@ namespace ZeroC.Ice
             }
         }
 
-        public bool DefaultCollocationOptimized { get; }
-
         /// <summary>The default context for proxies created using this communicator. Changing the value of
         /// DefaultContext does not change the context of previously created proxies.</summary>
         public IReadOnlyDictionary<string, string> DefaultContext
@@ -173,7 +171,6 @@ namespace ZeroC.Ice
             "InvocationTimeout",
             "Locator",
             "Router",
-            "CollocationOptimized",
             "Context\\..*"
         };
         private static readonly object _staticLock = new object();
@@ -390,8 +387,6 @@ namespace ZeroC.Ice
                 }
 
                 TraceLevels = new TraceLevels(this);
-
-                DefaultCollocationOptimized = GetPropertyAsBool("Ice.Default.CollocationOptimized") ?? true;
 
                 if (GetProperty("Ice.Default.Encoding") is string encoding)
                 {

@@ -32,7 +32,6 @@ namespace ZeroC.Ice
         internal Identity Identity { get; }
         internal InvocationMode InvocationMode { get; }
         internal int InvocationTimeout { get; }
-        internal bool IsCollocationOptimized { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed => _fixedConnection != null;
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
@@ -112,10 +111,6 @@ namespace ZeroC.Ice
                     return false;
                 }
                 if (!Endpoints.SequenceEqual(other.Endpoints))
-                {
-                    return false;
-                }
-                if (IsCollocationOptimized != other.IsCollocationOptimized)
                 {
                     return false;
                 }
@@ -219,7 +214,6 @@ namespace ZeroC.Ice
                     {
                         hash.Add(e);
                     }
-                    hash.Add(IsCollocationOptimized);
                     hash.Add(IsConnectionCached);
                     hash.Add(EndpointSelection);
                     hash.Add(LocatorCacheTimeout);
@@ -733,7 +727,6 @@ namespace ZeroC.Ice
                            Protocol protocol)
             : this(adapterId: adapterId,
                    cacheConnection: true,
-                   collocationOptimized: communicator.DefaultCollocationOptimized,
                    communicator: communicator,
                    compress: null,
                    connectionId: "",
@@ -896,7 +889,6 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? collocationOptimized = null,
                                  bool? compress = null,
                                  string? connectionId = null,
                                  int? connectionTimeout = null,
@@ -957,12 +949,6 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException("cannot change the connection caching configuration of a fixed proxy",
                         nameof(cacheConnection));
-                }
-                if (collocationOptimized != null)
-                {
-                    throw new ArgumentException(
-                        "cannot change the collocation optimization configuration of a fixed proxy",
-                        nameof(collocationOptimized));
                 }
                 if (connectionId != null)
                 {
@@ -1117,7 +1103,6 @@ namespace ZeroC.Ice
 
                 var clone = new Reference(adapterId ?? AdapterId,
                                       cacheConnection ?? IsConnectionCached,
-                                      collocationOptimized ?? IsCollocationOptimized,
                                       Communicator,
                                       compress ?? Compress,
                                       connectionId ?? ConnectionId,
@@ -1357,8 +1342,9 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(!IsFixed);
 
-                if (IsCollocationOptimized)
+                if (InvocationMode != InvocationMode.Datagram)
                 {
+                    // If the invocation mode is not datagram, we first check if the target is colocated.
                     ObjectAdapter? adapter = Communicator.FindObjectAdapter(this);
                     if (adapter != null)
                     {
@@ -1389,7 +1375,6 @@ namespace ZeroC.Ice
             var properties = new Dictionary<string, string>
             {
                 [prefix] = ToString(),
-                [prefix + ".CollocationOptimized"] = IsCollocationOptimized ? "1" : "0",
                 [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
                 [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
                 [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture),
@@ -1463,7 +1448,6 @@ namespace ZeroC.Ice
                                         Protocol protocol)
         {
             bool? cacheConnection = null;
-            bool? collocOptimized = null;
             IReadOnlyDictionary<string, string>? context = null;
             EndpointSelectionType? endpointSelection = null;
             int? invocationTimeout = null;
@@ -1482,7 +1466,6 @@ namespace ZeroC.Ice
                 }
 
                 cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.ConnectionCached");
-                collocOptimized = communicator.GetPropertyAsBool($"{propertyPrefix}.CollocationOptimized");
 
                 string property = $"{propertyPrefix}.Context.";
                 context = communicator.GetProperties(forPrefix: property).
@@ -1542,7 +1525,6 @@ namespace ZeroC.Ice
 
             return new Reference(adapterId: adapterId,
                                  cacheConnection: cacheConnection ?? true,
-                                 collocationOptimized: collocOptimized ?? communicator.DefaultCollocationOptimized,
                                  communicator: communicator,
                                  compress: null,
                                  connectionId: "",
@@ -1566,7 +1548,6 @@ namespace ZeroC.Ice
         // Constructor for routable references, not bound to a connection
         private Reference(string adapterId,
                           bool cacheConnection,
-                          bool collocationOptimized,
                           Communicator communicator,
                           bool? compress,
                           string connectionId,
@@ -1598,7 +1579,6 @@ namespace ZeroC.Ice
             Identity = identity;
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
-            IsCollocationOptimized = collocationOptimized;
             IsConnectionCached = cacheConnection;
             LocatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
@@ -1631,7 +1611,6 @@ namespace ZeroC.Ice
             Identity = identity;
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
-            IsCollocationOptimized = false;
             IsConnectionCached = false;
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
