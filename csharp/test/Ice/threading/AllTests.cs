@@ -145,8 +145,8 @@ namespace ZeroC.Ice.Test.Threading
                 }
                 catch (AggregateException ex)
                 {
-                    // On Windows, it's not un-common that the .NET thread pool creates one or two additional threads
-                    // and doesn't striclty respect the number of configured maximum threads. So we tolerate a lest
+                    // On Windows, it's not uncommon that the .NET thread pool creates one or two additional threads
+                    // and doesn't strictly respect the number of configured maximum threads. So we tolerate at least
                     // 4 additional concurrent calls.
                     TestHelper.Assert(ex.InnerExceptions.Count < 5);
                 }
