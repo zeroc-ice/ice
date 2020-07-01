@@ -393,7 +393,15 @@ namespace ZeroC.Ice
                         Task<Connection> connectTask = ConnectToConnectorsAsync(connectors, hasMore);
                         if (connectTask.IsCompleted)
                         {
-                            return connectTask.Result;
+                            try
+                            {
+                                return connectTask.Result;
+                            }
+                            catch (AggregateException ex)
+                            {
+                                Debug.Assert(ex.InnerException != null);
+                                throw ex.InnerException;
+                            }
                         }
 
                         foreach (ValueTuple<IConnector, Endpoint> tuple in connectors)
