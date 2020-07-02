@@ -13,43 +13,11 @@ namespace ZeroC.Ice
 {
     internal class SslEngine
     {
-        // Specifies the mode used to check for X509 certificate revocation when validating client certificates.
-        internal X509RevocationMode ClientCertificateRevocationCheckMode { get; }
+        // TLS Client side configuration
+        internal TlsClientOptions TlsClientOptions { get; }
 
-        // A collection of X509 certificates to use by outgoing connections
-        internal X509Certificate2Collection? ClientCertificates;
-
-        // A certificate selection callback used to select the client side certificate.
-        internal LocalCertificateSelectionCallback? ClientCertificateSelectionCallback { get; }
-
-        // The list of SSL protocols to enable for outgoing connections.
-        internal SslProtocols ClientEnabledSslProtocols { get; }
-
-        // The certificates collection that will be used as trusted certificate authorities to verify the client
-        // certificate.
-        internal X509Certificate2Collection? ClientCertificateCertificateAuthorities { get; }
-
-        // The callback that will be used to verify the client certificates.
-        internal RemoteCertificateValidationCallback? ClientCertificateValidationCallback { get; }
-
-        // A boolean value indicating whenever or not a client certificate is required by the server
-        internal bool RequireClientCertificate { get; }
-
-        // Specifies the mode used to check for X509 certificate revocation when validating server certificates.
-        internal X509RevocationMode ServerCertificateRevocationCheckMode { get; }
-
-        // An X509 certificate to use by incoming connections
-        internal X509Certificate2? ServerCertificate;
-
-        // The list of SSL protocols to enable for incoming connections.
-        internal SslProtocols ServerEnabledSslProtocols { get; }
-
-        // The certificates collection that will be used as trusted certificate authorities to verify the server
-        // certificate.
-        internal X509Certificate2Collection? ServerCertificateCertificateAuthorities { get; }
-
-        // The callback that will be used to verify the server certificates.
-        internal RemoteCertificateValidationCallback? ServerCertificateValidationCallback { get; }
+        // TLS Server side configuration
+        internal TlsServerOptions TlsServerOptions { get; }
 
         internal int SecurityTraceLevel { get; }
         internal string SecurityTraceCategory => "Security";
@@ -70,24 +38,20 @@ namespace ZeroC.Ice
 
             UseMachineContext = communicator.GetPropertyAsBool("IceSSL.UseMachineContext") ?? false;
 
-            ClientEnabledSslProtocols = tlsClientOptions?.EnabledSslProtocols ??
+            TlsClientOptions = new TlsClientOptions();
+            TlsServerOptions = new TlsServerOptions();
+
+            TlsClientOptions.EnabledSslProtocols = tlsClientOptions?.EnabledSslProtocols ??
                 ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
-            ServerEnabledSslProtocols = tlsServerOptions?.EnabledSslProtocols ??
+            TlsServerOptions.EnabledSslProtocols = tlsServerOptions?.EnabledSslProtocols ??
                 ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
 
-            ClientCertificateRevocationCheckMode =
-                tlsClientOptions?.CertificateRevocationCheckMode ?? X509RevocationMode.NoCheck;
-            ServerCertificateRevocationCheckMode =
-                tlsServerOptions?.CertificateRevocationCheckMode ?? X509RevocationMode.NoCheck;
-
-            RequireClientCertificate = tlsServerOptions?.RequireClientCertificate ?? true;
+            TlsServerOptions.RequireClientCertificate = tlsServerOptions?.RequireClientCertificate ?? true;
 
             // Check for a default directory. We look in this directory for files mentioned in the configuration.
             string defaultDir = communicator.GetProperty("IceSSL.DefaultDir") ?? "";
             X509Certificate2Collection? certificates = null;
             // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
-            // TODO: tracing?
-
             if (communicator.GetProperty("IceSSL.CertFile") is string certificateFile)
             {
                 if (!CheckPath(defaultDir, ref certificateFile))
@@ -99,8 +63,7 @@ namespace ZeroC.Ice
                 certificates = new X509Certificate2Collection();
                 try
                 {
-                    X509KeyStorageFlags importFlags =
-                        UseMachineContext ? X509KeyStorageFlags.MachineKeySet : X509KeyStorageFlags.UserKeySet;
+                    X509KeyStorageFlags importFlags = UseMachineContext ? X509KeyStorageFlags.UserKeySet : X509KeyStorageFlags.MachineKeySet;
                     certificates.Add(communicator.GetProperty("IceSSL.Password") is string password ?
                         new X509Certificate2(certificateFile, password, importFlags) :
                         new X509Certificate2(certificateFile, "", importFlags));
@@ -112,10 +75,10 @@ namespace ZeroC.Ice
                 }
             }
 
-            ClientCertificates = tlsClientOptions?.ClientCertificates ?? certificates;
-            ServerCertificate = tlsServerOptions?.ServerCertificate ?? certificates?[0];
+            TlsClientOptions.ClientCertificates = tlsClientOptions?.ClientCertificates ?? certificates;
+            TlsServerOptions.ServerCertificate = tlsServerOptions?.ServerCertificate ?? certificates?[0];
 
-            ClientCertificateSelectionCallback = tlsClientOptions?.ClientCertificateSelectionCallback;
+            TlsClientOptions.ClientCertificateSelectionCallback = tlsClientOptions?.ClientCertificateSelectionCallback;
 
             X509Certificate2Collection? caCertificates = null;
 
@@ -143,6 +106,9 @@ namespace ZeroC.Ice
                         // Ignore
                     }
 
+                    string beginCertificateMark = "-----BEGIN CERTIFICATE-----";
+                    string endCertificateMark = "-----END CERTIFICATE-----";
+
                     caCertificates = new X509Certificate2Collection();
                     if (strbuf.Length == data.Length)
                     {
@@ -150,16 +116,16 @@ namespace ZeroC.Ice
                         bool first = true;
                         while (true)
                         {
-                            startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
+                            startpos = strbuf.IndexOf(beginCertificateMark, endpos);
                             if (startpos != -1)
                             {
-                                endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
+                                endpos = strbuf.IndexOf(endCertificateMark, startpos);
                                 if (endpos == -1)
                                 {
-                                    throw new InvalidConfigurationException(
-                                        $"error while attempting to load certificate from `{certAuthFile}'");
+                                    throw new FormatException(
+                                        $"end certificate mark `{endCertificateMark}' not found");
                                 }
-                                size = endpos - startpos + "-----END CERTIFICATE-----".Length;
+                                size = endpos - startpos + endCertificateMark.Length;
                             }
                             else if (first)
                             {
@@ -192,22 +158,24 @@ namespace ZeroC.Ice
 
             if (tlsClientOptions?.ServerCertificateValidationCallback == null)
             {
-                ServerCertificateCertificateAuthorities =
+                TlsClientOptions.ServerCertificateCertificateAuthorities =
                     tlsClientOptions?.ServerCertificateCertificateAuthorities ?? caCertificates;
             }
             else
             {
-                ServerCertificateValidationCallback = tlsClientOptions.ServerCertificateValidationCallback;
+                TlsClientOptions.ServerCertificateValidationCallback =
+                    tlsClientOptions.ServerCertificateValidationCallback;
             }
 
             if (tlsServerOptions?.ClientCertificateValidationCallback == null)
             {
-                ClientCertificateCertificateAuthorities =
+                TlsServerOptions.ClientCertificateCertificateAuthorities =
                     tlsServerOptions?.ClientCertificateCertificateAuthorities ?? caCertificates;
             }
             else
             {
-                ClientCertificateValidationCallback = tlsServerOptions.ClientCertificateValidationCallback;
+                TlsServerOptions.ClientCertificateValidationCallback =
+                    tlsServerOptions.ClientCertificateValidationCallback;
             }
         }
 

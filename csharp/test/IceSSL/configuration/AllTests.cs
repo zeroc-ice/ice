@@ -337,39 +337,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                 {
                     try
                     {
-                        // Setting CertificateRevocationCheckMode is incompatible with ServerCertificateValidationCallback
-                        new TlsClientOptions()
-                        {
-                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
-                            CertificateRevocationCheckMode = X509RevocationMode.Online
-                        };
-                        TestHelper.Assert(false);
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
-
-                    try
-                    {
                         // Setting ServerCertificateCertificateAuthorities is incompatible with ServerCertificateValidationCallback
                         new TlsClientOptions()
                         {
                             ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
                             ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
-                        };
-                        TestHelper.Assert(false);
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting ServerCertificateValidationCallback is incompatible with CertificateRevocationCheckMode
-                        new TlsClientOptions()
-                        {
-                            CertificateRevocationCheckMode = X509RevocationMode.Online,
-                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
                         };
                         TestHelper.Assert(false);
                     }
@@ -393,39 +365,11 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     try
                     {
-                        // Setting CertificateRevocationCheckMode is incompatible with ClientCertificateValidationCallback
-                        new TlsServerOptions()
-                        {
-                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
-                            CertificateRevocationCheckMode = X509RevocationMode.Online
-                        };
-                        TestHelper.Assert(false);
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
-
-                    try
-                    {
                         // Setting ClientCertificateCertificateAuthorities is incompatible with ClientCertificateValidationCallback
                         new TlsServerOptions()
                         {
                             ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
                             ClientCertificateCertificateAuthorities = new X509Certificate2Collection()
-                        };
-                        TestHelper.Assert(false);
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting ClientCertificateValidationCallback is incompatible with CertificateRevocationCheckMode
-                        new TlsServerOptions()
-                        {
-                            CertificateRevocationCheckMode = X509RevocationMode.Online,
-                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
                         };
                         TestHelper.Assert(false);
                     }
