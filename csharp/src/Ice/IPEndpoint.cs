@@ -119,7 +119,7 @@ namespace ZeroC.Ice
             return sb.ToString();
         }
 
-        public override bool Equivalent(Endpoint endpoint)
+        public override bool IsLocal(Endpoint endpoint)
         {
             if (endpoint is IPEndpoint ipEndpoint)
             {

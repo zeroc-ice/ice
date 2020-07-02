@@ -896,7 +896,7 @@ namespace ZeroC.Ice
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
                     return r.Endpoints.Any(endpoint =>
-                        _publishedEndpoints.Any(publishedEndpoint => endpoint.Equivalent(publishedEndpoint)) ||
+                        _publishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
                         _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
             }
