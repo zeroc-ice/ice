@@ -508,8 +508,6 @@ public:
     virtual ContainedList contents() const = 0;
     bool hasContentsWithMetaData(const std::string&) const;
     std::string thisScope() const;
-    void sort();
-    void sortContents(bool);
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = nullptr);
@@ -546,10 +544,10 @@ public:
     StructPtr createStruct(const std::string&, NodeType = Real) override;
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real) override;
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-                                           const StringList&, NodeType = Real) override;
+                                   const StringList&, NodeType = Real) override;
     EnumPtr createEnum(const std::string&, bool, NodeType = Real) override;
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
-                                 const std::string&, const std::string&, NodeType = Real) override;
+                         const std::string&, const std::string&, NodeType = Real) override;
     EnumList enums() const;
     ConstList consts() const;
     bool hasSequences() const;

@@ -2042,43 +2042,6 @@ Slice::Container::thisScope() const
 }
 
 void
-Slice::Container::sort()
-{
-    contents().sort();
-}
-
-void
-Slice::Container::sortContents(bool sortFields)
-{
-    for (const auto& content : contents())
-    {
-        ContainerPtr container = ContainerPtr::dynamicCast(content);
-        if(container)
-        {
-            if(!sortFields)
-            {
-                if(StructPtr::dynamicCast(container) ||
-                   ClassDefPtr::dynamicCast(container) ||
-                   InterfaceDefPtr::dynamicCast(container) ||
-                   ExceptionPtr::dynamicCast(container))
-                {
-                    continue;
-                }
-            }
-            //
-            // Don't sort operation definitions, otherwise parameters are shown in the
-            // wrong order in the synopsis.
-            //
-            if(!OperationPtr::dynamicCast(container))
-            {
-                container->sort();
-            }
-            container->sortContents(sortFields);
-        }
-    }
-}
-
-void
 Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 {
     for (const auto& content : contents())
@@ -2242,10 +2205,8 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
 {
     TypePtr type = lhsType;
 
-    //
     // isConstant indicates whether a constant or a data member (with a default value) is
     // being defined.
-    //
 
     if(!type)
     {
@@ -2254,10 +2215,8 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
 
     const string desc = isConstant ? "constant" : "data member";
 
-    //
     // If valueType is a ConstPtr, it means the constant or data member being defined
     // refers to another constant.
-    //
     const ConstPtr constant = ConstPtr::dynamicCast(valueType);
 
     if (!isConstant)
@@ -2269,9 +2228,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
         }
     }
 
-    //
     // First verify that it is legal to specify a constant or default value for the given type.
-    //
 
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     EnumPtr e = EnumPtr::dynamicCast(type);
@@ -2305,9 +2262,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
         return false;
     }
 
-    //
     // Next, verify that the type of the constant or data member is compatible with the given value.
-    //
 
     if (b)
     {
@@ -2513,11 +2468,6 @@ Slice::Module::createModule(const string& name)
     ContainedList matches = _unit->findContents(thisScope() + name);
     matches.sort(); // Modules can occur many times...
     matches.unique(); // ... but we only want one instance of each.
-
-    if(thisScope() == "::")
-    {
-        _unit->addTopLevelModule(_unit->currentFile(), name);
-    }
 
     for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
@@ -5784,12 +5734,15 @@ Slice::Operation::uses(const ContainedPtr& contained) const
         }
     }
 
-    for (const auto& exception : _throws)
+    if (ExceptionPtr::dynamicCast(contained))
     {
-        ContainedPtr contained2 = ContainedPtr::dynamicCast(exception);
-        if (contained2 && contained2 == contained)
+        for (const auto& exception : _throws)
         {
-            return true;
+            ContainedPtr contained2 = ContainedPtr::dynamicCast(exception);
+            if (contained2 && contained2 == contained)
+            {
+                return true;
+            }
         }
     }
 
