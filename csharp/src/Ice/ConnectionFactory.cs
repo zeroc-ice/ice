@@ -27,7 +27,7 @@ namespace ZeroC.Ice
         private readonly Dictionary<IConnector, Task<Connection>> _pending =
             new Dictionary<IConnector, Task<Connection>>();
 
-        public async ValueTask<Connection> CreateAsync(
+        internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
             bool hasMore,
             EndpointSelectionType selType)
@@ -43,7 +43,7 @@ namespace ZeroC.Ice
 
                 // Try to find a connection to one of the given endpoints. Ignore the endpoint compression flag to
                 // lookup for the connection.
-                foreach (Endpoint endpoint in endpoints.Select(endpoint => endpoint.NewCompressionFlag(false)))
+                foreach (Endpoint endpoint in endpoints)
                 {
                     if (_connectionsByEndpoint.TryGetValue(endpoint, out ICollection<Connection>? connectionList))
                     {
@@ -61,7 +61,7 @@ namespace ZeroC.Ice
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
             // resolve an endpoint hostname into connector addresses.
             var connectors = new List<(IConnector, Endpoint)>();
-            foreach (Endpoint endpoint in endpoints.Select(endpoint => endpoint.NewCompressionFlag(false)))
+            foreach (Endpoint endpoint in endpoints)
             {
                 try
                 {
@@ -168,7 +168,6 @@ namespace ZeroC.Ice
 
         public void SetRouterInfo(RouterInfo routerInfo)
         {
-            Debug.Assert(routerInfo != null);
             ObjectAdapter? adapter = routerInfo.Adapter;
             IReadOnlyList<Endpoint> endpoints;
             try
@@ -484,18 +483,19 @@ namespace ZeroC.Ice
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
+        private Task? _destroyTask = null;
         private readonly Endpoint _endpoint;
         private readonly FactoryACMMonitor _monitor;
         private readonly object _mutex = new object();
         private readonly Endpoint? _publishedEndpoint;
-        private Task? _destroyTask = null;
         private readonly ITransceiver? _transceiver;
         private readonly bool _warn;
 
-        public IncomingConnectionFactory(ObjectAdapter adapter,
-                                         Endpoint endpoint,
-                                         Endpoint? publish,
-                                         ACMConfig acmConfig)
+        public IncomingConnectionFactory(
+            ObjectAdapter adapter,
+            Endpoint endpoint,
+            Endpoint? publish,
+            ACMConfig acmConfig)
         {
             _communicator = adapter.Communicator;
             _endpoint = endpoint;
