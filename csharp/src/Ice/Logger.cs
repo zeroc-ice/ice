@@ -65,10 +65,10 @@ namespace ZeroC.Ice
 
         public virtual void Error(string message)
         {
-            string s = Format("!!", "error", message);
+            string formattedMessage = Format("!!", "error", message);
             lock (GlobalMutex)
             {
-                Write(s);
+                Write(formattedMessage);
             }
         }
 
@@ -82,19 +82,19 @@ namespace ZeroC.Ice
 
         public virtual void Trace(string category, string message)
         {
-            string s = Format("--", category, message);
+            string formattedMessage = Format("--", category, message);
             lock (GlobalMutex)
             {
-                Write(s);
+                Write(formattedMessage);
             }
         }
 
         public virtual void Warning(string message)
         {
-            string s = Format("-!", "warning", message);
+            string formattedMessage = Format("-!", "warning", message);
             lock (GlobalMutex)
             {
-                Write(s);
+                Write(formattedMessage);
             }
         }
 
@@ -103,15 +103,7 @@ namespace ZeroC.Ice
         protected Logger(string prefix)
         {
             Prefix = prefix;
-
-            if (prefix.Length > 0)
-            {
-                FormattedPrefix = prefix + ": ";
-            }
-            else
-            {
-                FormattedPrefix = "";
-            }
+            FormattedPrefix = prefix.Length > 0 ? $"{prefix}: " : "";
         }
 
         /// <summary>Writes a message using this logger.</summary>
@@ -153,11 +145,8 @@ namespace ZeroC.Ice
         public override ILogger CloneWithPrefix(string prefix) => new TraceLogger(prefix, _console);
         public override void Error(string message)
         {
-            string s = Format("error", message);
-            {
-                System.Diagnostics.Trace.TraceError(s);
-                System.Diagnostics.Trace.Flush();
-            }
+            System.Diagnostics.Trace.TraceError(Format("error", message));
+            System.Diagnostics.Trace.Flush();
         }
 
         public override void Trace(string category, string message)
