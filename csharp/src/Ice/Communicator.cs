@@ -378,9 +378,7 @@ namespace ZeroC.Ice
                     }
                     else if (Runtime.Logger is Logger)
                     {
-                        //
                         // Ice.ConsoleListener is enabled by default.
-                        //
                         Logger = new TraceLogger(programName, GetPropertyAsBool("Ice.ConsoleListener") ?? true);
                     }
                     // else already set to process logger
@@ -398,7 +396,7 @@ namespace ZeroC.Ice
                     catch (Exception ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"invalid value for for Ice.Default.Encoding: `{encoding}'", ex);
+                            $"invalid value for Ice.Default.Encoding: `{encoding}'", ex);
                     }
                 }
                 else
@@ -1013,7 +1011,7 @@ namespace ZeroC.Ice
             {
                 if (Logger is FileLogger fileLogger)
                 {
-                    fileLogger.Destroy();
+                    fileLogger.Dispose();
                 }
             }
             _currentContext.Dispose();

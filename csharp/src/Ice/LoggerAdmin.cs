@@ -171,7 +171,7 @@ namespace ZeroC.Ice
                 FilterLogMessages(initLogMessages, messageTypes, traceCategories, messageMax);
             }
 
-            logForwarder.Queue("init", _logger, prx => prx.InitAsync(_logger.GetPrefix(), initLogMessages.ToArray()));
+            logForwarder.Queue("init", _logger, prx => prx.InitAsync(_logger.Prefix, initLogMessages.ToArray()));
         }
 
         public bool DetachRemoteLogger(IRemoteLoggerPrx? remoteLogger, Current current)
@@ -216,15 +216,13 @@ namespace ZeroC.Ice
                 }
             }
 
-            string prefix = _logger.GetPrefix();
-
             if (logMessages.Count > 0)
             {
                 var messageTypes = new HashSet<LogMessageType>(types);
                 var traceCategories = new HashSet<string>(categories);
                 FilterLogMessages(logMessages, messageTypes, traceCategories, messageMax);
             }
-            return (logMessages.ToArray(), prefix);
+            return (logMessages.ToArray(), _logger.Prefix);
         }
 
         internal LoggerAdmin(Communicator communicator, LoggerAdminLogger logger)
