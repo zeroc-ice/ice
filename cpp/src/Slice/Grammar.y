@@ -269,12 +269,12 @@ definition
 // ----------------------------------------------------------------------
 : module_def
 {
-    assert($1 == nullptr || ModulePtr::dynamicCast($1));
+    assert($1 == 0 || ModulePtr::dynamicCast($1));
 }
 opt_semicolon
 | class_decl
 {
-    assert($1 == nullptr || ClassDeclPtr::dynamicCast($1));
+    assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
 }
 ';'
 | class_decl
@@ -283,12 +283,12 @@ opt_semicolon
 }
 | class_def
 {
-    assert($1 == nullptr || ClassDefPtr::dynamicCast($1));
+    assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
 opt_semicolon
 | interface_decl
 {
-    assert($1 == nullptr || InterfaceDeclPtr::dynamicCast($1));
+    assert($1 == 0 || InterfaceDeclPtr::dynamicCast($1));
 }
 ';'
 | interface_decl
@@ -297,12 +297,12 @@ opt_semicolon
 }
 | interface_def
 {
-    assert($1 == nullptr || InterfaceDefPtr::dynamicCast($1));
+    assert($1 == 0 || InterfaceDefPtr::dynamicCast($1));
 }
 opt_semicolon
 | exception_decl
 {
-    assert($1 == nullptr);
+    assert($1 == 0);
 }
 ';'
 | exception_decl
@@ -311,12 +311,12 @@ opt_semicolon
 }
 | exception_def
 {
-    assert($1 == nullptr || ExceptionPtr::dynamicCast($1));
+    assert($1 == 0 || ExceptionPtr::dynamicCast($1));
 }
 opt_semicolon
 | struct_decl
 {
-    assert($1 == nullptr);
+    assert($1 == 0);
 }
 ';'
 | struct_decl
@@ -325,12 +325,12 @@ opt_semicolon
 }
 | struct_def
 {
-    assert($1 == nullptr || StructPtr::dynamicCast($1));
+    assert($1 == 0 || StructPtr::dynamicCast($1));
 }
 opt_semicolon
 | sequence_def
 {
-    assert($1 == nullptr || SequencePtr::dynamicCast($1));
+    assert($1 == 0 || SequencePtr::dynamicCast($1));
 }
 ';'
 | sequence_def
@@ -339,7 +339,7 @@ opt_semicolon
 }
 | dictionary_def
 {
-    assert($1 == nullptr || DictionaryPtr::dynamicCast($1));
+    assert($1 == 0 || DictionaryPtr::dynamicCast($1));
 }
 ';'
 | dictionary_def
@@ -348,12 +348,12 @@ opt_semicolon
 }
 | enum_def
 {
-    assert($1 == nullptr || EnumPtr::dynamicCast($1));
+    assert($1 == 0 || EnumPtr::dynamicCast($1));
 }
 opt_semicolon
 | const_def
 {
-    assert($1 == nullptr || ConstPtr::dynamicCast($1));
+    assert($1 == 0 || ConstPtr::dynamicCast($1));
 }
 ';'
 | const_def
@@ -382,7 +382,7 @@ module_def
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 '{' definitions '}'
@@ -394,7 +394,7 @@ module_def
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 | ICE_MODULE ICE_SCOPED_IDENTIFIER
@@ -430,7 +430,7 @@ module_def
             {
                 unit->popContainer();
             }
-            $$ = nullptr;
+            $$ = 0;
             break;
         }
     }
@@ -450,7 +450,7 @@ module_def
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 ;
@@ -476,7 +476,7 @@ exception_decl
 : exception_id
 {
     unit->error("exceptions cannot be forward declared");
-    $$ = nullptr;
+    $$ = 0;
 }
 ;
 
@@ -519,7 +519,7 @@ exception_extends
 }
 | %empty
 {
-    $$ = nullptr;
+    $$ = 0;
 }
 ;
 
@@ -640,7 +640,7 @@ tag
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if (b && b->isIntegralType())
         {
-            tag = IceUtilInternal::strToInt64(constant->value().c_str(), nullptr, 0);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
         }
     }
     else if(enumerator)
@@ -757,7 +757,7 @@ optional
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if(b && b->isIntegralType())
         {
-            tag = IceUtilInternal::strToInt64(constant->value().c_str(), nullptr, 0);
+            tag = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
         }
     }
     else if(enumerator)
@@ -871,7 +871,7 @@ struct_decl
 : struct_id
 {
     unit->error("structs cannot be forward declared");
-    $$ = nullptr; // Dummy
+    $$ = 0; // Dummy
 }
 ;
 
@@ -1047,7 +1047,7 @@ class_id
         BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
         if(b && b->isIntegralType())
         {
-            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), nullptr, 0);
+            IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
             if(l < 0 || l > Int32Max)
             {
                 unit->error("compact id for class is out of range");
@@ -1117,7 +1117,7 @@ class_def
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 '{' class_exports '}'
@@ -1129,7 +1129,7 @@ class_def
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 ;
@@ -1142,7 +1142,7 @@ class_extends
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
-    $$ = nullptr;
+    $$ = 0;
     if(!types.empty())
     {
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
@@ -1173,7 +1173,7 @@ class_extends
 }
 | %empty
 {
-    $$ = nullptr;
+    $$ = 0;
 }
 ;
 
@@ -1454,12 +1454,12 @@ operation_preamble
         }
         else
         {
-            $$ = nullptr;
+            $$ = 0;
         }
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 | ICE_IDEMPOTENT return_type ICE_IDENT_OPEN
@@ -1479,12 +1479,12 @@ operation_preamble
         }
         else
         {
-            $$ = nullptr;
+            $$ = 0;
         }
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 | return_type ICE_KEYWORD_OPEN
@@ -1503,12 +1503,12 @@ operation_preamble
         }
         else
         {
-            $$ = nullptr;
+            $$ = 0;
         }
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 | ICE_IDEMPOTENT return_type ICE_KEYWORD_OPEN
@@ -1528,12 +1528,12 @@ operation_preamble
         }
         else
         {
-            $$ = nullptr;
+            $$ = 0;
         }
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 ;
@@ -1550,7 +1550,7 @@ operation
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 throws
@@ -1634,7 +1634,7 @@ interface_def
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 '{' interface_exports '}'
@@ -1646,7 +1646,7 @@ interface_def
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 ;
@@ -1817,7 +1817,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-        exception = cont->createException(IceUtil::generateUUID(), nullptr, Dummy); // Dummy
+        exception = cont->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
@@ -1826,7 +1826,7 @@ exception
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), nullptr, Dummy); // Dummy
+    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
 ;
 
@@ -1974,7 +1974,7 @@ enum_underlying
 }
 | %empty
 {
-    $$ = nullptr;
+    $$ = 0;
 }
 ;
 
@@ -2305,7 +2305,7 @@ type
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 | scoped_name '*'
@@ -2337,7 +2337,7 @@ type
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 | scoped_name '?'
@@ -2360,7 +2360,7 @@ type
     }
     else
     {
-        $$ = nullptr;
+        $$ = 0;
     }
 }
 ;
@@ -2427,7 +2427,7 @@ const_initializer
     if(cl.empty())
     {
         // Could be an enumerator
-        def = new ConstDefTok(SyntaxTreeBasePtr(nullptr), scoped->v, scoped->v);
+        def = new ConstDefTok(SyntaxTreeBasePtr(0), scoped->v, scoped->v);
     }
     else
     {
