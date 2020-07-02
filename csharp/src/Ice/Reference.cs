@@ -768,7 +768,7 @@ namespace ZeroC.Ice
         {
         }
 
-        internal int CheckRetryAfterException(System.Exception ex, bool sent, bool idempotent, ref int cnt)
+        internal int CheckRetryAfterException(Exception ex, bool sent, bool idempotent, ref int cnt)
         {
             // TODO: revisit retry logic
 

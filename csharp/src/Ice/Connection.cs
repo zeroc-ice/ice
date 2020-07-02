@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Security;
+using System.Runtime.ExceptionServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -231,7 +232,7 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
+                ExceptionDispatchInfo.Throw(ex.InnerException);
             }
         }
 

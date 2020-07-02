@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -82,9 +83,9 @@ namespace ZeroC.Ice
             // In some cases the IOException has an inner exception that we can pass directly
             // to the other overloading of connectionLost().
             //
-            if (ex.InnerException != null && ex.InnerException is SocketException)
+            if (ex.InnerException is SocketException socketException)
             {
-                return ConnectionLost((SocketException)ex.InnerException);
+                return ConnectionLost(socketException);
             }
 
             //
@@ -723,8 +724,12 @@ namespace ZeroC.Ice
             }
             catch (AggregateException ex)
             {
-                throw ex.InnerException!;
+                Debug.Assert(ex.InnerException != null);
+                ExceptionDispatchInfo.Throw(ex.InnerException);
             }
+
+            Debug.Assert(false);
+            return null!;
         }
 
         public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(string host, int port,
@@ -768,8 +773,12 @@ namespace ZeroC.Ice
             }
             catch (AggregateException ex)
             {
-                throw ex.InnerException!;
+                Debug.Assert(ex.InnerException != null);
+                ExceptionDispatchInfo.Throw(ex.InnerException);
             }
+
+            Debug.Assert(false);
+            return null!;
         }
 
         public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(string host, int port, int ipVersion,
