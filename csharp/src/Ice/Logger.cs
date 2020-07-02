@@ -11,6 +11,8 @@ namespace ZeroC.Ice
     /// <summary>Represents a logger that writes messages to the standard error output stream.</summary>
     public sealed class ConsoleLogger : Logger
     {
+        private static readonly object _globalMutex = new object();
+
         /// <summary>Creates a new console logger.</summary>
         /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
         public ConsoleLogger(string prefix)
@@ -20,13 +22,20 @@ namespace ZeroC.Ice
 
         public override ILogger CloneWithPrefix(string prefix) => new ConsoleLogger(prefix);
 
-        protected override void Write(string message) => System.Console.Error.WriteLine(message);
+        protected override void Write(string message)
+        {
+            lock (_globalMutex)
+            {
+                System.Console.Error.WriteLine(message);
+            }
+        }
     }
 
     /// <summary>Represents a logger that writes messages to a file.</summary>
     public sealed class FileLogger : Logger
     {
         private readonly string _file;
+        private readonly object _mutex;
         private readonly TextWriter _writer;
 
         /// <summary>Creates a new file logger.</summary>
@@ -36,18 +45,31 @@ namespace ZeroC.Ice
             : base(prefix)
         {
             _file = file;
-            _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite));
+            _mutex = new object();
+            _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.Read));
         }
 
-        public override ILogger CloneWithPrefix(string prefix) => new FileLogger(prefix, _file);
+        public override ILogger CloneWithPrefix(string prefix) => new FileLogger(prefix, _file, _mutex, _writer);
 
         /// <summary>Close the underlying stream an dispose all the resources associated with it.</summary>
         public void Destroy() => _writer.Close();
 
         protected override void Write(string message)
         {
-            _writer.WriteLine(message);
-            _writer.Flush();
+            lock (_mutex)
+            {
+                _writer.WriteLine(message);
+                _writer.Flush();
+            }
+        }
+
+        // only to use by clone with prefix and avoid reopening the file in write mode
+        private FileLogger(string prefix, string file, object mutex, TextWriter writer)
+            : base(prefix)
+        {
+            _file = file;
+            _mutex = mutex;
+            _writer = writer;
         }
     }
 
@@ -59,44 +81,15 @@ namespace ZeroC.Ice
         protected readonly string FormattedPrefix;
         protected const string Time = "HH:mm:ss:fff";
 
-        protected static object GlobalMutex = new object();
-
         public abstract ILogger CloneWithPrefix(string prefix);
 
-        public virtual void Error(string message)
-        {
-            string formattedMessage = Format("!!", "error", message);
-            lock (GlobalMutex)
-            {
-                Write(formattedMessage);
-            }
-        }
+        public virtual void Error(string message) => Write(Format("!!", "error", message));
 
-        public virtual void Print(string message)
-        {
-            lock (GlobalMutex)
-            {
-                Write(message);
-            }
-        }
+        public virtual void Print(string message) => Write(message);
 
-        public virtual void Trace(string category, string message)
-        {
-            string formattedMessage = Format("--", category, message);
-            lock (GlobalMutex)
-            {
-                Write(formattedMessage);
-            }
-        }
+        public virtual void Trace(string category, string message) => Write(Format("--", category, message));
 
-        public virtual void Warning(string message)
-        {
-            string formattedMessage = Format("-!", "warning", message);
-            lock (GlobalMutex)
-            {
-                Write(formattedMessage);
-            }
-        }
+        public virtual void Warning(string message) => Write(Format("-!", "warning", message));
 
         /// <summary>Creates a new logger, used only by derived classes.</summary>
         /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
@@ -129,8 +122,8 @@ namespace ZeroC.Ice
 
     public sealed class TraceLogger : Logger
     {
-        private readonly bool _console;
         private static readonly ConsoleListener _consoleListener = new ConsoleListener();
+        private readonly bool _console;
 
         public TraceLogger(string prefix, bool console)
             : base(prefix)
