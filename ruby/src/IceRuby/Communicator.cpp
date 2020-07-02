@@ -207,6 +207,9 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             data.properties = Ice::createProperties(seq, data.properties);
         }
 
+        // Always accept cycles in Ruby
+        data.properties->setProperty("Ice.AcceptClassCycles", "1");
+
         //
         // Remaining command line options are passed to the communicator
         // as an argument vector in case they contain plugin properties.

@@ -112,6 +112,17 @@ public final class InitialI implements Initial
     }
 
     @Override
+    public void setCycle(Recursive r, com.zeroc.Ice.Current current)
+    {
+    }
+
+    @Override
+    public boolean acceptsClassCycles(com.zeroc.Ice.Current current)
+    {
+        return true;
+    }
+
+    @Override
     public com.zeroc.Ice.Value getI(com.zeroc.Ice.Current current)
     {
         return new II();

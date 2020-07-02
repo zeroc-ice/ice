@@ -53,6 +53,14 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
             id.properties = deref<Ice::Properties>(propsImpl);
         }
 
+        if(!id.properties)
+        {
+            id.properties = Ice::createProperties();
+        }
+
+        // Always accept cycles in MATLAB
+        id.properties->setProperty("Ice.AcceptClassCycles", "1");
+
         *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, id));
         return createResultValue(createStringList(a));
     }

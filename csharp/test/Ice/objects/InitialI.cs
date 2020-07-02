@@ -123,6 +123,15 @@ namespace Ice
                 return true;
             }
 
+            public override void setCycle(Test.Recursive r, Ice.Current current)
+            {
+            }
+
+            public override bool acceptsClassCycles(Ice.Current current)
+            {
+                return true;
+            }
+
             public override Test.D1 getD1(Test.D1 d1, Ice.Current current)
             {
                 return d1;

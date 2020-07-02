@@ -309,6 +309,18 @@ classdef AllTests
             end
             fprintf('ok\n');
 
+            fprintf('testing sending class cycle... ');
+            rec = Recursive();
+            rec.v = rec;
+            acceptsCycles = initial.acceptsClassCycles();
+            try
+                initial.setCycle(rec);
+                assert(acceptsCycles);
+            catch ex
+                assert(!acceptsCycles);
+            end
+            fprintf('ok\n');
+
             r = initial;
         end
     end

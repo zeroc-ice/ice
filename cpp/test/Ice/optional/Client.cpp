@@ -20,6 +20,7 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.AcceptClassCycles", "1");
 #ifndef ICE_CPP11_MAPPING
     properties->setProperty("Ice.CollectObjects", "1");
 #endif

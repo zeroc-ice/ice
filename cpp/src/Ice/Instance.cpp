@@ -950,6 +950,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _classGraphDepthMax(0),
     _collectObjects(false),
     _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
+    _acceptClassCycles(false),
     _implicitContext(0),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
@@ -1226,6 +1227,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             throw InitializationException(__FILE__, __LINE__, "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
         }
+
+        const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 
         const_cast<ImplicitContextIPtr&>(_implicitContext) =
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));

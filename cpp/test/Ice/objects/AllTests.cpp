@@ -604,5 +604,25 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
+    cout << "testing sending class cycle... " << flush;
+    {
+        RecursivePtr rec = ICE_MAKE_SHARED(Recursive);
+        rec->v = rec;
+        bool acceptsCycles = initial->acceptsClassCycles();
+        try
+        {
+            initial->setCycle(rec);
+            test(acceptsCycles);
+        }
+        catch(const Ice::UnknownLocalException&)
+        {
+            // expected when the remote server does not accept cycles
+            // and throws a MarshalException
+            test(!acceptsCycles);
+        }
+        rec->v = ICE_NULLPTR;
+    }
+    cout << "ok" << endl;
+
     return initial;
 }

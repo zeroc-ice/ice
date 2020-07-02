@@ -595,6 +595,23 @@ function allTests($helper)
     }
     echo "ok\n";
 
+    echo "testing sending class cycle...";
+    $rec = new Test_Recursive();
+    $rec->v = $rec;
+    $acceptsCycles = $initial->acceptsClassCycles();
+    try
+    {
+        $initial->setCycle($rec);
+        test($acceptsCycles);
+    }
+    catch(Exception $ex)
+    {
+        $ule = $NS ? "Ice\\UnknownLocalException" : "Ice_UnknownLocalException";
+        test($ex instanceof $ule);
+        test(!$acceptsCycles);
+    }
+    echo "ok\n";
+
     return $initial;
 }
 

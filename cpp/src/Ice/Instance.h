@@ -106,6 +106,7 @@ public:
     size_t classGraphDepthMax() const { return _classGraphDepthMax; }
     bool collectObjects() const { return _collectObjects; }
     Ice::ToStringMode toStringMode() const { return _toStringMode; }
+    bool acceptClassCycles() const { return _acceptClassCycles; }
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
 
@@ -175,6 +176,7 @@ private:
     const size_t _classGraphDepthMax; // Immutable, not reset by destroy().
     const bool _collectObjects; // Immutable, not reset by destroy().
     const Ice::ToStringMode _toStringMode; // Immutable, not reset by destroy()
+    const bool _acceptClassCycles; // Immutable, not reset by destroy()
     ACMConfig _clientACM;
     ACMConfig _serverACM;
     RouterManagerPtr _routerManager;

@@ -174,6 +174,16 @@ class InitialI: Initial {
         return true
     }
 
+    func setCycle(r: Recursive?, current _: Ice.Current) {
+        // break the cycle
+        r?.v = nil
+    }
+
+    func acceptsClassCycles(current: Ice.Current) throws -> Bool {
+        let properties = current.adapter!.getCommunicator().getProperties()
+        return properties.getPropertyAsIntWithDefault(key: "Ice.AcceptClassCycles", value: 0) > 0
+    }
+
     func getD1(d1: D1?, current _: Ice.Current) throws -> D1? {
         return d1
     }

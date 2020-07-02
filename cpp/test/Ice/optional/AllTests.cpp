@@ -587,6 +587,7 @@ allTests(Test::TestHelper* helper, bool)
 
     mo1->k = mo1;
     MultiOptionalPtr mo5 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo1));
+
     test(mo5->a == mo1->a);
     test(mo5->b == mo1->b);
     test(mo5->c == mo1->c);

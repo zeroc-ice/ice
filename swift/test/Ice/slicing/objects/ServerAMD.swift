@@ -8,6 +8,7 @@ import TestCommon
 class ServerAMD: TestHelperI {
     public override func run(args: [String]) throws {
         let properties = try createTestProperties(args)
+        properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = InitializationData()
         initData.properties = properties

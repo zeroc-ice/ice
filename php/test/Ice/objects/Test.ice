@@ -173,6 +173,9 @@ interface Initial
     void setRecursive(Recursive p);
     bool supportsClassGraphDepthMax();
 
+    void setCycle(Recursive r);
+    bool acceptsClassCycles();
+
     ["marshaled-result"] B getMB();
     ["amd", "marshaled-result"] B getAMDMB();
 

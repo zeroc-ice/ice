@@ -932,6 +932,7 @@ main(int argc, char* argv[])
 
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultClientProperties(&argc, argv);
+            [initData.properties setProperty:@"Ice.AcceptClassCycles" value:@"1"];
 #if TARGET_OS_IPHONE
             initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestStream", @"::Test",
