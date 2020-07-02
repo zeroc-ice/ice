@@ -2,77 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Represents a logger that writes messages to the standard error output stream.</summary>
-    public sealed class ConsoleLogger : Logger
-    {
-        private static readonly object _globalMutex = new object();
-
-        /// <summary>Creates a new console logger.</summary>
-        /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
-        public ConsoleLogger(string prefix)
-            : base(prefix)
-        {
-        }
-
-        public override ILogger CloneWithPrefix(string prefix) => new ConsoleLogger(prefix);
-
-        protected override void Write(string message)
-        {
-            lock (_globalMutex)
-            {
-                System.Console.Error.WriteLine(message);
-            }
-        }
-    }
-
-    /// <summary>Represents a logger that writes messages to a file.</summary>
-    public sealed class FileLogger : Logger
-    {
-        private readonly string _file;
-        private readonly object _mutex;
-        private readonly TextWriter _writer;
-
-        /// <summary>Creates a new file logger.</summary>
-        /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
-        /// <param name="file">The file path to write to.</param>
-        public FileLogger(string prefix, string file)
-            : base(prefix)
-        {
-            _file = file;
-            _mutex = new object();
-            _writer = new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.Read));
-        }
-
-        public override ILogger CloneWithPrefix(string prefix) => new FileLogger(prefix, _file, _mutex, _writer);
-
-        /// <summary>Close the underlying stream an dispose all the resources associated with it.</summary>
-        public void Destroy() => _writer.Close();
-
-        protected override void Write(string message)
-        {
-            lock (_mutex)
-            {
-                _writer.WriteLine(message);
-                _writer.Flush();
-            }
-        }
-
-        // only to use by clone with prefix and avoid reopening the file in write mode
-        private FileLogger(string prefix, string file, object mutex, TextWriter writer)
-            : base(prefix)
-        {
-            _file = file;
-            _mutex = mutex;
-            _writer = writer;
-        }
-    }
-
     public abstract class Logger : ILogger
     {
         public string Prefix { get; }
@@ -105,11 +42,11 @@ namespace ZeroC.Ice
 
         private string Format(string prefix, string category, string message)
         {
-            var s = new System.Text.StringBuilder(prefix);
+            var s = new StringBuilder(prefix);
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(Date, CultureInfo.CurrentCulture));
+            s.Append(DateTime.Now.ToString(Date, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(Time, CultureInfo.CurrentCulture));
+            s.Append(DateTime.Now.ToString(Time, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(FormattedPrefix);
             s.Append(category);
@@ -120,22 +57,79 @@ namespace ZeroC.Ice
         }
     }
 
+    /// <summary>Represents a logger that writes messages to the standard error output stream.</summary>
+    public sealed class ConsoleLogger : Logger
+    {
+        /// <summary>Creates a new console logger.</summary>
+        /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
+        public ConsoleLogger(string prefix)
+            : base(prefix)
+        {
+        }
+
+        public override ILogger CloneWithPrefix(string prefix) => new ConsoleLogger(prefix);
+
+        protected override void Write(string message) => Console.Error.WriteLine(message);
+    }
+
+    /// <summary>Represents a logger that writes messages to a file.</summary>
+    public sealed class FileLogger : Logger, IDisposable
+    {
+        private readonly string _file;
+        private readonly TextWriter _writer;
+
+        /// <summary>Creates a new file logger.</summary>
+        /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
+        /// <param name="file">The file path to write to.</param>
+        public FileLogger(string prefix, string file)
+            : base(prefix)
+        {
+            _file = file;
+            _writer = TextWriter.Synchronized(
+                new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.Read)));
+        }
+
+        public override ILogger CloneWithPrefix(string prefix) => new FileLogger(prefix, _file, _writer);
+
+        public void Dispose() => _writer.Close();
+
+        protected override void Write(string message)
+        {
+            _writer.WriteLine(message);
+            _writer.Flush();
+        }
+
+        // only to use by clone with prefix and avoid reopening the file in write mode
+        private FileLogger(string prefix, string file, TextWriter writer)
+            : base(prefix)
+        {
+            _file = file;
+            _writer = writer;
+        }
+    }
+
+    /// <summary>Creates a logger that trace messages using <see cref="System.Diagnostics.Trace"/> API,
+    /// this is the default logger.</summary>
     public sealed class TraceLogger : Logger
     {
         private static readonly ConsoleListener _consoleListener = new ConsoleListener();
-        private readonly bool _console;
+        private readonly bool _addConsoleListener;
 
-        public TraceLogger(string prefix, bool console)
+        /// <summary>Creates a new trace logger.</summary>
+        /// <param name="prefix">The prefix to perpend to messages write by this logger.</param>
+        /// <param name="addConsoleListener">If true a listener that writes messages to the standard error is added
+        /// to trace listeners <see cref="Trace.Listeners"/> this is only done once per process.</param>
+        public TraceLogger(string prefix, bool addConsoleListener)
             : base(prefix)
         {
-            _console = console;
-            if (console && !System.Diagnostics.Trace.Listeners.Contains(_consoleListener))
+            _addConsoleListener = addConsoleListener;
+            if (addConsoleListener && !System.Diagnostics.Trace.Listeners.Contains(_consoleListener))
             {
                 System.Diagnostics.Trace.Listeners.Add(_consoleListener);
             }
         }
 
-        public override ILogger CloneWithPrefix(string prefix) => new TraceLogger(prefix, _console);
+        public override ILogger CloneWithPrefix(string prefix) => new TraceLogger(prefix, _addConsoleListener);
         public override void Error(string message)
         {
             System.Diagnostics.Trace.TraceError(Format("error", message));
@@ -162,7 +156,7 @@ namespace ZeroC.Ice
 
         private string Format(string category, string message)
         {
-            var s = new System.Text.StringBuilder(FormattedPrefix);
+            var s = new StringBuilder(FormattedPrefix);
             s.Append(category);
             s.Append(": ");
             s.Append(message);
@@ -185,7 +179,7 @@ namespace ZeroC.Ice
             int id,
             string message)
         {
-            var s = new System.Text.StringBuilder(
+            var s = new StringBuilder(
                 type switch
                 {
                     TraceEventType.Error => "!!",
@@ -193,16 +187,16 @@ namespace ZeroC.Ice
                     _ => "--"
                 });
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(Date, CultureInfo.CurrentCulture));
+            s.Append(DateTime.Now.ToString(Date, CultureInfo.CurrentCulture));
             s.Append(' ');
-            s.Append(System.DateTime.Now.ToString(Time, CultureInfo.CurrentCulture));
+            s.Append(DateTime.Now.ToString(Time, CultureInfo.CurrentCulture));
             s.Append(' ');
             s.Append(message);
             WriteLine(s.ToString());
         }
 
-        public override void Write(string message) => System.Console.Error.Write(message);
+        public override void Write(string message) => Console.Error.Write(message);
 
-        public override void WriteLine(string message) => System.Console.Error.WriteLine(message);
+        public override void WriteLine(string message) => Console.Error.WriteLine(message);
     }
 }
