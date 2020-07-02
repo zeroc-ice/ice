@@ -127,10 +127,6 @@ namespace ZeroC.Ice
         public static readonly InputStreamReader<ulong> IceReaderIntoVarULong =
             istr => istr.ReadVarULong();
 
-        /// <summary>The communicator associated with this stream.</summary>
-        /// <value>The communicator.</value>
-        public Communicator Communicator { get; }
-
         /// <summary>The Ice encoding used by this stream when reading its byte buffer.</summary>
         /// <value>The current encoding.</value>
         public Encoding Encoding { get; private set; }
@@ -169,8 +165,12 @@ namespace ZeroC.Ice
 
         private static readonly System.Text.UTF8Encoding _utf8 = new System.Text.UTF8Encoding(false, true);
 
+        // The communicator must be set when reading a non-empty encapsulation, as this encapsulation can contain
+        // proxies, classes or an exception.
+        private readonly Communicator? _communicator;
+
         // True when reading a top-level encapsulation; otherwise, false.
-        private bool InEncapsulation { get; }
+        private bool InEncapsulation => _communicator != null;
 
         private bool OldEncoding => Encoding == Encoding.V1_1;
 
@@ -483,7 +483,7 @@ namespace ZeroC.Ice
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
         /// <returns>The proxy read from the stream, or null.</returns>
         public T? ReadNullableProxy<T>(ProxyFactory<T> factory) where T : class, IObjectPrx =>
-            Reference.Read(this) is Reference reference ? factory(reference) : null;
+            Reference.Read(this, _communicator!) is Reference reference ? factory(reference) : null;
 
         /// <summary>Reads a proxy from the stream.</summary>
         /// <param name="factory">The proxy factory used to create the typed proxy.</param>
@@ -532,7 +532,7 @@ namespace ZeroC.Ice
             {
                 throw new InvalidDataException("read an empty byte sequence for non-null serializable object");
             }
-            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, Communicator));
+            var f = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, _communicator!));
             return f.Deserialize(new StreamWrapper(this));
         }
 
@@ -1039,9 +1039,11 @@ namespace ZeroC.Ice
         /// <param name="encoding">The encoding of the buffer.</param>
         /// <param name="buffer">The byte buffer.</param>
         internal static void ReadEmptyEncapsulation(
-            Communicator communicator, Encoding encoding, ArraySegment<byte> buffer)
+            Communicator communicator,
+            Encoding encoding,
+            ArraySegment<byte> buffer)
         {
-            var istr = new InputStream(communicator, encoding, buffer, startEncaps: true, 0);
+            var istr = new InputStream(communicator, encoding, buffer);
             istr.SkipTaggedParams();
             istr.CheckEndOfBuffer();
         }
@@ -1052,9 +1054,12 @@ namespace ZeroC.Ice
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="payloadReader">The reader used to read the payload of this encapsulation.</param>
         internal static T ReadEncapsulation<T>(
-            Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, InputStreamReader<T> payloadReader)
+            Communicator communicator,
+            Encoding encoding,
+            ArraySegment<byte> buffer,
+            InputStreamReader<T> payloadReader)
         {
-            var istr = new InputStream(communicator, encoding, buffer, startEncaps: true, 0);
+            var istr = new InputStream(communicator, encoding, buffer);
             T result = payloadReader(istr);
             istr.SkipTaggedParams();
             istr.CheckEndOfBuffer();
@@ -1145,16 +1150,17 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Constructs a new InputStream over a byte buffer.</summary>
-        /// <param name="communicator">The communicator.</param>
         /// <param name="encoding">The encoding of the buffer.</param>
         /// <param name="buffer">The byte buffer.</param>
         /// <param name="pos">The initial position in the buffer.</param>
-        internal InputStream(Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, int pos = 0)
-            : this(communicator, encoding, buffer, false, pos)
+        internal InputStream(Encoding encoding, ArraySegment<byte> buffer, int pos = 0)
         {
             // TODO: pos should always be 0 and buffer should be a slice as needed.
             // Currently this does not work because of the tracing code that resets Pos to 0 to read the protocol frame
             // headers.
+            _buffer = buffer;
+            _pos = pos;
+            Encoding = encoding;
         }
 
         /// <summary>Reads an encapsulation header from the stream.</summary>
@@ -1174,14 +1180,16 @@ namespace ZeroC.Ice
         }
 
         /// <summary>Reads an endpoint from the stream.</summary>
+        /// <param name="protocol">The Ice protocol of this endpoint.</param>
+        /// <param name="communicator">The communicator.</param>
         /// <returns>The endpoint read from the stream.</returns>
-        internal Endpoint ReadEndpoint(Protocol protocol)
+        internal Endpoint ReadEndpoint(Protocol protocol, Communicator communicator)
         {
             var transport = (Transport)ReadShort();
             (int size, Encoding encoding) = ReadEncapsulationHeader();
 
             Endpoint endpoint;
-            if (encoding.IsSupported && Communicator.IceFindEndpointFactory(transport) is IEndpointFactory factory)
+            if (encoding.IsSupported && communicator.IceFindEndpointFactory(transport) is IEndpointFactory factory)
             {
                 Encoding oldEncoding = Encoding;
                 ArraySegment<byte> oldBuffer = _buffer;
@@ -1205,7 +1213,7 @@ namespace ZeroC.Ice
             else
             {
                 endpoint = new OpaqueEndpoint(
-                    Communicator, transport, protocol, encoding, _buffer.Slice(_pos, size - 2).ToArray());
+                    _communicator!, transport, protocol, encoding, _buffer.Slice(_pos, size - 2).ToArray());
                 _pos += size - 2;
             }
 
@@ -1270,37 +1278,27 @@ namespace ZeroC.Ice
             }
         }
 
+        // This constructor starts a new encapsulation and as a result requires a communicator.
         private InputStream(
-            Communicator communicator, Encoding encoding, ArraySegment<byte> buffer, bool startEncaps, int pos)
+            Communicator communicator,
+            Encoding encoding,
+            ArraySegment<byte> buffer)
         {
-            Debug.Assert(pos == 0 || !startEncaps); // while pos is still there, it's 0 when startEncaps is true
-            Communicator = communicator;
+            _communicator = communicator;
+            _pos = 0;
+            _buffer = buffer;
+            Encoding = encoding;
+            Encoding.CheckSupported();
 
-            if (startEncaps)
-            {
-                _pos = 0;
-                _buffer = buffer;
-                Encoding = encoding;
-                Encoding.CheckSupported();
+            (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
 
-                (int size, Encoding encapsEncoding) = ReadEncapsulationHeader();
+            // We slice the provided buffer to the encapsulation (minus its header). This way, we can easily prevent
+            // reads past the end of the encapsulation.
+            _buffer = buffer.Slice(_pos, size - 2);
+            _pos = 0;
 
-                // We slice the provided buffer to the encapsulation (minus its header). This way, we can easily prevent
-                // reads past the end of the encapsulation.
-                _buffer = buffer.Slice(_pos, size - 2);
-                _pos = 0;
-
-                Encoding = encapsEncoding;
-                Encoding.CheckSupported();
-                InEncapsulation = true;
-            }
-            else
-            {
-                _buffer = buffer;
-                _pos = pos;
-                Encoding = encoding;
-                InEncapsulation = false;
-            }
+            Encoding = encapsEncoding;
+            Encoding.CheckSupported();
         }
 
         private void CheckEndOfBuffer()

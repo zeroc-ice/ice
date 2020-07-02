@@ -38,8 +38,7 @@ namespace ZeroC.IceDiscovery
         private readonly IObjectPrx _wellKnownProxy;
 
         public LocatorRegistry(Communicator com) =>
-            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(
-                clearLocator: true, clearRouter: true, collocationOptimized: true);
+            _wellKnownProxy = IObjectPrx.Parse("p", com).Clone(clearLocator: true, clearRouter: true);
 
         public ValueTask SetAdapterDirectProxyAsync(string adapterId, IObjectPrx? proxy, Current current)
         {

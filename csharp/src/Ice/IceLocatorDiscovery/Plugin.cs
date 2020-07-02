@@ -425,8 +425,7 @@ namespace ZeroC.IceLocatorDiscovery
             _locatorAdapter.Locator = null;
 
             var lookupPrx = ILookupPrx.Parse($"IceLocatorDiscovery/Lookup -d:{lookupEndpoints}", _communicator);
-            // No collocation optimization or router for the multicast proxy!
-            lookupPrx = lookupPrx.Clone(clearRouter: false, collocationOptimized: false);
+            lookupPrx = lookupPrx.Clone(clearRouter: false);
 
             ILocatorPrx voidLocator = _locatorAdapter.AddWithUUID(new VoidLocator(), ILocatorPrx.Factory);
 

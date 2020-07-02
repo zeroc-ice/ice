@@ -18,20 +18,24 @@ namespace ZeroC.Ice
         private protected OutgoingRequest(InputStreamReader<TReturnValue> reader) => _reader = reader;
 
         private protected TReturnValue Invoke(IObjectPrx prx, OutgoingRequestFrame request) =>
-            prx.Invoke(request, oneway: false).ReadReturnValue(_reader);
+            prx.Invoke(request, oneway: false).ReadReturnValue(prx.Communicator, _reader);
 
         private protected Task<TReturnValue> InvokeAsync(IObjectPrx prx,
                                                          OutgoingRequestFrame request,
                                                          IProgress<bool>? progress,
                                                          CancellationToken cancel)
         {
-            return ReadReturnValueAsync(prx.InvokeAsync(request, oneway: false, progress, cancel), _reader);
+            return ReadReturnValueAsync(prx.InvokeAsync(request, oneway: false, progress, cancel),
+                                        prx.Communicator,
+                                        _reader);
 
-            static async Task<TReturnValue> ReadReturnValueAsync(ValueTask<IncomingResponseFrame> task,
-                                                                 InputStreamReader<TReturnValue> reader)
+            static async Task<TReturnValue> ReadReturnValueAsync(
+                ValueTask<IncomingResponseFrame> task,
+                Communicator communicator,
+                InputStreamReader<TReturnValue> reader)
             {
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
-                return response.ReadReturnValue(reader);
+                return response.ReadReturnValue(communicator, reader);
             }
         }
     }
@@ -152,7 +156,7 @@ namespace ZeroC.Ice
             IncomingResponseFrame response = prx.Invoke(request, isOneway);
             if (!isOneway)
             {
-                response.ReadVoidReturnValue();
+                response.ReadVoidReturnValue(prx.Communicator);
             }
         }
 
@@ -160,14 +164,19 @@ namespace ZeroC.Ice
                                            CancellationToken cancel)
         {
             bool isOneway = _oneway || prx.IsOneway;
-            return ReadVoidReturnValueAsync(prx.InvokeAsync(request, isOneway, progress, cancel), isOneway);
+            return ReadVoidReturnValueAsync(prx.InvokeAsync(request, isOneway, progress, cancel),
+                                            prx.Communicator,
+                                            isOneway);
 
-            static async Task ReadVoidReturnValueAsync(ValueTask<IncomingResponseFrame> task, bool oneway)
+            static async Task ReadVoidReturnValueAsync(
+                ValueTask<IncomingResponseFrame> task,
+                 Communicator communicator,
+                bool oneway)
             {
                 IncomingResponseFrame response = await task.ConfigureAwait(false);
                 if (!oneway)
                 {
-                    response.ReadVoidReturnValue();
+                    response.ReadVoidReturnValue(communicator);
                 }
             }
         }

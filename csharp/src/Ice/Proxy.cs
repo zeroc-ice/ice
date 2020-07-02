@@ -26,8 +26,6 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="collocationOptimized">Determines whether or not the clone can use collocation optimization
-        /// (optional).</param>
         /// <param name="compress">Determines whether or not the clone compresses requests (optional).</param>
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="connectionTimeout">The connection timeout of the clone (optional).</param>
@@ -56,7 +54,6 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? collocationOptimized = null,
                                  bool? compress = null,
                                  string? connectionId = null,
                                  int? connectionTimeout = null,
@@ -79,7 +76,6 @@ namespace ZeroC.Ice
                                                   cacheConnection,
                                                   clearLocator,
                                                   clearRouter,
-                                                  collocationOptimized,
                                                   compress,
                                                   connectionId,
                                                   connectionTimeout,
@@ -111,8 +107,6 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="collocationOptimized">Determines whether or not the clone can use collocation optimization
-        /// (optional).</param>
         /// <param name="compress">Determines whether or not the clone compresses requests (optional).</param>
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="connectionTimeout">The connection timeout of the clone (optional).</param>
@@ -140,7 +134,6 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? collocationOptimized = null,
                                  bool? compress = null,
                                  string? connectionId = null,
                                  int? connectionTimeout = null,
@@ -162,7 +155,6 @@ namespace ZeroC.Ice
                                                   cacheConnection,
                                                   clearLocator,
                                                   clearRouter,
-                                                  collocationOptimized,
                                                   compress,
                                                   connectionId,
                                                   connectionTimeout,
@@ -193,8 +185,6 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="collocationOptimized">Determines whether or not the clone can use collocation optimization
-        /// (optional).</param>
         /// <param name="compress">Determines whether or not the clone compresses requests (optional).</param>
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
         /// <param name="connectionTimeout">The connection timeout of the clone (optional).</param>
@@ -220,7 +210,6 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? collocationOptimized = null,
                                  bool? compress = null,
                                  string? connectionId = null,
                                  int? connectionTimeout = null,
@@ -242,7 +231,6 @@ namespace ZeroC.Ice
                                                      cacheConnection,
                                                      clearLocator,
                                                      clearRouter,
-                                                     collocationOptimized,
                                                      compress,
                                                      connectionId,
                                                      connectionTimeout,
@@ -268,7 +256,7 @@ namespace ZeroC.Ice
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         /// it first attempts to create a connection.</summary>
-        /// <returns>The Connection for this proxy or null if collocation optimization is used.</returns>
+        /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
         public static Connection? GetConnection(this IObjectPrx prx)
         {
             try
@@ -290,11 +278,9 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>
-        /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
-        /// it first attempts to create a connection.
-        /// </summary>
-        /// <returns>The Connection for this proxy or null if collocation optimization is used.</returns>
+        /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// it first attempts to create a connection.</summary>
+        /// <returns>The Connection for this proxy or null if colocation optimization is used.</returns>
         public static async ValueTask<Connection?> GetConnectionAsync(this IObjectPrx prx,
                                                                       CancellationToken cancel = default)
         {
@@ -302,10 +288,8 @@ namespace ZeroC.Ice
             return (handler as ConnectionRequestHandler)?.GetConnection();
         }
 
-        /// <summary>
-        /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
-        /// connection, it does not attempt to create a connection.
-        /// </summary>
+        /// <summary>Returns the cached Connection for this proxy. If the proxy does not yet have an established
+        /// connection, it does not attempt to create a connection.</summary>
         /// <returns>The cached Connection for this proxy (null if the proxy does not have
         /// an established connection).</returns>
         public static Connection? GetCachedConnection(this IObjectPrx prx) => prx.IceReference.GetCachedConnection();

@@ -90,14 +90,13 @@ namespace ZeroC.IceDiscovery
             _replyAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Reply");
             _locatorAdapter = _communicator.CreateObjectAdapter("IceDiscovery.Locator");
 
-            // Setup locatory registry.
+            // Setup locator registry.
             var locatorRegistry = new LocatorRegistry(_communicator);
             ILocatorRegistryPrx locatorRegistryPrx =
                 _locatorAdapter.AddWithUUID(locatorRegistry, ILocatorRegistryPrx.Factory);
 
-            ILookupPrx lookupPrx = ILookupPrx.Parse("IceDiscovery/Lookup -d:" + lookupEndpoints, _communicator).Clone(
-                clearRouter: true,
-                collocationOptimized: false); // No collocated optimization or router for the multicast proxy!
+            ILookupPrx lookupPrx =
+                ILookupPrx.Parse($"IceDiscovery/Lookup -d:{lookupEndpoints}", _communicator).Clone(clearRouter: true);
 
             // Add lookup Ice object
             var lookup = new Lookup(locatorRegistry, lookupPrx, _communicator, _replyAdapter);

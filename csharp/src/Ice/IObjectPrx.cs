@@ -196,10 +196,6 @@ namespace ZeroC.Ice
         /// this proxy.</summary>
         public ILocatorPrx? Locator => IceReference.LocatorInfo?.Locator;
 
-        /// <summary>Indicates whether this proxy uses collocation optimization.</summary>
-        /// <value>When true, the proxy uses collocation optimization; otherwise, the value is false.</value>
-        public bool IsCollocationOptimized => IceReference.IsCollocationOptimized;
-
         /// <summary>Indicates whether or not using this proxy to invoke an operation that does not return anything
         /// waits for an empty response from the target Ice object.</summary>
         /// <value>When true, invoking such an operation does not wait for the response from the target object. This

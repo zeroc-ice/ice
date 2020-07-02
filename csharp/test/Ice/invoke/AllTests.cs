@@ -42,7 +42,7 @@ namespace ZeroC.Ice.Test.Invoke
                 request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,
                     format: null, context: null, _testString, OutputStream.IceWriterFromString);
                 response = cl.Invoke(request);
-                (string s1, string s2) = response.ReadReturnValue(istr =>
+                (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
                         string s1 = istr.ReadString();
                         string s2 = istr.ReadString();
@@ -66,7 +66,7 @@ namespace ZeroC.Ice.Test.Invoke
                 IncomingResponseFrame response = cl.Invoke(request);
                 try
                 {
-                    response.ReadVoidReturnValue();
+                    response.ReadVoidReturnValue(communicator);
                 }
                 catch (MyException)
                 {
@@ -99,7 +99,7 @@ namespace ZeroC.Ice.Test.Invoke
                     format: null, context: null, _testString, OutputStream.IceWriterFromString);
 
                 response = cl.InvokeAsync(request).Result;
-                (string s1, string s2) = response.ReadReturnValue(istr =>
+                (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
                         string s1 = istr.ReadString();
                         string s2 = istr.ReadString();
@@ -115,7 +115,7 @@ namespace ZeroC.Ice.Test.Invoke
 
                 try
                 {
-                    response.ReadVoidReturnValue();
+                    response.ReadVoidReturnValue(communicator);
                     TestHelper.Assert(false);
                 }
                 catch (MyException)

@@ -54,7 +54,6 @@ namespace ZeroC.Ice
             "Locator.EndpointSelection",
             "Locator.ConnectionCached",
             "Locator.PreferNonSecure",
-            "Locator.CollocationOptimized",
             "Locator.Router",
             "MessageSizeMax",
             "PublishedEndpoints",
@@ -64,12 +63,10 @@ namespace ZeroC.Ice
             "Router.EndpointSelection",
             "Router.ConnectionCached",
             "Router.PreferNonSecure",
-            "Router.CollocationOptimized",
             "Router.Locator",
             "Router.Locator.EndpointSelection",
             "Router.Locator.ConnectionCached",
             "Router.Locator.PreferNonSecure",
-            "Router.Locator.CollocationOptimized",
             "Router.Locator.LocatorCacheTimeout",
             "Router.Locator.InvocationTimeout",
             "Router.LocatorCacheTimeout",
@@ -1120,7 +1117,7 @@ namespace ZeroC.Ice
             }
             catch (ObjectAdapterDeactivatedException)
             {
-                // Expected if collocated call and OA is deactivated, ignore.
+                // Expected if colocated call and OA is deactivated, ignore.
             }
             catch (CommunicatorDestroyedException)
             {
