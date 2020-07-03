@@ -274,7 +274,7 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
         }
 
@@ -313,7 +313,7 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
         }
 
@@ -498,14 +498,18 @@ namespace ZeroC.Ice
                         if (invocationTimeout?.IsCancellationRequested ?? false)
                         {
                             ex = new TimeoutException();
+                            observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                            throw ex;
                         }
                         else if (proxy.Communicator.CancellationToken.IsCancellationRequested)
                         {
                             ex = new CommunicatorDestroyedException();
+                            observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                            throw ex;
                         }
                     }
                     observer?.Failed(ex.GetType().FullName ?? "System.Exception");
-                    throw ex;
+                    throw;
                 }
                 finally
                 {

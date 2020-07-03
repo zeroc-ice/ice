@@ -82,9 +82,9 @@ namespace ZeroC.Ice
             // In some cases the IOException has an inner exception that we can pass directly
             // to the other overloading of connectionLost().
             //
-            if (ex.InnerException != null && ex.InnerException is SocketException)
+            if (ex.InnerException is SocketException socketException)
             {
-                return ConnectionLost((SocketException)ex.InnerException);
+                return ConnectionLost(socketException);
             }
 
             //
@@ -723,7 +723,8 @@ namespace ZeroC.Ice
             }
             catch (AggregateException ex)
             {
-                throw ex.InnerException!;
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
         }
 
@@ -768,7 +769,8 @@ namespace ZeroC.Ice
             }
             catch (AggregateException ex)
             {
-                throw ex.InnerException!;
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
         }
 

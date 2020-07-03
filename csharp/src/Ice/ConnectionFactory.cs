@@ -178,7 +178,7 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                throw ex.InnerException;
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
 
             lock (_mutex)
@@ -406,7 +406,7 @@ namespace ZeroC.Ice
                             catch (AggregateException ex)
                             {
                                 Debug.Assert(ex.InnerException != null);
-                                throw ex.InnerException;
+                                throw ExceptionUtil.Throw(ex.InnerException);
                             }
                         }
 
