@@ -492,7 +492,7 @@ namespace ZeroC.Ice
             // we rebuild the certificate chain with our custom chain policy.
             if (caCerts != null && certificate != null)
             {
-                chain = new X509Chain(_engine.UseMachineContext);
+                chain = new X509Chain();
                 // We need to set this flag to be able to use a certificate authority from the extra store.
                 chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
                 chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;

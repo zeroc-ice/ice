@@ -23,7 +23,6 @@ namespace ZeroC.Ice
         internal string SecurityTraceCategory => "Security";
 
         internal SslTrustManager SslTrustManager { get; }
-        internal bool UseMachineContext { get; }
 
         private readonly ILogger _logger;
 
@@ -36,7 +35,7 @@ namespace ZeroC.Ice
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             SslTrustManager = new SslTrustManager(communicator);
 
-            UseMachineContext = communicator.GetPropertyAsBool("IceSSL.UseMachineContext") ?? false;
+            bool useMachineKeySet = communicator.GetPropertyAsBool("IceSSL.UseMachineKeySet") ?? false;
 
             TlsClientOptions = new TlsClientOptions();
             TlsServerOptions = new TlsServerOptions();
@@ -63,7 +62,7 @@ namespace ZeroC.Ice
                 certificates = new X509Certificate2Collection();
                 try
                 {
-                    X509KeyStorageFlags importFlags = UseMachineContext ? X509KeyStorageFlags.UserKeySet : X509KeyStorageFlags.MachineKeySet;
+                    X509KeyStorageFlags importFlags = useMachineKeySet ? X509KeyStorageFlags.MachineKeySet : X509KeyStorageFlags.UserKeySet;
                     certificates.Add(communicator.GetProperty("IceSSL.Password") is string password ?
                         new X509Certificate2(certificateFile, password, importFlags) :
                         new X509Certificate2(certificateFile, "", importFlags));
