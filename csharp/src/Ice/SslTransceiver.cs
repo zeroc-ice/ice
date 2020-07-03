@@ -507,24 +507,29 @@ namespace ZeroC.Ice
 
             if ((errors & SslPolicyErrors.RemoteCertificateChainErrors) > 0)
             {
-                foreach (X509ChainStatus status in chain.ChainStatus)
+                var chainStatus = new List<X509ChainStatus>(chain.ChainStatus);
+
+                if (caCerts != null)
                 {
-                    if (status.Status == X509ChainStatusFlags.UntrustedRoot && caCerts != null)
+                    // Untrusted root is OK when using our custom chain engine if the CA certificate is present in the
+                    // chain policy extra store.
+                    X509ChainElement root = chain.ChainElements[^1];
+                    if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
                     {
-                        // Untrusted root is OK when using our custom chain engine if the CA certificate is present
-                        // in the chain policy extra store.
-                        X509ChainElement root = chain.ChainElements[^1];
-                        if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
-                        {
-                            errors ^= SslPolicyErrors.RemoteCertificateChainErrors;
-                        }
-                        else
-                        {
-                            message.Append("\nuntrusted root certificate");
-                            errors |= SslPolicyErrors.RemoteCertificateChainErrors;
-                        }
+                        chainStatus.Remove(
+                            chainStatus.Find(status => status.Status == X509ChainStatusFlags.UntrustedRoot));
+                        errors ^= SslPolicyErrors.RemoteCertificateChainErrors;
                     }
-                    else if (status.Status != X509ChainStatusFlags.NoError)
+                    else if (!chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
+                    {
+                        chainStatus.Add(new X509ChainStatus() { Status = X509ChainStatusFlags.UntrustedRoot });
+                        errors |= SslPolicyErrors.RemoteCertificateChainErrors;
+                    }
+                }
+
+                foreach (X509ChainStatus status in chainStatus)
+                {
+                    if (status.Status != X509ChainStatusFlags.NoError)
                     {
                         message.Append("\ncertificate chain error: ");
                         message.Append(status.Status);
