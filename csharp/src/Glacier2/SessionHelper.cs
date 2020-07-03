@@ -55,11 +55,7 @@ namespace ZeroC.Glacier2
 
         private ObjectAdapter? _adapter;
         private readonly ISessionCallback _callback;
-        private readonly X509Certificate2Collection? _caCertificates;
         private string? _category;
-        private readonly X509Certificate2Collection? _certificates;
-        private readonly LocalCertificateSelectionCallback? _certificateSelectionCallback;
-        private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
         private Communicator? _communicator;
         private bool _connected = false;
         private bool _destroy = false;
@@ -67,10 +63,11 @@ namespace ZeroC.Glacier2
         private readonly ILogger? _logger;
         private readonly object _mutex = new object();
         private readonly ICommunicatorObserver? _observer;
-        private readonly IPasswordCallback? _passwordCallback;
         private readonly Dictionary<string, string> _properties;
         private IRouterPrx? _router;
         private ISessionPrx? _session;
+        private readonly TlsClientOptions? _tlsClientOptions;
+        private readonly TlsServerOptions? _tlsServerOptions;
         private readonly bool _useCallbacks;
 
         /// <summary>Adds a servant to the callback object adapter's with an UUID.</summary>
@@ -160,11 +157,8 @@ namespace ZeroC.Glacier2
             Dictionary<string, string> properties,
             ILogger? logger,
             ICommunicatorObserver? observer,
-            X509Certificate2Collection? certificates,
-            X509Certificate2Collection? caCertificates,
-            LocalCertificateSelectionCallback? certificateSelectionCallback,
-            RemoteCertificateValidationCallback? certificateValidationCallback,
-            IPasswordCallback? passwordCallback)
+            TlsClientOptions? tlsClientOptions,
+            TlsServerOptions? tlsServerOptions)
         {
             _callback = callback;
             _finderStr = finderStr;
@@ -172,11 +166,8 @@ namespace ZeroC.Glacier2
             _properties = properties;
             _logger = logger;
             _observer = observer;
-            _certificates = certificates;
-            _caCertificates = caCertificates;
-            _certificateSelectionCallback = certificateSelectionCallback;
-            _certificateValidationCallback = certificateValidationCallback;
-            _passwordCallback = passwordCallback;
+            _tlsClientOptions = tlsClientOptions;
+            _tlsServerOptions = tlsServerOptions;
         }
 
         /// <summary>Connects to the Glacier2 router using the associated SSL credentials. Once the connection is
@@ -336,15 +327,11 @@ namespace ZeroC.Glacier2
                 {
                     lock (_mutex)
                     {
-                        _communicator = new Communicator(
-                            properties: _properties,
-                            logger: _logger,
-                            observer: _observer,
-                            certificates: _certificates,
-                            caCertificates: _caCertificates,
-                            certificateSelectionCallback: _certificateSelectionCallback,
-                            certificateValidationCallback: _certificateValidationCallback,
-                            passwordCallback: _passwordCallback);
+                        _communicator = new Communicator(_properties,
+                                                         _logger,
+                                                         _observer,
+                                                         _tlsClientOptions,
+                                                         _tlsServerOptions);
                     }
                 }
                 catch (Exception ex)

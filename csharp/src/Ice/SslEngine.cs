@@ -3,491 +3,208 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Security;
-using System.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace ZeroC.Ice
 {
-    /// <summary>The IPasswordCallback delegate provides applications a way of supplying the SSL transport with
-    /// passwords; this avoids using plain text configuration properties. Obtain the password necessary to access
-    /// the private key associated with the certificate in the given file.</summary>
-    /// <param name="file">The certificate file name.</param>
-    /// <returns>The password for the key or null, if no password is necessary.</returns>
-    public delegate SecureString IPasswordCallback(string file);
-
     internal class SslEngine
     {
-        internal X509Certificate2Collection? CaCerts { get; }
-        internal X509Certificate2Collection? Certs { get; }
-        internal LocalCertificateSelectionCallback? CertificateSelectionCallback { get; }
-        internal RemoteCertificateValidationCallback? RemoteCertificateValidationCallback { get; }
-        internal int CheckCRL { get; }
-        internal IPasswordCallback? PasswordCallback { get; }
+        // TLS Client side configuration
+        internal TlsClientOptions TlsClientOptions { get; }
+
+        // TLS Server side configuration
+        internal TlsServerOptions TlsServerOptions { get; }
+
         internal int SecurityTraceLevel { get; }
         internal string SecurityTraceCategory => "Security";
-        internal SslProtocols SslProtocols { get; }
-        internal SslTrustManager TrustManager { get; }
-        internal bool UseMachineContext { get; }
 
-        private readonly string _defaultDir = string.Empty;
+        internal SslTrustManager SslTrustManager { get; }
+
         private readonly ILogger _logger;
 
         internal SslEngine(
             Communicator communicator,
-            X509Certificate2Collection? certificates,
-            X509Certificate2Collection? caCertificates,
-            LocalCertificateSelectionCallback? certificateSelectionCallback,
-            RemoteCertificateValidationCallback? certificateValidationCallback,
-            IPasswordCallback? passwordCallback)
+            TlsClientOptions? tlsClientOptions,
+            TlsServerOptions? tlsServerOptions)
         {
             _logger = communicator.Logger;
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
-            TrustManager = new SslTrustManager(communicator);
+            SslTrustManager = new SslTrustManager(communicator);
 
-            CertificateSelectionCallback = certificateSelectionCallback;
-            RemoteCertificateValidationCallback = certificateValidationCallback;
-            PasswordCallback = passwordCallback;
+            TlsClientOptions = new TlsClientOptions();
+            TlsServerOptions = new TlsServerOptions();
 
-            Certs = certificates;
-            CaCerts = caCertificates;
+            TlsClientOptions.EnabledSslProtocols = tlsClientOptions?.EnabledSslProtocols ??
+                ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
+            TlsServerOptions.EnabledSslProtocols = tlsServerOptions?.EnabledSslProtocols ??
+                ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
+
+            TlsServerOptions.RequireClientCertificate = tlsServerOptions?.RequireClientCertificate ?? true;
 
             // Check for a default directory. We look in this directory for files mentioned in the configuration.
-            _defaultDir = communicator.GetProperty("IceSSL.DefaultDir") ?? "";
+            string defaultDir = communicator.GetProperty("IceSSL.DefaultDir") ?? "";
+            X509Certificate2Collection? certificates = null;
+            // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
+            if (communicator.GetProperty("IceSSL.CertFile") is string certificateFile)
+            {
+                if (!CheckPath(defaultDir, ref certificateFile))
+                {
+                    throw new FileNotFoundException(
+                        $"certificate file not found: `{certificateFile}'", certificateFile);
+                }
 
-            string? certStoreLocation = communicator.GetProperty("IceSSL.CertStoreLocation");
-            if (certStoreLocation != null && CertificateSelectionCallback != null)
-            {
-                throw new InvalidConfigurationException(
-                    "the property `IceSSL.CertStoreLocation' is incompatible with the certificate selection callback");
+                certificates = new X509Certificate2Collection();
+                try
+                {
+                    X509KeyStorageFlags importFlags;
+                    if (AssemblyUtil.IsLinux)
+                    {
+                        importFlags = X509KeyStorageFlags.EphemeralKeySet;
+                    }
+                    else
+                    {
+                        importFlags = tlsClientOptions?.UseMachineContex ??
+                                      tlsServerOptions?.UseMachineContex ?? false ?
+                            X509KeyStorageFlags.MachineKeySet : X509KeyStorageFlags.UserKeySet;
+                    }
+
+                    certificates.Add(communicator.GetProperty("IceSSL.Password") is string password ?
+                        new X509Certificate2(certificateFile, password, importFlags) :
+                        new X509Certificate2(certificateFile, "", importFlags));
+                }
+                catch (CryptographicException ex)
+                {
+                    throw new InvalidConfigurationException(
+                        $"error while attempting to load certificate from `{certificateFile}'", ex);
+                }
             }
-            certStoreLocation ??= "CurrentUser";
-            StoreLocation storeLocation;
-            if (certStoreLocation == "CurrentUser")
+
+            TlsClientOptions.ClientCertificates = tlsClientOptions?.ClientCertificates ?? certificates;
+            TlsServerOptions.ServerCertificate = tlsServerOptions?.ServerCertificate ?? certificates?[0];
+
+            TlsClientOptions.ClientCertificateSelectionCallback = tlsClientOptions?.ClientCertificateSelectionCallback;
+
+            X509Certificate2Collection? caCertificates = null;
+
+            if (communicator.GetProperty("IceSSL.CAs") is string certAuthFile)
             {
-                storeLocation = StoreLocation.CurrentUser;
+                if (!CheckPath(defaultDir, ref certAuthFile))
+                {
+                    throw new FileNotFoundException("CA certificate file not found: `{certAuthFile}'",
+                        certAuthFile);
+                }
+
+                try
+                {
+                    using FileStream fs = File.OpenRead(certAuthFile);
+                    byte[] data = new byte[fs.Length];
+                    fs.Read(data, 0, data.Length);
+
+                    string strbuf = "";
+                    try
+                    {
+                        strbuf = System.Text.Encoding.UTF8.GetString(data);
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore
+                    }
+
+                    string beginCertificateMark = "-----BEGIN CERTIFICATE-----";
+                    string endCertificateMark = "-----END CERTIFICATE-----";
+
+                    caCertificates = new X509Certificate2Collection();
+                    if (strbuf.Length == data.Length)
+                    {
+                        int size, startpos, endpos = 0;
+                        bool first = true;
+                        while (true)
+                        {
+                            startpos = strbuf.IndexOf(beginCertificateMark, endpos);
+                            if (startpos != -1)
+                            {
+                                endpos = strbuf.IndexOf(endCertificateMark, startpos);
+                                if (endpos == -1)
+                                {
+                                    throw new FormatException(
+                                        $"end certificate mark `{endCertificateMark}' not found");
+                                }
+                                size = endpos - startpos + endCertificateMark.Length;
+                            }
+                            else if (first)
+                            {
+                                startpos = 0;
+                                endpos = strbuf.Length;
+                                size = strbuf.Length;
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            byte[] cert = new byte[size];
+                            Buffer.BlockCopy(data, startpos, cert, 0, size);
+                            caCertificates.Import(cert);
+                            first = false;
+                        }
+                    }
+                    else
+                    {
+                        caCertificates.Import(data);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidConfigurationException(
+                        $"error while attempting to load CA certificate from `{certAuthFile}'", ex);
+                }
             }
-            else if (certStoreLocation == "LocalMachine")
+
+            if (tlsClientOptions?.ServerCertificateValidationCallback == null)
             {
-                storeLocation = StoreLocation.LocalMachine;
+                TlsClientOptions.ServerCertificateCertificateAuthorities =
+                    tlsClientOptions?.ServerCertificateCertificateAuthorities ?? caCertificates;
             }
             else
             {
-                _logger.Warning($"Invalid IceSSL.CertStoreLocation value `{certStoreLocation}' adjusted to `CurrentUser'");
-                storeLocation = StoreLocation.CurrentUser;
-            }
-            UseMachineContext = certStoreLocation == "LocalMachine";
-
-            // Protocols selects which protocols to enable
-            SslProtocols = ParseProtocols(communicator.GetPropertyAsList("IceSSL.Protocols"));
-
-            // CheckCRL determines whether the certificate revocation list is checked, and how strictly.
-            CheckCRL = communicator.GetPropertyAsInt("IceSSL.CheckCRL") ?? 0;
-
-            // If the user hasn't supplied a certificate collection, we need to examine the property settings.
-            if (Certs == null)
-            {
-                // If IceSSL.CertFile is defined, load a certificate from a file and add it to the collection.
-                // TODO: tracing?
-                string? certFile = communicator.GetProperty("IceSSL.CertFile");
-                if (certFile != null && CertificateSelectionCallback != null)
-                {
-                    throw new InvalidConfigurationException(
-                        "the property `IceSSL.CertFile' is incompatible with the certificate selection callback");
-                }
-
-                string? passwordStr = communicator.GetProperty("IceSSL.Password");
-                if (passwordStr != null && CertificateSelectionCallback != null)
-                {
-                    throw new InvalidConfigurationException(
-                        "the property `IceSSL.Password' is incompatible with the certificate selection callback");
-                }
-
-                string? findCert = communicator.GetProperty("IceSSL.FindCert");
-                if (findCert != null && CertificateSelectionCallback != null)
-                {
-                    throw new InvalidConfigurationException(
-                        "the property `IceSSL.FindCert' is incompatible with the certificate selection callback");
-                }
-                Certs = new X509Certificate2Collection();
-                const string findPrefix = "IceSSL.FindCert.";
-                Dictionary<string, string> findCertProps = communicator.GetProperties(forPrefix: findPrefix);
-
-                if (certFile != null)
-                {
-                    if (!CheckPath(ref certFile))
-                    {
-                        throw new FileNotFoundException($"certificate file not found: `{certFile}'", certFile);
-                    }
-
-                    SecureString? password = null;
-                    if (passwordStr != null)
-                    {
-                        password = CreateSecureString(passwordStr);
-                    }
-                    else if (PasswordCallback != null)
-                    {
-                        password = PasswordCallback(certFile);
-                    }
-
-                    try
-                    {
-                        X509Certificate2 cert;
-                        X509KeyStorageFlags importFlags;
-                        if (UseMachineContext)
-                        {
-                            importFlags = X509KeyStorageFlags.MachineKeySet;
-                        }
-                        else
-                        {
-                            importFlags = X509KeyStorageFlags.UserKeySet;
-                        }
-
-                        if (password != null)
-                        {
-                            cert = new X509Certificate2(certFile, password, importFlags);
-                        }
-                        else
-                        {
-                            cert = new X509Certificate2(certFile, "", importFlags);
-                        }
-                        Certs.Add(cert);
-                    }
-                    catch (CryptographicException ex)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"error while attempting to load certificate from `{certFile}'", ex);
-                    }
-                }
-                else if (findCert != null)
-                {
-                    string certStore = communicator.GetProperty("IceSSL.CertStore") ?? "My";
-                    Certs.AddRange(FindCertificates("IceSSL.FindCert", storeLocation, certStore, findCert));
-                    if (Certs.Count == 0)
-                    {
-                        throw new InvalidConfigurationException("no certificates found");
-                    }
-                }
+                TlsClientOptions.ServerCertificateValidationCallback =
+                    tlsClientOptions.ServerCertificateValidationCallback;
             }
 
-            if (CaCerts == null)
+            if (tlsServerOptions?.ClientCertificateValidationCallback == null)
             {
-                string? certAuthFile = communicator.GetProperty("IceSSL.CAs");
-                if (certAuthFile != null && RemoteCertificateValidationCallback != null)
-                {
-                    throw new InvalidConfigurationException(
-                        "the property `IceSSL.CAs' is incompatible with the custom remote certificate validation callback");
-                }
-
-                bool? usePlatformCAs = communicator.GetPropertyAsBool("IceSSL.UsePlatformCAs");
-                if (usePlatformCAs != null && RemoteCertificateValidationCallback != null)
-                {
-                    throw new InvalidConfigurationException(
-                        "the property `IceSSL.UsePlatformCAs' is incompatible with the custom remote certificate validation callback");
-                }
-
-                if (RemoteCertificateValidationCallback == null)
-                {
-                    if (certAuthFile != null || !(usePlatformCAs ?? false))
-                    {
-                        CaCerts = new X509Certificate2Collection();
-                    }
-
-                    if (certAuthFile != null)
-                    {
-                        if (!CheckPath(ref certAuthFile))
-                        {
-                            throw new FileNotFoundException("CA certificate file not found: `{certAuthFile}'",
-                                certAuthFile);
-                        }
-
-                        try
-                        {
-                            using FileStream fs = File.OpenRead(certAuthFile);
-                            byte[] data = new byte[fs.Length];
-                            fs.Read(data, 0, data.Length);
-
-                            string strbuf = "";
-                            try
-                            {
-                                strbuf = System.Text.Encoding.UTF8.GetString(data);
-                            }
-                            catch (Exception)
-                            {
-                                // Ignore
-                            }
-
-                            if (strbuf.Length == data.Length)
-                            {
-                                int size, startpos, endpos = 0;
-                                bool first = true;
-                                while (true)
-                                {
-                                    startpos = strbuf.IndexOf("-----BEGIN CERTIFICATE-----", endpos);
-                                    if (startpos != -1)
-                                    {
-                                        endpos = strbuf.IndexOf("-----END CERTIFICATE-----", startpos);
-                                        size = endpos - startpos + "-----END CERTIFICATE-----".Length;
-                                    }
-                                    else if (first)
-                                    {
-                                        startpos = 0;
-                                        endpos = strbuf.Length;
-                                        size = strbuf.Length;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-
-                                    byte[] cert = new byte[size];
-                                    Buffer.BlockCopy(data, startpos, cert, 0, size);
-                                    CaCerts!.Import(cert);
-                                    first = false;
-                                }
-                            }
-                            else
-                            {
-                                CaCerts!.Import(data);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new InvalidConfigurationException(
-                                $"error while attempting to load CA certificate from {certAuthFile}", ex);
-                        }
-                    }
-                }
+                TlsServerOptions.ClientCertificateCertificateAuthorities =
+                    tlsServerOptions?.ClientCertificateCertificateAuthorities ?? caCertificates;
+            }
+            else
+            {
+                TlsServerOptions.ClientCertificateValidationCallback =
+                    tlsServerOptions.ClientCertificateValidationCallback;
             }
         }
 
-        internal void TraceStream(SslStream stream, string connInfo)
+        internal void TraceStream(SslStream stream, string description)
         {
             var s = new System.Text.StringBuilder();
             s.Append("SSL connection summary");
-            if (connInfo.Length > 0)
+            if (description.Length > 0)
             {
-                s.Append("\n");
-                s.Append(connInfo);
+                s.Append("\n").Append(description);
             }
-            s.Append("\nauthenticated = " + (stream.IsAuthenticated ? "yes" : "no"));
-            s.Append("\nencrypted = " + (stream.IsEncrypted ? "yes" : "no"));
-            s.Append("\nsigned = " + (stream.IsSigned ? "yes" : "no"));
-            s.Append("\nmutually authenticated = " + (stream.IsMutuallyAuthenticated ? "yes" : "no"));
-            s.Append("\nhash algorithm = " + stream.HashAlgorithm + "/" + stream.HashStrength);
-            s.Append("\ncipher algorithm = " + stream.CipherAlgorithm + "/" + stream.CipherStrength);
-            s.Append("\nkey exchange algorithm = " + stream.KeyExchangeAlgorithm + "/" + stream.KeyExchangeStrength);
-            s.Append("\nprotocol = " + stream.SslProtocol);
+            s.Append("\nauthenticated = ").Append(stream.IsAuthenticated ? "yes" : "no");
+            s.Append("\nencrypted = ").Append(stream.IsEncrypted ? "yes" : "no");
+            s.Append("\nsigned = ").Append(stream.IsSigned ? "yes" : "no");
+            s.Append("\nmutually authenticated = ").Append(stream.IsMutuallyAuthenticated ? "yes" : "no");
+            s.Append("\nhash algorithm = ").Append(stream.HashAlgorithm).Append("/").Append(stream.HashStrength);
+            s.Append("\ncipher algorithm = ").Append(stream.CipherAlgorithm).Append("/").Append(stream.CipherStrength);
+            s.Append("\nkey exchange algorithm = ").Append(stream.KeyExchangeAlgorithm).Append("/").Append(
+                stream.KeyExchangeStrength);
+            s.Append("\nprotocol = ").Append(stream.SslProtocol);
             _logger.Trace(SecurityTraceCategory, s.ToString());
-        }
-
-        private static SecureString CreateSecureString(string s)
-        {
-            var result = new SecureString();
-            foreach (char ch in s)
-            {
-                result.AppendChar(ch);
-            }
-            return result;
-        }
-
-        private static X509Certificate2Collection FindCertificates(string prop, StoreLocation storeLocation,
-                                                                   string name, string value)
-        {
-            // Open the X509 certificate store.
-            X509Store store;
-            try
-            {
-                try
-                {
-                    store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), name, true), storeLocation);
-                }
-                catch (ArgumentException)
-                {
-                    store = new X509Store(name, storeLocation);
-                }
-                store.Open(OpenFlags.ReadOnly);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidConfigurationException($"failure while opening X509 store specified by `{prop}'", ex);
-            }
-
-            // Start with all of the certificates in the collection and filter as necessary.
-            //
-            // - If the value is "*", return all certificates.
-            // - Otherwise, search using key:value pairs. The following keys are supported:
-            //
-            //   Issuer
-            //   IssuerDN
-            //   Serial
-            //   Subject
-            //   SubjectDN
-            //   SubjectKeyId
-            //   Thumbprint
-            //
-            //   A value must be enclosed in single or double quotes if it contains whitespace.
-            var result = new X509Certificate2Collection();
-            result.AddRange(store.Certificates);
-            try
-            {
-                if (value != "*")
-                {
-                    if (value.IndexOf(':') == -1)
-                    {
-                        throw new FormatException($"no key in `{value}'");
-                    }
-                    int start = 0;
-                    int pos;
-                    while ((pos = value.IndexOf(':', start)) != -1)
-                    {
-                        // Parse the X509FindType.
-                        string field = value[start..pos].Trim().ToUpperInvariant();
-                        X509FindType findType;
-                        if (field.Equals("SUBJECT"))
-                        {
-                            findType = X509FindType.FindBySubjectName;
-                        }
-                        else if (field.Equals("SUBJECTDN"))
-                        {
-                            findType = X509FindType.FindBySubjectDistinguishedName;
-                        }
-                        else if (field.Equals("ISSUER"))
-                        {
-                            findType = X509FindType.FindByIssuerName;
-                        }
-                        else if (field.Equals("ISSUERDN"))
-                        {
-                            findType = X509FindType.FindByIssuerDistinguishedName;
-                        }
-                        else if (field.Equals("THUMBPRINT"))
-                        {
-                            findType = X509FindType.FindByThumbprint;
-                        }
-                        else if (field.Equals("SUBJECTKEYID"))
-                        {
-                            findType = X509FindType.FindBySubjectKeyIdentifier;
-                        }
-                        else if (field.Equals("SERIAL"))
-                        {
-                            findType = X509FindType.FindBySerialNumber;
-                        }
-                        else
-                        {
-                            throw new FormatException($"unknown key in `{value}'");
-                        }
-
-                        // Parse the argument.
-                        start = pos + 1;
-                        while (start < value.Length && (value[start] == ' ' || value[start] == '\t'))
-                        {
-                            ++start;
-                        }
-                        if (start == value.Length)
-                        {
-                            throw new FormatException($"missing argument in `{value}'");
-                        }
-
-                        string arg;
-                        if (value[start] == '"' || value[start] == '\'')
-                        {
-                            int end = start;
-                            ++end;
-                            while (end < value.Length)
-                            {
-                                if (value[end] == value[start] && value[end - 1] != '\\')
-                                {
-                                    break;
-                                }
-                                ++end;
-                            }
-                            if (end == value.Length || value[end] != value[start])
-                            {
-                                throw new FormatException("unmatched quote in `{value}'");
-                            }
-                            ++start;
-                            arg = value[start..end];
-                            start = end + 1;
-                        }
-                        else
-                        {
-                            char[] ws = new char[] { ' ', '\t' };
-                            int end = value.IndexOfAny(ws, start);
-                            if (end == -1)
-                            {
-                                arg = value.Substring(start);
-                                start = value.Length;
-                            }
-                            else
-                            {
-                                arg = value[start..end];
-                                start = end + 1;
-                            }
-                        }
-
-                        // Execute the query.
-                        bool validOnly = false;
-                        if (findType == X509FindType.FindBySubjectDistinguishedName ||
-                            findType == X509FindType.FindByIssuerDistinguishedName)
-                        {
-                            X500DistinguishedNameFlags[] flags =
-                                {
-                                    X500DistinguishedNameFlags.None,
-                                    X500DistinguishedNameFlags.Reversed,
-                                };
-                            var dn = new X500DistinguishedName(arg);
-                            X509Certificate2Collection r = result;
-                            for (int i = 0; i < flags.Length; ++i)
-                            {
-                                r = result.Find(findType, dn.Decode(flags[i]), validOnly);
-                                if (r.Count > 0)
-                                {
-                                    break;
-                                }
-                            }
-                            result = r;
-                        }
-                        else
-                        {
-                            result = result.Find(findType, arg, validOnly);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                store.Close();
-            }
-
-            return result;
-        }
-
-        private static bool IsAbsolutePath(string path)
-        {
-            // Skip whitespace
-            path = path.Trim();
-
-            if (AssemblyUtil.IsWindows)
-            {
-                // We need at least 3 non-whitespace characters to have an absolute path
-                if (path.Length < 3)
-                {
-                    return false;
-                }
-
-                // Check for X:\ path ('\' may have been converted to '/')
-                if ((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
-                {
-                    return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
-                }
-            }
-
-            // Check for UNC path
-            return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
         }
 
         private static SslProtocols ParseProtocols(string[]? arr)
@@ -535,63 +252,18 @@ namespace ZeroC.Ice
             return result;
         }
 
-        // Parse a string of the form "location.name" into two parts.
-        private static void ParseStore(string prop, string store, ref StoreLocation loc, ref StoreName name,
-                                       ref string? sname)
-        {
-            int pos = store.IndexOf('.');
-            if (pos == -1)
-            {
-                throw new InvalidConfigurationException($"property `{prop}' has invalid format");
-            }
-
-            string sloc = store.Substring(0, pos).ToUpperInvariant();
-            if (sloc.Equals("CURRENTUSER"))
-            {
-                loc = StoreLocation.CurrentUser;
-            }
-            else if (sloc.Equals("LOCALMACHINE"))
-            {
-                loc = StoreLocation.LocalMachine;
-            }
-            else
-            {
-                throw new InvalidConfigurationException($"unknown X509 store location `{sloc}' in `{prop}'");
-            }
-
-            sname = store.Substring(pos + 1);
-            if (sname.Length == 0)
-            {
-                throw new InvalidConfigurationException($"invalid X509 store name in `{prop}'");
-            }
-
-            // Try to convert the name into the StoreName enumeration.
-            try
-            {
-                name = (StoreName)Enum.Parse(typeof(StoreName), sname, true);
-                sname = null;
-            }
-            catch (ArgumentException)
-            {
-                // Ignore - assume the user is selecting a non-standard store.
-            }
-        }
-
-        private bool CheckPath(ref string path)
+        private bool CheckPath(string defaultDir, ref string path)
         {
             if (File.Exists(path))
             {
                 return true;
             }
 
-            if (_defaultDir.Length > 0 && !IsAbsolutePath(path))
+            string s = Path.Combine(defaultDir, path);
+            if (s != path && File.Exists(s))
             {
-                string s = _defaultDir + Path.DirectorySeparatorChar + path;
-                if (File.Exists(s))
-                {
-                    path = s;
-                    return true;
-                }
+                path = s;
+                return true;
             }
 
             return false;

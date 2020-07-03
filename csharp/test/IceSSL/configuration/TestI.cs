@@ -43,8 +43,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        public void
-        checkCipher(string cipher, Current current)
+        public void checkCipher(string cipher, Current current)
         {
             try
             {
@@ -67,10 +66,18 @@ namespace ZeroC.IceSSL.Test.Configuration
     {
         public ServerFactory(string defaultDir) => _defaultDir = defaultDir;
 
-        public IServerPrx createServer(Dictionary<string, string> props, Current current)
+        public IServerPrx createServer(
+            Dictionary<string, string> properties,
+            bool requireClientCertificate,
+            Current current)
         {
-            props["IceSSL.DefaultDir"] = _defaultDir;
-            var communicator = new Communicator(props);
+            properties["IceSSL.DefaultDir"] = _defaultDir;
+            var communicator = new Communicator(
+                properties,
+                tlsServerOptions: new TlsServerOptions()
+                {
+                    RequireClientCertificate = requireClientCertificate
+                });
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints("ServerAdapter", "ssl");
             var server = new SSLServer(communicator);
             var prx = adapter.AddWithUUID(server, IServerPrx.Factory);

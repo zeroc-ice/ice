@@ -1324,7 +1324,7 @@ namespace ZeroC.Ice
             }
             catch (Exception ex)
             {
-                _communicator.Logger.Error("unexpected connection exception:\n" + ex + "\n" + Transceiver.ToString());
+                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
             }
 
             if (_state > State.NotInitialized && _communicator.TraceLevels.Network >= 1)
