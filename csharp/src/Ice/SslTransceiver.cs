@@ -460,7 +460,7 @@ namespace ZeroC.Ice
                     {
                         _communicator.Logger.Trace(
                             _engine.SecurityTraceCategory,
-                            "SSL certificate validation failed - peer certificate not provided");
+                            "SSL certificate validation failed - remote certificate not provided");
                     }
                     return false;
                 }
