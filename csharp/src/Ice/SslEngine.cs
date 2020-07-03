@@ -61,15 +61,15 @@ namespace ZeroC.Ice
                 try
                 {
                     X509KeyStorageFlags importFlags;
-                    if (AssemblyUtil.IsWindows)
+                    if (AssemblyUtil.IsLinux)
+                    {
+                        importFlags = X509KeyStorageFlags.EphemeralKeySet;
+                    }
+                    else
                     {
                         importFlags = tlsClientOptions?.UseMachineContex ??
                                       tlsServerOptions?.UseMachineContex ?? false ?
                             X509KeyStorageFlags.MachineKeySet : X509KeyStorageFlags.UserKeySet;
-                    }
-                    else
-                    {
-                        importFlags = X509KeyStorageFlags.EphemeralKeySet;
                     }
 
                     certificates.Add(communicator.GetProperty("IceSSL.Password") is string password ?
