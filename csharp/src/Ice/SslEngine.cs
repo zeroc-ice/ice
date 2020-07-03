@@ -160,7 +160,7 @@ namespace ZeroC.Ice
                 catch (Exception ex)
                 {
                     throw new InvalidConfigurationException(
-                        $"error while attempting to load CA certificate from {certAuthFile}", ex);
+                        $"error while attempting to load CA certificate from `{certAuthFile}'", ex);
                 }
             }
 
@@ -205,30 +205,6 @@ namespace ZeroC.Ice
                 stream.KeyExchangeStrength);
             s.Append("\nprotocol = ").Append(stream.SslProtocol);
             _logger.Trace(SecurityTraceCategory, s.ToString());
-        }
-
-        private static bool IsAbsolutePath(string path)
-        {
-            // Skip whitespace
-            path = path.Trim();
-
-            if (AssemblyUtil.IsWindows)
-            {
-                // We need at least 3 non-whitespace characters to have an absolute path
-                if (path.Length < 3)
-                {
-                    return false;
-                }
-
-                // Check for X:\ path ('\' may have been converted to '/')
-                if ((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
-                {
-                    return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
-                }
-            }
-
-            // Check for UNC path
-            return (path[0] == '\\' && path[1] == '\\') || path[0] == '/';
         }
 
         private static SslProtocols ParseProtocols(string[]? arr)
@@ -283,14 +259,11 @@ namespace ZeroC.Ice
                 return true;
             }
 
-            if (defaultDir.Length > 0 && !IsAbsolutePath(path))
+            string s = Path.Combine(defaultDir, path);
+            if (s != path && File.Exists(s))
             {
-                string s = Path.Combine(defaultDir, path);
-                if (File.Exists(s))
-                {
-                    path = s;
-                    return true;
-                }
+                path = s;
+                return true;
             }
 
             return false;
