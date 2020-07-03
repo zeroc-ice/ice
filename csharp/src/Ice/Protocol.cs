@@ -53,21 +53,14 @@ namespace ZeroC.Ice
         /// <returns>The parsed protocol, or throws an exception if the string cannot be parsed.</returns>
         internal static Protocol Parse(string str)
         {
-            switch (str)
+            return str switch
             {
-                case "ice1":
-                    return Protocol.Ice1;
-                case "ice2":
-                    return Protocol.Ice2;
-                default:
-                    // Parse as a Major.Minor encoding:
-                    if (Encoding.TryParse(str, out Encoding encoding) && encoding.Minor == 0)
-                    {
-                        return (Protocol)encoding.Major;
-                    }
-                    byte value = byte.Parse(str, CultureInfo.InvariantCulture);
-                    return (Protocol)value;
-            }
+                "ice1" => Protocol.Ice1,
+                "ice2" => Protocol.Ice2,
+                // Parse as a Major.Minor encoding:
+                _ => Encoding.TryParse(str, out Encoding encoding) && encoding.Minor == 0 ?
+                    (Protocol)encoding.Major : (Protocol)byte.Parse(str, CultureInfo.InvariantCulture)
+            };
         }
     }
 }

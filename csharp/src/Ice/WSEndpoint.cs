@@ -49,7 +49,7 @@ namespace ZeroC.Ice
             return sb.ToString();
         }
 
-        public override bool Equivalent(Endpoint endpoint) => endpoint is WSEndpoint && base.Equivalent(endpoint);
+        public override bool IsLocal(Endpoint endpoint) => endpoint is WSEndpoint && base.IsLocal(endpoint);
 
         public override void IceWritePayload(OutputStream ostr)
         {

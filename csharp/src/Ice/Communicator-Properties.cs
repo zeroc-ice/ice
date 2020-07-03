@@ -350,7 +350,7 @@ namespace ZeroC.Ice
                 string prefix = name.Substring(0, dotPos);
                 foreach (Property[] validProps in PropertyNames.ValidProperties)
                 {
-                    string pattern = validProps[0].Pattern();
+                    string pattern = validProps[0].Pattern;
                     dotPos = pattern.IndexOf('.');
                     Debug.Assert(dotPos != -1);
                     string propPrefix = pattern.Substring(1, dotPos - 2);
@@ -364,15 +364,15 @@ namespace ZeroC.Ice
                     bool found = false;
                     foreach (Property prop in validProps)
                     {
-                        var r = new Regex(prop.Pattern());
+                        var r = new Regex(prop.Pattern);
                         Match m = r.Match(name);
                         found = m.Success;
                         if (found)
                         {
-                            if (prop.Deprecated())
+                            if (prop.Deprecated)
                             {
                                 Logger.Warning($"deprecated property: `{name}'");
-                                string? deprecatedBy = prop.DeprecatedBy();
+                                string? deprecatedBy = prop.DeprecatedBy;
                                 if (deprecatedBy != null)
                                 {
                                     name = deprecatedBy;
@@ -383,13 +383,13 @@ namespace ZeroC.Ice
 
                         if (!found)
                         {
-                            r = new Regex(prop.Pattern().ToUpper());
+                            r = new Regex(prop.Pattern.ToUpper());
                             m = r.Match(name.ToUpper());
                             if (m.Success)
                             {
                                 found = true;
                                 mismatchCase = true;
-                                otherKey = prop.Pattern().Replace("\\", "").Replace("^", "").Replace("$", "");
+                                otherKey = prop.Pattern.Replace("\\", "").Replace("^", "").Replace("$", "");
                                 break;
                             }
                         }

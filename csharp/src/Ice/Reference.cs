@@ -1268,30 +1268,35 @@ namespace ZeroC.Ice
             {
                 OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
                 Connection? connection = null;
-                bool compress = false;
                 if (IsConnectionCached)
                 {
-                    //
                     // Get an existing connection or create one if there's no existing connection to one of
                     // the given endpoints.
                     //
-                    (connection, compress) = await factory.CreateAsync(endpoints, false,
-                        EndpointSelection).ConfigureAwait(false);
+                    // TODO: The factory uses endpoint equality to lookup for existing connections. To ignore
+                    // the compression flag we only compare endpoints with the flag set to false. It would be
+                    // better to fix endpoint equality or use a custom equality method (we'll also need to do
+                    // the same for timeouts).
+                    endpoints = new List<Endpoint>(endpoints.Select(endpoint => endpoint.NewCompressionFlag(false)));
+                    connection = await factory.CreateAsync(endpoints, false, EndpointSelection).ConfigureAwait(false);
                 }
                 else
                 {
-                    //
                     // Go through the list of endpoints and try to create the connection until it succeeds. This
                     // is different from just calling create() with all the endpoints since this might create a
                     // new connection even if there's an existing connection for one of the endpoints.
-                    //
                     Endpoint lastEndpoint = endpoints[endpoints.Count - 1];
                     foreach (Endpoint endpoint in endpoints)
                     {
                         try
                         {
-                            (connection, compress) = await factory.CreateAsync(new Endpoint[] { endpoint },
-                                endpoint != lastEndpoint, EndpointSelection).ConfigureAwait(false);
+                            // TODO: The factory uses endpoint equality to lookup for existing connections. To ignore
+                            // the compression flag we only compare endpoints with the flag set to false. It would be
+                            // better to fix endpoint equality or use a custom equality method  (we'll also need to do
+                            // the same for timeouts).
+                            connection = await factory.CreateAsync(new Endpoint[] { endpoint.NewCompressionFlag(false) },
+                                                                   endpoint != lastEndpoint,
+                                                                   EndpointSelection).ConfigureAwait(false);
                             break;
                         }
                         catch (Exception)
@@ -1318,11 +1323,24 @@ namespace ZeroC.Ice
                         connection.Adapter = RouterInfo.Adapter;
                     }
                 }
+
+                // If it's an Ice1 proxy, we check if the connection matches an endpoint with the compression flag
+                // enabled. If it's the case, we'll use compression.
+                bool compress = false;
+                if (Protocol == Protocol.Ice1)
+                {
+                    // The connection endpoint is always a non-compressed endpoint. If one of the resolved endpoints
+                    // matches the connection endpoint, we don't use compression. Otherwise, if we don't find the
+                    // matching endpoint, it implies that we got a connection for one the compressed resolved endpoints.
+                    compress = !endpoints.Select(endpoint => connection.Endpoint == endpoint).Any();
+
+                    Debug.Assert(!compress || endpoints.Contains(connection.Endpoint.NewCompressionFlag(true)));
+                }
                 return new ConnectionRequestHandler(connection, compress);
             }
             catch (Exception ex)
             {
-                if (LocatorInfo != null)
+                if (LocatorInfo != null && IsIndirect)
                 {
                     LocatorInfo.ClearCache(this);
                 }

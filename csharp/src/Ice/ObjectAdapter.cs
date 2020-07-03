@@ -191,7 +191,7 @@ namespace ZeroC.Ice
 
             foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
-                factory.Destroy();
+                _ = factory.DestroyAsync();
             }
 
             Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
@@ -208,7 +208,6 @@ namespace ZeroC.Ice
         /// adapter have completed.</summary>
         public void WaitForDeactivate()
         {
-            IncomingConnectionFactory[] incomingConnectionFactories;
             lock (_mutex)
             {
                 // Wait for deactivation of the adapter itself, and for the return of all direct calls using this
@@ -221,13 +220,12 @@ namespace ZeroC.Ice
                 {
                     return;
                 }
-                incomingConnectionFactories = _incomingConnectionFactories.ToArray();
             }
 
             // Now we wait until all incoming connection factories are finished.
-            foreach (IncomingConnectionFactory factory in incomingConnectionFactories)
+            foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
-                factory.WaitUntilFinished();
+                factory.DestroyAsync().Wait();
             }
         }
 
@@ -264,9 +262,6 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                // We're done, now we can clear all incoming connection factories.
-                _incomingConnectionFactories.Clear();
-
                 // Remove object references (some of them cyclic).
                 _routerInfo = null;
                 _publishedEndpoints = Array.Empty<Endpoint>();
@@ -901,7 +896,7 @@ namespace ZeroC.Ice
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
                     return r.Endpoints.Any(endpoint =>
-                        _publishedEndpoints.Any(publishedEndpoint => endpoint.Equivalent(publishedEndpoint)) ||
+                        _publishedEndpoints.Any(publishedEndpoint => endpoint.IsLocal(publishedEndpoint)) ||
                         _incomingConnectionFactories.Any(factory => factory.IsLocal(endpoint)));
                 }
             }
@@ -909,15 +904,9 @@ namespace ZeroC.Ice
 
         internal void UpdateConnectionObservers()
         {
-            IncomingConnectionFactory[] factories;
-            lock (_mutex)
+            foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
             {
-                factories = _incomingConnectionFactories.ToArray();
-            }
-
-            foreach (IncomingConnectionFactory p in factories)
-            {
-                p.UpdateConnectionObservers();
+                factory.UpdateConnectionObservers();
             }
         }
 

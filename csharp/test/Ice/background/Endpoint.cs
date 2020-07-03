@@ -49,11 +49,11 @@ namespace ZeroC.Ice.Test.Background
 
         public override string OptionsToString() => _endpoint.OptionsToString();
 
-        public override bool Equivalent(ZeroC.Ice.Endpoint endpoint)
+        public override bool IsLocal(ZeroC.Ice.Endpoint endpoint)
         {
             if (endpoint is Endpoint testEndpoint)
             {
-                return testEndpoint._endpoint.Equivalent(_endpoint);
+                return testEndpoint._endpoint.IsLocal(_endpoint);
             }
             else
             {
