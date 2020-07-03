@@ -101,10 +101,18 @@ namespace ZeroC.Ice
         /// <summary>True for incoming connections false otherwise.</summary>
         public bool IsIncoming => _connector == null;
 
+        // The connector from which the connection was created. This is used by the outgoing connection factory.
+        internal IConnector Connector => _connector!;
+
+        // The endpoints which are associated with this connection. This is populated by the outgoing connection
+        // factory when an endpoint resolves to the same connector as this connection's connector. Two endpoints
+        // can be different but resolve to the same connector (e.g.: endpoints with the IPs "::1", "0:0:0:0:0:0:0:1"
+        // or "localhost" are different endpoints but they all end up resolving to the same connector and can use
+        // the same connection).
+        internal List<Endpoint> Endpoints { get; }
+
         // TODO: Remove Timeout after reviewing its usages, it's no longer used by the connection
         internal int Timeout => Endpoint.Timeout;
-
-        internal IConnector Connector => _connector!;
 
         internal bool Active
         {
@@ -365,6 +373,7 @@ namespace ZeroC.Ice
             Transceiver = transceiver;
             _connector = connector;
             Endpoint = endpoint;
+            Endpoints = new List<Endpoint>() { endpoint };
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = _communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;

@@ -15,6 +15,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -943,14 +944,14 @@ namespace ZeroC.Ice
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections
             // to be finished.
             Shutdown();
-            _outgoingConnectionFactory?.Destroy();
+            _outgoingConnectionFactory?.DestroyAsync();
 
             // First wait for shutdown to finish.
             WaitForShutdown();
 
             DestroyAllObjectAdapters();
 
-            _outgoingConnectionFactory?.WaitUntilFinished();
+            _outgoingConnectionFactory?.DestroyAsync().Wait();
 
             Observer?.SetObserverUpdater(null);
 

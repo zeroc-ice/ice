@@ -89,7 +89,7 @@ namespace ZeroC.Ice
             return sb.ToString();
         }
 
-        public override bool Equivalent(Endpoint endpoint) => false;
+        public override bool IsLocal(Endpoint endpoint) => false;
 
         public override string ToString()
         {

@@ -77,9 +77,9 @@ namespace ZeroC.Ice
         // Converts all the options to a string with a leading empty space character.
         public abstract string OptionsToString();
 
-        // Checks whether the endpoint is equivalent to another one.
-        // TODO: describe what equivalent means / is used for.
-        public abstract bool Equivalent(Endpoint endpoint);
+        // Checks whether this endpoint and the given endpoint point to the same local peer. This is used for the
+        // collocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
+        public abstract bool IsLocal(Endpoint endpoint);
 
         /// <summary>Writes the payload of this endpoint to the output stream. The payload does not include the type nor
         /// the enclosing encapsulation header.</summary>
