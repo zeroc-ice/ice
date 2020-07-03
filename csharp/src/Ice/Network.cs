@@ -10,7 +10,6 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -725,11 +724,8 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                ExceptionDispatchInfo.Throw(ex.InnerException);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
-
-            Debug.Assert(false);
-            return null!;
         }
 
         public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesForClientEndpointAsync(string host, int port,
@@ -774,11 +770,8 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                ExceptionDispatchInfo.Throw(ex.InnerException);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
-
-            Debug.Assert(false);
-            return null!;
         }
 
         public static async ValueTask<IEnumerable<IPEndPoint>> GetAddressesAsync(string host, int port, int ipVersion,

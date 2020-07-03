@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -275,11 +274,8 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                ExceptionDispatchInfo.Throw(ex.InnerException);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
-
-            Debug.Assert(false);
-            return null;
         }
 
         /// <summary>Returns the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -317,11 +313,8 @@ namespace ZeroC.Ice
             catch (AggregateException ex)
             {
                 Debug.Assert(ex.InnerException != null);
-                ExceptionDispatchInfo.Throw(ex.InnerException);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
-
-            Debug.Assert(false);
-            return null!;
         }
 
         /// <summary>Sends a request asynchronously.</summary>
