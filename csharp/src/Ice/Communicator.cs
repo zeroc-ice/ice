@@ -15,6 +15,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -92,8 +93,6 @@ namespace ZeroC.Ice
                 }
             }
         }
-
-        public bool DefaultCollocationOptimized { get; }
 
         /// <summary>The default context for proxies created using this communicator. Changing the value of
         /// DefaultContext does not change the context of previously created proxies.</summary>
@@ -173,7 +172,6 @@ namespace ZeroC.Ice
             "InvocationTimeout",
             "Locator",
             "Router",
-            "CollocationOptimized",
             "Context\\..*"
         };
         private static readonly object _staticLock = new object();
@@ -360,17 +358,13 @@ namespace ZeroC.Ice
                     }
                     else if (Runtime.Logger is Logger)
                     {
-                        //
                         // Ice.ConsoleListener is enabled by default.
-                        //
                         Logger = new TraceLogger(programName, GetPropertyAsBool("Ice.ConsoleListener") ?? true);
                     }
                     // else already set to process logger
                 }
 
                 TraceLevels = new TraceLevels(this);
-
-                DefaultCollocationOptimized = GetPropertyAsBool("Ice.Default.CollocationOptimized") ?? true;
 
                 if (GetProperty("Ice.Default.Encoding") is string encoding)
                 {
@@ -382,7 +376,7 @@ namespace ZeroC.Ice
                     catch (Exception ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"invalid value for for Ice.Default.Encoding: `{encoding}'", ex);
+                            $"invalid value for Ice.Default.Encoding: `{encoding}'", ex);
                     }
                 }
                 else
@@ -899,14 +893,14 @@ namespace ZeroC.Ice
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections
             // to be finished.
             Shutdown();
-            _outgoingConnectionFactory?.Destroy();
+            _outgoingConnectionFactory?.DestroyAsync();
 
             // First wait for shutdown to finish.
             WaitForShutdown();
 
             DestroyAllObjectAdapters();
 
-            _outgoingConnectionFactory?.WaitUntilFinished();
+            _outgoingConnectionFactory?.DestroyAsync().Wait();
 
             Observer?.SetObserverUpdater(null);
 
@@ -967,7 +961,7 @@ namespace ZeroC.Ice
             {
                 if (Logger is FileLogger fileLogger)
                 {
-                    fileLogger.Destroy();
+                    fileLogger.Dispose();
                 }
             }
             _currentContext.Dispose();

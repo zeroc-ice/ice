@@ -12,9 +12,9 @@ using Test;
 
 namespace ZeroC.Ice.Test.ACM
 {
-    public class LoggerI : ILogger
+    public class Logger : ILogger
     {
-        public LoggerI(string name, TextWriter output)
+        public Logger(string name, TextWriter output)
         {
             _name = name;
             _output = output;
@@ -101,7 +101,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public string GetPrefix() => "";
+        public string Prefix => "";
 
         public ILogger CloneWithPrefix(string prefix) => this;
 
@@ -129,7 +129,7 @@ namespace ZeroC.Ice.Test.ACM
             _name = name;
             _com = com;
             _output = helper.GetWriter();
-            _logger = new LoggerI(_name, _output);
+            _logger = new Logger(_name, _output);
             _helper = helper;
 
             _clientACMTimeout = -1;
@@ -259,7 +259,7 @@ namespace ZeroC.Ice.Test.ACM
         private readonly string _name;
         private readonly IRemoteCommunicatorPrx _com;
         private string? _msg;
-        private readonly LoggerI _logger;
+        private readonly Logger _logger;
         private readonly TestHelper _helper;
         private readonly TextWriter _output;
         private Thread? _thread;

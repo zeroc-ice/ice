@@ -3,15 +3,16 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
 
 namespace ZeroC.Ice
 {
     internal sealed class LoggerAdminLogger : ILogger
     {
+        public string Prefix => LocalLogger.Prefix;
+
         internal ILogger LocalLogger { get; }
         private static long Now() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000;
         private readonly Channel<LogMessage> _channel;
@@ -31,8 +32,6 @@ namespace ZeroC.Ice
             LocalLogger.Error(message);
             Log(logMessage);
         }
-
-        public string GetPrefix() => LocalLogger.GetPrefix();
 
         public ILoggerAdmin GetFacet() => _loggerAdmin;
 

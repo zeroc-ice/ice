@@ -73,14 +73,14 @@ namespace ZeroC.Ice
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_pingAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList();
+            request.ReadEmptyParamList(current.Communicator);
             IcePing(current);
             return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
         }
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_isAAsync(IncomingRequestFrame request, Current current)
         {
-            string id = request.ReadParamList(InputStream.IceReaderIntoString);
+            string id = request.ReadParamList(current.Communicator, InputStream.IceReaderIntoString);
             bool ret = IceIsA(id, current);
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current, format: null, ret, OutputStream.IceWriterFromBool));
@@ -88,7 +88,7 @@ namespace ZeroC.Ice
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList();
+            request.ReadEmptyParamList(current.Communicator);
             string ret = IceId(current);
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current, format: null, ret, OutputStream.IceWriterFromString));
@@ -96,7 +96,7 @@ namespace ZeroC.Ice
 
         protected ValueTask<OutgoingResponseFrame> IceD_ice_idsAsync(IncomingRequestFrame request, Current current)
         {
-            request.ReadEmptyParamList();
+            request.ReadEmptyParamList(current.Communicator);
             IEnumerable<string> ret = IceIds(current);
             return new ValueTask<OutgoingResponseFrame>(
                 OutgoingResponseFrame.WithReturnValue(current, format: null, ret,

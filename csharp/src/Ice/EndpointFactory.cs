@@ -41,12 +41,12 @@ namespace ZeroC.Ice
             {
                 case Transport.TCP:
                 case Transport.SSL:
-                    return new TcpEndpoint(istr, transport, protocol);
+                    return new TcpEndpoint(istr, _communicator, transport, protocol);
                 case Transport.WS:
                 case Transport.WSS:
-                    return new WSEndpoint(istr, transport, protocol);
+                    return new WSEndpoint(istr, _communicator, transport, protocol);
                 case Transport.UDP:
-                    return new UdpEndpoint(istr, protocol);
+                    return new UdpEndpoint(istr, _communicator, protocol);
                 default:
                     Debug.Assert(false);
                     throw new NotSupportedException($"the transport `{transport}' is not supported");

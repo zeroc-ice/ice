@@ -6,21 +6,15 @@ namespace ZeroC.Ice
 {
     public sealed class Property
     {
+        public bool Deprecated { get; }
+        public string? DeprecatedBy { get; }
+        public string Pattern { get; }
+
         public Property(string pattern, bool deprecated, string? deprecatedBy)
         {
-            _pattern = pattern;
-            _deprecated = deprecated;
-            _deprecatedBy = deprecatedBy;
+            Pattern = pattern;
+            Deprecated = deprecated;
+            DeprecatedBy = deprecatedBy;
         }
-
-        public string Pattern() => _pattern;
-
-        public bool Deprecated() => _deprecated;
-
-        public string? DeprecatedBy() => _deprecatedBy;
-
-        private readonly string _pattern;
-        private readonly bool _deprecated;
-        private readonly string? _deprecatedBy;
     }
 }

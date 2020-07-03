@@ -35,19 +35,16 @@ namespace ZeroC.Ice
         public int Size => Data.Count;
 
         internal ArraySegment<byte> Data { get; }
-        private readonly Communicator _communicator;
 
         /// <summary>Creates a new IncomingRequestFrame.</summary>
-        /// <param name="communicator">The communicator to use when initializing the stream.</param>
         /// <param name="protocol">The Ice protocol.</param>
         /// <param name="data">The frame data as an array segment.</param>
-        public IncomingRequestFrame(Communicator communicator, Protocol protocol, ArraySegment<byte> data)
+        public IncomingRequestFrame(Protocol protocol, ArraySegment<byte> data)
         {
-            _communicator = communicator;
             Data = data;
             Protocol = protocol;
 
-            var istr = new InputStream(communicator, Protocol.GetEncoding(), data);
+            var istr = new InputStream(Protocol.GetEncoding(), data);
             Identity = new Identity(istr);
             Facet = istr.ReadFacet();
             Operation = istr.ReadString();
@@ -70,22 +67,25 @@ namespace ZeroC.Ice
 
         // TODO avoid copy payload (ToArray) creates a copy, that should be possible when
         // the frame has a single segment.
-        internal IncomingRequestFrame(Communicator communicator, OutgoingRequestFrame frame)
-            : this(communicator, frame.Protocol, VectoredBufferExtensions.ToArray(frame.Data))
+        internal IncomingRequestFrame(OutgoingRequestFrame frame)
+            : this(frame.Protocol, VectoredBufferExtensions.ToArray(frame.Data))
         {
         }
 
         /// <summary>Reads the empty parameter list, calling this methods ensure that the frame payload
         /// correspond to the empty parameter list.</summary>
-        public void ReadEmptyParamList() =>
-            InputStream.ReadEmptyEncapsulation(_communicator, Protocol.GetEncoding(), Payload);
+        /// <param name="communicator">The communicator.</param>
+        // TODO: we currently need the communicator only to skip (read) tagged classes.
+        public void ReadEmptyParamList(Communicator communicator) =>
+            InputStream.ReadEmptyEncapsulation(communicator, Protocol.GetEncoding(), Payload);
 
         /// <summary>Reads the request frame parameter list.</summary>
+        /// <param name="communicator">The communicator.</param>
         /// <param name="reader">An InputStreamReader delegate used to read the request frame
         /// parameters.</param>
         /// <returns>The request parameters, when the frame parameter list contains multiple parameters
         /// they must be return as a tuple.</returns>
-        public T ReadParamList<T>(InputStreamReader<T> reader) =>
-            InputStream.ReadEncapsulation(_communicator, Protocol.GetEncoding(), Payload, reader);
+        public T ReadParamList<T>(Communicator communicator, InputStreamReader<T> reader) =>
+            InputStream.ReadEncapsulation(communicator, Protocol.GetEncoding(), Payload, reader);
     }
 }

@@ -2935,15 +2935,16 @@ Slice::Gen::DispatcherVisitor::visitOperation(const OperationPtr& operation)
     // skips tagged members, and needs to understand them.
     if(inParams.empty())
     {
-        _out << nl << "request.ReadEmptyParamList();";
+        _out << nl << "request.ReadEmptyParamList(current.Communicator);";
     }
     else if(inParams.size() == 1)
     {
-        _out << nl << "var " << inParams.front().name << " = request.ReadParamList(" << reader << ");";
+        _out << nl << "var " << inParams.front().name << " = request.ReadParamList(current.Communicator, "
+            << reader << ");";
     }
     else
     {
-        _out << nl << "var paramList = request.ReadParamList(" << reader << ");";
+        _out << nl << "var paramList = request.ReadParamList(current.Communicator, " << reader << ");";
     }
 
     // The 'this.' is necessary only when the operation name matches one of our local variable (current, istr etc.)

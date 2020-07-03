@@ -125,8 +125,8 @@ namespace ZeroC.Ice
             Timeout = timeout;
         }
 
-        internal TcpEndpoint(InputStream istr, Transport transport, Protocol protocol)
-            : base(istr, protocol)
+        internal TcpEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
+            : base(istr, communicator, protocol)
         {
             Transport = transport;
             Timeout = istr.ReadInt();

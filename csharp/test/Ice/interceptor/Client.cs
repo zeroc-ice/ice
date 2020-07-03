@@ -162,19 +162,8 @@ namespace ZeroC.Ice.Test.Interceptor
 
             System.IO.TextWriter output = GetWriter();
 
-            output.WriteLine("Collocation optimization on");
+            output.WriteLine("With sync dispatch");
             runTest(prx, interceptor);
-            output.WriteLine("Now with AMD");
-            interceptor.clear();
-            runAmdAssert(prx, interceptor);
-
-            oa.Activate(); // Only necessary for non-collocation optimized tests
-
-            output.WriteLine("Collocation optimization off");
-            interceptor.clear();
-            prx = prx.Clone(collocationOptimized: false);
-            runTest(prx, interceptor);
-
             output.WriteLine("Now with AMD");
             interceptor.clear();
             runAmdAssert(prx, interceptor);

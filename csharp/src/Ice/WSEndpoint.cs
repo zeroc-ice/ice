@@ -49,7 +49,7 @@ namespace ZeroC.Ice
             return sb.ToString();
         }
 
-        public override bool Equivalent(Endpoint endpoint) => endpoint is WSEndpoint && base.Equivalent(endpoint);
+        public override bool IsLocal(Endpoint endpoint) => endpoint is WSEndpoint && base.IsLocal(endpoint);
 
         public override void IceWritePayload(OutputStream ostr)
         {
@@ -103,8 +103,8 @@ namespace ZeroC.Ice
             }
         }
 
-        internal WSEndpoint(InputStream istr, Transport transport, Protocol protocol)
-            : base(istr, transport, protocol) =>
+        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
+            : base(istr, communicator, transport, protocol) =>
             Resource = istr.ReadString();
 
         private protected override IPEndpoint CreateIPEndpoint(

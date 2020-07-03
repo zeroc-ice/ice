@@ -101,10 +101,18 @@ namespace ZeroC.Ice
         /// <summary>True for incoming connections false otherwise.</summary>
         public bool IsIncoming => _connector == null;
 
+        // The connector from which the connection was created. This is used by the outgoing connection factory.
+        internal IConnector Connector => _connector!;
+
+        // The endpoints which are associated with this connection. This is populated by the outgoing connection
+        // factory when an endpoint resolves to the same connector as this connection's connector. Two endpoints
+        // can be different but resolve to the same connector (e.g.: endpoints with the IPs "::1", "0:0:0:0:0:0:0:1"
+        // or "localhost" are different endpoints but they all end up resolving to the same connector and can use
+        // the same connection).
+        internal List<Endpoint> Endpoints { get; }
+
         // TODO: Remove Timeout after reviewing its usages, it's no longer used by the connection
         internal int Timeout => Endpoint.Timeout;
-
-        internal IConnector Connector => _connector!;
 
         internal bool Active
         {
@@ -365,6 +373,7 @@ namespace ZeroC.Ice
             Transceiver = transceiver;
             _connector = connector;
             Endpoint = endpoint;
+            Endpoints = new List<Endpoint>() { endpoint };
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = _communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
@@ -517,12 +526,13 @@ namespace ZeroC.Ice
             }
         }
 
-        internal async ValueTask<Task<IncomingResponseFrame>?> SendRequestAsync(
+        internal async ValueTask<IncomingResponseFrame> SendRequestAsync(
             OutgoingRequestFrame request,
             bool oneway,
             bool compress,
             bool synchronous,
             IInvocationObserver? observer,
+            IProgress<bool> progress,
             CancellationToken cancel)
         {
             IChildInvocationObserver? childObserver = null;
@@ -595,37 +605,29 @@ namespace ZeroC.Ice
                 childObserver?.Detach();
                 throw;
             }
+            progress.Report(false); // sentSynchronously: false
 
-            if (oneway)
+            if (responseTask == null)
             {
                 childObserver?.Detach();
-                return null;
+                return IncomingResponseFrame.WithVoidReturnValue(request.Protocol, request.Encoding);
             }
             else
             {
-                // TODO: support cancelation of requests.
-                return WaitForResponseAsync(responseTask!, childObserver, cancel);
-            }
-
-            static async Task<IncomingResponseFrame> WaitForResponseAsync(
-                Task<IncomingResponseFrame> task,
-                IChildInvocationObserver? observer,
-                CancellationToken cancel)
-            {
                 try
                 {
-                    IncomingResponseFrame response = await task.WaitAsync(cancel).ConfigureAwait(false);
-                    observer?.Reply(response.Size);
+                    IncomingResponseFrame response = await responseTask.WaitAsync(cancel).ConfigureAwait(false);
+                    childObserver?.Reply(response.Size);
                     return response;
                 }
                 catch (Exception ex)
                 {
-                    observer?.Failed(ex.GetType().FullName ?? "System.Exception");
+                    childObserver?.Failed(ex.GetType().FullName ?? "System.Exception");
                     throw;
                 }
                 finally
                 {
-                    observer?.Detach();
+                    childObserver?.Detach();
                 }
             }
         }
@@ -1041,8 +1043,8 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            var request = new IncomingRequestFrame(_communicator, Endpoint.Protocol,
-                                readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
+                            var request = new IncomingRequestFrame(Endpoint.Protocol,
+                                                                   readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                             ProtocolTrace.TraceFrame(_communicator, readBuffer, request);
                             if (_adapter == null)
                             {
@@ -1095,8 +1097,8 @@ namespace ZeroC.Ice
                     case Ice1Definitions.FrameType.Reply:
                     {
                         int requestId = InputStream.ReadInt(readBuffer.AsSpan(14, 4));
-                        var responseFrame = new IncomingResponseFrame(_communicator, Endpoint.Protocol,
-                            readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
+                        var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
+                                                                      readBuffer.Slice(Ice1Definitions.HeaderSize + 4));
                         ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
 
                         if (_requests.Remove(requestId,
@@ -1214,8 +1216,8 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            var request = new IncomingRequestFrame(_communicator, Endpoint.Protocol,
-                                readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
+                            var request = new IncomingRequestFrame(Endpoint.Protocol,
+                                                                   readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
                             ProtocolTrace.TraceFrame(_communicator, readBuffer, request);
                             if (_adapter == null)
                             {
@@ -1244,8 +1246,8 @@ namespace ZeroC.Ice
                     case Ice2Definitions.FrameType.Reply:
                     {
                         int requestId = InputStream.ReadInt(readBuffer.AsSpan(14, 4));
-                        var responseFrame = new IncomingResponseFrame(_communicator, Endpoint.Protocol,
-                            readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
+                        var responseFrame = new IncomingResponseFrame(Endpoint.Protocol,
+                                                                      readBuffer.Slice(Ice2Definitions.HeaderSize + 4));
                         ProtocolTrace.TraceFrame(_communicator, readBuffer, responseFrame);
 
                         if (_requests.Remove(requestId,

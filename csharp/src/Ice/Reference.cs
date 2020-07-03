@@ -32,7 +32,6 @@ namespace ZeroC.Ice
         internal Identity Identity { get; }
         internal InvocationMode InvocationMode { get; }
         internal int InvocationTimeout { get; }
-        internal bool IsCollocationOptimized { get; }
         internal bool IsConnectionCached;
         internal bool IsFixed => _fixedConnection != null;
         internal bool IsIndirect => !IsFixed && Endpoints.Count == 0;
@@ -112,10 +111,6 @@ namespace ZeroC.Ice
                     return false;
                 }
                 if (!Endpoints.SequenceEqual(other.Endpoints))
-                {
-                    return false;
-                }
-                if (IsCollocationOptimized != other.IsCollocationOptimized)
                 {
                     return false;
                 }
@@ -219,7 +214,6 @@ namespace ZeroC.Ice
                     {
                         hash.Add(e);
                     }
-                    hash.Add(IsCollocationOptimized);
                     hash.Add(IsConnectionCached);
                     hash.Add(EndpointSelection);
                     hash.Add(LocatorCacheTimeout);
@@ -669,8 +663,9 @@ namespace ZeroC.Ice
 
         /// <summary>Reads a reference from the input stream.</summary>
         /// <param name="istr">The input stream to read from.</param>
+        /// <param name="communicator">The communicator.</param>
         /// <returns>The reference read from the stream (can be null).</returns>
-        internal static Reference? Read(InputStream istr)
+        internal static Reference? Read(InputStream istr, Communicator communicator)
         {
             var identity = new Identity(istr);
             if (identity.Name.Length == 0)
@@ -708,7 +703,7 @@ namespace ZeroC.Ice
                 endpoints = new Endpoint[sz];
                 for (int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = istr.ReadEndpoint(protocol);
+                    endpoints[i] = istr.ReadEndpoint(protocol, communicator);
                 }
             }
             else
@@ -717,9 +712,14 @@ namespace ZeroC.Ice
                 adapterId = istr.ReadString();
             }
 
-            return new Reference(adapterId: adapterId, communicator: istr.Communicator, encoding: encoding,
-                endpoints: endpoints, facet: facet, identity: identity, invocationMode: (InvocationMode)mode,
-                protocol: protocol);
+            return new Reference(adapterId,
+                                 communicator,
+                                 encoding,
+                                 endpoints,
+                                 facet,
+                                 identity,
+                                 invocationMode: (InvocationMode)mode,
+                                 protocol);
         }
 
         // Helper constructor for routable references, not bound to a connection. Uses the communicator's defaults.
@@ -733,7 +733,6 @@ namespace ZeroC.Ice
                            Protocol protocol)
             : this(adapterId: adapterId,
                    cacheConnection: true,
-                   collocationOptimized: communicator.DefaultCollocationOptimized,
                    communicator: communicator,
                    compress: null,
                    connectionId: "",
@@ -896,7 +895,6 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? collocationOptimized = null,
                                  bool? compress = null,
                                  string? connectionId = null,
                                  int? connectionTimeout = null,
@@ -957,12 +955,6 @@ namespace ZeroC.Ice
                 {
                     throw new ArgumentException("cannot change the connection caching configuration of a fixed proxy",
                         nameof(cacheConnection));
-                }
-                if (collocationOptimized != null)
-                {
-                    throw new ArgumentException(
-                        "cannot change the collocation optimization configuration of a fixed proxy",
-                        nameof(collocationOptimized));
                 }
                 if (connectionId != null)
                 {
@@ -1117,7 +1109,6 @@ namespace ZeroC.Ice
 
                 var clone = new Reference(adapterId ?? AdapterId,
                                       cacheConnection ?? IsConnectionCached,
-                                      collocationOptimized ?? IsCollocationOptimized,
                                       Communicator,
                                       compress ?? Compress,
                                       connectionId ?? ConnectionId,
@@ -1277,30 +1268,35 @@ namespace ZeroC.Ice
             {
                 OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
                 Connection? connection = null;
-                bool compress = false;
                 if (IsConnectionCached)
                 {
-                    //
                     // Get an existing connection or create one if there's no existing connection to one of
                     // the given endpoints.
                     //
-                    (connection, compress) = await factory.CreateAsync(endpoints, false,
-                        EndpointSelection).ConfigureAwait(false);
+                    // TODO: The factory uses endpoint equality to lookup for existing connections. To ignore
+                    // the compression flag we only compare endpoints with the flag set to false. It would be
+                    // better to fix endpoint equality or use a custom equality method (we'll also need to do
+                    // the same for timeouts).
+                    endpoints = new List<Endpoint>(endpoints.Select(endpoint => endpoint.NewCompressionFlag(false)));
+                    connection = await factory.CreateAsync(endpoints, false, EndpointSelection).ConfigureAwait(false);
                 }
                 else
                 {
-                    //
                     // Go through the list of endpoints and try to create the connection until it succeeds. This
                     // is different from just calling create() with all the endpoints since this might create a
                     // new connection even if there's an existing connection for one of the endpoints.
-                    //
                     Endpoint lastEndpoint = endpoints[endpoints.Count - 1];
                     foreach (Endpoint endpoint in endpoints)
                     {
                         try
                         {
-                            (connection, compress) = await factory.CreateAsync(new Endpoint[] { endpoint },
-                                endpoint != lastEndpoint, EndpointSelection).ConfigureAwait(false);
+                            // TODO: The factory uses endpoint equality to lookup for existing connections. To ignore
+                            // the compression flag we only compare endpoints with the flag set to false. It would be
+                            // better to fix endpoint equality or use a custom equality method  (we'll also need to do
+                            // the same for timeouts).
+                            connection = await factory.CreateAsync(new Endpoint[] { endpoint.NewCompressionFlag(false) },
+                                                                   endpoint != lastEndpoint,
+                                                                   EndpointSelection).ConfigureAwait(false);
                             break;
                         }
                         catch (Exception)
@@ -1327,11 +1323,24 @@ namespace ZeroC.Ice
                         connection.Adapter = RouterInfo.Adapter;
                     }
                 }
+
+                // If it's an Ice1 proxy, we check if the connection matches an endpoint with the compression flag
+                // enabled. If it's the case, we'll use compression.
+                bool compress = false;
+                if (Protocol == Protocol.Ice1)
+                {
+                    // The connection endpoint is always a non-compressed endpoint. If one of the resolved endpoints
+                    // matches the connection endpoint, we don't use compression. Otherwise, if we don't find the
+                    // matching endpoint, it implies that we got a connection for one the compressed resolved endpoints.
+                    compress = !endpoints.Select(endpoint => connection.Endpoint == endpoint).Any();
+
+                    Debug.Assert(!compress || endpoints.Contains(connection.Endpoint.NewCompressionFlag(true)));
+                }
                 return new ConnectionRequestHandler(connection, compress);
             }
             catch (Exception ex)
             {
-                if (LocatorInfo != null)
+                if (LocatorInfo != null && IsIndirect)
                 {
                     LocatorInfo.ClearCache(this);
                 }
@@ -1357,8 +1366,9 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(!IsFixed);
 
-                if (IsCollocationOptimized)
+                if (InvocationMode != InvocationMode.Datagram)
                 {
+                    // If the invocation mode is not datagram, we first check if the target is colocated.
                     ObjectAdapter? adapter = Communicator.FindObjectAdapter(this);
                     if (adapter != null)
                     {
@@ -1389,7 +1399,6 @@ namespace ZeroC.Ice
             var properties = new Dictionary<string, string>
             {
                 [prefix] = ToString(),
-                [prefix + ".CollocationOptimized"] = IsCollocationOptimized ? "1" : "0",
                 [prefix + ".ConnectionCached"] = IsConnectionCached ? "1" : "0",
                 [prefix + ".EndpointSelection"] = EndpointSelection.ToString(),
                 [prefix + ".InvocationTimeout"] = InvocationTimeout.ToString(CultureInfo.InvariantCulture),
@@ -1463,7 +1472,6 @@ namespace ZeroC.Ice
                                         Protocol protocol)
         {
             bool? cacheConnection = null;
-            bool? collocOptimized = null;
             IReadOnlyDictionary<string, string>? context = null;
             EndpointSelectionType? endpointSelection = null;
             int? invocationTimeout = null;
@@ -1482,7 +1490,6 @@ namespace ZeroC.Ice
                 }
 
                 cacheConnection = communicator.GetPropertyAsBool($"{propertyPrefix}.ConnectionCached");
-                collocOptimized = communicator.GetPropertyAsBool($"{propertyPrefix}.CollocationOptimized");
 
                 string property = $"{propertyPrefix}.Context.";
                 context = communicator.GetProperties(forPrefix: property).
@@ -1542,7 +1549,6 @@ namespace ZeroC.Ice
 
             return new Reference(adapterId: adapterId,
                                  cacheConnection: cacheConnection ?? true,
-                                 collocationOptimized: collocOptimized ?? communicator.DefaultCollocationOptimized,
                                  communicator: communicator,
                                  compress: null,
                                  connectionId: "",
@@ -1566,7 +1572,6 @@ namespace ZeroC.Ice
         // Constructor for routable references, not bound to a connection
         private Reference(string adapterId,
                           bool cacheConnection,
-                          bool collocationOptimized,
                           Communicator communicator,
                           bool? compress,
                           string connectionId,
@@ -1598,7 +1603,6 @@ namespace ZeroC.Ice
             Identity = identity;
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
-            IsCollocationOptimized = collocationOptimized;
             IsConnectionCached = cacheConnection;
             LocatorCacheTimeout = locatorCacheTimeout;
             LocatorInfo = locatorInfo;
@@ -1631,7 +1635,6 @@ namespace ZeroC.Ice
             Identity = identity;
             InvocationMode = invocationMode;
             InvocationTimeout = invocationTimeout;
-            IsCollocationOptimized = false;
             IsConnectionCached = false;
             LocatorCacheTimeout = TimeSpan.Zero;
             LocatorInfo = null;
