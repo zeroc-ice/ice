@@ -496,51 +496,47 @@ namespace ZeroC.Ice
             if ((trustedCertificateAuthorities != null || useMachineContext) && certificate != null)
             {
                 chain = new X509Chain(useMachineContext);
-                // We need to set this flag to be able to use a certificate authority from the extra store.
-                chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
                 chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
                 if (trustedCertificateAuthorities != null)
                 {
+                    // We need to set this flag to be able to use a certificate authority from the extra store.
+                    chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
                     foreach (X509Certificate2 cert in trustedCertificateAuthorities)
                     {
                         chain.ChainPolicy.ExtraStore.Add(cert);
                     }
                 }
                 chain.Build(certificate as X509Certificate2);
-                errors |= SslPolicyErrors.RemoteCertificateChainErrors;
             }
 
-            if ((errors & SslPolicyErrors.RemoteCertificateChainErrors) > 0)
+            var chainStatus = new List<X509ChainStatus>(chain.ChainStatus);
+
+            if (trustedCertificateAuthorities != null)
             {
-                var chainStatus = new List<X509ChainStatus>(chain.ChainStatus);
-
-                if (trustedCertificateAuthorities != null)
+                // Untrusted root is OK when using our custom chain engine if the CA certificate is present in the
+                // chain policy extra store.
+                X509ChainElement root = chain.ChainElements[^1];
+                if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
                 {
-                    // Untrusted root is OK when using our custom chain engine if the CA certificate is present in the
-                    // chain policy extra store.
-                    X509ChainElement root = chain.ChainElements[^1];
-                    if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
-                    {
-                        chainStatus.Remove(
-                            chainStatus.Find(status => status.Status == X509ChainStatusFlags.UntrustedRoot));
-                        errors ^= SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
-                    else if (!chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
-                    {
-                        chainStatus.Add(new X509ChainStatus() { Status = X509ChainStatusFlags.UntrustedRoot });
-                        errors |= SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
+                    chainStatus.Remove(
+                        chainStatus.Find(status => status.Status == X509ChainStatusFlags.UntrustedRoot));
+                    errors ^= SslPolicyErrors.RemoteCertificateChainErrors;
                 }
-
-                foreach (X509ChainStatus status in chainStatus)
+                else if (!chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
                 {
-                    if (status.Status != X509ChainStatusFlags.NoError)
-                    {
-                        message.Append("\ncertificate chain error: ");
-                        message.Append(status.Status);
-                        errors |= SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
+                    chainStatus.Add(new X509ChainStatus() { Status = X509ChainStatusFlags.UntrustedRoot });
+                    errors |= SslPolicyErrors.RemoteCertificateChainErrors;
+                }
+            }
+
+            foreach (X509ChainStatus status in chainStatus)
+            {
+                if (status.Status != X509ChainStatusFlags.NoError)
+                {
+                    message.Append("\ncertificate chain error: ");
+                    message.Append(status.Status);
+                    errors |= SslPolicyErrors.RemoteCertificateChainErrors;
                 }
             }
 
