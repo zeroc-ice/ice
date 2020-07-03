@@ -18,8 +18,6 @@ namespace ZeroC.Ice
         /// <summary>The communicator used to create this endpoint.</summary>
         public override Communicator Communicator { get; }
 
-        public override string ConnectionId { get; } = "";
-
         /// <summary>The hostname of this IP endpoint.</summary>
         public string Host { get; }
         public override bool IsSecure => false;
@@ -50,10 +48,6 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                if (ConnectionId != ipEndpoint.ConnectionId)
-                {
-                    return false;
-                }
                 return base.Equals(other);
             }
             else
@@ -74,7 +68,6 @@ namespace ZeroC.Ice
             {
                 hash.Add(SourceAddress);
             }
-            hash.Add(ConnectionId);
             return hash.ToHashCode();
         }
 
@@ -156,12 +149,7 @@ namespace ZeroC.Ice
         }
 
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
-            compressionFlag == HasCompressionFlag ? this : CreateIPEndpoint(Host, Port, ConnectionId, compressionFlag,
-                Timeout);
-
-        public override Endpoint NewConnectionId(string connectionId) =>
-            connectionId == ConnectionId ? this : CreateIPEndpoint(Host, Port, connectionId, HasCompressionFlag,
-                Timeout);
+            compressionFlag == HasCompressionFlag ? this : CreateIPEndpoint(Host, Port, compressionFlag, Timeout);
 
         public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
             EndpointSelectionType endptSelection)
@@ -224,7 +212,6 @@ namespace ZeroC.Ice
             {
                 return addresses.Select(address => CreateIPEndpoint(Network.EndpointAddressToString(address),
                                                                     Network.EndpointPort(address),
-                                                                    ConnectionId,
                                                                     HasCompressionFlag,
                                                                     Timeout));
             }
@@ -239,7 +226,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return hosts.Select(host => CreateIPEndpoint(host, Port, ConnectionId, HasCompressionFlag, Timeout));
+                return hosts.Select(host => CreateIPEndpoint(host, Port, HasCompressionFlag, Timeout));
             }
         }
 
@@ -251,7 +238,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                return CreateIPEndpoint(Host, port, ConnectionId, HasCompressionFlag, Timeout);
+                return CreateIPEndpoint(Host, port, HasCompressionFlag, Timeout);
             }
         }
 
@@ -260,15 +247,13 @@ namespace ZeroC.Ice
             Protocol protocol,
             string host,
             int port,
-            IPAddress? sourceAddress,
-            string connectionId)
+            IPAddress? sourceAddress)
             : base(protocol)
         {
             Communicator = communicator;
             Host = host;
             Port = port;
             SourceAddress = sourceAddress;
-            ConnectionId = connectionId;
         }
 
         private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
@@ -359,7 +344,6 @@ namespace ZeroC.Ice
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
         // TODO: rename to Clone and make parameters optional?
-        private protected abstract IPEndpoint CreateIPEndpoint(string host, int port, string connectionId,
-            bool compressionFlag, int timeout);
+        private protected abstract IPEndpoint CreateIPEndpoint(string host, int port, bool compressionFlag, int timeout);
     }
 }

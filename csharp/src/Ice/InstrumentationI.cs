@@ -223,9 +223,9 @@ namespace ZeroC.Ice
                         }
                     }
 
-                    if (_connection.Endpoint.ConnectionId.Length > 0)
+                    if (_connection.ConnectionId.Length > 0)
                     {
-                        os.Append(" [").Append(_connection.Endpoint.ConnectionId).Append("]");
+                        os.Append(" [").Append(_connection.ConnectionId).Append("]");
                     }
                     _id = os.ToString();
                 }
@@ -258,7 +258,7 @@ namespace ZeroC.Ice
                 Add("state", obj => (obj as ConnectionHelper)?._state.ToString().ToLowerInvariant());
                 Add("incoming", obj => (obj as ConnectionHelper)?._connection.IsIncoming);
                 Add("adapterName", obj => (obj as ConnectionHelper)?._connection.Adapter?.Name);
-                Add("connectionId", obj => (obj as ConnectionHelper)?._connection.Endpoint.ConnectionId);
+                Add("connectionId", obj => (obj as ConnectionHelper)?._connection.ConnectionId);
 
                 Add("localHost", obj =>
                     ((obj as ConnectionHelper)?._connection as IPConnection)?.LocalEndpoint?.Address);
@@ -352,7 +352,7 @@ namespace ZeroC.Ice
 
                 Add("incoming", obj => (obj as DispatchHelper)?.Connection.IsIncoming);
                 Add("adapterName", obj => (obj as DispatchHelper)?.Connection.Adapter?.Name);
-                Add("connectionId", obj => (obj as DispatchHelper)?.Connection.Endpoint.ConnectionId);
+                Add("connectionId", obj => (obj as DispatchHelper)?.Connection.ConnectionId);
 
                 Add("localHost", obj =>
                     ((obj as DispatchHelper)?.Connection as IPConnection)?.LocalEndpoint?.Address);
@@ -625,8 +625,8 @@ namespace ZeroC.Ice
         {
             get
             {
-                _id ??= string.IsNullOrEmpty(_connection.Endpoint.ConnectionId) ?
-                    _connection.Endpoint.ToString() : $"{_connection.Endpoint} [{_connection.Endpoint.ConnectionId}]";
+                _id ??= string.IsNullOrEmpty(_connection.ConnectionId) ?
+                    _connection.Endpoint.ToString() : $"{_connection.Endpoint} [{_connection.ConnectionId}]";
                 return _id;
             }
         }
@@ -661,7 +661,7 @@ namespace ZeroC.Ice
                 Add("requestId", obj => (obj as RemoteInvocationHelper)?._requestId);
                 Add("incoming", obj => (obj as RemoteInvocationHelper)?._connection.IsIncoming);
                 Add("adapterName", obj => (obj as RemoteInvocationHelper)?._connection.Adapter?.Name);
-                Add("connectionId", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.ConnectionId);
+                Add("connectionId", obj => (obj as RemoteInvocationHelper)?._connection.ConnectionId);
 
                 Add("localHost", obj =>
                     ((obj as RemoteInvocationHelper)?._connection as IPConnection)?.LocalEndpoint?.Address);
