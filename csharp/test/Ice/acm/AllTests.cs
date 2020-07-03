@@ -149,10 +149,10 @@ namespace ZeroC.Ice.Test.ACM
             _adapter = _com.createObjectAdapter(_serverACMTimeout, _serverACMClose, _serverACMHeartbeat)!;
 
             Dictionary<string, string> properties = _com.Communicator.GetProperties();
-            properties["Ice.ACM.Timeout"] = "2";
+            properties["Ice.ACM.Timeout"] = "2s";
             if (_clientACMTimeout >= 0)
             {
-                properties["Ice.ACM.Client.Timeout"] = _clientACMTimeout.ToString();
+                properties["Ice.ACM.Client.Timeout"] = $"{_clientACMTimeout}s";
             }
 
             if (_clientACMClose >= 0)
@@ -178,7 +178,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Join()
         {
-            _output.Write("testing " + _name + "... ");
+            _output.Write($"testing {_name}... ");
             _output.Flush();
             _logger.Start();
             _thread!.Join();
@@ -431,7 +431,7 @@ namespace ZeroC.Ice.Test.ACM
                 }
                 catch (Exception ex)
                 {
-                    TestHelper.Assert(ex is ConnectionTimeoutException);;
+                    TestHelper.Assert(ex is ConnectionTimeoutException);
                 }
             }
         }
@@ -507,31 +507,26 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Connection? con = proxy.GetCachedConnection();
                 TestHelper.Assert(con != null);
-                try
-                {
-                    con.SetACM(-19, null, null);
-                    TestHelper.Assert(false);
-                }
-                catch (ArgumentException)
-                {
-                }
 
-                ZeroC.Ice.ACM acm = con.GetACM();
-                TestHelper.Assert(acm.Timeout == 15);
-                TestHelper.Assert(acm.Close == ACMClose.CloseOnIdleForceful);
-                TestHelper.Assert(acm.Heartbeat == ACMHeartbeat.HeartbeatOff);
+                ZeroC.Ice.Acm acm = con.GetAcm();
+                TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(15));
+                TestHelper.Assert(acm.Close == AcmClose.CloseOnIdleForceful);
+                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatOff);
 
-                con.SetACM(null, null, null);
-                acm = con.GetACM();
-                TestHelper.Assert(acm.Timeout == 15);
-                TestHelper.Assert(acm.Close == ACMClose.CloseOnIdleForceful);
-                TestHelper.Assert(acm.Heartbeat == ACMHeartbeat.HeartbeatOff);
+                con.SetAcm(null, null, null);
+                acm = con.GetAcm();
+                Console.WriteLine($"acm timeout: {acm.Timeout.TotalSeconds}");
+                TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(15));
+                TestHelper.Assert(acm.Close == AcmClose.CloseOnIdleForceful);
+                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatOff);
 
-                con.SetACM(1, ACMClose.CloseOnInvocationAndIdle, ACMHeartbeat.HeartbeatAlways);
-                acm = con.GetACM();
-                TestHelper.Assert(acm.Timeout == 1);
-                TestHelper.Assert(acm.Close == ACMClose.CloseOnInvocationAndIdle);
-                TestHelper.Assert(acm.Heartbeat == ACMHeartbeat.HeartbeatAlways);
+                con.SetAcm(TimeSpan.FromSeconds(1),
+                           AcmClose.CloseOnInvocationAndIdle,
+                           AcmHeartbeat.HeartbeatAlways);
+                acm = con.GetAcm();
+                TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(1));
+                TestHelper.Assert(acm.Close == AcmClose.CloseOnInvocationAndIdle);
+                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatAlways);
 
                 proxy.startHeartbeatCount();
                 proxy.waitForHeartbeatCount(2);

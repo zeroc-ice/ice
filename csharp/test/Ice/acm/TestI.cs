@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.ACM
             string name = System.Guid.NewGuid().ToString();
             if (timeout >= 0)
             {
-                communicator.SetProperty($"{name}.ACM.Timeout", timeout.ToString());
+                communicator.SetProperty($"{name}.ACM.Timeout", $"{timeout}s");
             }
 
             if (close >= 0)

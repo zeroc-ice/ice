@@ -2,98 +2,141 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal sealed class ACMConfig
+    public interface IAcmMonitor
     {
-        internal ACMConfig(bool server)
+        Acm Acm { get; }
+
+        void Add(Connection connection);
+        void Reap(Connection connection);
+        void Remove(Connection connection);
+        IAcmMonitor Create(TimeSpan? timeout, AcmClose? close, AcmHeartbeat? hearbeat);
+    }
+
+    internal sealed class AcmConfig
+    {
+        internal AcmClose Close { get; }
+        internal AcmHeartbeat Heartbeat { get; }
+        internal TimeSpan Timeout { get; }
+
+        internal AcmConfig(bool server)
         {
-            Timeout = 60 * 1000;
-            Heartbeat = ACMHeartbeat.HeartbeatOnDispatch;
-            Close = server ? ACMClose.CloseOnInvocation : ACMClose.CloseOnInvocationAndIdle;
+            Timeout = TimeSpan.FromSeconds(60);
+            Heartbeat = AcmHeartbeat.HeartbeatOnDispatch;
+            Close = server ? AcmClose.CloseOnInvocation : AcmClose.CloseOnInvocationAndIdle;
         }
 
-        public ACMConfig(Communicator communicator, ILogger logger, string prefix, ACMConfig defaults)
+        internal AcmConfig(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
         {
-            Debug.Assert(prefix != null);
+            Timeout = timeout;
+            Close = close;
+            Heartbeat = heartbeat;
+        }
 
-            string timeoutProperty;
-            if ((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") &&
-                communicator.GetProperty($"{prefix}.Timeout") == null)
+        internal AcmConfig(Communicator communicator, string prefix, AcmConfig defaults)
+        {
+            Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
+
+            if (communicator.GetPropertyAsInt($"{prefix}.Heartbeat") is int hearbeat)
             {
-                timeoutProperty = prefix; // Deprecated property.
+                if (hearbeat < (int)AcmHeartbeat.HeartbeatOff || hearbeat > (int)AcmHeartbeat.HeartbeatAlways)
+                {
+                    throw new InvalidConfigurationException($"invalid value for property `{prefix}.Heartbeat'");
+                }
+                Heartbeat = (AcmHeartbeat)hearbeat;
             }
             else
             {
-                timeoutProperty = prefix + ".Timeout";
-            }
-
-            Timeout = communicator.GetPropertyAsInt(timeoutProperty) * 1000 ?? defaults.Timeout;
-            if (Timeout < 0)
-            {
-                logger.Warning($"invalid value for property `{timeoutProperty}', default value will be used instead");
-                Timeout = defaults.Timeout;
-            }
-
-            int hb = communicator.GetPropertyAsInt($"{prefix}.Heartbeat") ?? (int)defaults.Heartbeat;
-            if (hb >= (int)ACMHeartbeat.HeartbeatOff && hb <= (int)ACMHeartbeat.HeartbeatAlways)
-            {
-                Heartbeat = (ACMHeartbeat)hb;
-            }
-            else
-            {
-                logger.Warning($"invalid value for property `{prefix}.Heartbeat', default value will be used instead");
                 Heartbeat = defaults.Heartbeat;
             }
 
-            int cl = communicator.GetPropertyAsInt($"{prefix}.Close") ?? (int)defaults.Close;
-            if (cl >= (int)ACMClose.CloseOff && cl <= (int)ACMClose.CloseOnIdleForceful)
+            if (communicator.GetPropertyAsInt($"{prefix}.Close") is int close)
             {
-                Close = (ACMClose)cl;
+                if (close < (int)AcmClose.CloseOff || close > (int)AcmClose.CloseOnIdleForceful)
+                {
+                    throw new InvalidConfigurationException($"invalid value for property `{ prefix}.Close'");
+                }
+                Close = (AcmClose)close;
             }
             else
             {
-                logger.Warning($"invalid value for property `{prefix}.Close', default value will be used instead");
                 Close = defaults.Close;
             }
         }
-
-        public ACMConfig Clone() => (ACMConfig)MemberwiseClone();
-
-        public int Timeout;
-        public ACMHeartbeat Heartbeat;
-        public ACMClose Close;
     }
 
-    public interface IACMMonitor : ITimerTask
+    internal class ConnectionFactoryAcmMonitor : IAcmMonitor
     {
-        void Add(Connection con);
-        void Remove(Connection con);
-        void Reap(Connection con);
+        public Acm Acm => new Acm(_config.Timeout, _config.Close, _config.Heartbeat);
 
-        IACMMonitor Acm(int? timeout, ACMClose? c, ACMHeartbeat? h);
-        ACM GetACM();
-    }
+        private readonly List<(Connection Connection, bool Remove)> _changes =
+            new List<(Connection Connection, bool Remove)>();
+        private Communicator? _communicator;
+        private readonly AcmConfig _config;
+        private readonly HashSet<Connection> _connections = new HashSet<Connection>();
+        private readonly object _mutex = new object();
+        private List<Connection> _reapedConnections = new List<Connection>();
+        private Timer? _timer;
 
-    internal class FactoryACMMonitor : IACMMonitor
-    {
-        internal class Change
+        public void Add(Connection connection)
         {
-            internal Change(Connection connection, bool remove)
+            if (_config.Timeout == TimeSpan.Zero || _config.Timeout == Timeout.InfiniteTimeSpan)
             {
-                Connection = connection;
-                Remove = remove;
+                return;
             }
 
-            public readonly Connection Connection;
-            public readonly bool Remove;
+            lock (_mutex)
+            {
+                if (_connections.Count == 0)
+                {
+                    Debug.Assert(_communicator != null);
+                    _connections.Add(connection);
+                    _timer = new Timer(RunTimerTask, this, _config.Timeout / 2, _config.Timeout / 2);
+                }
+                else
+                {
+                    _changes.Add((connection, false));
+                }
+            }
         }
 
-        internal FactoryACMMonitor(Communicator communicator, ACMConfig config)
+        public IAcmMonitor Create(TimeSpan? timeout, AcmClose? close, AcmHeartbeat? heartbeat) =>
+            new ConnectionAcmMonitor(this,
+                                     new AcmConfig(timeout ?? _config.Timeout,
+                                                   close ?? _config.Close,
+                                                   heartbeat ?? _config.Heartbeat));
+
+        public void Reap(Connection connection)
+        {
+            lock (_mutex)
+            {
+                _reapedConnections.Add(connection);
+            }
+        }
+
+        public void Remove(Connection connection)
+        {
+            if (_config.Timeout == TimeSpan.Zero || _config.Timeout == Timeout.InfiniteTimeSpan)
+            {
+                return;
+            }
+
+            lock (_mutex)
+            {
+                Debug.Assert(_communicator != null);
+                _changes.Add((connection, true));
+            }
+        }
+
+        internal ConnectionFactoryAcmMonitor(Communicator communicator, AcmConfig config)
         {
             _communicator = communicator;
             _config = config;
@@ -105,112 +148,32 @@ namespace ZeroC.Ice
             {
                 if (_communicator == null)
                 {
-                    //
                     // Ensure all the connections have been cleared, it's important to wait here
                     // to prevent the timer destruction in Instance::destroy.
-                    //
                     while (_connections.Count > 0)
                     {
-                        System.Threading.Monitor.Wait(_mutex);
+                        Monitor.Wait(_mutex);
                     }
                     return;
                 }
 
                 if (_connections.Count > 0)
                 {
-                    //
-                    // Cancel the scheduled timer task and schedule it again now to clear the
-                    // connection set from the timer thread.
-                    //
-                    _communicator.Timer().Cancel(this);
-                    _communicator.Timer().Schedule(this, 0);
+                    // Dispose the timer task and schedule the task on the thread pool to clear the connection set.
+                    _timer?.Dispose();
+                    _timer = null;
+                    Task.Run(() => RunTimerTask(this));
                 }
 
                 _communicator = null;
                 _changes.Clear();
 
-                //
-                // Wait for the connection set to be cleared by the timer thread.
-                //
+                // Wait for the connection set to be cleared.
                 while (_connections.Count > 0)
                 {
-                    System.Threading.Monitor.Wait(_mutex);
+                    Monitor.Wait(_mutex);
                 }
             }
-        }
-
-        public void Add(Connection connection)
-        {
-            if (_config.Timeout == 0)
-            {
-                return;
-            }
-
-            lock (_mutex)
-            {
-                if (_connections.Count == 0)
-                {
-                    Debug.Assert(_communicator != null);
-                    _connections.Add(connection);
-                    _communicator.Timer().ScheduleRepeated(this, _config.Timeout / 2);
-                }
-                else
-                {
-                    _changes.Add(new Change(connection, false));
-                }
-            }
-        }
-
-        public void Remove(Connection connection)
-        {
-            if (_config.Timeout == 0)
-            {
-                return;
-            }
-
-            lock (_mutex)
-            {
-                Debug.Assert(_communicator != null);
-                _changes.Add(new Change(connection, true));
-            }
-        }
-
-        public void Reap(Connection connection)
-        {
-            lock (_mutex)
-            {
-                _reapedConnections.Add(connection);
-            }
-        }
-
-        public IACMMonitor Acm(int? timeout, ACMClose? c, ACMHeartbeat? h)
-        {
-            Debug.Assert(_communicator != null);
-
-            ACMConfig config = _config.Clone();
-            if (timeout.HasValue)
-            {
-                config.Timeout = timeout.Value * 1000; // To milliseconds
-            }
-            if (c.HasValue)
-            {
-                config.Close = c.Value;
-            }
-            if (h.HasValue)
-            {
-                config.Heartbeat = h.Value;
-            }
-            return new ConnectionACMMonitor(this, _communicator.Timer(), config);
-        }
-
-        public ACM GetACM()
-        {
-            return new ACM
-            {
-                Timeout = _config.Timeout / 1000,
-                Close = _config.Close,
-                Heartbeat = _config.Heartbeat
-            };
         }
 
         internal IEnumerable<Connection> SwapReapedConnections()
@@ -227,56 +190,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public void RunTimerTask()
-        {
-            lock (_mutex)
-            {
-                if (_communicator == null)
-                {
-                    _connections.Clear();
-                    System.Threading.Monitor.PulseAll(_mutex);
-                    return;
-                }
-
-                foreach (Change change in _changes)
-                {
-                    if (change.Remove)
-                    {
-                        _connections.Remove(change.Connection);
-                    }
-                    else
-                    {
-                        _connections.Add(change.Connection);
-                    }
-                }
-                _changes.Clear();
-
-                if (_connections.Count == 0)
-                {
-                    _communicator.Timer().Cancel(this);
-                    return;
-                }
-            }
-
-            //
-            // Monitor connections outside the thread synchronization, so
-            // that connections can be added or removed during monitoring.
-            //
-            long now = Time.CurrentMonotonicTimeMillis();
-            foreach (Connection connection in _connections)
-            {
-                try
-                {
-                    connection.Monitor(now, _config);
-                }
-                catch (System.Exception ex)
-                {
-                    HandleException(ex);
-                }
-            }
-        }
-
-        internal void HandleException(System.Exception ex)
+        internal void HandleException(Exception ex)
         {
             lock (_mutex)
             {
@@ -288,21 +202,71 @@ namespace ZeroC.Ice
             }
         }
 
-        private Communicator? _communicator;
-        private readonly ACMConfig _config;
+        private void RunTimerTask(object? state)
+        {
+            lock (_mutex)
+            {
+                if (_communicator == null)
+                {
+                    _connections.Clear();
+                    Monitor.PulseAll(_mutex);
+                    return;
+                }
 
-        private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private readonly List<Change> _changes = new List<Change>();
-        private readonly object _mutex = new object();
-        private List<Connection> _reapedConnections = new List<Connection>();
+                foreach ((Connection connection, bool remove) in _changes)
+                {
+                    if (remove)
+                    {
+                        _connections.Remove(connection);
+                    }
+                    else
+                    {
+                        _connections.Add(connection);
+                    }
+                }
+                _changes.Clear();
+
+                if (_connections.Count == 0)
+                {
+                    if (_timer != null)
+                    {
+                        _timer.Dispose();
+                        _timer = null;
+                    }
+                    return;
+                }
+            }
+
+            // Monitor connections outside the thread synchronization, so that connections can be added or removed
+            // during monitoring.
+            TimeSpan now = Time.CurrentMonotonicTime();
+            foreach (Connection connection in _connections)
+            {
+                try
+                {
+                    connection.Monitor(now, _config);
+                }
+                catch (Exception ex)
+                {
+                    HandleException(ex);
+                }
+            }
+        }
     }
 
-    internal class ConnectionACMMonitor : IACMMonitor
+    internal class ConnectionAcmMonitor : IAcmMonitor
     {
-        internal ConnectionACMMonitor(FactoryACMMonitor parent, Timer timer, ACMConfig config)
+        public Acm Acm => new Acm(_config.Timeout, _config.Close, _config.Heartbeat);
+
+        private readonly AcmConfig _config;
+        private Connection? _connection;
+        private readonly object _mutex = new object();
+        private readonly ConnectionFactoryAcmMonitor _parent;
+        private Timer? _timer;
+
+        internal ConnectionAcmMonitor(ConnectionFactoryAcmMonitor parent, AcmConfig config)
         {
             _parent = parent;
-            _timer = timer;
             _config = config;
         }
 
@@ -312,12 +276,17 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_connection == null);
                 _connection = connection;
-                if (_config.Timeout > 0)
+                if (_config.Timeout != TimeSpan.Zero && _config.Timeout != Timeout.InfiniteTimeSpan)
                 {
-                    _timer.ScheduleRepeated(this, _config.Timeout / 2);
+                    _timer = new Timer(RunTimerTask, this, _config.Timeout, _config.Timeout);
                 }
             }
         }
+
+        public IAcmMonitor Create(TimeSpan? timeout, AcmClose? close, AcmHeartbeat? heartbeat) =>
+            _parent.Create(timeout, close, heartbeat);
+
+        public void Reap(Connection connection) => _parent.Reap(connection);
 
         public void Remove(Connection connection)
         {
@@ -325,28 +294,15 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_connection == connection);
                 _connection = null;
-                if (_config.Timeout > 0)
+                if (_timer != null)
                 {
-                    _timer.Cancel(this);
+                    _timer.Dispose();
+                    _timer = null;
                 }
             }
         }
 
-        public void Reap(Connection connection) => _parent.Reap(connection);
-
-        public IACMMonitor Acm(int? timeout, ACMClose? c, ACMHeartbeat? h) => _parent.Acm(timeout, c, h);
-
-        public ACM GetACM()
-        {
-            return new ACM
-            {
-                Timeout = _config.Timeout / 1000,
-                Close = _config.Close,
-                Heartbeat = _config.Heartbeat
-            };
-        }
-
-        public void RunTimerTask()
+        private void RunTimerTask(object? state)
         {
             Connection connection;
             lock (_mutex)
@@ -360,18 +316,12 @@ namespace ZeroC.Ice
 
             try
             {
-                connection.Monitor(Time.CurrentMonotonicTimeMillis(), _config);
+                connection.Monitor(Time.CurrentMonotonicTime(), _config);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _parent.HandleException(ex);
             }
         }
-
-        private readonly FactoryACMMonitor _parent;
-        private readonly Timer _timer;
-        private readonly ACMConfig _config;
-        private Connection? _connection;
-        private readonly object _mutex = new object();
     }
 }

@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     {
         public Connection CreateConnection(
             Endpoint endpoint,
-            IACMMonitor? monitor,
+            IAcmMonitor? monitor,
             IConnector? connector,
             ObjectAdapter? adapter) => new TcpConnection(endpoint, monitor, this, connector, adapter);
         public Socket? Fd() => _stream.Fd();

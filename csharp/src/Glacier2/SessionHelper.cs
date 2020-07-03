@@ -4,9 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Security;
 using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using ZeroC.Ice;
 using ZeroC.Ice.Instrumentation;
@@ -203,18 +201,18 @@ namespace ZeroC.Glacier2
             Debug.Assert(_communicator != null);
             Connection? conn = router.GetCachedConnection();
             string category = router.GetCategoryForClient();
-            int acmTimeout = 0;
+            TimeSpan acmTimeout = TimeSpan.Zero;
             try
             {
-                acmTimeout = router.GetACMTimeout();
+                acmTimeout = TimeSpan.FromSeconds(router.GetACMTimeout());
             }
             catch (OperationNotExistException)
             {
             }
 
-            if (acmTimeout <= 0)
+            if (acmTimeout == TimeSpan.Zero)
             {
-                acmTimeout = (int)router.GetSessionTimeout();
+                acmTimeout = TimeSpan.FromSeconds(router.GetSessionTimeout());
             }
 
             // We create the callback object adapter here because createObjectAdapter internally makes synchronous
@@ -246,11 +244,11 @@ namespace ZeroC.Glacier2
                 _session = session;
                 _connected = true;
 
-                if (acmTimeout > 0)
+                if (acmTimeout != TimeSpan.Zero)
                 {
                     Connection? connection = _router.GetCachedConnection();
                     Debug.Assert(connection != null);
-                    connection.SetACM(acmTimeout, null, ACMHeartbeat.HeartbeatAlways);
+                    connection.SetAcm(acmTimeout, null, AcmHeartbeat.HeartbeatAlways);
                     connection.SetCloseCallback(_ => Destroy());
                 }
             }

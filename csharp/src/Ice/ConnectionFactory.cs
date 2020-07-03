@@ -22,7 +22,7 @@ namespace ZeroC.Ice
             new MultiDictionary<Endpoint, Connection>();
         private Task? _destroyTask = null;
         private SemaphoreSlim? _destroyTaskSemaphore = null;
-        private readonly FactoryACMMonitor _monitor;
+        private readonly ConnectionFactoryAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private readonly Dictionary<IConnector, Task<Connection>> _pending =
             new Dictionary<IConnector, Task<Connection>>();
@@ -247,7 +247,7 @@ namespace ZeroC.Ice
         internal OutgoingConnectionFactory(Communicator communicator)
         {
             _communicator = communicator;
-            _monitor = new FactoryACMMonitor(communicator, communicator.ClientACM);
+            _monitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientACM);
         }
 
         private async Task<Connection> ConnectAsync(
@@ -485,7 +485,7 @@ namespace ZeroC.Ice
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
         private Task? _destroyTask = null;
         private readonly Endpoint _endpoint;
-        private readonly FactoryACMMonitor _monitor;
+        private readonly ConnectionFactoryAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private readonly Endpoint? _publishedEndpoint;
         private readonly ITransceiver? _transceiver;
@@ -495,14 +495,14 @@ namespace ZeroC.Ice
             ObjectAdapter adapter,
             Endpoint endpoint,
             Endpoint? publish,
-            ACMConfig acmConfig)
+            AcmConfig acmConfig)
         {
             _communicator = adapter.Communicator;
             _endpoint = endpoint;
             _publishedEndpoint = publish;
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-            _monitor = new FactoryACMMonitor(_communicator, acmConfig);
+            _monitor = new ConnectionFactoryAcmMonitor(_communicator, acmConfig);
 
             if (_communicator.OverrideTimeout != null)
             {

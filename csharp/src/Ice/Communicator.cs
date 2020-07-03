@@ -152,13 +152,13 @@ namespace ZeroC.Ice
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
-        internal ACMConfig ClientACM { get; }
+        internal AcmConfig ClientACM { get; }
         internal int FrameSizeMax { get; }
         internal int IPVersion { get; }
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int[] RetryIntervals { get; }
-        internal ACMConfig ServerACM { get; }
+        internal AcmConfig ServerACM { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
@@ -215,7 +215,6 @@ namespace ZeroC.Ice
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
         private int _state;
-        private readonly Timer _timer;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<Transport, IEndpointFactory>();
         private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
@@ -506,11 +505,11 @@ namespace ZeroC.Ice
                     }
                 }
 
-                ClientACM = new ACMConfig(this, Logger, "Ice.ACM.Client",
-                                           new ACMConfig(this, Logger, "Ice.ACM", new ACMConfig(false)));
+                ClientACM = new AcmConfig(this, "Ice.ACM.Client",
+                                          new AcmConfig(this, "Ice.ACM", new AcmConfig(false)));
 
-                ServerACM = new ACMConfig(this, Logger, "Ice.ACM.Server",
-                                           new ACMConfig(this, Logger, "Ice.ACM", new ACMConfig(true)));
+                ServerACM = new AcmConfig(this, "Ice.ACM.Server",
+                                          new AcmConfig(this, "Ice.ACM", new AcmConfig(true)));
 
                 {
                     int num = GetPropertyAsInt("Ice.MessageSizeMax") ?? 1024;
@@ -683,16 +682,6 @@ namespace ZeroC.Ice
                 }
 
                 Observer?.SetObserverUpdater(new ObserverUpdater(this));
-
-                try
-                {
-                    _timer = new Timer(this);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"cannot create thread for timer:\n{ex}");
-                    throw;
-                }
 
                 // The default router/locator may have been set during the loading of plugins.
                 // Therefore we only set it if it hasn't already been set.
@@ -909,9 +898,6 @@ namespace ZeroC.Ice
                 adminLogger.Destroy();
             }
 
-            // Wait for all the threads to be finished.
-            _timer?.Destroy();
-
             _transportToEndpointFactory.Clear();
             _transportNameToEndpointFactory.Clear();
 
@@ -1122,18 +1108,6 @@ namespace ZeroC.Ice
                     _adminAdapter.Remove(_adminIdentity.Value, facet);
                 }
                 return result;
-            }
-        }
-
-        public Timer Timer()
-        {
-            lock (_mutex)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _timer;
             }
         }
 

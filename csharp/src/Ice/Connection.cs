@@ -15,7 +15,7 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    public enum ACMClose
+    public enum AcmClose
     {
         CloseOff,
         CloseOnIdle,
@@ -24,7 +24,7 @@ namespace ZeroC.Ice
         CloseOnIdleForceful
     }
 
-    public enum ACMHeartbeat
+    public enum AcmHeartbeat
     {
         HeartbeatOff,
         HeartbeatOnDispatch,
@@ -33,13 +33,13 @@ namespace ZeroC.Ice
     }
 
     [Serializable]
-    public struct ACM : IEquatable<ACM>
+    public struct Acm : IEquatable<Acm>
     {
-        public int Timeout;
-        public ACMClose Close;
-        public ACMHeartbeat Heartbeat;
+        public AcmClose Close;
+        public AcmHeartbeat Heartbeat;
+        public TimeSpan Timeout;
 
-        public ACM(int timeout, ACMClose close, ACMHeartbeat heartbeat)
+        public Acm(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
         {
             Timeout = timeout;
             Close = close;
@@ -48,14 +48,14 @@ namespace ZeroC.Ice
 
         public override int GetHashCode() => HashCode.Combine(Timeout, Close, Heartbeat);
 
-        public bool Equals(ACM other) =>
+        public bool Equals(Acm other) =>
             Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
 
-        public override bool Equals(object? other) => other is ACM value && Equals(value);
+        public override bool Equals(object? other) => other is Acm value && Equals(value);
 
-        public static bool operator ==(ACM lhs, ACM rhs) => Equals(lhs, rhs);
+        public static bool operator ==(Acm lhs, Acm rhs) => Equals(lhs, rhs);
 
-        public static bool operator !=(ACM lhs, ACM rhs) => !Equals(lhs, rhs);
+        public static bool operator !=(Acm lhs, Acm rhs) => !Equals(lhs, rhs);
     }
 
     public enum ConnectionClose
@@ -129,7 +129,7 @@ namespace ZeroC.Ice
 
         private bool OldProtocol => Endpoint.Protocol == Protocol.Ice1;
 
-        private long _acmLastActivity;
+        private TimeSpan _acmLastActivity;
         private ObjectAdapter? _adapter;
         private Action<Connection>? _closeCallback;
         private Task? _closeTask = null;
@@ -141,7 +141,7 @@ namespace ZeroC.Ice
         private Exception? _exception;
         private readonly int _frameSizeMax;
         private Action<Connection>? _heartbeatCallback;
-        private IACMMonitor? _monitor;
+        private IAcmMonitor? _monitor;
         private readonly object _mutex = new object();
         private int _nextRequestId;
         private IConnectionObserver? _observer;
@@ -221,11 +221,11 @@ namespace ZeroC.Ice
 
         /// <summary>Gets the ACM parameters.</summary>
         /// <returns>The ACM parameters.</returns>
-        public ACM GetACM()
+        public Acm GetAcm()
         {
             lock (_mutex)
             {
-                return _monitor != null ? _monitor.GetACM() : new ACM(0, ACMClose.CloseOff, ACMHeartbeat.HeartbeatOff);
+                return _monitor?.Acm ?? new Acm(TimeSpan.FromSeconds(0), AcmClose.CloseOff, AcmHeartbeat.HeartbeatOff);
             }
         }
 
@@ -258,15 +258,10 @@ namespace ZeroC.Ice
         /// <param name="timeout">The timeout value in seconds, must be &gt;= 0.</param>
         /// <param name="close">The close condition</param>
         /// <param name="heartbeat">The heartbeat condition</param>
-        public void SetACM(int? timeout, ACMClose? close, ACMHeartbeat? heartbeat)
+        public void SetAcm(TimeSpan? timeout, AcmClose? close, AcmHeartbeat? heartbeat)
         {
             lock (_mutex)
             {
-                if (timeout is int timeoutValue && timeoutValue < 0)
-                {
-                    throw new ArgumentException("invalid negative ACM timeout value", nameof(timeout));
-                }
-
                 if (_monitor == null || _state >= State.Closed)
                 {
                     return;
@@ -276,15 +271,17 @@ namespace ZeroC.Ice
                 {
                     _monitor.Remove(this);
                 }
-                _monitor = _monitor.Acm(timeout, close, heartbeat);
+                _monitor = _monitor.Create(timeout, close, heartbeat);
 
-                if (_monitor.GetACM().Timeout <= 0)
+                if (_monitor.Acm.Timeout == TimeSpan.Zero ||
+                    _monitor.Acm.Timeout == System.Threading.Timeout.InfiniteTimeSpan)
                 {
-                    _acmLastActivity = -1; // Disable the recording of last activity.
+                    // Disable the recording of last activity.
+                    _acmLastActivity = System.Threading.Timeout.InfiniteTimeSpan;
                 }
-                else if (_state == State.Active && _acmLastActivity == -1)
+                else if (_state == State.Active && _acmLastActivity == System.Threading.Timeout.InfiniteTimeSpan)
                 {
-                    _acmLastActivity = Time.CurrentMonotonicTimeMillis();
+                    _acmLastActivity = Time.CurrentMonotonicTime();
                 }
 
                 if (_state == State.Active)
@@ -363,7 +360,7 @@ namespace ZeroC.Ice
         public override string ToString() => Transceiver.ToString()!;
 
         internal Connection(Endpoint endpoint,
-                            IACMMonitor? monitor,
+                            IAcmMonitor? monitor,
                             ITransceiver transceiver,
                             IConnector? connector,
                             ObjectAdapter? adapter)
@@ -378,13 +375,14 @@ namespace ZeroC.Ice
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = _communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
 
-            if (_monitor != null && _monitor.GetACM().Timeout > 0)
+            if (_monitor?.Acm.Timeout != TimeSpan.Zero &&
+                _monitor?.Acm.Timeout != System.Threading.Timeout.InfiniteTimeSpan)
             {
-                _acmLastActivity = Time.CurrentMonotonicTimeMillis();
+                _acmLastActivity = Time.CurrentMonotonicTime();
             }
             else
             {
-                _acmLastActivity = -1;
+                _acmLastActivity = System.Threading.Timeout.InfiniteTimeSpan;
             }
             _nextRequestId = 1;
             _frameSizeMax = adapter != null ? adapter.FrameSizeMax : _communicator.FrameSizeMax;
@@ -457,7 +455,7 @@ namespace ZeroC.Ice
             await CloseAsync(exception).ConfigureAwait(false);
         }
 
-        internal void Monitor(long now, ACMConfig acm)
+        internal void Monitor(TimeSpan now, AcmConfig acm)
         {
             lock (_mutex)
             {
@@ -474,10 +472,10 @@ namespace ZeroC.Ice
                 // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because the
                 // monitor() method is still only called every (timeout / 2) period.
                 if (_state == State.Active &&
-                    (acm.Heartbeat == ACMHeartbeat.HeartbeatAlways ||
-                    (acm.Heartbeat != ACMHeartbeat.HeartbeatOff && now >= (_acmLastActivity + (acm.Timeout / 4)))))
+                    (acm.Heartbeat == AcmHeartbeat.HeartbeatAlways ||
+                    (acm.Heartbeat != AcmHeartbeat.HeartbeatOff && now >= (_acmLastActivity + (acm.Timeout / 4)))))
                 {
-                    if (acm.Heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
+                    if (acm.Heartbeat != AcmHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
                     {
                         Debug.Assert(_state == State.Active);
                         if (!Endpoint.IsDatagram)
@@ -497,17 +495,19 @@ namespace ZeroC.Ice
 
                 // TODO: We still rely on the endpoint timeout here, remove and change the override close timeout to
                 // Ice.CloseTimeout (or just rely on ACM timeout)
-                int timeout = acm.Timeout;
+                TimeSpan timeout = acm.Timeout;
                 if (_state >= State.Closing)
                 {
-                    timeout = _communicator.OverrideCloseTimeout ?? Endpoint.Timeout;
+                    timeout = TimeSpan.FromMilliseconds(
+                        _communicator.OverrideCloseTimeout ?? Endpoint.Timeout);
                 }
 
                 // ACM close is always enabled when in the closing state for connection close timeouts.
-                if ((_state >= State.Closing || acm.Close != ACMClose.CloseOff) && now >= (_acmLastActivity + timeout))
+                if ((_state >= State.Closing || acm.Close != AcmClose.CloseOff) &&
+                    now >= _acmLastActivity + (timeout / 4))
                 {
-                    if (_state == State.Closing || acm.Close == ACMClose.CloseOnIdleForceful ||
-                       (acm.Close != ACMClose.CloseOnIdle && (_requests.Count > 0)))
+                    if (_state == State.Closing || acm.Close == AcmClose.CloseOnIdleForceful ||
+                       (acm.Close != AcmClose.CloseOnIdle && (_requests.Count > 0)))
                     {
                         //
                         // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
@@ -515,7 +515,7 @@ namespace ZeroC.Ice
                         //
                         _ = CloseAsync(new ConnectionTimeoutException());
                     }
-                    else if (acm.Close != ACMClose.CloseOnInvocation && _dispatchCount == 0 && _requests.Count == 0)
+                    else if (acm.Close != AcmClose.CloseOnInvocation && _dispatchCount == 0 && _requests.Count == 0)
                     {
                         //
                         // The connection is idle, close it.
@@ -789,9 +789,9 @@ namespace ZeroC.Ice
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
                     }
 
-                    if (_acmLastActivity > -1)
+                    if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
                     {
-                        _acmLastActivity = Time.CurrentMonotonicTimeMillis();
+                        _acmLastActivity = Time.CurrentMonotonicTime();
                     }
                     if (_connector != null)
                     {
@@ -1511,9 +1511,9 @@ namespace ZeroC.Ice
                 }
 
                 TraceReceivedAndUpdateObserver(readBuffer.Count);
-                if (_acmLastActivity > -1)
+                if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
                 {
-                    _acmLastActivity = Time.CurrentMonotonicTimeMillis();
+                    _acmLastActivity = Time.CurrentMonotonicTime();
                 }
 
                 // Connection is validated on the first frame. This is only used by setState() to check whether or
@@ -1556,9 +1556,9 @@ namespace ZeroC.Ice
                         }
 
                         TraceReceivedAndUpdateObserver(bytesReceived);
-                        if (_acmLastActivity > -1)
+                        if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
                         {
-                            _acmLastActivity = Time.CurrentMonotonicTimeMillis();
+                            _acmLastActivity = Time.CurrentMonotonicTime();
                         }
                     }
                 }
@@ -1623,9 +1623,9 @@ namespace ZeroC.Ice
                     }
 
                     TraceSentAndUpdateObserver(bytesSent);
-                    if (_acmLastActivity > -1)
+                    if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
                     {
-                        _acmLastActivity = Time.CurrentMonotonicTimeMillis();
+                        _acmLastActivity = Time.CurrentMonotonicTime();
                     }
                 }
             }
@@ -1858,9 +1858,9 @@ namespace ZeroC.Ice
             {
                 if (state == State.Active)
                 {
-                    if (_acmLastActivity > -1)
+                    if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
                     {
-                        _acmLastActivity = Time.CurrentMonotonicTimeMillis();
+                        _acmLastActivity = Time.CurrentMonotonicTime();
                     }
                     _monitor.Add(this);
                 }
@@ -1971,7 +1971,7 @@ namespace ZeroC.Ice
 
         protected IPConnection(
             Endpoint endpoint,
-            IACMMonitor? monitor,
+            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             ObjectAdapter? adapter)
@@ -2016,7 +2016,7 @@ namespace ZeroC.Ice
 
         protected internal TcpConnection(
             Endpoint endpoint,
-            IACMMonitor? monitor,
+            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             ObjectAdapter? adapter)
@@ -2033,7 +2033,7 @@ namespace ZeroC.Ice
 
         protected internal UdpConnection(
             Endpoint endpoint,
-            IACMMonitor? monitor,
+            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             ObjectAdapter? adapter)
@@ -2050,7 +2050,7 @@ namespace ZeroC.Ice
 
         protected internal WSConnection(
             Endpoint endpoint,
-            IACMMonitor? monitor,
+            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             ObjectAdapter? adapter)
