@@ -484,22 +484,28 @@ namespace ZeroC.Ice
                 return false;
             }
 
-            X509Certificate2Collection? caCerts = _incoming ?
+            X509Certificate2Collection? trustedCertificateAuthorities = _incoming ?
                 _engine.TlsServerOptions.ClientCertificateCertificateAuthorities :
                 _engine.TlsClientOptions.ServerCertificateCertificateAuthorities;
 
-            // If using custom certificate authorities and the peer provides a certificate,
+            bool useMachineContext = _incoming ?
+                _engine.TlsServerOptions.UseMachineContex : _engine.TlsClientOptions.UseMachineContex;
+
+            // If using custom certificate authorities or the machine context and the peer provides a certificate,
             // we rebuild the certificate chain with our custom chain policy.
-            if (caCerts != null && certificate != null)
+            if ((trustedCertificateAuthorities != null || useMachineContext) && certificate != null)
             {
-                chain = new X509Chain();
+                chain = new X509Chain(useMachineContext);
                 // We need to set this flag to be able to use a certificate authority from the extra store.
                 chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
                 chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
-                foreach (X509Certificate2 cert in caCerts)
+                if (trustedCertificateAuthorities != null)
                 {
-                    chain.ChainPolicy.ExtraStore.Add(cert);
+                    foreach (X509Certificate2 cert in trustedCertificateAuthorities)
+                    {
+                        chain.ChainPolicy.ExtraStore.Add(cert);
+                    }
                 }
                 chain.Build(certificate as X509Certificate2);
                 errors |= SslPolicyErrors.RemoteCertificateChainErrors;
@@ -509,7 +515,7 @@ namespace ZeroC.Ice
             {
                 var chainStatus = new List<X509ChainStatus>(chain.ChainStatus);
 
-                if (caCerts != null)
+                if (trustedCertificateAuthorities != null)
                 {
                     // Untrusted root is OK when using our custom chain engine if the CA certificate is present in the
                     // chain policy extra store.

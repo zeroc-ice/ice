@@ -35,8 +35,6 @@ namespace ZeroC.Ice
             SecurityTraceLevel = communicator.GetPropertyAsInt("IceSSL.Trace.Security") ?? 0;
             SslTrustManager = new SslTrustManager(communicator);
 
-            bool useMachineKeySet = communicator.GetPropertyAsBool("IceSSL.UseMachineKeySet") ?? false;
-
             TlsClientOptions = new TlsClientOptions();
             TlsServerOptions = new TlsServerOptions();
 
@@ -62,7 +60,18 @@ namespace ZeroC.Ice
                 certificates = new X509Certificate2Collection();
                 try
                 {
-                    X509KeyStorageFlags importFlags = useMachineKeySet ? X509KeyStorageFlags.MachineKeySet : X509KeyStorageFlags.UserKeySet;
+                    X509KeyStorageFlags importFlags;
+                    if (AssemblyUtil.IsWindows)
+                    {
+                        importFlags = tlsClientOptions?.UseMachineContex ??
+                                      tlsServerOptions?.UseMachineContex ?? false ?
+                            X509KeyStorageFlags.MachineKeySet : X509KeyStorageFlags.UserKeySet;
+                    }
+                    else
+                    {
+                        importFlags = X509KeyStorageFlags.EphemeralKeySet;
+                    }
+
                     certificates.Add(communicator.GetProperty("IceSSL.Password") is string password ?
                         new X509Certificate2(certificateFile, password, importFlags) :
                         new X509Certificate2(certificateFile, "", importFlags));

@@ -58,6 +58,13 @@ namespace ZeroC.Ice
         /// provide a certificate and one is required.</summary>
         public bool RequireClientCertificate { get; set; }
 
+        /// <summary>When true and IceSSL.CertFile property is defined, the certificate is imported with the
+        /// <see cref="X509KeyStorageFlags.MachineKeySet"/> flag and the certificate chain used to validate the
+        /// client certificate is build using the machine context, otherwise the certificate is imported with the
+        /// <see cref="X509KeyStorageFlags.UserKeySet"/> and the certificate chain use the user context. This property
+        /// doesn't affect non Windows platforms.</summary>
+        public bool UseMachineContex { get; set; }
+
         /// <summary>Gets or sets the certificate user for incoming connections.</summary>
         public X509Certificate2? ServerCertificate { get; set; }
         private RemoteCertificateValidationCallback? _clientCertificateValidationCallback;

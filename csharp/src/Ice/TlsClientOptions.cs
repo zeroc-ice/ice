@@ -63,6 +63,13 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>When true and IceSSL.CertFile property is defined, the certificate is imported with the
+        /// <see cref="X509KeyStorageFlags.MachineKeySet"/> flag and the certificate chain used to validate the
+        /// server certificate is build using the machine context, otherwise the certificate is imported with the
+        /// <see cref="X509KeyStorageFlags.UserKeySet"/> and the certificate chain use the user context. This property
+        /// doesn't affect non Windows platforms.</summary>
+        public bool UseMachineContex { get; set; }
+
         private X509Certificate2Collection? _serverCertificateCertificateAuthorities;
         private RemoteCertificateValidationCallback? _serverCertificateValidationCallback;
     }
