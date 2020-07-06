@@ -76,12 +76,10 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>
-        /// Gets the value of a property as an array of strings. If the property is not set, returns null.
-        /// The value must contain strings separated by whitespace or comma. These strings can contain
-        /// whitespace and commas if they are enclosed in single or double quotes. Within single quotes or
-        /// double quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as
-        /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
+        /// <summary>Gets the value of a property as an array of strings. If the property is not set, returns null. The
+        /// value must contain strings separated by whitespace or comma. These strings can contain whitespace and
+        /// commas if they are enclosed in single or double quotes. Within single quotes or double quotes, you can
+        /// escape the quote in question with \, e.g. O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
         /// </summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into an array of strings or null.</returns>
@@ -98,9 +96,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Gets all properties whose keys begins with forPrefix.
-        /// If forPrefix is an empty string, then all properties are returned.
-        /// </summary>
+        /// <summary>Gets all properties whose keys begins with forPrefix. If forPrefix is the empty string, then all
+        /// properties are returned.</summary>
         /// <param name="forPrefix">The prefix to search for (empty string if none).</param>
         /// <returns>The matching property set.</returns>
         public Dictionary<string, string> GetProperties(string forPrefix = "")
@@ -198,9 +195,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Insert a new property or change the value of an existing property.
-        /// Setting the value of a property to the empty string removes this property
-        /// if it was present, and does nothing otherwise.</summary>
+        /// <summary>Insert a new property or change the value of an existing property. Setting the value of a property
+        /// to the empty string removes this property if it was present, and does nothing otherwise.</summary>
         /// <param name="name">The property name.</param>
         /// <param name="value">The property value.</param>
         public void SetProperty(string name, string value)
@@ -213,9 +209,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Insert new properties or change the value of existing properties.
-        /// Setting the value of a property to the empty string removes this property
-        /// if it was present, and does nothing otherwise.</summary>
+        /// <summary>Insert new properties or change the value of existing properties. Setting the value of a property
+        /// to the empty string removes this property if it was present, and does nothing otherwise.</summary>
         /// <param name="updates">A dictionary of properties. This methods removes properties that did not change
         /// anything from this dictionary.</param>
         public void SetProperties(Dictionary<string, string> updates)
@@ -305,8 +300,8 @@ namespace ZeroC.Ice
             }
         }
 
-        // SetPropertyImpl sets a property and returns true when the property
-        // was added, changed or removed, and false otherwise.
+        // SetPropertyImpl sets a property and returns true when the property was added, changed or removed, and false
+        // otherwise.
         private bool SetPropertyImpl(string name, string value)
         {
             // Must be called with a validated property and with _properties locked

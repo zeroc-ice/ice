@@ -14,8 +14,9 @@ namespace ZeroC.Ice
         /// <param name="rhs">The second dictionary to compare.</param>
         /// <returns>True if the two dictionaries have the exact same entries using the value's default equality
         /// comparison; otherwise, false.</returns>
-        internal static bool DictionaryEqual<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue>? lhs,
-                                                           IReadOnlyDictionary<TKey, TValue>? rhs) where TKey : notnull
+        internal static bool DictionaryEqual<TKey, TValue>(
+            this IReadOnlyDictionary<TKey, TValue>? lhs,
+            IReadOnlyDictionary<TKey, TValue>? rhs) where TKey : notnull
         {
             if (ReferenceEquals(lhs, rhs))
             {

@@ -239,7 +239,7 @@ namespace ZeroC.Ice
 
                 var subMapNames = new List<string>();
                 var subMapCloneFactories = new Dictionary<string, ISubMapCloneFactory>();
-                foreach (var (key, value) in subMaps)
+                foreach ((string key, ISubMapFactory value) in subMaps)
                 {
                     subMapNames.Add(key);
                     string subAllMapsPrefix = $"{mapPrefix}Map.";
