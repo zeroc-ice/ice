@@ -558,16 +558,13 @@ namespace ZeroC.Ice
                 }
 
                 // ACM close is always enabled when in the closing state for connection close timeouts.
-                if ((_state >= State.Closing || acm.Close != AcmClose.Off) &&
-                    now >= _acmLastActivity + (timeout / 4))
+                if ((_state >= State.Closing || acm.Close != AcmClose.Off) && now >= _acmLastActivity + timeout)
                 {
                     if (_state == State.Closing || acm.Close == AcmClose.OnIdleForceful ||
                        (acm.Close != AcmClose.OnIdle && (_requests.Count > 0)))
                     {
-                        //
                         // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
                         // ACM activity in the last period.
-                        //
                         _ = CloseAsync(new ConnectionTimeoutException());
                     }
                     else if (acm.Close != AcmClose.OnInvocation && _dispatchCount == 0 && _requests.Count == 0)
