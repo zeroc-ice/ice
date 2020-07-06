@@ -146,9 +146,8 @@ namespace ZeroC.Ice
             string mcastInterface,
             int mttl,
             bool connect,
-            string connectionId,
             bool compressionFlag)
-            : base(communicator, protocol, host, port, sourceAddress, connectionId)
+            : base(communicator, protocol, host, port, sourceAddress)
         {
             McastInterface = mcastInterface;
             McastTtl = mttl;
@@ -236,12 +235,11 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, McastTtl, ConnectionId);
+            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, McastTtl);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
             int port,
-            string connectionId,
             bool compressionFlag,
             int timeout) =>
             new UdpEndpoint(Communicator,
@@ -252,7 +250,6 @@ namespace ZeroC.Ice
                             McastInterface,
                             McastTtl,
                             _connect,
-                            connectionId,
                             compressionFlag);
     }
 }

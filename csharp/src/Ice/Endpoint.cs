@@ -19,9 +19,6 @@ namespace ZeroC.Ice
         /// <summary>Get the communicator from which the endpoint was created.</summary>
         public abstract Communicator Communicator { get; }
 
-        /// <summary>The connection ID of this endpoint.</summary>
-        public abstract string ConnectionId { get; }
-
         /// <summary>Indicates whether or not this endpoint's compression flag is set. When the compression flag is
         /// set, a request sent to this endpoint using the ice1 protocol is automatically compressed using bzip2 if
         /// the request's uncompressed size is greater than 100 bytes.</summary>
@@ -88,9 +85,6 @@ namespace ZeroC.Ice
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.
         public abstract Endpoint NewTimeout(int t);
-
-        // Returns a new endpoint with a different connection id.
-        public abstract Endpoint NewConnectionId(string connectionId);
 
         // Returns a new endpoint with a different compression flag, provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.

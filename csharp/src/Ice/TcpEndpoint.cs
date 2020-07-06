@@ -101,7 +101,7 @@ namespace ZeroC.Ice
         }
 
         public override Endpoint NewTimeout(int timeout) =>
-            timeout == Timeout ? this : CreateIPEndpoint(Host, Port, ConnectionId, HasCompressionFlag, timeout);
+            timeout == Timeout ? this : CreateIPEndpoint(Host, Port, HasCompressionFlag, timeout);
 
         public override IAcceptor GetAcceptor(string adapterName) =>
             new TcpAcceptor(this, Communicator, Host, Port, adapterName);
@@ -115,9 +115,8 @@ namespace ZeroC.Ice
             int port,
             IPAddress? sourceAddress,
             int timeout,
-            string connectionId,
             bool compressionFlag)
-            : base(communicator, protocol, host, port, sourceAddress, connectionId)
+            : base(communicator, protocol, host, port, sourceAddress)
         {
             Transport = transport;
             HasCompressionFlag = compressionFlag;
@@ -193,13 +192,11 @@ namespace ZeroC.Ice
                              addr,
                              proxy,
                              SourceAddress,
-                             Timeout,
-                             ConnectionId);
+                             Timeout);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
             int port,
-            string connectionId,
             bool compressionFlag,
             int timeout) =>
             new TcpEndpoint(Communicator,
@@ -209,7 +206,6 @@ namespace ZeroC.Ice
                             port,
                             SourceAddress,
                             timeout,
-                            connectionId,
                             compressionFlag);
 
         internal virtual ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)

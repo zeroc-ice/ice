@@ -19,15 +19,13 @@ namespace ZeroC.Ice
             EndPoint addr,
             IPAddress? sourceAddr,
             string mcastInterface,
-            int mcastTtl,
-            string connectionId)
+            int mcastTtl)
         {
             _communicator = communicator;
             _addr = addr;
             _sourceAddr = sourceAddr;
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
-            _connectionId = connectionId;
 
             var hash = new System.HashCode();
             hash.Add(_addr);
@@ -37,7 +35,6 @@ namespace ZeroC.Ice
             }
             hash.Add(_mcastInterface);
             hash.Add(_mcastTtl);
-            hash.Add(_connectionId);
             _hashCode = hash.ToHashCode();
         }
 
@@ -54,11 +51,6 @@ namespace ZeroC.Ice
             }
 
             var p = (UdpConnector)obj;
-            if (!_connectionId.Equals(p._connectionId))
-            {
-                return false;
-            }
-
             if (!_mcastInterface.Equals(p._mcastInterface))
             {
                 return false;
@@ -86,7 +78,6 @@ namespace ZeroC.Ice
         private readonly IPAddress? _sourceAddr;
         private readonly string _mcastInterface;
         private readonly int _mcastTtl;
-        private readonly string _connectionId;
         private readonly int _hashCode;
     }
 }

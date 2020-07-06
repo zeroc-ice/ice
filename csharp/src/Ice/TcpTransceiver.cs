@@ -15,7 +15,8 @@ namespace ZeroC.Ice
             Endpoint endpoint,
             IACMMonitor? monitor,
             IConnector? connector,
-            ObjectAdapter? adapter) => new TcpConnection(endpoint, monitor, this, connector, adapter);
+            string connectionId,
+            ObjectAdapter? adapter) => new TcpConnection(endpoint, monitor, this, connector, connectionId, adapter);
         public Socket? Fd() => _stream.Fd();
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer) =>

@@ -16,21 +16,22 @@ namespace ZeroC.Ice
     internal sealed class OutgoingConnectionFactory
     {
         private readonly Communicator _communicator;
-        private readonly MultiDictionary<IConnector, Connection> _connectionsByConnector =
-            new MultiDictionary<IConnector, Connection>();
-        private readonly MultiDictionary<Endpoint, Connection> _connectionsByEndpoint =
-            new MultiDictionary<Endpoint, Connection>();
+        private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector =
+            new MultiDictionary<(IConnector, string), Connection>();
+        private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
+            new MultiDictionary<(Endpoint, string), Connection>();
         private Task? _destroyTask = null;
         private SemaphoreSlim? _destroyTaskSemaphore = null;
         private readonly FactoryACMMonitor _monitor;
         private readonly object _mutex = new object();
-        private readonly Dictionary<IConnector, Task<Connection>> _pending =
-            new Dictionary<IConnector, Task<Connection>>();
+        private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
+            new Dictionary<(IConnector, string), Task<Connection>>();
 
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
             bool hasMore,
-            EndpointSelectionType selType)
+            EndpointSelectionType selType,
+            string connectionId)
         {
             Debug.Assert(endpoints.Count > 0);
 
@@ -45,7 +46,8 @@ namespace ZeroC.Ice
                 // lookup for the connection.
                 foreach (Endpoint endpoint in endpoints)
                 {
-                    if (_connectionsByEndpoint.TryGetValue(endpoint, out ICollection<Connection>? connectionList))
+                    if (_connectionsByEndpoint.TryGetValue((endpoint, connectionId),
+                                                            out ICollection<Connection>? connectionList))
                     {
                         foreach (Connection connection in connectionList)
                         {
@@ -60,14 +62,14 @@ namespace ZeroC.Ice
 
             // For each endpoint, obtain the set of connectors. This might block if DNS lookups are required to
             // resolve an endpoint hostname into connector addresses.
-            var connectors = new List<(IConnector, Endpoint)>();
+            var connectors = new List<(IConnector, Endpoint, string)>();
             foreach (Endpoint endpoint in endpoints)
             {
                 try
                 {
                     foreach (IConnector connector in await endpoint.ConnectorsAsync(selType).ConfigureAwait(false))
                     {
-                        connectors.Add((connector, endpoint));
+                        connectors.Add((connector, endpoint, connectionId));
                     }
                 }
                 catch (CommunicatorDestroyedException)
@@ -104,18 +106,19 @@ namespace ZeroC.Ice
                 // Reap closed connections
                 foreach (Connection connection in _monitor.SwapReapedConnections())
                 {
-                    _connectionsByConnector.Remove(connection.Connector, connection);
+                    _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
                     foreach (Endpoint endpoint in connection.Endpoints)
                     {
-                        _connectionsByEndpoint.Remove(endpoint, connection);
+                        _connectionsByEndpoint.Remove((endpoint, connection.ConnectionId), connection);
                     }
                 }
 
                 // Try to find a connection matching one of the connector.
-                foreach ((IConnector connector, Endpoint _) in connectors)
+                foreach ((IConnector connector, Endpoint _, string _) in connectors)
                 {
-                    if (!_pending.ContainsKey(connector) &&
-                        _connectionsByConnector.TryGetValue(connector, out ICollection<Connection>? connectionList))
+                    ValueTuple<IConnector, string> key = (connector, connectionId);
+                    if (!_pending.ContainsKey(key) &&
+                        _connectionsByConnector.TryGetValue(key, out ICollection<Connection>? connectionList))
                     {
                         foreach (Connection connection in connectionList)
                         {
@@ -251,12 +254,12 @@ namespace ZeroC.Ice
         }
 
         private async Task<Connection> ConnectAsync(
-            IReadOnlyList<(IConnector Connector, Endpoint Endpoint)> connectors,
+            IReadOnlyList<(IConnector Connector, Endpoint Endpoint, string ConnectionId)> connectors,
             bool hasMore)
         {
             Debug.Assert(connectors.Count > 0);
 
-            foreach ((IConnector connector, Endpoint endpoint) in connectors)
+            foreach ((IConnector connector, Endpoint endpoint, string connectionId) in connectors)
             {
                 IObserver? observer = _communicator.Observer?.GetConnectionEstablishmentObserver(endpoint,
                                                                                                  connector.ToString()!);
@@ -281,10 +284,11 @@ namespace ZeroC.Ice
                         connection = connector.Connect().CreateConnection(endpoint,
                                                                           _monitor,
                                                                           connector,
+                                                                          connectionId,
                                                                           null);
 
-                        _connectionsByConnector.Add(connector, connection);
-                        _connectionsByEndpoint.Add(endpoint, connection);
+                        _connectionsByConnector.Add((connector, connectionId), connection);
+                        _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                     }
 
                     await connection.StartAsync().ConfigureAwait(false);
@@ -319,9 +323,9 @@ namespace ZeroC.Ice
                 {
                     lock (_mutex)
                     {
-                        foreach ((IConnector connectorToRemove, Endpoint _) in connectors)
+                        foreach ((IConnector connectorToRemove, Endpoint _, string connectionIdToRemove) in connectors)
                         {
-                            _pending.Remove(connectorToRemove);
+                            _pending.Remove((connectorToRemove, connectionIdToRemove));
                         }
 
                         // If destroy is waiting for pending connection establishments and we're done with connection
@@ -359,10 +363,10 @@ namespace ZeroC.Ice
             // Ensure all the connections are finished and reapable at this point.
             foreach (Connection connection in _monitor.SwapReapedConnections())
             {
-                _connectionsByConnector.Remove(connection.Connector, connection);
+                _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
                 foreach (Endpoint endpoint in connection.Endpoints)
                 {
-                    _connectionsByEndpoint.Remove(endpoint, connection);
+                    _connectionsByEndpoint.Remove((endpoint, connection.ConnectionId), connection);
                 }
             }
             Debug.Assert(_connectionsByConnector.Count == 0);
@@ -373,22 +377,24 @@ namespace ZeroC.Ice
         }
 
         private async Task<Connection> WaitForConnectOrConnectAsync(
-            IReadOnlyList<(IConnector, Endpoint)> connectors,
+            IReadOnlyList<(IConnector, Endpoint, string)> connectors,
             bool hasMore)
         {
-            var tried = new HashSet<(IConnector, Endpoint)>();
+            var tried = new HashSet<(IConnector, Endpoint, string)>();
             while (true)
             {
                 var connectTasks = new List<Task<Connection>>();
                 lock (_mutex)
                 {
                     // Search for pending connects for the set of connectors which weren't already tried.
-                    foreach ((IConnector connector, Endpoint endpoint) in connectors.Where(t => !tried.Contains(t)))
+
+                    foreach ((IConnector connector, Endpoint endpoint, string connectionId) in
+                        connectors.Where(t => !tried.Contains(t)))
                     {
-                        if (_pending.TryGetValue(connector, out Task<Connection>? task))
+                        if (_pending.TryGetValue((connector, connectionId), out Task<Connection>? task))
                         {
                             connectTasks.Add(task);
-                            tried.Add((connector, endpoint));
+                            tried.Add((connector, endpoint, connectionId));
                         }
                     }
 
@@ -410,11 +416,11 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        foreach ((IConnector connector, Endpoint endpoint) in connectors)
+                        foreach ((IConnector connector, Endpoint endpoint, string connectionId) in connectors)
                         {
                             // Use TryAdd in case there are duplicate (connector, endpoint) pairs.
-                            _pending.TryAdd(connector, connectTask);
-                            tried.Add((connector, endpoint));
+                            _pending.TryAdd((connector, connectionId), connectTask);
+                            tried.Add((connector, endpoint, connectionId));
                         }
                         connectTasks.Add(connectTask);
                     }
@@ -428,14 +434,14 @@ namespace ZeroC.Ice
                     if (completedTask.IsCompletedSuccessfully)
                     {
                         Connection connection = completedTask.Result;
-                        foreach ((IConnector connector, Endpoint endpoint) in connectors)
+                        foreach ((IConnector connector, Endpoint endpoint, string connectionId) in connectors)
                         {
                             // If the connection was established for another endpoint but to the same connector,
                             // we ensure to also associate the connection with this endpoint.
                             if (connection.Connector == connector && !connection.Endpoints.Contains(endpoint))
                             {
                                 connection.Endpoints.Add(endpoint);
-                                _connectionsByEndpoint.Add(endpoint, connection);
+                                _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                             }
                         }
                         return await completedTask.ConfigureAwait(false);
@@ -526,7 +532,7 @@ namespace ZeroC.Ice
                     }
                     _endpoint = _transceiver.Bind();
 
-                    Connection connection = _transceiver.CreateConnection(_endpoint, null, null, _adapter);
+                    Connection connection = _transceiver.CreateConnection(_endpoint, null, null, "", _adapter);
                     _ = connection.StartAsync();
                     _connections.Add(connection);
                 }
@@ -696,7 +702,7 @@ namespace ZeroC.Ice
 
                     try
                     {
-                        connection = transceiver.CreateConnection(_endpoint, _monitor, null, _adapter);
+                        connection = transceiver.CreateConnection(_endpoint, _monitor, null, "", _adapter);
                     }
                     catch (Exception ex)
                     {
