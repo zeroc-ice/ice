@@ -21,7 +21,8 @@ namespace ZeroC.Ice
         /// <param name="monitor">The ACM monitor object.</param>
         /// <param name="connector">The connector associated with the new connection, this is always null for incoming
         /// connections.</param>
-        /// <param name="connectionId">The connection ID associated with the new connection.</param>
+        /// <param name="connectionId">The connection ID associated with the new connection. This is always an empty
+        /// string for incoming connections.</param>
         /// <param name="adapter">The adapter associated with the new connection, this is always null for outgoing
         /// connections.</param>
         /// <returns>A new connection to the given endpoint.</returns>
