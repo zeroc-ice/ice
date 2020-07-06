@@ -242,7 +242,7 @@ namespace ZeroC.IceGrid.Test.Simple
             Connection? connection = session.GetConnection()!;
             connection.Acm = new Acm(TimeSpan.FromSeconds(registry.GetACMTimeout()),
                                      connection.Acm.Close,
-                                     AcmHeartbeat.HeartbeatAlways);
+                                     AcmHeartbeat.Always);
 
             IAdminPrx? admin = session.GetAdmin();
             TestHelper.Assert(admin != null);

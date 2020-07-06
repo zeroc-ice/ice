@@ -19,35 +19,35 @@ namespace ZeroC.Ice
     public enum AcmClose
     {
         /// <summary>Disables automatic connection closure.</summary>
-        CloseOff,
+        Off,
         /// <summary>Gracefully closes a connection that has been idle for the configured timeout period.</summary>
-        CloseOnIdle,
+        OnIdle,
         /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, regardless of
         /// whether the connection has pending invocations or dispatch.</summary>
-        CloseOnInvocation,
+        OnInvocation,
         /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, but only if
         /// the connection has pending invocations.</summary>
-        CloseOnInvocationAndIdle,
+        OnInvocationAndIdle,
         /// <summary>Combines the behaviors of CloseOnIdle and CloseOnInvocation.</summary>
-        CloseOnIdleForceful
+        OnIdleForceful
     }
 
     /// <summary>Specifies the heartbeat semantics for ACM (Active Connection Management).</summary>
     public enum AcmHeartbeat
     {
         /// <summary>Disables heartbeats.</summary>
-        HeartbeatOff,
+        Off,
         /// <summary>Send a heartbeat at regular intervals if the connection is idle and only if there are pending
         /// dispatch.</summary>
-        HeartbeatOnDispatch,
+        OnDispatch,
         /// <summary>Send a heartbeat at regular intervals when the connection is idle.</summary>
-        HeartbeatOnIdle,
+        OnIdle,
         /// <summary>Send a heartbeat at regular intervals until the connection is closed.</summary>
-        HeartbeatAlways
+        Always
     }
 
     /// <summary>This struct represents the Acm (Active Connection Management) configuration.</summary>
-    public struct Acm : IEquatable<Acm>
+    public readonly struct Acm : IEquatable<Acm>
     {
         /// <summary>Gets the <see cref="AcmClose"/> setting for the Acm configuration.</summary>
         public AcmClose Close { get; }
@@ -77,8 +77,8 @@ namespace ZeroC.Ice
         internal Acm(bool server)
         {
             Timeout = TimeSpan.FromSeconds(60);
-            Heartbeat = AcmHeartbeat.HeartbeatOnDispatch;
-            Close = server ? AcmClose.CloseOnInvocation : AcmClose.CloseOnInvocationAndIdle;
+            Heartbeat = AcmHeartbeat.OnDispatch;
+            Close = server ? AcmClose.OnInvocation : AcmClose.OnInvocationAndIdle;
         }
 
         internal Acm(Communicator communicator, string prefix, Acm defaults)
@@ -87,21 +87,21 @@ namespace ZeroC.Ice
 
             Heartbeat = communicator.GetProperty($"{prefix}.Heartbeat") switch
             {
-                var x when x == "HeartbeatOff" || x == "0" => AcmHeartbeat.HeartbeatOff,
-                var x when x == "HeartbeatOnDispatch" || x == "1" => AcmHeartbeat.HeartbeatOnDispatch,
-                var x when x == "HeartbeatOnIdle" || x == "2" => AcmHeartbeat.HeartbeatOnIdle,
-                var x when x == "HeartbeatAlways" || x == "3" => AcmHeartbeat.HeartbeatAlways,
+                var x when x == "Off" || x == "0" => AcmHeartbeat.Off,
+                var x when x == "OnDispatch" || x == "1" => AcmHeartbeat.OnDispatch,
+                var x when x == "OnIdle" || x == "2" => AcmHeartbeat.OnIdle,
+                var x when x == "Always" || x == "3" => AcmHeartbeat.Always,
                 null => defaults.Heartbeat,
                 _ => throw new InvalidConfigurationException($"invalid value for property `{prefix}.Heartbeat'")
             };
 
             Close = communicator.GetProperty($"{prefix}.Close") switch
             {
-                var x when x == "CloseOff" || x == "0" => AcmClose.CloseOff,
-                var x when x == "CloseOnIdle" || x == "1" => AcmClose.CloseOnIdle,
-                var x when x == "CloseOnInvocation" || x == "2" => AcmClose.CloseOnInvocation,
-                var x when x == "CloseOnInvocationAndIdle" || x == "3" => AcmClose.CloseOnInvocationAndIdle,
-                var x when x == "CloseOnIdleForceful" || x == "4" => AcmClose.CloseOnIdleForceful,
+                var x when x == "Off" || x == "0" => AcmClose.Off,
+                var x when x == "OnIdle" || x == "1" => AcmClose.OnIdle,
+                var x when x == "OnInvocation" || x == "2" => AcmClose.OnInvocation,
+                var x when x == "OnInvocationAndIdle" || x == "3" => AcmClose.OnInvocationAndIdle,
+                var x when x == "OnIdleForceful" || x == "4" => AcmClose.OnIdleForceful,
                 null => defaults.Close,
                 _ => throw new InvalidConfigurationException($"invalid value for property `{ prefix}.Close'")
             };
@@ -126,7 +126,7 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     return _monitor?.Acm ??
-                        new Acm(TimeSpan.FromSeconds(0), AcmClose.CloseOff, AcmHeartbeat.HeartbeatOff);
+                        new Acm(TimeSpan.FromSeconds(0), AcmClose.Off, AcmHeartbeat.Off);
                 }
             }
             set
@@ -407,11 +407,12 @@ namespace ZeroC.Ice
         /// <returns>The description of the connection as human readable text.</returns>
         public override string ToString() => Transceiver.ToString()!;
 
-        internal Connection(Endpoint endpoint,
-                            IAcmMonitor? monitor,
-                            ITransceiver transceiver,
-                            IConnector? connector,
-                            ObjectAdapter? adapter)
+        internal Connection(
+            Endpoint endpoint,
+            IAcmMonitor? monitor,
+            ITransceiver transceiver,
+            IConnector? connector,
+            ObjectAdapter? adapter)
         {
             _communicator = endpoint.Communicator;
             _monitor = monitor;
@@ -520,10 +521,10 @@ namespace ZeroC.Ice
                 // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because the
                 // monitor() method is still only called every (timeout / 2) period.
                 if (_state == State.Active &&
-                    (acm.Heartbeat == AcmHeartbeat.HeartbeatAlways ||
-                    (acm.Heartbeat != AcmHeartbeat.HeartbeatOff && now >= (_acmLastActivity + (acm.Timeout / 4)))))
+                    (acm.Heartbeat == AcmHeartbeat.Always ||
+                    (acm.Heartbeat != AcmHeartbeat.Off && now >= (_acmLastActivity + (acm.Timeout / 4)))))
                 {
-                    if (acm.Heartbeat != AcmHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
+                    if (acm.Heartbeat != AcmHeartbeat.OnDispatch || _dispatchCount > 0)
                     {
                         Debug.Assert(_state == State.Active);
                         if (!Endpoint.IsDatagram)
@@ -551,11 +552,11 @@ namespace ZeroC.Ice
                 }
 
                 // ACM close is always enabled when in the closing state for connection close timeouts.
-                if ((_state >= State.Closing || acm.Close != AcmClose.CloseOff) &&
+                if ((_state >= State.Closing || acm.Close != AcmClose.Off) &&
                     now >= _acmLastActivity + (timeout / 4))
                 {
-                    if (_state == State.Closing || acm.Close == AcmClose.CloseOnIdleForceful ||
-                       (acm.Close != AcmClose.CloseOnIdle && (_requests.Count > 0)))
+                    if (_state == State.Closing || acm.Close == AcmClose.OnIdleForceful ||
+                       (acm.Close != AcmClose.OnIdle && (_requests.Count > 0)))
                     {
                         //
                         // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
@@ -563,7 +564,7 @@ namespace ZeroC.Ice
                         //
                         _ = CloseAsync(new ConnectionTimeoutException());
                     }
-                    else if (acm.Close != AcmClose.CloseOnInvocation && _dispatchCount == 0 && _requests.Count == 0)
+                    else if (acm.Close != AcmClose.OnInvocation && _dispatchCount == 0 && _requests.Count == 0)
                     {
                         //
                         // The connection is idle, close it.

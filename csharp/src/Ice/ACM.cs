@@ -16,17 +16,17 @@ namespace ZeroC.Ice
         /// <summary>Gets the Acm configuration for this monitor.</summary>
         Acm Acm { get; }
 
-        /// <summary>Add a new connection to the set of monitored connections.</summary>
+        /// <summary>Adds a new connection to the set of monitored connections.</summary>
         /// <param name="connection">The connection to monitor for activity.</param>
         void Add(Connection connection);
 
         void Reap(Connection connection);
 
-        /// <summary>Remote a connection from the set of monitored connections.</summary>
+        /// <summary>Removes a connection from the set of monitored connections.</summary>
         /// <param name="connection">The connection to remove.</param>
         void Remove(Connection connection);
 
-        /// <summary>Create a child Acm monitor with a specific Acm configuration.</summary>
+        /// <summary>Creates a child Acm monitor with a specific Acm configuration.</summary>
         /// <param name="acm">The monitor Acm configuration.</param>
         /// <returns>Returns a new Acm monitor with the given configuration.</returns>
         IAcmMonitor Create(Acm acm);

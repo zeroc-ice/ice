@@ -510,16 +510,16 @@ namespace ZeroC.Ice.Test.ACM
 
                 Acm acm = con.Acm;
                 TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(15));
-                TestHelper.Assert(acm.Close == AcmClose.CloseOnIdleForceful);
-                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatOff);
+                TestHelper.Assert(acm.Close == AcmClose.OnIdleForceful);
+                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.Off);
 
                 con.Acm = new Acm(TimeSpan.FromSeconds(1),
-                                  AcmClose.CloseOnInvocationAndIdle,
-                                  AcmHeartbeat.HeartbeatAlways);
+                                  AcmClose.OnInvocationAndIdle,
+                                  AcmHeartbeat.Always);
                 acm = con.Acm;
                 TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(1));
-                TestHelper.Assert(acm.Close == AcmClose.CloseOnInvocationAndIdle);
-                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatAlways);
+                TestHelper.Assert(acm.Close == AcmClose.OnInvocationAndIdle);
+                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.Always);
 
                 proxy.startHeartbeatCount();
                 proxy.waitForHeartbeatCount(2);
@@ -547,12 +547,11 @@ namespace ZeroC.Ice.Test.ACM
 
                 foreach ((string close, string hearbeat) in new (string, string)[]
                                                                 {
-                                                                    ("CloseOff",  "HeartbeatOff"),
-                                                                    ("CloseOnIdle", "HeartbeatOnDispatch"),
-                                                                    ("CloseOnInvocation", "HeartbeatOnIdle"),
-                                                                    ("CloseOnInvocationAndIdle", "HeartbeatAlways"),
-                                                                    ("CloseOnIdleForceful", "HeartbeatOff"),
-                                                                    ("CloseOnIdleForceful", "HeartbeatOnDispatch")
+                                                                    ("Off",  "Off"),
+                                                                    ("OnIdle", "OnDispatch"),
+                                                                    ("OnInvocation", "OnIdle"),
+                                                                    ("OnInvocationAndIdle", "Always"),
+                                                                    ("OnIdleForceful", "Off")
                                                                 })
                 {
                     using var communicator = new Communicator(
