@@ -42,9 +42,7 @@ namespace ZeroC.Ice
                 throw new InvalidOperationException("plug-ins already initialized");
             }
 
-            //
             // Invoke initialize() on the plug-ins, in the order they were loaded.
-            //
             var initializedPlugins = new List<IPlugin>();
             try
             {
@@ -56,10 +54,7 @@ namespace ZeroC.Ice
             }
             catch (Exception)
             {
-                //
-                // Destroy the plug-ins that have been successfully initialized, in the
-                // reverse order.
-                //
+                // Destroy the plug-ins that have been successfully initialized, in the reverse order.
                 initializedPlugins.Reverse();
                 foreach (IPlugin p in initializedPlugins)
                 {
@@ -67,7 +62,7 @@ namespace ZeroC.Ice
                     {
                         p.Destroy();
                     }
-                    catch (Exception)
+                    catch
                     {
                         // Ignore.
                     }
@@ -128,13 +123,9 @@ namespace ZeroC.Ice
             const string prefix = "Ice.Plugin.";
             Dictionary<string, string> plugins = GetProperties(forPrefix: prefix);
 
-            //
-            // First, load static plugin factories which were setup to load on
-            // communicator initialization. If a matching plugin property is
-            // set, we load the plugin with the plugin specification. The
-            // entryPoint will be ignored but the rest of the plugin
-            // specification might be used.
-            //
+            // First, load static plugin factories which were setup to load on communicator initialization. If a
+            // matching plugin property is set, we load the plugin with the plugin specification. The entryPoint will
+            // be ignored but the rest of the plugin specification might be used.
             foreach (string name in _loadOnInitialization)
             {
                 string key = $"Ice.Plugin.{name}.clr";
@@ -156,22 +147,18 @@ namespace ZeroC.Ice
                 }
             }
 
-            //
-            // Load and initialize the plug-ins defined in the property set
-            // with the prefix "Ice.Plugin.". These properties should
-            // have the following format:
+            // Load and initialize the plug-ins defined in the property set with the prefix "Ice.Plugin.". These
+            // properties should have the following format:
             //
             // Ice.Plugin.name[.<language>]=entry_point [args]
             //
-            // The code below is different from the Java/C++ algorithm
-            // because C# must support full assembly names such as:
+            // The code below is different from the Java/C++ algorithm because C# must support full assembly names such
+            // as:
             //
             // Ice.Plugin.Logger=logger, Version=0.0.0.0, Culture=neutral:LoginPluginFactory
             //
-            // If the Ice.PluginLoadOrder property is defined, load the
-            // specified plug-ins in the specified order, then load any
-            // remaining plug-ins.
-            //
+            // If the Ice.PluginLoadOrder property is defined, load the specified plug-ins in the specified order, then
+            // load any remaining plug-ins.
 
             string[] loadOrder = GetPropertyAsList("Ice.PluginLoadOrder") ?? Array.Empty<string>();
             foreach (string name in loadOrder)
@@ -205,9 +192,7 @@ namespace ZeroC.Ice
                 }
             }
 
-            //
             // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
-            //
             while (plugins.Count > 0)
             {
                 IEnumerator<KeyValuePair<string, string>> p = plugins.GetEnumerator();
@@ -222,9 +207,7 @@ namespace ZeroC.Ice
                     string suffix = name.Substring(dotPos + 1);
                     if (suffix == "cpp" || suffix == "java")
                     {
-                        //
                         // Ignored
-                        //
                         plugins.Remove(key);
                     }
                     else if (suffix == "clr")
@@ -245,9 +228,7 @@ namespace ZeroC.Ice
                 {
                     plugins.Remove(key);
 
-                    //
                     // Is there a .clr entry?
-                    //
                     string clrKey = $"Ice.Plugin.{name}.clr";
                     if (plugins.ContainsKey(clrKey))
                     {
@@ -265,10 +246,8 @@ namespace ZeroC.Ice
             string? entryPoint = null;
             if (pluginSpec.Length > 0)
             {
-                //
-                // Split the entire property value into arguments. An entry point containing spaces
-                // must be enclosed in quotes.
-                //
+                // Split the entire property value into arguments. An entry point containing spaces must be enclosed in
+                // quotes.
                 try
                 {
                     args = Options.Split(pluginSpec);
@@ -282,19 +261,10 @@ namespace ZeroC.Ice
 
                 entryPoint = args[0];
 
-                //
-                // Shift the arguments.
-                //
-                string[] tmp = new string[args.Length - 1];
-                Array.Copy(args, 1, tmp, 0, args.Length - 1);
-                args = tmp;
+                args = args.Skip(1).ToArray();
 
-                //
-                // Convert command-line options into properties. First
-                // we convert the options from the plug-in
-                // configuration, then we convert the options from the
-                // application command-line.
-                //
+                // Convert command-line options into properties. First we convert the options from the plug-in
+                // configuration, then we convert the options from the application command-line.
                 var properties = new Dictionary<string, string>();
                 properties.ParseArgs(ref args, name);
                 properties.ParseArgs(ref cmdArgs, name);
@@ -304,16 +274,11 @@ namespace ZeroC.Ice
                 }
             }
             Debug.Assert(entryPoint != null);
-            //
-            // Always check the static plugin factory table first, it takes
-            // precedence over the entryPoint specified in the plugin
-            // property value.
-            //
+            // Always check the static plugin factory table first, it takes precedence over the entryPoint specified in
+            // the plugin property value.
             if (!_pluginFactories.TryGetValue(name, out IPluginFactory? pluginFactory))
             {
-                //
                 // Extract the assembly name and the class name.
-                //
                 int sepPos = entryPoint.IndexOf(':');
                 if (sepPos != -1)
                 {
@@ -337,15 +302,13 @@ namespace ZeroC.Ice
 
                 try
                 {
+                    // First try to load the assembly using Assembly.Load, which will succeed if a fully-qualified name
+                    // is provided or if a partial name has been qualified in configuration. If that fails, try
+                    // Assembly.LoadFrom(), which will succeed if a file name is configured or a partial name is
+                    // configured and DEVPATH is used.
                     //
-                    // First try to load the assembly using Assembly.Load, which will succeed
-                    // if a fully-qualified name is provided or if a partial name has been qualified
-                    // in configuration. If that fails, try Assembly.LoadFrom(), which will succeed
-                    // if a file name is configured or a partial name is configured and DEVPATH is used.
-                    //
-                    // We catch System.Exception as this can fail with System.ArgumentNullException
-                    // or System.IO.IOException depending of the .NET framework and platform.
-                    //
+                    // We catch System.Exception as this can fail with System.ArgumentNullException or
+                    // System.IO.IOException depending of the .NET framework and platform.
                     try
                     {
                         pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
@@ -358,9 +321,7 @@ namespace ZeroC.Ice
                         }
                         catch (System.IO.IOException)
                         {
-#pragma warning disable CA2200 // Rethrow to preserve stack details.
-                            throw ex;
-#pragma warning restore CA2200 // Rethrow to preserve stack details.
+                            throw ExceptionUtil.Throw(ex);
                         }
                     }
                 }
@@ -370,9 +331,7 @@ namespace ZeroC.Ice
                         $"error loading plug-in `{entryPoint}': unable to load assembly: `{assemblyName}'", ex);
                 }
 
-                //
                 // Instantiate the class.
-                //
                 Type? c;
                 try
                 {

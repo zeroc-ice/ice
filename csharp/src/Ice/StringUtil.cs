@@ -39,13 +39,6 @@ namespace ZeroC.Ice
 
         //
         // Return the index of the first character in str which does
-        // not appear in match, starting from 0. Returns -1 if none is
-        // found.
-        //
-        public static int FindFirstNotOf(string str, string match) => FindFirstNotOf(str, match, 0);
-
-        //
-        // Return the index of the first character in str which does
         // not appear in match, starting from start. Returns -1 if none is
         // found.
         //
@@ -64,8 +57,7 @@ namespace ZeroC.Ice
             return -1;
         }
 
-        private static void
-        EncodeChar(char c, StringBuilder sb, string? special, ToStringMode toStringMode)
+        private static void EncodeChar(char c, StringBuilder sb, string? special, ToStringMode toStringMode)
         {
             switch (c)
             {
@@ -144,7 +136,7 @@ namespace ZeroC.Ice
                         }
                         else
                         {
-                            int i = (int)c;
+                            int i = c;
                             if (i < 32 || i > 126)
                             {
                                 if (toStringMode == ToStringMode.Compat)
@@ -268,8 +260,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private static char
-        CheckChar(string s, int pos)
+        private static char CheckChar(string s, int pos)
         {
             char c = s[pos];
             if (c < 32 || c == 127)
@@ -621,8 +612,6 @@ namespace ZeroC.Ice
             }
             return l.ToArray();
         }
-
-        public static int CheckQuote(string s) => CheckQuote(s, 0);
 
         //
         // If a single or double quotation mark is found at the start position,

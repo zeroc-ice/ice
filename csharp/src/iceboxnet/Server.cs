@@ -67,7 +67,7 @@ namespace ZeroC.IceBox
                 }
                 else
                 {
-                    Console.Error.WriteLine("IceBox.Server: unknown option `" + arg + "'");
+                    Console.Error.WriteLine($"IceBox.Server: unknown option `{arg}'");
                     Usage();
                     return 1;
                 }

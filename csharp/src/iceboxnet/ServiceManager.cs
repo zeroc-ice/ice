@@ -33,19 +33,13 @@ namespace ZeroC.IceBox
             _communicator = communicator;
             _logger = _communicator.Logger;
 
-            if (_communicator.GetProperty("Ice.Admin.Enabled") == null)
-            {
-                _adminEnabled = _communicator.GetProperty("Ice.Admin.Endpoints") != null;
-            }
-            else
-            {
-                _adminEnabled = _communicator.GetPropertyAsBool("Ice.Admin.Enabled") ?? false;
-            }
+            _adminEnabled = _communicator.GetPropertyAsBool("Ice.Admin.Enabled") ??
+                _communicator.GetProperty("Ice.Admin.Endpoints") != null;
 
             if (_adminEnabled)
             {
-                _adminFacetFilter = new HashSet<string>(
-                    _communicator.GetPropertyAsList("Ice.Admin.Facets") ?? Array.Empty<string>());
+                _adminFacetFilter = new HashSet<string>(_communicator.GetPropertyAsList("Ice.Admin.Facets") ??
+                                                        Array.Empty<string>());
             }
 
             _argv = args;
@@ -297,20 +291,16 @@ namespace ZeroC.IceBox
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 _communicator.AddAdminFacet("IceBox.ServiceManager", this);
                 _communicator.GetAdmin();
-                if (adapter != null)
-                {
-                    adapter.Activate();
-                }
+                adapter?.Activate();
 
                 // We may want to notify external scripts that the services have started and that IceBox is "ready".
                 // This is done by defining the property IceBox.PrintServicesReady=bundleName, bundleName is whatever
                 // you choose to call this set of services. It will be echoed back as "bundleName ready".
                 //
                 // This must be done after start() has been invoked on the services.
-                string? bundleName = _communicator.GetProperty("IceBox.PrintServicesReady");
-                if (bundleName != null)
+                if (_communicator.GetProperty("IceBox.PrintServicesReady") is string bundleName)
                 {
-                    Console.Out.WriteLine(bundleName + " ready");
+                    Console.Out.WriteLine($"{bundleName} ready");
                 }
 
                 _communicator.WaitForShutdown();
@@ -325,7 +315,7 @@ namespace ZeroC.IceBox
             }
             catch (Exception ex)
             {
-                _logger.Error("IceBox.ServiceManager: caught exception:\n" + ex.ToString());
+                _logger.Error($"IceBox.ServiceManager: caught exception:\n{ex}");
                 return 1;
             }
             finally

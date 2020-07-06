@@ -239,7 +239,7 @@ namespace ZeroC.Ice
 
                 var subMapNames = new List<string>();
                 var subMapCloneFactories = new Dictionary<string, ISubMapCloneFactory>();
-                foreach (var (key, value) in subMaps)
+                foreach ((string key, ISubMapFactory value) in subMaps)
                 {
                     subMapNames.Add(key);
                     string subAllMapsPrefix = $"{mapPrefix}Map.";
@@ -484,11 +484,13 @@ namespace ZeroC.Ice
             {
                 if (GetMetricsView(viewName) is MetricsView view)
                 {
-                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>, Time.CurrentMonotonicTimeMillis());
+                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>,
+                            (long)Time.CurrentMonotonicTime().TotalMilliseconds);
                 }
                 else
                 {
-                    return (ImmutableDictionary<string, Metrics?[]>.Empty, Time.CurrentMonotonicTimeMillis());
+                    return (ImmutableDictionary<string, Metrics?[]>.Empty,
+                            (long)Time.CurrentMonotonicTime().TotalMilliseconds);
                 }
             }
         }

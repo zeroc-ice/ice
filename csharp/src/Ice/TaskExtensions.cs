@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>WaitAsync task extensions allow to cancel the wait for the task completion without cancelling the
+    /// <summary>WaitAsync task extensions allow to cancel the wait for the task completion without canceling the
     /// task. For example, the user might want to cancel an invocation that is waiting for connection establishment.
     /// Instead of canceling the connection establishment which might be shared by other invocations we cancel the wait
     /// on the connection establishment for the invocation. The same applies for invocations which are waiting on a

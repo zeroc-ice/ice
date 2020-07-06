@@ -16,7 +16,8 @@ registryTraceProps = {
 }
 
 clientProps = lambda process, current: {
-    "IceLocatorDiscovery.Timeout": 50,
+    # TODO workaround until we use TimeSpan timeout with all mappings
+    "IceLocatorDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
     "IceLocatorDiscovery.RetryCount": 5,
     "IceLocatorDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
     "IceLocatorDiscovery.Port": current.driver.getTestPort(99),

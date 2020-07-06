@@ -99,10 +99,12 @@ namespace ZeroC.Ice
                 }
                 catch (BadImageFormatException)
                 {
-                    Console.Error.Write($"warning: {libNames} could not be loaded (likely due to 32/64-bit mismatch).");
+                    Console.Error.Write(
+                        $"warning: {libNames} could not be loaded (likely due to 32/64-bit mismatch).");
                     if (IntPtr.Size == 8)
                     {
-                        Console.Error.Write($" Make sure the directory containing the 64-bit {libNames} is in your PATH.");
+                        Console.Error.Write(
+                            $" Make sure the directory containing the 64-bit {libNames} is in your PATH.");
                     }
                     Console.Error.WriteLine();
                 }
@@ -119,8 +121,7 @@ namespace ZeroC.Ice
             // Compress the frame body, but not the header.
             byte[] compressed = new byte[(int)((decompressedLen * 1.01) + 600)];
 
-            // Prevent GC from moving the byte array, this allow to take the object address
-            // and pass it to bzip2 calls.
+            // Prevent GC from moving the byte array, this allow to take the object address and pass it to bzip2 calls.
             var compressedHandle = GCHandle.Alloc(compressed, GCHandleType.Pinned);
             var bzStream = new BZStream(compressedHandle.AddrOfPinnedObject(), (uint)compressed.Length);
 

@@ -668,7 +668,7 @@ namespace ZeroC.Ice
             PostWrite(size, ref offset, SocketOperation.None);
         }
 
-        private string _transportName;
+        private readonly string _transportName;
 
         public IReadOnlyDictionary<string, string> Headers => _parser.GetHeaders();
 
