@@ -3,6 +3,7 @@
 //
 
 using Test;
+using System;
 
 namespace ZeroC.Ice.Test.ACM
 {
@@ -15,7 +16,7 @@ namespace ZeroC.Ice.Test.ACM
             string transport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
             string host = communicator.GetProperty("Ice.Default.Host") ?? "127.0.0.1";
 
-            string name = System.Guid.NewGuid().ToString();
+            string name = Guid.NewGuid().ToString();
             if (timeout >= 0)
             {
                 communicator.SetProperty($"{name}.ACM.Timeout", $"{timeout}s");
@@ -71,7 +72,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             lock (this)
             {
-                System.Threading.Monitor.Wait(this, delay * 1000);
+                System.Threading.Monitor.Wait(this, TimeSpan.FromSeconds(delay));
             }
         }
 
