@@ -108,7 +108,7 @@ namespace ZeroC.Ice.Test.Admin
             {
             }
 
-            public string Prefix => "";
+            public string Prefix => "NullLogger";
 
             public ILogger CloneWithPrefix(string prefix) => this;
         }

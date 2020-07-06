@@ -10,15 +10,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
+    public class Blobject : IObject
+    {
+        public ValueTask<OutgoingResponseFrame> DispatchAsync(IncomingRequestFrame request, Current current)
+        {
+            if (current.Operation.Equals("ice_ping"))
+            {
+                return new ValueTask<OutgoingResponseFrame>(OutgoingResponseFrame.WithVoidReturnValue(current));
+            }
+            else
+            {
+                throw new OperationNotExistException(current.Identity, current.Facet, current.Operation);
+            }
+        }
+    }
+
     public class AllTests
     {
         private static bool IsCatalinaOrGreater =>
@@ -128,7 +143,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -141,41 +156,63 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
                     comm.Destroy();
                 }
-                {
-                    clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                    clientProperties["IceSSL.CheckCRL"] = "1";
-                    var comm = new Communicator(ref args, clientProperties);
-                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
-                    try
-                    {
-                        server!.IcePing();
-                        var connection = server.GetCachedConnection() as TcpConnection;
-                        TestHelper.Assert(connection != null);
-                        TestHelper.Assert(connection.CheckCertRevocationStatus);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        TestHelper.Assert(false);
-                    }
-                    fact.destroyServer(server);
-                    comm.Destroy();
-                }
+
                 {
                     // Supply our own certificate.
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.CAs"] = caCert1File;
                     var comm = new Communicator(ref args, clientProperties,
-                        certificates: new X509Certificate2Collection
+                        tlsClientOptions: new TlsClientOptions()
                         {
-                            new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password")
+                            ClientCertificates = new X509Certificate2Collection
+                            {
+                                new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password")
+                            }
                         });
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
+                    try
+                    {
+                        server!.IcePing();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        TestHelper.Assert(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.Destroy();
+                }
+
+                {
+                    // Supply our own certificate.
+                    clientProperties = CreateProperties(defaultProperties);
+                    clientProperties["IceSSL.CAs"] = caCert1File;
+
+                    var cert0 = new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca1.p12"), "password");
+                    var cert1 = new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca2.p12"), "password");
+
+                    var comm = new Communicator(ref args, clientProperties,
+                        tlsClientOptions: new TlsClientOptions()
+                        {
+                            ClientCertificates = new X509Certificate2Collection
+                            {
+                                cert0,
+                                cert1
+                            },
+                            ClientCertificateSelectionCallback =
+                                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                                {
+                                    TestHelper.Assert(certs.Count == 2);
+                                    TestHelper.Assert(certs[0] == cert0);
+                                    TestHelper.Assert(certs[1] == cert1);
+                                    return certs[0];
+                                }
+                        });
+                    var fact = IServerFactoryPrx.Parse(factoryRef, comm);
+                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -193,15 +230,17 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // Supply our own CA certificate.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
                     var comm = new Communicator(ref args, clientProperties,
-                        caCertificates: new X509Certificate2Collection
+                        tlsClientOptions: new TlsClientOptions()
                         {
-                            new X509Certificate2(defaultDir + "/cacert1.pem")
+                            ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
+                            {
+                                new X509Certificate2(Path.Combine(defaultDir, "cacert1.pem"))
+                            }
                         });
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -214,21 +253,155 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
                     comm.Destroy();
                 }
+
+                {
+                    // Initialization using TlsClientOptions and TlsServerOptions options
+                    using var clientCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
+                        tlsClientOptions: new TlsClientOptions()
+                        {
+                            ClientCertificates = new X509Certificate2Collection()
+                            {
+                                new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca1.p12"), "password")
+                            },
+                            ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
+                            {
+                                new X509Certificate2(Path.Combine(defaultDir, "cacert1.pem"))
+                            }
+                        });
+
+                    using var serverCommunicator = new Communicator(ref args, CreateProperties(defaultProperties),
+                        tlsServerOptions: new TlsServerOptions()
+                        {
+                            ServerCertificate = new X509Certificate2(
+                                Path.Combine(defaultDir, "s_rsa_ca1.p12"), "password"),
+                            RequireClientCertificate = true,
+                            ClientCertificateCertificateAuthorities = new X509Certificate2Collection()
+                            {
+                                new X509Certificate2(Path.Combine(defaultDir, "cacert1.pem"))
+                            }
+                        });
+
+                    ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
+                    IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
+                    adapter.Activate();
+                    prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
+                    prx.IcePing();
+                }
+                {
+                    // Initialization using TlsClientOptions and TlsServerOptions options, validate using
+                    // validation callbacks
+                    var clientCertificate =
+                        new X509Certificate2(Path.Combine(defaultDir, "c_rsa_ca1.p12"), "password");
+                    var serverCertificate =
+                        new X509Certificate2(Path.Combine(defaultDir, "s_rsa_ca1.p12"), "password");
+
+                    bool clientCertificateValidationCallbackCalled = false;
+                    bool serverCertificateValidationCallbackCalled = false;
+
+                    clientProperties = CreateProperties(defaultProperties);
+                    using var clientCommunicator = new Communicator(ref args, clientProperties,
+                        tlsClientOptions: new TlsClientOptions()
+                        {
+                            ClientCertificateSelectionCallback =
+                                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                                    clientCertificate,
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                serverCertificateValidationCallbackCalled = true;
+                                return certificate.GetCertHashString() == serverCertificate.GetCertHashString();
+                            }
+                        });
+
+                    serverProperties = CreateProperties(defaultProperties);
+                    using var serverCommunicator = new Communicator(ref args, serverProperties,
+                        tlsServerOptions: new TlsServerOptions()
+                        {
+                            ServerCertificate = serverCertificate,
+                            RequireClientCertificate = true,
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                clientCertificateValidationCallbackCalled = true;
+                                return certificate.GetCertHashString() == clientCertificate.GetCertHashString();
+                            }
+                        });
+
+                    ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
+                    IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
+                    adapter.Activate();
+                    prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
+                    prx.IcePing();
+                    TestHelper.Assert(clientCertificateValidationCallbackCalled);
+                    TestHelper.Assert(serverCertificateValidationCallbackCalled);
+                }
+
+                {
+                    try
+                    {
+                        // Setting ServerCertificateCertificateAuthorities is incompatible with ServerCertificateValidationCallback
+                        new TlsClientOptions()
+                        {
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+                            ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ServerCertificateValidationCallback is incompatible with ServerCertificateCertificateAuthorities
+                        new TlsClientOptions()
+                        {
+                            ServerCertificateCertificateAuthorities = new X509Certificate2Collection(),
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ClientCertificateCertificateAuthorities is incompatible with ClientCertificateValidationCallback
+                        new TlsServerOptions()
+                        {
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+                            ClientCertificateCertificateAuthorities = new X509Certificate2Collection()
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+
+                    try
+                    {
+                        // Setting ClientCertificateValidationCallback is incompatible with ClientCertificateCertificateAuthorities
+                        new TlsServerOptions()
+                        {
+                            ClientCertificateCertificateAuthorities = new X509Certificate2Collection(),
+                            ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+                        };
+                        TestHelper.Assert(false);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing certificate verification... ");
                 Console.Out.Flush();
                 {
-                    //
-                    // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
-                    // but it still verifies the server's.
-                    //
+                    // The server doesn't request a certificate, but it still verifies the server's.
                     clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
                     var comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    serverProperties["IceSSL.VerifyPeer"] = "0";
-                    var server = fact.createServer(serverProperties);
+                    var server = fact.createServer(serverProperties, false);
                     try
                     {
                         server!.noCert();
@@ -241,33 +414,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
                     comm.Destroy();
 
-                    //
-                    // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
-                    //
-                    clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
+                    // This should fail because the client does not supply a certificate and server request it.
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    serverProperties["IceSSL.VerifyPeer"] = "1";
-                    server = fact.createServer(serverProperties);
-                    try
-                    {
-                        server!.noCert();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        TestHelper.Assert(false);
-                    }
-                    fact.destroyServer(server);
-
-                    //
-                    // Test IceSSL.VerifyPeer=2. This should fail because the client
-                    // does not supply a certificate.
-                    //
-                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -286,49 +437,16 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     comm.Destroy();
 
-                    //
-                    // Test IceSSL.VerifyPeer=1. Client has a certificate.
-                    //
-                    // Provide "cacert1" to the client to verify the server
-                    // certificate (without this the client connection wouln't be
-                    // able to provide the certificate chain).
-                    //
+                    // Test client has a certificate and server request it.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "1";
-                    server = fact.createServer(serverProperties);
-                    try
-                    {
-                        X509Certificate2 clientCert =
-                            new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
-                        server!.checkCert(clientCert.Subject, clientCert.Issuer);
-
-                        X509Certificate2 serverCert =
-                            new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
-                        X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
-
-                        var tcpConnection = (TcpConnection)server.GetConnection()!;
-                        TestHelper.Assert(tcpConnection.Endpoint.IsSecure);
-                        TestHelper.Assert(serverCert.Equals(tcpConnection.RemoteCertificate));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        TestHelper.Assert(false);
-                    }
-                    fact.destroyServer(server);
-
-                    //
-                    // Test IceSSL.VerifyPeer=2. Client has a certificate.
-                    //
-                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.VerifyPeer"] = "2";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, true);
                     try
                     {
-                        X509Certificate2 clientCert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
+                        var clientCert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
                         server!.checkCert(clientCert.Subject, clientCert.Issuer);
                     }
                     catch (Exception ex)
@@ -340,16 +458,12 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     comm.Destroy();
 
-                    //
-                    // Test IceSSL.VerifyPeer=1. This should fail because the
-                    // client doesn't trust the server's CA.
-                    //
+                    // This should fail because the client doesn't trust the server's CA.
                     clientProperties = CreateProperties(defaultProperties);
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    serverProperties["IceSSL.VerifyPeer"] = "0";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, false);
                     try
                     {
                         server!.IcePing();
@@ -367,16 +481,12 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
                     comm.Destroy();
 
-                    //
-                    // Test IceSSL.VerifyPeer=1. This should fail because the
-                    // server doesn't trust the client's CA.
-                    //
+                    // This should fail because the server doesn't trust the client's CA.
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca2");
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "1";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -394,16 +504,13 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
                     comm.Destroy();
 
-                    //
                     // This should succeed because the self signed certificate used by the server is
                     // trusted.
-                    //
                     clientProperties = CreateProperties(defaultProperties, ca: "cacert2");
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "cacert2");
-                    serverProperties["IceSSL.VerifyPeer"] = "0";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, false);
                     try
                     {
                         server!.IcePing();
@@ -424,8 +531,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "cacert2");
-                    serverProperties["IceSSL.VerifyPeer"] = "0";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, false);
                     try
                     {
                         server!.IcePing();
@@ -434,26 +540,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     catch (TransportException)
                     {
                         // Expected.
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        TestHelper.Assert(false);
-                    }
-                    fact.destroyServer(server);
-                    comm.Destroy();
-
-                    //
-                    // Verify that IceSSL.CheckCertName has no effect in a server.
-                    //
-                    clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                    comm = new Communicator(ref args, clientProperties);
-                    fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                    serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    server = fact.createServer(serverProperties);
-                    try
-                    {
-                        server!.IcePing();
                     }
                     catch (Exception ex)
                     {
@@ -478,7 +564,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn1", "cacert1");
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -499,7 +585,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -521,7 +607,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn3", "cacert1");
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -543,7 +629,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn4", "cacert1");
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -565,7 +651,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn5", "cacert1");
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -642,7 +728,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_cn8", "cacert1");
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -671,7 +757,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                             fact = IServerFactoryPrx.Parse(factoryRef, comm);
                             serverProperties = CreateProperties(props, "s_rsa_ca1_cn2", "cacert1");
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, true);
                             try
                             {
                                 server!.IcePing();
@@ -700,15 +786,18 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     bool called = false;
                     var comm = new Communicator(ref args, clientProperties,
-                        certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                        tlsClientOptions: new TlsClientOptions()
                         {
-                            called = true;
-                            return null;
+                            ClientCertificateSelectionCallback =
+                                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                                {
+                                    called = true;
+                                    return null;
+                                }
                         });
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "0";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, false);
                     TestHelper.Assert(server != null);
                     try
                     {
@@ -727,16 +816,19 @@ namespace ZeroC.IceSSL.Test.Configuration
                     myCerts.Import(defaultDir + "/c_rsa_ca1.p12", "password", X509KeyStorageFlags.DefaultKeySet);
                     called = false;
                     comm = new Communicator(ref args, clientProperties,
-                        certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                        tlsClientOptions: new TlsClientOptions()
                         {
-                            called = true;
-                            return myCerts[0];
+                            ClientCertificateSelectionCallback =
+                                (sender, targetHost, certs, remoteCertificate, acceptableIssuers) =>
+                                {
+                                    called = true;
+                                    return myCerts[0];
+                                }
                         });
 
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, true);
                     TestHelper.Assert(server != null);
                     try
                     {
@@ -753,84 +845,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                     }
                     fact.destroyServer(server);
                     comm.Destroy();
-
-                    try
-                    {
-                        // Setting IceSSL.CertFile is incompatible with using the certificate selection callback
-                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting IceSSL.Password is incompatible with using the certificate selection callback
-                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
-                        clientProperties["IceSSL.Password"] = "password";
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting IceSSL.FindCert is incompatible with using the certificate selection callback
-                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
-                        clientProperties["IceSSL.FindCert"] =
-                            "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'";
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting IceSSL.CertStoreLocation is incompatible with using the certificate selection callback
-                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
-                        clientProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // The certificates and certificate selection callback arguments are incompatible
-                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
-                        comm = new Communicator(ref args, clientProperties,
-                            certificates: new X509Certificate2Collection(),
-                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null);
-                        TestHelper.Assert(false);
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
-
-                    try
-                    {
-                        // The password callback and certificate selection callback arguments are incompatible
-                        clientProperties = CreateProperties(defaultProperties, null, "cacert1");
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateSelectionCallback: (sender, targetHost, certs, remoteCertificate, acceptableIssuers) => null,
-                            passwordCallback: file => new NetworkCredential("", "password").SecurePassword);
-                        TestHelper.Assert(false);
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
                 }
                 Console.Out.WriteLine("ok");
 
@@ -862,12 +876,9 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                         IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
 
-                        //
                         // The client can't verify the server certificate it should fail.
-                        //
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                        serverProperties["IceSSL.VerifyPeer"] = "0";
-                        IServerPrx? server = fact.createServer(serverProperties);
+                        IServerPrx? server = fact.createServer(serverProperties, false);
                         try
                         {
                             server!.IcePing();
@@ -883,13 +894,10 @@ namespace ZeroC.IceSSL.Test.Configuration
                         }
                         fact.destroyServer(server);
 
-                        //
-                        // Setting the CA for the server shouldn't change anything, it
-                        // shouldn't modify the cert chain sent to the client.
-                        //
+                        // Setting the CA for the server shouldn't change anything, it shouldn't modify the cert chain
+                        // sent to the client.
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                        serverProperties["IceSSL.VerifyPeer"] = "0";
-                        server = fact.createServer(serverProperties);
+                        server = fact.createServer(serverProperties, false);
                         try
                         {
                             server!.IcePing();
@@ -905,12 +913,9 @@ namespace ZeroC.IceSSL.Test.Configuration
                         }
                         fact.destroyServer(server);
 
-                        //
                         // The client can't verify the server certificate should fail.
-                        //
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_wroot_ca1");
-                        serverProperties["IceSSL.VerifyPeer"] = "0";
-                        server = fact.createServer(serverProperties);
+                        server = fact.createServer(serverProperties, false);
                         try
                         {
                             server!.IcePing();
@@ -927,9 +932,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         fact.destroyServer(server);
                         comm.Destroy();
 
-                        //
                         // Now the client verifies the server certificate
-                        //
                         clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
                         comm = new Communicator(clientProperties);
 
@@ -937,8 +940,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                         {
                             serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                            serverProperties["IceSSL.VerifyPeer"] = "0";
-                            server = fact.createServer(serverProperties);
+                            server = fact.createServer(serverProperties, false);
                             try
                             {
                                 var tcpConnection = (TcpConnection)server!.GetConnection()!;
@@ -971,17 +973,19 @@ namespace ZeroC.IceSSL.Test.Configuration
                     bool invoked = false;
                     bool hadCert = false;
                     var comm = new Communicator(ref args, clientProperties,
-                        certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) =>
+                        tlsClientOptions: new TlsClientOptions()
                         {
-                            hadCert = certificate != null;
-                            invoked = true;
-                            return true;
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                hadCert = certificate != null;
+                                invoked = true;
+                                return true;
+                            }
                         });
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         TestHelper.Assert(server != null);
@@ -1002,16 +1006,18 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // Have the verifier return false. Close the connection explicitly to force a new connection to be
                     // established.
                     comm = new Communicator(ref args, clientProperties,
-                        certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) =>
+                        tlsClientOptions: new TlsClientOptions()
                         {
-                            hadCert = certificate != null;
-                            invoked = true;
-                            return false;
+                            ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                hadCert = certificate != null;
+                                invoked = true;
+                                return false;
+                            }
                         });
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, true);
                     try
                     {
                         TestHelper.Assert(server != null);
@@ -1032,66 +1038,25 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
 
                     comm.Destroy();
-
-                    try
-                    {
-                        // Setting IceSSL.CAs and the certificate verifier results in InvalidConfigurationException
-                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting IceSSL.UsePlatformCAs and the certificate verifier results in InvalidConfigurationException
-                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                        clientProperties["IceSSL.UsePlatformCAs"] = "0";
-                        comm = new Communicator(ref args, clientProperties,
-                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
-                        TestHelper.Assert(false);
-                    }
-                    catch (InvalidConfigurationException)
-                    {
-                    }
-
-                    try
-                    {
-                        // Setting CA certificates and the certificate verifier results in ArgumentException
-                        clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                        comm = new Communicator(ref args, clientProperties,
-                            caCertificates: new X509Certificate2Collection(),
-                            certificateValidationCallback: (sender, certificate, chain, sslPolicyErrors) => false);
-                        TestHelper.Assert(false);
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
                 }
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing protocols... ");
                 Console.Out.Flush();
                 {
-                    //
                     // This should fail because the client and server have no protocol
                     // in common.
-                    //
                     clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1", "cacert1");
                     clientProperties["IceSSL.Protocols"] = "tls1_2";
                     Communicator comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
                     serverProperties["IceSSL.Protocols"] = "tls1_3";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
-                        //TestHelper.Assert(false);
+                        TestHelper.Assert(false);
                     }
                     catch (TransportException)
                     {
@@ -1105,15 +1070,12 @@ namespace ZeroC.IceSSL.Test.Configuration
                     fact.destroyServer(server);
                     comm.Destroy();
 
-                    //
                     // This should succeed.
-                    //
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
                     serverProperties["IceSSL.Protocols"] = "tls1_2, tls1_3";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, true);
 
                     server!.IcePing();
                     fact.destroyServer(server);
@@ -1126,9 +1088,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                         comm = new Communicator(ref args, clientProperties);
                         fact = IServerFactoryPrx.Parse(factoryRef, comm);
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                        serverProperties["IceSSL.VerifyPeer"] = "2";
                         serverProperties["IceSSL.Protocols"] = "tls1_2";
-                        server = fact.createServer(serverProperties);
+                        server = fact.createServer(serverProperties, true);
                         server!.IcePing();
 
                         fact.destroyServer(server);
@@ -1152,8 +1113,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     Communicator comm = new Communicator(ref args, clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1_exp", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1178,8 +1138,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     comm = new Communicator(ref args, clientProperties);
                     fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    server = fact.createServer(serverProperties);
+                    server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1201,23 +1160,17 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                 if (AssemblyUtil.IsWindows && isAdministrator)
                 {
-                    //
-                    // LocalMachine certificate store is not supported on non
-                    // Windows platforms.
-                    //
+                    // LocalMachine certificate store is not supported on non Windows platforms.
                     Console.Out.Write("testing multiple CA certificates... ");
                     Console.Out.Flush();
                     {
                         clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                        clientProperties["IceSSL.UsePlatformCAs"] = "1";
                         Communicator comm = new Communicator(ref args, clientProperties);
                         var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                         serverProperties = CreateProperties(defaultProperties, "s_rsa_ca2");
-                        serverProperties["IceSSL.VerifyPeer"] = "2";
-                        serverProperties["IceSSL.UsePlatformCAs"] = "1";
                         store.Add(caCert1);
                         store.Add(caCert2);
-                        IServerPrx? server = fact.createServer(serverProperties);
+                        IServerPrx? server = fact.createServer(serverProperties, true);
                         try
                         {
                             server!.IcePing();
@@ -1242,8 +1195,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     Communicator comm = new Communicator(clientProperties);
                     IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca2", "cacerts");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1266,9 +1218,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                     using var comm = new Communicator(clientProperties);
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1");
-                    serverProperties["IceSSL.VerifyPeer"] = "2";
                     serverProperties["IceSSL.CAs"] = "cacert1.der";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1301,23 +1252,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                         // Expected.
                     }
                 }
-                {
-                    // Test password failure with callback.
-                    clientProperties = CreateProperties(defaultProperties, "c_rsa_ca1");
-                    // Don't specify the password.
-                    clientProperties.Remove("IceSSL.Password");
 
-                    try
-                    {
-                        using var comm = new Communicator(ref args, clientProperties,
-                            passwordCallback: _ => new NetworkCredential("", "bogus").SecurePassword);
-                        TestHelper.Assert(false);
-                    }
-                    catch (Exception)
-                    {
-                        // Expected.
-                    }
-                }
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing IceSSL.TrustOnly... ");
@@ -1330,7 +1265,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1351,7 +1286,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1371,7 +1306,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1392,7 +1327,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly"] =
                         "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1413,7 +1348,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly"] =
                         "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1432,7 +1367,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1452,7 +1387,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1471,7 +1406,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly"] = "CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1491,7 +1426,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly"] = "!CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1510,7 +1445,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1529,7 +1464,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly"] = "CN=Server";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1548,7 +1483,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1567,7 +1502,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1587,7 +1522,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1607,7 +1542,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1626,7 +1561,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1646,7 +1581,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly"] = "!CN=Client1"; // Should not match "Client"
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1669,7 +1604,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1691,7 +1626,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly"] = "C=US;!CN=Client;ST=Florida";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1718,7 +1653,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     // Should have no effect.
                     serverProperties["IceSSL.TrustOnly.Client"] =
                         "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1739,7 +1674,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1759,7 +1694,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     // Should have no effect.
                     serverProperties["IceSSL.TrustOnly.Client"] = "!CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1779,7 +1714,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1798,7 +1733,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1826,7 +1761,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server"] =
                         "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1847,7 +1782,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server"] =
                         "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1867,7 +1802,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1887,7 +1822,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     IServerFactoryPrx fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server"] = "CN=Server";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1906,7 +1841,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server"] = "!CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1931,7 +1866,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     serverProperties["IceSSL.TrustOnly.Server"] = "CN=bogus";
                     serverProperties["IceSSL.TrustOnly.Server.ServerAdapter"] =
                         "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1952,7 +1887,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server.ServerAdapter"] =
                         "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1971,7 +1906,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server.ServerAdapter"] = "CN=bogus";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -1990,7 +1925,7 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);
                     serverProperties = CreateProperties(defaultProperties, "s_rsa_ca1", "cacert1");
                     serverProperties["IceSSL.TrustOnly.Server.ServerAdapter"] = "!CN=bogus";
-                    IServerPrx? server = fact.createServer(serverProperties);
+                    IServerPrx? server = fact.createServer(serverProperties, true);
                     try
                     {
                         server!.IcePing();
@@ -2005,147 +1940,6 @@ namespace ZeroC.IceSSL.Test.Configuration
                 }
                 Console.Out.WriteLine("ok");
 
-                Console.Out.Write("testing IceSSL.FindCerts properties... ");
-                Console.Out.Flush();
-                {
-                    string[] clientFindCertProperties = new string[]
-                    {
-                        "SUBJECTDN:'CN=Client, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
-                        "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:02",
-                        "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\",L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Client",
-                        "THUMBPRINT:'10 8D FB DE 94 EE 36 AC AC 3D 58 48 46 AE A4 28 C7 D2 49 A9'",
-                        "SUBJECTKEYID:'15 60 69 5F C5 27 48 7F 25 99 3F 3D D8 2E CB C2 F4 66 03 53'"
-                    };
-
-                    string[] serverFindCertProperties = new string[]
-                    {
-                        "SUBJECTDN:'CN=Server, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US, E=info@zeroc.com'",
-                        "ISSUER:'ZeroC, Inc.' SUBJECT:Server SERIAL:01",
-                        "ISSUERDN:'CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\", L=Jupiter, S=Florida, C=US,E=info@zeroc.com' SUBJECT:Server",
-                        "THUMBPRINT:'FF 66 AD CF D5 DA 3E E0 D9 91 E6 6B 8E 74 82 3A 54 E6 68 4A'",
-                        "SUBJECTKEYID:'14 56 24 99 69 6B AD B3 FB 72 0E 4D B4 DC 9E A8 7F DD B0 E3'"
-                    };
-
-                    string[] failFindCertProperties = new string[]
-                    {
-                        "nolabel",
-                        "unknownlabel:foo",
-                        "LABEL:",
-                        "SUBJECTDN:'CN = Client, E = infox@zeroc.com, OU = Ice, O = \"ZeroC, Inc.\", S = Florida, C = US'",
-                        "ISSUER:'ZeroC, Inc.' SUBJECT:Client SERIAL:'02 02'",
-                        "ISSUERDN:'E=info@zeroc.com, CN=ZeroC Test CA 1, OU=Ice, O=\"ZeroC, Inc.\"," +
-                            " L=Jupiter, S=Florida, C=ES' SUBJECT:Client",
-                        "THUMBPRINT:'27 e0 18 c9 23 12 6c f0 5c da fa 36 5a 4c 63 5a e2 53 07 ff'",
-                        "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'"
-                    };
-
-                    string[] certificates = new string[] { "/s_rsa_ca1.p12", "/c_rsa_ca1.p12" };
-
-                    X509Store certStore = new X509Store("My", StoreLocation.CurrentUser);
-                    certStore.Open(OpenFlags.ReadWrite);
-                    var storageFlags = X509KeyStorageFlags.DefaultKeySet;
-                    if (AssemblyUtil.IsMacOS)
-                    {
-                        //
-                        // On macOS, we need to mark the key exportable because the addition of the key to the
-                        // cert store requires to move the key from on keychain to another (which requires the
-                        // Exportable flag... see https://github.com/dotnet/corefx/issues/25631)
-                        //
-                        storageFlags |= X509KeyStorageFlags.Exportable;
-                    }
-                    try
-                    {
-                        foreach (string cert in certificates)
-                        {
-                            certStore.Add(new X509Certificate2(defaultDir + cert, "password", storageFlags));
-                        }
-
-                        for (int i = 0; i < clientFindCertProperties.Length; ++i)
-                        {
-                            clientProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            clientProperties["IceSSL.CertStore"] = "My";
-                            clientProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
-                            clientProperties["IceSSL.FindCert"] = clientFindCertProperties[i];
-                            //
-                            // Use TrustOnly to ensure the peer has pick the expected certificate.
-                            //
-                            clientProperties["IceSSL.TrustOnly"] = "CN=Server";
-                            Communicator comm = new Communicator(ref args, clientProperties);
-
-                            var fact = IServerFactoryPrx.Parse(factoryRef, comm);
-                            serverProperties = CreateProperties(defaultProperties, ca: "cacert1");
-                            serverProperties["IceSSL.CertStore"] = "My";
-                            serverProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
-                            serverProperties["IceSSL.FindCert"] = serverFindCertProperties[i];
-                            //
-                            // Use TrustOnly to ensure the peer has pick the expected certificate.
-                            //
-                            serverProperties["IceSSL.TrustOnly"] = "CN=Client";
-
-                            IServerPrx? server = fact.createServer(serverProperties);
-                            try
-                            {
-                                server!.IcePing();
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
-                                TestHelper.Assert(false);
-                            }
-                            fact.destroyServer(server);
-                            comm.Destroy();
-                        }
-
-                        //
-                        // These must fail because the search criteria does not match any certificates.
-                        //
-                        foreach (string s in failFindCertProperties)
-                        {
-                            try
-                            {
-                                clientProperties = CreateProperties(defaultProperties);
-                                clientProperties["IceSSL.FindCert"] = s;
-                                Communicator comm = new Communicator(ref args, clientProperties);
-                                TestHelper.Assert(false);
-                            }
-                            catch (Exception)
-                            {
-                                // Expected
-                            }
-                        }
-
-                    }
-                    finally
-                    {
-                        foreach (string cert in certificates)
-                        {
-                            certStore.Remove(new X509Certificate2(defaultDir + cert, "password"));
-                        }
-                        certStore.Close();
-                    }
-
-                    //
-                    // These must fail because we have already remove the certificates.
-                    //
-                    foreach (string s in clientFindCertProperties)
-                    {
-                        try
-                        {
-                            clientProperties = CreateProperties(defaultProperties);
-                            clientProperties["IceSSL.CertStore"] = "My";
-                            clientProperties["IceSSL.CertStoreLocation"] = "CurrentUser";
-                            clientProperties["IceSSL.FindCert"] = s;
-                            Communicator comm = new Communicator(ref args, clientProperties);
-                            TestHelper.Assert(false);
-                        }
-                        catch (Exception)
-                        {
-                            // Expected
-                        }
-                    }
-                }
-                Console.Out.WriteLine("ok");
-
                 Console.Out.Write("testing system CAs... ");
                 Console.Out.Flush();
                 {
@@ -2155,56 +1949,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                     const int retryMax = 5;
                     const int retryDelay = 1000;
                     int retryCount = 0;
-
                     clientProperties = CreateProperties(defaultProperties);
                     clientProperties["IceSSL.DefaultDir"] = "";
                     clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
-
                     var comm = new Communicator(clientProperties);
-                    var p = IObjectPrx.Parse("dummy -p ice1:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2",
-                                             comm);
-                    while (true)
-                    {
-                        try
-                        {
-                            p.IcePing();
-                            TestHelper.Assert(false);
-                        }
-                        catch (TransportException)
-                        {
-                            // Expected, by default we don't check for system CAs.
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            if ((ex is ConnectTimeoutException) ||
-                               (ex is TransportException) ||
-                               (ex is DNSException))
-                            {
-                                if (++retryCount < retryMax)
-                                {
-                                    Console.Out.Write("retrying... ");
-                                    Console.Out.Flush();
-                                    Thread.Sleep(retryDelay);
-                                    continue;
-                                }
-                            }
-
-                            Console.Out.WriteLine("warning: unable to connect to demo.zeroc.com to check system CA");
-                            Console.WriteLine(ex.ToString());
-                            break;
-                        }
-                    }
-                    comm.Destroy();
-
-                    retryCount = 0;
-                    clientProperties = CreateProperties(defaultProperties);
-                    clientProperties["IceSSL.DefaultDir"] = "";
-                    clientProperties["Ice.Override.Timeout"] = "5000"; // 5s timeout
-                    clientProperties["IceSSL.UsePlatformCAs"] = "1";
-
-                    comm = new Communicator(clientProperties);
-                    p = IObjectPrx.Parse("dummy -p ice1:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
+                    var p = IObjectPrx.Parse("dummy -p ice1:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2", comm);
                     while (true)
                     {
                         try
@@ -2215,8 +1964,8 @@ namespace ZeroC.IceSSL.Test.Configuration
                         catch (Exception ex)
                         {
                             if ((ex is ConnectTimeoutException) ||
-                               (ex is TransportException) ||
-                               (ex is DNSException))
+                                (ex is TransportException) ||
+                                (ex is DNSException))
                             {
                                 if (++retryCount < retryMax)
                                 {

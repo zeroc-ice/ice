@@ -179,19 +179,16 @@ namespace ZeroC.Glacier2
         private const int Glacier2TcpPort = 4063;
 
         private readonly ISessionCallback _callback;
-        private readonly X509Certificate2Collection? _caCertificates;
-        private readonly X509Certificate2Collection? _certificates;
-        private readonly LocalCertificateSelectionCallback? _certificateSelectionCallback;
-        private readonly RemoteCertificateValidationCallback? _certificateValidationCallback;
         private IReadOnlyDictionary<string, string>? _context;
         private Identity? _identity = null;
         private readonly ILogger? _logger;
         private readonly object _mutex = new object();
         private readonly ICommunicatorObserver? _observer;
-        private readonly IPasswordCallback? _passwordCallback;
         private int _port = 0;
         private readonly Dictionary<string, string> _properties;
         private string _routerHost = "localhost";
+        private readonly TlsClientOptions? _tlsClientOptions;
+        private readonly TlsServerOptions? _tlsServerOptions;
         private int _timeout = 10000;
         private string _transport = "ssl";
         private bool _useCallbacks = true;
@@ -201,33 +198,22 @@ namespace ZeroC.Glacier2
         /// <param name="properties">Optional properties used for communicator initialization.</param>
         /// <param name="logger">Optional logger used for communicator initialization.</param>
         /// <param name="observer">Optional communicator observer used for communicator initialization.</param>
-        /// <param name="certificates">Optional certificates used by secure transports.</param>
-        /// <param name="caCertificates">Optional CA certificates used by secure transports.</param>
-        /// /// <param name="certificateSelectionCallback">Optional certificate selection callback used by secure
-        /// transports.</param>
-        /// <param name="certificateValidationCallback">Optional certificate validation callback used by secure
-        /// transports.</param>
-        /// <param name="passwordCallback">Optional password callback used by secure transports.</param>
+        /// <param name="tlsClientOptions">TLS transport client side configuration options.</param>
+        /// <param name="tlsServerOptions">TLS transport server side configuration options.</param>
         public SessionFactoryHelper(
             ISessionCallback callback,
             Dictionary<string, string> properties,
             ILogger? logger = null,
             ICommunicatorObserver? observer = null,
-            X509Certificate2Collection? certificates = null,
-            X509Certificate2Collection? caCertificates = null,
-            LocalCertificateSelectionCallback? certificateSelectionCallback = null,
-            RemoteCertificateValidationCallback? certificateValidationCallback = null,
-            IPasswordCallback? passwordCallback = null)
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
         {
             _callback = callback;
             _properties = properties;
             _logger = logger;
             _observer = observer;
-            _certificates = certificates;
-            _caCertificates = caCertificates;
-            _certificateSelectionCallback = certificateSelectionCallback;
-            _certificateValidationCallback = certificateValidationCallback;
-            _passwordCallback = passwordCallback;
+            _tlsClientOptions = tlsClientOptions;
+            _tlsServerOptions = tlsServerOptions;
 
             _properties["Ice.RetryIntervals"] = "-1";
         }
@@ -248,11 +234,8 @@ namespace ZeroC.Glacier2
                     CreateProperties(),
                     _logger,
                     _observer,
-                    _certificates,
-                    _caCertificates,
-                    _certificateSelectionCallback,
-                    _certificateValidationCallback,
-                    _passwordCallback);
+                    _tlsClientOptions,
+                    _tlsServerOptions);
                 session.Connect(_context);
                 return session;
             }
@@ -275,11 +258,8 @@ namespace ZeroC.Glacier2
                     CreateProperties(),
                     _logger,
                     _observer,
-                    _certificates,
-                    _caCertificates,
-                    _certificateSelectionCallback,
-                    _certificateValidationCallback,
-                    _passwordCallback);
+                    _tlsClientOptions,
+                    _tlsServerOptions);
                 session.Connect(username, password, _context);
                 return session;
             }
