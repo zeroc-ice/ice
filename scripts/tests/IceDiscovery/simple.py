@@ -8,6 +8,7 @@ import uuid
 domainId = uuid.uuid4() # Ensures each test uses a unique domain ID
 
 props = lambda process, current: {
+    # TODO workaround until we use TimeSpan timeout with all mappings
     "IceDiscovery.Timeout": "50ms" if isinstance(current.testcase.getMapping(), CSharpMapping) else "50",
     "IceDiscovery.RetryCount": 20,
     "IceDiscovery.DomainId": domainId,
