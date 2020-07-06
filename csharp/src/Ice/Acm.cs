@@ -20,6 +20,8 @@ namespace ZeroC.Ice
         /// <param name="connection">The connection to monitor for activity.</param>
         void Add(Connection connection);
 
+        /// <summary>Adds a connection to the set of reaped connections.</summary>
+        /// <param name="connection">The connection to reap.</param>
         void Reap(Connection connection);
 
         /// <summary>Removes a connection from the set of monitored connections.</summary>
