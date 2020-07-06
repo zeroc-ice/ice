@@ -15,29 +15,46 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Specifies the close semantics for ACM (Active Connection Management).</summary>
     public enum AcmClose
     {
+        /// <summary>Disables automatic connection closure.</summary>
         CloseOff,
+        /// <summary>Gracefully closes a connection that has been idle for the configured timeout period.</summary>
         CloseOnIdle,
+        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, regardless of
+        /// whether the connection has pending invocations or dispatch.</summary>
         CloseOnInvocation,
+        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, but only if
+        /// the connection has pending invocations.</summary>
         CloseOnInvocationAndIdle,
+        /// <summary>Combines the behaviors of CloseOnIdle and CloseOnInvocation.</summary>
         CloseOnIdleForceful
     }
 
+    /// <summary>Specifies the heartbeat semantics for ACM (Active Connection Management).</summary>
     public enum AcmHeartbeat
     {
+        /// <summary>Disables heartbeats.</summary>
         HeartbeatOff,
+        /// <summary>Send a heartbeat at regular intervals if the connection is idle and only if there are pending
+        /// dispatch.</summary>
         HeartbeatOnDispatch,
+        /// <summary>Send a heartbeat at regular intervals when the connection is idle.</summary>
         HeartbeatOnIdle,
+        /// <summary>Send a heartbeat at regular intervals until the connection is closed.</summary>
         HeartbeatAlways
     }
 
-    [Serializable]
+    /// <summary>This struct represents the ACM (Active Connection Management) configuration.</summary>
     public struct Acm : IEquatable<Acm>
     {
-        public AcmClose Close;
-        public AcmHeartbeat Heartbeat;
-        public TimeSpan Timeout;
+        /// <summary>Gets the <see cref="AcmClose"/> setting for the Acm configuration.</summary>
+        public AcmClose Close { get; }
+        /// <summary>Gets <see cref="AcmHeartbeat"/> setting for the Acm configuration.</summary>
+        public AcmHeartbeat Heartbeat { get; }
+        /// <summary>Gets the timeout setting for the Acm configuration.</summary>
+        public TimeSpan Timeout { get; }
 
         public Acm(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
         {

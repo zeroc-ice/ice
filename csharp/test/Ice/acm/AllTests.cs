@@ -515,7 +515,6 @@ namespace ZeroC.Ice.Test.ACM
 
                 con.SetAcm(null, null, null);
                 acm = con.GetAcm();
-                Console.WriteLine($"acm timeout: {acm.Timeout.TotalSeconds}");
                 TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(15));
                 TestHelper.Assert(acm.Close == AcmClose.CloseOnIdleForceful);
                 TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatOff);

@@ -11,13 +11,27 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
+    /// <summary>This interface represents a monitor for the Acm (Active Connection Management)</summary>
     public interface IAcmMonitor
     {
+        /// <summary>Gets the Acm configuration for this monitor.</summary>
         Acm Acm { get; }
 
+        /// <summary>Add a new connection to the set of monitored connections.</summary>
+        /// <param name="connection">The connection to monitor for activity.</param>
         void Add(Connection connection);
+
         void Reap(Connection connection);
+
+        /// <summary>Remote a connection from the set of monitored connections.</summary>
+        /// <param name="connection">The connection to remove.</param>
         void Remove(Connection connection);
+
+        /// <summary>Create a child Acm monitor with a specific Acm configuration.</summary>
+        /// <param name="timeout">The timeout used for Acm events.</param>
+        /// <param name="close">The AcmClose policy.</param>
+        /// <param name="hearbeat">The AcmHearbeat policy.</param>
+        /// <returns>Returns a new Acm monitor with the given configuration.</returns>
         IAcmMonitor Create(TimeSpan? timeout, AcmClose? close, AcmHeartbeat? hearbeat);
     }
 
