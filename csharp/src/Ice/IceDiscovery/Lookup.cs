@@ -27,7 +27,7 @@ namespace ZeroC.IceDiscovery
         private readonly LocatorRegistry _registry;
         private readonly ObjectAdapter _replyAdapter;
         private readonly int _retryCount;
-        private readonly int _timeout;
+        private readonly TimeSpan _timeout;
 
         public void FindAdapterById(string domainId, string adapterId, ILookupReplyPrx? reply, Current current)
         {
@@ -81,7 +81,11 @@ namespace ZeroC.IceDiscovery
             _replyAdapter = replyAdapter;
             _registry = registry;
             _lookup = lookup;
-            _timeout = communicator.GetPropertyAsInt("IceDiscovery.Timeout") ?? 300;
+            _timeout = communicator.GetPropertyAsTimeSpan("IceDiscovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
+            if (_timeout == System.Threading.Timeout.InfiniteTimeSpan)
+            {
+                _timeout = TimeSpan.FromMilliseconds(300);
+            }
             _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
             _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
             _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";

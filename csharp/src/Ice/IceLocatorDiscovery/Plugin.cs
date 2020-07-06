@@ -38,10 +38,10 @@ namespace ZeroC.IceLocatorDiscovery
         private readonly Dictionary<ILookupPrx, ILookupReplyPrx> _lookups =
             new Dictionary<ILookupPrx, ILookupReplyPrx>();
         private readonly object _mutex = new object();
-        private long _nextRetry;
+        private TimeSpan _nextRetry;
         private readonly int _retryCount;
-        private readonly int _retryDelay;
-        private readonly int _timeout;
+        private readonly TimeSpan _retryDelay;
+        private readonly TimeSpan _timeout;
         private readonly int _traceLevel;
         private readonly ILocatorPrx _voidLocator;
         private bool _warned;
@@ -55,13 +55,13 @@ namespace ZeroC.IceLocatorDiscovery
             ILookupReplyPrx lookupReply)
         {
             _lookup = lookup;
-            _timeout = communicator.GetPropertyAsInt($"{name}.Timeout") ?? 300;
-            if (_timeout < 0)
+            _timeout = communicator.GetPropertyAsTimeSpan($"{name}.Timeout") ?? TimeSpan.FromMilliseconds(300);
+            if (_timeout == System.Threading.Timeout.InfiniteTimeSpan)
             {
-                _timeout = 300;
+                _timeout = TimeSpan.FromMilliseconds(300);
             }
             _retryCount = Math.Max(communicator.GetPropertyAsInt($"{name}.RetryCount") ?? 3, 1);
-            _retryDelay = Math.Max(communicator.GetPropertyAsInt($"{name}.RetryDelay") ?? 2000, 0);
+            _retryDelay = communicator.GetPropertyAsTimeSpan($"{name}.RetryDelay") ?? TimeSpan.FromMilliseconds(2000);
             _traceLevel = communicator.GetPropertyAsInt($"{name}.Trace.Lookup") ?? 0;
             _instanceName = instanceName;
             _warned = false;
@@ -242,7 +242,7 @@ namespace ZeroC.IceLocatorDiscovery
                 }
                 // If the retry delay has not elapsed since the last failure return the void locator that always
                 // replies with a null proxy.
-                else if (Time.CurrentMonotonicTimeMillis() < _nextRetry)
+                else if (Time.CurrentMonotonicTime() < _nextRetry)
                 {
                     return _voidLocator;
                 }
@@ -344,7 +344,7 @@ namespace ZeroC.IceLocatorDiscovery
                         _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
                     }
 
-                    _nextRetry = Time.CurrentMonotonicTimeMillis() + _retryDelay;
+                    _nextRetry = Time.CurrentMonotonicTime() + _retryDelay;
                     return _voidLocator;
                 }
             }
