@@ -14,7 +14,6 @@ namespace ZeroC.Ice.Test.Background
     internal class Endpoint : ZeroC.Ice.Endpoint
     {
         public override Communicator Communicator => _endpoint.Communicator;
-        public override string ConnectionId => _endpoint.ConnectionId;
         public override bool HasCompressionFlag => _endpoint.HasCompressionFlag;
         public override bool IsDatagram => _endpoint.IsDatagram;
 
@@ -70,19 +69,6 @@ namespace ZeroC.Ice.Test.Background
         public override ZeroC.Ice.Endpoint NewCompressionFlag(bool compressionFlag)
         {
             ZeroC.Ice.Endpoint endpoint = _endpoint.NewCompressionFlag(compressionFlag);
-            if (endpoint == _endpoint)
-            {
-                return this;
-            }
-            else
-            {
-                return new Endpoint(endpoint);
-            }
-        }
-
-        public override ZeroC.Ice.Endpoint NewConnectionId(string connectionId)
-        {
-            ZeroC.Ice.Endpoint endpoint = _endpoint.NewConnectionId(connectionId);
             if (endpoint == _endpoint)
             {
                 return this;

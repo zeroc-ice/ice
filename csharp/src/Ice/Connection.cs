@@ -189,6 +189,10 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Get the connection ID which was used to create the connection.</summary>
+        /// <value>The connection ID used to create the connection.</value>
+        public string ConnectionId { get; }
+
         /// <summary>Get the endpoint from which the connection was created.</summary>
         /// <value>The endpoint from which the connection was created.</value>
         public Endpoint Endpoint { get; }
@@ -412,12 +416,14 @@ namespace ZeroC.Ice
             IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter)
         {
             _communicator = endpoint.Communicator;
             _monitor = monitor;
             Transceiver = transceiver;
             _connector = connector;
+            ConnectionId = connectionId;
             Endpoint = endpoint;
             Endpoints = new List<Endpoint>() { endpoint };
             _adapter = adapter;
@@ -2023,8 +2029,9 @@ namespace ZeroC.Ice
             IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, adapter)
+            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2068,8 +2075,9 @@ namespace ZeroC.Ice
             IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, adapter)
+            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2085,8 +2093,9 @@ namespace ZeroC.Ice
             IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, adapter)
+            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2102,8 +2111,9 @@ namespace ZeroC.Ice
             IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, adapter)
+            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
         {
         }
     }

@@ -38,8 +38,9 @@ namespace ZeroC.Ice
             Endpoint endpoint,
             IAcmMonitor? monitor,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter) =>
-            new WSConnection(endpoint, monitor, this, connector, adapter);
+            new WSConnection(endpoint, monitor, this, connector, connectionId, adapter);
 
         public Socket? Fd() => _delegate.Fd();
 

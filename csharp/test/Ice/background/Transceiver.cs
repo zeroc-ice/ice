@@ -187,8 +187,9 @@ namespace ZeroC.Ice.Test.Background
             ZeroC.Ice.Endpoint endpoint,
             IAcmMonitor? monitor,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter) =>
-            _transceiver.CreateConnection(endpoint, monitor, connector, adapter);
+            _transceiver.CreateConnection(endpoint, monitor, connector, connectionId, adapter);
 
         //
         // Only for use by Connector, Acceptor

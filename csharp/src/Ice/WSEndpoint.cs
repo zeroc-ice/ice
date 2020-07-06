@@ -67,7 +67,6 @@ namespace ZeroC.Ice
             int port,
             IPAddress? sourceAddress,
             int timeout,
-            string connectionId,
             bool compressionFlag,
             string resource)
             : base(communicator,
@@ -77,7 +76,6 @@ namespace ZeroC.Ice
                    port,
                    sourceAddress,
                    timeout,
-                   connectionId,
                    compressionFlag) =>
             Resource = resource;
 
@@ -110,7 +108,6 @@ namespace ZeroC.Ice
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
             int port,
-            string connectionId,
             bool compressionFlag,
             int timeout) =>
             new WSEndpoint(Communicator,
@@ -120,7 +117,6 @@ namespace ZeroC.Ice
                            port,
                            SourceAddress,
                            timeout,
-                           connectionId,
                            compressionFlag,
                            Resource);
 

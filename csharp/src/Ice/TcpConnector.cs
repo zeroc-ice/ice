@@ -18,8 +18,7 @@ namespace ZeroC.Ice
             EndPoint addr,
             INetworkProxy? proxy,
             IPAddress? sourceAddr,
-            int timeout,
-            string connectionId)
+            int timeout)
         {
             _endpoint = endpoint;
             _communicator = communicator;
@@ -27,7 +26,6 @@ namespace ZeroC.Ice
             _proxy = proxy;
             _sourceAddr = sourceAddr;
             _timeout = timeout;
-            _connectionId = connectionId;
 
             var hash = new System.HashCode();
             hash.Add(_addr);
@@ -36,7 +34,6 @@ namespace ZeroC.Ice
                 hash.Add(_sourceAddr);
             }
             hash.Add(_timeout);
-            hash.Add(_connectionId);
             _hashCode = hash.ToHashCode();
         }
 
@@ -63,11 +60,6 @@ namespace ZeroC.Ice
                 return false;
             }
 
-            if (!_connectionId.Equals(p._connectionId))
-            {
-                return false;
-            }
-
             if (!_endpoint.Equals(p._endpoint))
             {
                 return false;
@@ -86,7 +78,6 @@ namespace ZeroC.Ice
         private readonly INetworkProxy? _proxy;
         private readonly IPAddress? _sourceAddr;
         private readonly int _timeout;
-        private readonly string _connectionId;
         private readonly int _hashCode;
     }
 }

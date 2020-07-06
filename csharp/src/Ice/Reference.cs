@@ -1082,13 +1082,12 @@ namespace ZeroC.Ice
                 }
 
                 // Update/create the newEndpoints if needed
-                if (compress != null || connectionId != null || connectionTimeout != null || newEndpoints != null)
+                if (compress != null || connectionTimeout != null || newEndpoints != null)
                 {
                     newEndpoints ??= Endpoints;
                     if (newEndpoints.Count > 0)
                     {
                         compress ??= Compress;
-                        connectionId ??= ConnectionId;
                         connectionTimeout ??= ConnectionTimeout;
 
                         newEndpoints = newEndpoints.Select(endpoint =>
@@ -1097,7 +1096,6 @@ namespace ZeroC.Ice
                             {
                                 endpoint = endpoint.NewCompressionFlag(compress.Value);
                             }
-                            endpoint = endpoint.NewConnectionId(connectionId);
                             if (connectionTimeout != null)
                             {
                                 endpoint = endpoint.NewTimeout(connectionTimeout.Value);
@@ -1192,7 +1190,6 @@ namespace ZeroC.Ice
             // Apply overrides and filter endpoints
             IEnumerable<Endpoint> filteredEndpoints = endpoints.Select(endpoint =>
             {
-                endpoint = endpoint.NewConnectionId(ConnectionId);
                 if (Compress != null)
                 {
                     endpoint = endpoint.NewCompressionFlag(Compress.Value);
@@ -1278,7 +1275,10 @@ namespace ZeroC.Ice
                     // better to fix endpoint equality or use a custom equality method (we'll also need to do
                     // the same for timeouts).
                     endpoints = new List<Endpoint>(endpoints.Select(endpoint => endpoint.NewCompressionFlag(false)));
-                    connection = await factory.CreateAsync(endpoints, false, EndpointSelection).ConfigureAwait(false);
+                    connection = await factory.CreateAsync(endpoints,
+                                                           false,
+                                                           EndpointSelection,
+                                                           ConnectionId).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1296,7 +1296,8 @@ namespace ZeroC.Ice
                             // the same for timeouts).
                             connection = await factory.CreateAsync(new Endpoint[] { endpoint.NewCompressionFlag(false) },
                                                                    endpoint != lastEndpoint,
-                                                                   EndpointSelection).ConfigureAwait(false);
+                                                                   EndpointSelection,
+                                                                   ConnectionId).ConfigureAwait(false);
                             break;
                         }
                         catch (Exception)

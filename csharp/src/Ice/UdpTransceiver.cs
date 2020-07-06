@@ -18,7 +18,8 @@ namespace ZeroC.Ice
             Endpoint endpoint,
             IAcmMonitor? monitor,
             IConnector? connector,
-            ObjectAdapter? adapter) => new UdpConnection(endpoint, monitor, this, connector, adapter);
+            string connectionId,
+            ObjectAdapter? adapter) => new UdpConnection(endpoint, monitor, this, connector, connectionId, adapter);
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)

@@ -37,10 +37,11 @@ namespace ZeroC.Ice
             Endpoint endpoint,
             IAcmMonitor? monitor,
             IConnector? connector,
+            string connectionId,
             ObjectAdapter? adapter)
         {
             Debug.Assert(endpoint.IsSecure);
-            return new TcpConnection(endpoint, monitor, this, connector, adapter);
+            return new TcpConnection(endpoint, monitor, this, connector, connectionId, adapter);
         }
 
         public Socket? Fd() => _delegate.Fd();

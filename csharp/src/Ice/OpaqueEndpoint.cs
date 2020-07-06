@@ -16,7 +16,6 @@ namespace ZeroC.Ice
     {
         public override Communicator Communicator { get; }
         public ReadOnlyMemory<byte> Bytes { get; }
-        public override string ConnectionId => "";
 
         public Encoding Encoding { get; }
         public override bool HasCompressionFlag => false;
@@ -105,8 +104,6 @@ namespace ZeroC.Ice
         }
 
         public override Endpoint NewTimeout(int t) => this;
-
-        public override Endpoint NewConnectionId(string id) => this;
         public override Endpoint NewCompressionFlag(bool compress) => this;
 
         public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endSel) =>
