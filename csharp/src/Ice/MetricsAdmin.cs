@@ -484,11 +484,13 @@ namespace ZeroC.Ice
             {
                 if (GetMetricsView(viewName) is MetricsView view)
                 {
-                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>, Time.CurrentMonotonicTimeMillis());
+                    return (view.GetMetrics() as Dictionary<string, Metrics?[]>,
+                            (long)Time.CurrentMonotonicTime().TotalMilliseconds);
                 }
                 else
                 {
-                    return (ImmutableDictionary<string, Metrics?[]>.Empty, Time.CurrentMonotonicTimeMillis());
+                    return (ImmutableDictionary<string, Metrics?[]>.Empty,
+                            (long)Time.CurrentMonotonicTime().TotalMilliseconds);
                 }
             }
         }
