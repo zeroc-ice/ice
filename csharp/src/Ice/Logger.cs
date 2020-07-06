@@ -90,7 +90,7 @@ namespace ZeroC.Ice
         {
             _file = file;
             _writer = TextWriter.Synchronized(
-                new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.Read)));
+                new StreamWriter(new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)));
         }
 
         protected override void Write(string message)

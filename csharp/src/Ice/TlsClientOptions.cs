@@ -67,7 +67,7 @@ namespace ZeroC.Ice
         /// <see cref="X509KeyStorageFlags.MachineKeySet"/> flag and the certificate chain used to validate the
         /// server certificate is build using the machine context, otherwise the certificates are imported with the
         /// <see cref="X509KeyStorageFlags.UserKeySet"/> and the certificate chain uses the user context. On Linux
-        /// certificates are always imported with <see cref="X509KeyStorageFlags.EphemerealKeySet"/> flag independently
+        /// certificates are always imported with <see cref="X509KeyStorageFlags.EphemeralKeySet"/> flag independently
         /// of the value of this property.</summary>
         public bool UseMachineContex { get; set; }
 

@@ -60,8 +60,8 @@ namespace ZeroC.IceGrid.Test.Simple
                 IObjectPrx.Parse("test", com).IcePing();
 
                 TestHelper.Assert(com.DefaultLocator!.GetRegistry() != null);
-                TestHelper.Assert(ZeroC.IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry() != null);
-                TestHelper.Assert(ZeroC.IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
+                TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry() != null);
+                TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
 
                 ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
                 adapter.Activate();
@@ -74,7 +74,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 //
                 properties["IceLocatorDiscovery.InstanceName"] = "unknown";
                 properties["IceLocatorDiscovery.RetryCount"] = "1";
-                properties["IceLocatorDiscovery.Timeout"] = "100";
+                properties["IceLocatorDiscovery.Timeout"] = "100ms";
                 com = new Communicator(properties);
                 TestHelper.Assert(com.DefaultLocator != null);
                 try
@@ -93,10 +93,10 @@ namespace ZeroC.IceGrid.Test.Simple
                 }
 
                 TestHelper.Assert(com.DefaultLocator!.GetRegistry() == null);
-                TestHelper.Assert(ZeroC.IceGrid.ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
+                TestHelper.Assert(ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
                 try
                 {
-                    ZeroC.IceGrid.ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
+                    ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
                 }
                 catch (OperationNotExistException)
                 {

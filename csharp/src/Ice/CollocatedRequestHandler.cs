@@ -81,7 +81,7 @@ namespace ZeroC.Ice
                                                                      outgoingRequest.Encoding);
                 }
             }
-            else // Optimization: directly call invokeAll
+            else // Optimization: directly call DispatchAsync
             {
                 Debug.Assert(!oneway);
                 progress.Report(false);
@@ -130,10 +130,8 @@ namespace ZeroC.Ice
             int requestId,
             CancellationToken cancel)
         {
-            //
-            // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is
-            // in progress. This will also throw if the object adapter has been deactivated.
-            //
+            // Increase the direct count to prevent the object adapter from being destroyed while the dispatch is in
+            // progress. This will also throw if the object adapter has been deactivated.
             _adapter.IncDirectCount();
 
             IDispatchObserver? dispatchObserver = null;
