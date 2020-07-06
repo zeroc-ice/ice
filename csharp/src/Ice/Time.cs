@@ -8,11 +8,9 @@ namespace ZeroC.Ice
 {
     public sealed class Time
     {
+        /// <summary>Gets the total elapsed time since the Ice run-time started as a TimeSpan object.</summary>
+        public static TimeSpan Elapsed => _stopwatch.Elapsed;
         static Time() => _stopwatch.Start();
-
-        public static long CurrentMonotonicTimeMillis() => _stopwatch.ElapsedMilliseconds;
-
-        public static TimeSpan CurrentMonotonicTime() => _stopwatch.Elapsed;
 
         private static readonly Stopwatch _stopwatch = new Stopwatch();
     }

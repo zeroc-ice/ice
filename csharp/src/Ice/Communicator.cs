@@ -149,13 +149,13 @@ namespace ZeroC.Ice
         // The communicator's cancellation token is notified of cancellation when the communicator is destroyed.
         internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         internal int ClassGraphDepthMax { get; }
-        internal AcmConfig ClientACM { get; }
+        internal Acm ClientAcm { get; }
         internal int FrameSizeMax { get; }
         internal int IPVersion { get; }
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int[] RetryIntervals { get; }
-        internal AcmConfig ServerACM { get; }
+        internal Acm ServerAcm { get; }
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
@@ -502,11 +502,8 @@ namespace ZeroC.Ice
                     }
                 }
 
-                ClientACM = new AcmConfig(this, "Ice.ACM.Client",
-                                          new AcmConfig(this, "Ice.ACM", new AcmConfig(false)));
-
-                ServerACM = new AcmConfig(this, "Ice.ACM.Server",
-                                          new AcmConfig(this, "Ice.ACM", new AcmConfig(true)));
+                ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", new Acm(false)));
+                ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", new Acm(true)));
 
                 {
                     int num = GetPropertyAsInt("Ice.MessageSizeMax") ?? 1024;

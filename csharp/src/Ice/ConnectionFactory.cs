@@ -247,7 +247,7 @@ namespace ZeroC.Ice
         internal OutgoingConnectionFactory(Communicator communicator)
         {
             _communicator = communicator;
-            _monitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientACM);
+            _monitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
         }
 
         private async Task<Connection> ConnectAsync(
@@ -495,14 +495,14 @@ namespace ZeroC.Ice
             ObjectAdapter adapter,
             Endpoint endpoint,
             Endpoint? publish,
-            AcmConfig acmConfig)
+            Acm acm)
         {
             _communicator = adapter.Communicator;
             _endpoint = endpoint;
             _publishedEndpoint = publish;
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-            _monitor = new ConnectionFactoryAcmMonitor(_communicator, acmConfig);
+            _monitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
 
             if (_communicator.OverrideTimeout != null)
             {

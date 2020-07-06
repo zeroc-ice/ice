@@ -74,7 +74,7 @@ namespace ZeroC.Ice
             "ProxyOptions"
         };
 
-        private readonly AcmConfig _acm;
+        private readonly Acm _acm;
         private readonly Dictionary<CategoryPlusFacet, IObject> _categoryServantMap =
             new Dictionary<CategoryPlusFacet, IObject>();
         private readonly Dictionary<string, IObject> _defaultServantMap = new Dictionary<string, IObject>();
@@ -758,7 +758,7 @@ namespace ZeroC.Ice
                 _id = "";
                 _replicaGroupId = "";
                 _reference = Reference.Parse("dummy -t", Communicator);
-                _acm = Communicator.ServerACM;
+                _acm = Communicator.ServerAcm;
                 return;
             }
 
@@ -793,7 +793,7 @@ namespace ZeroC.Ice
             string proxyOptions = Communicator.GetProperty($"{Name}.ProxyOptions") ?? "-t";
             _reference = Reference.Parse($"dummy {proxyOptions}", Communicator);
 
-            _acm = new AcmConfig(Communicator, $"{Name}.ACM", Communicator.ServerACM);
+            _acm = new Acm(Communicator, $"{Name}.ACM", Communicator.ServerAcm);
             {
                 int defaultFrameSizeMax = Communicator.FrameSizeMax / 1024;
                 int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultFrameSizeMax;

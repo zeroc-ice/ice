@@ -227,11 +227,11 @@ namespace ZeroC.Ice.Test.ACM
         {
             lock (this)
             {
-                long now = Time.CurrentMonotonicTimeMillis();
+                TimeSpan now = Time.Elapsed;
                 while (!Closed)
                 {
-                    Monitor.Wait(this, 30000);
-                    if (Time.CurrentMonotonicTimeMillis() - now > 30000)
+                    Monitor.Wait(this, TimeSpan.FromSeconds(30));
+                    if (Time.Elapsed - now > TimeSpan.FromSeconds(30))
                     {
                         TestHelper.Assert(false); // Waited for more than 30s for close, something's wrong.
                         throw new Exception();
@@ -282,9 +282,9 @@ namespace ZeroC.Ice.Test.ACM
     {
         public class InvocationHeartbeatTest : TestCase
         {
+            // Faster ACM to make sure we receive enough ACM heartbeats
             public InvocationHeartbeatTest(IRemoteCommunicatorPrx com, TestHelper helper) :
-                base("invocation heartbeat", com, helper) => SetServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
-
+                base("invocation heartbeat", com, helper) => SetServerACM(1, -1, -1);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 proxy.sleep(4);
@@ -508,21 +508,15 @@ namespace ZeroC.Ice.Test.ACM
                 Connection? con = proxy.GetCachedConnection();
                 TestHelper.Assert(con != null);
 
-                ZeroC.Ice.Acm acm = con.GetAcm();
+                Acm acm = con.Acm;
                 TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(15));
                 TestHelper.Assert(acm.Close == AcmClose.CloseOnIdleForceful);
                 TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatOff);
 
-                con.SetAcm(null, null, null);
-                acm = con.GetAcm();
-                TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(15));
-                TestHelper.Assert(acm.Close == AcmClose.CloseOnIdleForceful);
-                TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatOff);
-
-                con.SetAcm(TimeSpan.FromSeconds(1),
-                           AcmClose.CloseOnInvocationAndIdle,
-                           AcmHeartbeat.HeartbeatAlways);
-                acm = con.GetAcm();
+                con.Acm = new Acm(TimeSpan.FromSeconds(1),
+                                  AcmClose.CloseOnInvocationAndIdle,
+                                  AcmHeartbeat.HeartbeatAlways);
+                acm = con.Acm;
                 TestHelper.Assert(acm.Timeout == TimeSpan.FromSeconds(1));
                 TestHelper.Assert(acm.Close == AcmClose.CloseOnInvocationAndIdle);
                 TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.HeartbeatAlways);
@@ -550,6 +544,30 @@ namespace ZeroC.Ice.Test.ACM
                 TestHelper.Assert(t2.Task.Result == null);
 
                 con.SetHeartbeatCallback(_ => TestHelper.Assert(false));
+
+                foreach ((string close, string hearbeat) in new (string, string)[]
+                                                                {
+                                                                    ("CloseOff",  "HeartbeatOff"),
+                                                                    ("CloseOnIdle", "HeartbeatOnDispatch"),
+                                                                    ("CloseOnInvocation", "HeartbeatOnIdle"),
+                                                                    ("CloseOnInvocationAndIdle", "HeartbeatAlways"),
+                                                                    ("CloseOnIdleForceful", "HeartbeatOff"),
+                                                                    ("CloseOnIdleForceful", "HeartbeatOnDispatch")
+                                                                })
+                {
+                    using var communicator = new Communicator(
+                        new Dictionary<string, string>()
+                        {
+                            ["Ice.ACM.Client.Close"] = close,
+                            ["Ice.ACM.Client.Heartbeat"] = hearbeat
+                        });
+
+                    proxy = ITestIntfPrx.Parse(proxy.ToString()!, communicator);
+                    Connection? connection = proxy.GetConnection()!;
+                    TestHelper.Assert(connection.Acm.Close == (AcmClose)Enum.Parse(typeof(AcmClose), close));
+                    TestHelper.Assert(connection.Acm.Heartbeat ==
+                        (AcmHeartbeat)Enum.Parse(typeof(AcmHeartbeat), hearbeat));
+                }
             }
         }
 

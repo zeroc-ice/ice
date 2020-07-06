@@ -242,7 +242,7 @@ namespace ZeroC.IceLocatorDiscovery
                 }
                 // If the retry delay has not elapsed since the last failure return the void locator that always
                 // replies with a null proxy.
-                else if (Time.CurrentMonotonicTime() < _nextRetry)
+                else if (Time.Elapsed < _nextRetry)
                 {
                     return _voidLocator;
                 }
@@ -344,7 +344,7 @@ namespace ZeroC.IceLocatorDiscovery
                         _lookup.Communicator.Logger.Trace("Lookup", s.ToString());
                     }
 
-                    _nextRetry = Time.CurrentMonotonicTime() + _retryDelay;
+                    _nextRetry = Time.Elapsed + _retryDelay;
                     return _voidLocator;
                 }
             }

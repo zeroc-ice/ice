@@ -248,7 +248,7 @@ namespace ZeroC.Glacier2
                 {
                     Connection? connection = _router.GetCachedConnection();
                     Debug.Assert(connection != null);
-                    connection.SetAcm(acmTimeout, null, AcmHeartbeat.HeartbeatAlways);
+                    connection.Acm = new Acm(acmTimeout, connection.Acm.Close, AcmHeartbeat.HeartbeatAlways);
                     connection.SetCloseCallback(_ => Destroy());
                 }
             }

@@ -485,12 +485,12 @@ namespace ZeroC.Ice
                 if (GetMetricsView(viewName) is MetricsView view)
                 {
                     return (view.GetMetrics() as Dictionary<string, Metrics?[]>,
-                            (long)Time.CurrentMonotonicTime().TotalMilliseconds);
+                            (long)Time.Elapsed.TotalMilliseconds);
                 }
                 else
                 {
                     return (ImmutableDictionary<string, Metrics?[]>.Empty,
-                            (long)Time.CurrentMonotonicTime().TotalMilliseconds);
+                            (long)Time.Elapsed.TotalMilliseconds);
                 }
             }
         }
