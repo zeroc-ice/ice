@@ -29,15 +29,15 @@ namespace ZeroC.Ice.Test.UDP
                 }
             }
 
-            public bool waitReply(int expectedReplies, long timeout)
+            public bool waitReply(int expectedReplies, TimeSpan timeout)
             {
                 lock (this)
                 {
-                    long end = Time.CurrentMonotonicTimeMillis() + timeout;
+                    TimeSpan end = Time.Elapsed + timeout;
                     while (_replies < expectedReplies)
                     {
-                        int delay = (int)(end - Time.CurrentMonotonicTimeMillis());
-                        if (delay > 0)
+                        TimeSpan delay = end - Time.Elapsed;
+                        if (delay > TimeSpan.Zero)
                         {
                             System.Threading.Monitor.Wait(this, delay);
                         }
@@ -87,7 +87,7 @@ namespace ZeroC.Ice.Test.UDP
                 obj.ping(reply);
                 obj.ping(reply);
                 obj.ping(reply);
-                ret = replyI.waitReply(3, 2000);
+                ret = replyI.waitReply(3, TimeSpan.FromSeconds(2));
                 if (ret)
                 {
                     break; // Success
@@ -115,7 +115,7 @@ namespace ZeroC.Ice.Test.UDP
                         seq = new byte[seq.Length * 2 + 10];
                         replyI.reset();
                         obj.sendByteSeq(seq, reply);
-                        replyI.waitReply(1, 10000);
+                        replyI.waitReply(1, TimeSpan.FromSeconds(10));
                     }
                 }
                 catch (DatagramLimitException)
@@ -134,7 +134,7 @@ namespace ZeroC.Ice.Test.UDP
                     replyI.reset();
                     obj.sendByteSeq(seq, reply);
 
-                    bool b = replyI.waitReply(1, 500);
+                    bool b = replyI.waitReply(1, TimeSpan.FromMilliseconds(500));
                     //
                     // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
                     // should not be delivered.
@@ -184,7 +184,7 @@ namespace ZeroC.Ice.Test.UDP
             {
                 replyI.reset();
                 objMcast.ping(reply);
-                ret = replyI.waitReply(5, 5000);
+                ret = replyI.waitReply(5, TimeSpan.FromSeconds(5));
                 if (ret)
                 {
                     break;
@@ -213,7 +213,7 @@ namespace ZeroC.Ice.Test.UDP
                 obj.pingBiDir(reply.Identity);
                 obj.pingBiDir(reply.Identity);
                 obj.pingBiDir(reply.Identity);
-                ret = replyI.waitReply(3, 2000);
+                ret = replyI.waitReply(3, TimeSpan.FromSeconds(2));
                 if (ret)
                 {
                     break; // Success

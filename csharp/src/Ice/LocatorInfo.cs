@@ -436,10 +436,10 @@ namespace ZeroC.Ice
                 new ConcurrentDictionary<Identity, (TimeSpan InsertionTime, Reference Reference)>();
 
         internal void SetAdapterEndpoints(string adapter, IReadOnlyList<Endpoint> endpoints) =>
-            _adapterEndpointsTable[adapter] = (Time.CurrentMonotonicTime(), endpoints);
+            _adapterEndpointsTable[adapter] = (Time.Elapsed, endpoints);
 
         internal void SetObjectReference(Identity id, Reference reference) =>
-            _objectReferenceTable[id] = (Time.CurrentMonotonicTime(), reference);
+            _objectReferenceTable[id] = (Time.Elapsed, reference);
 
         internal (IReadOnlyList<Endpoint> Endpoints, bool Cached) GetAdapterEndpoints(string adapter, TimeSpan ttl)
         {
@@ -486,6 +486,6 @@ namespace ZeroC.Ice
 
         // Returns true if the time-to-live has been reached
         private static bool CheckTTL(TimeSpan insertionTime, TimeSpan ttl) =>
-            ttl == Timeout.InfiniteTimeSpan || (Time.CurrentMonotonicTime() - insertionTime) <= ttl;
+            ttl == Timeout.InfiniteTimeSpan || (Time.Elapsed - insertionTime) <= ttl;
     }
 }

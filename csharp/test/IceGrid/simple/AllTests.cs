@@ -235,11 +235,14 @@ namespace ZeroC.IceGrid.Test.Simple
             }
             Console.Out.WriteLine("ok");
 
-            IRegistryPrx registry = IRegistryPrx.Parse(
-                communicator.DefaultLocator!.Identity.Category + "/Registry", communicator);
+            var registry = IRegistryPrx.Parse(
+                $"{communicator.DefaultLocator!.Identity.Category}/Registry", communicator);
             IAdminSessionPrx? session = registry.CreateAdminSession("foo", "bar");
             TestHelper.Assert(session != null);
-            session.GetConnection()!.SetACM(registry.GetACMTimeout(), null, ACMHeartbeat.HeartbeatAlways);
+            Connection? connection = session.GetConnection()!;
+            connection.Acm = new Acm(TimeSpan.FromSeconds(registry.GetACMTimeout()),
+                                     connection.Acm.Close,
+                                     AcmHeartbeat.Always);
 
             IAdminPrx? admin = session.GetAdmin();
             TestHelper.Assert(admin != null);

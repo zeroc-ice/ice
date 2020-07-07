@@ -28,7 +28,7 @@ namespace ZeroC.Ice
         /// <returns>A new connection to the given endpoint.</returns>
         public Connection CreateConnection(
             Endpoint endpoint,
-            IACMMonitor? monitor,
+            IAcmMonitor? monitor,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter);

@@ -13,10 +13,10 @@ namespace ZeroC.Ice.Test.ACM
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.ACM.Timeout"] = "1";
+            properties["Ice.ACM.Timeout"] = "1s";
             using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            communicator.SetProperty("TestAdapter.ACM.Timeout", "0");
+            communicator.SetProperty("TestAdapter.ACM.Timeout", "0s");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("communicator", new RemoteCommunicator());
             adapter.Activate();
