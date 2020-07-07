@@ -9,8 +9,7 @@ namespace ZeroC.Ice.Test.ACM
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx
-        createObjectAdapter(int timeout, int close, int heartbeat, Current current)
+        public IRemoteObjectAdapterPrx createObjectAdapter(int timeout, int? close, int? heartbeat, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
             string transport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
@@ -22,15 +21,16 @@ namespace ZeroC.Ice.Test.ACM
                 communicator.SetProperty($"{name}.ACM.Timeout", $"{timeout}s");
             }
 
-            if (close >= 0)
+            if (close is int closeValue)
             {
-                communicator.SetProperty($"{name}.ACM.Close", close.ToString());
+                communicator.SetProperty($"{name}.ACM.Close", ((AcmClose)closeValue).ToString());
             }
 
-            if (heartbeat >= 0)
+            if (heartbeat is int heartbeatValue)
             {
-                communicator.SetProperty($"{name}.ACM.Heartbeat", heartbeat.ToString());
+                communicator.SetProperty($"{name}.ACM.Heartbeat", ((AcmHeartbeat)heartbeatValue).ToString());
             }
+
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{transport} -h \"{host}\"");
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }

@@ -52,8 +52,9 @@ namespace ZeroC.Ice
         public bool? GetPropertyAsBool(string name) =>
             GetPropertyAsInt(name) is int intValue ? intValue > 0 : (bool?)null;
 
-        /// <summary>Gets the value of a property as an enumerated type, the conversion is done by passing the property
-        /// value to <see cref="Enum.Parse{TEnum}(string, bool)"/>. If the property is not set, returns null
+        /// <summary>Gets the value of a property as an enumerated type, the conversion does a case insensitive
+        /// comparison of the property value with the enumerated constants names and returns the matching enum or
+        /// throws and exception if none matches the property value. If the property is not set, returns null
         /// </summary>
         /// <typeparam name="TEnum">An enumeration type.</typeparam>
         /// <param name="name">The property name</param>
@@ -69,7 +70,16 @@ namespace ZeroC.Ice
                     try
                     {
                         pv.Used = true;
-                        return Enum.Parse<TEnum>(pv.Val, true);
+                        if (int.TryParse(pv.Val, out int _))
+                        {
+                            throw new InvalidConfigurationException(
+                                @$"the value `{pv.Val}' of property `{name}' is not valid for {typeof(TEnum)
+                                } enumeration");
+                        }
+                        else
+                        {
+                            return Enum.Parse<TEnum>(pv.Val, true);
+                        }
                     }
                     catch (Exception ex)
                     {
