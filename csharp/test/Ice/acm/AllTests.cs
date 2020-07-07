@@ -146,7 +146,9 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Init()
         {
-            _adapter = _com.createObjectAdapter(_serverAcmTimeout, (int?)_serverAcmClose, (int?)_serverAcmHeartbeat);
+            _adapter = _com.createObjectAdapter(_serverAcmTimeout,
+                                                _serverAcmClose?.ToString(),
+                                                _serverAcmHeartbeat?.ToString());
 
             Dictionary<string, string> properties = _com.Communicator.GetProperties();
             properties["Ice.ACM.Timeout"] = "2s";
