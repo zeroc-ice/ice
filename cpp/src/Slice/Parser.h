@@ -886,7 +886,7 @@ class Struct : public virtual Container, public virtual Constructed
 public:
 
     void destroy() override;
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, const SyntaxTreeBasePtr& = nullptr,
                                    const std::string& = "", const std::string& = "");
     DataMemberList dataMembers() const;
     DataMemberList classDataMembers() const;

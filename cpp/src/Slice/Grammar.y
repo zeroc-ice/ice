@@ -970,7 +970,7 @@ struct_exports
 // ----------------------------------------------------------------------
 struct_export
 // ----------------------------------------------------------------------
-: struct_data_member
+: data_member
 ;
 
 // ----------------------------------------------------------------------
@@ -1254,7 +1254,7 @@ data_member
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag);
+        dm = st->createDataMember(def->name, def->type, def->isTagged);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
@@ -1279,7 +1279,7 @@ data_member
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
+        dm = st->createDataMember(def->name, def->type, def->isTagged, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
@@ -1303,7 +1303,7 @@ data_member
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        $$ = st->createDataMember(name, type, false, 0); // Dummy
+        $$ = st->createDataMember(name, type, false); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
@@ -1324,93 +1324,13 @@ data_member
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
+        $$ = st->createDataMember(IceUtil::generateUUID(), type, false); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
         $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
-    assert($$);
-    unit->error("missing data member name");
-}
-;
-
-// ----------------------------------------------------------------------
-struct_data_member
-// ----------------------------------------------------------------------
-: type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1);
-    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
-    $$ = dm;
-}
-| type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, value->v,
-                                            value->valueAsString, value->valueAsLiteral);
-    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
-    $$ = dm;
-}
-| tag type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| tag type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| optional type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| optional type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| type keyword
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    string name = StringTokPtr::dynamicCast($2)->v;
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(name, type, false, 0); // Dummy
-    assert($$);
-    unit->error("keyword `" + name + "' cannot be used as data member name");
-}
-| type
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     assert($$);
     unit->error("missing data member name");
 }

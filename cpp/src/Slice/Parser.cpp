@@ -4143,7 +4143,7 @@ Slice::Struct::destroy()
 }
 
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
+Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged,
                                 const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                 const string& defaultLiteral)
 {
@@ -4196,18 +4196,10 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
 
     if (tagged)
     {
-        // Validate the tag.
-        for (const auto& member : _dataMembers)
-        {
-            if (member->tagged() && tag == member->tag())
-            {
-                _unit->error("tag for data member `" + name + "' is already in use");
-                break;
-            }
-        }
+        _unit->error("tagged data members are not supported in structs");
     }
 
-    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    DataMemberPtr member = new DataMember(this, name, type, false, -1, dvt, dv, dl);
     _dataMembers.push_back(member);
     return member;
 }
@@ -5270,12 +5262,11 @@ Slice::Operation::uses(const ContainedPtr& contained) const
         }
     }
 
-    if (ExceptionPtr::dynamicCast(contained))
+    if (ExceptionPtr exception2 = ExceptionPtr::dynamicCast(contained))
     {
         for (const auto& exception : _throws)
         {
-            ContainedPtr contained2 = ContainedPtr::dynamicCast(exception);
-            if (contained2 && contained2 == contained)
+            if (exception == exception2)
             {
                 return true;
             }
