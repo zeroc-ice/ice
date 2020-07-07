@@ -1200,6 +1200,7 @@ public:
     void warning(WarningCategory, const std::string&) const;
 
     ContainerPtr currentContainer() const;
+    ModulePtr currentModule() const;
     void pushContainer(const ContainerPtr&);
     void popContainer();
 
@@ -1271,6 +1272,7 @@ private:
     std::string _topLevelFile;
     std::stack<DefinitionContextPtr> _definitionContextStack;
     StringList _includeFiles;
+    ModulePtr _globalModule;
     std::list<ModulePtr> _modules;
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;

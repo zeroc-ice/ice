@@ -6256,6 +6256,27 @@ Slice::Unit::currentContainer() const
     return _containerStack.top();
 }
 
+ModulePtr
+Slice::Unit::currentModule() const
+{
+    ContainerPtr container = currentContainer();
+    while (container)
+    {
+        if (UnitPtr ut = UnitPtr::dynamicCast(container))
+        {
+            return ut->_globalModule;
+        }
+        else if (ModulePtr module = ModulePtr::dynamicCast(container))
+        {
+            return module;
+        }
+        ContainedPtr contained = ContainedPtr::dynamicCast(container);
+        container = contained->container();
+    }
+    assert(false);
+    return nullptr;
+}
+
 void
 Slice::Unit::pushContainer(const ContainerPtr& cont)
 {
@@ -6518,6 +6539,7 @@ void
 Slice::Unit::destroy()
 {
     _contentMap.clear();
+    _globalModule = nullptr;
     _modules.clear();
     _builtins.clear();
     Container::destroy();
@@ -6557,7 +6579,7 @@ Slice::Unit::hasSequences() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasSequences();
 }
 
 bool
@@ -6570,7 +6592,7 @@ Slice::Unit::hasStructs() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasStructs();
 }
 
 bool
@@ -6583,7 +6605,7 @@ Slice::Unit::hasExceptions() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasExceptions();
 }
 
 bool
@@ -6596,7 +6618,7 @@ Slice::Unit::hasDictionaries() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasDictionaries();
 }
 
 bool
@@ -6609,7 +6631,7 @@ Slice::Unit::hasEnums() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasEnums();
 }
 
 bool
@@ -6622,7 +6644,7 @@ Slice::Unit::hasClassDecls() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasClassDecls();
 }
 
 bool
@@ -6635,7 +6657,7 @@ Slice::Unit::hasClassDefs() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasClassDefs();
 }
 
 bool
@@ -6648,7 +6670,7 @@ Slice::Unit::hasInterfaceDecls() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasInterfaceDecls();
 }
 
 bool
@@ -6661,7 +6683,7 @@ Slice::Unit::hasInterfaceDefs() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasInterfaceDefs();
 }
 
 bool
@@ -6674,7 +6696,7 @@ Slice::Unit::hasOnlyClassDecls() const
             return false;
         }
     }
-    return true;
+    return _globalModule->hasOnlyClassDecls();
 }
 
 bool
@@ -6687,7 +6709,7 @@ Slice::Unit::hasOnlyInterfaces() const
             return false;
         }
     }
-    return true;
+    return _globalModule->hasOnlyInterfaces();
 }
 
 bool
@@ -6700,7 +6722,7 @@ Slice::Unit::hasOperations() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasOperations();
 }
 
 bool
@@ -6713,7 +6735,7 @@ Slice::Unit::hasOtherConstructedOrExceptions() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasOtherConstructedOrExceptions();
 }
 
 bool
@@ -6726,7 +6748,7 @@ Slice::Unit::hasAsyncOps() const
             return true;
         }
     }
-    return false;
+    return _globalModule->hasAsyncOps();
 }
 
 BuiltinPtr
@@ -6793,9 +6815,9 @@ Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultFileMetadat
     _defaultFileMetaData(defaultFileMetadata),
     _errors(0),
     _currentIncludeLevel(0)
-
 {
     _unit = this;
+    _globalModule = new Module(this, "");
 }
 
 // ----------------------------------------------------------------------
