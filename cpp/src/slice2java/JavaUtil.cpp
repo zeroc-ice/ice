@@ -88,7 +88,7 @@ class MetaDataVisitor : public ParserVisitor
 {
 public:
 
-    virtual bool visitUnitStart(const UnitPtr& p)
+    bool visitUnitStart(const UnitPtr& p) override
     {
         static const string prefix = "java:";
 
@@ -126,7 +126,7 @@ public:
         return true;
     }
 
-    virtual bool visitModuleStart(const ModulePtr& p)
+    bool visitModuleStart(const ModulePtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -135,7 +135,7 @@ public:
         return true;
     }
 
-    virtual void visitClassDecl(const ClassDeclPtr& p)
+    void visitClassDecl(const ClassDeclPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -143,24 +143,7 @@ public:
         p->setMetaData(metaData);
     }
 
-    virtual bool visitClassDefStart(const ClassDefPtr& p)
-    {
-        StringList metaData = getMetaData(p);
-        metaData = validateType(p, metaData, p->file(), p->line());
-        metaData = validateGetSet(p, metaData, p->file(), p->line());
-        p->setMetaData(metaData);
-        return true;
-    }
-
-    virtual void visitInterfaceDecl(const InterfaceDeclPtr& p)
-    {
-        StringList metaData = getMetaData(p);
-        metaData = validateType(p, metaData, p->file(), p->line());
-        metaData = validateGetSet(p, metaData, p->file(), p->line());
-        p->setMetaData(metaData);
-    }
-
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr& p)
+    bool visitClassDefStart(const ClassDefPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -169,7 +152,15 @@ public:
         return true;
     }
 
-    virtual bool visitExceptionStart(const ExceptionPtr& p)
+    void visitInterfaceDecl(const InterfaceDeclPtr& p) override
+    {
+        StringList metaData = getMetaData(p);
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
+    }
+
+    bool visitInterfaceDefStart(const InterfaceDefPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -178,7 +169,7 @@ public:
         return true;
     }
 
-    virtual bool visitStructStart(const StructPtr& p)
+    bool visitExceptionStart(const ExceptionPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -187,7 +178,16 @@ public:
         return true;
     }
 
-    virtual void visitOperation(const OperationPtr& p)
+    bool visitStructStart(const StructPtr& p) override
+    {
+        StringList metaData = getMetaData(p);
+        metaData = validateType(p, metaData, p->file(), p->line());
+        metaData = validateGetSet(p, metaData, p->file(), p->line());
+        p->setMetaData(metaData);
+        return true;
+    }
+
+    void visitOperation(const OperationPtr& p) override
     {
         TypePtr returnType = p->returnType();
         StringList metaData = getMetaData(p);
@@ -227,7 +227,7 @@ public:
         }
     }
 
-    virtual void visitDataMember(const DataMemberPtr& p)
+    void visitDataMember(const DataMemberPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p->type(), metaData, p->file(), p->line());
@@ -235,7 +235,7 @@ public:
         p->setMetaData(metaData);
     }
 
-    virtual void visitSequence(const SequencePtr& p)
+    void visitSequence(const SequencePtr& p) override
     {
         static const string protobuf = "java:protobuf:";
         static const string serializable = "java:serializable:";
@@ -291,7 +291,7 @@ public:
         p->setMetaData(newMetaData);
     }
 
-    virtual void visitDictionary(const DictionaryPtr& p)
+    void visitDictionary(const DictionaryPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -299,7 +299,7 @@ public:
         p->setMetaData(metaData);
     }
 
-    virtual void visitEnum(const EnumPtr& p)
+    void visitEnum(const EnumPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());
@@ -307,7 +307,7 @@ public:
         p->setMetaData(metaData);
     }
 
-    virtual void visitConst(const ConstPtr& p)
+    void visitConst(const ConstPtr& p) override
     {
         StringList metaData = getMetaData(p);
         metaData = validateType(p, metaData, p->file(), p->line());

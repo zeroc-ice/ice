@@ -214,12 +214,6 @@ Slice::DefinitionContext::setFilename(const string& filename)
     _filename = filename;
 }
 
-bool
-Slice::DefinitionContext::hasMetaData() const
-{
-    return !_metaData.empty();
-}
-
 void
 Slice::DefinitionContext::setMetaData(const StringList& metaData)
 {
@@ -402,7 +396,7 @@ Slice::Comment::Comment()
 void
 Slice::SyntaxTreeBase::destroy()
 {
-    _unit = 0;
+    _unit = nullptr;
 }
 
 UnitPtr
@@ -639,7 +633,7 @@ Slice::Builtin::integralRange() const
         case KindVarULong:
             return make_pair<int64_t, uint64_t>(0, UINT64_MAX / 4);
         default:
-            assert(0);
+            assert(false);
             return make_pair<int64_t, uint64_t>(0, 0);
     }
 }
@@ -677,7 +671,7 @@ Slice::Builtin::Builtin(const UnitPtr& ut, Kind kind) :
     //
     // Builtin types do not have a definition context.
     //
-    _definitionContext = 0;
+    _definitionContext = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -915,7 +909,7 @@ Slice::Contained::parseComment(bool stripMarkup) const
 
     if(!comment->_isDeprecated && _comment.empty())
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -1213,678 +1207,8 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 void
 Slice::Container::destroy()
 {
-    for (const auto& content : _contents)
-    {
-        content->destroy();
-    }
-    _contents.clear();
     _introducedMap.clear();
     SyntaxTreeBase::destroy();
-}
-
-ModulePtr
-Slice::Container::createModule(const string& name)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort(); // Modules can occur many times...
-    matches.unique(); // ... but we only want one instance of each.
-
-    if(thisScope() == "::")
-    {
-        _unit->addTopLevelModule(_unit->currentFile(), name);
-    }
-
-    for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
-    {
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ModulePtr module = ModulePtr::dynamicCast(*p);
-        if(module)
-        {
-            if(differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
-            {
-                string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
-                msg += module->name() + "'";
-                _unit->error(msg);
-                return 0;
-            }
-        }
-        else if(!differsOnlyInCase)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as module";
-            _unit->error(msg);
-            return 0;
-        }
-        else
-        {
-            string msg = "module `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-            return 0;
-        }
-    }
-
-    if(!checkIdentifier(name))
-    {
-        return 0;
-    }
-
-    ModulePtr q = new Module(this, name);
-    _contents.push_back(q);
-    return q;
-}
-
-ClassDefPtr
-Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& base)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(p);
-        if(decl)
-        {
-            continue; // all good
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ClassDefPtr def = ClassDefPtr::dynamicCast(p);
-        if(def)
-        {
-            if(differsOnlyInCase)
-            {
-                string msg = "class definition `" + name + "' is capitalized inconsistently with its previous name: `";
-                msg += def->name() + "'";
-                _unit->error(msg);
-            }
-            else
-            {
-                if(_unit->ignRedefs())
-                {
-                    def->updateIncludeLevel();
-                    return def;
-                }
-
-                string msg = "redefinition of class `" + name + "'";
-                _unit->error(msg);
-            }
-        }
-        else if(differsOnlyInCase)
-        {
-            string msg = "class definition `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
-            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
-    // and skip the second check, so we use '|' here instead, which will never short-circuit.
-    if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
-    {
-        return 0;
-    }
-
-    ClassDefPtr def = new ClassDef(this, name, id, base);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(q);
-        decl->_definition = def;
-    }
-
-    //
-    // Implicitly create a class declaration for each class
-    // definition. This way the code generator can rely on always
-    // having a class declaration available for lookup.
-    //
-    ClassDeclPtr decl = createClassDecl(name);
-    def->_declaration = decl;
-
-    return def;
-}
-
-ClassDeclPtr
-Slice::Container::createClassDecl(const string& name)
-{
-    ClassDefPtr def;
-
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        ClassDefPtr clDef = ClassDefPtr::dynamicCast(p);
-        if(clDef)
-        {
-            continue;
-        }
-
-        ClassDeclPtr clDecl = ClassDeclPtr::dynamicCast(p);
-        if(clDecl)
-        {
-            continue;
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if(differsOnlyInCase)
-        {
-            string msg = "class declaration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
-            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
-    // and skip the second check, so we use '|' here instead, which will never short-circuit.
-    if(!checkIdentifier(name) | !checkForGlobalDef(name, "class"))
-    {
-        return 0;
-    }
-
-    //
-    // Multiple declarations are permissible. But if we do already
-    // have a declaration for the class in this container, we don't
-    // create another one.
-    //
-    for (const auto& q : _contents)
-    {
-        if(q->name() == name)
-        {
-            ClassDeclPtr decl = ClassDeclPtr::dynamicCast(q);
-            if(decl)
-            {
-                return decl;
-            }
-
-            def = ClassDefPtr::dynamicCast(q);
-            assert(def);
-        }
-    }
-
-    _unit->currentContainer();
-    ClassDeclPtr decl = new ClassDecl(this, name);
-    _contents.push_back(decl);
-
-    if(def)
-    {
-        decl->_definition = def;
-    }
-
-    return decl;
-}
-
-InterfaceDefPtr
-Slice::Container::createInterfaceDef(const string& name, const InterfaceList& bases)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(p);
-        if(decl)
-        {
-            continue; // all good
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-        if (def)
-        {
-            if(differsOnlyInCase)
-            {
-                string msg = "interface definition `" + name +
-                    "' is capitalized inconsistently with its previous name: `";
-                msg += def->name() + "'";
-                _unit->error(msg);
-            }
-            else
-            {
-                if(_unit->ignRedefs())
-                {
-                    def->updateIncludeLevel();
-                    return def;
-                }
-
-                string msg = "redefinition of interface `" + name + "'";
-                _unit->error(msg);
-            }
-        }
-        else if (differsOnlyInCase)
-        {
-            string msg = "interface definition `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = ClassDeclPtr::dynamicCast(matches.front());
-            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
-    // and skip the second check, so we use '|' here instead, which will never short-circuit.
-    if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
-    {
-        return 0;
-    }
-
-    InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
-
-    InterfaceDefPtr def = new InterfaceDef(this, name, bases);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(q);
-        decl->_definition = def;
-    }
-
-    //
-    // Implicitly create an interface declaration for each interface
-    // definition. This way the code generator can rely on always
-    // having an interface declaration available for lookup.
-    //
-    InterfaceDeclPtr decl = createInterfaceDecl(name);
-    def->_declaration = decl;
-
-    return def;
-}
-
-InterfaceDeclPtr
-Slice::Container::createInterfaceDecl(const string& name)
-{
-    InterfaceDefPtr def;
-
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        InterfaceDefPtr interfaceDef = InterfaceDefPtr::dynamicCast(p);
-        if (interfaceDef)
-        {
-            continue;
-        }
-
-        InterfaceDeclPtr interfaceDecl = InterfaceDeclPtr::dynamicCast(p);
-        if (interfaceDecl)
-        {
-            continue;
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if (differsOnlyInCase)
-        {
-            string msg = "interface declaration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = ClassDeclPtr::dynamicCast(matches.front());
-            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    // We want to run both checks, even if the first one returns false. '||' has the potential to short-circuit
-    // and skip the second check, so we use '|' here instead, which will never short-circuit.
-    if (!checkIdentifier(name) | !checkForGlobalDef(name, "interface"))
-    {
-        return 0;
-    }
-
-    // Multiple declarations are permissible. But if we do already have a declaration for the interface in this
-    // container, we don't create another one.
-    for (const auto& q : _contents)
-    {
-        if (q->name() == name)
-        {
-            InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(q);
-            if (decl)
-            {
-                return decl;
-            }
-
-            def = InterfaceDefPtr::dynamicCast(q);
-            assert(def);
-        }
-    }
-
-    _unit->currentContainer();
-    InterfaceDeclPtr decl = new InterfaceDecl(this, name);
-    _contents.push_back(decl);
-
-    if (def)
-    {
-        decl->_definition = def;
-    }
-
-    return decl;
-}
-
-ExceptionPtr
-Slice::Container::createException(const string& name, const ExceptionPtr& base, NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        ExceptionPtr p = ExceptionPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as exception";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "exception `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the exception anyway.
-
-    if(nt == Real)
-    {
-        checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway.
-    }
-
-    ExceptionPtr p = new Exception(this, name, base);
-    _contents.push_back(p);
-    return p;
-}
-
-StructPtr
-Slice::Container::createStruct(const string& name, NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        StructPtr p = StructPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as struct";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "struct `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the struct anyway.
-
-    if(nt == Real)
-    {
-        checkForGlobalDef(name, "structure"); // Don't return here -- we create the struct anyway.
-    }
-
-    StructPtr p = new Struct(this, name);
-    _contents.push_back(p);
-    return p;
-}
-
-SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData,
-                                 NodeType nt)
-{
-    _unit->checkType(type);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        SequencePtr p = SequencePtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as sequence";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "sequence `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the sequence anyway.
-
-    if(nt == Real)
-    {
-        checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
-    }
-
-    SequencePtr p = new Sequence(this, name, type, metaData);
-    _contents.push_back(p);
-    return p;
-}
-
-DictionaryPtr
-Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
-                                   const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
-{
-    _unit->checkType(keyType);
-    _unit->checkType(valueType);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        DictionaryPtr p = DictionaryPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as dictionary";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "dictionary `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
-
-    if(nt == Real)
-    {
-        checkForGlobalDef(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
-    }
-
-    if(nt == Real)
-    {
-        bool containsSequence = false;
-        if(!Dictionary::legalKeyType(keyType, containsSequence))
-        {
-            _unit->error("dictionary `" + name + "' uses an illegal key type");
-            return 0;
-        }
-        if(containsSequence)
-        {
-            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
-        }
-    }
-
-    DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData);
-    _contents.push_back(p);
-    return p;
-}
-
-EnumPtr
-Slice::Container::createEnum(const string& name, bool unchecked, NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        EnumPtr p = EnumPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as enumeration";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "enumeration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the enumeration anyway.
-
-    if(nt == Real)
-    {
-        checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
-    }
-
-    EnumPtr p = new Enum(this, name, unchecked);
-    _contents.push_back(p);
-    return p;
-}
-
-EnumeratorPtr
-Slice::Container::createEnumerator(const string& name)
-{
-    EnumeratorPtr p = validateEnumerator(name);
-    if(!p)
-    {
-        p = new Enumerator(this, name);
-        _contents.push_back(p);
-    }
-    return p;
-}
-
-EnumeratorPtr
-Slice::Container::createEnumerator(const string& name, int64_t value)
-{
-    EnumeratorPtr p = validateEnumerator(name);
-    if(!p)
-    {
-        p = new Enumerator(this, name, value);
-        _contents.push_back(p);
-    }
-    return p;
-}
-
-ConstPtr
-Slice::Container::createConst(const string name, const TypePtr& constType, const StringList& metaData,
-                              const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
-                              NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        ConstPtr p = ConstPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as constant";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "constant `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return 0;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the constant anyway.
-
-    if(nt == Real)
-    {
-        checkForGlobalDef(name, "constant"); // Don't return here -- we create the constant anyway.
-    }
-
-    SyntaxTreeBasePtr resolvedValueType = valueType;
-
-    //
-    // Validate the constant and its value; for enums, find enumerator
-    //
-    if(nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
-    {
-        return 0;
-    }
-
-    ConstPtr p = new Const(this, name, constType, metaData, resolvedValueType, value, literal);
-    _contents.push_back(p);
-    return p;
 }
 
 TypeList
@@ -2086,7 +1410,7 @@ Slice::Container::lookupException(const string& scoped, bool printError)
     ContainedList contained = lookupContained(scoped, printError);
     if(contained.empty())
     {
-        return 0;
+        return nullptr;
     }
 
     ExceptionList exceptions;
@@ -2102,138 +1426,12 @@ Slice::Container::lookupException(const string& scoped, bool printError)
                 msg += "' is not an exception";
                 _unit->error(msg);
             }
-            return 0;
+            return nullptr;
         }
         exceptions.push_back(ex);
     }
     assert(exceptions.size() == 1);
     return exceptions.front();
-}
-
-UnitPtr
-Slice::Container::unit() const
-{
-    return SyntaxTreeBase::unit();
-}
-
-ModuleList
-Slice::Container::modules() const
-{
-    ModuleList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr q = ModulePtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-ClassList
-Slice::Container::classes() const
-{
-    ClassList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ClassDefPtr q = ClassDefPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-ExceptionList
-Slice::Container::exceptions() const
-{
-    ExceptionList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-StructList
-Slice::Container::structs() const
-{
-    StructList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        StructPtr q = StructPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-SequenceList
-Slice::Container::sequences() const
-{
-    SequenceList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        SequencePtr q = SequencePtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-DictionaryList
-Slice::Container::dictionaries() const
-{
-    DictionaryList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DictionaryPtr q = DictionaryPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-EnumList
-Slice::Container::enums() const
-{
-    EnumList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        EnumPtr q = EnumPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-EnumeratorList
-Slice::Container::enumerators() const
-{
-    EnumeratorList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        EnumeratorPtr q = EnumeratorPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
 }
 
 //
@@ -2251,13 +1449,16 @@ Slice::Container::enumerators(const string& scoped) const
         ContainerPtr container = const_cast<Container*>(this);
         do
         {
-            EnumList enums = container->enums();
-            for (EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
+            if (ModulePtr module = ModulePtr::dynamicCast(container))
             {
-                ContainedList cl = (*p)->lookupContained(scoped, false);
-                if(!cl.empty())
+                EnumList enums = module->enums();
+                for (EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
                 {
-                    result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                    ContainedList cl = (*p)->lookupContained(scoped, false);
+                    if(!cl.empty())
+                    {
+                        result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                    }
                 }
             }
 
@@ -2268,7 +1469,7 @@ Slice::Container::enumerators(const string& scoped) const
             }
             else
             {
-                container = 0;
+                container = nullptr;
             }
         }
         while(result.empty() && container);
@@ -2281,10 +1482,9 @@ Slice::Container::enumerators(const string& scoped) const
         ContainedList cl = container->lookupContained(scope, false);
         if(!cl.empty())
         {
-            container = ContainerPtr::dynamicCast(cl.front());
-            if(container)
+            if(ModulePtr module = ModulePtr::dynamicCast(cl.front()))
             {
-                EnumList enums = container->enums();
+                EnumList enums = module->enums();
                 string name = scoped.substr(lastColon + 1);
                 for (EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
                 {
@@ -2301,357 +1501,18 @@ Slice::Container::enumerators(const string& scoped) const
     return result;
 }
 
-ConstList
-Slice::Container::consts() const
-{
-    ConstList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ConstPtr q = ConstPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-ContainedList
-Slice::Container::contents() const
-{
-    return _contents;
-}
-
-bool
-Slice::Container::hasSequences() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        SequencePtr s = SequencePtr::dynamicCast(*p);
-        if(s)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasSequences())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasStructs() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        StructPtr q = StructPtr::dynamicCast(*p);
-        if(q)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasStructs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasExceptions() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ExceptionPtr q = ExceptionPtr::dynamicCast(*p);
-        if(q)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasExceptions())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasClassDecls() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(ClassDeclPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasClassDecls())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasInterfaceDecls() const
-{
-    for (const auto& p : _contents)
-    {
-        if (InterfaceDeclPtr::dynamicCast(p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(p);
-        if (container && container->hasInterfaceDecls())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasDictionaries() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
-        if(d)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasDictionaries())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasClassDefs() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(ClassDefPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasClassDefs())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasInterfaceDefs() const
-{
-    for (const auto& p : _contents)
-    {
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-        if (def)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(p);
-        if (container && container->hasInterfaceDefs())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Container::hasOnlyClassDecls() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr m = ModulePtr::dynamicCast(*p);
-        if(m)
-        {
-            if(!m->hasOnlyClassDecls())
-            {
-                return false;
-            }
-        }
-        else if(!ClassDeclPtr::dynamicCast(*p))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool
-Slice::Container::hasOnlyInterfaces() const
-{
-    for (const auto& p : _contents)
-    {
-        ModulePtr m = ModulePtr::dynamicCast(p);
-        if (m)
-        {
-            if (!m->hasOnlyInterfaces())
-            {
-                return false;
-            }
-        }
-        else
-        {
-            InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(p);
-            if (!decl)
-            {
-                InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-                if (!def)
-                {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-bool
-Slice::Container::hasOperations() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(*p);
-        if(def && def->hasOperations())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasOperations())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasOtherConstructedOrExceptions() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(ConstructedPtr::dynamicCast(*p) && !ClassDeclPtr::dynamicCast(*p) && !ClassDefPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        if(ExceptionPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        if(ConstPtr::dynamicCast(*p))
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasOtherConstructedOrExceptions())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool
 Slice::Container::hasContentsWithMetaData(const string& meta) const
 {
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& content : contents())
     {
-        if((*p)->hasMetaData(meta))
+        if(content->hasMetaData(meta))
         {
             return true;
         }
 
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        ContainerPtr container = ContainerPtr::dynamicCast(content);
         if(container && container->hasContentsWithMetaData(meta))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasAsyncOps() const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(*p);
-        if(interface)
-        {
-            OperationList ops = interface->operations();
-            if(!ops.empty() && interface->hasMetaData("amd"))
-            {
-                return true;
-            }
-            for (OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
-            {
-                OperationPtr op = *i;
-                if(op->hasMetaData("amd"))
-                {
-                    return true;
-                }
-            }
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasAsyncOps())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasContained(Contained::ContainedType type) const
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if((*p)->containedType() == type)
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasContained(type))
         {
             return true;
         }
@@ -2674,125 +1535,11 @@ Slice::Container::thisScope() const
 }
 
 void
-Slice::Container::mergeModules()
-{
-    for (ContainedList::iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ModulePtr mod1 = ModulePtr::dynamicCast(*p);
-        if(!mod1)
-        {
-            continue;
-        }
-
-        DefinitionContextPtr dc1 = mod1->definitionContext();
-        assert(dc1);
-        StringList metaData1 = dc1->getMetaData();
-        metaData1.sort();
-        metaData1.unique();
-
-        ContainedList::iterator q = p;
-        ++q;
-        while(q != _contents.end())
-        {
-            ModulePtr mod2 = ModulePtr::dynamicCast(*q);
-            if(!mod2)
-            {
-                ++q;
-                continue;
-            }
-
-            if(mod1->name() != mod2->name())
-            {
-                ++q;
-                continue;
-            }
-
-            //
-            // Compare the file metadata of the two modules being merged.
-            //
-            DefinitionContextPtr dc2 = mod2->definitionContext();
-            assert(dc2);
-            StringList metaData2 = dc2->getMetaData();
-            metaData2.sort();
-            metaData2.unique();
-            if(!checkFileMetaData(metaData1, metaData2))
-            {
-                unit()->warning(All, "file metadata mismatch for module `" + mod1->name() + "' in files " +
-                                dc1->filename() + " and " + dc2->filename());
-            }
-
-            mod1->_contents.splice(mod1->_contents.end(), mod2->_contents);
-
-            if(mod1->_comment.length() < mod2->_comment.length())
-            {
-                mod1->_comment.swap(mod2->_comment);
-            }
-
-            mod1->_includeLevel = min(mod1->_includeLevel, mod2->_includeLevel);
-
-            _unit->removeContent(*q);
-            q = _contents.erase(q);
-        }
-
-        mod1->mergeModules();
-    }
-}
-
-void
-Slice::Container::sort()
-{
-    _contents.sort();
-}
-
-void
-Slice::Container::sortContents(bool sortFields)
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container)
-        {
-            if(!sortFields)
-            {
-                if(StructPtr::dynamicCast(container) ||
-                   ClassDefPtr::dynamicCast(container) ||
-                   InterfaceDefPtr::dynamicCast(container) ||
-                   ExceptionPtr::dynamicCast(container))
-                {
-                    continue;
-                }
-            }
-            //
-            // Don't sort operation definitions, otherwise parameters are shown in the
-            // wrong order in the synopsis.
-            //
-            if(!OperationPtr::dynamicCast(container))
-            {
-                container->sort();
-            }
-            container->sortContents(sortFields);
-        }
-    }
-}
-
-void
-Slice::Container::visit(ParserVisitor* visitor, bool all)
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        if(all || (*p)->includeLevel() == 0)
-        {
-            (*p)->visit(visitor, all);
-        }
-    }
-}
-
-void
 Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 {
-    for (ContainedList::iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& content : contents())
     {
-        ConstructedPtr constructed = ConstructedPtr::dynamicCast(*p);
+        ConstructedPtr constructed = ConstructedPtr::dynamicCast(content);
         if(constructed && dependencies.find(constructed) != dependencies.end())
         {
             dependencies.insert(constructed);
@@ -2906,20 +1653,8 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
     return true;
 }
 
-bool
-Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct)
-{
-    if(dynamic_cast<Unit*>(this) && strcmp(newConstruct, "module"))
-    {
-        _unit->error("`" + name + "': " + prependA(newConstruct) +
-                     " can only be defined at module scope");
-        return false;
-    }
-    return true;
-}
-
-Slice::Container::Container(const UnitPtr& unit) :
-    SyntaxTreeBase(unit)
+Slice::Container::Container(const UnitPtr& ut) :
+    SyntaxTreeBase(ut)
 {
 }
 
@@ -2963,10 +1698,8 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
 {
     TypePtr type = lhsType;
 
-    //
     // isConstant indicates whether a constant or a data member (with a default value) is
     // being defined.
-    //
 
     if(!type)
     {
@@ -2975,10 +1708,8 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
 
     const string desc = isConstant ? "constant" : "data member";
 
-    //
     // If valueType is a ConstPtr, it means the constant or data member being defined
     // refers to another constant.
-    //
     const ConstPtr constant = ConstPtr::dynamicCast(valueType);
 
     if (!isConstant)
@@ -2990,9 +1721,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
         }
     }
 
-    //
     // First verify that it is legal to specify a constant or default value for the given type.
-    //
 
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     EnumPtr e = EnumPtr::dynamicCast(type);
@@ -3026,9 +1755,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
         return false;
     }
 
-    //
     // Next, verify that the type of the constant or data member is compatible with the given value.
-    //
 
     if (b)
     {
@@ -3179,45 +1906,25 @@ Slice::Container::validateConstant(const string& name, const TypePtr& lhsType, S
     return true;
 }
 
-EnumeratorPtr
-Slice::Container::validateEnumerator(const string& name)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        EnumeratorPtr p = EnumeratorPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            _unit->error(string("redefinition of enumerator `") + name + "'");
-        }
-        else
-        {
-            string msg = "enumerator `" + name + "' differs only in capitalization from ";
-            msg += "`" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-    }
-
-    checkIdentifier(name); // Ignore return value.
-    return 0;
-}
-
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
 
-Contained::ContainedType
-Slice::Module::containedType() const
+void
+Slice::Module::destroy()
 {
-    return ContainedTypeModule;
+    for (const auto& content : _contents)
+    {
+        content->destroy();
+    }
+    _contents.clear();
+    Container::destroy();
+}
+
+ContainedList
+Slice::Module::contents() const
+{
+    return _contents;
 }
 
 bool
@@ -3237,9 +1944,967 @@ Slice::Module::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitModuleStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& content : _contents)
+        {
+            if(all || content->includeLevel() == 0)
+            {
+                content->visit(visitor, all);
+            }
+        }
         visitor->visitModuleEnd(this);
     }
+}
+
+ModulePtr
+Slice::Module::createModule(const string& name)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    matches.sort(); // Modules can occur many times...
+    matches.unique(); // ... but we only want one instance of each.
+
+    for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
+    {
+        bool differsOnlyInCase = matches.front()->name() != name;
+        ModulePtr module = ModulePtr::dynamicCast(*p);
+        if(module)
+        {
+            if(differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
+            {
+                string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
+                msg += module->name() + "'";
+                _unit->error(msg);
+                return nullptr;
+            }
+        }
+        else if(!differsOnlyInCase)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as module";
+            _unit->error(msg);
+            return nullptr;
+        }
+        else
+        {
+            string msg = "module `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+            _unit->error(msg);
+            return nullptr;
+        }
+    }
+
+    if(!checkIdentifier(name))
+    {
+        return nullptr;
+    }
+
+    ModulePtr q = new Module(this, name);
+    _contents.push_back(q);
+    return q;
+}
+
+ClassDefPtr
+Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& base)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    for (const auto& p : matches)
+    {
+        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(p);
+        if(decl)
+        {
+            continue; // all good
+        }
+
+        bool differsOnlyInCase = matches.front()->name() != name;
+        ClassDefPtr def = ClassDefPtr::dynamicCast(p);
+        if(def)
+        {
+            if(differsOnlyInCase)
+            {
+                string msg = "class definition `" + name + "' is capitalized inconsistently with its previous name: `";
+                msg += def->name() + "'";
+                _unit->error(msg);
+            }
+            else
+            {
+                if(_unit->ignRedefs())
+                {
+                    def->updateIncludeLevel();
+                    return def;
+                }
+
+                string msg = "redefinition of class `" + name + "'";
+                _unit->error(msg);
+            }
+        }
+        else if(differsOnlyInCase)
+        {
+            string msg = "class definition `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        else
+        {
+            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
+            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
+                + " as " + prependA(matches.front()->kindOf());
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    if(!checkIdentifier(name))
+    {
+        return nullptr;
+    }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': a class can only be defined at module scope");
+    }
+
+    ClassDefPtr def = new ClassDef(this, name, id, base);
+    _contents.push_back(def);
+
+    for (const auto& q : matches)
+    {
+        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(q);
+        decl->_definition = def;
+    }
+
+    //
+    // Implicitly create a class declaration for each class
+    // definition. This way the code generator can rely on always
+    // having a class declaration available for lookup.
+    //
+    ClassDeclPtr decl = createClassDecl(name);
+    def->_declaration = decl;
+
+    return def;
+}
+
+ClassDeclPtr
+Slice::Module::createClassDecl(const string& name)
+{
+    ClassDefPtr def;
+
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    for (const auto& p : matches)
+    {
+        ClassDefPtr clDef = ClassDefPtr::dynamicCast(p);
+        if(clDef)
+        {
+            continue;
+        }
+
+        ClassDeclPtr clDecl = ClassDeclPtr::dynamicCast(p);
+        if(clDecl)
+        {
+            continue;
+        }
+
+        bool differsOnlyInCase = matches.front()->name() != name;
+        if(differsOnlyInCase)
+        {
+            string msg = "class declaration `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        else
+        {
+            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
+            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
+                + " as " + prependA(matches.front()->kindOf());
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    if(!checkIdentifier(name))
+    {
+        return nullptr;
+    }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': a class can only be defined at module scope");
+    }
+
+    //
+    // Multiple declarations are permissible. But if we do already
+    // have a declaration for the class in this container, we don't
+    // create another one.
+    //
+    for (const auto& q : _contents)
+    {
+        if(q->name() == name)
+        {
+            ClassDeclPtr decl = ClassDeclPtr::dynamicCast(q);
+            if(decl)
+            {
+                return decl;
+            }
+
+            def = ClassDefPtr::dynamicCast(q);
+            assert(def);
+        }
+    }
+
+    _unit->currentContainer();
+    ClassDeclPtr decl = new ClassDecl(this, name);
+    _contents.push_back(decl);
+
+    if(def)
+    {
+        decl->_definition = def;
+    }
+
+    return decl;
+}
+
+InterfaceDefPtr
+Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    for (const auto& p : matches)
+    {
+        InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(p);
+        if(decl)
+        {
+            continue; // all good
+        }
+
+        bool differsOnlyInCase = matches.front()->name() != name;
+        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
+        if (def)
+        {
+            if(differsOnlyInCase)
+            {
+                string msg = "interface definition `" + name +
+                    "' is capitalized inconsistently with its previous name: `";
+                msg += def->name() + "'";
+                _unit->error(msg);
+            }
+            else
+            {
+                if(_unit->ignRedefs())
+                {
+                    def->updateIncludeLevel();
+                    return def;
+                }
+
+                string msg = "redefinition of interface `" + name + "'";
+                _unit->error(msg);
+            }
+        }
+        else if (differsOnlyInCase)
+        {
+            string msg = "interface definition `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        else
+        {
+            bool declared = ClassDeclPtr::dynamicCast(matches.front());
+            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
+                + " as " + prependA(matches.front()->kindOf());
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    if (!checkIdentifier(name))
+    {
+        return nullptr;
+    }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': an interface can only be defined at module scope");
+    }
+
+    InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
+
+    InterfaceDefPtr def = new InterfaceDef(this, name, bases);
+    _contents.push_back(def);
+
+    for (const auto& q : matches)
+    {
+        InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(q);
+        decl->_definition = def;
+    }
+
+    //
+    // Implicitly create an interface declaration for each interface
+    // definition. This way the code generator can rely on always
+    // having an interface declaration available for lookup.
+    //
+    InterfaceDeclPtr decl = createInterfaceDecl(name);
+    def->_declaration = decl;
+
+    return def;
+}
+
+InterfaceDeclPtr
+Slice::Module::createInterfaceDecl(const string& name)
+{
+    InterfaceDefPtr def;
+
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    for (const auto& p : matches)
+    {
+        InterfaceDefPtr interfaceDef = InterfaceDefPtr::dynamicCast(p);
+        if (interfaceDef)
+        {
+            continue;
+        }
+
+        InterfaceDeclPtr interfaceDecl = InterfaceDeclPtr::dynamicCast(p);
+        if (interfaceDecl)
+        {
+            continue;
+        }
+
+        bool differsOnlyInCase = matches.front()->name() != name;
+        if (differsOnlyInCase)
+        {
+            string msg = "interface declaration `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        else
+        {
+            bool declared = ClassDeclPtr::dynamicCast(matches.front());
+            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
+                + " as " + prependA(matches.front()->kindOf());
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    if (!checkIdentifier(name))
+    {
+        return nullptr;
+    }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': an interface can only be defined at module scope");
+    }
+
+    // Multiple declarations are permissible. But if we do already have a declaration for the interface in this
+    // container, we don't create another one.
+    for (const auto& q : _contents)
+    {
+        if (q->name() == name)
+        {
+            InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(q);
+            if (decl)
+            {
+                return decl;
+            }
+
+            def = InterfaceDefPtr::dynamicCast(q);
+            assert(def);
+        }
+    }
+
+    _unit->currentContainer();
+    InterfaceDeclPtr decl = new InterfaceDecl(this, name);
+    _contents.push_back(decl);
+
+    if (def)
+    {
+        decl->_definition = def;
+    }
+
+    return decl;
+}
+
+ExceptionPtr
+Slice::Module::createException(const string& name, const ExceptionPtr& base, NodeType nt)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+        ExceptionPtr p = ExceptionPtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
+        if(matches.front()->name() == name)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as exception";
+            _unit->error(msg);
+        }
+        else
+        {
+            string msg = "exception `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the exception anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': an exception can only be defined at module scope");
+    }
+
+    ExceptionPtr p = new Exception(this, name, base);
+    _contents.push_back(p);
+    return p;
+}
+
+StructPtr
+Slice::Module::createStruct(const string& name, NodeType nt)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+        StructPtr p = StructPtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
+        if(matches.front()->name() == name)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as struct";
+            _unit->error(msg);
+        }
+        else
+        {
+            string msg = "struct `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the struct anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': a structure can only be defined at module scope");
+    }
+
+    StructPtr p = new Struct(this, name);
+    _contents.push_back(p);
+    return p;
+}
+
+SequencePtr
+Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType nt)
+{
+    _unit->checkType(type);
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+        SequencePtr p = SequencePtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
+        if(matches.front()->name() == name)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as sequence";
+            _unit->error(msg);
+        }
+        else
+        {
+            string msg = "sequence `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the sequence anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': a sequence can only be defined at module scope");
+    }
+
+    SequencePtr p = new Sequence(this, name, type, metaData);
+    _contents.push_back(p);
+    return p;
+}
+
+DictionaryPtr
+Slice::Module::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
+                                   const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
+{
+    _unit->checkType(keyType);
+    _unit->checkType(valueType);
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+        DictionaryPtr p = DictionaryPtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
+        if(matches.front()->name() == name)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as dictionary";
+            _unit->error(msg);
+        }
+        else
+        {
+            string msg = "dictionary `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
+    if(nt == Real)
+    {
+        if (_name == "")
+        {
+            _unit->error("`" + name + "': a dictionary can only be defined at module scope");
+        }
+
+        bool containsSequence = false;
+        if(!Dictionary::legalKeyType(keyType, containsSequence))
+        {
+            _unit->error("dictionary `" + name + "' uses an illegal key type");
+            return nullptr;
+        }
+        if(containsSequence)
+        {
+            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
+        }
+    }
+
+    DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData);
+    _contents.push_back(p);
+    return p;
+}
+
+EnumPtr
+Slice::Module::createEnum(const string& name, bool unchecked, NodeType nt)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+        EnumPtr p = EnumPtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
+        if(matches.front()->name() == name)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as enumeration";
+            _unit->error(msg);
+        }
+        else
+        {
+            string msg = "enumeration `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the enumeration anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': an enumeration can only be defined at module scope");
+    }
+
+    EnumPtr p = new Enum(this, name, unchecked);
+    _contents.push_back(p);
+    return p;
+}
+
+ConstPtr
+Slice::Module::createConst(const string name, const TypePtr& constType, const StringList& metaData,
+                              const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
+                              NodeType nt)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+        ConstPtr p = ConstPtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
+        if(matches.front()->name() == name)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as constant";
+            _unit->error(msg);
+        }
+        else
+        {
+            string msg = "constant `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+        return nullptr;
+    }
+
+    checkIdentifier(name); // Don't return here -- we create the constant anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': a constant can only be defined at module scope");
+    }
+
+    SyntaxTreeBasePtr resolvedValueType = valueType;
+
+    //
+    // Validate the constant and its value; for enums, find enumerator
+    //
+    if(nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
+    {
+        return nullptr;
+    }
+
+    ConstPtr p = new Const(this, name, constType, metaData, resolvedValueType, value, literal);
+    _contents.push_back(p);
+    return p;
+}
+
+EnumList
+Slice::Module::enums() const
+{
+    EnumList result;
+    for (const auto& content : _contents)
+    {
+        if (EnumPtr e = EnumPtr::dynamicCast(content))
+        {
+            result.push_back(e);
+        }
+    }
+    return result;
+}
+
+ConstList
+Slice::Module::consts() const
+{
+    ConstList result;
+    for (const auto& content : _contents)
+    {
+        if (ConstPtr c = ConstPtr::dynamicCast(content))
+        {
+            result.push_back(c);
+        }
+    }
+    return result;
+}
+
+bool
+Slice::Module::hasSequences() const
+{
+    for (const auto& content : _contents)
+    {
+        if (SequencePtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasSequences())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasStructs() const
+{
+    for (const auto& content : _contents)
+    {
+        if (StructPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasStructs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasExceptions() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ExceptionPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasExceptions())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasDictionaries() const
+{
+    for (const auto& content : _contents)
+    {
+        if (DictionaryPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasDictionaries())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasEnums() const
+{
+    for (const auto& content : _contents)
+    {
+        if (EnumPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasEnums())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasClassDecls() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ClassDeclPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasClassDecls())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasClassDefs() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ClassDefPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasClassDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasInterfaceDecls() const
+{
+    for (const auto& content : _contents)
+    {
+        if (InterfaceDeclPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasInterfaceDecls())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasInterfaceDefs() const
+{
+    for (const auto& content : _contents)
+    {
+        if (InterfaceDefPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasInterfaceDefs())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasOnlyClassDecls() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ModulePtr submodule = ModulePtr::dynamicCast(content))
+        {
+            if(!submodule->hasOnlyClassDecls())
+            {
+                return false;
+            }
+        }
+        else if (!ClassDeclPtr::dynamicCast(content))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+Slice::Module::hasOnlyInterfaces() const
+{
+    for (const auto& content : _contents)
+    {
+        if (ModulePtr submodule = ModulePtr::dynamicCast(content))
+        {
+            if (!submodule->hasOnlyInterfaces())
+            {
+                return false;
+            }
+        }
+        else if (!InterfaceDeclPtr::dynamicCast(content) && !InterfaceDefPtr::dynamicCast(content))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+Slice::Module::hasOperations() const
+{
+    for (const auto& content : _contents)
+    {
+        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(content);
+        if (def && def->hasOperations())
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasOperations())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasOtherConstructedOrExceptions() const
+{
+    for (const auto& content : _contents)
+    {
+        if (!ClassDeclPtr::dynamicCast(content) && !ClassDefPtr::dynamicCast(content)
+            && ConstructedPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        if (ExceptionPtr::dynamicCast(content) || ConstPtr::dynamicCast(content))
+        {
+            return true;
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if (submodule && submodule->hasOtherConstructedOrExceptions())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Module::hasAsyncOps() const
+{
+    for (const auto& content : _contents)
+    {
+        if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(content))
+        {
+            OperationList ops = interface->operations();
+            if (!ops.empty() && interface->hasMetaData("amd"))
+            {
+                return true;
+            }
+            for (const auto& op : ops)
+            {
+                if (op->hasMetaData("amd"))
+                {
+                    return true;
+                }
+            }
+        }
+
+        ModulePtr submodule = ModulePtr::dynamicCast(content);
+        if(submodule && submodule->hasAsyncOps())
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 Slice::Module::Module(const ContainerPtr& container, const string& name) :
@@ -3294,7 +2959,7 @@ Slice::Constructed::Constructed(const ContainerPtr& container, const string& nam
 void
 Slice::ClassDecl::destroy()
 {
-    _definition = 0;
+    _definition = nullptr;
     SyntaxTreeBase::destroy();
 }
 
@@ -3302,12 +2967,6 @@ ClassDefPtr
 Slice::ClassDecl::definition() const
 {
     return _definition;
-}
-
-Contained::ContainedType
-Slice::ClassDecl::containedType() const
-{
-    return ContainedTypeClass;
 }
 
 bool
@@ -3382,8 +3041,9 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) :
 void
 Slice::ClassDef::destroy()
 {
-    _declaration = 0;
-    _base = 0;
+    _declaration = nullptr;
+    _base = nullptr;
+    _dataMembers.clear();
     Container::destroy();
 }
 
@@ -3394,99 +3054,80 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
-        if(p)
+        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                member->updateIncludeLevel();
+                return member;
             }
         }
 
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "data member `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("data member `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as data member `" + name + "'";
-            _unit->error(msg);
-            return 0;
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "' as data member `" + name + "'");
+            return nullptr;
         }
     }
 
-    //
     // Check whether any bases have defined something with the same name already.
-    //
     if (_base)
     {
-        for (const auto& dataMember : _base->allDataMembers())
+        for (const auto& member : _base->allDataMembers())
         {
-            if(dataMember->name() == name)
+            if (member->name() == name)
             {
-                string msg = "data member `" + name;
-                msg += "' is already defined as data member in a base class";
-                _unit->error(msg);
-                return 0;
+                _unit->error("data member `" + name + "' is already defined as data member in a base class");
+                return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(dataMember->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            if (ciequals(member->name(), name))
             {
-                string msg = "data member `" + name + "' differs only in capitalization from data member";
-                msg += " `" + dataMember->name() + "', which is defined in a base class";
-                _unit->error(msg);
+                _unit->error("data member `" + name + "' differs only in capitalization from data member" + " `"
+                             + member->name() + "', which is defined in a base class");
             }
         }
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
+    SyntaxTreeBasePtr dvt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
+    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
-        if(!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, dvt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dvt = nullptr;
             dv.clear();
             dl.clear();
         }
     }
 
-    if(tagged)
+    if (tagged)
     {
-        //
         // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for (DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& member : _dataMembers)
         {
-            if((*q)->tagged() && tag == (*q)->tag())
+            if (member->tagged() && tag == member->tag())
             {
-                string msg = "tag for data member `" + name + "' is already in use";
-                _unit->error(msg);
+                _unit->error("tag for data member `" + name + "' is already in use");
                 break;
             }
         }
     }
 
-    _hasDataMembers = true;
-    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
-    _contents.push_back(member);
+    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    _dataMembers.push_back(member);
     return member;
 }
 
@@ -3517,16 +3158,7 @@ Slice::ClassDef::allBases() const
 DataMemberList
 Slice::ClassDef::dataMembers() const
 {
-    DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _dataMembers;
 }
 
 DataMemberList
@@ -3535,27 +3167,20 @@ Slice::ClassDef::sortedTaggedDataMembers() const
     return filterSortedTaggedDataMembers(dataMembers());
 }
 
-//
 // Return the data members of this class and its parent classes, in base-to-derived order.
-//
 DataMemberList
 Slice::ClassDef::allDataMembers() const
 {
     DataMemberList result;
 
-    //
     // Check if we have a base class. If so, recursively get the data members of the base(s).
-    //
     if (_base)
     {
         result = _base->allDataMembers();
     }
 
-    //
     // Append this class's data members.
-    //
-    DataMemberList myMembers = dataMembers();
-    result.splice(result.end(), myMembers);
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
 
     return result;
 }
@@ -3564,25 +3189,19 @@ DataMemberList
 Slice::ClassDef::classDataMembers() const
 {
     DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        TypePtr type = unwrapIfOptional(member->type());
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
         {
-            TypePtr memberType = unwrapIfOptional(q->type());
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(memberType))
-            {
-                result.push_back(q);
-            }
+            result.push_back(member);
         }
     }
     return result;
 }
 
-//
 // Return the class data members of this class and its parent classes, in base-to-derived order.
-//
 DataMemberList
 Slice::ClassDef::allClassDataMembers() const
 {
@@ -3593,26 +3212,21 @@ Slice::ClassDef::allClassDataMembers() const
         result = _base->allClassDataMembers();
     }
 
-    //
     // Append this class's class members.
-    //
-    DataMemberList myMembers = classDataMembers();
-    result.splice(result.end(), myMembers);
-
+    result.splice(result.end(), classDataMembers());
     return result;
 }
 
 bool
 Slice::ClassDef::canBeCyclic() const
 {
-    if(_base && _base->canBeCyclic())
+    if (_base && _base->canBeCyclic())
     {
         return true;
     }
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->type()->usesClasses())
+        if (member->type()->usesClasses())
         {
             return true;
         }
@@ -3623,7 +3237,7 @@ Slice::ClassDef::canBeCyclic() const
 bool
 Slice::ClassDef::isA(const string& id) const
 {
-    if(id == _scoped)
+    if (id == _scoped)
     {
         return true;
     }
@@ -3633,16 +3247,15 @@ Slice::ClassDef::isA(const string& id) const
 bool
 Slice::ClassDef::hasDataMembers() const
 {
-    return _hasDataMembers;
+    return !_dataMembers.empty();
 }
 
 bool
 Slice::ClassDef::hasDefaultValues() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->defaultValueType())
+        if (member->defaultValueType())
         {
             return true;
         }
@@ -3663,10 +3276,12 @@ Slice::ClassDef::hasBaseDataMembers() const
     return _base && !_base->allDataMembers().empty();
 }
 
-Contained::ContainedType
-Slice::ClassDef::containedType() const
+ContainedList
+Slice::ClassDef::contents() const
 {
-    return ContainedTypeClass;
+    ContainedList result;
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
+    return result;
 }
 
 bool
@@ -3685,9 +3300,15 @@ Slice::ClassDef::kindOf() const
 void
 Slice::ClassDef::visit(ParserVisitor* visitor, bool all)
 {
-    if(visitor->visitClassDefStart(this))
+    if (visitor->visitClassDefStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& member : _dataMembers)
+        {
+            if (all || member->includeLevel() == 0)
+            {
+                member->visit(visitor, all);
+            }
+        }
         visitor->visitClassDefEnd(this);
     }
 }
@@ -3717,11 +3338,10 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
-    _hasDataMembers(false),
     _base(base),
     _compactId(id)
 {
-    if(_compactId >= 0)
+    if (_compactId >= 0)
     {
         _unit->addTypeId(_compactId, scoped());
     }
@@ -3734,7 +3354,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
 void
 Slice::InterfaceDecl::destroy()
 {
-    _definition = 0;
+    _definition = nullptr;
     SyntaxTreeBase::destroy();
 }
 
@@ -3742,12 +3362,6 @@ InterfaceDefPtr
 Slice::InterfaceDecl::definition() const
 {
     return _definition;
-}
-
-Contained::ContainedType
-Slice::InterfaceDecl::containedType() const
-{
-    return ContainedTypeInterface;
 }
 
 bool
@@ -3795,13 +3409,12 @@ Slice::InterfaceDecl::visit(ParserVisitor* visitor, bool)
 void
 Slice::InterfaceDecl::recDependencies(set<ConstructedPtr>& dependencies)
 {
-    if(_definition)
+    if (_definition)
     {
         _definition->containerRecDependencies(dependencies);
-        InterfaceList bases = _definition->bases();
-        for (InterfaceList::iterator p = bases.begin(); p != bases.end(); ++p)
+        for (auto& base : _definition->bases())
         {
-            (*p)->declaration()->recDependencies(dependencies);
+            base->declaration()->recDependencies(dependencies);
         }
     }
 }
@@ -3810,39 +3423,31 @@ void
 Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList& bases,
                                      const UnitPtr& ut)
 {
-    //
     // Check whether, for multiple inheritance, any of the bases define
     // the same operations.
-    //
-    if(bases.size() > 1)
+    if (bases.size() > 1)
     {
-        //
         // We have multiple inheritance. Build a list of paths through the
         // inheritance graph, such that multiple inheritance is legal if
         // the union of the names defined in classes on each path are disjoint.
-        //
         GraphPartitionList gpl;
-        for (InterfaceList::const_iterator p = bases.begin(); p != bases.end(); ++p)
+        for (const auto& base : bases)
         {
             InterfaceList cl;
             gpl.push_back(cl);
-            addPartition(gpl, gpl.rbegin(), *p);
+            addPartition(gpl, gpl.rbegin(), base);
         }
 
-        //
         // We now have a list of partitions, with each partition containing
         // a list of class definitions. Turn the list of partitions of class
         // definitions into a list of sets of strings, with each
         // set containing the names of operations and data members defined in
         // the classes in each partition.
-        //
         StringPartitionList spl = toStringPartitionList(gpl);
 
-        //
         // Multiple inheritance is legal if no two partitions contain a common
         // name (that is, if the union of the intersections of all possible pairs
         // of partitions is empty).
-        //
         checkPairIntersections(spl, name, ut);
     }
 }
@@ -3856,15 +3461,13 @@ Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string&
     _unit->currentContainer();
 }
 
-//
 // Return true if the interface definition cdp is on one of the interface lists in gpl, false otherwise.
-//
 bool
 Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& cdp)
 {
-    for (GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    for (const auto& i : gpl)
     {
-        if(find(i->begin(), i->end(), cdp) != i->end())
+        if (find(i.begin(), i.end(), cdp) != i.end())
         {
             return true;
         }
@@ -3877,35 +3480,27 @@ Slice::InterfaceDecl::addPartition(GraphPartitionList& gpl,
                                GraphPartitionList::reverse_iterator tail,
                                const InterfaceDefPtr& base)
 {
-    //
     // If this base is on one of the partition lists already, do nothing.
-    //
-    if(isInList(gpl, base))
+    if (isInList(gpl, base))
     {
         return;
     }
-    //
     // Put the current base at the end of the current partition.
-    //
     tail->push_back(base);
-    //
     // If the base has bases in turn, recurse, adding the first base
     // of base (the left-most "grandbase") to the current partition.
-    //
-    if(base->bases().size())
+    if (base->bases().size())
     {
         addPartition(gpl, tail, *(base->bases().begin()));
     }
-    //
     // If the base has multiple bases, each of the "grandbases"
     // except for the left-most (which we just dealt with)
     // adds a new partition.
-    //
-    if(base->bases().size() > 1)
+    if (base->bases().size() > 1)
     {
         InterfaceList grandBases = base->bases();
         InterfaceList::const_iterator i = grandBases.begin();
-        while(++i != grandBases.end())
+        while (++i != grandBases.end())
         {
             InterfaceList cl;
             gpl.push_back(cl);
@@ -3914,35 +3509,30 @@ Slice::InterfaceDecl::addPartition(GraphPartitionList& gpl,
     }
 }
 
-//
 // Convert the list of partitions of interface definitions into a
 // list of lists, with each member list containing the operation
 // names defined by the interfaces in each partition.
-//
 Slice::InterfaceDecl::StringPartitionList
 Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& gpl)
 {
     StringPartitionList spl;
-    for (GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    for (const auto& part : gpl)
     {
         StringList sl;
         spl.push_back(sl);
-        for (InterfaceList::const_iterator j = i->begin(); j != i->end(); ++j)
+        for (const auto& interface : part)
         {
-            OperationList operations = (*j)->operations();
-            for (OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
+            for (const auto& operation : interface->operations())
             {
-                spl.rbegin()->push_back((*l)->name());
+                spl.rbegin()->push_back(operation->name());
             }
         }
     }
     return spl;
 }
 
-//
 // For all (unique) pairs of string lists, check whether an identifier in one list occurs
 // in the other and, if so, complain.
-//
 void
 Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const string& name, const UnitPtr& ut)
 {
@@ -3953,26 +3543,23 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
         ++cursor;
         for (StringPartitionList::const_iterator j = cursor; j != l.end(); ++j)
         {
-            for (StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
+            for (const auto& s1 : *i)
             {
-                for (StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
+                for (const auto& s2 : *j)
                 {
-                    if((*s1) == (*s2) && reported.find(*s1) == reported.end())
+                    if(s1 == s2 && reported.find(s1) == reported.end())
                     {
-                        string msg = "ambiguous multiple inheritance: `" + name;
-                        msg += "' inherits operation `" + *s1 + "' from two or more unrelated base interfaces";
-                        ut->error(msg);
-                        reported.insert(*s1);
+                        ut->error("ambiguous multiple inheritance: `" + name + "' inherits operation `" + s1
+                                  + "' from two or more unrelated base interfaces");
+                        reported.insert(s1);
                     }
-                    else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
-                            reported.find(*s1) == reported.end() && reported.find(*s2) == reported.end())
+                    else if(ciequals(s1, s2) && reported.find(s1) == reported.end()
+                            && reported.find(s2) == reported.end())
                     {
-                        string msg = "ambiguous multiple inheritance: `" + name;
-                        msg += "' inherits operations `" + *s1 + "' and `" + *s2;
-                        msg += "', which differ only in capitalization, from unrelated base interfaces";
-                        ut->error(msg);
-                        reported.insert(*s1);
-                        reported.insert(*s2);
+                        ut->error("ambiguous multiple inheritance: `" + name + "' inherits operations `" + s1 + "' and `"
+                                  + s2 + "', which differ only in capitalization, from unrelated base interfaces");
+                        reported.insert(s1);
+                        reported.insert(s2);
                     }
                 }
             }
@@ -3987,8 +3574,9 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
 void
 Slice::InterfaceDef::destroy()
 {
-    _declaration = 0;
+    _declaration = nullptr;
     _bases.clear();
+    _operations.clear();
     Container::destroy();
 }
 
@@ -4001,78 +3589,62 @@ Slice::InterfaceDef::createOperation(const string& name,
 {
     _unit->checkType(returnType);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        OperationPtr p = OperationPtr::dynamicCast(matches.front());
-        if(p)
+        if (OperationPtr operation = OperationPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                operation->updateIncludeLevel();
+                return operation;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "operation `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("operation `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
-        string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-        msg += "' as operation `" + name + "'";
-        _unit->error(msg);
-        return 0;
+        _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                     + "' as operation `" + name + "'");
+        return nullptr;
     }
 
-    //
     // Check whether enclosing interface has the same name.
-    //
-    if(name == this->name())
+    if (name == this->name())
     {
-        string msg = "interface name `" + name + "' cannot be used as operation name";
-        _unit->error(msg);
-        return 0;
+        _unit->error("interface name `" + name + "' cannot be used as operation name");
+        return nullptr;
     }
 
-    string newName = IceUtilInternal::toLower(name);
-    string thisName = IceUtilInternal::toLower(this->name());
-    if(newName == thisName)
+    if (ciequals(name, this->name()))
     {
-        string msg = "operation `" + name + "' differs only in capitalization from enclosing ";
-        msg += "interface name `" + this->name() + "'";
-        _unit->error(msg);
-        return 0;
+        _unit->error("operation `" + name + "' differs only in capitalization from enclosing interface name `"
+                     + this->name() + "'");
+        return nullptr;
     }
 
-    //
     // Check whether any base has an operation with the same name already
-    //
-    for (const auto& baseInterface : _bases)
+    for (const auto& base : _bases)
     {
-        for (const auto& op : baseInterface->allOperations())
+        for (const auto& operation : base->allOperations())
         {
-            if(op->name() == name)
+            if (operation->name() == name)
             {
-                string msg = "operation `" + name + "' is already defined as an operation in a base interface";
-                _unit->error(msg);
-                return 0;
+                _unit->error("operation `" + name + "' is already defined as an operation in a base interface");
+                return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower(op->name());
-            string newName2 = IceUtilInternal::toLower(name);
-            if(baseName == newName2)
+            if (ciequals(operation->name(), name))
             {
-                string msg = "operation `" + name + "' differs only in capitalization from operation";
-                msg += " `" + op->name() + "', which is defined in a base interface";
-                _unit->error(msg);
-                return 0;
+                _unit->error("operation `" + name + "' differs only in capitalization from operation `"
+                             + operation->name() + "', which is defined in a base interface");
+                return nullptr;
             }
         }
     }
 
-    _hasOperations = true;
     OperationPtr op = new Operation(this, name, returnType, tagged, tag, mode);
-    _contents.push_back(op);
+    _operations.push_back(op);
     return op;
 }
 
@@ -4094,10 +3666,9 @@ Slice::InterfaceDef::allBases() const
     InterfaceList result = _bases;
     result.sort();
     result.unique();
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        InterfaceList li = (*p)->allBases();
-        result.merge(li);
+        result.merge(base->allBases());
         result.unique();
     }
     return result;
@@ -4106,55 +3677,45 @@ Slice::InterfaceDef::allBases() const
 OperationList
 Slice::InterfaceDef::operations() const
 {
-    OperationList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        OperationPtr q = OperationPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _operations;
 }
 
 OperationList
 Slice::InterfaceDef::allOperations() const
 {
     OperationList result;
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        OperationList li = (*p)->allOperations();
-        for (OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+        for (const auto& operation : base->allOperations())
         {
-            if(find(result.begin(), result.end(), *q) == result.end())
+            if (find(result.begin(), result.end(), operation) == result.end())
             {
-                result.push_back(*q);
+                result.push_back(operation);
             }
         }
     }
 
-    OperationList li = operations();
-    for (OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+    for (const auto& operation : _operations)
     {
-        if(find(result.begin(), result.end(), *q) == result.end())
+        if (find(result.begin(), result.end(), operation) == result.end())
         {
-            result.push_back(*q);
+            result.push_back(operation);
         }
     }
+
     return result;
 }
 
 bool
 Slice::InterfaceDef::isA(const string& id) const
 {
-    if(id == _scoped)
+    if (id == _scoped)
     {
         return true;
     }
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        if((*p)->isA(id))
+        if (base->isA(id))
         {
             return true;
         }
@@ -4165,27 +3726,28 @@ Slice::InterfaceDef::isA(const string& id) const
 bool
 Slice::InterfaceDef::hasOperations() const
 {
-    return _hasOperations;
+    return !_operations.empty();
 }
 
 bool
 Slice::InterfaceDef::inheritsMetaData(const string& meta) const
 {
-    for (InterfaceList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    for (const auto& base : _bases)
     {
-        if((*p)->hasMetaData(meta) || (*p)->inheritsMetaData(meta))
+        if (base->hasMetaData(meta) || base->inheritsMetaData(meta))
         {
             return true;
         }
     }
-
     return false;
 }
 
-Contained::ContainedType
-Slice::InterfaceDef::containedType() const
+ContainedList
+Slice::InterfaceDef::contents() const
 {
-    return ContainedTypeInterface;
+    ContainedList result;
+    result.insert(result.end(), _operations.begin(), _operations.end());
+    return result;
 }
 
 bool
@@ -4204,9 +3766,15 @@ Slice::InterfaceDef::kindOf() const
 void
 Slice::InterfaceDef::visit(ParserVisitor* visitor, bool all)
 {
-    if(visitor->visitInterfaceDefStart(this))
+    if (visitor->visitInterfaceDefStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& operation : _operations)
+        {
+            if (all || operation->includeLevel() == 0)
+            {
+                operation->visit(visitor, all);
+            }
+        }
         visitor->visitInterfaceDefEnd(this);
     }
 }
@@ -4230,8 +3798,7 @@ Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& n
     SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
-    _bases(bases),
-    _hasOperations(false)
+    _bases(bases)
 {
 }
 
@@ -4294,7 +3861,8 @@ Slice::Optional::isVariableLength() const
 void
 Slice::Exception::destroy()
 {
-    _base = 0;
+    _base = nullptr;
+    _dataMembers.clear();
     Container::destroy();
 }
 
@@ -4305,115 +3873,85 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
-        if(p)
+        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                member->updateIncludeLevel();
+                return member;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "exception member `" + name + "' differs only in capitalization from ";
-            msg += "exception member `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("exception member `" + name + "' differs only in capitalization from exception member `"
+                         + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of exception member `" + name + "'";
-            _unit->error(msg);
-            return 0;
+            _unit->error("redefinition of exception member `" + name + "'");
+            return nullptr;
         }
     }
 
-    //
     // Check whether any bases have defined a member with the same name already.
-    //
-    ExceptionList bl = allBases();
-    for (ExceptionList::const_iterator q = bl.begin(); q != bl.end(); ++q)
+    for (const auto& base : allBases())
     {
-        ContainedList cl;
-        DataMemberList dml = (*q)->dataMembers();
-        copy(dml.begin(), dml.end(), back_inserter(cl));
-        for (ContainedList::const_iterator r = cl.begin(); r != cl.end(); ++r)
+        for (const auto& member : base->dataMembers())
         {
-            if((*r)->name() == name)
+            if (member->name() == name)
             {
-                string msg = "exception member `" + name + "' is already defined in a base exception";
-                _unit->error(msg);
-                return 0;
+                _unit->error("exception member `" + name + "' is already defined in a base exception");
+                return nullptr;
             }
 
-            string baseName = IceUtilInternal::toLower((*r)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            if (ciequals(member->name(), name))
             {
-                string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
-                msg += (*r)->name() + "', which is defined in a base exception";
-                _unit->error(msg);
+                _unit->error("exception member `" + name + "' differs only in capitalization from exception member `"
+                             + member->name() + "', which is defined in a base exception");
             }
         }
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
+    SyntaxTreeBasePtr dvt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
+    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
-        if(!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, dvt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dvt = nullptr;
             dv.clear();
             dl.clear();
         }
     }
 
-    if(tagged)
+    if (tagged)
     {
-        //
         // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for (DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        for (const auto& member : _dataMembers)
         {
-            if((*q)->tagged() && tag == (*q)->tag())
+            if (member->tagged() && tag == member->tag())
             {
-                string msg = "tag for data member `" + name + "' is already in use";
-                _unit->error(msg);
+                _unit->error("tag for data member `" + name + "' is already in use");
                 break;
             }
         }
     }
 
-    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
-    _contents.push_back(p);
-    return p;
+    DataMemberPtr member = new DataMember(this, name, type, tagged, tag, dvt, dv, dl);
+    _dataMembers.push_back(member);
+    return member;
 }
 
 DataMemberList
 Slice::Exception::dataMembers() const
 {
-    DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _dataMembers;
 }
 
 DataMemberList
@@ -4422,28 +3960,21 @@ Slice::Exception::sortedTaggedDataMembers() const
     return filterSortedTaggedDataMembers(dataMembers());
 }
 
-//
 // Return the data members of this exception and its parent exceptions, in base-to-derived order.
-//
 DataMemberList
 Slice::Exception::allDataMembers() const
 {
     DataMemberList result;
 
-    //
     // Check if we have a base exception. If so, recursively
     // get the data members of the base exception(s).
-    //
-    if(base())
+    if (_base)
     {
-        result = base()->allDataMembers();
+        result = _base->allDataMembers();
     }
 
-    //
     // Append this exceptions's data members.
-    //
-    DataMemberList myMembers = dataMembers();
-    result.splice(result.end(), myMembers);
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
 
     return result;
 }
@@ -4452,45 +3983,32 @@ DataMemberList
 Slice::Exception::classDataMembers() const
 {
     DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        TypePtr type = unwrapIfOptional(member->type());
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
         {
-            TypePtr memberType = unwrapIfOptional(q->type());
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(memberType))
-            {
-                result.push_back(q);
-            }
+            result.push_back(member);
         }
     }
     return result;
 }
 
-//
 // Return the class data members of this exception and its parent exceptions, in base-to-derived order.
-//
 DataMemberList
 Slice::Exception::allClassDataMembers() const
 {
     DataMemberList result;
 
-    //
-    // Check if we have a base exception. If so, recursively
-    // get the class data members of the base exception(s).
-    //
-    if(base())
+    // Check if we have a base exception. If so, recursively get the class data members of the base exception(s).
+    if (_base)
     {
-        result = base()->allClassDataMembers();
+        result = _base->allClassDataMembers();
     }
 
-    //
     // Append this exceptions's class data members.
-    //
-    DataMemberList myMembers = classDataMembers();
-    result.splice(result.end(), myMembers);
-
+    result.splice(result.end(), classDataMembers());
     return result;
 }
 
@@ -4504,7 +4022,7 @@ ExceptionList
 Slice::Exception::allBases() const
 {
     ExceptionList result;
-    if(_base)
+    if (_base)
     {
         result = _base->allBases();
         result.push_front(_base);
@@ -4515,14 +4033,14 @@ Slice::Exception::allBases() const
 bool
 Slice::Exception::isBaseOf(const ExceptionPtr& other) const
 {
-    if(this->scoped() == other->scoped())
+    if (this->scoped() == other->scoped())
     {
         return false;
     }
-    ExceptionList bases = other->allBases();
-    for (ExceptionList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+
+    for (const auto& base : other->allBases())
     {
-        if((*i)->scoped() == scoped())
+        if (this->scoped() == base->scoped())
         {
             return true;
         }
@@ -4530,10 +4048,12 @@ Slice::Exception::isBaseOf(const ExceptionPtr& other) const
     return false;
 }
 
-Contained::ContainedType
-Slice::Exception::containedType() const
+ContainedList
+Slice::Exception::contents() const
 {
-    return ContainedTypeException;
+    ContainedList result;
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
+    return result;
 }
 
 bool
@@ -4546,45 +4066,33 @@ Slice::Exception::uses(const ContainedPtr&) const
 bool
 Slice::Exception::usesClasses(bool includeTagged) const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
+        if (member->type()->usesClasses() && (includeTagged || !member->tagged()))
         {
             return true;
         }
     }
-    if(_base)
-    {
-        return _base->usesClasses(includeTagged);
-    }
-    return false;
+    return (_base && _base->usesClasses(includeTagged));
 }
 
 bool
 Slice::Exception::hasDefaultValues() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->defaultValueType())
+        if (member->defaultValueType())
         {
             return true;
         }
     }
-
     return false;
 }
 
 bool
 Slice::Exception::inheritsMetaData(const string& meta) const
 {
-    if(_base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta)))
-    {
-        return true;
-    }
-
-    return false;
+    return (_base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta)));
 }
 
 bool
@@ -4604,7 +4112,13 @@ Slice::Exception::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitExceptionStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& member : _dataMembers)
+        {
+            if (all || member->includeLevel() == 0)
+            {
+                member->visit(visitor, all);
+            }
+        }
         visitor->visitExceptionEnd(this);
     }
 }
@@ -4621,131 +4135,103 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // Struct
 // ----------------------------------------------------------------------
 
+void
+Slice::Struct::destroy()
+{
+    _dataMembers.clear();
+    Container::destroy();
+}
+
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged, int tag,
+Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool tagged,
                                 const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                 const string& defaultLiteral)
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
-        if(p)
+        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                member->updateIncludeLevel();
+                return member;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "member `" + name + "' differs only in capitalization from ";
-            msg += "member `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("member `" + name + "' differs only in capitalization from member `"
+                         + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of struct member `" + name + "'";
-            _unit->error(msg);
-            return 0;
+            _unit->error("redefinition of struct member `" + name + "'");
+            return nullptr;
         }
     }
 
-    //
-    // Structures cannot contain themselves.
-    //
-    if(type.get() == this)
+    // Structs cannot contain themselves.
+    if (type.get() == this)
     {
-        string msg = "struct `";
-        msg += this->name();
-        msg += "' cannot contain itself";
-        _unit->error(msg);
-        return 0;
+        _unit->error("struct `" + this->name() + "' cannot contain itself");
+        return nullptr;
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
+    SyntaxTreeBasePtr dvt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
+    if (dvt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
-        //
         // Validate the default value.
-        //
-        if(!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, dvt, dv, false))
         {
-            //
             // Create the data member anyway, just without the default value.
-            //
-            dlt = 0;
+            dvt = nullptr;
             dv.clear();
             dl.clear();
         }
     }
 
-    if(tagged)
+    if (tagged)
     {
-        //
-        // Validate the tag.
-        //
-        DataMemberList dml = dataMembers();
-        for (DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
-        {
-            if((*q)->tagged() && tag == (*q)->tag())
-            {
-                string msg = "tag for data member `" + name + "' is already in use";
-                _unit->error(msg);
-                break;
-            }
-        }
+        _unit->error("tagged data members are not supported in structs");
     }
 
-    DataMemberPtr p = new DataMember(this, name, type, tagged, tag, dlt, dv, dl);
-    _contents.push_back(p);
-    return p;
+    DataMemberPtr member = new DataMember(this, name, type, false, -1, dvt, dv, dl);
+    _dataMembers.push_back(member);
+    return member;
 }
 
 DataMemberList
 Slice::Struct::dataMembers() const
 {
-    DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _dataMembers;
 }
 
 DataMemberList
 Slice::Struct::classDataMembers() const
 {
     DataMemberList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        TypePtr type = unwrapIfOptional(member->type());
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
         {
-            TypePtr memberType = unwrapIfOptional(q->type());
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(memberType);
-            if((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(memberType))
-            {
-                result.push_back(q);
-            }
+            result.push_back(member);
         }
     }
     return result;
 }
 
-Contained::ContainedType
-Slice::Struct::containedType() const
+ContainedList
+Slice::Struct::contents() const
 {
-    return ContainedTypeStruct;
+    ContainedList result;
+    result.insert(result.end(), _dataMembers.begin(), _dataMembers.end());
+    return result;
 }
 
 bool
@@ -4757,16 +4243,11 @@ Slice::Struct::uses(const ContainedPtr&) const
 bool
 Slice::Struct::usesClasses() const
 {
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for (const auto& member : _dataMembers)
     {
-        DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-        if(q)
+        if (member->type()->usesClasses())
         {
-            TypePtr t = q->type();
-            if(t->usesClasses())
-            {
-                return true;
-            }
+            return true;
         }
     }
     return false;
@@ -4775,14 +4256,11 @@ Slice::Struct::usesClasses() const
 size_t
 Slice::Struct::minWireSize() const
 {
-    //
     // At least the sum of the minimum member sizes.
-    //
     size_t sz = 0;
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        sz += (*i)->type()->minWireSize();
+        sz += member->type()->minWireSize();
     }
     return sz;
 }
@@ -4796,10 +4274,9 @@ Slice::Struct::getTagFormat() const
 bool
 Slice::Struct::isVariableLength() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->type()->isVariableLength())
+        if (member->type()->isVariableLength())
         {
             return true;
         }
@@ -4810,10 +4287,9 @@ Slice::Struct::isVariableLength() const
 bool
 Slice::Struct::hasDefaultValues() const
 {
-    DataMemberList dml = dataMembers();
-    for (DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    for (const auto& member : _dataMembers)
     {
-        if((*i)->defaultValueType())
+        if (member->defaultValueType())
         {
             return true;
         }
@@ -4832,7 +4308,13 @@ Slice::Struct::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitStructStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& member : _dataMembers)
+        {
+            if (all || member->includeLevel() == 0)
+            {
+                member->visit(visitor, all);
+            }
+        }
         visitor->visitStructEnd(this);
     }
 }
@@ -4868,22 +4350,11 @@ Slice::Sequence::typeMetaData() const
     return _typeMetaData;
 }
 
-Contained::ContainedType
-Slice::Sequence::containedType() const
-{
-    return ContainedTypeSequence;
-}
-
 bool
 Slice::Sequence::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    if(contained2 && contained2 == contained)
-    {
-        return true;
-    }
-
-    return false;
+    return (contained2 && contained2 == contained);
 }
 
 bool
@@ -4972,18 +4443,12 @@ Slice::Dictionary::valueMetaData() const
     return _valueMetaData;
 }
 
-Contained::ContainedType
-Slice::Dictionary::containedType() const
-{
-    return ContainedTypeDictionary;
-}
-
 bool
 Slice::Dictionary::uses(const ContainedPtr& contained) const
 {
     {
         ContainedPtr contained2 = ContainedPtr::dynamicCast(_keyType);
-        if(contained2 && contained2 == contained)
+        if (contained2 && contained2 == contained)
         {
             return true;
         }
@@ -4991,7 +4456,7 @@ Slice::Dictionary::uses(const ContainedPtr& contained) const
 
     {
         ContainedPtr contained2 = ContainedPtr::dynamicCast(_valueType);
-        if(contained2 && contained2 == contained)
+        if (contained2 && contained2 == contained)
         {
             return true;
         }
@@ -5041,7 +4506,7 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 {
     {
         ConstructedPtr constructed = ConstructedPtr::dynamicCast(_keyType);
-        if(constructed && dependencies.find(constructed) != dependencies.end())
+        if (constructed && dependencies.find(constructed) != dependencies.end())
         {
             dependencies.insert(constructed);
             constructed->recDependencies(dependencies);
@@ -5050,7 +4515,7 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 
     {
         ConstructedPtr constructed = ConstructedPtr::dynamicCast(_valueType);
-        if(constructed && dependencies.find(constructed) != dependencies.end())
+        if (constructed && dependencies.find(constructed) != dependencies.end())
         {
             dependencies.insert(constructed);
             constructed->recDependencies(dependencies);
@@ -5069,10 +4534,9 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 bool
 Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-    if(bp)
+    if (BuiltinPtr builtin = BuiltinPtr::dynamicCast(type))
     {
-        switch(bp->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindBool:
             case Builtin::KindByte:
@@ -5093,29 +4557,25 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
         }
     }
 
-    EnumPtr ep = EnumPtr::dynamicCast(type);
-    if(ep)
+    if(EnumPtr::dynamicCast(type))
     {
         return true;
     }
 
-    SequencePtr seqp = SequencePtr::dynamicCast(type);
-    if(seqp)
+    if (SequencePtr seq = SequencePtr::dynamicCast(type))
     {
         containsSequence = true;
-        if(legalKeyType(seqp->type(), containsSequence))
+        if (legalKeyType(seq->type(), containsSequence))
         {
             return true;
         }
     }
 
-    StructPtr strp = StructPtr::dynamicCast(type);
-    if(strp)
+    if (StructPtr str = StructPtr::dynamicCast(type))
     {
-        DataMemberList dml = strp->dataMembers();
-        for (DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
+        for (const auto& member : str->dataMembers())
         {
-            if(!legalKeyType((*mem)->type(), containsSequence))
+            if (!legalKeyType(member->type(), containsSequence))
             {
                 return false;
             }
@@ -5147,7 +4607,39 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
 void
 Slice::Enum::destroy()
 {
-    SyntaxTreeBase::destroy();
+    _enumerators.clear();
+    _underlying = nullptr;
+    Container::destroy();
+}
+
+EnumeratorPtr
+Slice::Enum::createEnumerator(const string& name)
+{
+    EnumeratorPtr p = validateEnumerator(name);
+    if(!p)
+    {
+        p = new Enumerator(this, name);
+        _enumerators.push_back(p);
+    }
+    return p;
+}
+
+EnumeratorPtr
+Slice::Enum::createEnumerator(const string& name, int64_t value)
+{
+    EnumeratorPtr p = validateEnumerator(name);
+    if(!p)
+    {
+        p = new Enumerator(this, name, value);
+        _enumerators.push_back(p);
+    }
+    return p;
+}
+
+EnumeratorList
+Slice::Enum::enumerators() const
+{
+    return _enumerators;
 }
 
 BuiltinPtr
@@ -5174,10 +4666,12 @@ Slice::Enum::maxValue() const
     return _maxValue;
 }
 
-Contained::ContainedType
-Slice::Enum::containedType() const
+ContainedList
+Slice::Enum::contents() const
 {
-    return ContainedTypeEnum;
+    ContainedList result;
+    result.insert(result.end(), _enumerators.begin(), _enumerators.end());
+    return result;
 }
 
 bool
@@ -5228,10 +4722,39 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
     // An Enum does not have any dependencies.
 }
 
+EnumeratorPtr
+Slice::Enum::validateEnumerator(const string& name)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+        if (EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(matches.front()))
+        {
+            if (_unit->ignRedefs())
+            {
+                enumerator->updateIncludeLevel();
+                return enumerator;
+            }
+        }
+        if (matches.front()->name() == name)
+        {
+            _unit->error("redefinition of enumerator `" + name + "'");
+        }
+        else
+        {
+            _unit->error("enumerator `" + name + "' differs only in capitalization from `" + matches.front()->name()
+                         + "'");
+        }
+    }
+
+    checkIdentifier(name); // Ignore return value.
+    return nullptr;
+}
+
 void
 Slice::Enum::initUnderlying(const TypePtr& type)
 {
-    assert(_contents.empty());
+    assert(_enumerators.empty());
 
     // initUnderlying is called with a null parameter when the Slice definition does not specify an underlying type.
     if (type)
@@ -5265,7 +4788,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool unchec
 }
 
 int64_t
-Slice::Enum::newEnumerator(const EnumeratorPtr& p)
+Slice::Enum::newEnumerator(const EnumeratorPtr& enumerator)
 {
     int64_t rangeMin = 0;
     uint64_t rangeMax = INT32_MAX;
@@ -5274,10 +4797,10 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
         tie(rangeMin, rangeMax) = _underlying->integralRange();
     }
 
-    if (p->explicitValue())
+    if (enumerator->explicitValue())
     {
         _explicitValue = true;
-        _lastValue  = p->value();
+        _lastValue  = enumerator->value();
     }
     else
     {
@@ -5288,7 +4811,7 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
     {
         ostringstream oss;
         oss.imbue(underscoreSeparatorLocale);
-        oss << "value " << _lastValue << " for enumerator `" << p->name() << "'";
+        oss << "value " << _lastValue << " for enumerator `" << enumerator->name() << "'";
 
         oss << " is outside the range of " << (_underlying ? _underlying->kindAsString() : "its enum") << ": ["
             << rangeMin << ".." << rangeMax << "]";
@@ -5309,11 +4832,12 @@ Slice::Enum::newEnumerator(const EnumeratorPtr& p)
 
     if (checkForDuplicates)
     {
-        for (const auto& en : enumerators())
+        for (const auto& en : _enumerators)
         {
-            if (en != p && en->value() == _lastValue)
+            if (en != enumerator && en->value() == _lastValue)
             {
-                _unit->error("enumerator `" + p->name() + "' has the same value as enumerator `" + en->name() + "'");
+                _unit->error("enumerator `" + enumerator->name() + "' has the same value as enumerator `" +
+                             en->name() + "'");
             }
         }
     }
@@ -5329,12 +4853,6 @@ EnumPtr
 Slice::Enumerator::type() const
 {
     return EnumPtr::dynamicCast(container());
-}
-
-Contained::ContainedType
-Slice::Enumerator::containedType() const
-{
-    return ContainedTypeEnumerator;
 }
 
 bool
@@ -5361,22 +4879,22 @@ Slice::Enumerator::value() const
     return _value;
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
+Slice::Enumerator::Enumerator(const EnumPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _explicitValue(false),
     _value(-1)
 {
-    _value = EnumPtr::dynamicCast(container)->newEnumerator(this);
+    _value = container->newEnumerator(this);
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int64_t value) :
+Slice::Enumerator::Enumerator(const EnumPtr& container, const string& name, int64_t value) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _explicitValue(true),
     _value(value)
 {
-    EnumPtr::dynamicCast(container)->newEnumerator(this);
+    container->newEnumerator(this);
 }
 
 // ----------------------------------------------------------------------
@@ -5413,12 +4931,6 @@ Slice::Const::literal() const
     return _literal;
 }
 
-Contained::ContainedType
-Slice::Const::containedType() const
-{
-    return ContainedTypeConstant;
-}
-
 bool
 Slice::Const::uses(const ContainedPtr& contained) const
 {
@@ -5449,7 +4961,7 @@ Slice::Const::Const(const ContainerPtr& container, const string& name, const Typ
     _value(value),
     _literal(literal)
 {
-    if(valueType == 0)
+    if (!valueType)
     {
         cerr << "const " << name << " created with null valueType" << endl;
     }
@@ -5470,11 +4982,11 @@ size_t
 Slice::Operation::inBitSequenceSize() const
 {
     size_t length = 0;
-    for (const auto& p : inParameters())
+    for (const auto& param : _inParameters)
     {
-        if (!p->tagged())
+        if (!param->tagged())
         {
-            if (auto optional = OptionalPtr::dynamicCast(p->type()))
+            if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
                 if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
                 {
@@ -5490,11 +5002,11 @@ size_t
 Slice::Operation::returnBitSequenceSize() const
 {
     size_t length = 0;
-    for (const auto& p : outParameters())
+    for (const auto& param : _outParameters)
     {
-        if (!p->tagged())
+        if (!param->tagged())
         {
-            if (auto optional = OptionalPtr::dynamicCast(p->type()))
+            if (auto optional = OptionalPtr::dynamicCast(param->type()))
             {
                 if (!optional->underlying()->isClassType() && !optional->underlying()->isInterfaceType())
                 {
@@ -5515,6 +5027,15 @@ Slice::Operation::returnBitSequenceSize() const
         }
     }
     return length;
+}
+
+void
+Slice::Operation::destroy()
+{
+    _inParameters.clear();
+    _outParameters.clear();
+    _throws.clear();
+    Container::destroy();
 }
 
 TypePtr
@@ -5559,16 +5080,15 @@ Slice::Operation::hasMarshaledResult() const
 {
     InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(container());
     assert(interface);
-    if(interface->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
+    if (interface->hasMetaData("marshaled-result") || hasMetaData("marshaled-result"))
     {
-        if(returnType() && isMutableAfterReturnType(returnType()))
+        if (returnType() && isMutableAfterReturnType(returnType()))
         {
             return true;
         }
-        for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+        for (const auto& param : _outParameters)
         {
-            ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-            if(q->isOutParam() && isMutableAfterReturnType(q->type()))
+            if (isMutableAfterReturnType(param->type()))
             {
                 return true;
             }
@@ -5582,153 +5102,98 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        ParamDeclPtr p = ParamDeclPtr::dynamicCast(matches.front());
-        if(p)
+        if (ParamDeclPtr param = ParamDeclPtr::dynamicCast(matches.front()))
         {
-            if(_unit->ignRedefs())
+            if (_unit->ignRedefs())
             {
-                p->updateIncludeLevel();
-                return p;
+                param->updateIncludeLevel();
+                return param;
             }
         }
-        if(matches.front()->name() != name)
+        if (matches.front()->name() != name)
         {
-            string msg = "parameter `" + name + "' differs only in capitalization from ";
-            msg += "parameter `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("parameter `" + name + "' differs only in capitalization from parameter `"
+                         + matches.front()->name() + "'");
         }
         else
         {
-            string msg = "redefinition of parameter `" + name + "'";
-            _unit->error(msg);
-            return 0;
+            _unit->error("redefinition of parameter `" + name + "'");
+            return nullptr;
         }
     }
 
-    //
     // Check that in parameters don't follow out parameters.
-    //
-    if(!_contents.empty())
+    if (!_outParameters.empty() && !isOutParam)
     {
-        ParamDeclPtr p = ParamDeclPtr::dynamicCast(_contents.back());
-        assert(p);
-        if(p->isOutParam() && !isOutParam)
-        {
-            _unit->error("`" + name + "': in parameters cannot follow out parameters");
-        }
+        _unit->error("`" + name + "': in parameters cannot follow out parameters");
     }
 
-    if(tagged)
+    if (tagged)
     {
-        //
         // Check for a duplicate tag.
-        //
         const string msg = "tag for parameter `" + name + "' is already in use";
-        if(_returnIsTagged && tag == _returnTag)
+        if (_returnIsTagged && tag == _returnTag)
         {
             _unit->error(msg);
         }
         else
         {
-            ParamDeclList params = parameters();
-            for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+            ParamDeclList params = isOutParam ? _outParameters : _inParameters;
+            for (const auto& param : params)
             {
-                if((*p)->tagged() && (*p)->tag() == tag)
+                if (param->tagged() && param->tag() == tag)
                 {
                     _unit->error(msg);
-                    break;
                 }
             }
         }
     }
 
-    ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam, tagged, tag);
-    _contents.push_back(p);
-    return p;
+    ParamDeclPtr param = new ParamDecl(this, name, type, isOutParam, tagged, tag);
+    (isOutParam ? _outParameters : _inParameters).push_back(param);
+    return param;
 }
 
 ParamDeclList
 Slice::Operation::parameters() const
 {
     ParamDeclList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-        if(q)
-        {
-            result.push_back(q);
-        }
-    }
+    result.insert(result.end(), _inParameters.begin(), _inParameters.end());
+    result.insert(result.end(), _outParameters.begin(), _outParameters.end());
     return result;
 }
 
 ParamDeclList
 Slice::Operation::inParameters() const
 {
-    ParamDeclList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-        if(q && !q->isOutParam())
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _inParameters;
 }
 
 void
 Slice::Operation::inParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
 {
-    const ParamDeclList params = inParameters();
-    for (ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    for (const auto& param : _inParameters)
     {
-        if((*pli)->tagged())
-        {
-            taggedParams.push_back(*pli);
-        }
-        else
-        {
-            requiredParams.push_back(*pli);
-        }
+        (param->tagged() ? taggedParams : requiredParams).push_back(param);
     }
-
     sortTaggedParameters(taggedParams);
 }
 
 ParamDeclList
 Slice::Operation::outParameters() const
 {
-    ParamDeclList result;
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        ParamDeclPtr q = ParamDeclPtr::dynamicCast(*p);
-        if(q && q->isOutParam())
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
+    return _outParameters;
 }
 
 void
 Slice::Operation::outParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
 {
-    const ParamDeclList params = outParameters();
-    for (ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    for (const auto& param : _outParameters)
     {
-        if((*pli)->tagged())
-        {
-            taggedParams.push_back(*pli);
-        }
-        else
-        {
-            requiredParams.push_back(*pli);
-        }
+        (param->tagged() ? taggedParams : requiredParams).push_back(param);
     }
-
     sortTaggedParameters(taggedParams);
 }
 
@@ -5743,17 +5208,13 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
 {
     _throws = el;
 
-    //
     // Check that no exception occurs more than once in the throws clause.
-    //
     ExceptionList uniqueExceptions = el;
     uniqueExceptions.sort();
     uniqueExceptions.unique();
-    if(uniqueExceptions.size() != el.size())
+    if (uniqueExceptions.size() != el.size())
     {
-        //
         // At least one exception appears twice.
-        //
         ExceptionList tmp = el;
         tmp.sort();
         ExceptionList duplicates;
@@ -5761,12 +5222,12 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
                        uniqueExceptions.begin(), uniqueExceptions.end(),
                        back_inserter(duplicates));
         string msg = "operation `" + name() + "' has a throws clause with ";
-        if(duplicates.size() == 1)
+        if (duplicates.size() == 1)
         {
             msg += "a ";
         }
         msg += "duplicate exception";
-        if(duplicates.size() > 1)
+        if (duplicates.size() > 1)
         {
             msg += "s";
         }
@@ -5780,10 +5241,14 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     }
 }
 
-Contained::ContainedType
-Slice::Operation::containedType() const
+ContainedList
+Slice::Operation::contents() const
 {
-    return ContainedTypeOperation;
+    ContainedList result;
+    result.insert(result.end(), _inParameters.begin(), _inParameters.end());
+    result.insert(result.end(), _outParameters.begin(), _outParameters.end());
+    return result;
+
 }
 
 bool
@@ -5791,18 +5256,20 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 {
     {
         ContainedPtr contained2 = ContainedPtr::dynamicCast(_returnType);
-        if(contained2 && contained2 == contained)
+        if (contained2 && contained2 == contained)
         {
             return true;
         }
     }
 
-    for (ExceptionList::const_iterator q = _throws.begin(); q != _throws.end(); ++q)
+    if (ExceptionPtr exception2 = ExceptionPtr::dynamicCast(contained))
     {
-        ContainedPtr contained2 = ContainedPtr::dynamicCast(*q);
-        if(contained2 && contained2 == contained)
+        for (const auto& exception : _throws)
         {
-            return true;
+            if (exception == exception2)
+            {
+                return true;
+            }
         }
     }
 
@@ -5812,10 +5279,9 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 bool
 Slice::Operation::sendsClasses(bool includeTagged) const
 {
-    ParamDeclList pdl = parameters();
-    for (ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    for (const auto& param : _inParameters)
     {
-        if(!(*i)->isOutParam() && (*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
+        if (param->type()->usesClasses() && (includeTagged || !param->tagged()))
         {
             return true;
         }
@@ -5826,15 +5292,14 @@ Slice::Operation::sendsClasses(bool includeTagged) const
 bool
 Slice::Operation::returnsClasses(bool includeTagged) const
 {
-    TypePtr t = returnType();
-    if(t && t->usesClasses() && (includeTagged || !_returnIsTagged))
+    TypePtr type = returnType();
+    if (type && type->usesClasses() && (includeTagged || !_returnIsTagged))
     {
         return true;
     }
-    ParamDeclList pdl = parameters();
-    for (ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    for (const auto& param : _outParameters)
     {
-        if((*i)->isOutParam() && (*i)->type()->usesClasses() && (includeTagged || !(*i)->tagged()))
+        if (param->type()->usesClasses() && (includeTagged || !param->tagged()))
         {
             return true;
         }
@@ -5845,44 +5310,20 @@ Slice::Operation::returnsClasses(bool includeTagged) const
 bool
 Slice::Operation::returnsData() const
 {
-    TypePtr t = returnType();
-    if(t)
-    {
-        return true;
-    }
-    ParamDeclList pdl = parameters();
-    for (ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
-    {
-        if((*i)->isOutParam())
-        {
-            return true;
-        }
-    }
-    if(!throws().empty())
-    {
-        return true;
-    }
-    return false;
+    return returnType() || !_outParameters.empty() || !_throws.empty();
 }
 
 bool
 Slice::Operation::returnsMultipleValues() const
 {
-    size_t count = outParameters().size();
-
-    if(returnType())
-    {
-        ++count;
-    }
-
-    return count > 1;
+    return _outParameters.size() + (returnType() ? 1 : 0) > 1;
 }
 
 FormatType
 Slice::Operation::format() const
 {
     FormatType format = parseFormatMetaData(getMetaData());
-    if(format == DefaultFormat)
+    if (format == DefaultFormat)
     {
         ContainedPtr cont = ContainedPtr::dynamicCast(container());
         assert(cont);
@@ -5947,22 +5388,11 @@ Slice::ParamDecl::tag() const
     return _tag;
 }
 
-Contained::ContainedType
-Slice::ParamDecl::containedType() const
-{
-    return ContainedTypeDataMember;
-}
-
 bool
 Slice::ParamDecl::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    if(contained2 && contained2 == contained)
-    {
-        return true;
-    }
-
-    return false;
+    return (contained2 && contained2 == contained);
 }
 
 string
@@ -6028,22 +5458,11 @@ Slice::DataMember::defaultValueType() const
     return _defaultValueType;
 }
 
-Contained::ContainedType
-Slice::DataMember::containedType() const
-{
-    return ContainedTypeDataMember;
-}
-
 bool
 Slice::DataMember::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    if(contained2 && contained2 == contained)
-    {
-        return true;
-    }
-
-    return false;
+    return (contained2 && contained2 == contained);
 }
 
 string
@@ -6082,6 +5501,51 @@ Slice::Unit::createUnit(bool ignRedefs, bool all, const StringList& defaultFileM
     return new Unit(ignRedefs, all, defaultFileMetadata);
 }
 
+ModulePtr
+Slice::Unit::createModule(const string& name)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    matches.sort(); // Modules can occur many times...
+    matches.unique(); // ... but we only want one instance of each.
+
+    _unit->addTopLevelModule(_unit->currentFile(), name);
+
+    for (const auto& match : matches)
+    {
+        bool differsOnlyInCase = matches.front()->name() != name;
+        if (ModulePtr module = ModulePtr::dynamicCast(match))
+        {
+            if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
+            {
+                _unit->error("module `" + name + "' is capitalized inconsistently with its previous name: `"
+                             + module->name() + "'");
+                return nullptr;
+            }
+        }
+        else if (!differsOnlyInCase)
+        {
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "' as module");
+            return nullptr;
+        }
+        else
+        {
+            _unit->error("module `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " name `" + matches.front()->name() + "'");
+            return nullptr;
+        }
+    }
+
+    if (!checkIdentifier(name))
+    {
+        return nullptr;
+    }
+
+    ModulePtr q = new Module(this, name);
+    _modules.push_back(q);
+    return q;
+}
+
 bool
 Slice::Unit::ignRedefs() const
 {
@@ -6097,19 +5561,16 @@ Slice::Unit::compatMode() const
 void
 Slice::Unit::checkType(const TypePtr& type)
 {
-    if (compatMode())
+    if (compatMode() && InterfaceDeclPtr::dynamicCast(type))
     {
-        if (InterfaceDeclPtr::dynamicCast(type))
-        {
-            error("interface by value is no longer supported: remove [[3.7]] or specify an optional proxy");
-        }
+        error("interface by value is no longer supported: remove [[3.7]] or specify an optional proxy");
     }
 }
 
 void
 Slice::Unit::setComment(const string& comment)
 {
-    if(comment.empty() || comment[0] != '*')
+    if (comment.empty() || comment[0] != '*')
     {
         return;
     }
@@ -6322,6 +5783,27 @@ Slice::Unit::currentContainer() const
     return _containerStack.top();
 }
 
+ModulePtr
+Slice::Unit::currentModule() const
+{
+    ContainerPtr container = currentContainer();
+    while (container)
+    {
+        if (UnitPtr ut = UnitPtr::dynamicCast(container))
+        {
+            return ut->_globalModule;
+        }
+        else if (ModulePtr module = ModulePtr::dynamicCast(container))
+        {
+            return module;
+        }
+        ContainedPtr contained = ContainedPtr::dynamicCast(container);
+        container = contained->container();
+    }
+    assert(false);
+    return nullptr;
+}
+
 void
 Slice::Unit::pushContainer(const ContainerPtr& cont)
 {
@@ -6367,7 +5849,7 @@ Slice::Unit::findDefinitionContext(const string& file) const
     {
         return p->second;
     }
-    return 0;
+    return nullptr;
 }
 
 void
@@ -6576,7 +6058,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
         popDefinitionContext();
     }
 
-    Slice::unit = 0;
+    Slice::unit = nullptr;
     return status;
 }
 
@@ -6584,6 +6066,8 @@ void
 Slice::Unit::destroy()
 {
     _contentMap.clear();
+    _globalModule = nullptr;
+    _modules.clear();
     _builtins.clear();
     Container::destroy();
 }
@@ -6593,9 +6077,205 @@ Slice::Unit::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitUnitStart(this))
     {
-        Container::visit(visitor, all);
+        for (const auto& module : _modules)
+        {
+            if (all || module->includeLevel() == 0)
+            {
+                module->visit(visitor, all);
+            }
+        }
         visitor->visitUnitEnd(this);
     }
+}
+
+ContainedList
+Slice::Unit::contents() const
+{
+    ContainedList result;
+    result.insert(result.end(), _modules.begin(), _modules.end());
+    return result;
+}
+
+bool
+Slice::Unit::hasSequences() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasSequences())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasSequences();
+}
+
+bool
+Slice::Unit::hasStructs() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasStructs())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasStructs();
+}
+
+bool
+Slice::Unit::hasExceptions() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasExceptions())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasExceptions();
+}
+
+bool
+Slice::Unit::hasDictionaries() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasDictionaries())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasDictionaries();
+}
+
+bool
+Slice::Unit::hasEnums() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasEnums())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasEnums();
+}
+
+bool
+Slice::Unit::hasClassDecls() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasClassDecls())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasClassDecls();
+}
+
+bool
+Slice::Unit::hasClassDefs() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasClassDefs())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasClassDefs();
+}
+
+bool
+Slice::Unit::hasInterfaceDecls() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasInterfaceDecls())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasInterfaceDecls();
+}
+
+bool
+Slice::Unit::hasInterfaceDefs() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasInterfaceDefs())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasInterfaceDefs();
+}
+
+bool
+Slice::Unit::hasOnlyClassDecls() const
+{
+    for (const auto& module : _modules)
+    {
+        if (!module->hasOnlyClassDecls())
+        {
+            return false;
+        }
+    }
+    return _globalModule->hasOnlyClassDecls();
+}
+
+bool
+Slice::Unit::hasOnlyInterfaces() const
+{
+    for (const auto& module : _modules)
+    {
+        if (!module->hasOnlyInterfaces())
+        {
+            return false;
+        }
+    }
+    return _globalModule->hasOnlyInterfaces();
+}
+
+bool
+Slice::Unit::hasOperations() const
+{
+    for (const auto& module : _modules)
+    {
+        if (!module->hasOperations())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasOperations();
+}
+
+bool
+Slice::Unit::hasOtherConstructedOrExceptions() const
+{
+    for (const auto& module : _modules)
+    {
+        if(module->hasOtherConstructedOrExceptions())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasOtherConstructedOrExceptions();
+}
+
+bool
+Slice::Unit::hasAsyncOps() const
+{
+    for (const auto& module : _modules)
+    {
+        if (module->hasAsyncOps())
+        {
+            return true;
+        }
+    }
+    return _globalModule->hasAsyncOps();
 }
 
 BuiltinPtr
@@ -6655,31 +6335,16 @@ Slice::Unit::getTopLevelModules(const string& file) const
 }
 
 Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultFileMetadata) :
-    SyntaxTreeBase(0),
-    Container(0),
+    SyntaxTreeBase(nullptr),
+    Container(nullptr),
     _ignRedefs(ignRedefs),
     _all(all),
     _defaultFileMetaData(defaultFileMetadata),
     _errors(0),
     _currentIncludeLevel(0)
-
 {
     _unit = this;
-}
-
-void
-Slice::Unit::eraseWhiteSpace(string& s)
-{
-    string::size_type idx = s.find_first_not_of(" \t\r");
-    if(idx != string::npos)
-    {
-        s.erase(0, idx);
-    }
-    idx = s.find_last_not_of(" \t\r");
-    if(idx != string::npos)
-    {
-        s.erase(++idx);
-    }
+    _globalModule = new Module(this, "");
 }
 
 // ----------------------------------------------------------------------

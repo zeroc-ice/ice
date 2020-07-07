@@ -443,27 +443,20 @@ writeDocSummary(Output& out, const ContainedPtr& p)
         out << nl << " * @deprecated";
     }
 
-    switch(p->containedType())
+    if (ClassDeclPtr::dynamicCast(p) || ClassDefPtr::dynamicCast(p) ||
+        StructPtr::dynamicCast(p) || ExceptionPtr::dynamicCast(p))
     {
-        case Contained::ContainedTypeClass:
-        case Contained::ContainedTypeStruct:
-        case Contained::ContainedTypeException:
+        UnitPtr unt = p->container()->unit();
+        string file = p->file();
+        assert(!file.empty());
+        static const string prefix = "cpp:doxygen:include:";
+        DefinitionContextPtr dc = unt->findDefinitionContext(file);
+        assert(dc);
+        string q = dc->findMetaData(prefix);
+        if(!q.empty())
         {
-            UnitPtr unt = p->container()->unit();
-            string file = p->file();
-            assert(!file.empty());
-            static const string prefix = "cpp:doxygen:include:";
-            DefinitionContextPtr dc = unt->findDefinitionContext(file);
-            assert(dc);
-            string q = dc->findMetaData(prefix);
-            if(!q.empty())
-            {
-                out << nl << " * \\headerfile " << q.substr(prefix.size());
-            }
-            break;
+            out << nl << " * \\headerfile " << q.substr(prefix.size());
         }
-        default:
-            break;
     }
 
     out << nl << " */";
@@ -3672,10 +3665,7 @@ Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dll
 bool
 Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
-    if(!m->hasContained(Contained::ContainedTypeStruct) &&
-       !m->hasContained(Contained::ContainedTypeEnum) &&
-       !m->hasContained(Contained::ContainedTypeException) &&
-       !m->hasContained(Contained::ContainedTypeClass))
+    if (!m->hasStructs() && !m->hasEnums() && !m->hasExceptions() && !m->hasClassDecls() && !m->hasClassDefs())
     {
         return false;
     }
@@ -3689,7 +3679,7 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         H << nl << "/// \\cond STREAM";
         H << nl << "namespace Ice" << nl << '{' << sp;
 
-        if(m->hasContained(Contained::ContainedTypeStruct))
+        if (m->hasStructs())
         {
             C << sp;
             C << nl << "namespace Ice" << nl << '{';
@@ -3708,7 +3698,7 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
         //
         H << nl << '}';
         H << nl << "/// \\endcond";
-        if(m->hasContained(Contained::ContainedTypeStruct))
+        if (m->hasStructs())
         {
             C << nl << '}';
         }

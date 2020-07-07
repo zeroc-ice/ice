@@ -1172,11 +1172,10 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
         writeDocLines(out, doc.overview, true);
     }
 
-    if(p->containedType() == Contained::ContainedTypeEnum)
+    if(EnumPtr en = EnumPtr::dynamicCast(p))
     {
         out << nl << "%";
         out << nl << "% " << n << " Properties:";
-        EnumPtr en = EnumPtr::dynamicCast(p);
         const EnumeratorList el = en->enumerators();
         for(EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
         {
@@ -1189,11 +1188,10 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
             }
         }
     }
-    else if(p->containedType() == Contained::ContainedTypeStruct)
+    else if(StructPtr st = StructPtr::dynamicCast(p))
     {
         out << nl << "%";
         out << nl << "% " << n << " Properties:";
-        StructPtr st = StructPtr::dynamicCast(p);
         const DataMemberList dml = st->dataMembers();
         for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
         {
@@ -1206,9 +1204,8 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
             }
         }
     }
-    else if(p->containedType() == Contained::ContainedTypeException)
+    else if(ExceptionPtr ex = ExceptionPtr::dynamicCast(p))
     {
-        ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
         const DataMemberList dml = ex->dataMembers();
         if(!dml.empty())
         {
@@ -1226,9 +1223,8 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
             }
         }
     }
-    else if(p->containedType() == Contained::ContainedTypeClass)
+    else if(ClassDefPtr cl = ClassDefPtr::dynamicCast(p))
     {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(p);
         const DataMemberList dml = cl->dataMembers();
         if(!dml.empty())
         {
@@ -1518,8 +1514,7 @@ writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
 
     string n;
 
-    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
-    if(cont->containedType() == Contained::ContainedTypeException)
+    if(ExceptionPtr::dynamicCast(p->container()))
     {
         n = fixExceptionMember(p->name());
     }
@@ -1572,14 +1567,14 @@ public:
 
     CodeVisitor(const string&);
 
-    virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-    virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual bool visitStructStart(const StructPtr&);
-    virtual void visitSequence(const SequencePtr&);
-    virtual void visitDictionary(const DictionaryPtr&);
-    virtual void visitEnum(const EnumPtr&);
-    virtual void visitConst(const ConstPtr&);
+    bool visitClassDefStart(const ClassDefPtr&) override;
+    bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+    bool visitExceptionStart(const ExceptionPtr&) override;
+    bool visitStructStart(const StructPtr&) override;
+    void visitSequence(const SequencePtr&) override;
+    void visitDictionary(const DictionaryPtr&) override;
+    void visitEnum(const EnumPtr&) override;
+    void visitConst(const ConstPtr&) override;
 
 private:
 

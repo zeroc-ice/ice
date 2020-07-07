@@ -53,7 +53,7 @@ Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, co
     _fileName(fullPath(fileName)),
     _shortFileName(fileName),
     _args(args),
-    _cppHandle(0)
+    _cppHandle(nullptr)
 {
 }
 
@@ -186,7 +186,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
 {
     if(!checkInputFile())
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -260,7 +260,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
         //
         // If that fails try to open file in current directory.
         //
-        if(_cppHandle == 0)
+        if(!_cppHandle)
         {
 #ifdef _WIN32
             _cppFile = "slice-" + IceUtil::generateUUID();
@@ -270,7 +270,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
             _cppHandle = IceUtilInternal::fopen(_cppFile, "w+");
         }
 
-        if(_cppHandle != 0)
+        if(_cppHandle)
         {
             if(buf)
             {
@@ -716,10 +716,10 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
 bool
 Slice::Preprocessor::close()
 {
-    if(_cppHandle != 0)
+    if(_cppHandle)
     {
         int status = fclose(_cppHandle);
-        _cppHandle = 0;
+        _cppHandle = nullptr;
 
         if(_cppFile.size() != 0)
         {
