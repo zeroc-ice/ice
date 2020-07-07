@@ -28,7 +28,7 @@ namespace ZeroC.Ice.Test.ACM
 
             if (heartbeat is string heartbeatValue)
             {
-                communicator.SetProperty($"{name}.ACM.Heartbeat", Enum.Parse< AcmHeartbeat>(heartbeatValue).ToString());
+                communicator.SetProperty($"{name}.ACM.Heartbeat", Enum.Parse<AcmHeartbeat>(heartbeatValue).ToString());
             }
 
             ObjectAdapter adapter = communicator.CreateObjectAdapterWithEndpoints(name, $"{transport} -h \"{host}\"");
