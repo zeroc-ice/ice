@@ -74,7 +74,8 @@ namespace ZeroC.Ice
                     catch (Exception ex)
                     {
                         throw new InvalidConfigurationException(
-                            $"the value `{pv.Val}' of property `{name}' is not valid for {typeof(TEnum)} enum", ex);
+                            $"the value `{pv.Val}' of property `{name}' is not valid for {typeof(TEnum)} enumeration",
+                            ex);
                     }
                 }
                 return null;
