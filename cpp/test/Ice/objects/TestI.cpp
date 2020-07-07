@@ -188,7 +188,7 @@ InitialI::supportsClassGraphDepthMax(const Ice::Current&)
 }
 
 void
-InitialI::setCycle(const RecursivePtr& r, const Ice::Current&)
+InitialI::setCycle(ICE_IN(RecursivePtr) r, const Ice::Current&)
 {
     // break the cycle
     assert(r);
