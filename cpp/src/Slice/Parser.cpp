@@ -1211,513 +1211,6 @@ Slice::Container::destroy()
     SyntaxTreeBase::destroy();
 }
 
-ModulePtr
-Slice::Container::createModule(const string& name)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort(); // Modules can occur many times...
-    matches.unique(); // ... but we only want one instance of each.
-
-    if(thisScope() == "::")
-    {
-        _unit->addTopLevelModule(_unit->currentFile(), name);
-    }
-
-    for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
-    {
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ModulePtr module = ModulePtr::dynamicCast(*p);
-        if(module)
-        {
-            if(differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
-            {
-                string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
-                msg += module->name() + "'";
-                _unit->error(msg);
-                return nullptr;
-            }
-        }
-        else if(!differsOnlyInCase)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as module";
-            _unit->error(msg);
-            return nullptr;
-        }
-        else
-        {
-            string msg = "module `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-            return nullptr;
-        }
-    }
-
-    checkIdentifier(name);
-    _unit->error("`" + name + "': module can only defined at global or module scope");
-    return nullptr;
-}
-
-ClassDefPtr
-Slice::Container::createClassDef(const string& name, int, const ClassDefPtr&)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(p);
-        if(decl)
-        {
-            continue; // all good
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ClassDefPtr def = ClassDefPtr::dynamicCast(p);
-        if(def)
-        {
-            if(differsOnlyInCase)
-            {
-                string msg = "class definition `" + name + "' is capitalized inconsistently with its previous name: `";
-                msg += def->name() + "'";
-                _unit->error(msg);
-            }
-            else
-            {
-                if(_unit->ignRedefs())
-                {
-                    def->updateIncludeLevel();
-                    return def;
-                }
-
-                string msg = "redefinition of class `" + name + "'";
-                _unit->error(msg);
-            }
-        }
-        else if(differsOnlyInCase)
-        {
-            string msg = "class definition `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
-            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name);
-    _unit->error("`" + name + "': a class can only be defined at module scope");
-    return nullptr;
-}
-
-ClassDeclPtr
-Slice::Container::createClassDecl(const string& name)
-{
-    ClassDefPtr def;
-
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        ClassDefPtr clDef = ClassDefPtr::dynamicCast(p);
-        if(clDef)
-        {
-            continue;
-        }
-
-        ClassDeclPtr clDecl = ClassDeclPtr::dynamicCast(p);
-        if(clDecl)
-        {
-            continue;
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if(differsOnlyInCase)
-        {
-            string msg = "class declaration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
-            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name);
-    _unit->error("`" + name + "': a class can only be defined at module scope");
-    return nullptr;
-}
-
-InterfaceDefPtr
-Slice::Container::createInterfaceDef(const string& name, const InterfaceList&)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(p);
-        if(decl)
-        {
-            continue; // all good
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-        if (def)
-        {
-            if(differsOnlyInCase)
-            {
-                string msg = "interface definition `" + name +
-                    "' is capitalized inconsistently with its previous name: `";
-                msg += def->name() + "'";
-                _unit->error(msg);
-            }
-            else
-            {
-                if(_unit->ignRedefs())
-                {
-                    def->updateIncludeLevel();
-                    return def;
-                }
-
-                string msg = "redefinition of interface `" + name + "'";
-                _unit->error(msg);
-            }
-        }
-        else if (differsOnlyInCase)
-        {
-            string msg = "interface definition `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = ClassDeclPtr::dynamicCast(matches.front());
-            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name);
-    _unit->error("`" + name + "': an interface can only be defined at module scope");
-    return nullptr;
-}
-
-InterfaceDeclPtr
-Slice::Container::createInterfaceDecl(const string& name)
-{
-    InterfaceDefPtr def;
-
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        InterfaceDefPtr interfaceDef = InterfaceDefPtr::dynamicCast(p);
-        if (interfaceDef)
-        {
-            continue;
-        }
-
-        InterfaceDeclPtr interfaceDecl = InterfaceDeclPtr::dynamicCast(p);
-        if (interfaceDecl)
-        {
-            continue;
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if (differsOnlyInCase)
-        {
-            string msg = "interface declaration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        else
-        {
-            bool declared = ClassDeclPtr::dynamicCast(matches.front());
-            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name);
-    _unit->error("`" + name + "': an interface can only be defined at module scope");
-    return nullptr;
-}
-
-ExceptionPtr
-Slice::Container::createException(const string& name, const ExceptionPtr& base, NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        ExceptionPtr p = ExceptionPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as exception";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "exception `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the exception anyway.
-
-    if(nt == Real)
-    {
-        _unit->error("`" + name + "': an exception can only be defined at module scope");
-    }
-    return new Exception(this, name, base);
-}
-
-StructPtr
-Slice::Container::createStruct(const string& name, NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        StructPtr p = StructPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as struct";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "struct `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the struct anyway.
-
-    if(nt == Real)
-    {
-        _unit->error("`" + name + "': a structure can only be defined at module scope");
-    }
-    return new Struct(this, name);
-}
-
-SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData,
-                                 NodeType nt)
-{
-    _unit->checkType(type);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        SequencePtr p = SequencePtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as sequence";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "sequence `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the sequence anyway.
-
-    if(nt == Real)
-    {
-        _unit->error("`" + name + "': a sequence can only be defined at module scope");
-    }
-    return new Sequence(this, name, type, metaData);
-}
-
-DictionaryPtr
-Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
-                                   const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
-{
-    _unit->checkType(keyType);
-    _unit->checkType(valueType);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        DictionaryPtr p = DictionaryPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as dictionary";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "dictionary `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
-
-    if(nt == Real)
-    {
-        _unit->error("`" + name + "': a dictionary can only be defined at module scope");
-    }
-
-    if(nt == Real)
-    {
-        bool containsSequence = false;
-        if(!Dictionary::legalKeyType(keyType, containsSequence))
-        {
-            _unit->error("dictionary `" + name + "' uses an illegal key type");
-            return nullptr;
-        }
-        if(containsSequence)
-        {
-            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
-        }
-    }
-    return new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData);
-}
-
-EnumPtr
-Slice::Container::createEnum(const string& name, bool unchecked, NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        EnumPtr p = EnumPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as enumeration";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "enumeration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the enumeration anyway.
-
-    if(nt == Real)
-    {
-        _unit->error("`" + name + "': an enumeration can only be defined at module scope");
-    }
-    return new Enum(this, name, unchecked);
-}
-
-ConstPtr
-Slice::Container::createConst(const string name, const TypePtr& constType, const StringList& metaData,
-                              const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
-                              NodeType nt)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-        ConstPtr p = ConstPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as constant";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "constant `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the constant anyway.
-
-    if(nt == Real)
-    {
-        _unit->error("`" + name + "': a constant can only be defined at module scope");
-    }
-
-    SyntaxTreeBasePtr resolvedValueType = valueType;
-
-    //
-    // Validate the constant and its value; for enums, find enumerator
-    //
-    if(nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
-    {
-        return nullptr;
-    }
-    return new Const(this, name, constType, metaData, resolvedValueType, value, literal);
-}
-
 TypeList
 Slice::Container::lookupType(const string& scoped, bool printError)
 {
@@ -2563,6 +2056,10 @@ Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& bas
     {
         return nullptr;
     }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': a class can only be defined at module scope");
+    }
 
     ClassDefPtr def = new ClassDef(this, name, id, base);
     _contents.push_back(def);
@@ -2624,6 +2121,10 @@ Slice::Module::createClassDecl(const string& name)
     if(!checkIdentifier(name))
     {
         return nullptr;
+    }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': a class can only be defined at module scope");
     }
 
     //
@@ -2713,6 +2214,10 @@ Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases
     {
         return nullptr;
     }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': an interface can only be defined at module scope");
+    }
 
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
 
@@ -2777,6 +2282,10 @@ Slice::Module::createInterfaceDecl(const string& name)
     {
         return nullptr;
     }
+    if (_name == "")
+    {
+        _unit->error("`" + name + "': an interface can only be defined at module scope");
+    }
 
     // Multiple declarations are permissible. But if we do already have a declaration for the interface in this
     // container, we don't create another one.
@@ -2808,7 +2317,7 @@ Slice::Module::createInterfaceDecl(const string& name)
 }
 
 ExceptionPtr
-Slice::Module::createException(const string& name, const ExceptionPtr& base, NodeType)
+Slice::Module::createException(const string& name, const ExceptionPtr& base, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2838,6 +2347,10 @@ Slice::Module::createException(const string& name, const ExceptionPtr& base, Nod
     }
 
     checkIdentifier(name); // Don't return here -- we create the exception anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': an exception can only be defined at module scope");
+    }
 
     ExceptionPtr p = new Exception(this, name, base);
     _contents.push_back(p);
@@ -2845,7 +2358,7 @@ Slice::Module::createException(const string& name, const ExceptionPtr& base, Nod
 }
 
 StructPtr
-Slice::Module::createStruct(const string& name, NodeType)
+Slice::Module::createStruct(const string& name, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2875,6 +2388,10 @@ Slice::Module::createStruct(const string& name, NodeType)
     }
 
     checkIdentifier(name); // Don't return here -- we create the struct anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': a structure can only be defined at module scope");
+    }
 
     StructPtr p = new Struct(this, name);
     _contents.push_back(p);
@@ -2882,7 +2399,7 @@ Slice::Module::createStruct(const string& name, NodeType)
 }
 
 SequencePtr
-Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType)
+Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType nt)
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -2913,6 +2430,10 @@ Slice::Module::createSequence(const string& name, const TypePtr& type, const Str
     }
 
     checkIdentifier(name); // Don't return here -- we create the sequence anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': a sequence can only be defined at module scope");
+    }
 
     SequencePtr p = new Sequence(this, name, type, metaData);
     _contents.push_back(p);
@@ -2955,6 +2476,11 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
     checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
     if(nt == Real)
     {
+        if (_name == "")
+        {
+            _unit->error("`" + name + "': a dictionary can only be defined at module scope");
+        }
+
         bool containsSequence = false;
         if(!Dictionary::legalKeyType(keyType, containsSequence))
         {
@@ -2973,7 +2499,7 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
 }
 
 EnumPtr
-Slice::Module::createEnum(const string& name, bool unchecked, NodeType)
+Slice::Module::createEnum(const string& name, bool unchecked, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -3003,6 +2529,11 @@ Slice::Module::createEnum(const string& name, bool unchecked, NodeType)
     }
 
     checkIdentifier(name); // Don't return here -- we create the enumeration anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': an enumeration can only be defined at module scope");
+    }
+
     EnumPtr p = new Enum(this, name, unchecked);
     _contents.push_back(p);
     return p;
@@ -3041,6 +2572,11 @@ Slice::Module::createConst(const string name, const TypePtr& constType, const St
     }
 
     checkIdentifier(name); // Don't return here -- we create the constant anyway.
+    if (nt == Real && _name == "")
+    {
+        _unit->error("`" + name + "': a constant can only be defined at module scope");
+    }
+
     SyntaxTreeBasePtr resolvedValueType = valueType;
 
     //

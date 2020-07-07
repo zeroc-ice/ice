@@ -486,19 +486,6 @@ class Container : public virtual SyntaxTreeBase
 public:
 
     void destroy() override;
-    virtual ModulePtr createModule(const std::string&);
-    virtual ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&);
-    virtual ClassDeclPtr createClassDecl(const std::string&);
-    virtual InterfaceDefPtr createInterfaceDef(const std::string&, const InterfaceList&);
-    virtual InterfaceDeclPtr createInterfaceDecl(const std::string&);
-    virtual ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
-    virtual StructPtr createStruct(const std::string&, NodeType = Real);
-    virtual SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
-    virtual DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-                                           const StringList&, NodeType = Real);
-    virtual EnumPtr createEnum(const std::string&, bool, NodeType = Real);
-    virtual ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
-                                 const std::string&, const std::string&, NodeType = Real);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -535,19 +522,19 @@ public:
     bool uses(const ContainedPtr&) const override;
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
-    ModulePtr createModule(const std::string&) override;
-    ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&) override;
-    ClassDeclPtr createClassDecl(const std::string&) override;
-    InterfaceDefPtr createInterfaceDef(const std::string&, const InterfaceList&) override;
-    InterfaceDeclPtr createInterfaceDecl(const std::string&) override;
-    ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real) override;
-    StructPtr createStruct(const std::string&, NodeType = Real) override;
-    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real) override;
+    ModulePtr createModule(const std::string&);
+    ClassDefPtr createClassDef(const std::string&, int, const ClassDefPtr&);
+    ClassDeclPtr createClassDecl(const std::string&);
+    InterfaceDefPtr createInterfaceDef(const std::string&, const InterfaceList&);
+    InterfaceDeclPtr createInterfaceDecl(const std::string&);
+    ExceptionPtr createException(const std::string&, const ExceptionPtr&, NodeType = Real);
+    StructPtr createStruct(const std::string&, NodeType = Real);
+    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-                                   const StringList&, NodeType = Real) override;
-    EnumPtr createEnum(const std::string&, bool, NodeType = Real) override;
+                                   const StringList&, NodeType = Real);
+    EnumPtr createEnum(const std::string&, bool, NodeType = Real);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
-                         const std::string&, const std::string&, NodeType = Real) override;
+                         const std::string&, const std::string&, NodeType = Real);
     EnumList enums() const;
     ConstList consts() const;
     bool hasSequences() const;
@@ -1178,7 +1165,7 @@ class Unit : public virtual Container
 public:
 
     static UnitPtr createUnit(bool, bool, const StringList& = StringList());
-    ModulePtr createModule(const std::string& name) override;
+    ModulePtr createModule(const std::string& name);
 
     bool ignRedefs() const;
     bool compatMode() const;
