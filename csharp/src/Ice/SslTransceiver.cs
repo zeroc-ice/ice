@@ -518,13 +518,15 @@ namespace ZeroC.Ice
                     // Untrusted root is OK when using our custom chain engine if the CA certificate is present in the
                     // chain policy extra store.
                     X509ChainElement root = chain.ChainElements[^1];
-                    if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate))
+                    if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate) &&
+                        chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
                     {
                         chainStatus.Remove(
                             chainStatus.Find(status => status.Status == X509ChainStatusFlags.UntrustedRoot));
                         errors ^= SslPolicyErrors.RemoteCertificateChainErrors;
                     }
-                    else if (!chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
+                    else if (!chain.ChainPolicy.ExtraStore.Contains(root.Certificate) &&
+                             !chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
                     {
                         chainStatus.Add(new X509ChainStatus() { Status = X509ChainStatusFlags.UntrustedRoot });
                         errors |= SslPolicyErrors.RemoteCertificateChainErrors;
