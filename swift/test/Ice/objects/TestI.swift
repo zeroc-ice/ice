@@ -175,8 +175,10 @@ class InitialI: Initial {
     }
 
     func setCycle(r: Recursive?, current _: Ice.Current) {
+        precondition(r != nil)
+        precondition(r!.v === r)
         // break the cycle
-        r?.v = nil
+        r!.v = nil
     }
 
     func acceptsClassCycles(current: Ice.Current) throws -> Bool {

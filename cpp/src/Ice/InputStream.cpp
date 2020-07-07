@@ -1825,7 +1825,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
     IndexToPtrMap::iterator p = _unmarshaledMap.find(index);
     if(p != _unmarshaledMap.end())
     {
-        if (p->second == Ice::ValuePtr())
+        if (p->second == ICE_NULLPTR)
         {
             assert(!_stream->_instance->acceptClassCycles());
             throw MarshalException(__FILE__, __LINE__, "cycle detected during Value unmarshaling");
