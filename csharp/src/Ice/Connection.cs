@@ -125,8 +125,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _monitor?.Acm ??
-                        new Acm(TimeSpan.FromSeconds(0), AcmClose.Off, AcmHeartbeat.Off);
+                    return _monitor?.Acm ?? new Acm(TimeSpan.FromSeconds(0), AcmClose.Off, AcmHeartbeat.Off);
                 }
             }
             set
@@ -569,9 +568,7 @@ namespace ZeroC.Ice
                     }
                     else if (acm.Close != AcmClose.OnInvocation && _dispatchCount == 0 && _requests.Count == 0)
                     {
-                        //
                         // The connection is idle, close it.
-                        //
                         _ = GracefulCloseAsync(new ConnectionIdleException());
                     }
                 }
