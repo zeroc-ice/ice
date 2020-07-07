@@ -72,9 +72,7 @@ namespace ZeroC.Ice
                         pv.Used = true;
                         if (int.TryParse(pv.Val, out int _))
                         {
-                            throw new InvalidConfigurationException(
-                                @$"the value `{pv.Val}' of property `{name}' is not valid for {typeof(TEnum)
-                                } enumeration");
+                            throw new FormatException($"numeric values are not accepted for enumeratorion properties");
                         }
                         else
                         {
