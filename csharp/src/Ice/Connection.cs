@@ -108,10 +108,16 @@ namespace ZeroC.Ice
         }
     }
 
+    /// <summary>Determines the behavior when manually closing a connection.</summary>
     public enum ConnectionClose
     {
+        /// <summary>Close the connection immediately without sending a close connection protocol message to the peer
+        /// and waiting for the peer to acknowledge it.</summary>
         Forcefully,
+        /// <summary>Close the connection by notifying the peer but do not wait for pending outgoing invocations to
+        /// complete.</summary>
         Gracefully,
+        /// <summary>Wait for all pending invocations to complete before closing the connection.</summary>
         GracefullyWithWait
     }
 
