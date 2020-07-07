@@ -404,5 +404,19 @@ def allTests(helper, communicator)
         test(f32.f2.ice_getIdentity().name == "F22")
     end
     puts "ok"
+
+    print "testing sending class cycle... "
+    STDOUT.flush
+    rec = Test::Recursive.new
+    rec.v = rec
+    acceptsCycles = initial.acceptsClassCycles()
+    begin
+        initial.setCycle(rec)
+        test(acceptsCycles)
+    rescue Ice::UnknownLocalException => ex
+        test(!acceptsCycles)
+    end
+    puts "ok"
+
     return initial
 end

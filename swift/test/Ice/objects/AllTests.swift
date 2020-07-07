@@ -313,5 +313,20 @@ func allTests(_ helper: TestHelper) throws -> InitialPrx {
     }
     output.writeLine("ok")
 
+    output.write("testing sending class cycle... ")
+    do {
+        let rec = Recursive(v: nil)
+        rec.v = rec
+        let acceptsCycles = try initial.acceptsClassCycles()
+        do {
+            try initial.setCycle(rec)
+            try test(acceptsCycles)
+        } catch is Ice.UnknownLocalException {
+            try test(!acceptsCycles)
+        }
+        rec.v = nil
+    }
+    output.writeLine("ok")
+
     return initial
 }

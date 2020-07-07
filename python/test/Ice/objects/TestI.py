@@ -126,6 +126,12 @@ class InitialI(Test.Initial):
     def supportsClassGraphDepthMax(self, current):
         return True
 
+    def setCycle(self, r, current):
+        pass
+
+    def acceptsClassCycles(self, current):
+        return True
+
     def getMB(self, current):
         return Test.Initial.GetMBMarshaledResult(self._b1, current)
 

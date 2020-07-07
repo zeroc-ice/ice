@@ -1234,6 +1234,14 @@ ZEND_FUNCTION(Ice_initialize)
     initData.compactIdResolver = new IdResolver(TSRMLS_C);
     initData.valueFactoryManager = new ValueFactoryManager;
 
+    if(!initData.properties)
+    {
+        initData.properties = Ice::createProperties();
+    }
+
+    // Always accept cycles in PHP
+    initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+
     CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, initData TSRMLS_CC);
     if(!info)
     {

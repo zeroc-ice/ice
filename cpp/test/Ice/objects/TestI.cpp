@@ -187,6 +187,20 @@ InitialI::supportsClassGraphDepthMax(const Ice::Current&)
     return true;
 }
 
+void
+InitialI::setCycle(ICE_IN(RecursivePtr) r, const Ice::Current&)
+{
+    // break the cycle
+    assert(r);
+    r->v = ICE_NULLPTR;
+}
+
+bool
+InitialI::acceptsClassCycles(const Ice::Current& c)
+{
+    return c.adapter->getCommunicator()->getProperties()->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
+}
+
 #ifdef ICE_CPP11_MAPPING
 InitialI::GetMBMarshaledResult
 InitialI::getMB(const Ice::Current& current)

@@ -300,6 +300,7 @@ generated from the section label.
     </class>
 
     <section name="Ice">
+        <property name="AcceptClassCycles" />
         <property name="ACM.Client" deprecated="true"/>
         <property name="ACM.Server" deprecated="true"/>
         <property name="ACM" class="acm"/>

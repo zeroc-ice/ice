@@ -34,8 +34,10 @@ class PNodeI: PNode {
 
 public class Client: TestHelperI {
     public override func run(args: [String]) throws {
+        let properties = try createTestProperties(args)
+        properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         var initData = InitializationData()
-        initData.properties = try createTestProperties(args)
+        initData.properties = properties
         initData.classResolverPrefix = ["IceSlicingObjects", "IceSlicingObjectsClient"]
         let communicator = try initialize(initData)
         defer {

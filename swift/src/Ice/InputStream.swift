@@ -14,6 +14,7 @@ public class InputStream {
     private(set) var communicator: Communicator
     private let encoding: EncodingVersion
     private let traceSlicing: Bool
+    fileprivate let acceptClassCycles: Bool
 
     private var encaps: Encaps!
 
@@ -43,6 +44,7 @@ public class InputStream {
         self.encoding = encoding
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
         traceSlicing = (communicator as! CommunicatorI).traceSlicing
+        acceptClassCycles = (communicator as! CommunicatorI).acceptClassCycles
     }
 
     /// Reads an encapsulation from the stream.
@@ -887,7 +889,7 @@ private protocol EncapsDecoder: AnyObject {
     // Encapsulation attributes for value unmarshaling.
     //
     var patchMap: [Int32: [PatchEntry]] { get set }
-    var unmarshaledMap: [Int32: Value] { get set }
+    var unmarshaledMap: [Int32: Value?] { get set }
     var typeIdMap: [Int32: String] { get set }
     var typeIdIndex: Int32 { get set }
     var valueList: [Value] { get set }
@@ -985,10 +987,14 @@ extension EncapsDecoder {
         precondition(index > 0, "invalid index")
 
         //
-        // Check if we have already unmarshalled the instance. If that's the case,
-        // just invoke the callback and we're done.
+        // Check if we already unmarshaled the object. If that's the case, just patch the object smart pointer
+        // and we're done. A null value indicates we've encountered a cycle and Ice.AllowClassCycles is false.
         //
-        if let obj: Value = unmarshaledMap[index] {
+        if let optObj = unmarshaledMap[index] {
+            guard let obj = optObj else {
+                assert(!stream.acceptClassCycles)
+                throw MarshalException(reason: "cycle detected during Value unmarshaling")
+            }
             try cb(obj)
             return
         }
@@ -1008,7 +1014,11 @@ extension EncapsDecoder {
         // Add the instance to the map of unmarshaled instances, this must
         // be done before reading the instances (for circular references).
         //
-        unmarshaledMap[index] = v
+        // If circular references are not allowed we insert null (for cycle detection) and add
+        // the object to the map once it has been fully unmarshaled.
+        //
+        unmarshaledMap[index] = stream.acceptClassCycles ? v : (nil as Value?)
+        assert(unmarshaledMap[index] != nil)
 
         //
         // Read the instance.
@@ -1053,6 +1063,12 @@ extension EncapsDecoder {
                 valueList.removeAll()
             }
         }
+
+        if !stream.acceptClassCycles {
+            // This class has been fully unmarshaled without creating any cycles
+            // It can be added to the map now.
+            unmarshaledMap[index] = v
+        }
     }
 }
 
@@ -1061,7 +1077,7 @@ private class EncapsDecoder10: EncapsDecoder {
     unowned let stream: InputStream
     let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
-    lazy var unmarshaledMap = [Int32: Value]()
+    lazy var unmarshaledMap = [Int32: Value?]()
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
@@ -1325,7 +1341,7 @@ private class EncapsDecoder11: EncapsDecoder {
     unowned let stream: InputStream
     let valueFactoryManager: ValueFactoryManager
     lazy var patchMap = [Int32: [PatchEntry]]()
-    lazy var unmarshaledMap = [Int32: Value]()
+    lazy var unmarshaledMap = [Int32: Value?]()
     lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()

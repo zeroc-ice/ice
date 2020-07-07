@@ -491,6 +491,23 @@
             }
             out.writeLine("ok");
 
+            out.write("testing sending class cycle... ");
+            {
+                const rec = new Test.Recursive();
+                rec.v = rec;
+                const acceptsCycles = await initial.acceptsClassCycles();
+                try
+                {
+                    await initial.setCycle(rec);
+                    test(acceptsCycles);
+                }
+                catch (error)
+                {
+                    test(!acceptsCycles);
+                }
+            }
+            out.writeLine("ok");
+
             await initial.shutdown();
         }
 

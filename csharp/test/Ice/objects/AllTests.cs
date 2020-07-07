@@ -538,6 +538,25 @@ namespace Ice
                     }
                     output.WriteLine("ok");
 
+                    output.Write("testing sending class cycle... ");
+                    output.Flush();
+                    {
+                        var rec = new Test.Recursive();
+                        rec.v = rec;
+                        var acceptsCycles = initial.acceptsClassCycles();
+                        try
+                        {
+                            initial.setCycle(rec);
+                            test(acceptsCycles);
+                        }
+                        catch(Ice.UnknownLocalException)
+                        {
+                            test(!acceptsCycles);
+                        }
+
+                    }
+                    output.WriteLine("ok");
+
                     return initial;
                 }
             }

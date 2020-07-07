@@ -706,5 +706,23 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
         tprintf("ok\n");
     }
 
+    {
+        tprintf("testing sending class cycle... ");
+        TestObjectsRecursive* rec = [TestObjectsRecursive recursive];
+        rec.v = rec;
+        bool acceptsCycles = [initial acceptsClassCycles];
+        @try
+        {
+            [initial setCycle:rec];
+            test(acceptsCycles);
+        }
+        @catch(ICEUnknownLocalException*)
+        {
+             test(!acceptsCycles);
+        }
+        rec.v = nil;
+        tprintf("ok\n");
+    }
+
     return initial;
 }

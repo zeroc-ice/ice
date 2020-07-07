@@ -357,4 +357,16 @@ def allTests(helper, communicator):
         test(f32.f2.ice_getIdentity().name == "F22")
     print("ok")
 
+    sys.stdout.write("testing sending class cycle... ")
+    sys.stdout.flush()
+    rec = Test.Recursive()
+    rec.v = rec
+    acceptsCycles = initial.acceptsClassCycles()
+    try:
+        initial.setCycle(rec)
+        test(acceptsCycles)
+    except Ice.UnknownLocalException:
+        test(not acceptsCycles)
+    print("ok")
+
     return initial

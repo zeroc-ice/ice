@@ -148,6 +148,17 @@ public final class InitialI extends Initial
     }
 
     @Override
+    public void setCycle(Recursive r, Ice.Current current)
+    {
+    }
+
+    @Override
+    public boolean acceptsClassCycles(Ice.Current current)
+    {
+        return true;
+    }
+
+    @Override
     public B
     getMB(Ice.Current current)
     {

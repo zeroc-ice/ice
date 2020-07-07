@@ -183,12 +183,14 @@ def allTests(helper, communicator):
     # Test: PropertiesAdmin::getProperties()
     #
     pd = pa.getPropertiesForPrefix("")
-    test(len(pd) == 5)
+    test(len(pd) == 6)
     test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1")
     test(pd["Ice.Admin.InstanceName"] == "Test")
     test(pd["Prop1"] == "1")
     test(pd["Prop2"] == "2")
     test(pd["Prop3"] == "3")
+    # Ice for Python always sets Ice.AcceptClassCycles
+    test(pd["Ice.AcceptClassCycles"] == "1")
 
     changes = {}
 

@@ -1819,12 +1819,17 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
     assert(index > 0);
 
     //
-    // Check if we already unmarshaled the object. If that's the case,
-    // just patch the object smart pointer and we're done.
+    // Check if we already unmarshaled the object. If that's the case, just patch the object smart pointer
+    // and we're done. A null value indicates we've encountered a cycle and Ice.AllowClassCycles is false.
     //
     IndexToPtrMap::iterator p = _unmarshaledMap.find(index);
     if(p != _unmarshaledMap.end())
     {
+        if (p->second == ICE_NULLPTR)
+        {
+            assert(!_stream->_instance->acceptClassCycles());
+            throw MarshalException(__FILE__, __LINE__, "cycle detected during Value unmarshaling");
+        }
         (*patchFunc)(patchAddr, p->second);
         return;
     }
@@ -1862,7 +1867,10 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
     // Add the object to the map of unmarshaled instances, this must
     // be done before reading the instances (for circular references).
     //
-    _unmarshaledMap.insert(make_pair(index, v));
+    // If circular references are not allowed we insert null (for cycle detection) and add
+    // the object to the map once it has been fully unmarshaled.
+    //
+    _unmarshaledMap.insert(make_pair(index, _stream->_instance->acceptClassCycles() ? v : Ice::ValuePtr()));
 
     //
     // Read the object.
@@ -1914,6 +1922,13 @@ Ice::InputStream::EncapsDecoder::unmarshal(Int index, const Ice::ValuePtr& v)
             }
             _valueList.clear();
         }
+    }
+
+    if(!_stream->_instance->acceptClassCycles())
+    {
+        // This class has been fully unmarshaled without creating any cycles
+        // It can be added to the map now.
+        _unmarshaledMap[index] = v;
     }
 }
 

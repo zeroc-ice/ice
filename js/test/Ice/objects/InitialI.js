@@ -225,6 +225,15 @@
             return false;
         }
 
+        setCycle(r, current)
+        {
+        }
+
+        acceptsClassCycles(current)
+        {
+            return true;
+        }
+
         getMB(current)
         {
             return this._b1;
