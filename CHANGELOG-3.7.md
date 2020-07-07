@@ -66,9 +66,8 @@ These are the changes since Ice 3.7.4.
 ## General Changes
 
 - Add support for detection of class cycles during unmarshaling in
-  languages which do not have cyclic reference garbage collection:
-  C++, Swift, and Objective-C. A `MarshalException` is thrown when a
-  cycle is detected.
+  languages which do not have garbage collection: C++, Swift, and Objective-C.
+  A `MarshalException` is thrown when a cycle is detected.
 
   The property `Ice.AcceptClassCycles` can be set to a value greater than `0`
   to change this behavior.
