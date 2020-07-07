@@ -84,27 +84,8 @@ namespace ZeroC.Ice
         internal Acm(Communicator communicator, string prefix, Acm defaults)
         {
             Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
-
-            Heartbeat = communicator.GetProperty($"{prefix}.Heartbeat") switch
-            {
-                var x when x == "Off" || x == "0" => AcmHeartbeat.Off,
-                var x when x == "OnDispatch" || x == "1" => AcmHeartbeat.OnDispatch,
-                var x when x == "OnIdle" || x == "2" => AcmHeartbeat.OnIdle,
-                var x when x == "Always" || x == "3" => AcmHeartbeat.Always,
-                null => defaults.Heartbeat,
-                _ => throw new InvalidConfigurationException($"invalid value for property `{prefix}.Heartbeat'")
-            };
-
-            Close = communicator.GetProperty($"{prefix}.Close") switch
-            {
-                var x when x == "Off" || x == "0" => AcmClose.Off,
-                var x when x == "OnIdle" || x == "1" => AcmClose.OnIdle,
-                var x when x == "OnInvocation" || x == "2" => AcmClose.OnInvocation,
-                var x when x == "OnInvocationAndIdle" || x == "3" => AcmClose.OnInvocationAndIdle,
-                var x when x == "OnIdleForceful" || x == "4" => AcmClose.OnIdleForceful,
-                null => defaults.Close,
-                _ => throw new InvalidConfigurationException($"invalid value for property `{ prefix}.Close'")
-            };
+            Heartbeat = communicator.GetPropertyAsEnum<AcmHeartbeat>($"{prefix}.Heartbeat") ?? defaults.Heartbeat;
+            Close = communicator.GetPropertyAsEnum<AcmClose>($"{prefix}.Close") ?? defaults.Close;
         }
     }
 
