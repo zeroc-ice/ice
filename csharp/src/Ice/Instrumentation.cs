@@ -6,15 +6,6 @@ using System.Collections.Generic;
 
 namespace ZeroC.Ice.Instrumentation
 {
-    /// <summary>The state of a connection</summary>
-    public enum ConnectionState : byte
-    {
-        Validating = 0,
-        Active,
-        Closing,
-        Closed
-    }
-
     public interface IChildInvocationObserver : IObserver
     {
         /// <summary>Reply notification.</summary>
