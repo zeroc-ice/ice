@@ -1017,7 +1017,7 @@ extension EncapsDecoder {
         // If circular references are not allowed we insert null (for cycle detection) and add
         // the object to the map once it has been fully unmarshaled.
         //
-        unmarshaledMap[index] = stream.acceptClassCycles ? v : nil
+        unmarshaledMap.updateValue(stream.acceptClassCycles ? v : nil, forKey:index)
 
         //
         // Read the instance.
