@@ -490,57 +490,69 @@ namespace ZeroC.Ice
             bool useMachineContext = _incoming ?
                 _engine.TlsServerOptions.UseMachineContex : _engine.TlsClientOptions.UseMachineContex;
 
-            // If using custom certificate authorities or the machine context and the peer provides a certificate,
-            // we rebuild the certificate chain with our custom chain policy.
-            if ((trustedCertificateAuthorities != null || useMachineContext) && certificate != null)
+            bool buildCustomChain =
+                (trustedCertificateAuthorities != null || useMachineContext) && certificate != null;
+            try
             {
-                chain = new X509Chain(useMachineContext);
-                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-
-                if (trustedCertificateAuthorities != null)
+                // If using custom certificate authorities or the machine context and the peer provides a certificate,
+                // we rebuild the certificate chain with our custom chain policy.
+                if (buildCustomChain)
                 {
-                    // We need to set this flag to be able to use a certificate authority from the extra store.
-                    chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
-                    foreach (X509Certificate2 cert in trustedCertificateAuthorities)
+                    chain = new X509Chain(useMachineContext);
+                    chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+
+                    if (trustedCertificateAuthorities != null)
                     {
-                        chain.ChainPolicy.ExtraStore.Add(cert);
+                        // We need to set this flag to be able to use a certificate authority from the extra store.
+                        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+                        foreach (X509Certificate2 cert in trustedCertificateAuthorities)
+                        {
+                            chain.ChainPolicy.ExtraStore.Add(cert);
+                        }
+                    }
+                    chain.Build(certificate as X509Certificate2);
+                }
+
+                if (chain != null && chain.ChainStatus != null)
+                {
+                    var chainStatus = new List<X509ChainStatus>(chain.ChainStatus);
+
+                    if (trustedCertificateAuthorities != null)
+                    {
+                        // Untrusted root is OK when using our custom chain engine if the CA certificate is present in
+                        // the chain policy extra store.
+                        X509ChainElement root = chain.ChainElements[^1];
+                        if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate) &&
+                            chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
+                        {
+                            chainStatus.Remove(
+                                chainStatus.Find(status => status.Status == X509ChainStatusFlags.UntrustedRoot));
+                            errors ^= SslPolicyErrors.RemoteCertificateChainErrors;
+                        }
+                        else if (!chain.ChainPolicy.ExtraStore.Contains(root.Certificate) &&
+                                 !chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
+                        {
+                            chainStatus.Add(new X509ChainStatus() { Status = X509ChainStatusFlags.UntrustedRoot });
+                            errors |= SslPolicyErrors.RemoteCertificateChainErrors;
+                        }
+                    }
+
+                    foreach (X509ChainStatus status in chainStatus)
+                    {
+                        if (status.Status != X509ChainStatusFlags.NoError)
+                        {
+                            message.Append("\ncertificate chain error: ");
+                            message.Append(status.Status);
+                            errors |= SslPolicyErrors.RemoteCertificateChainErrors;
+                        }
                     }
                 }
-                chain.Build(certificate as X509Certificate2);
             }
-
-            if (chain != null && chain.ChainStatus != null)
+            finally
             {
-                var chainStatus = new List<X509ChainStatus>(chain.ChainStatus);
-
-                if (trustedCertificateAuthorities != null)
+                if (buildCustomChain)
                 {
-                    // Untrusted root is OK when using our custom chain engine if the CA certificate is present in the
-                    // chain policy extra store.
-                    X509ChainElement root = chain.ChainElements[^1];
-                    if (chain.ChainPolicy.ExtraStore.Contains(root.Certificate) &&
-                        chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
-                    {
-                        chainStatus.Remove(
-                            chainStatus.Find(status => status.Status == X509ChainStatusFlags.UntrustedRoot));
-                        errors ^= SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
-                    else if (!chain.ChainPolicy.ExtraStore.Contains(root.Certificate) &&
-                             !chainStatus.Exists(status => status.Status == X509ChainStatusFlags.UntrustedRoot))
-                    {
-                        chainStatus.Add(new X509ChainStatus() { Status = X509ChainStatusFlags.UntrustedRoot });
-                        errors |= SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
-                }
-
-                foreach (X509ChainStatus status in chainStatus)
-                {
-                    if (status.Status != X509ChainStatusFlags.NoError)
-                    {
-                        message.Append("\ncertificate chain error: ");
-                        message.Append(status.Status);
-                        errors |= SslPolicyErrors.RemoteCertificateChainErrors;
-                    }
+                    chain.Dispose();
                 }
             }
 
