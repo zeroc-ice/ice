@@ -83,7 +83,7 @@ namespace ZeroC.Ice
                     TraceLevels traceLevels = _communicator.TraceLevels;
                     if (traceLevels.Network >= 2)
                     {
-                        _communicator.Logger.Trace(traceLevels.NetworkCat, last ?
+                        _communicator.Logger.Trace(traceLevels.NetworkCategory, last ?
                             $"couldn't resolve endpoint host and no more endpoints to try\n{ex}" :
                             $"couldn't resolve endpoint host, trying next endpoint\n{ex}");
                     }
@@ -269,7 +269,7 @@ namespace ZeroC.Ice
 
                     if (_communicator.TraceLevels.Network >= 2)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                             $"trying to establish {endpoint.TransportName} connection to {connector}");
                     }
 
@@ -308,7 +308,7 @@ namespace ZeroC.Ice
                     TraceLevels traceLevels = _communicator.TraceLevels;
                     if (traceLevels.Network >= 2)
                     {
-                        _communicator.Logger.Trace(traceLevels.NetworkCat,
+                        _communicator.Logger.Trace(traceLevels.NetworkCategory,
                             $"failed to establish {endpoint.TransportName} connection to {connector} " +
                             (last ? $"and no more endpoints to try\n{ex}" : $"trying next endpoint\n{ex}"));
                     }
@@ -527,7 +527,7 @@ namespace ZeroC.Ice
                 {
                     if (_communicator.TraceLevels.Network >= 2)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                             $"attempting to bind to {_endpoint.TransportName} socket\n{_transceiver}");
                     }
                     _endpoint = _transceiver.Bind();
@@ -542,14 +542,14 @@ namespace ZeroC.Ice
 
                     if (_communicator.TraceLevels.Network >= 2)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                             $"attempting to bind to {_endpoint.TransportName} socket {_acceptor}");
                     }
                     _endpoint = _acceptor!.Listen();
 
                     if (_communicator.TraceLevels.Network >= 1)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                             $"listening for {_endpoint.TransportName} connections\n{_acceptor!.ToDetailedString()}");
                     }
                 }
@@ -585,7 +585,7 @@ namespace ZeroC.Ice
                 {
                     if (_communicator.TraceLevels.Network >= 1)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                             $"accepting {_endpoint.TransportName} connections at {_acceptor}");
                     }
 
@@ -696,7 +696,7 @@ namespace ZeroC.Ice
 
                     if (_communicator.TraceLevels.Network >= 2)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                             $"trying to accept {_endpoint.TransportName} connection\n{transceiver}");
                     }
 
@@ -741,7 +741,7 @@ namespace ZeroC.Ice
                 {
                     if (_communicator.TraceLevels.Network >= 2)
                     {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                             $"failed to accept {_endpoint.TransportName} connection\n{connection}\n{ex}");
                     }
                 }
@@ -755,7 +755,7 @@ namespace ZeroC.Ice
             {
                 if (_communicator.TraceLevels.Network >= 1)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                         $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
                 }
 

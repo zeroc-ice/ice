@@ -233,7 +233,7 @@ namespace ZeroC.Ice
             {
                 if (_communicator.TraceLevels.Network >= 2)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                         $"{_transportName} connection HTTP upgrade request failed\n{this}\n{ex}");
                 }
                 throw;
@@ -243,12 +243,12 @@ namespace ZeroC.Ice
             {
                 if (_incoming)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                         $"accepted {_transportName} connection HTTP upgrade request\n{this}");
                 }
                 else
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                         $"{_transportName} connection HTTP upgrade request accepted\n{this}");
                 }
             }
@@ -260,7 +260,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Network >= 1)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                     $"gracefully closing {_transportName} connection\n{this}");
             }
 
@@ -1100,7 +1100,7 @@ namespace ZeroC.Ice
                             {
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                                         "received " + _transportName + (_readOpCode == OP_DATA ? " data" : " continuation") +
                                         " frame with payload length of " + _readPayloadLength +
                                         " bytes\n" + ToString());
@@ -1119,7 +1119,7 @@ namespace ZeroC.Ice
                             {
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                                         $"received {_transportName} connection close frame\n{this}");
                                 }
 
@@ -1155,7 +1155,7 @@ namespace ZeroC.Ice
                             {
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                                         $"received {_transportName} connection ping frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
@@ -1165,7 +1165,7 @@ namespace ZeroC.Ice
                             {
                                 if (_communicator.TraceLevels.Network >= 2)
                                 {
-                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                                         $"received {_transportName} connection pong frame\n{this}");
                                 }
                                 _readState = ReadStateControlFrame;
@@ -1404,7 +1404,7 @@ namespace ZeroC.Ice
                     {
                         if (_communicator.TraceLevels.Network >= 2)
                         {
-                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                                 $"sent {_transportName} connection ping frame\n{this}");
                         }
                     }
@@ -1412,7 +1412,7 @@ namespace ZeroC.Ice
                     {
                         if (_communicator.TraceLevels.Network >= 2)
                         {
-                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                                 $"sent {_transportName} connection pong frame\n{this}");
                         }
                     }
@@ -1421,7 +1421,7 @@ namespace ZeroC.Ice
                     {
                         if (_communicator.TraceLevels.Network >= 2)
                         {
-                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                            _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                                 $"sent {_transportName} connection close frame\n{this}");
                         }
 

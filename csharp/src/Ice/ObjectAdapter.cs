@@ -849,10 +849,10 @@ namespace ZeroC.Ice
 
                     if (endpoints == null || endpoints.Count == 0)
                     {
-                        TraceLevels tl = Communicator.TraceLevels;
-                        if (tl.Network >= 2)
+                        if (Communicator.TraceLevels.Network >= 2)
                         {
-                            Communicator.Logger.Trace(tl.NetworkCat, $"created adapter `{Name}' without endpoints");
+                            Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory,
+                                                      $"created adapter `{Name}' without endpoints");
                         }
                     }
                 }
@@ -862,7 +862,7 @@ namespace ZeroC.Ice
                 Locator = Communicator.GetPropertyAsProxy($"{Name}.Locator", ILocatorPrx.Factory)
                     ?? Communicator.DefaultLocator;
             }
-            catch (System.Exception)
+            catch
             {
                 Destroy();
                 throw;
@@ -1083,7 +1083,7 @@ namespace ZeroC.Ice
                 s.Append(Name);
                 s.Append("':\n");
                 s.Append(string.Join(":", endpoints));
-                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCat, s.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.NetworkCategory, s.ToString());
             }
 
             return endpoints;
@@ -1129,12 +1129,12 @@ namespace ZeroC.Ice
                 {
                     if (_replicaGroupId.Length == 0)
                     {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat,
+                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory,
                             $"could not update the endpoints of object adapter `{_id}' in the locator registry:\n{ex}");
                     }
                     else
                     {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat,
+                        Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory,
                             @$"could not update the endpoints of object adapter `{_id
                                 }' with replica group `{_replicaGroupId}' in the locator registry:\n{ex}");
                     }
@@ -1151,7 +1151,7 @@ namespace ZeroC.Ice
                 {
                     s.Append(string.Join(":", proxy.Endpoints));
                 }
-                Communicator.Logger.Trace(Communicator.TraceLevels.LocationCat, s.ToString());
+                Communicator.Logger.Trace(Communicator.TraceLevels.LocationCategory, s.ToString());
             }
         }
 

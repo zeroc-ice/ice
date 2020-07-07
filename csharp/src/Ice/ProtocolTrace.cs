@@ -172,7 +172,7 @@ namespace ZeroC.Ice
                 }
                 s.Append("\nencoding = ");
                 s.Append(encoding.ToString());
-                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }
         }
 
@@ -197,7 +197,7 @@ namespace ZeroC.Ice
                 s.Append(replyStatus);
                 s.Append("\nencoding = ");
                 s.Append(encoding.ToString());
-                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }
         }
 
@@ -223,7 +223,7 @@ namespace ZeroC.Ice
                             header[9],
                             InputStream.ReadFixedLengthSize(protocol.GetEncoding(), header.Slice(10, 4)),
                             s);
-                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCat, s.ToString());
+                communicator.Logger.Trace(communicator.TraceLevels.ProtocolCategory, s.ToString());
             }
         }
 

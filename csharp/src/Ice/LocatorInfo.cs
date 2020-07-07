@@ -231,7 +231,7 @@ namespace ZeroC.Ice
                         s.Append("well-known object\n");
                         s.Append("well-known proxy = " + reference.ToString());
                     }
-                    communicator.Logger.Trace(communicator.TraceLevels.LocationCat, s.ToString());
+                    communicator.Logger.Trace(communicator.TraceLevels.LocationCategory, s.ToString());
                 }
             }
             return (endpoints, cached);
@@ -243,7 +243,7 @@ namespace ZeroC.Ice
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
-                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
                     $"searching for adapter by id\nadapter = {reference.AdapterId}");
             }
 
@@ -287,7 +287,7 @@ namespace ZeroC.Ice
                 {
                     if (reference.Communicator.TraceLevels.Location > 0)
                     {
-                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
                             $"adapter not found\nadapter = {reference.AdapterId}");
                     }
                     _table.RemoveAdapterEndpoints(reference.AdapterId);
@@ -297,7 +297,7 @@ namespace ZeroC.Ice
                 {
                     if (reference.Communicator.TraceLevels.Location > 0)
                     {
-                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
                             "could not contact the locator to retrieve endpoints\n" +
                             $"adapter = {reference.AdapterId}\nreason = {exception}");
                     }
@@ -319,7 +319,7 @@ namespace ZeroC.Ice
         {
             if (reference.Communicator.TraceLevels.Location > 0)
             {
-                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
                     $"searching for well-known object\nwell-known proxy = {reference}");
             }
 
@@ -363,7 +363,7 @@ namespace ZeroC.Ice
                 {
                     if (reference.Communicator.TraceLevels.Location > 0)
                     {
-                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
                             "object not found\n" +
                             $"object = {reference.Identity.ToString(reference.Communicator.ToStringMode)}");
                     }
@@ -374,7 +374,7 @@ namespace ZeroC.Ice
                 {
                     if (reference.Communicator.TraceLevels.Location > 0)
                     {
-                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCat,
+                        reference.Communicator.Logger.Trace(reference.Communicator.TraceLevels.LocationCategory,
                             "could not contact the locator to retrieve endpoints\n" +
                             $"well-known proxy = {reference}\nreason = {exception}");
                     }
@@ -404,7 +404,7 @@ namespace ZeroC.Ice
             }
             s.Append("endpoints = ");
             s.Append(string.Join(":", endpoints));
-            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCat, s.ToString());
+            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCategory, s.ToString());
         }
 
         private static void Trace(string msg, Reference r, Reference resolved)
@@ -418,7 +418,7 @@ namespace ZeroC.Ice
             s.Append("\n");
             s.Append("adapter = ");
             s.Append(resolved.AdapterId);
-            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCat, s.ToString());
+            r.Communicator.Logger.Trace(r.Communicator.TraceLevels.LocationCategory, s.ToString());
         }
     }
 

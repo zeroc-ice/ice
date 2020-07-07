@@ -835,7 +835,7 @@ namespace ZeroC.Ice
                             s.Append(" connection\n");
                             s.Append(ToString());
                         }
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
                     }
 
                     if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
@@ -1396,7 +1396,7 @@ namespace ZeroC.Ice
                     s.Append(_exception);
                 }
 
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
             }
 
             // Wait for pending receives and sends to complete
@@ -1950,7 +1950,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                     $"received {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 
@@ -1964,7 +1964,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                     $"sent {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 

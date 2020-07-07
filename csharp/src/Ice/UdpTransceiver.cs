@@ -282,7 +282,7 @@ namespace ZeroC.Ice
 
                 if (_communicator.TraceLevels.Network >= 1)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                         $"connected udp socket\n{this}");
                 }
             }
@@ -409,7 +409,7 @@ namespace ZeroC.Ice
 
                 if (_communicator.TraceLevels.Network >= 1)
                 {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                         $"connected udp socket\n{this}");
                 }
             }
