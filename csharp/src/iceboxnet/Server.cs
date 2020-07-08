@@ -75,7 +75,8 @@ namespace ZeroC.IceBox
                 }
             }
 
-            return await new ServiceManager(communicator, args).RunAsync();
+            var serviceManager = new ServiceManager(communicator, args);
+            return await serviceManager.RunAsync();
         }
     }
 }

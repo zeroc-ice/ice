@@ -190,7 +190,7 @@ namespace ZeroC.IceBox
             }
         }
 
-        public void Shutdown(Current current) => _communicator.ShutdownAsync().AsTask().Wait();
+        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
 
         public async Task<int> RunAsync()
         {
@@ -541,7 +541,7 @@ namespace ZeroC.IceBox
 
                     try
                     {
-                        _sharedCommunicator.DisposeAsync().AsTask().Wait();
+                        _sharedCommunicator.Dispose();
                     }
                     catch (Exception ex)
                     {

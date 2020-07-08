@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         /// object adapters. After this method returns, no new requests are processed. However, requests that have
         /// been started before Shutdown was called might still be active. You can use <see cref="WaitForShutdown"/>
         /// to wait for the completion of all requests.</summary>
-        public async ValueTask ShutdownAsync()
+        public async Task ShutdownAsync()
         {
             ObjectAdapter[] adapters;
             lock (_mutex)

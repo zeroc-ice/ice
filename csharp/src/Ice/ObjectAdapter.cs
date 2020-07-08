@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public sealed class ObjectAdapter : IAsyncDisposable
+    public sealed class ObjectAdapter : IDisposable, IAsyncDisposable
     {
         /// <summary>Returns the communicator that created this object adapter.</summary>
         /// <value>The communicator.</value>
@@ -842,7 +842,7 @@ namespace ZeroC.Ice
             }
             catch
             {
-                DisposeAsync().AsTask().Wait();
+                Dispose();
                 throw;
             }
         }
