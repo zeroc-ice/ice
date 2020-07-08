@@ -56,11 +56,11 @@ namespace ZeroC.Ice
             {
                 // Destroy the plug-ins that have been successfully initialized, in the reverse order.
                 initializedPlugins.Reverse();
-                foreach (IPlugin p in initializedPlugins)
+                foreach (IPlugin plugins in initializedPlugins)
                 {
                     try
                     {
-                        p.Destroy();
+                        plugins.DisposeAsync().AsTask().Wait();
                     }
                     catch
                     {

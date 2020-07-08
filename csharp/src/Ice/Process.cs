@@ -9,7 +9,7 @@ namespace ZeroC.Ice
     {
         private readonly Communicator _communicator;
 
-        public void Shutdown(Current current) => _communicator.Shutdown();
+        public void Shutdown(Current current) => _communicator.ShutdownAsync();
 
         public void WriteMessage(string message, int fd, Current current)
         {

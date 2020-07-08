@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -31,7 +32,7 @@ namespace ZeroC.Ice
         public int RcvSize;
     }
 
-    public sealed partial class Communicator : IDisposable
+    public sealed partial class Communicator : IDisposable, IAsyncDisposable
     {
         private class ObserverUpdater : Instrumentation.IObserverUpdater
         {
@@ -710,29 +711,24 @@ namespace ZeroC.Ice
                     }
                 }
 
-                //
-                // An application can set Ice.InitPlugins=0 if it wants to postpone
-                // initialization until after it has interacted directly with the
-                // plug-ins.
-                //
+                // An application can set Ice.InitPlugins=0 if it wants to postpone initialization until after it has
+                // interacted directly with the plug-ins.
                 if (GetPropertyAsBool("Ice.InitPlugins") ?? true)
                 {
                     InitializePlugins();
                 }
 
-                //
-                // This must be done last as this call creates the Ice.Admin object adapter
-                // and eventually registers a process proxy with the Ice locator (allowing
-                // remote clients to invoke on Ice.Admin facets as soon as it's registered).
-                //
+                // This must be done last as this call creates the Ice.Admin object adapter and eventually registers a
+                // process proxy with the Ice locator (allowing remote clients to invoke on Ice.Admin facets as soon as
+                // it's registered).
                 if (!(GetPropertyAsBool("Ice.Admin.DelayCreation") ?? false))
                 {
                     GetAdmin();
                 }
             }
-            catch (Exception)
+            catch
             {
-                Destroy();
+                Dispose();
                 throw;
             }
         }
@@ -765,25 +761,21 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>
-        /// Add the Admin object with all its facets to the provided object adapter.
-        /// If Ice.Admin.ServerId is set and the provided object adapter has a Locator,
-        /// createAdmin registers the Admin's Process facet with the Locator's LocatorRegistry.
-        ///
-        /// createAdmin call only be called once; subsequent calls raise InvalidOperationException.
-        ///
-        /// </summary>
-        /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
-        /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
-        ///
-        /// </param>
-        /// <param name="adminIdentity">The identity of the Admin object.
-        ///
-        /// </param>
-        /// <returns>A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
-        ///
-        /// </returns>
         public IObjectPrx CreateAdmin(ObjectAdapter? adminAdapter, Identity adminIdentity)
+        {
+            ValueTask<IObjectPrx> task = CreateAdminAsync(adminAdapter, adminIdentity);
+            return task.IsCompleted ? task.Result : task.AsTask().Result;
+        }
+
+        /// <summary>Add the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
+        /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with the
+        /// Locator's LocatorRegistry. CreateAdmin can only be called once; subsequent calls raise
+        /// InvalidOperationException.</summary>
+        /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
+        /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.</param>
+        /// <param name="adminIdentity">The identity of the Admin object.</param>
+        /// <returns>A proxy to the main ("") facet of the Admin object. Never returns a null proxy.</returns>
+        public async ValueTask<IObjectPrx> CreateAdminAsync(ObjectAdapter? adminAdapter, Identity adminIdentity)
         {
             lock (_mutex)
             {
@@ -826,14 +818,14 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    _adminAdapter.Activate();
+                    await _adminAdapter.ActivateAsync();
                 }
-                catch (Exception)
+                catch
                 {
                     // We cleanup _adminAdapter, however this error is not recoverable
                     // (can't call again getAdmin() after fixing the problem)
                     // since all the facets (servants) in the adapter are lost
-                    _adminAdapter.Destroy();
+                    await _adminAdapter.DisposeAsync();
                     lock (_mutex)
                     {
                         _adminAdapter = null;
@@ -852,7 +844,7 @@ namespace ZeroC.Ice
         /// this communicator's client functionality and destroys all object
         /// adapters. Subsequent calls to destroy are ignored.
         /// </summary>
-        public void Destroy()
+        public async ValueTask DisposeAsync()
         {
             lock (_mutex)
             {
@@ -875,13 +867,33 @@ namespace ZeroC.Ice
 
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections
             // to be finished.
-            Shutdown();
+            await ShutdownAsync();
             _outgoingConnectionFactory?.DestroyAsync();
 
-            // First wait for shutdown to finish.
-            WaitForShutdown();
+            {
+                ObjectAdapter[] adapters;
+                lock (_mutex)
+                {
+                    adapters = _adapters.ToArray();
+                }
 
-            DestroyAllObjectAdapters();
+                foreach (ObjectAdapter adapter in _adapters)
+                {
+                    await adapter.DisposeAsync();
+                }
+
+                lock (_mutex)
+                {
+                    _adapters.Clear();
+                }
+
+                // _adminAdapter is disposed above when iterating over all adapters, we call DisposeAsync
+                // here to avoid the compiler warning about disposable field not being dispose.
+                if (_adminAdapter != null)
+                {
+                    await _adminAdapter.DisposeAsync();
+                }
+            }
 
             _outgoingConnectionFactory?.DestroyAsync().Wait();
 
@@ -921,7 +933,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    plugin.Destroy();
+                    await plugin.DisposeAsync();
                 }
                 catch (Exception ex)
                 {
@@ -948,7 +960,7 @@ namespace ZeroC.Ice
             _cancellationTokenSource.Dispose();
         }
 
-        public void Dispose() => Destroy();
+        public void Dispose() => DisposeAsync().AsTask().Wait();
 
         /// <summary>
         /// Returns a facet of the Admin object.
@@ -993,6 +1005,11 @@ namespace ZeroC.Ice
             }
         }
 
+        public IObjectPrx? GetAdmin()
+        {
+            ValueTask<IObjectPrx?> task = GetAdminAsync();
+            return task.IsCompleted ? task.Result : task.AsTask().Result;
+        }
         /// <summary>
         /// Get a proxy to the main facet of the Admin object.
         /// GetAdmin also creates the Admin object and creates and activates the Ice.Admin object
@@ -1006,7 +1023,7 @@ namespace ZeroC.Ice
         /// </summary>
         /// <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no
         /// Admin object is configured.</returns>
-        public IObjectPrx? GetAdmin()
+        public async ValueTask<IObjectPrx?> GetAdminAsync()
         {
             ObjectAdapter adminAdapter;
             Identity adminIdentity;
@@ -1052,14 +1069,14 @@ namespace ZeroC.Ice
 
             try
             {
-                adminAdapter.Activate();
+                await adminAdapter.ActivateAsync();
             }
             catch (Exception)
             {
                 // We cleanup _adminAdapter, however this error is not recoverable
                 // (can't call again getAdmin() after fixing the problem)
                 // since all the facets (servants) in the adapter are lost
-                adminAdapter.Destroy();
+                await adminAdapter.DisposeAsync();
                 lock (_mutex)
                 {
                     _adminAdapter = null;
@@ -1263,10 +1280,8 @@ namespace ZeroC.Ice
                 IProcessPrx process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
                 try
                 {
-                    //
                     // Note that as soon as the process proxy is registered, the communicator might be
                     // shutdown by a remote client and admin facets might start receiving calls.
-                    //
                     locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
                 }
                 catch (Exception ex)

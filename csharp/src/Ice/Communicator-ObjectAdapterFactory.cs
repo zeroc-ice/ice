@@ -15,7 +15,7 @@ namespace ZeroC.Ice
         /// object adapters. After this method returns, no new requests are processed. However, requests that have
         /// been started before Shutdown was called might still be active. You can use <see cref="WaitForShutdown"/>
         /// to wait for the completion of all requests.</summary>
-        public void Shutdown()
+        public async ValueTask ShutdownAsync()
         {
             ObjectAdapter[] adapters;
             lock (_mutex)
@@ -34,7 +34,7 @@ namespace ZeroC.Ice
             // Deactivate outside the lock to avoid deadlocks.
             foreach (ObjectAdapter adapter in adapters)
             {
-                adapter.Deactivate();
+                await adapter.DeactivateAsync();
             }
         }
 
@@ -46,7 +46,7 @@ namespace ZeroC.Ice
         /// some other thread calls <see cref="Shutdown"/>. After shutdown is complete, the main thread returns and can
         /// do some cleanup work before calling <see cref="Destroy"/> to shut down the client functionality, and then
         /// finally exits the application.</summary>
-        public void WaitForShutdown()
+        public async ValueTask WaitForShutdownAsync()
         {
             ObjectAdapter[] adapters;
             lock (_mutex)
@@ -63,7 +63,7 @@ namespace ZeroC.Ice
             // Then wait for the deactivation of each object adapter.
             foreach (ObjectAdapter adapter in adapters)
             {
-                adapter.WaitForDeactivate();
+                await adapter.DeactivateAsync();
             }
         }
 
@@ -75,8 +75,8 @@ namespace ZeroC.Ice
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
         public ObjectAdapter CreateObjectAdapter(string name, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null)
-            => AddObjectAdapter(name, serializeDispatch, taskScheduler);
+            TaskScheduler? taskScheduler = null) =>
+            AddObjectAdapter(name, serializeDispatch, taskScheduler);
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be
         /// associated with a bi-directional connection.</summary>
@@ -84,8 +84,10 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapter(bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
-            => AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler);
+        public ObjectAdapter CreateObjectAdapter(
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null) =>
+            AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler);
 
         /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
         /// to setting the name.Endpoints property and then calling
@@ -116,9 +118,11 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithEndpoints(string endpoints, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null)
-            => CreateObjectAdapterWithEndpoints(Guid.NewGuid().ToString(), endpoints, serializeDispatch, taskScheduler);
+        public ObjectAdapter CreateObjectAdapterWithEndpoints(
+            string endpoints,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null) =>
+            CreateObjectAdapterWithEndpoints(Guid.NewGuid().ToString(), endpoints, serializeDispatch, taskScheduler);
 
         /// <summary>Creates a new object adapter with the specified router proxy. Calling this method is equivalent
         /// to setting the name.Router property and then calling
@@ -129,8 +133,11 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(string name, IRouterPrx router,
-            bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
+        public ObjectAdapter CreateObjectAdapterWithRouter(
+            string name,
+            IRouterPrx router,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null)
         {
             if (name.Length == 0)
             {
@@ -155,9 +162,11 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(IRouterPrx router, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null)
-            => CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
+        public ObjectAdapter CreateObjectAdapterWithRouter(
+            IRouterPrx router,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null) =>
+            CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
 
         internal ObjectAdapter? FindObjectAdapter(Reference reference)
         {
@@ -208,8 +217,11 @@ namespace ZeroC.Ice
             }
         }
 
-        private ObjectAdapter AddObjectAdapter(string? name = null, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null, IRouterPrx? router = null)
+        private ObjectAdapter AddObjectAdapter(
+            string? name = null,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null,
+            IRouterPrx? router = null)
         {
             if (name != null && name.Length == 0)
             {
@@ -250,11 +262,11 @@ namespace ZeroC.Ice
                     return adapter;
                 }
             }
-            catch (Exception)
+            catch
             {
                 if (adapter != null)
                 {
-                    adapter.Destroy();
+                    adapter.Dispose();
                 }
 
                 if (name != null)
@@ -265,25 +277,6 @@ namespace ZeroC.Ice
                     }
                 }
                 throw;
-            }
-        }
-
-        private void DestroyAllObjectAdapters()
-        {
-            ObjectAdapter[] adapters;
-            lock (_mutex)
-            {
-                adapters = _adapters.ToArray();
-            }
-
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.Destroy();
-            }
-
-            lock (_mutex)
-            {
-                _adapters.Clear();
             }
         }
     }

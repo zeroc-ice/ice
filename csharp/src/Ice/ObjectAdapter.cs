@@ -11,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    public sealed class ObjectAdapter
+    public sealed class ObjectAdapter : IAsyncDisposable
     {
         /// <summary>Returns the communicator that created this object adapter.</summary>
         /// <value>The communicator.</value>
         public Communicator Communicator { get; }
 
         /// <summary>The Ice Locator associated with this object adapter, if any. The object adapter registers itself
-        /// with this locator during <see cref="Activate"/>.</summary>
+        /// with this locator during <see cref="ActivateAsync"/>.</summary>
         /// <value>The locator proxy.</value>
         public ILocatorPrx? Locator
         {
@@ -95,7 +95,7 @@ namespace ZeroC.Ice
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
         /// set).</summary>
-        public void Activate()
+        public async Task ActivateAsync()
         {
             lock (_mutex)
             {
@@ -114,9 +114,11 @@ namespace ZeroC.Ice
 
             try
             {
-                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                await UpdateLocatorRegistryAsync(_locatorInfo,
+                                                 CreateDirectProxy(new Identity("dummy", ""),
+                                                 IObjectPrx.Factory));
             }
-            catch (System.Exception)
+            catch
             {
                 // If we couldn't update the locator registry, we let the exception go through and don't activate the
                 // adapter to allow to user code to retry activating the adapter later.
@@ -136,11 +138,10 @@ namespace ZeroC.Ice
             lock (_mutex)
             {
                 Debug.Assert(_state == State.Activating);
-                foreach (IncomingConnectionFactory icf in _incomingConnectionFactories)
+                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
-                    icf.Activate();
+                    factory.Activate();
                 }
-
                 _state = State.Active;
                 System.Threading.Monitor.PulseAll(_mutex);
             }
@@ -149,11 +150,9 @@ namespace ZeroC.Ice
         /// <summary>Initiates the deactivation of all endpoints that belong to this object adapter.
         /// When Deactivate returns, the object adapter stops receiving requests through its endpoints. Object adapters
         /// that have been deactivated must not be reactivated again, and cannot be used otherwise. Calling Deactivate
-        /// on a deactivated object adapter does nothing. Call <see cref="Destroy"/> to clean-up the resources held by
-        /// a deactivated object adapter.
-        /// <para/> Requests that have been started before Deactivate was called can still be running when Deactivate
-        /// returns. Use <see cref="WaitForDeactivate"/> to wait for the completion of these requests.</summary>
-        public void Deactivate()
+        /// on a deactivated object adapter does nothing. Call <see cref="DisposeAsync"/> to clean-up the resources held by
+        /// a deactivated object adapter.</summary>
+        public async ValueTask DeactivateAsync()
         {
             lock (_mutex)
             {
@@ -182,9 +181,9 @@ namespace ZeroC.Ice
                     _routerInfo.Adapter = null;
                 }
 
-                UpdateLocatorRegistry(_locatorInfo, null);
+                await UpdateLocatorRegistryAsync(_locatorInfo, null);
             }
-            catch (Exception)
+            catch
             {
                 // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
             }
@@ -204,39 +203,14 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Waits until the object adapter is deactivated and all requests dispatched through this object
-        /// adapter have completed.</summary>
-        public void WaitForDeactivate()
-        {
-            lock (_mutex)
-            {
-                // Wait for deactivation of the adapter itself, and for the return of all direct calls using this
-                // adapter.
-                while ((_state < State.Deactivated) || _directCount > 0)
-                {
-                    System.Threading.Monitor.Wait(_mutex);
-                }
-                if (_state > State.Deactivated)
-                {
-                    return;
-                }
-            }
+        public void Dispose() => DisposeAsync().AsTask().Wait();
 
-            // Now we wait until all incoming connection factories are finished.
-            foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-            {
-                factory.DestroyAsync().Wait();
-            }
-        }
-
-        /// <summary>Destroys the object adapter and cleans up all resources held by the object adapter.
-        /// Destroy first calls <see cref="Deactivate"/> and <see cref="WaitForDeactivate"/> to deactivate the object
-        /// adapter (if needed). Calling Destroy on an object adapter being destroyed blocks until the first call
-        /// to Destroy completes.</summary>
-        public void Destroy()
+        /// <summary>Destroys the object adapter and cleans up all resources held by the object adapter. DisposeAsync
+        /// first calls <see cref="DeactivateAsync"/> to deactivate the object adapter (if needed). Calling
+        /// DisposeAsync on an object adapter being dispose blocks until the first call to DisposeAsync completes.</summary>
+        public async ValueTask DisposeAsync()
         {
-            Deactivate();
-            WaitForDeactivate();
+            await DeactivateAsync();
 
             lock (_mutex)
             {
@@ -677,7 +651,9 @@ namespace ZeroC.Ice
 
             try
             {
-                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                _ = UpdateLocatorRegistryAsync(_locatorInfo,
+                                               CreateDirectProxy(new Identity("dummy", ""),
+                                               IObjectPrx.Factory));
             }
             catch (Exception)
             {
@@ -727,7 +703,9 @@ namespace ZeroC.Ice
 
             try
             {
-                UpdateLocatorRegistry(_locatorInfo, CreateDirectProxy(new Identity("dummy", ""), IObjectPrx.Factory));
+                _ = UpdateLocatorRegistryAsync(_locatorInfo,
+                                               CreateDirectProxy(new Identity("dummy", ""),
+                                               IObjectPrx.Factory));
             }
             catch (Exception)
             {
@@ -864,7 +842,7 @@ namespace ZeroC.Ice
             }
             catch
             {
-                Destroy();
+                DisposeAsync().AsTask().Wait();
                 throw;
             }
         }
@@ -1089,7 +1067,7 @@ namespace ZeroC.Ice
             return endpoints;
         }
 
-        private void UpdateLocatorRegistry(LocatorInfo? locatorInfo, IObjectPrx? proxy)
+        private async Task UpdateLocatorRegistryAsync(LocatorInfo? locatorInfo, IObjectPrx? proxy)
         {
             if (_id.Length == 0 || locatorInfo == null)
             {
@@ -1108,11 +1086,11 @@ namespace ZeroC.Ice
             {
                 if (_replicaGroupId.Length == 0)
                 {
-                    locatorRegistry.SetAdapterDirectProxy(_id, proxy);
+                    await locatorRegistry.SetAdapterDirectProxyAsync(_id, proxy);
                 }
                 else
                 {
-                    locatorRegistry.SetReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
+                    await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(_id, _replicaGroupId, proxy);
                 }
             }
             catch (ObjectAdapterDeactivatedException)

@@ -368,10 +368,17 @@ namespace ZeroC.IceLocatorDiscovery
         private readonly string _name;
         private ObjectAdapter? _replyAdapter;
 
-        public void Destroy()
+        public async ValueTask DisposeAsync()
         {
-            _replyAdapter?.Destroy();
-            _locatorAdapter?.Destroy();
+            if (_replyAdapter != null)
+            {
+                await _replyAdapter.DisposeAsync();
+            }
+
+            if (_locatorAdapter != null)
+            {
+                await _locatorAdapter.DisposeAsync();
+            }
 
             if (IObjectPrx.Equals(_communicator.DefaultLocator, _locatorPrx))
             {
@@ -442,8 +449,8 @@ namespace ZeroC.IceLocatorDiscovery
 
             _replyAdapter.Add(lookupReplyId, new LookupReply(_locator));
 
-            _replyAdapter.Activate();
-            _locatorAdapter.Activate();
+            _ = _replyAdapter.ActivateAsync();
+            _ = _locatorAdapter.ActivateAsync();
         }
 
         internal Plugin(string name, Communicator communicator)

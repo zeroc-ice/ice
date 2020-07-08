@@ -4,12 +4,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ZeroC.IceBox
 {
     public static class Server
     {
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             try
             {
@@ -21,10 +22,10 @@ namespace ZeroC.IceBox
                 Console.CancelKeyPress += (sender, eventArgs) =>
                 {
                     eventArgs.Cancel = true;
-                    communicator.Shutdown();
+                    communicator.ShutdownAsync().AsTask().Wait();
                 };
 
-                return Run(communicator, args);
+                return await RunAsync(communicator, args);
             }
             catch (Exception ex)
             {
@@ -41,7 +42,7 @@ namespace ZeroC.IceBox
             Console.Error.WriteLine("-v, --version        Display the Ice version.");
         }
 
-        private static int Run(Ice.Communicator communicator, string[] args)
+        private static async Task<int> RunAsync(Ice.Communicator communicator, string[] args)
         {
             const string prefix = "IceBox.Service.";
             Dictionary<string, string> services = communicator.GetProperties(forPrefix: prefix);
@@ -73,8 +74,7 @@ namespace ZeroC.IceBox
                 }
             }
 
-            var serviceManagerImpl = new ServiceManager(communicator, args);
-            return serviceManagerImpl.Run();
+            return await new ServiceManager(communicator, args).RunAsync();
         }
     }
 }

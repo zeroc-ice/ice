@@ -222,7 +222,7 @@ namespace ZeroC.Glacier2
             {
                 Debug.Assert(_adapter == null);
                 _adapter = _communicator.CreateObjectAdapterWithRouter(router);
-                _adapter.Activate();
+                _ = _adapter.ActivateAsync();
             }
 
             lock (_mutex)
@@ -271,7 +271,7 @@ namespace ZeroC.Glacier2
                 communicator = _communicator;
             }
             Debug.Assert(communicator != null);
-            communicator.Destroy();
+            communicator.Dispose();
         }
 
         private void DestroyInternal()
@@ -310,7 +310,7 @@ namespace ZeroC.Glacier2
                 communicator.Logger.Warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
             }
 
-            communicator.Destroy();
+            communicator.Dispose();
 
             // Notify the callback that the session is gone.
             _callback.Disconnected(this);
@@ -382,7 +382,7 @@ namespace ZeroC.Glacier2
                 }
                 catch (Exception ex)
                 {
-                    _communicator.Destroy();
+                    _communicator.Dispose();
                     _callback.ConnectFailed(this, ex);
                 }
             })).Start();

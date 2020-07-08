@@ -190,9 +190,9 @@ namespace ZeroC.IceBox
             }
         }
 
-        public void Shutdown(Current current) => _communicator.Shutdown();
+        public void Shutdown(Current current) => _communicator.ShutdownAsync().AsTask().Wait();
 
-        public int Run()
+        public async Task<int> RunAsync()
         {
             try
             {
@@ -291,7 +291,10 @@ namespace ZeroC.IceBox
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 _communicator.AddAdminFacet("IceBox.ServiceManager", this);
                 _communicator.GetAdmin();
-                adapter?.Activate();
+                if (adapter != null)
+                {
+                    await adapter.ActivateAsync();
+                }
 
                 // We may want to notify external scripts that the services have started and that IceBox is "ready".
                 // This is done by defining the property IceBox.PrintServicesReady=bundleName, bundleName is whatever
@@ -303,7 +306,7 @@ namespace ZeroC.IceBox
                     Console.Out.WriteLine($"{bundleName} ready");
                 }
 
-                _communicator.WaitForShutdown();
+                await _communicator.WaitForShutdownAsync();
             }
             catch (CommunicatorDestroyedException)
             {
@@ -538,7 +541,7 @@ namespace ZeroC.IceBox
 
                     try
                     {
-                        _sharedCommunicator.Destroy();
+                        _sharedCommunicator.DisposeAsync().AsTask().Wait();
                     }
                     catch (Exception ex)
                     {
@@ -643,8 +646,7 @@ namespace ZeroC.IceBox
             {
                 try
                 {
-                    communicator.Shutdown();
-                    communicator.WaitForShutdown();
+                    communicator.ShutdownAsync().AsTask().Wait();
                 }
                 catch (CommunicatorDestroyedException)
                 {
@@ -657,7 +659,7 @@ namespace ZeroC.IceBox
                 }
 
                 RemoveAdminFacets("IceBox.Service." + service + ".");
-                communicator.Destroy();
+                communicator.Dispose();
             }
         }
 

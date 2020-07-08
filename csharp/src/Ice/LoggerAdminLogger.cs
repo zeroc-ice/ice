@@ -23,7 +23,7 @@ namespace ZeroC.Ice
         public void Destroy()
         {
             _channel.Writer.Complete();
-            _loggerAdmin.Destroy();
+            _loggerAdmin.DisposeAsync();
         }
 
         public void Error(string message)
