@@ -112,8 +112,8 @@ namespace ZeroC.Ice
         /// <summary>The connection is being gracefully shutdown and waits for the peer to close its end of the
         /// connection.</summary>
         Closing,
-        /// <summary>The connection is closed and waits for potential dispatch to be finished before being destroyed
-        /// and detached from the observer.</summary>
+        /// <summary>The connection is closed and eventually waits for potential dispatch to be finished before being
+        /// destroyed.</summary>
         Closed
     }
 
