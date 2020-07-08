@@ -317,7 +317,7 @@ classdef AllTests
                 initial.setCycle(rec);
                 assert(acceptsCycles);
             catch ex
-                assert(!acceptsCycles);
+                assert(~acceptsCycles);
             end
             fprintf('ok\n');
 
