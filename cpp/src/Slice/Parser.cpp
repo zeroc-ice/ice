@@ -1065,12 +1065,6 @@ Slice::Contained::includeLevel() const
     return _includeLevel;
 }
 
-void
-Slice::Contained::updateIncludeLevel()
-{
-    _includeLevel = min(_includeLevel, _unit->currentIncludeLevel());
-}
-
 bool
 Slice::Contained::hasMetaData(const string& meta) const
 {
@@ -4506,24 +4500,18 @@ Slice::Enum::destroy()
 EnumeratorPtr
 Slice::Enum::createEnumerator(const string& name)
 {
-    EnumeratorPtr p = validateEnumerator(name);
-    if(!p)
-    {
-        p = new Enumerator(this, name);
-        _enumerators.push_back(p);
-    }
+    validateEnumerator(name);
+    EnumeratorPtr p = new Enumerator(this, name);
+    _enumerators.push_back(p);
     return p;
 }
 
 EnumeratorPtr
 Slice::Enum::createEnumerator(const string& name, int64_t value)
 {
-    EnumeratorPtr p = validateEnumerator(name);
-    if(!p)
-    {
-        p = new Enumerator(this, name, value);
-        _enumerators.push_back(p);
-    }
+    validateEnumerator(name);
+    EnumeratorPtr p = new Enumerator(this, name, value);
+    _enumerators.push_back(p);
     return p;
 }
 

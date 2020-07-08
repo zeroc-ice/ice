@@ -445,7 +445,6 @@ public:
     CommentPtr parseComment(bool) const;
 
     int includeLevel() const;
-    void updateIncludeLevel();
 
     bool hasMetaData(const std::string&) const;
     bool hasMetaDataWithPrefix(const std::string&) const;
