@@ -14,15 +14,16 @@ namespace ZeroC.IceBox
         {
             try
             {
-                using var communicator = new Ice.Communicator(ref args, new Dictionary<string, string>()
+                using var communicator = new Ice.Communicator(ref args,
+                                                              new Dictionary<string, string>()
                                                               {
                                                                   { "Ice.Admin.DelayCreation", "1" }
                                                               });
 
-                Console.CancelKeyPress += (sender, eventArgs) =>
+                Console.CancelKeyPress += async (sender, eventArgs) =>
                 {
                     eventArgs.Cancel = true;
-                    communicator.ShutdownAsync().AsTask().Wait();
+                    await communicator.ShutdownAsync();
                 };
 
                 return await RunAsync(communicator, args);
