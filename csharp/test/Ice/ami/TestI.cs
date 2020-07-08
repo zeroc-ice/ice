@@ -41,8 +41,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public void
-        shutdown(Current current)
+        public void shutdown(Current current)
         {
             lock (this)
             {
@@ -52,7 +51,7 @@ namespace ZeroC.Ice.Test.AMI
                     _pending.SetResult(null);
                     _pending = null;
                 }
-                current.Adapter.Communicator.Shutdown();
+                current.Adapter.Communicator.ShutdownAsync();
             }
         }
 

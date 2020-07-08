@@ -36,7 +36,7 @@ namespace ZeroC.Ice.Test.Metrics
 
         public ValueTask shutdownAsync(Current current)
         {
-            current.Adapter.Communicator.Shutdown();
+            current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
     }

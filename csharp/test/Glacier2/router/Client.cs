@@ -6,12 +6,13 @@ using System;
 using System.Collections.Generic;
 using ZeroC.Ice;
 using Test;
+using System.Threading.Tasks;
 
 namespace ZeroC.Glacier2.Test.Router
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             //
@@ -187,7 +188,7 @@ namespace ZeroC.Glacier2.Test.Router
                     Console.Out.Flush();
                     communicator.SetProperty("Ice.PrintAdapterReady", "0");
                     adapter = communicator.CreateObjectAdapterWithRouter("CallbackReceiverAdapter", router);
-                    adapter.Activate();
+                    adapter.ActivateAsync();
                     Console.Out.WriteLine("ok");
                 }
 
@@ -405,14 +406,15 @@ namespace ZeroC.Glacier2.Test.Router
                         process.IcePing();
                         Assert(false);
                     }
-                    catch (System.Exception)
+                    catch (Exception)
                     {
                         Console.Out.WriteLine("ok");
                     }
                 }
             }
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

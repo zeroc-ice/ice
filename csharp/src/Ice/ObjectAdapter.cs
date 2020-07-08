@@ -152,7 +152,7 @@ namespace ZeroC.Ice
         /// that have been deactivated must not be reactivated again, and cannot be used otherwise. Calling Deactivate
         /// on a deactivated object adapter does nothing. Call <see cref="DisposeAsync"/> to clean-up the resources held by
         /// a deactivated object adapter.</summary>
-        public async ValueTask DeactivateAsync()
+        public async Task DeactivateAsync()
         {
             lock (_mutex)
             {

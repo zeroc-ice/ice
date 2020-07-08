@@ -3,18 +3,20 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Threading
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             using var communicator = Initialize(ref args);
             try
             {
                 AllTests.allTests(this, false).Result.shutdown();
+                return Task.CompletedTask;
             }
             catch (AggregateException ex)
             {
@@ -29,9 +31,10 @@ namespace ZeroC.Ice.Test.Threading
             {
                 GetWriter().WriteLine($"test failed: {ex.reason}");
                 Assert(false);
+                throw;
             }
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

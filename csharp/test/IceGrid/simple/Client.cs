@@ -4,13 +4,14 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             using var communicator = Initialize(ref args,
                 new Dictionary<string, string> { ["Ice.Default.Protocol"] = "ice1", ["Ice.Default.Encoding"] = "1.1" });
@@ -22,8 +23,9 @@ namespace ZeroC.IceGrid.Test.Simple
             {
                 AllTests.allTests(this);
             }
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

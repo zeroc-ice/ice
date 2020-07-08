@@ -47,24 +47,24 @@ namespace ZeroC.Ice.Test.Timeout
         {
             _adapter = communicator.CreateObjectAdapter("TestAdapter", serializeDispatch: true);
             _adapter.Add("timeout", new Timeout());
-            _adapter.Activate();
+            _adapter.ActivateAsync();
         }
 
         public void holdAdapter(int to, Current current)
         {
-            _adapter.Destroy();
+            _adapter.Dispose();
             _adapter = _adapter.Communicator.CreateObjectAdapter("TestAdapter", serializeDispatch: true);
             _adapter.Add("timeout", new Timeout());
 
             if (to >= 0)
             {
-                Task.Delay(1000).ContinueWith(t => _adapter.Activate());
+                Task.Delay(1000).ContinueWith(t => _adapter.ActivateAsync());
             }
         }
 
-        public void resumeAdapter(Current current) => _adapter.Activate();
+        public void resumeAdapter(Current current) => _adapter.ActivateAsync();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private ObjectAdapter _adapter;
     }

@@ -3,13 +3,14 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Binding
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.ServerIdleTime"] = "30";
@@ -17,11 +18,11 @@ namespace ZeroC.Ice.Test.Binding
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("communicator", new RemoteCommunicator());
-            adapter.Activate();
+            await adapter.ActivateAsync();
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

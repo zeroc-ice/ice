@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Exceptions
 {
     public sealed class Thrower : IThrower
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public bool supportsAssertException(Current current) => false;
 

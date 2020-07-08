@@ -64,9 +64,9 @@ namespace ZeroC.IceGrid.Test.Simple
                 TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
 
                 ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                adapter.Activate();
-                adapter.Deactivate();
-                com.Destroy();
+                adapter.ActivateAsync();
+                adapter.DeactivateAsync();
+                com.Dispose();
 
                 //
                 // Now, ensure that the IceGrid discovery locator correctly
@@ -103,10 +103,10 @@ namespace ZeroC.IceGrid.Test.Simple
                 }
 
                 adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                adapter.Activate();
-                adapter.Deactivate();
+                adapter.ActivateAsync();
+                adapter.DeactivateAsync();
 
-                com.Destroy();
+                com.Dispose();
 
                 string multicast;
                 if (communicator.GetProperty("Ice.IPv6") == "1")
@@ -135,7 +135,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 catch (NoEndpointException)
                 {
                 }
-                com.Destroy();
+                com.Dispose();
 
                 properties = communicator.GetProperties();
                 properties.Remove("Ice.Default.Locator");
@@ -152,7 +152,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 catch (NoEndpointException)
                 {
                 }
-                com.Destroy();
+                com.Dispose();
 
                 properties = communicator.GetProperties();
                 properties.Remove("Ice.Default.Locator");
@@ -178,7 +178,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 {
                     TestHelper.Assert(false);
                 }
-                com.Destroy();
+                com.Dispose();
             }
             Console.Out.WriteLine("ok");
 

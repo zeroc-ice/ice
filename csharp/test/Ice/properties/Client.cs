@@ -4,13 +4,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Properties
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             {
                 Console.Out.Write("testing load properties from UTF-8 path... ");
@@ -154,8 +155,9 @@ namespace ZeroC.Ice.Test.Properties
 
                 Console.Out.WriteLine("ok");
             }
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

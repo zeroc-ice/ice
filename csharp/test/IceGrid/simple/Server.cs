@@ -5,12 +5,13 @@
 using System.Collections.Generic;
 using ZeroC.Ice;
 using Test;
+using System.Threading.Tasks;
 
 namespace ZeroC.IceGrid.Test.Simple
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             var properties = new Dictionary<string, string>();
             properties.ParseArgs(ref args, "TestAdapter");
@@ -22,14 +23,14 @@ namespace ZeroC.IceGrid.Test.Simple
             adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
             try
             {
-                adapter.Activate();
+                await adapter.ActivateAsync();
             }
             catch (ObjectAdapterDeactivatedException)
             {
             }
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

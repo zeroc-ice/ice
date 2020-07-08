@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Retry
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             var observer = Instrumentation.GetObserver();
             var properties = CreateTestProperties(ref args);
@@ -29,7 +30,8 @@ namespace ZeroC.Ice.Test.Retry
             communicator.CreateObjectAdapter().Add("retry", new Retry());
             communicator2.CreateObjectAdapter().Add("retry", new Retry());
             AllTests.allTests(this, communicator, communicator2, "retry").shutdown();
+            return Task.CompletedTask;
         }
-        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

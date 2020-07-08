@@ -1088,16 +1088,6 @@ namespace ZeroC.Ice
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Check whether the communicator has been shut down.</summary>
-        /// <returns>True if the communicator has been shut down; false otherwise.</returns>
-        public bool IsShutdown()
-        {
-            lock (_mutex) // TODO do we need this lock, isn't _isShutdown assignment atomic?
-            {
-                return _isShutdown;
-            }
-        }
-
         /// <summary>Removes an admin facet servant previously added with AddAdminFacet.</summary>
         /// <param name="facet">The Admin facet.</param>
         /// <returns>The admin facet servant that was just removed, or null if the facet was not found.</returns>

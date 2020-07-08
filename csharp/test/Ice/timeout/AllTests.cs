@@ -312,7 +312,7 @@ namespace ZeroC.Ice.Test.Timeout
                 // }
                 // controller.resumeAdapter();
                 // timeout.op(); // Ensure adapter is active.
-                comm.Destroy();
+                comm.Dispose();
             }
             // TODO: remove or refactor depending on what we decide for connection timeouts
             // {
@@ -337,7 +337,7 @@ namespace ZeroC.Ice.Test.Timeout
                 communicator.SetProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
                 var adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
-                adapter.Activate();
+                adapter.ActivateAsync();
 
                 var proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(invocationTimeout: 100);
                 try
@@ -357,7 +357,7 @@ namespace ZeroC.Ice.Test.Timeout
                 catch (AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
                 }
-                adapter.Destroy();
+                adapter.Dispose();
             }
             output.WriteLine("ok");
 

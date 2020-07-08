@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.AMI
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
 
@@ -35,16 +36,16 @@ namespace ZeroC.Ice.Test.AMI
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
             adapter.Add("test2", new TestIntf2());
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
             ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter2", serializeDispatch: true);
             adapter2.Add("serialized", new TestIntf());
-            adapter2.Activate();
+            await adapter2.ActivateAsync();
 
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

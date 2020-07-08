@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using ZeroC.Ice;
 using Test;
+using System.Threading.Tasks;
 
 namespace ZeroC.Slice.Test.Structure
 {
@@ -41,12 +42,13 @@ namespace ZeroC.Slice.Test.Structure
             Console.Out.WriteLine("ok");
         }
 
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             using var communicator = Initialize(ref args);
             allTests(communicator);
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

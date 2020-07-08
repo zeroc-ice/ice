@@ -2,30 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Timeout
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             var properties = CreateTestProperties(ref args);
-            //
             // This test kills connections, so we don't want warnings.
-            //
             properties["Ice.Warn.Connections"] = "0";
 
-            //
-            // The client sends large messages to cause the transport
-            // buffers to fill up.
-            //
+            // The client sends large messages to cause the transport buffers to fill up.
             properties["Ice.MessageSizeMax"] = "20000";
 
-            //
-            // Limit the recv buffer size, this test relies on the socket
-            // send() blocking after sending a given amount of data.
-            //
+            // Limit the received buffer size, this test relies on the socket send() blocking after sending a given
+            // amount of data.
             properties["Ice.TCP.RcvSize"] = "50000";
             using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
@@ -33,12 +27,12 @@ namespace ZeroC.Ice.Test.Timeout
 
             var controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
             controllerAdapter.Add("controller", new Controller(communicator));
-            controllerAdapter.Activate();
+            await controllerAdapter.ActivateAsync();
 
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

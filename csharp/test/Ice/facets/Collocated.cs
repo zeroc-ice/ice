@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Facets
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
@@ -21,8 +22,9 @@ namespace ZeroC.Ice.Test.Facets
             var h = new H(communicator);
             adapter.Add("d", "facetGH", h);
             AllTests.allTests(this);
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

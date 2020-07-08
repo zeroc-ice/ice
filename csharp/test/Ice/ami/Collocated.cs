@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.AMI
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             var properties = CreateTestProperties(ref args);
 
@@ -34,8 +35,9 @@ namespace ZeroC.Ice.Test.AMI
             //adapter2.Activate();
 
             AllTests.allTests(this, true);
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

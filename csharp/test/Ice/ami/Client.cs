@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.AMI
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.AMICallback"] = "0";
@@ -21,8 +22,9 @@ namespace ZeroC.Ice.Test.AMI
             properties["Ice.TCP.SndSize"] = "50000";
             using Communicator communicator = Initialize(properties);
             AllTests.allTests(this, false);
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

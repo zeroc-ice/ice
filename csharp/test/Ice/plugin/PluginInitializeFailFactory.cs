@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace ZeroC.Ice.Test.Plugin
 {
     public class PluginInitializeFailFactory : IPluginFactory
@@ -12,7 +14,11 @@ namespace ZeroC.Ice.Test.Plugin
         {
             public void Initialize() => throw new PluginInitializeFailException();
 
-            public void Destroy() => TestHelper.Assert(false);
+            public ValueTask DisposeAsync()
+            {
+                TestHelper.Assert(false);
+                return new ValueTask(Task.CompletedTask);
+            }
         }
     }
 }

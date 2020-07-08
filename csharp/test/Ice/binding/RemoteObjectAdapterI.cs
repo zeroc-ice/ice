@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Binding
         {
             _adapter = adapter;
             _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
-            _adapter.Activate();
+            _adapter.ActivateAsync();
         }
 
         public ITestIntfPrx getTestIntf(Current current) => _testIntf;
@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Binding
         {
             try
             {
-                _adapter.Destroy();
+                _adapter.Dispose();
             }
             catch (ObjectAdapterDeactivatedException)
             {

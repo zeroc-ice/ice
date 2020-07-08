@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Info
 {
     public class TestIntf : ITestIntf
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public IReadOnlyDictionary<string, string> getEndpointInfoAsContext(Current current)
         {

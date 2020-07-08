@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.Background
             private readonly BackgroundController _controller;
         }
 
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             //
@@ -109,14 +109,14 @@ namespace ZeroC.Ice.Test.Background
 
             var routerI = new RouterI(backgroundController);
             adapter.Add("router", routerI);
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
             adapter2.Add("backgroundController", backgroundController);
-            adapter2.Activate();
+            await adapter2.ActivateAsync();
 
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

@@ -3,13 +3,14 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.IceDiscovery.Test.Simple
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             using var communicator = Initialize(ref args);
             int num;
@@ -22,8 +23,9 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 num = 0;
             }
             AllTests.allTests(this, num);
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

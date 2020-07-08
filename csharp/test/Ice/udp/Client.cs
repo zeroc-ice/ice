@@ -3,13 +3,14 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.UDP
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
@@ -31,8 +32,9 @@ namespace ZeroC.Ice.Test.UDP
             {
                 ITestIntfPrx.Parse("control:" + GetTestEndpoint(i, "tcp"), communicator).shutdown();
             }
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

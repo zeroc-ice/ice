@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Facets
 
         public string callG(Current current) => "G";
 
-        public void shutdown(Current current) => _communicator.Shutdown();
+        public void shutdown(Current current) => _communicator.ShutdownAsync();
 
         private readonly Communicator _communicator;
     }

@@ -35,8 +35,7 @@ namespace ZeroC.Ice.Test.ACM
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
-        public void
-        shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
 
     }
 
@@ -46,7 +45,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             _adapter = adapter;
             _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
-            _adapter.Activate();
+            _ = _adapter.ActivateAsync();
         }
 
         public ITestIntfPrx getTestIntf(Current current) => _testIntf;
@@ -55,7 +54,7 @@ namespace ZeroC.Ice.Test.ACM
         {
             try
             {
-                _adapter.Destroy();
+                _adapter.Dispose();
             }
             catch (ObjectAdapterDeactivatedException)
             {

@@ -46,7 +46,7 @@ namespace ZeroC.Ice
         /// some other thread calls <see cref="Shutdown"/>. After shutdown is complete, the main thread returns and can
         /// do some cleanup work before calling <see cref="Destroy"/> to shut down the client functionality, and then
         /// finally exits the application.</summary>
-        public async ValueTask WaitForShutdownAsync()
+        public async Task WaitForShutdownAsync()
         {
             ObjectAdapter[] adapters;
             lock (_mutex)

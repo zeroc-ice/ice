@@ -47,13 +47,13 @@ namespace ZeroC.Ice.Test.Exceptions
                     //
                     // Quell mono error that variable second isn't used.
                     //
-                    second.Deactivate();
+                    second.DeactivateAsync();
                 }
                 catch (ArgumentException)
                 {
                     // Expected
                 }
-                first.Deactivate();
+                first.DeactivateAsync();
                 output.WriteLine("ok");
             }
 
@@ -83,7 +83,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
                 adapter.Remove("x");
                 adapter.Remove("x"); // as of Ice 4.0, can remove multiple times
-                adapter.Deactivate();
+                adapter.DeactivateAsync();
                 output.WriteLine("ok");
             }
 

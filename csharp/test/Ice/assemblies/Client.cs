@@ -8,12 +8,13 @@ using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 using Test;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Assemblies
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             Console.Out.Write("testing preloading assemblies... ");
             Console.Out.Flush();
@@ -38,8 +39,9 @@ namespace ZeroC.Ice.Test.Assemblies
             }
 
             Console.Out.WriteLine("ok");
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

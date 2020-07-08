@@ -13,7 +13,7 @@ namespace ZeroC.IceBox.Test.Configuration
         {
             ObjectAdapter adapter = communicator.CreateObjectAdapter(name + "OA");
             adapter.Add("test", new TestIntf(args));
-            adapter.Activate();
+            adapter.ActivateAsync();
         }
 
         public void Stop()

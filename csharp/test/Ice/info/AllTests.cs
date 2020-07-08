@@ -96,7 +96,7 @@ namespace ZeroC.Ice.Test.Info
                 publishedEndpoints = adapter.GetPublishedEndpoints();
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
-                adapter.Destroy();
+                adapter.Dispose();
 
                 int port = helper.GetTestPort(1);
                 communicator.SetProperty("TestAdapter.Endpoints", $"default -h * -p {port}");
@@ -118,7 +118,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint!.Host == "127.0.0.1");
                 TestHelper.Assert(tcpEndpoint!.Port == port);
 
-                adapter.Destroy();
+                adapter.Dispose();
             }
             output.WriteLine("ok");
 
@@ -244,8 +244,8 @@ namespace ZeroC.Ice.Test.Info
 
             testIntf.shutdown();
 
-            communicator.Shutdown();
-            communicator.WaitForShutdown();
+            communicator.ShutdownAsync();
+            communicator.WaitForShutdownAsync();
         }
     }
 }

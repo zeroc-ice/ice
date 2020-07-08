@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 using ZeroC.Ice;
@@ -11,7 +12,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             using var communicator = Initialize(ref args);
             int num = 0;
@@ -28,11 +29,11 @@ namespace ZeroC.IceDiscovery.Test.Simple
 
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add($"controller{num}", new Controller());
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

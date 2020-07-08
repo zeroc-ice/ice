@@ -4,13 +4,14 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Logger
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             Console.Out.Write("testing Ice.LogFile... ");
             Console.Out.Flush();
@@ -29,8 +30,9 @@ namespace ZeroC.Ice.Test.Logger
             Assert(File.ReadAllText("log.txt").Contains("my logger"));
             File.Delete("log.txt");
             Console.Out.WriteLine("ok");
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

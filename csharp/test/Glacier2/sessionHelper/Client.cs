@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
 
@@ -142,7 +143,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator != null);
         }
 
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
@@ -156,7 +157,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             string host = GetTestHost();
 
             var factory = new SessionFactoryHelper(new SessionCallback1(this), properties);
-            ZeroC.Glacier2.SessionHelper? session = null;
+            Glacier2.SessionHelper? session = null;
 
             //
             // Test to create a session with wrong userid/password
@@ -399,6 +400,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 session.Destroy();
                 Console.Out.WriteLine("ok");
             }
+            return Task.CompletedTask;
         }
 
         public void WakeUp()
@@ -409,6 +411,6 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             }
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

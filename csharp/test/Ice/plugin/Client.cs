@@ -3,18 +3,19 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Plugin
 {
     public class Client : TestHelper
     {
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
 
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             string pluginPath =
                 string.Format("msbuild/plugin/{0}/Plugin.dll",
@@ -115,9 +116,10 @@ namespace ZeroC.Ice.Test.Plugin
                 }
                 Console.WriteLine("ok");
             }
+            return Task.CompletedTask;
         }
 
-        internal class MyPlugin : ZeroC.Ice.IPlugin
+        internal class MyPlugin : IPlugin
         {
             public bool isInitialized() => _initialized;
 
@@ -125,7 +127,11 @@ namespace ZeroC.Ice.Test.Plugin
 
             public void Initialize() => _initialized = true;
 
-            public void Destroy() => _destroyed = true;
+            public ValueTask DisposeAsync()
+            {
+                _destroyed = true;
+                return new ValueTask(Task.CompletedTask);
+            }
 
             private bool _initialized = false;
             private bool _destroyed = false;

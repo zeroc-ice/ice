@@ -3,13 +3,14 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
@@ -29,13 +30,13 @@ namespace ZeroC.Ice.Test.Exceptions
             adapter.Add("thrower", obj);
             adapter2.Add("thrower", obj);
             adapter3.Add("thrower", obj);
-            adapter.Activate();
-            adapter2.Activate();
-            adapter3.Activate();
+            await adapter.ActivateAsync();
+            await adapter2.ActivateAsync();
+            await adapter3.ActivateAsync();
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

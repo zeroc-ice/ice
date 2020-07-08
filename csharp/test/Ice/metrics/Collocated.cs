@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Metrics
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             var observer = new CommunicatorObserver();
 
@@ -30,11 +31,9 @@ namespace ZeroC.Ice.Test.Metrics
                 IMetricsPrx metrics = AllTests.allTests(this, observer);
                 metrics.shutdown();
             }
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args)
-        {
-            return TestDriver.RunTest<Collocated>(args);
-        }
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

@@ -3,13 +3,14 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Metrics
 {
     public class ServerAMD : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Admin.Endpoints"] = "tcp";
@@ -29,11 +30,10 @@ namespace ZeroC.Ice.Test.Metrics
                 adapter.Add("metrics", new MetricsAsync());
                 return adapter;
             }));
-            controllerAdapter.Activate();
-
-            communicator.WaitForShutdown();
+            await controllerAdapter.ActivateAsync();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
     }
 }

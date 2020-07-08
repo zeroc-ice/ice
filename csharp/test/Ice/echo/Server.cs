@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Echo
@@ -10,10 +11,10 @@ namespace ZeroC.Ice.Test.Echo
     {
         private class Echo : IEcho
         {
-            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
@@ -21,10 +22,10 @@ namespace ZeroC.Ice.Test.Echo
             var blob = new BlobjectI();
             adapter.AddDefault(blob);
             adapter.Add("__echo", new Echo());
-            adapter.Activate();
-            communicator.WaitForShutdown();
+            await adapter.ActivateAsync();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

@@ -62,7 +62,7 @@ namespace ZeroC.Ice.Test.UDP
             PingReplyI replyI = new PingReplyI();
             IPingReplyPrx reply = adapter.AddWithUUID(replyI, IPingReplyPrx.Factory)
                 .Clone(invocationMode: InvocationMode.Datagram);
-            adapter.Activate();
+            adapter.ActivateAsync();
 
             Console.Out.Write("testing udp... ");
             Console.Out.Flush();

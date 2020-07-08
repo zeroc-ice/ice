@@ -19,8 +19,8 @@ namespace ZeroC.Ice.Test.Location
         {
             foreach (Communicator? c in _communicators)
             {
-                c.WaitForShutdown();
-                c.Destroy();
+                c.WaitForShutdownAsync();
+                c.Dispose();
             }
             _communicators.Clear();
 
@@ -66,8 +66,8 @@ namespace ZeroC.Ice.Test.Location
                     _registry.AddObject(adapter.Add("test2", testI, IObjectPrx.Factory));
                     adapter.Add("test3", testI);
 
-                    adapter.Activate();
-                    adapter2.Activate();
+                    adapter.ActivateAsync();
+                    adapter2.ActivateAsync();
                     break;
                 }
                 catch (TransportException)
@@ -81,11 +81,11 @@ namespace ZeroC.Ice.Test.Location
                     // browser clients if the driver uses ports in the same range as this test, ICE-8148)
                     if (adapter != null)
                     {
-                        adapter.Destroy();
+                        adapter.Dispose();
                     }
                     if (adapter2 != null)
                     {
-                        adapter2.Destroy();
+                        adapter2.Dispose();
                     }
                 }
             }
@@ -95,10 +95,10 @@ namespace ZeroC.Ice.Test.Location
         {
             foreach (Communicator c in _communicators)
             {
-                c.Destroy();
+                c.Dispose();
             }
             _communicators.Clear();
-            current.Adapter.Communicator.Shutdown();
+            current.Adapter.Communicator.ShutdownAsync();
         }
 
         private readonly ServerLocatorRegistry _registry;

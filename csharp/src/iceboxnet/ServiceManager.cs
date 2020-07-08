@@ -646,7 +646,7 @@ namespace ZeroC.IceBox
             {
                 try
                 {
-                    communicator.ShutdownAsync().AsTask().Wait();
+                    communicator.ShutdownAsync().Wait();
                 }
                 catch (CommunicatorDestroyedException)
                 {

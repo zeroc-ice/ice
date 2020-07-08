@@ -6,12 +6,13 @@ using System;
 using System.Collections.Generic;
 using ZeroC.Ice;
 using Test;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.FaultTolerance
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task Run(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.ServerIdleTime"] = "120";
@@ -47,10 +48,10 @@ namespace ZeroC.Ice.Test.FaultTolerance
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(port));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
-            adapter.Activate();
-            communicator.WaitForShutdown();
+            await adapter.ActivateAsync();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
     }
 }

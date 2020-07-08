@@ -100,7 +100,7 @@ public class Client : TestHelper
         Assert(k == 1);
     }
 
-    public override void Run(string[] args)
+    public override async Task Run(string[] args)
     {
         using (var communicator = Initialize(ref args))
         {
@@ -109,7 +109,7 @@ public class Client : TestHelper
             adapter.Add("test", new decimalI());
             adapter.Add("test1", new Test1I());
             adapter.Add("test2", new Test2I());
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
             Console.Out.Write("testing operation name... ");
             Console.Out.Flush();
@@ -135,5 +135,5 @@ public class Client : TestHelper
         }
     }
 
-    public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+    public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
 }

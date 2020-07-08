@@ -859,11 +859,11 @@ namespace ZeroC.Ice.Test.Binding
                     try
                     {
                         oa = serverCommunicator.CreateObjectAdapter("Adapter");
-                        oa.Activate();
+                        oa.ActivateAsync();
                     }
                     catch (DNSException)
                     {
-                        serverCommunicator.Destroy();
+                        serverCommunicator.Dispose();
                         continue; // IP version not supported.
                     }
                     catch (TransportException)
@@ -872,7 +872,7 @@ namespace ZeroC.Ice.Test.Binding
                         {
                             ipv6NotSupported = true;
                         }
-                        serverCommunicator.Destroy();
+                        serverCommunicator.Dispose();
                         continue; // IP version not supported.
                     }
 
@@ -883,12 +883,12 @@ namespace ZeroC.Ice.Test.Binding
                     }
                     catch (DNSException) // TODO: is this really an expected exception?
                     {
-                        serverCommunicator.Destroy();
+                        serverCommunicator.Dispose();
                         continue;
                     }
                     catch (ObjectNotExistException) // TODO: is this really an expected exception?
                     {
-                        serverCommunicator.Destroy();
+                        serverCommunicator.Dispose();
                         continue;
                     }
 
@@ -924,9 +924,9 @@ namespace ZeroC.Ice.Test.Binding
                                 (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
                                 (p == bothPreferIPv6 && q == ipv6));
                         }
-                        clientCommunicator.Destroy();
+                        clientCommunicator.Dispose();
                     }
-                    serverCommunicator.Destroy();
+                    serverCommunicator.Dispose();
                 }
 
                 output.WriteLine("ok");

@@ -57,7 +57,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             }
         }
 
-        internal void Destroy() => _communicator.Destroy();
+        internal void Destroy() => _communicator.Dispose();
 
         private readonly Communicator _communicator;
     }
@@ -82,7 +82,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             var server = new SSLServer(communicator);
             var prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;
-            adapter.Activate();
+            adapter.ActivateAsync();
             return prx;
         }
 
@@ -98,7 +98,7 @@ namespace ZeroC.IceSSL.Test.Configuration
         public void shutdown(Current current)
         {
             TestHelper.Assert(_servers.Count == 0);
-            current.Adapter.Communicator.Shutdown();
+            current.Adapter.Communicator.ShutdownAsync();
         }
 
         private readonly string _defaultDir;

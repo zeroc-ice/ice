@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Threading
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             using var communicator = Initialize(ref args);
 
@@ -39,6 +39,7 @@ namespace ZeroC.Ice.Test.Threading
             try
             {
                 AllTests.allTests(this, true).AsTask().Wait();
+                return Task.CompletedTask;
             }
             catch (AggregateException ex)
             {
@@ -53,9 +54,10 @@ namespace ZeroC.Ice.Test.Threading
             {
                 GetWriter().WriteLine($"test failed: {ex.reason}");
                 Assert(false);
+                throw;
             }
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
     }
 }

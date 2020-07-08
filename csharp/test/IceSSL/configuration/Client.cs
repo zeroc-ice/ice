@@ -3,13 +3,14 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task Run(string[] args)
         {
             using var communicator = Initialize(ref args);
             if (args.Length < 1)
@@ -20,8 +21,9 @@ namespace ZeroC.IceSSL.Test.Configuration
             IServerFactoryPrx factory;
             factory = AllTests.allTests(this, args[0]);
             factory.shutdown();
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
     }
 }

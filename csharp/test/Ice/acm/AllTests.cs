@@ -175,7 +175,7 @@ namespace ZeroC.Ice.Test.ACM
         public void Destroy()
         {
             _adapter!.deactivate();
-            _communicator!.Destroy();
+            _communicator!.Dispose();
         }
 
         public void Join()

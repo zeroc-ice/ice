@@ -315,7 +315,7 @@ namespace ZeroC.Ice.Test.AMI
                     Communicator ic = helper.Initialize(communicator.GetProperties());
                     var p2 = ITestIntfPrx.Parse(p.ToString()!, ic);
                     TestHelper.Assert(p2 != null);
-                    ic.Destroy();
+                    ic.Dispose();
 
                     try
                     {
