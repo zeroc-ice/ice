@@ -2026,12 +2026,6 @@ Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& bas
             }
             else
             {
-                if(_unit->ignRedefs())
-                {
-                    def->updateIncludeLevel();
-                    return def;
-                }
-
                 string msg = "redefinition of class `" + name + "'";
                 _unit->error(msg);
             }
@@ -2184,12 +2178,6 @@ Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases
             }
             else
             {
-                if(_unit->ignRedefs())
-                {
-                    def->updateIncludeLevel();
-                    return def;
-                }
-
                 string msg = "redefinition of interface `" + name + "'";
                 _unit->error(msg);
             }
@@ -2322,15 +2310,6 @@ Slice::Module::createException(const string& name, const ExceptionPtr& base, Nod
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
-        ExceptionPtr p = ExceptionPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
         if(matches.front()->name() == name)
         {
             string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
@@ -2361,18 +2340,9 @@ StructPtr
 Slice::Module::createStruct(const string& name, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        StructPtr p = StructPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
+        if (matches.front()->name() == name)
         {
             string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
             msg += "' as struct";
@@ -2403,28 +2373,17 @@ Slice::Module::createSequence(const string& name, const TypePtr& type, const Str
 {
     _unit->checkType(type);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        SequencePtr p = SequencePtr::dynamicCast(matches.front());
-        if(p)
+        if (matches.front()->name() == name)
         {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as sequence";
-            _unit->error(msg);
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "' as sequence");
         }
         else
         {
-            string msg = "sequence `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("sequence `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
         return nullptr;
     }
@@ -2442,39 +2401,28 @@ Slice::Module::createSequence(const string& name, const TypePtr& type, const Str
 
 DictionaryPtr
 Slice::Module::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
-                                   const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
+                                const TypePtr& valueType, const StringList& valueMetaData, NodeType nt)
 {
     _unit->checkType(keyType);
     _unit->checkType(valueType);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        DictionaryPtr p = DictionaryPtr::dynamicCast(matches.front());
-        if(p)
+        if (matches.front()->name() == name)
         {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as dictionary";
-            _unit->error(msg);
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "' as dictionary");
         }
         else
         {
-            string msg = "dictionary `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("dictionary `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
         return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
-    if(nt == Real)
+    if (nt == Real)
     {
         if (_name == "")
         {
@@ -2482,12 +2430,12 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
         }
 
         bool containsSequence = false;
-        if(!Dictionary::legalKeyType(keyType, containsSequence))
+        if (!Dictionary::legalKeyType(keyType, containsSequence))
         {
             _unit->error("dictionary `" + name + "' uses an illegal key type");
             return nullptr;
         }
-        if(containsSequence)
+        if (containsSequence)
         {
             _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
         }
@@ -2502,28 +2450,17 @@ EnumPtr
 Slice::Module::createEnum(const string& name, bool unchecked, NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        EnumPtr p = EnumPtr::dynamicCast(matches.front());
-        if(p)
+        if (matches.front()->name() == name)
         {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as enumeration";
-            _unit->error(msg);
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "' as enumeration");
         }
         else
         {
-            string msg = "enumeration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("enumeration `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
         return nullptr;
     }
@@ -2541,32 +2478,21 @@ Slice::Module::createEnum(const string& name, bool unchecked, NodeType nt)
 
 ConstPtr
 Slice::Module::createConst(const string name, const TypePtr& constType, const StringList& metaData,
-                              const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
-                              NodeType nt)
+                           const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
+                           NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!matches.empty())
     {
-        ConstPtr p = ConstPtr::dynamicCast(matches.front());
-        if(p)
+        if (matches.front()->name() == name)
         {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as constant";
-            _unit->error(msg);
+            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
+                         + "as constant");
         }
         else
         {
-            string msg = "constant `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("constant `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
+                         + " `" + matches.front()->name() + "'");
         }
         return nullptr;
     }
@@ -2579,10 +2505,8 @@ Slice::Module::createConst(const string name, const TypePtr& constType, const St
 
     SyntaxTreeBasePtr resolvedValueType = valueType;
 
-    //
     // Validate the constant and its value; for enums, find enumerator
-    //
-    if(nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
+    if (nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
     {
         return nullptr;
     }
@@ -2798,7 +2722,7 @@ Slice::Module::hasOnlyClassDecls() const
     {
         if (ModulePtr submodule = ModulePtr::dynamicCast(content))
         {
-            if(!submodule->hasOnlyClassDecls())
+            if (!submodule->hasOnlyClassDecls())
             {
                 return false;
             }
@@ -2898,7 +2822,7 @@ Slice::Module::hasAsyncOps() const
         }
 
         ModulePtr submodule = ModulePtr::dynamicCast(content);
-        if(submodule && submodule->hasAsyncOps())
+        if (submodule && submodule->hasAsyncOps())
         {
             return true;
         }
@@ -3056,15 +2980,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
-        {
-            if (_unit->ignRedefs())
-            {
-                member->updateIncludeLevel();
-                return member;
-            }
-        }
-
         if (matches.front()->name() != name)
         {
             _unit->error("data member `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
@@ -3591,14 +3506,6 @@ Slice::InterfaceDef::createOperation(const string& name,
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-        if (OperationPtr operation = OperationPtr::dynamicCast(matches.front()))
-        {
-            if (_unit->ignRedefs())
-            {
-                operation->updateIncludeLevel();
-                return operation;
-            }
-        }
         if (matches.front()->name() != name)
         {
             _unit->error("operation `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
@@ -3875,14 +3782,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
-        {
-            if (_unit->ignRedefs())
-            {
-                member->updateIncludeLevel();
-                return member;
-            }
-        }
         if (matches.front()->name() != name)
         {
             _unit->error("exception member `" + name + "' differs only in capitalization from exception member `"
@@ -4151,14 +4050,6 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-        if (DataMemberPtr member = DataMemberPtr::dynamicCast(matches.front()))
-        {
-            if (_unit->ignRedefs())
-            {
-                member->updateIncludeLevel();
-                return member;
-            }
-        }
         if (matches.front()->name() != name)
         {
             _unit->error("member `" + name + "' differs only in capitalization from member `"
@@ -4728,14 +4619,6 @@ Slice::Enum::validateEnumerator(const string& name)
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-        if (EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(matches.front()))
-        {
-            if (_unit->ignRedefs())
-            {
-                enumerator->updateIncludeLevel();
-                return enumerator;
-            }
-        }
         if (matches.front()->name() == name)
         {
             _unit->error("redefinition of enumerator `" + name + "'");
@@ -5104,14 +4987,6 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-        if (ParamDeclPtr param = ParamDeclPtr::dynamicCast(matches.front()))
-        {
-            if (_unit->ignRedefs())
-            {
-                param->updateIncludeLevel();
-                return param;
-            }
-        }
         if (matches.front()->name() != name)
         {
             _unit->error("parameter `" + name + "' differs only in capitalization from parameter `"
@@ -5496,9 +5371,9 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all, const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
 {
-    return new Unit(ignRedefs, all, defaultFileMetadata);
+    return new Unit(all, defaultFileMetadata);
 }
 
 ModulePtr
@@ -5544,12 +5419,6 @@ Slice::Unit::createModule(const string& name)
     ModulePtr q = new Module(this, name);
     _modules.push_back(q);
     return q;
-}
-
-bool
-Slice::Unit::ignRedefs() const
-{
-    return _ignRedefs;
 }
 
 bool
@@ -6334,10 +6203,9 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all, const StringList& defaultFileMetadata) :
+Slice::Unit::Unit(bool all, const StringList& defaultFileMetadata) :
     SyntaxTreeBase(nullptr),
     Container(nullptr),
-    _ignRedefs(ignRedefs),
     _all(all),
     _defaultFileMetaData(defaultFileMetadata),
     _errors(0),

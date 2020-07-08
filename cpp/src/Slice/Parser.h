@@ -1164,10 +1164,9 @@ class Unit : public virtual Container
 {
 public:
 
-    static UnitPtr createUnit(bool, bool, const StringList& = StringList());
+    static UnitPtr createUnit(bool, const StringList& = StringList());
     ModulePtr createModule(const std::string& name);
 
-    bool ignRedefs() const;
     bool compatMode() const;
     void checkType(const TypePtr&);
 
@@ -1248,9 +1247,8 @@ public:
 
 private:
 
-    Unit(bool, bool, const StringList&);
+    Unit(bool, const StringList&);
 
-    bool _ignRedefs;
     bool _all;
     StringList _defaultFileMetaData;
     int _errors;
