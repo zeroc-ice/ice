@@ -2481,7 +2481,7 @@ Slice::Module::createConst(const string name, const TypePtr& constType, const St
         if (matches.front()->name() == name)
         {
             _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                         + "as constant");
+                         + " as constant");
         }
         else
         {
@@ -2920,7 +2920,7 @@ Slice::ClassDecl::isVariableLength() const
 string
 Slice::ClassDecl::kindOf() const
 {
-    return  "class";
+    return "class";
 }
 
 void
@@ -3306,7 +3306,7 @@ Slice::InterfaceDecl::isVariableLength() const
 string
 Slice::InterfaceDecl::kindOf() const
 {
-    return  "interface";
+    return "interface";
 }
 
 void
@@ -5261,7 +5261,7 @@ Slice::ParamDecl::uses(const ContainedPtr& contained) const
 string
 Slice::ParamDecl::kindOf() const
 {
-    return "parameter declaration";
+    return "parameter";
 }
 
 void
