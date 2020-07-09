@@ -214,7 +214,7 @@ namespace ZeroC.Ice
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
         private Task? _shutdownTask;
-        private readonly SemaphoreSlim _shutdownTaskSemaphore = new SemaphoreSlim(0);
+        private SemaphoreSlim? _shutdownTaskSemaphore;
         private int _state;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<Transport, IEndpointFactory>();
@@ -768,8 +768,8 @@ namespace ZeroC.Ice
         /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with the
         /// Locator's LocatorRegistry. CreateAdmin can only be called once; subsequent calls raise
         /// InvalidOperationException.</summary>
-        /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints
-        /// is set, create, activate and use the Ice.Admin object adapter.</param>
+        /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
+        /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.</param>
         /// <param name="adminIdentity">The identity of the Admin object.</param>
         /// <returns>A proxy to the main ("") facet of the Admin object.</returns>
         public IObjectPrx CreateAdmin(ObjectAdapter? adminAdapter, Identity adminIdentity)
@@ -781,7 +781,8 @@ namespace ZeroC.Ice
             }
             catch (AggregateException ex)
             {
-                throw ExceptionUtil.Throw(ex);
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
             }
         }
 
@@ -854,11 +855,12 @@ namespace ZeroC.Ice
             return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Destroy the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Calling
-        /// destroy cleans up memory, and shuts down this communicator's client functionality and destroys all object
-        /// adapters. Subsequent calls to destroy are ignored.</summary>
+        /// <summary>Destroy the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
+        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
         public async ValueTask DisposeAsync()
         {
+            // If destroy is in progress just await the _disposeTask, otherwise call PerformDisposeAsync and then await
+            // the _disposeTask.
             lock (_mutex)
             {
                 _disposeTask ??= PerformDisposeAsync();
@@ -866,9 +868,8 @@ namespace ZeroC.Ice
             await _disposeTask.ConfigureAwait(false);
         }
 
-        /// <summary>Destroy the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Calling
-        /// destroy cleans up memory, and shuts down this communicator's client functionality and destroys all object
-        /// adapters. Subsequent calls to destroy are ignored.</summary>
+        /// <summary>Destroy the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
+        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
         public void Dispose() => DisposeAsync().AsTask().Wait();
 
         /// <summary>Returns a facet of the Admin object.</summary>
@@ -906,7 +907,28 @@ namespace ZeroC.Ice
             }
         }
 
-        public IObjectPrx? GetAdmin() => GetAdminAsync().AsTask().Result;
+        /// <summary>Get a proxy to the main facet of the Admin object. GetAdmin also creates the Admin object and
+        /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set.
+        /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
+        /// {UUID}/admin when Ice.Admin.InstanceName is not set.
+        ///
+        /// If Ice.Admin.DelayCreation is 0 or not set, GetAdmin is called by the communicator initialization, after
+        /// initialization of all plugins.</summary>
+        /// <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is
+        /// configured.</returns>
+        public IObjectPrx? GetAdmin()
+        {
+            try
+            {
+                ValueTask<IObjectPrx?> task = GetAdminAsync();
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
 
         /// <summary>Get a proxy to the main facet of the Admin object. GetAdmin also creates the Admin object and
         /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set.
@@ -1163,8 +1185,8 @@ namespace ZeroC.Ice
                 IProcessPrx process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
                 try
                 {
-                    // Note that as soon as the process proxy is registered, the communicator might be
-                    // shutdown by a remote client and admin facets might start receiving calls.
+                    // Note that as soon as the process proxy is registered, the communicator might be shutdown by a
+                    // remote client and admin facets might start receiving calls.
                     locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
                 }
                 catch (Exception ex)
@@ -1258,17 +1280,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called
-                // concurrently by multiple threads.
-                while (_state == StateDestroyInProgress)
-                {
-                    Monitor.Wait(_mutex);
-                }
-
-                if (_state == StateDestroyed)
-                {
-                    return;
-                }
+                Debug.Assert(_state < StateDestroyInProgress);
                 _state = StateDestroyInProgress;
             }
 
@@ -1278,7 +1290,7 @@ namespace ZeroC.Ice
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
             // finished.
             await ShutdownAsync();
-            _shutdownTaskSemaphore.Dispose();
+            _shutdownTaskSemaphore?.Dispose();
 
             _outgoingConnectionFactory?.DestroyAsync();
 

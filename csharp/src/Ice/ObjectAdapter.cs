@@ -105,6 +105,13 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
+                CheckForDeactivation();
+
+                // Activating twice the object adapter is incorrect
+                if (_state != State.Uninitialized)
+                {
+                    throw new InvalidOperationException($"object adapter {Name} already activated");
+                }
                 _activateTask ??= PerformActivateAsync();
                 _activateTaskSemaphore ??= new SemaphoreSlim(0);
             }
@@ -1075,14 +1082,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
-
-                // Activating twice the object adapter is incorrect
-                if (_state != State.Uninitialized)
-                {
-                    throw new InvalidOperationException($"object adapter {Name} already activated");
-                }
-
+                Debug.Assert(_state == State.Uninitialized);
                 // Update the locator registry. We set state to State.Activating to prevent deactivation from
                 // other threads while the call is performed.
                 _state = State.Activating;
@@ -1203,6 +1203,7 @@ namespace ZeroC.Ice
             Communicator.RemoveObjectAdapter(this);
 
             _activateTaskSemaphore?.Dispose();
+            _directCountSemaphore?.Dispose();
 
             lock (_mutex)
             {

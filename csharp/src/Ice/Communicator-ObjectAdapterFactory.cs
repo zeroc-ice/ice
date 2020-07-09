@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -13,7 +14,8 @@ namespace ZeroC.Ice
         /// <summary>Shuts down this communicator's server functionality. This triggers the deactivation of all
         /// object adapters. After this method returns, no new requests are processed. However, requests that have
         /// been started before Shutdown was called might still be active until the returned task completes. You can
-        /// also use <see cref="WaitForShutdownAsync"/> to wait for the completion of all requests.</summary>
+        /// also await the task returned by <see cref="WaitForShutdownAsync"/> to wait for the completion of all
+        /// requests.</summary>
         public async Task ShutdownAsync()
         {
             lock (_mutex)
@@ -30,23 +32,31 @@ namespace ZeroC.Ice
             }
             finally
             {
-                _shutdownTaskSemaphore.Release();
+                _shutdownTaskSemaphore?.Release();
             }
         }
 
         /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
         /// task returned by this operation completes once all executing operations have completed. On the client side,
         /// the task simply completes once <see cref="ShutdownAsync"/> has been called. A typical use of this method is
-        /// to await the returned task from the main thread of a server, which then waits until some other thread calls
-        /// <see cref="ShutdownAsync"/>. After shutdown is complete, the returned task completes and the caller can do
-        /// some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally exists the
-        /// application.</summary>
+        /// to await the returned task from the main thread of a server, which then waits until
+        /// <see cref="ShutdownAsync"/> is called. After shutdown is complete, the returned task completes and the
+        /// caller can do some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally
+        /// exists the application.</summary>
         public async Task WaitForShutdownAsync()
         {
             Task shutdownTask;
             lock (_mutex)
             {
-                shutdownTask = _shutdownTask ?? _shutdownTaskSemaphore.WaitAsync();
+                if (_shutdownTask == null)
+                {
+                    _shutdownTaskSemaphore ??= new SemaphoreSlim(0);
+                    shutdownTask = _shutdownTaskSemaphore.WaitAsync();
+                }
+                else
+                {
+                    shutdownTask = _shutdownTask;
+                }
             }
             await shutdownTask.ConfigureAwait(false);
         }
