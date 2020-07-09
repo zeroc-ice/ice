@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -32,28 +31,6 @@ namespace ZeroC.Ice
             finally
             {
                 _shutdownTaskSemaphore.Release();
-            }
-        }
-
-        private async Task PerformShutdownAsync()
-        {
-            ObjectAdapter[] adapters;
-            lock (_mutex)
-            {
-                // Ignore shutdown requests if the communicator is already shut down.
-                if (_isShutdown)
-                {
-                    return;
-                }
-
-                adapters = _adapters.ToArray();
-                _isShutdown = true;
-            }
-
-            // Deactivate outside the lock to avoid deadlocks.
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                await adapter.DeactivateAsync();
             }
         }
 
@@ -284,6 +261,28 @@ namespace ZeroC.Ice
                     }
                 }
                 throw;
+            }
+        }
+
+        private async Task PerformShutdownAsync()
+        {
+            ObjectAdapter[] adapters;
+            lock (_mutex)
+            {
+                // Ignore shutdown requests if the communicator is already shut down.
+                if (_isShutdown)
+                {
+                    return;
+                }
+
+                adapters = _adapters.ToArray();
+                _isShutdown = true;
+            }
+
+            // Deactivate outside the lock to avoid deadlocks.
+            foreach (ObjectAdapter adapter in adapters)
+            {
+                await adapter.DeactivateAsync();
             }
         }
     }

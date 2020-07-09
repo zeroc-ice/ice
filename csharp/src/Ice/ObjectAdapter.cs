@@ -76,10 +76,15 @@ namespace ZeroC.Ice
         };
 
         private readonly Acm _acm;
+        private Task? _activateTask;
+        private SemaphoreSlim? _activateTaskSemaphore;
         private readonly Dictionary<CategoryPlusFacet, IObject> _categoryServantMap =
             new Dictionary<CategoryPlusFacet, IObject>();
+        private Task? _deactivateTask;
         private readonly Dictionary<string, IObject> _defaultServantMap = new Dictionary<string, IObject>();
         private int _directCount;  // The number of direct proxies dispatching on this object adapter.
+        private SemaphoreSlim? _directCountSemaphore;
+        private Task? _disposeTask;
         private readonly string _id; // adapter id
         private readonly Dictionary<IdentityPlusFacet, IObject> _identityServantMap =
             new Dictionary<IdentityPlusFacet, IObject>();
@@ -92,12 +97,6 @@ namespace ZeroC.Ice
         private readonly string _replicaGroupId;
         private RouterInfo? _routerInfo;
         private State _state = State.Uninitialized;
-
-        private Task? _activateTask;
-        private SemaphoreSlim? _activateTaskSemaphore;
-
-        private Task? _deactivateTask;
-        private Task? _disposeTask;
 
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
@@ -120,56 +119,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private async Task PerformActivateAsync()
-        {
-            lock (_mutex)
-            {
-                CheckForDeactivation();
-
-                // Activating twice the object adapter is incorrect
-                if (_state != State.Uninitialized)
-                {
-                    throw new InvalidOperationException($"object adapter {Name} already activated");
-                }
-
-                // Update the locator registry. We set state to State.Activating to prevent deactivation from
-                // other threads while the call is performed.
-                _state = State.Activating;
-            }
-
-            try
-            {
-                await UpdateLocatorRegistryAsync(_locatorInfo,
-                                                 CreateDirectProxy(new Identity("dummy", ""),
-                                                 IObjectPrx.Factory));
-            }
-            catch
-            {
-                // If we couldn't update the locator registry, we let the exception go through and don't activate the
-                // adapter to allow to user code to retry activating the adapter later.
-                lock (_mutex)
-                {
-                    _state = State.Uninitialized;
-                }
-                throw;
-            }
-
-            if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
-            {
-                Console.Out.WriteLine($"{Name} ready");
-            }
-
-            lock (_mutex)
-            {
-                Debug.Assert(_state == State.Activating);
-                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    factory.Activate();
-                }
-                _state = State.Active;
-            }
-        }
-
         /// <summary>Initiates the deactivation of all endpoints that belong to this object adapter.
         /// When Deactivate returns, the object adapter stops receiving requests through its endpoints. Object adapters
         /// that have been deactivated must not be reactivated again, and cannot be used otherwise. Calling Deactivate
@@ -185,59 +134,12 @@ namespace ZeroC.Ice
             await _deactivateTask.ConfigureAwait(false);
         }
 
-        private async Task PerformDeactivateAsync()
-        {
-            lock (_mutex)
-            {
-                Debug.Assert(_state <= State.Deactivating);
-                _state = State.Deactivating;
-            }
-
-            // Wait for activation to complete. This is necessary avoid out of order locator updates.
-            if (_activateTaskSemaphore != null)
-            {
-                await _activateTaskSemaphore.WaitAsync().ConfigureAwait(false);
-            }
-
-            // Note: the router/locator infos and incoming connection factory list are immutable at this point.
-
-            try
-            {
-                if (_routerInfo != null)
-                {
-                    // Remove entry from the router manager.
-                    Communicator.EraseRouterInfo(_routerInfo.Router);
-
-                    // Clear this object adapter with the router.
-                    _routerInfo.Adapter = null;
-                }
-
-                await UpdateLocatorRegistryAsync(_locatorInfo, null);
-            }
-            catch
-            {
-                // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
-            }
-
-            foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-            {
-                _ = factory.DestroyAsync();
-            }
-
-            Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
-
-            lock (_mutex)
-            {
-                Debug.Assert(_state == State.Deactivating);
-                _state = State.Deactivated;
-            }
-        }
-
         public void Dispose() => DisposeAsync().AsTask().Wait();
 
         /// <summary>Destroys the object adapter and cleans up all resources held by the object adapter. DisposeAsync
         /// first calls <see cref="DeactivateAsync"/> to deactivate the object adapter (if needed). Calling
-        /// DisposeAsync on an object adapter being dispose blocks until the first call to DisposeAsync completes.</summary>
+        /// DisposeAsync on an object adapter being dispose blocks until the first call to DisposeAsync completes.
+        /// </summary>
         public async ValueTask DisposeAsync()
         {
             lock (_mutex)
@@ -245,39 +147,6 @@ namespace ZeroC.Ice
                 _disposeTask ??= PerformDisposeAsync();
             }
             await _disposeTask.ConfigureAwait(false);
-        }
-
-        private async Task PerformDisposeAsync()
-        {
-            await DeactivateAsync();
-
-            lock (_mutex)
-            {
-                // Only a single thread is allowed to destroy the object adapter. Other threads wait for the
-                // destruction to complete.
-                Debug.Assert(_state < State.Destroying);
-                _state = State.Destroying;
-
-                // Clear ASM maps
-                _identityServantMap.Clear();
-                _categoryServantMap.Clear();
-                _defaultServantMap.Clear();
-            }
-
-            Communicator.RemoveObjectAdapter(this);
-
-            _activateTaskSemaphore?.Dispose();
-
-            lock (_mutex)
-            {
-                // Remove object references (some of them cyclic).
-                _routerInfo = null;
-                _publishedEndpoints = Array.Empty<Endpoint>();
-                _locatorInfo = null;
-                _reference = null;
-
-                _state = State.Destroyed;
-            }
         }
 
         /// <summary>Finds a servant in the Active Servant Map (ASM), taking into account the servants and default
@@ -937,10 +806,8 @@ namespace ZeroC.Ice
             {
                 // Not check for deactivation here!
                 Debug.Assert(_directCount > 0);
-                if (--_directCount == 0)
-                {
-                    System.Threading.Monitor.PulseAll(_mutex);
-                }
+                _directCount--;
+                _directCountSemaphore?.Release();
             }
         }
 
@@ -1202,6 +1069,151 @@ namespace ZeroC.Ice
                 }
             }
             return (noProps, unknownProps);
+        }
+
+        private async Task PerformActivateAsync()
+        {
+            lock (_mutex)
+            {
+                CheckForDeactivation();
+
+                // Activating twice the object adapter is incorrect
+                if (_state != State.Uninitialized)
+                {
+                    throw new InvalidOperationException($"object adapter {Name} already activated");
+                }
+
+                // Update the locator registry. We set state to State.Activating to prevent deactivation from
+                // other threads while the call is performed.
+                _state = State.Activating;
+            }
+
+            try
+            {
+                await UpdateLocatorRegistryAsync(_locatorInfo,
+                                                 CreateDirectProxy(new Identity("dummy", ""),
+                                                 IObjectPrx.Factory));
+            }
+            catch
+            {
+                // If we couldn't update the locator registry, we let the exception go through and don't activate the
+                // adapter to allow to user code to retry activating the adapter later.
+                lock (_mutex)
+                {
+                    _state = State.Uninitialized;
+                }
+                throw;
+            }
+
+            if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
+            {
+                Console.Out.WriteLine($"{Name} ready");
+            }
+
+            lock (_mutex)
+            {
+                Debug.Assert(_state == State.Activating);
+                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    factory.Activate();
+                }
+                _state = State.Active;
+            }
+        }
+
+        private async Task PerformDeactivateAsync()
+        {
+            lock (_mutex)
+            {
+                Debug.Assert(_state <= State.Deactivating);
+                _state = State.Deactivating;
+            }
+
+            // Wait for activation to complete. This is necessary avoid out of order locator updates.
+            if (_activateTaskSemaphore != null)
+            {
+                await _activateTaskSemaphore.WaitAsync().ConfigureAwait(false);
+            }
+
+            // Note: the router/locator infos and incoming connection factory list are immutable at this point.
+
+            try
+            {
+                if (_routerInfo != null)
+                {
+                    // Remove entry from the router manager.
+                    Communicator.EraseRouterInfo(_routerInfo.Router);
+
+                    // Clear this object adapter with the router.
+                    _routerInfo.Adapter = null;
+                }
+
+                await UpdateLocatorRegistryAsync(_locatorInfo, null);
+            }
+            catch
+            {
+                // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
+            }
+
+            lock (_mutex)
+            {
+                if (_directCount > 0)
+                {
+                    Debug.Assert(_directCountSemaphore == null);
+                    _directCountSemaphore = new SemaphoreSlim(_directCount);
+                }
+            }
+
+            if (_directCountSemaphore != null)
+            {
+                await _directCountSemaphore.WaitAsync().ConfigureAwait(false);
+            }
+
+            foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
+            {
+                _ = factory.DestroyAsync();
+            }
+
+            Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
+
+            lock (_mutex)
+            {
+                Debug.Assert(_state == State.Deactivating);
+                _state = State.Deactivated;
+            }
+        }
+
+        private async Task PerformDisposeAsync()
+        {
+            await DeactivateAsync();
+
+            lock (_mutex)
+            {
+                // Only a single thread is allowed to destroy the object adapter. Other threads wait for the
+                // destruction to complete.
+                Debug.Assert(_state < State.Destroying);
+                _state = State.Destroying;
+
+                // Clear ASM maps
+                _identityServantMap.Clear();
+                _categoryServantMap.Clear();
+                _defaultServantMap.Clear();
+            }
+
+            Communicator.RemoveObjectAdapter(this);
+
+            _activateTaskSemaphore?.Dispose();
+
+            lock (_mutex)
+            {
+                // Remove object references (some of them cyclic).
+                _routerInfo = null;
+                _publishedEndpoints = Array.Empty<Endpoint>();
+                _locatorInfo = null;
+                _reference = null;
+
+                _state = State.Destroyed;
+            }
         }
 
         private enum State

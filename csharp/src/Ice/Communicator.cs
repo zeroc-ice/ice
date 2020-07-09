@@ -866,119 +866,6 @@ namespace ZeroC.Ice
             await _disposeTask.ConfigureAwait(false);
         }
 
-        private async Task PerformDisposeAsync()
-        {
-            lock (_mutex)
-            {
-                // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called
-                // concurrently by multiple threads.
-                while (_state == StateDestroyInProgress)
-                {
-                    Monitor.Wait(_mutex);
-                }
-
-                if (_state == StateDestroyed)
-                {
-                    return;
-                }
-                _state = StateDestroyInProgress;
-            }
-
-            // Cancel operations that are waiting and using the communicator's cancellation token
-            _cancellationTokenSource.Cancel();
-
-            // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
-            // finished.
-            await ShutdownAsync();
-            _outgoingConnectionFactory?.DestroyAsync();
-
-            ObjectAdapter[] adapters;
-            lock (_mutex)
-            {
-                adapters = _adapters.ToArray();
-            }
-
-            foreach (ObjectAdapter adapter in _adapters)
-            {
-                await adapter.DisposeAsync();
-            }
-
-            lock (_mutex)
-            {
-                _adapters.Clear();
-            }
-
-            // _adminAdapter is disposed above when iterating over all adapters, we call DisposeAsync
-            // here to avoid the compiler warning about disposable field not being dispose.
-            if (_adminAdapter != null)
-            {
-                await _adminAdapter.DisposeAsync();
-            }
-
-            _outgoingConnectionFactory?.DestroyAsync().Wait();
-
-            Observer?.SetObserverUpdater(null);
-
-            if (Logger is LoggerAdminLogger adminLogger)
-            {
-                await adminLogger.DisposeAsync();
-            }
-
-            _transportToEndpointFactory.Clear();
-            _transportNameToEndpointFactory.Clear();
-
-            if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
-            {
-                List<string> unusedProperties = GetUnusedProperties();
-                if (unusedProperties.Count != 0)
-                {
-                    var message = new StringBuilder("The following properties were set but never read:");
-                    foreach (string s in unusedProperties)
-                    {
-                        message.Append("\n    ");
-                        message.Append(s);
-                    }
-                    Logger.Warning(message.ToString());
-                }
-            }
-
-            // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
-            List<(string Name, IPlugin Plugin)> plugins;
-            lock (_mutex)
-            {
-                plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
-            }
-            plugins.Reverse();
-            foreach ((string name, IPlugin plugin) in plugins)
-            {
-                try
-                {
-                    await plugin.DisposeAsync();
-                }
-                catch (Exception ex)
-                {
-                    Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
-                }
-            }
-
-            lock (_mutex)
-            {
-                _adminAdapter = null;
-                _adminFacets.Clear();
-
-                _state = StateDestroyed;
-            }
-
-            {
-                if (Logger is FileLogger fileLogger)
-                {
-                    fileLogger.Dispose();
-                }
-            }
-            _currentContext.Dispose();
-            _cancellationTokenSource.Dispose();
-        }
-
         /// <summary>Destroy the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Calling
         /// destroy cleans up memory, and shuts down this communicator's client functionality and destroys all object
         /// adapters. Subsequent calls to destroy are ignored.</summary>
@@ -1080,9 +967,8 @@ namespace ZeroC.Ice
             }
             catch (Exception)
             {
-                // We cleanup _adminAdapter, however this error is not recoverable
-                // (can't call again getAdmin() after fixing the problem)
-                // since all the facets (servants) in the adapter are lost
+                // We cleanup _adminAdapter, however this error is not recoverable (can't call again getAdmin() after
+                // fixing the problem) since all the facets (servants) in the adapter are lost
                 await adminAdapter.DisposeAsync();
                 lock (_mutex)
                 {
@@ -1331,15 +1217,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private static string TypeIdToClassName(string typeId)
-        {
-            if (!typeId.StartsWith("::", StringComparison.Ordinal))
-            {
-                throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
-            }
-            return typeId.Substring(2).Replace("::", ".");
-        }
-
         private void AddAllAdminFacets()
         {
             lock (_mutex)
@@ -1375,6 +1252,130 @@ namespace ZeroC.Ice
             }
 
             return null;
+        }
+
+        private async Task PerformDisposeAsync()
+        {
+            lock (_mutex)
+            {
+                // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called
+                // concurrently by multiple threads.
+                while (_state == StateDestroyInProgress)
+                {
+                    Monitor.Wait(_mutex);
+                }
+
+                if (_state == StateDestroyed)
+                {
+                    return;
+                }
+                _state = StateDestroyInProgress;
+            }
+
+            // Cancel operations that are waiting and using the communicator's cancellation token
+            _cancellationTokenSource.Cancel();
+
+            // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
+            // finished.
+            await ShutdownAsync();
+            _shutdownTaskSemaphore.Dispose();
+
+            _outgoingConnectionFactory?.DestroyAsync();
+
+            ObjectAdapter[] adapters;
+            lock (_mutex)
+            {
+                adapters = _adapters.ToArray();
+            }
+
+            foreach (ObjectAdapter adapter in _adapters)
+            {
+                await adapter.DisposeAsync();
+            }
+
+            lock (_mutex)
+            {
+                _adapters.Clear();
+            }
+
+            // _adminAdapter is disposed above when iterating over all adapters, we call DisposeAsync here to avoid the
+            // compiler warning about disposable field not being dispose.
+            if (_adminAdapter != null)
+            {
+                await _adminAdapter.DisposeAsync();
+            }
+
+            _outgoingConnectionFactory?.DestroyAsync().Wait();
+
+            Observer?.SetObserverUpdater(null);
+
+            if (Logger is LoggerAdminLogger adminLogger)
+            {
+                await adminLogger.DisposeAsync();
+            }
+
+            _transportToEndpointFactory.Clear();
+            _transportNameToEndpointFactory.Clear();
+
+            if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
+            {
+                List<string> unusedProperties = GetUnusedProperties();
+                if (unusedProperties.Count != 0)
+                {
+                    var message = new StringBuilder("The following properties were set but never read:");
+                    foreach (string s in unusedProperties)
+                    {
+                        message.Append("\n    ");
+                        message.Append(s);
+                    }
+                    Logger.Warning(message.ToString());
+                }
+            }
+
+            // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
+            List<(string Name, IPlugin Plugin)> plugins;
+            lock (_mutex)
+            {
+                plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
+            }
+            plugins.Reverse();
+            foreach ((string name, IPlugin plugin) in plugins)
+            {
+                try
+                {
+                    await plugin.DisposeAsync();
+                }
+                catch (Exception ex)
+                {
+                    Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
+                }
+            }
+
+            lock (_mutex)
+            {
+                _adminAdapter = null;
+                _adminFacets.Clear();
+
+                _state = StateDestroyed;
+            }
+
+            {
+                if (Logger is FileLogger fileLogger)
+                {
+                    fileLogger.Dispose();
+                }
+            }
+            _currentContext.Dispose();
+            _cancellationTokenSource.Dispose();
+        }
+
+        private static string TypeIdToClassName(string typeId)
+        {
+            if (!typeId.StartsWith("::", StringComparison.Ordinal))
+            {
+                throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
+            }
+            return typeId.Substring(2).Replace("::", ".");
         }
     }
 }
