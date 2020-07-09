@@ -914,8 +914,7 @@ namespace ZeroC.Ice
         ///
         /// If Ice.Admin.DelayCreation is 0 or not set, GetAdmin is called by the communicator initialization, after
         /// initialization of all plugins.</summary>
-        /// <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is
-        /// configured.</returns>
+        /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
         public IObjectPrx? GetAdmin()
         {
             try
@@ -930,15 +929,14 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Get a proxy to the main facet of the Admin object. GetAdmin also creates the Admin object and
+        /// <summary>Get a proxy to the main facet of the Admin object. GetAdminAsync also creates the Admin object and
         /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set.
         /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
         /// {UUID}/admin when Ice.Admin.InstanceName is not set.
         ///
-        /// If Ice.Admin.DelayCreation is 0 or not set, GetAdmin is called by the communicator initialization, after
-        /// initialization of all plugins.</summary>
-        /// <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is
-        /// configured.</returns>
+        /// If Ice.Admin.DelayCreation is 0 or not set, GetAdminAsync is called by the communicator initialization,
+        /// after initialization of all plugins.</summary>
+        /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
         public async ValueTask<IObjectPrx?> GetAdminAsync()
         {
             ObjectAdapter adminAdapter;
@@ -987,7 +985,7 @@ namespace ZeroC.Ice
             {
                 await adminAdapter.ActivateAsync();
             }
-            catch (Exception)
+            catch
             {
                 // We cleanup _adminAdapter, however this error is not recoverable (can't call again getAdmin() after
                 // fixing the problem) since all the facets (servants) in the adapter are lost
@@ -1289,35 +1287,37 @@ namespace ZeroC.Ice
 
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
             // finished.
-            await ShutdownAsync();
-            _shutdownTaskSemaphore?.Dispose();
+            _ = ShutdownAsync();
 
             _outgoingConnectionFactory?.DestroyAsync();
+
+            await WaitForShutdownAsync().ConfigureAwait(false);
+            _shutdownTaskSemaphore?.Dispose();
 
             // At this point adapters are immutable
             foreach (ObjectAdapter adapter in _adapters)
             {
-                await adapter.DisposeAsync();
+                await adapter.DisposeAsync().ConfigureAwait(false);
             }
 
             // _adminAdapter is disposed above when iterating over all adapters, we call DisposeAsync here to avoid the
             // compiler warning about disposable field not being dispose.
             if (_adminAdapter != null)
             {
-                await _adminAdapter.DisposeAsync();
+                await _adminAdapter.DisposeAsync().ConfigureAwait(false);
             }
 
-            _outgoingConnectionFactory?.DestroyAsync().Wait();
+            if (_outgoingConnectionFactory != null)
+            {
+                await _outgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
+            }
 
             Observer?.SetObserverUpdater(null);
 
             if (Logger is LoggerAdminLogger adminLogger)
             {
-                await adminLogger.DisposeAsync();
+                await adminLogger.DisposeAsync().ConfigureAwait(false);
             }
-
-            _transportToEndpointFactory.Clear();
-            _transportNameToEndpointFactory.Clear();
 
             if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
             {
@@ -1345,7 +1345,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    await plugin.DisposeAsync();
+                    await plugin.DisposeAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -1355,17 +1355,12 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                _adminAdapter = null;
-                _adminFacets.Clear();
-
                 _state = StateDestroyed;
             }
 
+            if (Logger is FileLogger fileLogger)
             {
-                if (Logger is FileLogger fileLogger)
-                {
-                    fileLogger.Dispose();
-                }
+                fileLogger.Dispose();
             }
             _currentContext.Dispose();
             _cancellationTokenSource.Dispose();

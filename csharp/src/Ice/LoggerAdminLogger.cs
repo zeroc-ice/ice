@@ -23,7 +23,7 @@ namespace ZeroC.Ice
         public async ValueTask DisposeAsync()
         {
             _channel.Writer.Complete();
-            await _loggerAdmin.DisposeAsync();
+            await _loggerAdmin.DisposeAsync().ConfigureAwait(false);
         }
 
         public void Error(string message)

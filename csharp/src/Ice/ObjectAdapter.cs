@@ -77,7 +77,6 @@ namespace ZeroC.Ice
 
         private readonly Acm _acm;
         private Task? _activateTask;
-        private SemaphoreSlim? _activateTaskSemaphore;
         private readonly Dictionary<CategoryPlusFacet, IObject> _categoryServantMap =
             new Dictionary<CategoryPlusFacet, IObject>();
         private Task? _deactivateTask;
@@ -113,17 +112,8 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
                 _activateTask ??= PerformActivateAsync();
-                _activateTaskSemaphore ??= new SemaphoreSlim(0);
             }
-
-            try
-            {
-                await _activateTask.ConfigureAwait(false);
-            }
-            finally
-            {
-                _activateTaskSemaphore.Release();
-            }
+            await _activateTask.ConfigureAwait(false);
         }
 
         /// <summary>Initiates the deactivation of all endpoints that belong to this object adapter.
@@ -1123,20 +1113,19 @@ namespace ZeroC.Ice
 
         private async Task PerformDeactivateAsync()
         {
+            // Wait for activation to complete. This is necessary avoid out of order locator updates.
+            if (_activateTask != null)
+            {
+                await _activateTask.ConfigureAwait(false);
+            }
+
             lock (_mutex)
             {
                 Debug.Assert(_state <= State.Deactivating);
                 _state = State.Deactivating;
             }
 
-            // Wait for activation to complete. This is necessary avoid out of order locator updates.
-            if (_activateTaskSemaphore != null)
-            {
-                await _activateTaskSemaphore.WaitAsync().ConfigureAwait(false);
-            }
-
             // Note: the router/locator infos and incoming connection factory list are immutable at this point.
-
             try
             {
                 if (_routerInfo != null)
@@ -1193,26 +1182,14 @@ namespace ZeroC.Ice
                 // destruction to complete.
                 Debug.Assert(_state < State.Destroying);
                 _state = State.Destroying;
-
-                // Clear ASM maps
-                _identityServantMap.Clear();
-                _categoryServantMap.Clear();
-                _defaultServantMap.Clear();
             }
 
             Communicator.RemoveObjectAdapter(this);
 
-            _activateTaskSemaphore?.Dispose();
             _directCountSemaphore?.Dispose();
 
             lock (_mutex)
             {
-                // Remove object references (some of them cyclic).
-                _routerInfo = null;
-                _publishedEndpoints = Array.Empty<Endpoint>();
-                _locatorInfo = null;
-                _reference = null;
-
                 _state = State.Destroyed;
             }
         }

@@ -247,7 +247,7 @@ namespace ZeroC.Ice
             // Destroy outside lock to avoid deadlock when there are outstanding calls sent to remote loggers
             if (_sendLogCommunicator != null)
             {
-                await _sendLogCommunicator.DisposeAsync();
+                await _sendLogCommunicator.DisposeAsync().ConfigureAwait(false);
             }
         }
 

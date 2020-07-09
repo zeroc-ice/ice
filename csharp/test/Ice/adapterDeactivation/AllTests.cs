@@ -91,7 +91,6 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
                 TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345 -t 20000"));
                 adapter.Dispose();
-                TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 0);
             }
             output.WriteLine("ok");
 

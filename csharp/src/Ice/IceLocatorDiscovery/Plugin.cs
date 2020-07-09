@@ -372,12 +372,12 @@ namespace ZeroC.IceLocatorDiscovery
         {
             if (_replyAdapter != null)
             {
-                await _replyAdapter.DisposeAsync();
+                await _replyAdapter.DisposeAsync().ConfigureAwait(false);
             }
 
             if (_locatorAdapter != null)
             {
-                await _locatorAdapter.DisposeAsync();
+                await _locatorAdapter.DisposeAsync().ConfigureAwait(false);
             }
 
             if (IObjectPrx.Equals(_communicator.DefaultLocator, _locatorPrx))

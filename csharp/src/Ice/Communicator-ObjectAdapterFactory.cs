@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,8 +14,8 @@ namespace ZeroC.Ice
     {
         /// <summary>Shuts down this communicator's server functionality. This triggers the deactivation of all
         /// object adapters. After this method returns, no new requests are processed. However, requests that have
-        /// been started before Shutdown was called might still be active until the returned task completes. You can
-        /// also await the task returned by <see cref="WaitForShutdownAsync"/> to wait for the completion of all
+        /// been started before ShutdownAsync was called might still be active until the returned task completes. You
+        /// can also await the task returned by <see cref="WaitForShutdownAsync"/> to wait for the completion of all
         /// requests.</summary>
         public async Task ShutdownAsync()
         {
@@ -36,10 +37,9 @@ namespace ZeroC.Ice
         /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
         /// task returned by this operation completes once all executing operations have completed. On the client side,
         /// the task simply completes once <see cref="ShutdownAsync"/> has been called. A typical use of this method is
-        /// to await the returned task from the main thread of a server, which then waits until
-        /// <see cref="ShutdownAsync"/> is called. After shutdown is complete, the returned task completes and the
-        /// caller can do some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally
-        /// exists the application.</summary>
+        /// to await the returned task from the main thread of a server, which will be completed once the shutdown
+        /// process completes, and then the caller can do some cleanup work before calling <see cref="Dispose"/> to
+        /// dispose the runtime and finally exists the application.</summary>
         public async Task WaitForShutdownAsync()
         {
             Task shutdownTask;
@@ -275,12 +275,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // Ignore shutdown requests if the communicator is already shut down.
-                if (_isShutdown)
-                {
-                    return;
-                }
-
+                Debug.Assert(!_isShutdown);
                 _isShutdown = true;
             }
 
