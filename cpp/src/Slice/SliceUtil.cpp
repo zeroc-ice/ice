@@ -527,6 +527,16 @@ Slice::ciequals(const string& lhs, const string& rhs)
                                                                       });
 }
 
+string
+Slice::prependA(const string& s)
+{
+    if (string("aeiou").find_first_of(s[0]) != string::npos)
+    {
+        return "an " + s;
+    }
+    return "a " + s;
+}
+
 TypePtr
 Slice::unwrapIfOptional(const TypePtr& type)
 {

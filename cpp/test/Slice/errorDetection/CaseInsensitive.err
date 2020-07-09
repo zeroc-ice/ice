@@ -8,7 +8,6 @@ CaseInsensitive.ice:38: redefinition of class `c1' as module
 CaseInsensitive.ice:40: module `C1' differs only in capitalization from class name `c1'
 CaseInsensitive.ice:45: redefinition of parameter `aa'
 CaseInsensitive.ice:46: parameter `BB' differs only in capitalization from parameter `bb'
-CaseInsensitive.ice:46: `BB' has changed meaning
 CaseInsensitive.ice:51: operation `I4' differs only in capitalization from enclosing interface name `i4'
 CaseInsensitive.ice:56: interface name `i5' cannot be used as operation name
 CaseInsensitive.ice:66: operation `op' is already defined as an operation in a base interface
@@ -21,12 +20,10 @@ CaseInsensitive.ice:102: data member `L' differs only in capitalization from dat
 CaseInsensitive.ice:107: syntax error
 CaseInsensitive.ice:114: redefinition of exception member `l'
 CaseInsensitive.ice:120: exception member `L' differs only in capitalization from exception member `l'
-CaseInsensitive.ice:120: `L' has changed meaning
 CaseInsensitive.ice:140: exception member `l' is already defined in a base exception
 CaseInsensitive.ice:145: exception member `L' differs only in capitalization from exception member `l', which is defined in a base exception
 CaseInsensitive.ice:151: redefinition of struct member `l'
 CaseInsensitive.ice:157: member `L' differs only in capitalization from member `l'
-CaseInsensitive.ice:157: `L' has changed meaning
 CaseInsensitive.ice:173: sequence `LS' differs only in capitalization from sequence `ls'
 CaseInsensitive.ice:174: redefinition of module `m1' as sequence
 CaseInsensitive.ice:175: sequence `M1' differs only in capitalization from module `m1'
@@ -46,7 +43,6 @@ CaseInsensitive.ice:217: sequence name `xxx::XX::s1' is capitalized inconsistent
 CaseInsensitive.ice:218: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
 CaseInsensitive.ice:224: interface name `derived' is capitalized inconsistently with its previous name: `::Test::xxx::xx::Derived'
 CaseInsensitive.ice:231: parameter `Param' differs only in capitalization from parameter `param'
-CaseInsensitive.ice:231: `Param' has changed meaning
 CaseInsensitive.ice:233: exception name `E1' is capitalized inconsistently with its previous name: `::Test::e1'
 CaseInsensitive.ice:235: exception name `Test::xxx::xx::E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
 CaseInsensitive.ice:236: exception name `Test::xxx::XX::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'

@@ -55,6 +55,10 @@ checkIdentifier(const std::string&);
 bool
 ciequals(const std::string& a, const std::string& b);
 
+ // return a or an <s>
+std::string
+prependA(const std::string& s);
+
 TypePtr
 unwrapIfOptional(const TypePtr&);
 

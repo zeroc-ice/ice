@@ -505,7 +505,7 @@ protected:
     bool checkFileMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
 
-    std::map<std::string, ContainedPtr, CICompare> _introducedMap;
+    std::map<std::string, ContainedPtr> _introducedMap;
 };
 
 // ----------------------------------------------------------------------
