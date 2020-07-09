@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -92,10 +93,34 @@ namespace ZeroC.Ice
         private RouterInfo? _routerInfo;
         private State _state = State.Uninitialized;
 
+        private Task? _activateTask;
+        private SemaphoreSlim? _activateTaskSemaphore;
+
+        private Task? _deactivateTask;
+        private Task? _disposeTask;
+
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
         /// set).</summary>
         public async Task ActivateAsync()
+        {
+            lock (_mutex)
+            {
+                _activateTask ??= PerformActivateAsync();
+                _activateTaskSemaphore ??= new SemaphoreSlim(0);
+            }
+
+            try
+            {
+                await _activateTask.ConfigureAwait(false);
+            }
+            finally
+            {
+                _activateTaskSemaphore.Release();
+            }
+        }
+
+        private async Task PerformActivateAsync()
         {
             lock (_mutex)
             {
@@ -107,7 +132,7 @@ namespace ZeroC.Ice
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
 
-                // Update the locator registry. We set set state to State.Activating to prevent deactivation from
+                // Update the locator registry. We set state to State.Activating to prevent deactivation from
                 // other threads while the call is performed.
                 _state = State.Activating;
             }
@@ -125,7 +150,6 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     _state = State.Uninitialized;
-                    System.Threading.Monitor.PulseAll(_mutex);
                 }
                 throw;
             }
@@ -143,7 +167,6 @@ namespace ZeroC.Ice
                     factory.Activate();
                 }
                 _state = State.Active;
-                System.Threading.Monitor.PulseAll(_mutex);
             }
         }
 
@@ -156,16 +179,24 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // Wait for activation to complete. This is necessary avoid out of order locator updates.
-                while (_state == State.Activating || _state == State.Deactivating)
-                {
-                    System.Threading.Monitor.Wait(_mutex);
-                }
-                if (_state > State.Deactivating)
-                {
-                    return;
-                }
+                _deactivateTask ??= PerformDeactivateAsync();
+            }
+
+            await _deactivateTask.ConfigureAwait(false);
+        }
+
+        private async Task PerformDeactivateAsync()
+        {
+            lock (_mutex)
+            {
+                Debug.Assert(_state <= State.Deactivating);
                 _state = State.Deactivating;
+            }
+
+            // Wait for activation to complete. This is necessary avoid out of order locator updates.
+            if (_activateTaskSemaphore != null)
+            {
+                await _activateTaskSemaphore.WaitAsync().ConfigureAwait(false);
             }
 
             // Note: the router/locator infos and incoming connection factory list are immutable at this point.
@@ -199,7 +230,6 @@ namespace ZeroC.Ice
             {
                 Debug.Assert(_state == State.Deactivating);
                 _state = State.Deactivated;
-                System.Threading.Monitor.PulseAll(_mutex);
             }
         }
 
@@ -210,20 +240,22 @@ namespace ZeroC.Ice
         /// DisposeAsync on an object adapter being dispose blocks until the first call to DisposeAsync completes.</summary>
         public async ValueTask DisposeAsync()
         {
+            lock (_mutex)
+            {
+                _disposeTask ??= PerformDisposeAsync();
+            }
+            await _disposeTask.ConfigureAwait(false);
+        }
+
+        private async Task PerformDisposeAsync()
+        {
             await DeactivateAsync();
 
             lock (_mutex)
             {
                 // Only a single thread is allowed to destroy the object adapter. Other threads wait for the
                 // destruction to complete.
-                while (_state == State.Destroying)
-                {
-                    System.Threading.Monitor.Wait(_mutex);
-                }
-                if (_state == State.Destroyed)
-                {
-                    return;
-                }
+                Debug.Assert(_state < State.Destroying);
                 _state = State.Destroying;
 
                 // Clear ASM maps
@@ -234,6 +266,8 @@ namespace ZeroC.Ice
 
             Communicator.RemoveObjectAdapter(this);
 
+            _activateTaskSemaphore?.Dispose();
+
             lock (_mutex)
             {
                 // Remove object references (some of them cyclic).
@@ -243,7 +277,6 @@ namespace ZeroC.Ice
                 _reference = null;
 
                 _state = State.Destroyed;
-                System.Threading.Monitor.PulseAll(_mutex);
             }
         }
 

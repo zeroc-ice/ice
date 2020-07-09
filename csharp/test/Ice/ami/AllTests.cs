@@ -617,7 +617,7 @@ namespace ZeroC.Ice.Test.AMI
                     source.CancelAfter(TimeSpan.FromMilliseconds(i));
                     try
                     {
-                        p.Clone(connectionId: $"cancel{i}").sleepAsync(10 + i * 2, cancel: source.Token).Wait();
+                        p.Clone(connectionId: $"cancel{i}").sleepAsync(10 + (i * 2), cancel: source.Token).Wait();
                         TestHelper.Assert(false);
                     }
                     catch (AggregateException ae)

@@ -17,6 +17,26 @@ namespace ZeroC.Ice
         /// also use <see cref="WaitForShutdownAsync"/> to wait for the completion of all requests.</summary>
         public async Task ShutdownAsync()
         {
+            lock (_mutex)
+            {
+                if (_shutdownTask == null)
+                {
+                    _shutdownTask = PerformShutdownAsync();
+                }
+            }
+
+            try
+            {
+                await _shutdownTask.ConfigureAwait(false);
+            }
+            finally
+            {
+                _shutdownTaskSemaphore.Release();
+            }
+        }
+
+        private async Task PerformShutdownAsync()
+        {
             ObjectAdapter[] adapters;
             lock (_mutex)
             {
@@ -28,7 +48,6 @@ namespace ZeroC.Ice
 
                 adapters = _adapters.ToArray();
                 _isShutdown = true;
-                Monitor.PulseAll(_mutex);
             }
 
             // Deactivate outside the lock to avoid deadlocks.
@@ -47,23 +66,12 @@ namespace ZeroC.Ice
         /// application.</summary>
         public async Task WaitForShutdownAsync()
         {
-            ObjectAdapter[] adapters;
+            Task shutdownTask;
             lock (_mutex)
             {
-                // First we wait for communicator shut down.
-                while (!_isShutdown)
-                {
-                    Monitor.Wait(_mutex);
-                }
-
-                adapters = _adapters.ToArray();
+                shutdownTask = _shutdownTask ?? _shutdownTaskSemaphore.WaitAsync();
             }
-
-            // Then wait for the deactivation of each object adapter.
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                await adapter.DeactivateAsync();
-            }
+            await shutdownTask.ConfigureAwait(false);
         }
 
         /// <summary>Creates a new object adapter. The communicator uses the object adapter's name to lookup its
