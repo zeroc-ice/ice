@@ -13,8 +13,8 @@ namespace ZeroC.Ice
     {
         /// <summary>Shuts down this communicator's server functionality. This triggers the deactivation of all
         /// object adapters. After this method returns, no new requests are processed. However, requests that have
-        /// been started before Shutdown was called might still be active. You can use <see cref="WaitForShutdown"/>
-        /// to wait for the completion of all requests.</summary>
+        /// been started before Shutdown was called might still be active until the returned task completes. You can
+        /// also use <see cref="WaitForShutdownAsync"/> to wait for the completion of all requests.</summary>
         public async Task ShutdownAsync()
         {
             ObjectAdapter[] adapters;
@@ -38,14 +38,13 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Waits until the application has called <see cref="Shutdown"/> directly or indirectly through
-        /// <see cref="Destroy"/>. On the server side, this operation blocks the calling thread until all executing
-        /// operations have completed. On the client side, the operation simply blocks until another thread has called
-        /// <see cref="Shutdown"/>.
-        /// <para/> A typical use of this method is to call it from the main thread of a server, which then waits until
-        /// some other thread calls <see cref="Shutdown"/>. After shutdown is complete, the main thread returns and can
-        /// do some cleanup work before calling <see cref="Destroy"/> to shut down the client functionality, and then
-        /// finally exits the application.</summary>
+        /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
+        /// task returned by this operation completes once all executing operations have completed. On the client side,
+        /// the task simply completes once <see cref="ShutdownAsync"/> has been called. A typical use of this method is
+        /// to await the returned task from the main thread of a server, which then waits until some other thread calls
+        /// <see cref="ShutdownAsync"/>. After shutdown is complete, the returned task completes and the caller can do
+        /// some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally exists the
+        /// application.</summary>
         public async Task WaitForShutdownAsync()
         {
             ObjectAdapter[] adapters;

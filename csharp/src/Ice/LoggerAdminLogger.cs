@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    internal sealed class LoggerAdminLogger : ILogger
+    internal sealed class LoggerAdminLogger : ILogger, IAsyncDisposable
     {
         public string Prefix => LocalLogger.Prefix;
 
@@ -20,10 +20,10 @@ namespace ZeroC.Ice
 
         public ILogger CloneWithPrefix(string prefix) => LocalLogger.CloneWithPrefix(prefix);
 
-        public void Destroy()
+        public async ValueTask DisposeAsync()
         {
             _channel.Writer.Complete();
-            _loggerAdmin.DisposeAsync();
+            await _loggerAdmin.DisposeAsync();
         }
 
         public void Error(string message)

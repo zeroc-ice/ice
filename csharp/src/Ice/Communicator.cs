@@ -901,7 +901,7 @@ namespace ZeroC.Ice
 
             if (Logger is LoggerAdminLogger adminLogger)
             {
-                adminLogger.Destroy();
+                await adminLogger.DisposeAsync();
             }
 
             _transportToEndpointFactory.Clear();
