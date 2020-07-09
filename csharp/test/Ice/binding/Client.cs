@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Binding
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
 
-            // Under out-of-FDs condititions, the server might close the connection after it accepted it and
+            // Under out-of-FDs conditions, the server might close the connection after it accepted it and
             // sent the connection validation message (the failure typically occurs when calling StartRead on
             // the transport).
             properties["Ice.Warn.Connections"] = "0";

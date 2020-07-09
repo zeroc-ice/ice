@@ -20,10 +20,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_shutdownTask == null)
-                {
-                    _shutdownTask = PerformShutdownAsync();
-                }
+                _shutdownTask ??= PerformShutdownAsync();
             }
 
             try
@@ -276,7 +273,6 @@ namespace ZeroC.Ice
 
         private async Task PerformShutdownAsync()
         {
-            ObjectAdapter[] adapters;
             lock (_mutex)
             {
                 // Ignore shutdown requests if the communicator is already shut down.
@@ -285,12 +281,11 @@ namespace ZeroC.Ice
                     return;
                 }
 
-                adapters = _adapters.ToArray();
                 _isShutdown = true;
             }
 
-            // Deactivate outside the lock to avoid deadlocks.
-            foreach (ObjectAdapter adapter in adapters)
+            // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
+            foreach (ObjectAdapter adapter in _adapters)
             {
                 await adapter.DeactivateAsync();
             }

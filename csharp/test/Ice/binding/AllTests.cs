@@ -176,7 +176,7 @@ namespace ZeroC.Ice.Test.Binding
                 // Deactivate an adapter and ensure that we can still
                 // establish the connection to the remaining adapter.
                 //
-                com.deactivateObjectAdapter((IRemoteObjectAdapterPrx)adapters[2]);
+                com.deactivateObjectAdapter(adapters[2]);
                 var obj = createTestIntfPrx(adapters);
                 TestHelper.Assert(obj.getAdapterName().Equals("Adapter12"));
 

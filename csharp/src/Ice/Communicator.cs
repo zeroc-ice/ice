@@ -1294,20 +1294,10 @@ namespace ZeroC.Ice
 
             _outgoingConnectionFactory?.DestroyAsync();
 
-            ObjectAdapter[] adapters;
-            lock (_mutex)
-            {
-                adapters = _adapters.ToArray();
-            }
-
+            // At this point adapters are immutable
             foreach (ObjectAdapter adapter in _adapters)
             {
                 await adapter.DisposeAsync();
-            }
-
-            lock (_mutex)
-            {
-                _adapters.Clear();
             }
 
             // _adminAdapter is disposed above when iterating over all adapters, we call DisposeAsync here to avoid the
