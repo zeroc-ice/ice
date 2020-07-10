@@ -13,8 +13,6 @@ namespace ZeroC.Ice.Test.ACM
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
-            // The default connect timeout is the ACM timeout if ConnectTimeout is not set.
-            properties["Ice.ConnectTimeout"] = "10s";
             using Communicator communicator = Initialize(properties);
             AllTests.allTests(this);
         }

@@ -666,7 +666,7 @@ namespace ZeroC.Ice
             try
             {
                 CancellationToken timeoutToken;
-                TimeSpan timeout = _communicator.ConnectTimeout ?? Acm.Timeout;
+                TimeSpan timeout = _communicator.ConnectTimeout;
                 if (timeout > TimeSpan.Zero)
                 {
                     source = new CancellationTokenSource();
@@ -1444,7 +1444,7 @@ namespace ZeroC.Ice
 
             CancellationToken timeoutToken;
             CancellationTokenSource? source = null;
-            TimeSpan timeout = _communicator.CloseTimeout ?? Acm.Timeout;
+            TimeSpan timeout = _communicator.CloseTimeout;
             if (timeout > TimeSpan.Zero)
             {
                 source = new CancellationTokenSource();

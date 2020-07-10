@@ -53,9 +53,9 @@ namespace ZeroC.Ice
         public bool AcceptNonSecureConnections { get; }
 
         /// <summary>The connection close timeout.</summary>
-        public TimeSpan? CloseTimeout { get; }
+        public TimeSpan CloseTimeout { get; }
         /// <summary>The connection establishment timeout.</summary>
-        public TimeSpan? ConnectTimeout { get; }
+        public TimeSpan ConnectTimeout { get; }
 
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
         /// per-thread CurrentContext combined with the proxy's context.</summary>
@@ -445,13 +445,13 @@ namespace ZeroC.Ice
                         $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
                 }
 
-                CloseTimeout = GetPropertyAsTimeSpan("Ice.CloseTimeout");
+                CloseTimeout = GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(60);
                 if (CloseTimeout < TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException($"invalid value for Ice.CloseTimeout: `{CloseTimeout}'");
                 }
 
-                ConnectTimeout = GetPropertyAsTimeSpan("Ice.ConnectTimeout");
+                ConnectTimeout = GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(60);
                 if (ConnectTimeout < TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException($"invalid value for Ice.ConnectTimeout: `{ConnectTimeout}'");
