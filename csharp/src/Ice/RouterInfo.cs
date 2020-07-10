@@ -110,32 +110,9 @@ namespace ZeroC.Ice
             {
                 if (_clientEndpoints == null)
                 {
+                    // If GetClientProxy() returns nil, use router endpoints.
+                    _clientEndpoints = (clientProxy ?? Router).IceReference.Endpoints;
                     _hasRoutingTable = hasRoutingTable ?? true;
-                    if (clientProxy == null)
-                    {
-                        //
-                        // If getClientProxy() return nil, use router endpoints.
-                        //
-                        _clientEndpoints = Router.IceReference.Endpoints;
-                    }
-                    else
-                    {
-                        clientProxy = clientProxy.Clone(clearRouter: true); // The client proxy cannot be routed.
-
-                        //
-                        // In order to avoid creating a new connection to the
-                        // router, we must use the same timeout as the already
-                        // existing connection.
-                        //
-                        // TODO: Remove the following?
-                        Connection? connection = Router.GetConnection();
-                        if (connection != null)
-                        {
-                            clientProxy = clientProxy.Clone(connectionTimeout: connection.Timeout);
-                        }
-
-                        _clientEndpoints = clientProxy.IceReference.Endpoints;
-                    }
                 }
                 return _clientEndpoints;
             }

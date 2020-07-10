@@ -5,7 +5,7 @@
 
 # Enable some tracing to allow investigating test failures
 traceProps = {
-    "Ice.Trace.Network" : 2,
+    "Ice.Trace.Network" : 3,
     "Ice.Trace.Retry" : 1,
     "Ice.Trace.Protocol" : 1
 }

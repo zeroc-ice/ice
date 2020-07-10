@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -106,7 +107,7 @@ namespace ZeroC.Ice
         public override Endpoint NewTimeout(int t) => this;
         public override Endpoint NewCompressionFlag(bool compress) => this;
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endSel) =>
+        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)

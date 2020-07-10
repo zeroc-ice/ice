@@ -555,7 +555,7 @@ namespace ZeroC.Ice.Test.ACM
                                                                 })
                 {
                     using var communicator = new Communicator(
-                        new Dictionary<string, string>()
+                        new Dictionary<string, string>(proxy.Communicator.GetProperties())
                         {
                             ["Ice.ACM.Client.Close"] = close,
                             ["Ice.ACM.Client.Heartbeat"] = hearbeat

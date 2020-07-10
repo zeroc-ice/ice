@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Metrics
@@ -22,13 +23,19 @@ namespace ZeroC.Ice.Test.Metrics
             using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("metrics", new MetricsAsync());
+            adapter.Activate();
+
+            var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
+            var adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(2),
+                taskScheduler: schedulerPair.ExclusiveScheduler);
+            adapter2.Add("metrics", new MetricsAsync());
+            adapter2.Activate();
+
             communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
             ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
-            controllerAdapter.Add("controller", new Controller(() => {
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.Add("metrics", new MetricsAsync());
-                return adapter;
-            }));
+            controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
             controllerAdapter.Activate();
 
             communicator.WaitForShutdown();

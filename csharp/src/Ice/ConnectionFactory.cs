@@ -21,7 +21,6 @@ namespace ZeroC.Ice
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
         private Task? _destroyTask = null;
-        private SemaphoreSlim? _destroyTaskSemaphore = null;
         private readonly ConnectionFactoryAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
@@ -139,12 +138,6 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                // If there are pending connects, we setup the destroy task semaphore to wait for the pending counts
-                // to complete.
-                if (_pending.Count > 0)
-                {
-                    _destroyTaskSemaphore ??= new SemaphoreSlim(0);
-                }
                 _destroyTask ??= PerformDestroyAsync();
             }
             return _destroyTask;
@@ -199,32 +192,11 @@ namespace ZeroC.Ice
                 //
                 for (int i = 0; i < endpoints.Count; ++i)
                 {
-                    Endpoint endpoint = endpoints[i];
-
-                    //
-                    // Modify endpoints with overrides.
-                    //
-                    if (_communicator.OverrideTimeout != null)
-                    {
-                        endpoint = endpoint.NewTimeout(_communicator.OverrideTimeout.Value);
-                    }
-
-                    //
-                    // The ConnectionI object does not take the compression flag of
-                    // endpoints into account, but instead gets the information
-                    // about whether messages should be compressed or not from
-                    // other sources. In order to allow connection sharing for
-                    // endpoints that differ in the value of the compression flag
-                    // only, we always set the compression flag to false here in
-                    // this connection factory.
-                    //
-                    endpoint = endpoint.NewCompressionFlag(false);
-
                     foreach (ICollection<Connection> connections in _connectionsByConnector.Values)
                     {
                         foreach (Connection connection in connections)
                         {
-                            if (connection.Endpoint == endpoint)
+                            if (connection.Endpoint == endpoints[i])
                             {
                                 connection.Adapter = adapter;
                             }
@@ -327,13 +299,6 @@ namespace ZeroC.Ice
                         {
                             _pending.Remove((connectorToRemove, connectionIdToRemove));
                         }
-
-                        // If destroy is waiting for pending connection establishments and we're done with connection
-                        // establishments, we release the semaphore to allow destroy to continue.
-                        if (_pending.Count == 0 && _destroyTaskSemaphore != null)
-                        {
-                            _destroyTaskSemaphore.Release();
-                        }
                     }
                     observer?.Detach();
                 }
@@ -347,12 +312,6 @@ namespace ZeroC.Ice
 
         private async Task PerformDestroyAsync()
         {
-            // Wait for pending connection establishments to complete.
-            if (_destroyTaskSemaphore != null)
-            {
-                await _destroyTaskSemaphore.WaitAsync().ConfigureAwait(false);
-            }
-
             // Wait for connections to be closed.
             IEnumerable<Task> tasks =
                 _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
@@ -380,16 +339,20 @@ namespace ZeroC.Ice
             IReadOnlyList<(IConnector, Endpoint, string)> connectors,
             bool hasMore)
         {
-            var tried = new HashSet<(IConnector, Endpoint, string)>();
+            var remaining = new List<(IConnector, Endpoint, string)>(connectors);
             while (true)
             {
                 var connectTasks = new List<Task<Connection>>();
+                var tried = new List<(IConnector, Endpoint, string)>();
                 lock (_mutex)
                 {
-                    // Search for pending connects for the set of connectors which weren't already tried.
+                    if (_destroyTask != null)
+                    {
+                        throw new CommunicatorDestroyedException();
+                    }
 
-                    foreach ((IConnector connector, Endpoint endpoint, string connectionId) in
-                        connectors.Where(t => !tried.Contains(t)))
+                    // Search for pending connects for the set of connectors which weren't already tried.
+                    foreach ((IConnector connector, Endpoint endpoint, string connectionId) in remaining)
                     {
                         if (_pending.TryGetValue((connector, connectionId), out Task<Connection>? task))
                         {
@@ -400,9 +363,9 @@ namespace ZeroC.Ice
 
                     // We didn't find pending connects for the remaining connectors so we can try to establish
                     // a connection to them.
-                    if (connectTasks.Count == 0)
+                    if (tried.Count == 0)
                     {
-                        Task<Connection> connectTask = ConnectAsync(connectors, hasMore);
+                        Task<Connection> connectTask = ConnectAsync(remaining, hasMore);
                         if (connectTask.IsCompleted)
                         {
                             try
@@ -416,7 +379,7 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        foreach ((IConnector connector, Endpoint endpoint, string connectionId) in connectors)
+                        foreach ((IConnector connector, Endpoint endpoint, string connectionId) in remaining)
                         {
                             // Use TryAdd in case there are duplicate (connector, endpoint) pairs.
                             _pending.TryAdd((connector, connectionId), connectTask);
@@ -438,21 +401,24 @@ namespace ZeroC.Ice
                         {
                             // If the connection was established for another endpoint but to the same connector,
                             // we ensure to also associate the connection with this endpoint.
-                            if (connection.Connector == connector && !connection.Endpoints.Contains(endpoint))
+                            if (connection.Connector.Equals(connector) && !connection.Endpoints.Contains(endpoint))
                             {
                                 connection.Endpoints.Add(endpoint);
                                 _connectionsByEndpoint.Add((endpoint, connectionId), connection);
                             }
                         }
-                        return await completedTask.ConfigureAwait(false);
+                        return connection;
                     }
                     connectTasks.Remove(completedTask);
                 }
                 while (connectTasks.Count > 0);
 
+                // Remove the connectors we tried from the set of remaining connectors
+                remaining.RemoveAll(t => tried.Contains(t));
+
                 // If there are no more connectors to try, we failed to establish a connection and we raise the
                 // failure.
-                if (tried.Count == connectors.Count)
+                if (remaining.Count == 0)
                 {
                     return await completedTask.ConfigureAwait(false);
                 }
@@ -509,16 +475,6 @@ namespace ZeroC.Ice
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _monitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
-
-            if (_communicator.OverrideTimeout != null)
-            {
-                _endpoint = _endpoint.NewTimeout(_communicator.OverrideTimeout.Value);
-            }
-
-            if (_communicator.OverrideCompress != null)
-            {
-                _endpoint = _endpoint.NewCompressionFlag(_communicator.OverrideCompress.Value);
-            }
 
             try
             {
@@ -591,7 +547,14 @@ namespace ZeroC.Ice
 
                     // Start the asynchronous operation from the thread pool to prevent eventually accepting
                     // synchronously new connections from this thread.
-                    Task.Run(AcceptAsync);
+                    if (_adapter.TaskScheduler != null)
+                    {
+                        Task.Factory.StartNew(AcceptAsync, default, TaskCreationOptions.None, _adapter.TaskScheduler);
+                    }
+                    else
+                    {
+                        Task.Run(AcceptAsync);
+                    }
                 }
             }
         }
@@ -652,7 +615,9 @@ namespace ZeroC.Ice
                 ITransceiver transceiver;
                 try
                 {
-                    transceiver = await _acceptor!.AcceptAsync().ConfigureAwait(false);
+                    // We don't use ConfigureAwait(false) on purpose. We want to ensure continuations execute on the
+                    // object adapter scheduler if an adapter scheduler is set.
+                    transceiver = await _acceptor!.AcceptAsync();
                 }
                 catch (Exception ex)
                 {
@@ -668,7 +633,7 @@ namespace ZeroC.Ice
                         }
                     }
                     _communicator.Logger.Error($"failed to accept connection:\n{ex}\n{_acceptor}");
-                    await Task.Delay(1000).ConfigureAwait(false); // Retry in 1 second
+                    await Task.Delay(1000); // Retry in 1 second
                     continue;
                 }
 

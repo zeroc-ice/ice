@@ -13,6 +13,7 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the TCP transport.</summary>
     public class TcpEndpoint : IPEndpoint
     {
+        // We cannot move HasCompressionFlag to IPEndpoint because of it's marshaled after the timeout
         public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => false;
         public override bool IsSecure => Transport == Transport.SSL;
@@ -171,7 +172,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Timeout = Communicator.DefaultTimeout;
+                Timeout = 60000; // 60s timeout by default
             }
 
             if (options.TryGetValue("-z", out argument))
@@ -187,12 +188,7 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(this,
-                             Communicator,
-                             addr,
-                             proxy,
-                             SourceAddress,
-                             Timeout);
+            new TcpConnector(this, addr, proxy);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,

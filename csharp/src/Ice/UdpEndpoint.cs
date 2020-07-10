@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the UDP transport.</summary>
     public sealed class UdpEndpoint : IPEndpoint
     {
-        // We cannot move HashCompressFlag to IPEndpoint because of the way we marshal it in TcpEndpoint
+        // We cannot move HasCompressionFlag to IPEndpoint because of it's marshaled after the timeout in TcpEndpoint
         public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => true;
 
@@ -234,8 +234,8 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, McastTtl);
+        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
+            new UdpConnector(this, addr);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
