@@ -100,6 +100,22 @@ namespace ZeroC.Ice
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
         /// set).</summary>
+        public void Activate()
+        {
+            try
+            {
+                ActivateAsync().Wait();
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
+        /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
+        /// requests received through these endpoints. ActivateAsync also registers this object adapter with the
+        /// locator (if set).</summary>
         public async Task ActivateAsync()
         {
             lock (_mutex)

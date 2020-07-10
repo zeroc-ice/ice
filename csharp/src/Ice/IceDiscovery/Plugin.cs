@@ -118,9 +118,9 @@ namespace ZeroC.IceDiscovery
             _defaultLocator = _communicator.DefaultLocator;
             _communicator.DefaultLocator = _locator;
 
-            _ = _multicastAdapter.ActivateAsync();
-            _ = _replyAdapter.ActivateAsync();
-            _ = _locatorAdapter.ActivateAsync();
+            _multicastAdapter.Activate();
+            _replyAdapter.Activate();
+            _locatorAdapter.Activate();
         }
 
         internal Plugin(Communicator communicator) => _communicator = communicator;

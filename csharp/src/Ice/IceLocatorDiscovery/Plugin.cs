@@ -449,8 +449,8 @@ namespace ZeroC.IceLocatorDiscovery
 
             _replyAdapter.Add(lookupReplyId, new LookupReply(_locator));
 
-            _ = _replyAdapter.ActivateAsync();
-            _ = _locatorAdapter.ActivateAsync();
+            _replyAdapter.Activate();
+            _locatorAdapter.Activate();
         }
 
         internal Plugin(string name, Communicator communicator)

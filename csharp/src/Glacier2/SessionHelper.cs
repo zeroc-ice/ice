@@ -222,7 +222,7 @@ namespace ZeroC.Glacier2
             {
                 Debug.Assert(_adapter == null);
                 _adapter = _communicator.CreateObjectAdapterWithRouter(router);
-                _ = _adapter.ActivateAsync();
+                _adapter.Activate();
             }
 
             lock (_mutex)
