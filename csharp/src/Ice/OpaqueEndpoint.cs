@@ -28,7 +28,7 @@ namespace ZeroC.Ice
         {
             get
             {
-                if (Protocol == Protocol.Ice2 && option == "options" && Options.Count > 0)
+                if (Protocol != Protocol.Ice1 && option == "options" && Options.Count > 0)
                 {
                     // TODO: need to escape each option
                     return string.Join(",", Options);
@@ -270,19 +270,20 @@ namespace ZeroC.Ice
             Options = istr.ReadArray(1, InputStream.IceReaderIntoString);
         }
 
-        // Constructor for URI parsing with ice2.
+        // Constructor for URI parsing with ice2 or later.
         internal OpaqueEndpoint(
             Communicator communicator,
             Transport transport,
+            Protocol protocol,
             string host,
             ushort port,
             Dictionary<string, string> options)
-            : base(communicator, Protocol.Ice2)
+            : base(communicator, protocol)
         {
             Transport = transport;
             Host = host;
             Port = port;
-            Encoding = Ice2Definitions.Encoding; // not used with ice2
+            Encoding = Ice2Definitions.Encoding; // not used
 
             if (options.TryGetValue("options", out string? value))
             {

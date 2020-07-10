@@ -1639,10 +1639,10 @@ namespace ZeroC.Ice
         {
             WriteShort((short)endpoint.Transport);
 
-            if (endpoint.Protocol == Protocol.Ice1)
+            if (endpoint.Protocol == Protocol.Ice1 || OldEncoding)
             {
                 int sizeLength = OldEncoding ? 4 : 2;
-                if (endpoint is OpaqueEndpoint opaqueEndpoint)
+                if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
                     // 2 bytes for the encoding value (e.g. 20 for 2.0)
                     WriteEncapsulationHeader(2 + opaqueEndpoint.Bytes.Length, opaqueEndpoint.Encoding, sizeLength);
@@ -1652,36 +1652,33 @@ namespace ZeroC.Ice
                 {
                     Position startPos = _tail;
 
-                    // We use the protocol's encoding for the encaps. 0 is a placeholder for the size.
-                    WriteEncapsulationHeader(0, Ice1Definitions.Encoding, sizeLength);
-                    var oldEncoding = Encoding;
-                    Encoding = Ice1Definitions.Encoding;
-                    endpoint.IceWritePayload(this);
-                    Encoding = oldEncoding;
+                    // For ice1 and ice2, this corresponds to the protocol's encoding.
+                    Encoding payloadEncoding = endpoint.Protocol == Protocol.Ice1 ?
+                        Ice1Definitions.Encoding : Encoding.V2_0;
+
+                    // 0 is a placeholder for the size.
+                    WriteEncapsulationHeader(0, payloadEncoding, sizeLength);
+                    var previousEncoding = Encoding;
+                    Encoding = payloadEncoding;
+                    if (endpoint.Protocol == Protocol.Ice1)
+                    {
+                        endpoint.IceWritePayload(this);
+                    }
+                    else
+                    {
+                        WriteString(endpoint.Host);
+                        WriteUShort(endpoint.Port);
+                        endpoint.WriteOptions(this);
+                    }
+                    Encoding = previousEncoding;
                     RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
                 }
             }
             else
             {
-                bool writeEncaps = OldEncoding; // always use an encaps with the 1.1 encoding
-                Position startPos = _tail;
-                if (writeEncaps)
-                {
-                    // We use the 2.0 encoding for the encaps - this way, Ice 3.7 can't read it.
-                    // 0 is a placeholder for the size.
-                    WriteEncapsulationHeader(0, Encoding.V2_0, sizeLength: 4);
-                    Encoding = Encoding.V2_0;
-                }
-
                 WriteString(endpoint.Host);
                 WriteUShort(endpoint.Port);
                 endpoint.WriteOptions(this);
-
-                if (writeEncaps)
-                {
-                    Encoding = Encoding.V1_1;
-                    RewriteEncapsulationSize(Distance(startPos) - 4, startPos, 4); // 4 = sizeLength
-                }
             }
         }
 

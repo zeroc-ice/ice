@@ -28,7 +28,7 @@ namespace ZeroC.Ice
                 Transport.UDP =>
                     new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString),
                 _ => throw new NotSupportedException(
-                    $"cannot create endpoint with transport `{transport.ToString().ToLowerInvariant()}'"),
+                    $"cannot create endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
             };
 
         // URI parsing
@@ -56,7 +56,7 @@ namespace ZeroC.Ice
                 Transport.UDP =>
                     new UdpEndpoint(_communicator, protocol, host, port, options, oaEndpoint, endpointString),
                 _ => throw new NotSupportedException(
-                    $"cannot create endpoint with transport `{transport.ToString().ToLowerInvariant()}'"),
+                    $"cannot create endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
             };
 
         public Endpoint Read(InputStream istr, Transport transport, Protocol protocol) =>
@@ -69,7 +69,7 @@ namespace ZeroC.Ice
                 Transport.UDP =>
                     new UdpEndpoint(istr, _communicator, protocol),
                 _ => throw new NotSupportedException(
-                    $"cannot read endpoint with transport `{transport.ToString().ToLowerInvariant()}'"),
+                    $"cannot read endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
             };
 
         internal EndpointFactory(Communicator communicator) => _communicator = communicator;

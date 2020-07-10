@@ -56,7 +56,7 @@ namespace ZeroC.Ice
 
         protected internal override void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol == Protocol.Ice2);
+            Debug.Assert(Protocol != Protocol.Ice1);
             if (Resource != "/")
             {
                 ostr.WriteSize(1);

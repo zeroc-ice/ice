@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -42,17 +41,8 @@ namespace ZeroC.Ice
                 Equals(SourceAddress, ipEndpoint.SourceAddress) &&
                 base.Equals(other);
 
-        public override int GetHashCode()
-        {
-            if (SourceAddress != null)
-            {
-                return HashCode.Combine(base.GetHashCode(), SourceAddress);
-            }
-            else
-            {
-                return base.GetHashCode();
-            }
-        }
+        public override int GetHashCode() =>
+            SourceAddress != null ? HashCode.Combine(base.GetHashCode(), SourceAddress) : base.GetHashCode();
 
         public override string OptionsToString()
         {

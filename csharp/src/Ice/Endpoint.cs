@@ -131,7 +131,7 @@ namespace ZeroC.Ice
         // TODO: should this method be public and renamed IceWriteOptions?
         protected internal virtual void WriteOptions(OutputStream ostr)
         {
-            Debug.Assert(Protocol == Protocol.Ice2);
+            Debug.Assert(Protocol != Protocol.Ice1);
             ostr.WriteSize(0); // empty sequence
         }
 
