@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -88,13 +87,13 @@ namespace ZeroC.Ice
             new Dictionary<IdentityPlusFacet, IObject>();
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
             new List<IncomingConnectionFactory>();
+        private bool _isDeactivated = false;
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new object();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
-        private Reference? _reference;
+        private readonly Reference? _reference;
         private readonly string _replicaGroupId;
-        private RouterInfo? _routerInfo;
-        private State _state = State.Uninitialized;
+        private readonly RouterInfo? _routerInfo;
 
         /// <summary>Activates all endpoints of this object adapter. After activation, the object adapter can dispatch
         /// requests received through these endpoints. Activate also registers this object adapter with the locator (if
@@ -122,7 +121,7 @@ namespace ZeroC.Ice
                 CheckForDeactivation();
 
                 // Activating twice the object adapter is incorrect
-                if (_state != State.Uninitialized)
+                if (_activateTask != null)
                 {
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
@@ -672,7 +671,6 @@ namespace ZeroC.Ice
             // Make sure named adapter has configuration.
             if (router == null && noProps)
             {
-                _state = State.Destroyed;
                 throw new InvalidConfigurationException($"object adapter `{Name}' requires configuration");
             }
 
@@ -834,7 +832,7 @@ namespace ZeroC.Ice
         private void CheckForDeactivation()
         {
             // Must be called with _mutex locked.
-            if (_state >= State.Destroying)
+            if (_isDeactivated)
             {
                 throw new ObjectAdapterDeactivatedException(Name);
             }
@@ -1096,30 +1094,9 @@ namespace ZeroC.Ice
 
         private async Task PerformActivateAsync()
         {
-            lock (_mutex)
-            {
-                Debug.Assert(_state == State.Uninitialized);
-                // Update the locator registry. We set state to State.Activating to prevent deactivation from
-                // other threads while the call is performed.
-                _state = State.Activating;
-            }
-
-            try
-            {
-                await UpdateLocatorRegistryAsync(_locatorInfo,
-                                                 CreateDirectProxy(new Identity("dummy", ""),
-                                                 IObjectPrx.Factory)).ConfigureAwait(false);
-            }
-            catch
-            {
-                // If we couldn't update the locator registry, we let the exception go through and don't activate the
-                // adapter to allow to user code to retry activating the adapter later.
-                lock (_mutex)
-                {
-                    _state = State.Uninitialized;
-                }
-                throw;
-            }
+            await UpdateLocatorRegistryAsync(_locatorInfo,
+                                             CreateDirectProxy(new Identity("dummy", ""),
+                                             IObjectPrx.Factory)).ConfigureAwait(false);
 
             if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
             {
@@ -1128,12 +1105,10 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                Debug.Assert(_state == State.Activating);
                 foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
                 {
                     factory.Activate();
                 }
-                _state = State.Active;
             }
         }
 
@@ -1143,12 +1118,6 @@ namespace ZeroC.Ice
             if (_activateTask != null)
             {
                 await _activateTask.ConfigureAwait(false);
-            }
-
-            lock (_mutex)
-            {
-                Debug.Assert(_state < State.Destroying);
-                _state = State.Destroying;
             }
 
             // Note: the router/locator infos and incoming connection factory list are immutable at this point.
@@ -1189,20 +1158,6 @@ namespace ZeroC.Ice
 
             Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
             Communicator.RemoveObjectAdapter(this);
-
-            lock (_mutex)
-            {
-                _state = State.Destroyed;
-            }
-        }
-
-        private enum State : byte
-        {
-            Uninitialized,
-            Activating,
-            Active,
-            Destroying,
-            Destroyed
         }
 
         private readonly struct IdentityPlusFacet : IEquatable<IdentityPlusFacet>
