@@ -245,10 +245,8 @@ public:
     // Emit warning unless filtered out by [["suppress-warning"]]
     //
     void warning(WarningCategory, const std::string&, int, const std::string&) const;
-    void warning(WarningCategory, const std::string&, const std::string&, const std::string&) const;
 
-    void error(const std::string&, int, const std::string&) const;
-    void error(const std::string&, const std::string&, const std::string&) const;
+    void error(const std::string&, int, const std::string&);
 
 private:
 
@@ -440,7 +438,7 @@ public:
     std::string scope() const;
     std::string flattenedScope() const;
     std::string file() const;
-    std::string line() const;
+    int line() const;
     std::string comment() const;
     CommentPtr parseComment(bool) const;
 
@@ -470,7 +468,7 @@ protected:
     std::string _name;
     std::string _scoped;
     std::string _file;
-    std::string _line;
+    int _line;
     std::string _comment;
     int _includeLevel;
     std::list<std::string> _metaData;

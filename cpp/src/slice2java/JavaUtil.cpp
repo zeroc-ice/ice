@@ -115,7 +115,7 @@ public:
                     }
                     else
                     {
-                        dc->warning(InvalidMetaData, file, "",  "ignoring invalid global metadata `" + s + "'");
+                        dc->warning(InvalidMetaData, file, -1,  "ignoring invalid global metadata `" + s + "'");
                         globalMetaData.remove(s);
                         continue;
                     }
@@ -244,7 +244,7 @@ public:
         StringList newMetaData;
 
         const string file =  p->file();
-        const string line = p->line();
+        const int line = p->line();
         const UnitPtr unt = p->unit();
         const DefinitionContextPtr dc = unt->findDefinitionContext(file);
 
@@ -405,8 +405,7 @@ private:
         return result;
     }
 
-    StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file,
-                            const string& line)
+    StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
     {
         const UnitPtr unt = p->unit();
         const DefinitionContextPtr dc = unt->findDefinitionContext(file);
@@ -490,8 +489,7 @@ private:
         return newMetaData;
     }
 
-    StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file,
-                              const string& line)
+    StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file, int line)
     {
         const UnitPtr unt = p->unit();
         const DefinitionContextPtr dc= unt->findDefinitionContext(file);

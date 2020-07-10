@@ -2660,7 +2660,7 @@ SwiftGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 
 StringList
 SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData,
-                                          const string& file, const string& line)
+                                          const string& file, int line)
 {
     StringList newMetaData = metaData;
     const string prefix = "swift:";

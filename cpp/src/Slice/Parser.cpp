@@ -236,35 +236,19 @@ Slice::DefinitionContext::compatMode() const
 }
 
 void
+Slice::DefinitionContext::error(const string& file, int line, const string& msg)
+{
+    emitError(file, line, msg);
+    throw CompilerException(__FILE__, __LINE__, msg);
+}
+
+void
 Slice::DefinitionContext::warning(WarningCategory category, const string& file, int line, const string& msg) const
 {
     if(!suppressWarning(category))
     {
         emitWarning(file, line, msg);
     }
-}
-
-void
-Slice::DefinitionContext::warning(WarningCategory category, const string& file, const string& line, const string& msg) const
-{
-    if(!suppressWarning(category))
-    {
-        emitWarning(file, line, msg);
-    }
-}
-
-void
-Slice::DefinitionContext::error(const string& file, int line, const string& msg) const
-{
-    emitError(file, line, msg);
-    throw CompilerException(__FILE__, __LINE__, msg);
-}
-
-void
-Slice::DefinitionContext::error(const string& file, const string& line, const string& msg) const
-{
-    emitError(file, line, msg);
-    throw CompilerException(__FILE__, __LINE__, msg);
 }
 
 bool
@@ -313,7 +297,7 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 }
                 else
                 {
-                    warning(InvalidMetaData, "", "", string("invalid category `") + s +
+                    warning(InvalidMetaData, "", -1, string("invalid category `") + s +
                             "' in file metadata suppress-warning");
                 }
             }
@@ -711,7 +695,7 @@ Slice::Contained::file() const
     return _file;
 }
 
-string
+int
 Slice::Contained::line() const
 {
     return _line;
@@ -1175,9 +1159,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     assert(_unit);
     _unit->addContent(this);
     _file = _unit->currentFile();
-    ostringstream s;
-    s << _unit->currentLine();
-    _line = s.str();
+    _line = _unit->currentLine();
     _comment = _unit->currentComment();
     _includeLevel = _unit->currentIncludeLevel();
 }

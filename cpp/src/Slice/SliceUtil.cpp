@@ -240,36 +240,6 @@ Slice::emitWarning(const string& file, int line, const string& message)
 }
 
 void
-Slice::emitError(const string& file, const std::string& line, const string& message)
-{
-    if(!file.empty())
-    {
-        consoleErr << file;
-        if(!line.empty())
-        {
-            consoleErr << ':' << line;
-        }
-        consoleErr << ": ";
-    }
-    consoleErr << message << endl;
-}
-
-void
-Slice::emitWarning(const string& file, const std::string& line, const string& message)
-{
-    if(!file.empty())
-    {
-        consoleErr << file;
-        if(!line.empty())
-        {
-            consoleErr << ':' << line;
-        }
-        consoleErr << ": ";
-    }
-    consoleErr << "warning: " << message << endl;
-}
-
-void
 Slice::emitRaw(const char* message)
 {
     consoleErr << message << flush;
