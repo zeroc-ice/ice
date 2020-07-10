@@ -58,21 +58,21 @@ namespace ZeroC.Ice
                 _isConnected = true;
             }
 
-            Socket? fd = _delegate.Fd();
-            Debug.Assert(fd != null);
-
-            Network.SetBlock(fd, true); // SSL requires a blocking socket
-
-            // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise, we would
-            // only be notified when all the data is received/written. The connection timeout could easily be triggered
-            // when receiving/sending large frames.
-            _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(fd));
-            _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(fd));
-
             if (SslStream == null)
             {
                 try
                 {
+                    Socket? fd = _delegate.Fd();
+                    Debug.Assert(fd != null);
+
+                    Network.SetBlock(fd, true); // SSL requires a blocking socket
+
+                    // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise,
+                    // we would only be notified when all the data is received/written. The connection timeout could
+                    // easily be triggered when receiving/sending large frames.
+                    _maxSendPacketSize = Math.Max(512, Network.GetSendBufferSize(fd));
+                    _maxRecvPacketSize = Math.Max(512, Network.GetRecvBufferSize(fd));
+
                     if (_incoming)
                     {
                         SslStream = new SslStream(
@@ -92,9 +92,9 @@ namespace ZeroC.Ice
                                 CertificateSelectionCallback);
                     }
                 }
-                catch (IOException ex)
+                catch (Exception ex)
                 {
-                    if (Network.ConnectionLost(ex))
+                    if (ex is IOException ioException && Network.ConnectionLost(ioException))
                     {
                         throw new ConnectionLostException(ex);
                     }

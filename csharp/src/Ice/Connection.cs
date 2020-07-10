@@ -641,6 +641,8 @@ namespace ZeroC.Ice
                 childObserver?.Detach();
                 throw;
             }
+
+            // The request is sent
             progress.Report(false); // sentSynchronously: false
 
             if (responseTask == null)
@@ -1672,9 +1674,9 @@ namespace ZeroC.Ice
                 offset += bytesSent;
                 lock (_mutex)
                 {
-                    if (_state > State.Closing)
+                    if (_state >= State.Closed)
                     {
-                        return;
+                        throw _exception!;
                     }
 
                     TraceSentAndUpdateObserver(bytesSent);
