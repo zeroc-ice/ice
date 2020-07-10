@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace ZeroC.Ice
 {
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
-    public abstract class IPEndpoint : Endpoint
+    internal abstract class IPEndpoint : Endpoint
     {
         public override string? this[string option]
         {
@@ -35,7 +35,7 @@ namespace ZeroC.Ice
         public override ushort Port { get; }
 
         /// <summary>The source address of this IP endpoint.</summary>
-        public IPAddress? SourceAddress { get; }
+        internal IPAddress? SourceAddress { get; }
 
         public override bool Equals(Endpoint? other) =>
             other is IPEndpoint ipEndpoint &&

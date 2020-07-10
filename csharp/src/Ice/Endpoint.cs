@@ -11,12 +11,33 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-     /// <summary>An endpoint describes a server-side network sink for Ice requests: an object adapter listens on one or
-     /// more endpoints and a client establishes a connection to a given object adapter endpoint. An endpoint
-     /// encapsulates a network transport protocol such as TCP or Bluetooth RFCOMM, plus transport-specific addressing
-     /// information. The Endpoint class is the base class for all endpoint classes.</summary>
+    /// <summary>An endpoint describes a server-side network sink for Ice requests: an object adapter listens on one or
+    /// more endpoints and a client establishes a connection to a given object adapter endpoint. Its properties are
+    /// a network transport protocol such as TCP or Bluetooth RFCOMM, a host or address, a port number, and
+    /// transport-specific options.</summary>
     public abstract class Endpoint : IEquatable<Endpoint>
     {
+        /// <summary>Gets the communicator that created this endpoint.</summary>
+        public Communicator Communicator { get; }
+
+        /// <summary>Indicates whether or not this endpoint's compression flag is set. When the compression flag is
+        /// set, a request sent to this endpoint using the ice1 protocol is automatically compressed using bzip2 if
+        /// the request's uncompressed size is greater than 100 bytes. Only applies to ice1.</summary>
+        /// <value>True when the compression flag is set; otherwise, false.</value>
+        public virtual bool HasCompressionFlag => false;
+
+        /// <summary>The host name or address.</summary>
+        public abstract string Host { get; }
+
+        /// <summary>Indicates whether or not this endpoint's transport uses datagrams with no ordering or delivery
+        /// guarantees.</summary>
+        /// <value>True when this endpoint's transport is datagram-based; otherwise, false.</value>
+        public virtual bool IsDatagram => false;
+
+        /// <summary>Indicates whether or not this endpoint's transport is secure. Only applies to ice1.</summary>
+        /// <value>True when this endpoint's transport is secure; otherwise, false.</value>
+        public virtual bool IsSecure => false;
+
         /// <summary>Gets an option of the endpoint.</summary>
         /// <param name="option">The name of the option to retrieve.</param>
         /// <value>The value of this option, or null if this option is not set.</value>
@@ -40,27 +61,6 @@ namespace ZeroC.Ice
                 }
             }
         }
-
-        /// <summary>Gets the communicator that created this endpoint.</summary>
-        public Communicator Communicator { get; }
-
-        /// <summary>Indicates whether or not this endpoint's compression flag is set. When the compression flag is
-        /// set, a request sent to this endpoint using the ice1 protocol is automatically compressed using bzip2 if
-        /// the request's uncompressed size is greater than 100 bytes. Only applies to ice1.</summary>
-        /// <value>True when the compression flag is set; otherwise, false.</value>
-        public virtual bool HasCompressionFlag => false;
-
-        /// <summary>The host name or address.</summary>
-        public abstract string Host { get; }
-
-        /// <summary>Indicates whether or not this endpoint's transport uses datagrams with no ordering or delivery
-        /// guarantees.</summary>
-        /// <value>True when this endpoint's transport is datagram-based; otherwise, false.</value>
-        public virtual bool IsDatagram => false;
-
-        /// <summary>Indicates whether or not this endpoint's transport is secure. Only applies to ice1.</summary>
-        /// <value>True when this endpoint's transport is secure; otherwise, false.</value>
-        public virtual bool IsSecure => false;
 
         /// <summary>The port number. 0 means undefined/not applicable to the transport.</summary>
         public virtual ushort Port => 0;

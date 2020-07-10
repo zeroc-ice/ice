@@ -12,7 +12,7 @@ using System.Text;
 namespace ZeroC.Ice
 {
     /// <summary>The Endpoint class for the TCP transport.</summary>
-    public class TcpEndpoint : IPEndpoint
+    internal class TcpEndpoint : IPEndpoint
     {
         public override bool HasCompressionFlag { get; } = false;
         public override bool IsDatagram => false;

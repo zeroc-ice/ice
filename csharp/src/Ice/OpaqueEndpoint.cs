@@ -12,11 +12,18 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>An opaque endpoint is an endpoint with a transport that the local Ice runtime does not know. As a
-    /// result, the local Ice runtime cannot send a request to this endpoint. It can however marshal this endpoint
-    /// (within a proxy) and send this proxy to another application that knows this transport.</summary>
+    /// <summary>Describes an endpoint with a transport that the local Ice runtime does not know. The local Ice runtime
+    /// cannot send a request to this endpoint; it can however marshal this endpoint (within a proxy) and send this
+    /// proxy to another application that may know this transport.</summary>
     public sealed class OpaqueEndpoint : Endpoint
     {
+        public ReadOnlyMemory<byte> Bytes { get; }
+
+        public Encoding Encoding { get; }
+        public override bool HasCompressionFlag => false;
+
+        public override string Host { get; } = "";
+
         public override string? this[string option]
         {
             get
@@ -32,13 +39,6 @@ namespace ZeroC.Ice
                 }
             }
         }
-
-        public ReadOnlyMemory<byte> Bytes { get; }
-
-        public Encoding Encoding { get; }
-        public override bool HasCompressionFlag => false;
-
-        public override string Host { get; } = "";
 
         /// <summary>The options of this endpoint. Only applicable to the ice2 protocol.</summary>
         public IReadOnlyList<string> Options { get; } = Array.Empty<string>();
@@ -255,12 +255,13 @@ namespace ZeroC.Ice
             Bytes = bytes;
         }
 
-        // Constructor for ice2 unmarshaling
+        // Constructor for ice2 or later unmarshaling
         internal OpaqueEndpoint(
             InputStream istr,
             Communicator communicator,
-            Transport transport)
-            : base(communicator, Protocol.Ice2)
+            Transport transport,
+            Protocol protocol)
+            : base(communicator, protocol)
         {
             Transport = transport;
             Encoding = istr.Encoding;

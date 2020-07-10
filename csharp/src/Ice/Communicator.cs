@@ -362,24 +362,6 @@ namespace ZeroC.Ice
 
                 TraceLevels = new TraceLevels(this);
 
-                if (GetProperty("Ice.Default.Encoding") is string encoding)
-                {
-                    try
-                    {
-                        DefaultEncoding = Encoding.Parse(encoding);
-                        DefaultEncoding.CheckSupported();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid value for Ice.Default.Encoding: `{encoding}'", ex);
-                    }
-                }
-                else
-                {
-                    DefaultEncoding = Encoding.Latest;
-                }
-
                 if (GetProperty("Ice.Default.Protocol") is string protocol)
                 {
                     try
@@ -396,6 +378,24 @@ namespace ZeroC.Ice
                 else
                 {
                     DefaultProtocol = Protocol.Ice2;
+                }
+
+                if (GetProperty("Ice.Default.Encoding") is string encoding)
+                {
+                    try
+                    {
+                        DefaultEncoding = Encoding.Parse(encoding);
+                        DefaultEncoding.CheckSupported();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for Ice.Default.Encoding: `{encoding}'", ex);
+                    }
+                }
+                else
+                {
+                    DefaultEncoding = DefaultProtocol.GetEncoding();
                 }
 
                 string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";

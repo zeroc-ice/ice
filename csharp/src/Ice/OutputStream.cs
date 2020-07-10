@@ -1661,16 +1661,27 @@ namespace ZeroC.Ice
                     RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
                 }
             }
-            else if (OldEncoding)
-            {
-                throw new InvalidOperationException(
-                    "cannot marshal an endpoint for an ice2 proxy with the 1.1 encoding");
-            }
             else
             {
+                bool writeEncaps = OldEncoding; // always use an encaps with the 1.1 encoding
+                Position startPos = _tail;
+                if (writeEncaps)
+                {
+                    // We use the 2.0 encoding for the encaps - this way, Ice 3.7 can't read it.
+                    // 0 is a placeholder for the size.
+                    WriteEncapsulationHeader(0, Encoding.V2_0, sizeLength: 4);
+                    Encoding = Encoding.V2_0;
+                }
+
                 WriteString(endpoint.Host);
                 WriteUShort(endpoint.Port);
                 endpoint.WriteOptions(this);
+
+                if (writeEncaps)
+                {
+                    Encoding = Encoding.V1_1;
+                    RewriteEncapsulationSize(Distance(startPos) - 4, startPos, 4); // 4 = sizeLength
+                }
             }
         }
 

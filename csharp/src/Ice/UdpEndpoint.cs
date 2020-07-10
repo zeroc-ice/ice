@@ -12,19 +12,27 @@ using System.Text;
 namespace ZeroC.Ice
 {
     /// <summary>The Endpoint class for the UDP transport.</summary>
-    public sealed class UdpEndpoint : IPEndpoint
+    internal sealed class UdpEndpoint : IPEndpoint
     {
         // We cannot move HashCompressFlag to IPEndpoint because of the way we marshal it in TcpEndpoint
         public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => true;
 
-        /// <summary>The local network interface used to send multicast datagrams.</summary>
-        public string McastInterface { get; } = "";
-
-        /// <summary>The time-to-live of the multicast datagrams, in milliseconds.</summary>
-        public int McastTtl { get; } = -1;
+        public override string? this[string option] =>
+            option switch
+            {
+                "interface" => McastInterface,
+                "ttl" => McastTtl.ToString(CultureInfo.InvariantCulture),
+                _ => base[option],
+            };
 
         public override Transport Transport => Transport.UDP;
+
+        /// <summary>The local network interface used to send multicast datagrams.</summary>
+        internal string McastInterface { get; } = "";
+
+        /// <summary>The time-to-live of the multicast datagrams, in milliseconds.</summary>
+        internal int McastTtl { get; } = -1;
 
         private readonly bool _connect;
         private int _hashCode = 0;

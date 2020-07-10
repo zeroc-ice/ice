@@ -1189,35 +1189,52 @@ namespace ZeroC.Ice
             IEndpointFactory? factory = communicator.IceFindEndpointFactory(transport);
             Endpoint endpoint;
 
-            if (protocol == Protocol.Ice1)
+            if (protocol == Protocol.Ice1 || OldEncoding)
             {
                 (int size, Encoding encoding) = ReadEncapsulationHeader();
 
-                if (encoding.IsSupported && factory != null)
+                // We need to read the encaps except for ice1 + unknown encoding or null factory.
+                if (protocol == Protocol.Ice1 && (!encoding.IsSupported || factory == null))
                 {
-                    Encoding oldEncoding = Encoding;
-                    ArraySegment<byte> oldBuffer = _buffer;
-                    int oldPos = _pos;
-                    int oldMinTotalSeqSize = _minTotalSeqSize;
+                    endpoint = new OpaqueEndpoint(
+                        communicator, transport, encoding, _buffer.Slice(_pos, size - 2).ToArray());
+                    _pos += size - 2;
+                }
+                else if (encoding.IsSupported)
+                {
+                    Encoding previousEncoding = Encoding;
+                    ArraySegment<byte> previousBuffer = _buffer;
+                    int previousPos = _pos;
+                    int previousMinTotalSeqSize = _minTotalSeqSize;
                     Encoding = encoding;
                     _buffer = _buffer.Slice(_pos, size - 2);
                     _pos = 0;
                     _minTotalSeqSize = 0;
-                    endpoint = factory.Read(this, transport, protocol);
+
+                    if (factory != null)
+                    {
+                        endpoint = factory.Read(this, transport, protocol);
+                    }
+                    else
+                    {
+                        // protocol is ice2 or greater
+                        endpoint = new OpaqueEndpoint(this, communicator, transport, protocol);
+                    }
                     CheckEndOfBuffer();
 
                     // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
                     // anything unless we succeed.
-                    Encoding = oldEncoding;
-                    _buffer = oldBuffer;
-                    _pos = oldPos + size - 2;
-                    _minTotalSeqSize = oldMinTotalSeqSize;
+                    Encoding = previousEncoding;
+                    _buffer = previousBuffer;
+                    _pos = previousPos + size - 2;
+                    _minTotalSeqSize = previousMinTotalSeqSize;
                 }
                 else
                 {
-                    endpoint = new OpaqueEndpoint(
-                        _communicator!, transport, encoding, _buffer.Slice(_pos, size - 2).ToArray());
-                    _pos += size - 2;
+                    string transportName = transport.ToString().ToLowerInvariant();
+                    throw new InvalidDataException(@$"cannot read endpoint for protocol `{
+                        protocol.GetName()}' and transport `{
+                            transportName}' in encapsulation encoded with encoding `{encoding}'");
                 }
             }
             else
@@ -1228,7 +1245,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    endpoint = new OpaqueEndpoint(this, communicator, transport);
+                    endpoint = new OpaqueEndpoint(this, communicator, transport, protocol);
                 }
             }
             return endpoint;
@@ -1244,6 +1261,15 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"read ice1 facet path with {facets.Length} elements");
             }
             return facets.Length == 1 ? facets[0] : "";
+        }
+
+        internal void Skip(int size)
+        {
+            if (size < 0 || size > _buffer.Count - _pos)
+            {
+                throw new IndexOutOfRangeException($"cannot skip {size} bytes");
+            }
+            _pos += size;
         }
 
         /// <summary>Skips over an encapsulation without reading it.</summary>
@@ -1505,15 +1531,6 @@ namespace ZeroC.Ice
                     return true;
                 }
             }
-        }
-
-        internal void Skip(int size)
-        {
-            if (size < 0 || size > _buffer.Count - _pos)
-            {
-                throw new IndexOutOfRangeException($"cannot skip {size} bytes");
-            }
-            _pos += size;
         }
 
         /// <summary>Skips over a size value.</summary>

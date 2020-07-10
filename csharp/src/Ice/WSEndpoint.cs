@@ -10,13 +10,15 @@ using System.Text;
 
 namespace ZeroC.Ice
 {
-    public sealed class WSEndpoint : TcpEndpoint
+    internal sealed class WSEndpoint : TcpEndpoint
     {
         public override bool IsSecure => Transport == Transport.WSS;
 
+        public override string? this[string option] => option == "resource" ? Resource : base[option];
+
         /// <summary>A URI specifying the resource associated with this endpoint. The value is passed as the target for
         /// GET in the WebSocket upgrade request.</summary>
-        public string Resource { get; } = "/";
+        internal string Resource { get; } = "/";
 
         public override bool Equals(Endpoint? other)
         {
