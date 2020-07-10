@@ -21,7 +21,6 @@ namespace ZeroC.Ice
     {
         internal string AdapterId { get; }
         internal Communicator Communicator { get; }
-        internal bool? Compress { get; }
         internal string ConnectionId { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
         internal Encoding Encoding { get; }
@@ -132,10 +131,6 @@ namespace ZeroC.Ice
             }
 
             // Compare common properties
-            if (Compress != other.Compress)
-            {
-                return false;
-            }
             if (!Context.DictionaryEqual(other.Context))
             {
                 return false;
@@ -185,10 +180,6 @@ namespace ZeroC.Ice
                 var hash = new HashCode();
 
                 // common properties
-                if (Compress != null)
-                {
-                    hash.Add(Compress.Value);
-                }
                 hash.Add(Context.GetDictionaryHashCode());
                 hash.Add(Encoding);
                 hash.Add(Facet);
@@ -1257,13 +1248,10 @@ namespace ZeroC.Ice
                 bool compress = false;
                 if (Protocol == Protocol.Ice1)
                 {
-                    // The connection endpoint is always a non-compressed endpoint. If one of the resolved endpoints
-                    // matches the connection endpoint, we don't use compression. Otherwise, if we don't find the
-                    // matching endpoint, it implies that we got a connection for one the compressed resolved endpoints.
-                    // TODO: XXX
-                    compress = !endpoints.Select(endpoint => connection.Endpoint == endpoint).Any();
-
-                    Debug.Assert(!compress || endpoints.Contains(connection.Endpoint.NewCompressionFlag(true)));
+                    // If one of the resolved proxy's endpoints matches one of the connection endpoint and this endpoint
+                    // doesn't have the compression flag set, we don't use compression.
+                    compress = !endpoints.Where(endpoint =>
+                        connection.Endpoints.Contains(endpoint) && !endpoint.HasCompressionFlag).Any();
                 }
                 return new ConnectionRequestHandler(connection, compress);
             }

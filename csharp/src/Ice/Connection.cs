@@ -1674,7 +1674,7 @@ namespace ZeroC.Ice
                 offset += bytesSent;
                 lock (_mutex)
                 {
-                    if (_state >= State.Closed)
+                    if (_state >= State.Closed && offset < size)
                     {
                         throw _exception!;
                     }
