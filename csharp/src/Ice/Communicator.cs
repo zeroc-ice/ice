@@ -1275,8 +1275,6 @@ namespace ZeroC.Ice
             // Cancel operations that are waiting and using the communicator's cancellation token
             _cancellationTokenSource.Cancel();
 
-            Task shutdownTask = ShutdownAsync();
-
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
             // finished.
             if (_outgoingConnectionFactory != null)
@@ -1284,7 +1282,7 @@ namespace ZeroC.Ice
                 await _outgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
             }
 
-            await shutdownTask.ConfigureAwait(false);
+            await ShutdownAsync().ConfigureAwait(false);
 
             // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
             // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.
