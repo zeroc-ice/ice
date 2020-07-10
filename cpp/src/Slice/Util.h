@@ -13,8 +13,10 @@ namespace Slice
 
 std::string fullPath(const std::string&);
 std::string changeInclude(const std::string&, const std::vector<std::string>&);
+void emitFilePrefix(const std::string&, int);
 void emitError(const std::string&, int, const std::string&);
 void emitWarning(const std::string&, int, const std::string&);
+void emitNote(const std::string&, int, const std::string&);
 void emitRaw(const char*);
 std::vector<std::string> filterMcppWarnings(const std::string&);
 void printGeneratedHeader(IceUtilInternal::Output& out, const std::string&, const std::string& commentStyle = "//");

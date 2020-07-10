@@ -210,9 +210,9 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
 }
 
 void
-Slice::emitError(const string& file, int line, const string& message)
+Slice::emitFilePrefix(const string& file, int line)
 {
-    if(!file.empty())
+    if (!file.empty())
     {
         consoleErr << file;
         if(line != -1)
@@ -221,22 +221,27 @@ Slice::emitError(const string& file, int line, const string& message)
         }
         consoleErr << ": ";
     }
+}
+
+void
+Slice::emitError(const string& file, int line, const string& message)
+{
+    emitFilePrefix(file, line);
     consoleErr << message << endl;
 }
 
 void
 Slice::emitWarning(const string& file, int line, const string& message)
 {
-    if(!file.empty())
-    {
-        consoleErr << file;
-        if(line != -1)
-        {
-            consoleErr << ':' << line;
-        }
-        consoleErr << ": ";
-    }
+    emitFilePrefix(file, line);
     consoleErr << "warning: " << message << endl;
+}
+
+void
+Slice::emitNote(const string& file, const string& line, const string& message)
+{
+    emitFilePrefix(file, line);
+    consoleErr << "note: " << message << endl;
 }
 
 void

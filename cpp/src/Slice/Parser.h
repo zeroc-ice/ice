@@ -1181,6 +1181,7 @@ public:
 
     void error(const std::string&); // Not const because error count is increased
     void warning(WarningCategory, const std::string&) const;
+    void note(const std::string&) const;
 
     ContainerPtr currentContainer() const;
     ModulePtr currentModule() const;

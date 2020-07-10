@@ -5603,6 +5603,12 @@ Slice::Unit::warning(WarningCategory category, const string& msg) const
     }
 }
 
+void
+Slice::Unit::note(const string& msg) const
+{
+    emitNote(currentFile(), currentLine(), msg);
+}
+
 ContainerPtr
 Slice::Unit::currentContainer() const
 {
