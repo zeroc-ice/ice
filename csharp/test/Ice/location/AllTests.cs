@@ -584,7 +584,7 @@ namespace ZeroC.Ice.Test.Location
 
             var id = new Identity(Guid.NewGuid().ToString(), "");
             adapter.Add(id, new Hello());
-            adapter.ActivateAsync();
+            adapter.Activate();
 
             // Ensure that calls on the well-known proxy is collocated.
             IHelloPrx? helloPrx;

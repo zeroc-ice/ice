@@ -82,7 +82,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             var server = new SSLServer(communicator);
             var prx = adapter.AddWithUUID(server, IServerPrx.Factory);
             _servers[prx.Identity] = server;
-            adapter.ActivateAsync();
+            adapter.Activate();
             return prx;
         }
 

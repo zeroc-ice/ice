@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Binding
         {
             _adapter = adapter;
             _testIntf = _adapter.Add("test", new TestIntf(), ITestIntfPrx.Factory);
-            _adapter.ActivateAsync();
+            _adapter.Activate();
         }
 
         public ITestIntfPrx getTestIntf(Current current) => _testIntf;

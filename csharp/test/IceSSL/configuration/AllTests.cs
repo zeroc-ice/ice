@@ -279,7 +279,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
-                    _ = adapter.ActivateAsync();
+                    adapter.Activate();
                     prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
                     prx.IcePing();
                 }
@@ -323,7 +323,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 
                     ObjectAdapter? adapter = serverCommunicator.CreateObjectAdapterWithEndpoints("MyAdapter", "ssl");
                     IObjectPrx? prx = adapter.AddWithUUID(new Blobject(), IObjectPrx.Factory);
-                    _ = adapter.ActivateAsync();
+                    adapter.Activate();
                     prx = IObjectPrx.Parse(prx.ToString()!, clientCommunicator);
                     prx.IcePing();
                     TestHelper.Assert(clientCertificateValidationCallbackCalled);

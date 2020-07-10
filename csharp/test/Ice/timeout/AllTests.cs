@@ -337,7 +337,7 @@ namespace ZeroC.Ice.Test.Timeout
                 communicator.SetProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
                 var adapter = communicator.CreateObjectAdapter("TimeoutCollocated");
-                adapter.ActivateAsync();
+                adapter.Activate();
 
                 var proxy = adapter.AddWithUUID(new Timeout(), ITimeoutPrx.Factory).Clone(invocationTimeout: 100);
                 try

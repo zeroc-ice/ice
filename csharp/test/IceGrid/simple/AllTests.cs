@@ -64,7 +64,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
 
                 ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                adapter.ActivateAsync();
+                adapter.Activate();
                 adapter.DeactivateAsync();
                 com.Dispose();
 
@@ -103,7 +103,7 @@ namespace ZeroC.IceGrid.Test.Simple
                 }
 
                 adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                adapter.ActivateAsync();
+                adapter.Activate();
                 adapter.DeactivateAsync();
 
                 com.Dispose();

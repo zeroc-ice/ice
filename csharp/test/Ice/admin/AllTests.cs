@@ -386,7 +386,7 @@ namespace ZeroC.Ice.Test.Admin
 
                 IRemoteLoggerPrx myProxy = adapter.AddWithUUID(remoteLogger, IRemoteLoggerPrx.Factory);
 
-                _ = adapter.ActivateAsync();
+                adapter.Activate();
 
                 //
                 // No filtering

@@ -47,7 +47,7 @@ namespace ZeroC.Ice.Test.Timeout
         {
             _adapter = communicator.CreateObjectAdapter("TestAdapter", serializeDispatch: true);
             _adapter.Add("timeout", new Timeout());
-            _adapter.ActivateAsync();
+            _adapter.Activate();
         }
 
         public void holdAdapter(int to, Current current)
@@ -58,11 +58,11 @@ namespace ZeroC.Ice.Test.Timeout
 
             if (to >= 0)
             {
-                Task.Delay(1000).ContinueWith(t => _adapter.ActivateAsync());
+                Task.Delay(1000).ContinueWith(t => _adapter.Activate());
             }
         }
 
-        public void resumeAdapter(Current current) => _adapter.ActivateAsync();
+        public void resumeAdapter(Current current) => _adapter.Activate();
 
         public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 

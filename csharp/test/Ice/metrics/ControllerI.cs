@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Metrics
         {
             _factory = factory;
             _adapter = factory();
-            _adapter.ActivateAsync();
+            _adapter.Activate();
         }
 
         public void hold(Current current)
@@ -21,7 +21,7 @@ namespace ZeroC.Ice.Test.Metrics
             _adapter = _factory(); // Recreate the adapter without activating it
         }
 
-        public void resume(Current current) => _adapter.ActivateAsync();
+        public void resume(Current current) => _adapter.Activate();
 
         private readonly Func<ObjectAdapter> _factory;
         private ObjectAdapter _adapter;

@@ -859,7 +859,7 @@ namespace ZeroC.Ice.Test.Binding
                     try
                     {
                         oa = serverCommunicator.CreateObjectAdapter("Adapter");
-                        oa.ActivateAsync();
+                        oa.Activate();
                     }
                     catch (DNSException)
                     {

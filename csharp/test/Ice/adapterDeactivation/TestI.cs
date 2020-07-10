@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
         {
             using ObjectAdapter adapter = current.Adapter.Communicator.CreateObjectAdapterWithEndpoints(
                 "TransientTestAdapter", "default");
-            _ = adapter.ActivateAsync();
+            adapter.Activate();
         }
 
         public void deactivate(Current current)

@@ -66,8 +66,8 @@ namespace ZeroC.Ice.Test.Location
                     _registry.AddObject(adapter.Add("test2", testI, IObjectPrx.Factory));
                     adapter.Add("test3", testI);
 
-                    adapter.ActivateAsync();
-                    adapter2.ActivateAsync();
+                    adapter.Activate();
+                    adapter2.Activate();
                     break;
                 }
                 catch (TransportException)

@@ -19,7 +19,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
             communicator.SetProperty($"{name}.Endpoints", "default");
             ObjectAdapter oa = communicator.CreateObjectAdapter(name);
             _adapters[name] = oa;
-            oa.ActivateAsync();
+            oa.Activate();
         }
 
         public void
