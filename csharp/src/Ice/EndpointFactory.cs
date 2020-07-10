@@ -12,7 +12,7 @@ namespace ZeroC.Ice
     {
         private readonly Communicator _communicator;
 
-        // ice1 with old string format
+        // Parsing of old format
         public Endpoint Create(
             Transport transport,
             Protocol protocol,
@@ -36,7 +36,7 @@ namespace ZeroC.Ice
             }
         }
 
-        // URI parsing or ice2 unmarshaling
+        // URI parsing
         public Endpoint Create(
             Transport transport,
             Protocol protocol,
@@ -44,7 +44,7 @@ namespace ZeroC.Ice
             ushort port,
             Dictionary<string, string> options,
             bool oaEndpoint,
-            string? endpointString) =>
+            string endpointString) =>
             transport switch
             {
                 var tv when tv == Transport.TCP || tv == Transport.SSL =>
@@ -56,19 +56,18 @@ namespace ZeroC.Ice
                 _ => throw new NotSupportedException($"the transport `{transport}' is not supported"),
             };
 
-        // Only for ice1
-        public Endpoint Read(InputStream istr, Transport transport)
+        public Endpoint Read(InputStream istr, Transport transport, Protocol protocol)
         {
             switch (transport)
             {
                 case Transport.TCP:
                 case Transport.SSL:
-                    return new TcpEndpoint(istr, _communicator, transport);
+                    return new TcpEndpoint(istr, _communicator, transport, protocol);
                 case Transport.WS:
                 case Transport.WSS:
-                    return new WSEndpoint(istr, _communicator, transport);
+                    return new WSEndpoint(istr, _communicator, transport, protocol);
                 case Transport.UDP:
-                    return new UdpEndpoint(istr, _communicator);
+                    return new UdpEndpoint(istr, _communicator, protocol);
                 default:
                     Debug.Assert(false);
                     throw new NotSupportedException($"the transport `{transport}' is not supported");

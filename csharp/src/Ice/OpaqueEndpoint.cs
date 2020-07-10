@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -20,7 +19,18 @@ namespace ZeroC.Ice
     {
         public override string? this[string option]
         {
-            get => Options.TryGetValue(option, out string? value) ? value : null;
+            get
+            {
+                if (Protocol == Protocol.Ice2 && option == "options" && Options.Count > 0)
+                {
+                    // TODO: need to escape each option
+                    return string.Join(",", Options);
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
         public ReadOnlyMemory<byte> Bytes { get; }
@@ -31,7 +41,7 @@ namespace ZeroC.Ice
         public override string Host { get; } = "";
 
         /// <summary>The options of this endpoint. Only applicable to the ice2 protocol.</summary>
-        public IReadOnlyDictionary<string, string> Options { get; } = ImmutableDictionary<string, string>.Empty;
+        public IReadOnlyList<string> Options { get; } = Array.Empty<string>();
         public override ushort Port { get; }
 
         public override Transport Transport { get; }
@@ -55,7 +65,7 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    return Options.DictionaryEqual(opaqueEndpoint.Options) && base.Equals(other);
+                    return Options.SequenceEqual(opaqueEndpoint.Options) && base.Equals(other);
                 }
             }
             else
@@ -79,7 +89,13 @@ namespace ZeroC.Ice
                }
                else
                {
-                   hashCode = HashCode.Combine(base.GetHashCode(), Options.GetDictionaryHashCode());
+                   var hash = new HashCode();
+                   hash.Add(base.GetHashCode());
+                   foreach (string option in Options)
+                   {
+                       hash.Add(option);
+                   }
+                   hashCode = hash.ToHashCode();
                }
                if (hashCode == 0)
                {
@@ -113,6 +129,9 @@ namespace ZeroC.Ice
             short transportNum = (short)Transport;
             return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
         }
+
+        protected internal override void WriteOptions(OutputStream ostr) =>
+            ostr.WriteSequence(Options, OutputStream.IceWriterFromString);
 
         public override void IceWritePayload(OutputStream ostr)
         {
@@ -236,21 +255,39 @@ namespace ZeroC.Ice
             Bytes = bytes;
         }
 
-        // Constructor for ice2 unmarshaling or URI parsing with ice2.
+        // Constructor for ice2 unmarshaling
+        internal OpaqueEndpoint(
+            InputStream istr,
+            Communicator communicator,
+            Transport transport)
+            : base(communicator, Protocol.Ice2)
+        {
+            Transport = transport;
+            Encoding = istr.Encoding;
+            Host = istr.ReadString();
+            Port = istr.ReadUShort();
+            Options = istr.ReadArray(1, InputStream.IceReaderIntoString);
+        }
+
+        // Constructor for URI parsing with ice2.
         internal OpaqueEndpoint(
             Communicator communicator,
             Transport transport,
             string host,
             ushort port,
-            IReadOnlyDictionary<string, string> options)
+            Dictionary<string, string> options)
             : base(communicator, Protocol.Ice2)
         {
             Transport = transport;
             Host = host;
             Port = port;
-            Options = options;
             Encoding = Ice2Definitions.Encoding; // not used with ice2
-            Bytes = default; // not used with ice2
+
+            if (options.TryGetValue("options", out string? value))
+            {
+                Options = value.Split(","); // TODO: proper un-escaping
+                options.Remove("options");
+            }
         }
     }
 }

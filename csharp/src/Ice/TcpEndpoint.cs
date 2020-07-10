@@ -129,16 +129,28 @@ namespace ZeroC.Ice
             Timeout = timeout;
         }
 
-        // Constructor for ice1 unmarshaling
-        internal TcpEndpoint(InputStream istr, Communicator communicator, Transport transport)
-            : base(istr, communicator)
+        // Constructor for unmarshaling
+        internal TcpEndpoint(
+            InputStream istr,
+            Communicator communicator,
+            Transport transport,
+            Protocol protocol,
+            bool mostDerived = true)
+            : base(istr, communicator, protocol)
         {
             Transport = transport;
-            Timeout = istr.ReadInt();
-            HasCompressionFlag = istr.ReadBool();
+            if (protocol == Protocol.Ice1)
+            {
+                Timeout = istr.ReadInt();
+                HasCompressionFlag = istr.ReadBool();
+            }
+            else if (mostDerived)
+            {
+                SkipUnknownOptions(istr, istr.ReadSize());
+            }
         }
 
-        // Constructor used for both URI parsing and ice2 unmarshaling.
+        // Constructor for URI parsing.
         internal TcpEndpoint(
             Communicator communicator,
             Transport transport,
@@ -147,8 +159,8 @@ namespace ZeroC.Ice
             ushort port,
             Dictionary<string, string> options,
             bool oaEndpoint,
-            string? endpointString)
-            : base(communicator, protocol, host, port, options, oaEndpoint, endpointString)
+            string endpointString)
+            : base(communicator, protocol, host, port, options, oaEndpoint)
         {
             Transport = transport;
             if (protocol == Protocol.Ice1)
@@ -161,7 +173,6 @@ namespace ZeroC.Ice
                     }
                     else if (value != "false")
                     {
-                        Debug.Assert(endpointString != null); // we're not unmarshaling an ice1 endpoint
                         throw new FormatException(
                             $"invalid compress value `{value}' in endpoint `{endpointString}'");
                     }
@@ -179,7 +190,6 @@ namespace ZeroC.Ice
                         Timeout = int.Parse(value, CultureInfo.InvariantCulture);
                         if (Timeout < -1)
                         {
-                            Debug.Assert(endpointString != null);
                             throw new FormatException(
                                 $"invalid timeout value `{value}' in endpoint `{endpointString}'");
                         }

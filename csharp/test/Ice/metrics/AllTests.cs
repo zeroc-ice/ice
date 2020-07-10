@@ -609,8 +609,16 @@ namespace ZeroC.Ice.Test.Metrics
 
                 testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
                 //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-                testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
-                            endpoint + " -t 500", output);
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
+                                endpoint + " -t 500", output);
+                }
+                else
+                {
+                    testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
+                                endpoint, output);
+                }
 
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTransport", transportName, output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
@@ -675,8 +683,16 @@ namespace ZeroC.Ice.Test.Metrics
                 System.Action c = () => { connect(metrics); };
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
-                testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                            endpoint + " -t " + timeout, c, output);
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
+                                endpoint + " -t " + timeout, c, output);
+                }
+                else
+                {
+                    testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
+                                endpoint, c, output);
+                }
 
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTransport", transportName, c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
@@ -728,16 +744,21 @@ namespace ZeroC.Ice.Test.Metrics
                 }
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"].Length == 2);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][0]!;
-                if (!m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
+
+                if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
-                    m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][1]!;
+                    if (!m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500"))
+                    {
+                        m1 = clientMetrics.GetMetricsView("View").ReturnValue["EndpointLookup"][1]!;
+                    }
+                    TestHelper.Assert(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.Total == 2 &&
+                        (!dnsException || m1.Failures == 2));
+                    if (dnsException)
+                    {
+                        checkFailure(clientMetrics, "EndpointLookup", m1.Id, "ZeroC.Ice.DNSException", 2, output);
+                    }
                 }
-                TestHelper.Assert(m1.Id.Equals("tcp -h unknownfoo.zeroc.com -p " + port + " -t 500") && m1.Total == 2 &&
-                    (!dnsException || m1.Failures == 2));
-                if (dnsException)
-                {
-                    checkFailure(clientMetrics, "EndpointLookup", m1.Id, "ZeroC.Ice.DNSException", 2, output);
-                }
+                // TODO: ice2 version
 
                 c = () => connect(prx);
 
@@ -851,8 +872,16 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!collocated)
             {
-                testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
-                            endpoint + " -t 60000", op, output);
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
+                                endpoint + " -t 60000", op, output);
+                }
+                else
+                {
+                    testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
+                                endpoint, op, output);
+                }
                 //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
                 testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTransport", transportName, op, output);
@@ -1092,8 +1121,17 @@ namespace ZeroC.Ice.Test.Metrics
             testAttribute(clientMetrics, clientProps, update, "Invocation", "facet", "", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", $"{defaultEncoding}", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
-            testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint} -t {timeout}", op, output);
+
+            if (communicator.DefaultProtocol == Protocol.Ice1)
+            {
+                testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
+                    $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint} -t {timeout}", op, output);
+            }
+            else
+            {
+                testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
+                    $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint}", op, output);
+            }
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);

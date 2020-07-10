@@ -138,15 +138,23 @@ namespace ZeroC.Ice
             HasCompressionFlag = compressionFlag;
         }
 
-        // Constructor for ice1 unmarshaling.
-        internal UdpEndpoint(InputStream istr, Communicator communicator)
-            : base(istr, communicator)
+        // Constructor for unmarshaling.
+        // TODO: should be ice1-only
+        internal UdpEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
+            : base(istr, communicator, protocol)
         {
             _connect = false;
-            HasCompressionFlag = istr.ReadBool();
+            if (protocol == Protocol.Ice1)
+            {
+                HasCompressionFlag = istr.ReadBool();
+            }
+            else
+            {
+                SkipUnknownOptions(istr, istr.ReadSize());
+            }
         }
 
-        // Constructor for URI parsing and temporarily for ice2 unmarshaling.
+        // Constructor for URI parsing
         internal UdpEndpoint(
             Communicator communicator,
             Protocol protocol,           // TODO: temporary, should always be ice1
@@ -154,8 +162,8 @@ namespace ZeroC.Ice
             ushort port,
             Dictionary<string, string> options,
             bool oaEndpoint,
-            string? endpointString) // TODO: switch to non-nullable string
-            : base(communicator, protocol, host, port, options, oaEndpoint, endpointString)
+            string endpointString)
+            : base(communicator, protocol, host, port, options, oaEndpoint)
         {
             _connect = false; // TODO: what is this connect about?
             string? value;
@@ -170,7 +178,6 @@ namespace ZeroC.Ice
                     }
                     else if (value != "false")
                     {
-                        Debug.Assert(endpointString != null); // we're not unmarshaling an ice1 endpoint
                         throw new FormatException(
                             $"invalid compress value `{value}' in endpoint `{endpointString}'");
                     }
@@ -179,43 +186,40 @@ namespace ZeroC.Ice
             }
 
             // Parse local options
-            if (endpointString != null) // TODO: temporary, should always be non-null.
+            if (options.TryGetValue("ttl", out value))
             {
-                if (options.TryGetValue("ttl", out value))
+                try
                 {
-                    try
-                    {
-                        McastTtl = int.Parse(value, CultureInfo.InvariantCulture);
-                    }
-                    catch (FormatException ex)
-                    {
-                        throw new FormatException($"invalid ttl value `{value}' in endpoint `{endpointString}'", ex);
-                    }
-
-                    if (McastTtl < 0)
-                    {
-                        throw new FormatException($"ttl value `{value}' out of range in endpoint `{endpointString}'");
-                    }
-                    options.Remove("ttl");
+                    McastTtl = int.Parse(value, CultureInfo.InvariantCulture);
+                }
+                catch (FormatException ex)
+                {
+                    throw new FormatException($"invalid ttl value `{value}' in endpoint `{endpointString}'", ex);
                 }
 
-                if (options.TryGetValue("interface", out value))
+                if (McastTtl < 0)
                 {
-                    McastInterface = value;
-                    if (McastInterface == "*")
-                    {
-                        if (oaEndpoint)
-                        {
-                            McastInterface = "";
-                        }
-                        else
-                        {
-                            throw new FormatException(
-                                $"`interface=*' is not valid for proxy endpoint `{endpointString}'");
-                        }
-                    }
-                    options.Remove("interface");
+                    throw new FormatException($"ttl value `{value}' out of range in endpoint `{endpointString}'");
                 }
+                options.Remove("ttl");
+            }
+
+            if (options.TryGetValue("interface", out value))
+            {
+                McastInterface = value;
+                if (McastInterface == "*")
+                {
+                    if (oaEndpoint)
+                    {
+                        McastInterface = "";
+                    }
+                    else
+                    {
+                        throw new FormatException(
+                            $"`interface=*' is not valid for proxy endpoint `{endpointString}'");
+                    }
+                }
+                options.Remove("interface");
             }
         }
 

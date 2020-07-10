@@ -43,18 +43,18 @@ namespace ZeroC.Ice.Test.Background
             ushort port,
             Dictionary<string, string> options,
             bool oaEndpoint,
-            string? endpointString)
+            string endpointString)
         {
             // TODO: implement
             Debug.Assert(false);
             return null!;
         }
 
-        public ZeroC.Ice.Endpoint Read(InputStream istr, Transport transport)
+        public ZeroC.Ice.Endpoint Read(InputStream istr, Transport transport, Protocol protocol)
         {
             var delegateTransport = (Transport)istr.ReadShort();
             TestHelper.Assert(delegateTransport == Transport);
-            return new Endpoint(_underlyingFactory.Read(istr, transport));
+            return new Endpoint(_underlyingFactory.Read(istr, transport, protocol));
         }
     }
 }

@@ -16,7 +16,7 @@ namespace ZeroC.Ice
 
         /// <summary>A URI specifying the resource associated with this endpoint. The value is passed as the target for
         /// GET in the WebSocket upgrade request.</summary>
-        public string Resource { get; }
+        public string Resource { get; } = "/";
 
         public override bool Equals(Endpoint? other)
         {
@@ -27,13 +27,13 @@ namespace ZeroC.Ice
             return other is WSEndpoint wsEndpoint && Resource == wsEndpoint.Resource && base.Equals(wsEndpoint);
         }
 
-        // TODO: why not hashcode caching?
+        // TODO: why no hashcode caching?
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Resource);
 
         public override string OptionsToString()
         {
             var sb = new StringBuilder(base.OptionsToString());
-            if (Resource.Length > 0)
+            if (Resource != "/")
             {
                 sb.Append(" -r ");
                 bool addQuote = Resource.IndexOf(':') != -1;
@@ -55,9 +55,15 @@ namespace ZeroC.Ice
         protected internal override void WriteOptions(OutputStream ostr)
         {
             Debug.Assert(Protocol == Protocol.Ice2);
-            ostr.WriteSize(1);
-            ostr.WriteString("resource");
-            ostr.WriteString(Resource);
+            if (Resource != "/")
+            {
+                ostr.WriteSize(1);
+                ostr.WriteString(Resource);
+            }
+            else
+            {
+                ostr.WriteSize(0);
+            }
         }
 
         public override void IceWritePayload(OutputStream ostr)
@@ -106,18 +112,29 @@ namespace ZeroC.Ice
 
                 options.Remove("-r");
             }
+        }
+
+        // Constructor for unmarshaling.
+        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
+            : base(istr, communicator, transport, protocol, mostDerived: false)
+        {
+            if (protocol == Protocol.Ice1)
+            {
+                Resource = istr.ReadString();
+            }
             else
             {
-                Resource = "/";
+                int optionCount = istr.ReadSize();
+                if (optionCount > 0)
+                {
+                    Resource = istr.ReadString();
+                    optionCount--;
+                    SkipUnknownOptions(istr, optionCount);
+                }
             }
         }
 
-        // Constructor for ice1 unmarshaling.
-        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport)
-            : base(istr, communicator, transport) =>
-            Resource = istr.ReadString();
-
-        // Constructor used for both URI parsing and ice2 unmarshaling.
+        // Constructor used for URI parsing.
         internal WSEndpoint(
             Communicator communicator,
             Transport transport,
@@ -126,17 +143,13 @@ namespace ZeroC.Ice
             ushort port,
             Dictionary<string, string> options,
             bool oaEndpoint,
-            string? endpointString)
+            string endpointString)
             : base(communicator, transport, protocol, host, port, options, oaEndpoint, endpointString)
         {
             if (options.TryGetValue("resource", out string? value))
             {
                 Resource = value;
                 options.Remove("resource");
-            }
-            else
-            {
-                Resource = "/";
             }
         }
 

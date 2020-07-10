@@ -29,7 +29,7 @@ namespace ZeroC.Ice
             bool oaEndpoint,
             string endpointString);
 
-        /// <summary>Creates a new endpoint from a parsed URI or while unmarshaling an ice2 endpoint.</summary>
+        /// <summary>Creates a new endpoint from a parsed URI.</summary>
         /// <param name="transport">The transport of the new endpoint.</param>
         /// <param name="protocol">The protocol of the new endpoint.</param>
         /// <param name="host">The host name or IP address.</param>
@@ -37,9 +37,8 @@ namespace ZeroC.Ice
         /// <param name="options">The options of the new endpoint. The factory removes any option it understands from
         /// this dictionary, leaving only unknown options.</param>
         /// <param name="oaEndpoint">When true, the new endpoints corresponds to an object adapter's endpoint
-        /// configuration; when false, endpointString (if set) represents a proxy endpoint.</param>
-        /// <param name="endpointString">The original endpoint string, for error messages and tracing. Set to null when
-        /// unmarshaling a proxy.</param>
+        /// configuration; when false, endpointString represents a proxy endpoint.</param>
+        /// <param name="endpointString">The original endpoint string, for error messages and tracing.</param>
         /// <returns>The new endpoint.</returns>
         /// <exception cref="NotSupportedException">Thrown when transport and protocol are not compatible.</exception>
         Endpoint Create(
@@ -48,13 +47,14 @@ namespace ZeroC.Ice
             string host,
             ushort port,
             Dictionary<string, string> options,
-            bool oaEndpoint = false,
-            string? endpointString = null);
+            bool oaEndpoint,
+            string endpointString);
 
-        /// <summary>Reads an ice1 endpoint from the given input stream.</summary>
+        /// <summary>Reads an endpoint from the given input stream.</summary>
         /// <param name="istr">The input stream to read from.</param>
         /// <param name="transport">The transport of the endpoint.</param>
+        /// <param name="protocol">The protocol of the new endpoint.</param>
         /// <returns>Returns the endpoint read from the stream</returns>
-        Endpoint Read(InputStream istr, Transport transport);
+        Endpoint Read(InputStream istr, Transport transport, Protocol protocol);
     }
 }

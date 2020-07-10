@@ -238,21 +238,19 @@ namespace ZeroC.Ice
             SourceAddress = sourceAddress;
         }
 
-        // Constructor for ice2 unmarshaling and URI parsing.
-        // For unmarshaling, oaEndpoint is false and endpointString is null.
+        // Constructor for URI parsing.
         private protected IPEndpoint(
             Communicator communicator,
             Protocol protocol,
             string host,
             ushort port,
             Dictionary<string, string> options,
-            bool oaEndpoint,
-            string? endpointString)
+            bool oaEndpoint)
             : base(communicator, protocol)
         {
             Host = host;
             Port = port;
-            if (endpointString != null && !oaEndpoint) // parsing a URI that represents a proxy
+            if (!oaEndpoint) // parsing a URI that represents a proxy
             {
                 if (options.TryGetValue("source-address", out string? value))
                 {
@@ -262,14 +260,22 @@ namespace ZeroC.Ice
             }
         }
 
-        // Constructor for ice1 unmarshaling.
-        private protected IPEndpoint(InputStream istr, Communicator communicator)
-            : base(communicator, Protocol.Ice1)
+        // Constructor for unmarshaling.
+        private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
+            : base(communicator, protocol)
         {
             Host = istr.ReadString();
-            checked
+
+            if (protocol == Protocol.Ice1)
             {
-                Port = (ushort)istr.ReadInt();
+                checked
+                {
+                    Port = (ushort)istr.ReadInt();
+                }
+            }
+            else
+            {
+                Port = istr.ReadUShort();
             }
         }
 

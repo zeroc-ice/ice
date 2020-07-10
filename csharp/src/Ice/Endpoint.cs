@@ -127,12 +127,12 @@ namespace ZeroC.Ice
         // collocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
         public abstract bool IsLocal(Endpoint endpoint);
 
-        /// <summary>Writes the options of an ice2 endpoint to the output stream, as a dictionary.</summary>
+        /// <summary>Writes the options of an ice2 endpoint to the output stream.</summary>
         // TODO: should this method be public and renamed IceWriteOptions?
         protected internal virtual void WriteOptions(OutputStream ostr)
         {
             Debug.Assert(Protocol == Protocol.Ice2);
-            ostr.WriteSize(0); // empty dictionary
+            ostr.WriteSize(0); // empty sequence
         }
 
         /// <summary>Writes the payload of an ice1 endpoint to the output stream. The payload does not include the type
@@ -174,6 +174,16 @@ namespace ZeroC.Ice
         {
             Communicator = communicator;
             Protocol = protocol;
+        }
+
+        protected void SkipUnknownOptions(InputStream istr, int count)
+        {
+            Debug.Assert(count == 0); // TODO: temporary, remove before release
+            while (count > 0)
+            {
+                istr.Skip(istr.ReadSize());
+                count--;
+            }
         }
 
         /// <summary>Creates an endpoint from a string.</summary>

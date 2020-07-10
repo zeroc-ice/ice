@@ -1203,7 +1203,7 @@ namespace ZeroC.Ice
                     _buffer = _buffer.Slice(_pos, size - 2);
                     _pos = 0;
                     _minTotalSeqSize = 0;
-                    endpoint = factory.Read(this, transport);
+                    endpoint = factory.Read(this, transport, protocol);
                     CheckEndOfBuffer();
 
                     // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
@@ -1222,19 +1222,13 @@ namespace ZeroC.Ice
             }
             else
             {
-                string host = ReadString();
-                ushort port = ReadUShort();
-                Dictionary<string, string> options = ReadDictionary(1, 1, IceReaderIntoString, IceReaderIntoString);
                 if (factory != null)
                 {
-                    endpoint = factory.Create(transport, Protocol.Ice2, host, port, options);
-                    // Ignore and drop unknown option(s), if any.
-                    // TODO: should we log these unknown options?
-                    Debug.Assert(options.Count == 0); // TODO: temporary, remove before release!
+                    endpoint = factory.Read(this, transport, protocol);
                 }
                 else
                 {
-                    endpoint = new OpaqueEndpoint(communicator, transport, host, port, options);
+                    endpoint = new OpaqueEndpoint(this, communicator, transport);
                 }
             }
             return endpoint;
@@ -1513,7 +1507,7 @@ namespace ZeroC.Ice
             }
         }
 
-        private void Skip(int size)
+        internal void Skip(int size)
         {
             if (size < 0 || size > _buffer.Count - _pos)
             {
