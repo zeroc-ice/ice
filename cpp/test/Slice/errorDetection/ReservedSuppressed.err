@@ -1,4 +1,5 @@
-ReservedSuppressed.ice:30: constant `ice' differs only in capitalization from constant `Ice'
+ReservedSuppressed.ice:30: constant `ice' differs only in capitalization from the constant named `Ice'
+ReservedSuppressed.ice:29: note: constant `Ice' is defined here
 ReservedSuppressed.ice:46: illegal leading underscore in identifier `_a'
 ReservedSuppressed.ice:47: illegal leading underscore in identifier `_true'
 ReservedSuppressed.ice:48: illegal leading underscore in identifier `_true'

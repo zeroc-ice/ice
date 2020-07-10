@@ -1009,7 +1009,6 @@ public:
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
     void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
-    EnumeratorPtr validateEnumerator(const std::string&);
 
     // Sets the underlying type shortly after construction and before any enumerator is added.
     void initUnderlying(const TypePtr&);
@@ -1181,7 +1180,7 @@ public:
 
     void error(const std::string&); // Not const because error count is increased
     void warning(WarningCategory, const std::string&) const;
-    void note(const std::string&) const;
+    void note(ContainedPtr, const std::string&) const;
 
     ContainerPtr currentContainer() const;
     ModulePtr currentModule() const;

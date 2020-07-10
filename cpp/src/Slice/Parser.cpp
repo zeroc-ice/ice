@@ -1236,11 +1236,11 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError, boo
             continue; // Ignore interface and class definitions.
         }
 
-        if (printError && matches.front()->scoped() != (thisScope() + sc))
+        if (printError && (*p)->scoped() != (thisScope() + sc))
         {
             string msg = (*p)->kindOf() + " name `" + scoped;
             msg += "' is capitalized inconsistently with its previous name: `";
-            msg += matches.front()->scoped() + "'";
+            msg += (*p)->scoped() + "'";
             errors.push_back(msg);
         }
 
@@ -1922,41 +1922,8 @@ Slice::Module::visit(ParserVisitor* visitor, bool all)
 ModulePtr
 Slice::Module::createModule(const string& name)
 {
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort(); // Modules can occur many times...
-    matches.unique(); // ... but we only want one instance of each.
-
-    for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
-    {
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ModulePtr module = ModulePtr::dynamicCast(*p);
-        if(module)
-        {
-            if(differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
-            {
-                string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
-                msg += module->name() + "'";
-                _unit->error(msg);
-                return nullptr;
-            }
-        }
-        else if(!differsOnlyInCase)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as module";
-            _unit->error(msg);
-            return nullptr;
-        }
-        else
-        {
-            string msg = "module `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
-            return nullptr;
-        }
-    }
-
-    if(!checkIdentifier(name))
+    // We use binary or here to avoid short-circuiting and ensure both checks are always run.
+    if(!checkForRedefinition(this, name, "module") | !checkIdentifier(name))
     {
         return nullptr;
     }
@@ -1970,44 +1937,45 @@ ClassDefPtr
 Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& base)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
+    for (const auto& match : matches)
     {
-        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(p);
-        if(decl)
+        if(ClassDeclPtr::dynamicCast(match))
         {
             continue; // all good
         }
 
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ClassDefPtr def = ClassDefPtr::dynamicCast(p);
-        if(def)
+        bool differsOnlyInCase = match->name() != name;
+        if(ClassDefPtr::dynamicCast(match))
         {
             if(differsOnlyInCase)
             {
-                string msg = "class definition `" + name + "' is capitalized inconsistently with its previous name: `";
-                msg += def->name() + "'";
-                _unit->error(msg);
+                _unit->error("class definition `" + name
+                             + "' is capitalized inconsistently with its previous name: `" + match->name() + "'");
+                _unit->note(match, "class `" + match->name() + "' was originally defined here");
+                break;
             }
             else
             {
-                string msg = "redefinition of class `" + name + "'";
-                _unit->error(msg);
+                _unit->error("redefinition of class `" + name + "'");
+                _unit->note(match, "class `" + name + "' was originally defined here");
+                return nullptr;
             }
         }
         else if(differsOnlyInCase)
         {
-            string msg = "class definition `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("class definition `" + name + "' differs only in capitalization from the "
+                        + match->kindOf() + " named `" + match->name() + "'");
+            _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
+            break;
         }
         else
         {
-            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
-            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
+            bool declared = InterfaceDeclPtr::dynamicCast(match);
+            _unit->error("class `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
+                        + prependA(match->kindOf()));
+            _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
+            return nullptr;
         }
-        return nullptr;
     }
 
     if(!checkIdentifier(name))
@@ -2024,8 +1992,10 @@ Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& bas
 
     for (const auto& q : matches)
     {
-        ClassDeclPtr decl = ClassDeclPtr::dynamicCast(q);
-        decl->_definition = def;
+        if (ClassDeclPtr decl = ClassDeclPtr::dynamicCast(q))
+        {
+            decl->_definition = def;
+        }
     }
 
     //
@@ -2042,38 +2012,29 @@ Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& bas
 ClassDeclPtr
 Slice::Module::createClassDecl(const string& name)
 {
-    ClassDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
+    for (const auto& match : matches)
     {
-        ClassDefPtr clDef = ClassDefPtr::dynamicCast(p);
-        if(clDef)
+        if(ClassDefPtr::dynamicCast(match) || ClassDeclPtr::dynamicCast(match))
         {
             continue;
         }
 
-        ClassDeclPtr clDecl = ClassDeclPtr::dynamicCast(p);
-        if(clDecl)
+        if (match->name() != name)
         {
-            continue;
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if(differsOnlyInCase)
-        {
-            string msg = "class declaration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("class declaration `" + name + "' differs only in capitalization from the " + match->kindOf()
+                        + " named `" + match->name() + "'");
+            _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
+            break;
         }
         else
         {
-            bool declared = InterfaceDeclPtr::dynamicCast(matches.front());
-            string msg = "class `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
+            bool declared = InterfaceDeclPtr::dynamicCast(match);
+            _unit->error("class `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
+                        + prependA(match->kindOf()));
+            _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
+            return nullptr;
         }
-        return nullptr;
     }
 
     if(!checkIdentifier(name))
@@ -2090,6 +2051,7 @@ Slice::Module::createClassDecl(const string& name)
     // have a declaration for the class in this container, we don't
     // create another one.
     //
+    ClassDefPtr def;
     for (const auto& q : _contents)
     {
         if(q->name() == name)
@@ -2121,45 +2083,45 @@ InterfaceDefPtr
 Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
+    for (const auto& match : matches)
     {
-        InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(p);
-        if(decl)
+        if (InterfaceDeclPtr::dynamicCast(match))
         {
             continue; // all good
         }
 
-        bool differsOnlyInCase = matches.front()->name() != name;
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(p);
-        if (def)
+        bool differsOnlyInCase = match->name() != name;
+        if (InterfaceDefPtr::dynamicCast(match))
         {
-            if(differsOnlyInCase)
+            if (differsOnlyInCase)
             {
-                string msg = "interface definition `" + name +
-                    "' is capitalized inconsistently with its previous name: `";
-                msg += def->name() + "'";
-                _unit->error(msg);
+                _unit->error("interface definition `" + name
+                             + "' is capitalized inconsistently with its previous name: `" + match->name() + "'");
+                _unit->note(match, "interface `" + match->name() + "' was originally defined here");
+                break;
             }
             else
             {
-                string msg = "redefinition of interface `" + name + "'";
-                _unit->error(msg);
+                _unit->error("redefinition of interface `" + name + "'");
+                _unit->note(match, "interface `" + name + "' was originally defined here");
+                return nullptr;
             }
         }
         else if (differsOnlyInCase)
         {
-            string msg = "interface definition `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("interface definition `" + name + "' differs only in capitalization from the "
+                        + match->kindOf() + " named `" + match->name() + "'");
+            _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
+            break;
         }
         else
         {
-            bool declared = ClassDeclPtr::dynamicCast(matches.front());
-            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
+            bool declared = ClassDeclPtr::dynamicCast(match);
+            _unit->error("interface `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
+                        + prependA(match->kindOf()));
+            _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
+            return nullptr;
         }
-        return nullptr;
     }
 
     if (!checkIdentifier(name))
@@ -2178,8 +2140,10 @@ Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases
 
     for (const auto& q : matches)
     {
-        InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(q);
-        decl->_definition = def;
+        if (InterfaceDeclPtr decl = InterfaceDeclPtr::dynamicCast(q))
+        {
+            decl->_definition = def;
+        }
     }
 
     //
@@ -2196,38 +2160,29 @@ Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases
 InterfaceDeclPtr
 Slice::Module::createInterfaceDecl(const string& name)
 {
-    InterfaceDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
-    for (const auto& p : matches)
+    for (const auto& match : matches)
     {
-        InterfaceDefPtr interfaceDef = InterfaceDefPtr::dynamicCast(p);
-        if (interfaceDef)
+        if (InterfaceDefPtr::dynamicCast(match) || InterfaceDeclPtr::dynamicCast(match))
         {
             continue;
         }
 
-        InterfaceDeclPtr interfaceDecl = InterfaceDeclPtr::dynamicCast(p);
-        if (interfaceDecl)
+        if (match->name() != name)
         {
-            continue;
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if (differsOnlyInCase)
-        {
-            string msg = "interface declaration `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-            _unit->error(msg);
+            _unit->error("interface declaration `" + name + "' differs only in capitalization from the "
+                        + match->kindOf() + " named `" + match->name() + "'");
+            _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
+            break;
         }
         else
         {
-            bool declared = ClassDeclPtr::dynamicCast(matches.front());
-            string msg = "interface `" + name + "' was previously " + (declared ? "declared" : "defined")
-                + " as " + prependA(matches.front()->kindOf());
-            _unit->error(msg);
+            bool declared = ClassDeclPtr::dynamicCast(match);
+            _unit->error("interface `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
+                        + prependA(match->kindOf()));
+            _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
+            return nullptr;
         }
-        return nullptr;
     }
 
     if (!checkIdentifier(name))
@@ -2241,6 +2196,7 @@ Slice::Module::createInterfaceDecl(const string& name)
 
     // Multiple declarations are permissible. But if we do already have a declaration for the interface in this
     // container, we don't create another one.
+    InterfaceDefPtr def;
     for (const auto& q : _contents)
     {
         if (q->name() == name)
@@ -2271,21 +2227,8 @@ Slice::Module::createInterfaceDecl(const string& name)
 ExceptionPtr
 Slice::Module::createException(const string& name, const ExceptionPtr& base, NodeType nt)
 {
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    if (!checkForRedefinition(this, name, "exception"))
     {
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as exception";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "exception `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
         return nullptr;
     }
 
@@ -2303,21 +2246,8 @@ Slice::Module::createException(const string& name, const ExceptionPtr& base, Nod
 StructPtr
 Slice::Module::createStruct(const string& name, NodeType nt)
 {
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "struct"))
     {
-        if (matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as struct";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "struct `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
         return nullptr;
     }
 
@@ -2336,19 +2266,8 @@ SequencePtr
 Slice::Module::createSequence(const string& name, const TypePtr& type, const StringList& metaData, NodeType nt)
 {
     _unit->checkType(type);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "sequence"))
     {
-        if (matches.front()->name() == name)
-        {
-            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                         + "' as sequence");
-        }
-        else
-        {
-            _unit->error("sequence `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
-                         + " `" + matches.front()->name() + "'");
-        }
         return nullptr;
     }
 
@@ -2369,19 +2288,8 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
 {
     _unit->checkType(keyType);
     _unit->checkType(valueType);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "dictionary"))
     {
-        if (matches.front()->name() == name)
-        {
-            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                         + "' as dictionary");
-        }
-        else
-        {
-            _unit->error("dictionary `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
-                         + " `" + matches.front()->name() + "'");
-        }
         return nullptr;
     }
 
@@ -2413,19 +2321,8 @@ Slice::Module::createDictionary(const string& name, const TypePtr& keyType, cons
 EnumPtr
 Slice::Module::createEnum(const string& name, bool unchecked, NodeType nt)
 {
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "enumeration"))
     {
-        if (matches.front()->name() == name)
-        {
-            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                         + "' as enumeration");
-        }
-        else
-        {
-            _unit->error("enumeration `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
-                         + " `" + matches.front()->name() + "'");
-        }
         return nullptr;
     }
 
@@ -2445,19 +2342,8 @@ Slice::Module::createConst(const string name, const TypePtr& constType, const St
                            const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
                            NodeType nt)
 {
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "constant"))
     {
-        if (matches.front()->name() == name)
-        {
-            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                         + "' as constant");
-        }
-        else
-        {
-            _unit->error("constant `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
-                         + " `" + matches.front()->name() + "'");
-        }
         return nullptr;
     }
 
@@ -2941,20 +2827,9 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                                   const string& defaultLiteral)
 {
     _unit->checkType(type);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name,  "data member"))
     {
-        if (matches.front()->name() != name)
-        {
-            _unit->error("data member `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
-                         + " `" + matches.front()->name() + "'");
-        }
-        else
-        {
-            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                         + "' as data member `" + name + "'");
-            return nullptr;
-        }
+        return nullptr;
     }
 
     // Check whether any bases have defined something with the same name already.
@@ -3467,16 +3342,8 @@ Slice::InterfaceDef::createOperation(const string& name,
                                  Operation::Mode mode)
 {
     _unit->checkType(returnType);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "operation"))
     {
-        if (matches.front()->name() != name)
-        {
-            _unit->error("operation `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
-                         + " `" + matches.front()->name() + "'");
-        }
-        _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                     + "' as operation `" + name + "'");
         return nullptr;
     }
 
@@ -3743,19 +3610,9 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                                    const string& defaultLiteral)
 {
     _unit->checkType(type);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "data member"))
     {
-        if (matches.front()->name() != name)
-        {
-            _unit->error("exception member `" + name + "' differs only in capitalization from exception member `"
-                         + matches.front()->name() + "'");
-        }
-        else
-        {
-            _unit->error("redefinition of exception member `" + name + "'");
-            return nullptr;
-        }
+        return nullptr;
     }
 
     // Check whether any bases have defined a member with the same name already.
@@ -4011,19 +3868,9 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool ta
                                 const string& defaultLiteral)
 {
     _unit->checkType(type);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "data member"))
     {
-        if (matches.front()->name() != name)
-        {
-            _unit->error("member `" + name + "' differs only in capitalization from member `"
-                         + matches.front()->name() + "'");
-        }
-        else
-        {
-            _unit->error("redefinition of struct member `" + name + "'");
-            return nullptr;
-        }
+        return nullptr;
     }
 
     // Structs cannot contain themselves.
@@ -4470,7 +4317,8 @@ Slice::Enum::destroy()
 EnumeratorPtr
 Slice::Enum::createEnumerator(const string& name)
 {
-    validateEnumerator(name);
+    checkForRedefinition(this, name, "enumerator");
+    checkIdentifier(name);
     EnumeratorPtr p = new Enumerator(this, name);
     _enumerators.push_back(p);
     return p;
@@ -4479,7 +4327,8 @@ Slice::Enum::createEnumerator(const string& name)
 EnumeratorPtr
 Slice::Enum::createEnumerator(const string& name, int64_t value)
 {
-    validateEnumerator(name);
+    checkForRedefinition(this, name, "enumerator");
+    checkIdentifier(name);
     EnumeratorPtr p = new Enumerator(this, name, value);
     _enumerators.push_back(p);
     return p;
@@ -4569,27 +4418,6 @@ void
 Slice::Enum::recDependencies(set<ConstructedPtr>&)
 {
     // An Enum does not have any dependencies.
-}
-
-EnumeratorPtr
-Slice::Enum::validateEnumerator(const string& name)
-{
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
-    {
-        if (matches.front()->name() == name)
-        {
-            _unit->error("redefinition of enumerator `" + name + "'");
-        }
-        else
-        {
-            _unit->error("enumerator `" + name + "' differs only in capitalization from `" + matches.front()->name()
-                         + "'");
-        }
-    }
-
-    checkIdentifier(name); // Ignore return value.
-    return nullptr;
 }
 
 void
@@ -4942,19 +4770,9 @@ ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
 {
     _unit->checkType(type);
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (!checkForRedefinition(this, name, "parameter"))
     {
-        if (matches.front()->name() != name)
-        {
-            _unit->error("parameter `" + name + "' differs only in capitalization from parameter `"
-                         + matches.front()->name() + "'");
-        }
-        else
-        {
-            _unit->error("redefinition of parameter `" + name + "'");
-            return nullptr;
-        }
+        return nullptr;
     }
 
     // Check that in parameters don't follow out parameters.
@@ -5337,39 +5155,10 @@ Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
 ModulePtr
 Slice::Unit::createModule(const string& name)
 {
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort(); // Modules can occur many times...
-    matches.unique(); // ... but we only want one instance of each.
-
     _unit->addTopLevelModule(_unit->currentFile(), name);
 
-    for (const auto& match : matches)
-    {
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if (ModulePtr module = ModulePtr::dynamicCast(match))
-        {
-            if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
-            {
-                _unit->error("module `" + name + "' is capitalized inconsistently with its previous name: `"
-                             + module->name() + "'");
-                return nullptr;
-            }
-        }
-        else if (!differsOnlyInCase)
-        {
-            _unit->error("redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name()
-                         + "' as module");
-            return nullptr;
-        }
-        else
-        {
-            _unit->error("module `" + name + "' differs only in capitalization from " + matches.front()->kindOf()
-                         + " name `" + matches.front()->name() + "'");
-            return nullptr;
-        }
-    }
-
-    if (!checkIdentifier(name))
+    // We use binary or here to avoid short-circuiting and ensure both checks are always run.
+    if(!checkForRedefinition(this, name, "module") | !checkIdentifier(name))
     {
         return nullptr;
     }
@@ -5604,9 +5393,9 @@ Slice::Unit::warning(WarningCategory category, const string& msg) const
 }
 
 void
-Slice::Unit::note(const string& msg) const
+Slice::Unit::note(ContainedPtr contained, const string& msg) const
 {
-    emitNote(currentFile(), currentLine(), msg);
+    emitNote(contained->file(), contained->line(), msg);
 }
 
 ContainerPtr

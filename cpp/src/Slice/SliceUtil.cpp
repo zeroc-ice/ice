@@ -238,7 +238,7 @@ Slice::emitWarning(const string& file, int line, const string& message)
 }
 
 void
-Slice::emitNote(const string& file, const string& line, const string& message)
+Slice::emitNote(const string& file, int line, const string& message)
 {
     emitFilePrefix(file, line);
     consoleErr << "note: " << message << endl;
@@ -491,6 +491,35 @@ Slice::checkIdentifier(const string& id)
                                           "' as an identifier may result in name collisions in the generated code");
     }
     return isValid;
+}
+
+bool
+Slice::checkForRedefinition(const ContainerPtr& container, const string& name, const string& type)
+{
+    ContainedList matches = unit->findContents(container->thisScope() + name);
+    if (!matches.empty())
+    {
+        ContainedPtr match = matches.front();
+        if (match->name() != name)
+        {
+            unit->error(type + " `" + name + "' differs only in capitalization from the " + match->kindOf() + " named `"
+                        + match->name() + "'");
+            unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
+        }
+        else if (match->kindOf() != type)
+        {
+            unit->error(type + " `" + name + "' was previously defined as " + prependA(match->kindOf()));
+            unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
+            return false;
+        }
+        else if (type != "module") // Modules can be re-opened if they have the same name.
+        {
+            unit->error("redefinition of " + type + " `" + name + "'");
+            unit->note(match, type + " `" + name + "' was originally defined here");
+            return false;
+        }
+    }
+    return true;
 }
 
 bool

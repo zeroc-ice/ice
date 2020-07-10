@@ -1,1 +1,2 @@
-RedefinitionAsDictionary.ice:9: redefinition of class `C' as dictionary
+RedefinitionAsDictionary.ice:9: dictionary `C' was previously defined as a class
+RedefinitionAsDictionary.ice:8: note: class `C' was originally defined here

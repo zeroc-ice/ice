@@ -53,6 +53,9 @@ bool
 checkIdentifier(const std::string&);
 
 bool
+checkForRedefinition(const ContainerPtr&, const std::string&, const std::string&);
+
+bool
 ciequals(const std::string& a, const std::string& b);
 
  // return a or an <s>
