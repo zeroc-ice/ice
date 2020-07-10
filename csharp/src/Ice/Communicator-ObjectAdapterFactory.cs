@@ -282,7 +282,7 @@ namespace ZeroC.Ice
             // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
             foreach (ObjectAdapter adapter in _adapters)
             {
-                await adapter.DeactivateAsync();
+                await adapter.DeactivateAsync().ConfigureAwait(false);
             }
         }
     }

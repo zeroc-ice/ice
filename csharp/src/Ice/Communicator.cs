@@ -837,13 +837,13 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    await _adminAdapter.ActivateAsync();
+                    await _adminAdapter.ActivateAsync().ConfigureAwait(false);
                 }
                 catch
                 {
                     // We cleanup _adminAdapter, however this error is not recoverable (can't call again GetAdmin()
                     // after fixing the problem) since all the facets (servants) in the adapter are lost
-                    await _adminAdapter.DisposeAsync();
+                    await _adminAdapter.DisposeAsync().ConfigureAwait(false);
                     lock (_mutex)
                     {
                         _adminAdapter = null;
@@ -983,13 +983,13 @@ namespace ZeroC.Ice
 
             try
             {
-                await adminAdapter.ActivateAsync();
+                await adminAdapter.ActivateAsync().ConfigureAwait(false);
             }
             catch
             {
                 // We cleanup _adminAdapter, however this error is not recoverable (can't call again getAdmin() after
                 // fixing the problem) since all the facets (servants) in the adapter are lost
-                await adminAdapter.DisposeAsync();
+                await adminAdapter.DisposeAsync().ConfigureAwait(false);
                 lock (_mutex)
                 {
                     _adminAdapter = null;

@@ -23,10 +23,10 @@ namespace ZeroC.IceBox
                 Console.CancelKeyPress += async (sender, eventArgs) =>
                 {
                     eventArgs.Cancel = true;
-                    await communicator.ShutdownAsync();
+                    await communicator.ShutdownAsync().ConfigureAwait(false);
                 };
 
-                return await RunAsync(communicator, args);
+                return await RunAsync(communicator, args).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -76,7 +76,7 @@ namespace ZeroC.IceBox
             }
 
             var serviceManager = new ServiceManager(communicator, args);
-            return await serviceManager.RunAsync();
+            return await serviceManager.RunAsync().ConfigureAwait(false);
         }
     }
 }

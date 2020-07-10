@@ -293,7 +293,7 @@ namespace ZeroC.IceBox
                 _communicator.GetAdmin();
                 if (adapter != null)
                 {
-                    await adapter.ActivateAsync();
+                    await adapter.ActivateAsync().ConfigureAwait(false);
                 }
 
                 // We may want to notify external scripts that the services have started and that IceBox is "ready".
@@ -306,7 +306,7 @@ namespace ZeroC.IceBox
                     Console.Out.WriteLine($"{bundleName} ready");
                 }
 
-                await _communicator.WaitForShutdownAsync();
+                await _communicator.WaitForShutdownAsync().ConfigureAwait(false);
             }
             catch (CommunicatorDestroyedException)
             {

@@ -999,11 +999,13 @@ namespace ZeroC.Ice
             {
                 if (_replicaGroupId.Length == 0)
                 {
-                    await locatorRegistry.SetAdapterDirectProxyAsync(_id, proxy);
+                    await locatorRegistry.SetAdapterDirectProxyAsync(_id, proxy).ConfigureAwait(false);
                 }
                 else
                 {
-                    await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(_id, _replicaGroupId, proxy);
+                    await locatorRegistry.SetReplicatedAdapterDirectProxyAsync(_id,
+                                                                               _replicaGroupId,
+                                                                               proxy).ConfigureAwait(false);
                 }
             }
             catch (ObjectAdapterDeactivatedException)
@@ -1098,7 +1100,7 @@ namespace ZeroC.Ice
             {
                 await UpdateLocatorRegistryAsync(_locatorInfo,
                                                  CreateDirectProxy(new Identity("dummy", ""),
-                                                 IObjectPrx.Factory));
+                                                 IObjectPrx.Factory)).ConfigureAwait(false);
             }
             catch
             {
@@ -1153,7 +1155,7 @@ namespace ZeroC.Ice
                     _routerInfo.Adapter = null;
                 }
 
-                await UpdateLocatorRegistryAsync(_locatorInfo, null);
+                await UpdateLocatorRegistryAsync(_locatorInfo, null).ConfigureAwait(false);
             }
             catch
             {
@@ -1190,7 +1192,7 @@ namespace ZeroC.Ice
 
         private async Task PerformDisposeAsync()
         {
-            await DeactivateAsync();
+            await DeactivateAsync().ConfigureAwait(false);
 
             lock (_mutex)
             {
