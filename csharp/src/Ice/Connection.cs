@@ -84,35 +84,37 @@ namespace ZeroC.Ice
         internal Acm(Communicator communicator, string prefix, Acm defaults)
         {
             Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
-
-            Heartbeat = communicator.GetProperty($"{prefix}.Heartbeat") switch
-            {
-                var x when x == "Off" || x == "0" => AcmHeartbeat.Off,
-                var x when x == "OnDispatch" || x == "1" => AcmHeartbeat.OnDispatch,
-                var x when x == "OnIdle" || x == "2" => AcmHeartbeat.OnIdle,
-                var x when x == "Always" || x == "3" => AcmHeartbeat.Always,
-                null => defaults.Heartbeat,
-                _ => throw new InvalidConfigurationException($"invalid value for property `{prefix}.Heartbeat'")
-            };
-
-            Close = communicator.GetProperty($"{prefix}.Close") switch
-            {
-                var x when x == "Off" || x == "0" => AcmClose.Off,
-                var x when x == "OnIdle" || x == "1" => AcmClose.OnIdle,
-                var x when x == "OnInvocation" || x == "2" => AcmClose.OnInvocation,
-                var x when x == "OnInvocationAndIdle" || x == "3" => AcmClose.OnInvocationAndIdle,
-                var x when x == "OnIdleForceful" || x == "4" => AcmClose.OnIdleForceful,
-                null => defaults.Close,
-                _ => throw new InvalidConfigurationException($"invalid value for property `{ prefix}.Close'")
-            };
+            Heartbeat = communicator.GetPropertyAsEnum<AcmHeartbeat>($"{prefix}.Heartbeat") ?? defaults.Heartbeat;
+            Close = communicator.GetPropertyAsEnum<AcmClose>($"{prefix}.Close") ?? defaults.Close;
         }
     }
 
+    /// <summary>Determines the behavior when manually closing a connection.</summary>
     public enum ConnectionClose
     {
+        /// <summary>Close the connection immediately without sending a close connection protocol message to the peer
+        /// and waiting for the peer to acknowledge it.</summary>
         Forcefully,
+        /// <summary>Close the connection by notifying the peer but do not wait for pending outgoing invocations to
+        /// complete.</summary>
         Gracefully,
+        /// <summary>Wait for all pending invocations to complete before closing the connection.</summary>
         GracefullyWithWait
+    }
+
+    /// <summary>The state of an Ice connection</summary>
+    public enum ConnectionState : byte
+    {
+        /// <summary>The connection is being validated.</summary>
+        Validating = 0,
+        /// <summary>The connection is active and can send and receive messages.</summary>
+        Active,
+        /// <summary>The connection is being gracefully shutdown and waits for the peer to close its end of the
+        /// connection.</summary>
+        Closing,
+        /// <summary>The connection is closed and eventually waits for potential dispatch to be finished before being
+        /// destroyed.</summary>
+        Closed
     }
 
     /// <summary>Represents a connection used to send and receive Ice frames.</summary>
@@ -125,20 +127,19 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _monitor?.Acm ??
-                        new Acm(TimeSpan.FromSeconds(0), AcmClose.Off, AcmHeartbeat.Off);
+                    return _monitor?.Acm ?? new Acm(TimeSpan.FromSeconds(0), AcmClose.Off, AcmHeartbeat.Off);
                 }
             }
             set
             {
                 lock (_mutex)
                 {
-                    if (_monitor == null || _state >= State.Closing)
+                    if (_monitor == null || _state >= ConnectionState.Closing)
                     {
                         return;
                     }
 
-                    if (_state == State.Active)
+                    if (_state == ConnectionState.Active)
                     {
                         _monitor.Remove(this);
                     }
@@ -149,12 +150,12 @@ namespace ZeroC.Ice
                         // Disable the recording of last activity.
                         _acmLastActivity = Timeout.InfiniteTimeSpan;
                     }
-                    else if (_state == State.Active && _acmLastActivity == Timeout.InfiniteTimeSpan)
+                    else if (_state == ConnectionState.Active && _acmLastActivity == Timeout.InfiniteTimeSpan)
                     {
                         _acmLastActivity = Time.Elapsed;
                     }
 
-                    if (_state == State.Active)
+                    if (_state == ConnectionState.Active)
                     {
                         _monitor.Add(this);
                     }
@@ -215,7 +216,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _state > State.NotInitialized && _state < State.Closing;
+                    return _state > ConnectionState.Validating && _state < ConnectionState.Closing;
                 }
             }
         }
@@ -244,19 +245,10 @@ namespace ZeroC.Ice
         private readonly Dictionary<int, (TaskCompletionSource<IncomingResponseFrame>, bool)> _requests =
             new Dictionary<int, (TaskCompletionSource<IncomingResponseFrame>, bool)>();
         private Task _sendTask = Task.CompletedTask;
-        private State _state; // The current state.
+        private ConnectionState _state; // The current state.
         private bool _validated = false;
         private readonly bool _warn;
         private readonly bool _warnUdp;
-
-        // Map internal connection states to Ice.Instrumentation.ConnectionState state values.
-        private static readonly ConnectionState[] _connectionStateMap = new ConnectionState[]
-        {
-            ConnectionState.Validating,   // State.NotInitialized
-            ConnectionState.Active,       // State.Active
-            ConnectionState.Closing,      // State.Closing
-            ConnectionState.Closed,       // State.Closed
-        };
 
         private static readonly List<ArraySegment<byte>> _closeConnectionFrameIce1 =
             new List<ArraySegment<byte>> { Ice1Definitions.CloseConnectionFrame };
@@ -347,7 +339,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state >= State.Closed)
+                if (_state >= ConnectionState.Closed)
                 {
                     if (callback != null)
                     {
@@ -378,7 +370,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state >= State.Closed)
+                if (_state >= ConnectionState.Closed)
                 {
                     return;
                 }
@@ -396,7 +388,7 @@ namespace ZeroC.Ice
             {
                 if (_exception != null)
                 {
-                    Debug.Assert(_state >= State.Closing);
+                    Debug.Assert(_state >= ConnectionState.Closing);
                     throw _exception;
                 }
             }
@@ -437,7 +429,7 @@ namespace ZeroC.Ice
             _nextRequestId = 1;
             _frameSizeMax = adapter != null ? adapter.FrameSizeMax : _communicator.FrameSizeMax;
             _dispatchCount = 0;
-            _state = State.NotInitialized;
+            _state = ConnectionState.Validating;
 
             _compressionLevel = _communicator.GetPropertyAsInt("Ice.Compression.Level") ?? 1;
             if (_compressionLevel < 1)
@@ -471,9 +463,9 @@ namespace ZeroC.Ice
                     Task? closingTask = null;
                     lock (_mutex)
                     {
-                        if (_state == State.Active)
+                        if (_state == ConnectionState.Active)
                         {
-                            SetState(State.Closing, exception);
+                            SetState(ConnectionState.Closing, exception);
                             if (_dispatchCount > 0)
                             {
                                 _dispatchTaskCompletionSource = new TaskCompletionSource<bool>();
@@ -486,7 +478,7 @@ namespace ZeroC.Ice
                                 _closeTask = closingTask;
                             }
                         }
-                        else if (_state == State.Closing)
+                        else if (_state == ConnectionState.Closing)
                         {
                             closingTask = _closeTask;
                         }
@@ -509,7 +501,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state != State.Active)
+                if (_state != ConnectionState.Active)
                 {
                     return;
                 }
@@ -521,13 +513,13 @@ namespace ZeroC.Ice
                 //
                 // Note that this doesn't imply that we are sending 4 heartbeats per timeout period because the
                 // monitor() method is still only called every (timeout / 2) period.
-                if (_state == State.Active &&
+                if (_state == ConnectionState.Active &&
                     (acm.Heartbeat == AcmHeartbeat.Always ||
                     (acm.Heartbeat != AcmHeartbeat.Off && now >= (_acmLastActivity + (acm.Timeout / 4)))))
                 {
                     if (acm.Heartbeat != AcmHeartbeat.OnDispatch || _dispatchCount > 0)
                     {
-                        Debug.Assert(_state == State.Active);
+                        Debug.Assert(_state == ConnectionState.Active);
                         if (!Endpoint.IsDatagram)
                         {
                             try
@@ -553,9 +545,7 @@ namespace ZeroC.Ice
                     }
                     else if (acm.Close != AcmClose.OnInvocation && _dispatchCount == 0 && _requests.Count == 0)
                     {
-                        //
                         // The connection is idle, close it.
-                        //
                         _ = GracefulCloseAsync(new ConnectionIdleException());
                     }
                 }
@@ -585,8 +575,8 @@ namespace ZeroC.Ice
                     throw new RetryException(_exception);
                 }
 
-                Debug.Assert(_state > State.NotInitialized);
-                Debug.Assert(_state < State.Closing);
+                Debug.Assert(_state > ConnectionState.Validating);
+                Debug.Assert(_state < ConnectionState.Closing);
 
                 // Ensure the frame isn't bigger than what we can send with the transport.
                 // TODO: remove?
@@ -781,7 +771,7 @@ namespace ZeroC.Ice
 
                 lock (_mutex)
                 {
-                    if (_state >= State.Closed)
+                    if (_state >= ConnectionState.Closed)
                     {
                         throw _exception!;
                     }
@@ -822,7 +812,7 @@ namespace ZeroC.Ice
                             s.Append(" connection\n");
                             s.Append(ToString());
                         }
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
                     }
 
                     if (_acmLastActivity != Timeout.InfiniteTimeSpan)
@@ -834,7 +824,7 @@ namespace ZeroC.Ice
                         _validated = true;
                     }
 
-                    SetState(State.Active);
+                    SetState(ConnectionState.Active);
                 }
             }
             catch (OperationCanceledException)
@@ -859,19 +849,13 @@ namespace ZeroC.Ice
             {
                 // The observer is attached once the connection is active and detached when closed and the last
                 // dispatch completed.
-                if (_state < State.Active || (_state == State.Closed && _dispatchCount == 0))
+                if (_state < ConnectionState.Active || (_state == ConnectionState.Closed && _dispatchCount == 0))
                 {
                     return;
                 }
 
-                _observer = _communicator.Observer?.GetConnectionObserver(
-                    this,
-                    _connectionStateMap[(int)_state],
-                    _observer);
-                if (_observer != null)
-                {
-                    _observer.Attach();
-                }
+                _observer = _communicator.Observer?.GetConnectionObserver(this, _state, _observer);
+                _observer?.Attach();
             }
         }
 
@@ -879,9 +863,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state < State.Closed)
+                if (_state < ConnectionState.Closed)
                 {
-                    SetState(State.Closed, exception ?? _exception!);
+                    SetState(ConnectionState.Closed, exception ?? _exception!);
                     if (_dispatchCount > 0)
                     {
                         _dispatchTaskCompletionSource ??= new TaskCompletionSource<bool>();
@@ -999,7 +983,7 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     // Send the response if there's a response
-                    if (_state < State.Closed && response != null)
+                    if (_state < ConnectionState.Closed && response != null)
                     {
                         try
                         {
@@ -1015,7 +999,7 @@ namespace ZeroC.Ice
                     Debug.Assert(_dispatchCount > 0);
                     if (--_dispatchCount == 0 && _dispatchTaskCompletionSource != null)
                     {
-                        Debug.Assert(_state > State.Active);
+                        Debug.Assert(_state > ConnectionState.Active);
                         _dispatchTaskCompletionSource.SetResult(true);
                     }
                 }
@@ -1031,7 +1015,7 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter = null;
             lock (_mutex)
             {
-                if (_state >= State.Closed)
+                if (_state >= ConnectionState.Closed)
                 {
                     throw _exception!;
                 }
@@ -1073,7 +1057,7 @@ namespace ZeroC.Ice
 
                     case Ice1Definitions.FrameType.Request:
                     {
-                        if (_state >= State.Closing)
+                        if (_state >= ConnectionState.Closing)
                         {
                             ProtocolTrace.Trace(
                                 "received request during closing\n(ignored by server, client will retry)",
@@ -1112,7 +1096,7 @@ namespace ZeroC.Ice
 
                     case Ice1Definitions.FrameType.RequestBatch:
                     {
-                        if (_state >= State.Closing)
+                        if (_state >= ConnectionState.Closing)
                         {
                             ProtocolTrace.Trace(
                                 "received batch request during closing\n(ignored by server, client will retry)",
@@ -1216,7 +1200,7 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter = null;
             lock (_mutex)
             {
-                if (_state >= State.Closed)
+                if (_state >= ConnectionState.Closed)
                 {
                     throw _exception!;
                 }
@@ -1246,7 +1230,7 @@ namespace ZeroC.Ice
 
                     case Ice2Definitions.FrameType.Request:
                     {
-                        if (_state >= State.Closing)
+                        if (_state >= ConnectionState.Closing)
                         {
                             ProtocolTrace.Trace(
                                 "received request during closing\n(ignored by server, client will retry)",
@@ -1367,7 +1351,7 @@ namespace ZeroC.Ice
                 _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
             }
 
-            if (_state > State.NotInitialized && _communicator.TraceLevels.Network >= 1)
+            if (_state > ConnectionState.Validating && _communicator.TraceLevels.Network >= 1)
             {
                 var s = new StringBuilder();
                 s.Append("closed ");
@@ -1387,7 +1371,7 @@ namespace ZeroC.Ice
                     s.Append(_exception);
                 }
 
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat, s.ToString());
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
             }
 
             // Wait for pending receives and sends to complete
@@ -1561,7 +1545,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_state >= State.Closed)
+                if (_state >= ConnectionState.Closed)
                 {
                     Debug.Assert(_exception != null);
                     throw _exception;
@@ -1606,7 +1590,7 @@ namespace ZeroC.Ice
                     // of data here.
                     lock (_mutex)
                     {
-                        if (_state >= State.Closed)
+                        if (_state >= ConnectionState.Closed)
                         {
                             Debug.Assert(_exception != null);
                             throw _exception;
@@ -1637,7 +1621,7 @@ namespace ZeroC.Ice
             bool compress;
             lock (_mutex)
             {
-                if (_state >= State.Closed)
+                if (_state >= ConnectionState.Closed)
                 {
                     throw _exception!;
                 }
@@ -1674,7 +1658,7 @@ namespace ZeroC.Ice
                 offset += bytesSent;
                 lock (_mutex)
                 {
-                    if (_state >= State.Closed && offset < size)
+                    if (_state >= ConnectionState.Closed)
                     {
                         throw _exception!;
                     }
@@ -1765,7 +1749,7 @@ namespace ZeroC.Ice
             Task<ArraySegment<byte>> task;
             lock (_mutex)
             {
-                if (_state == State.Closed)
+                if (_state == ConnectionState.Closed)
                 {
                     throw _exception!;
                 }
@@ -1807,7 +1791,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state >= State.Closed)
+                if (_state >= ConnectionState.Closed)
                 {
                     throw _exception!;
                 }
@@ -1850,15 +1834,16 @@ namespace ZeroC.Ice
             }
         }
 
-        private void SetState(State state, Exception? exception = null)
+        private void SetState(ConnectionState state, Exception? exception = null)
         {
             // If SetState() is called with an exception, then only closed and closing states are permissible.
-            Debug.Assert((exception == null && state < State.Closing) || (exception != null && state >= State.Closing));
+            Debug.Assert((exception == null && state < ConnectionState.Closing) ||
+                         (exception != null && state >= ConnectionState.Closing));
 
             if (_exception == null && exception != null)
             {
                 // If we are in closed state, an exception must be set.
-                Debug.Assert(_state != State.Closed);
+                Debug.Assert(_state != ConnectionState.Closed);
 
                 _exception = exception;
 
@@ -1870,7 +1855,7 @@ namespace ZeroC.Ice
                          _exception is ConnectionIdleException ||
                          _exception is CommunicatorDestroyedException ||
                          _exception is ObjectAdapterDeactivatedException ||
-                         (_exception is ConnectionLostException && _state >= State.Closing)))
+                         (_exception is ConnectionLostException && _state >= ConnectionState.Closing)))
                     {
                         _communicator.Logger.Warning($"connection exception:\n{_exception}\n{this}");
                     }
@@ -1880,30 +1865,30 @@ namespace ZeroC.Ice
             Debug.Assert(_state != state); // Don't switch twice.
             switch (state)
             {
-                case State.NotInitialized:
+                case ConnectionState.Validating:
                 {
                     Debug.Assert(false);
                     break;
                 }
 
-                case State.Active:
+                case ConnectionState.Active:
                 {
-                    Debug.Assert(_state == State.NotInitialized);
+                    Debug.Assert(_state == ConnectionState.Validating);
                     // Start the asynchronous operation from the thread pool to prevent eventually reading
                     // synchronously new frames from this thread.
                     _ = Task.Run(ReceiveAndDispatchFrameAsync);
                     break;
                 }
 
-                case State.Closing:
+                case ConnectionState.Closing:
                 {
-                    Debug.Assert(_state == State.Active);
+                    Debug.Assert(_state == ConnectionState.Active);
                     break;
                 }
 
-                case State.Closed:
+                case ConnectionState.Closed:
                 {
-                    Debug.Assert(_state < State.Closed);
+                    Debug.Assert(_state < ConnectionState.Closed);
                     break;
                 }
             }
@@ -1913,7 +1898,7 @@ namespace ZeroC.Ice
             // validation are implemented with a timer instead and setup in the outgoing connection factory.
             if (_monitor != null)
             {
-                if (state == State.Active)
+                if (state == ConnectionState.Active)
                 {
                     if (_acmLastActivity != Timeout.InfiniteTimeSpan)
                     {
@@ -1921,7 +1906,7 @@ namespace ZeroC.Ice
                     }
                     _monitor.Add(this);
                 }
-                else if (state == State.Closed)
+                else if (state == ConnectionState.Closed)
                 {
                     _monitor.Remove(this);
                 }
@@ -1929,23 +1914,21 @@ namespace ZeroC.Ice
 
             if (_communicator.Observer != null)
             {
-                ConnectionState oldState = _connectionStateMap[(int)_state];
-                ConnectionState newState = _connectionStateMap[(int)state];
-                if (oldState != newState)
+                if (_state != state)
                 {
-                    _observer = _communicator.Observer!.GetConnectionObserver(this, newState, _observer);
+                    _observer = _communicator.Observer!.GetConnectionObserver(this, state, _observer);
                     if (_observer != null)
                     {
                         _observer.Attach();
                     }
                 }
-                if (_observer != null && state == State.Closed && _exception != null)
+                if (_observer != null && state == ConnectionState.Closed && _exception != null)
                 {
                     if (!(_exception is ConnectionClosedException ||
                          _exception is ConnectionIdleException ||
                          _exception is CommunicatorDestroyedException ||
                          _exception is ObjectAdapterDeactivatedException ||
-                         (_exception is ConnectionLostException && _state >= State.Closing)))
+                         (_exception is ConnectionLostException && _state >= ConnectionState.Closing)))
                     {
                         _observer.Failed(_exception.GetType().FullName!);
                     }
@@ -1958,7 +1941,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                     $"received {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 
@@ -1972,7 +1955,7 @@ namespace ZeroC.Ice
         {
             if (_communicator.TraceLevels.Network >= 3 && length > 0)
             {
-                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
                     $"sent {length} bytes via {Endpoint.TransportName}\n{this}");
             }
 
@@ -1981,14 +1964,6 @@ namespace ZeroC.Ice
                 _observer.SentBytes(length);
             }
         }
-
-        private enum State
-        {
-            NotInitialized,
-            Active,
-            Closing,
-            Closed
-        };
     }
 
     /// <summary>Represents a connection to an IP-endpoint.</summary>

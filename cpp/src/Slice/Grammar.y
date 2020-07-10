@@ -373,7 +373,17 @@ module_def
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    ModulePtr module = cont->createModule(ident->v);
+
+    ModulePtr module;
+    if (UnitPtr ut = UnitPtr::dynamicCast(cont))
+    {
+        module = ut->createModule(ident->v);
+    }
+    else if (ModulePtr mod = ModulePtr::dynamicCast(cont))
+    {
+        module = mod->createModule(ident->v);
+    }
+
     if(module)
     {
         cont->checkIntroduced(ident->v, module);
@@ -400,7 +410,6 @@ module_def
 | ICE_MODULE ICE_SCOPED_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit->currentContainer();
 
     // Split the 'scoped identifier' into separate module names.
     vector<string> modules;
@@ -414,26 +423,44 @@ module_def
     modules.push_back(ident->v.substr(startPos));
 
     // Create the nested modules.
-    for(size_t i = 0; i < modules.size(); i++)
+    ContainerPtr cont = unit->currentContainer();
+    ModulePtr parent;
+    size_t i = 0;
+    if (UnitPtr ut = UnitPtr::dynamicCast(cont))
     {
-        ModulePtr module = cont->createModule(modules[i]);
-        if(module)
+        parent = ut->createModule(modules[i++]);
+        if (parent)
         {
-            cont->checkIntroduced(ident->v, module);
-            unit->pushContainer(module);
-            $$ = cont = module;
-        }
-        else
-        {
-            // If an error occurs creating one of the modules, back up the entire chain.
-            for(; i > 0; i--)
-            {
-                unit->popContainer();
-            }
-            $$ = 0;
-            break;
+            ut->checkIntroduced(ident->v, parent);
+            unit->pushContainer(parent);
         }
     }
+
+    if (i == 0 || parent)
+    {
+        parent = unit->currentModule();
+        for (; i < modules.size(); i++)
+        {
+            if (ModulePtr module = parent->createModule(modules[i]))
+            {
+                parent->checkIntroduced(ident->v, module);
+                unit->pushContainer(module);
+                parent = module;
+            }
+            else
+            {
+                // If an error occurs creating one of the modules, back up the entire chain.
+                for(; i > 0; i--)
+                {
+                    unit->popContainer();
+                }
+                parent = nullptr;
+                break;
+            }
+        }
+    }
+
+    $$ = parent;
 }
 '{' definitions '}'
 {
@@ -487,7 +514,7 @@ exception_def
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     ExceptionPtr base = ExceptionPtr::dynamicCast($2);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     ExceptionPtr ex = cont->createException(ident->v, base);
     if(ex)
     {
@@ -881,7 +908,7 @@ struct_def
 : struct_id
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     StructPtr st = cont->createStruct(ident->v);
     if(st)
     {
@@ -943,7 +970,7 @@ struct_exports
 // ----------------------------------------------------------------------
 struct_export
 // ----------------------------------------------------------------------
-: struct_data_member
+: data_member
 ;
 
 // ----------------------------------------------------------------------
@@ -1094,7 +1121,7 @@ class_decl
 : class_name
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     ClassDeclPtr cl = cont->createClassDecl(ident->v);
     $$ = cl;
 }
@@ -1106,7 +1133,7 @@ class_def
 : class_id class_extends
 {
     ClassIdTokPtr ident = ClassIdTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     ClassDefPtr base = ClassDefPtr::dynamicCast($2);
     ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
     if(cl)
@@ -1222,17 +1249,17 @@ data_member
     DataMemberPtr dm;
     if(cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = st->createDataMember(def->name, def->type, def->isTagged);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, 0, "", "");
+        dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag);
     }
     unit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
@@ -1252,7 +1279,7 @@ data_member
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        dm = st->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v,
+        dm = st->createDataMember(def->name, def->type, def->isTagged, value->v,
                                   value->valueAsString, value->valueAsLiteral);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
@@ -1271,17 +1298,17 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        $$ = cl->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        $$ = cl->createDataMember(name, type, false, 0); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        $$ = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        $$ = st->createDataMember(name, type, false); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        $$ = ex->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+        $$ = ex->createDataMember(name, type, false, 0); // Dummy
     }
     assert($$);
     unit->error("keyword `" + name + "' cannot be used as data member name");
@@ -1292,98 +1319,18 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        $$ = cl->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = cl->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-        $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = st->createDataMember(IceUtil::generateUUID(), type, false); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-        $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
+        $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0); // Dummy
     }
-    assert($$);
-    unit->error("missing data member name");
-}
-;
-
-// ----------------------------------------------------------------------
-struct_data_member
-// ----------------------------------------------------------------------
-: type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, 0, "", "");
-    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
-    $$ = dm;
-}
-| type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
-    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, value->v,
-                                            value->valueAsString, value->valueAsLiteral);
-    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
-    $$ = dm;
-}
-| tag type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| tag type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| optional type_id
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| optional type_id '=' const_initializer
-{
-    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("tagged data members are not supported in structs");
-}
-| type keyword
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    string name = StringTokPtr::dynamicCast($2)->v;
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
-    assert($$);
-    unit->error("keyword `" + name + "' cannot be used as data member name");
-}
-| type
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     assert($$);
     unit->error("missing data member name");
 }
@@ -1528,7 +1475,7 @@ operation_preamble
         }
         else
         {
-            return 0;
+            $$ = 0;
         }
     }
     else
@@ -1610,7 +1557,7 @@ interface_decl
 : interface_id
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
     cont->checkIntroduced(ident->v, cl);
     $$ = cl;
@@ -1623,7 +1570,7 @@ interface_def
 : interface_id interface_extends
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     InterfaceListTokPtr bases = InterfaceListTokPtr::dynamicCast($2);
     InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
     if(interface)
@@ -1817,7 +1764,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-        exception = cont->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+        exception = unit->currentModule()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
@@ -1826,7 +1773,7 @@ exception
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
+    $$ = unit->currentModule()->createException(IceUtil::generateUUID(), 0, Dummy); // Dummy
 }
 ;
 
@@ -1838,7 +1785,7 @@ sequence_def
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     $$ = cont->createSequence(ident->v, type, metaData->v);
 }
 | ICE_SEQUENCE '<' local_metadata type '>' keyword
@@ -1846,7 +1793,7 @@ sequence_def
     StringTokPtr ident = StringTokPtr::dynamicCast($6);
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     $$ = cont->createSequence(ident->v, type, metaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
@@ -1862,7 +1809,7 @@ dictionary_def
     TypePtr keyType = TypePtr::dynamicCast($4);
     StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v);
 }
 | ICE_DICTIONARY '<' local_metadata type ',' local_metadata type '>' keyword
@@ -1872,7 +1819,7 @@ dictionary_def
     TypePtr keyType = TypePtr::dynamicCast($4);
     StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($6);
     TypePtr valueType = TypePtr::dynamicCast($7);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
@@ -1902,7 +1849,7 @@ enum_id
 {
     bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     EnumPtr en = cont->createEnum(ident->v, unchecked);
     if (en)
     {
@@ -1918,7 +1865,7 @@ enum_id
 {
     bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
     $$ = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
 }
@@ -1953,7 +1900,7 @@ enum_start
 {
     bool unchecked = BoolTokPtr::dynamicCast($1)->v;
     unit->error("missing enumeration name");
-    ContainerPtr cont = unit->currentContainer();
+    ModulePtr cont = unit->currentModule();
     EnumPtr en = cont->createEnum(IceUtil::generateUUID(), unchecked, Dummy);
     unit->pushContainer(en);
     $$ = en;
@@ -1999,7 +1946,7 @@ enumerator
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    ContainerPtr cont = unit->currentContainer();
+    EnumPtr cont = EnumPtr::dynamicCast(unit->currentContainer());
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
@@ -2011,7 +1958,7 @@ enumerator
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    ContainerPtr cont = unit->currentContainer();
+    EnumPtr cont = EnumPtr::dynamicCast(unit->currentContainer());
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($3);
     if (intVal)
     {
@@ -2491,7 +2438,7 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     StringTokPtr ident = StringTokPtr::dynamicCast($4);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($6);
-    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
+    $$ = unit->currentModule()->createConst(ident->v, const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral);
 }
 | ICE_CONST local_metadata type '=' const_initializer
@@ -2500,7 +2447,7 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($5);
     unit->error("missing constant name");
-    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
+    $$ = unit->currentModule()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v,
                                                value->valueAsString, value->valueAsLiteral, Dummy); // Dummy
 }
 ;

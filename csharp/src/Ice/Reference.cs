@@ -790,7 +790,7 @@ namespace ZeroC.Ice
 
                     if (Communicator.TraceLevels.Retry >= 1)
                     {
-                        Communicator.Logger.Trace(Communicator.TraceLevels.RetryCat,
+                        Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory,
                             $"retrying operation call to add proxy to router\n {ex}");
                     }
                     return 0; // We must always retry, so we don't look at the retry count.
@@ -843,7 +843,7 @@ namespace ZeroC.Ice
             {
                 if (Communicator.TraceLevels.Retry >= 1)
                 {
-                    Communicator.Logger.Trace(Communicator.TraceLevels.RetryCat,
+                    Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory,
                         $"cannot retry operation call because retry limit has been exceeded\n{ex}");
                 }
                 throw ex;
@@ -861,7 +861,7 @@ namespace ZeroC.Ice
                     s += " in " + interval + "ms";
                 }
                 s += $" because of exception\n{ex}";
-                Communicator.Logger.Trace(Communicator.TraceLevels.RetryCat, s);
+                Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory, s);
             }
 
             return interval;
@@ -1267,7 +1267,7 @@ namespace ZeroC.Ice
                     TraceLevels traceLevels = Communicator.TraceLevels;
                     if (traceLevels.Retry >= 2)
                     {
-                        Communicator.Logger.Trace(traceLevels.RetryCat, "connection to cached endpoints failed\n" +
+                        Communicator.Logger.Trace(traceLevels.RetryCategory, "connection to cached endpoints failed\n" +
                             $"removing endpoints from cache and trying again\n{ex}");
                     }
                     return await GetConnectionRequestHandlerAsync(cancel);

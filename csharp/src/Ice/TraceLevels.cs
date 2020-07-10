@@ -8,30 +8,30 @@ namespace ZeroC.Ice
     {
         internal TraceLevels(Communicator communicator)
         {
-            NetworkCat = "Network";
-            ProtocolCat = "Protocol";
-            RetryCat = "Retry";
-            LocationCat = "Locator";
-            SlicingCat = "Slicing";
+            NetworkCategory = "Network";
+            ProtocolCategory = "Protocol";
+            RetryCategory = "Retry";
+            LocationCategory = "Locator";
+            SlicingCategory = "Slicing";
 
             string keyBase = "Ice.Trace.";
 
-            Network = communicator.GetPropertyAsInt(keyBase + NetworkCat) ?? 0;
-            Protocol = communicator.GetPropertyAsInt(keyBase + ProtocolCat) ?? 0;
-            Retry = communicator.GetPropertyAsInt(keyBase + RetryCat) ?? 0;
-            Location = communicator.GetPropertyAsInt(keyBase + LocationCat) ?? 0;
-            Slicing = communicator.GetPropertyAsInt(keyBase + SlicingCat) ?? 0;
+            Network = communicator.GetPropertyAsInt(keyBase + NetworkCategory) ?? 0;
+            Protocol = communicator.GetPropertyAsInt(keyBase + ProtocolCategory) ?? 0;
+            Retry = communicator.GetPropertyAsInt(keyBase + RetryCategory) ?? 0;
+            Location = communicator.GetPropertyAsInt(keyBase + LocationCategory) ?? 0;
+            Slicing = communicator.GetPropertyAsInt(keyBase + SlicingCategory) ?? 0;
         }
 
         public readonly int Network;
-        public readonly string NetworkCat;
+        public readonly string NetworkCategory;
         public readonly int Protocol;
-        public readonly string ProtocolCat;
+        public readonly string ProtocolCategory;
         public readonly int Retry;
-        public readonly string RetryCat;
+        public readonly string RetryCategory;
         public readonly int Location;
-        public readonly string LocationCat;
+        public readonly string LocationCategory;
         public readonly int Slicing;
-        public readonly string SlicingCat;
+        public readonly string SlicingCategory;
     }
 }

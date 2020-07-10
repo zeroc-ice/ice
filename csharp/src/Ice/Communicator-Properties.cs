@@ -52,6 +52,43 @@ namespace ZeroC.Ice
         public bool? GetPropertyAsBool(string name) =>
             GetPropertyAsInt(name) is int intValue ? intValue > 0 : (bool?)null;
 
+        /// <summary>Gets the value of a property as an enumerated type, the conversion does a case insensitive
+        /// comparison of the property value with the enumerators and returns the matching enumerator or throws and
+        /// exception if none matches the property value. If the property is not set, returns null.</summary>
+        /// <typeparam name="TEnum">An enumeration type.</typeparam>
+        /// <param name="name">The property name</param>
+        /// <exception cref="InvalidConfigurationException">If the property value cannot be converted to one of the
+        /// enumeration values.</exception>
+        /// <returns>The enumerator value or null if the property was not set.</returns>
+        public TEnum? GetPropertyAsEnum<TEnum>(string name) where TEnum : struct
+        {
+            lock (_properties)
+            {
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
+                {
+                    try
+                    {
+                        pv.Used = true;
+                        if (int.TryParse(pv.Val, out int _))
+                        {
+                            throw new FormatException($"numeric values are not accepted for enum properties");
+                        }
+                        else
+                        {
+                            return Enum.Parse<TEnum>(pv.Val, ignoreCase: true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(@$"the value `{pv.Val}' of property `{name
+                                                                }' does not match any enumerator of {typeof(TEnum)}",
+                                                                ex);
+                    }
+                }
+                return null;
+            }
+        }
+
         /// <summary>Gets the value of a property as an integer. If the property is not set, returns null.</summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into an integer or null.</returns>

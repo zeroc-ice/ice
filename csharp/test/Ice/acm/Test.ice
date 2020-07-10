@@ -25,7 +25,7 @@ interface RemoteObjectAdapter
 
 interface RemoteCommunicator
 {
-    RemoteObjectAdapter* createObjectAdapter(int acmTimeout, int close, int heartbeat);
+    RemoteObjectAdapter* createObjectAdapter(int acmTimeout, string? close, string? heartbeat);
     void shutdown();
 }
 

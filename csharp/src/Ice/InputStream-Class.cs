@@ -721,7 +721,7 @@ namespace ZeroC.Ice
             {
                 string printableId = typeId ?? compactId?.ToString() ?? "(none)";
                 string kind = _current.InstanceType.ToString().ToLowerInvariant();
-                _communicator.Logger.Trace(_communicator.TraceLevels.SlicingCat,
+                _communicator.Logger.Trace(_communicator.TraceLevels.SlicingCategory,
                     $"slicing unknown {kind} type `{printableId}'");
             }
 
