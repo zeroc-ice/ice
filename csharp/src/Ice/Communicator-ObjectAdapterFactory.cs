@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,15 +24,7 @@ namespace ZeroC.Ice
             {
                 _shutdownTask ??= PerformShutdownAsync();
             }
-
-            try
-            {
-                await _shutdownTask.ConfigureAwait(false);
-            }
-            finally
-            {
-                _shutdownTaskSemaphore?.Release();
-            }
+            await _shutdownTask.ConfigureAwait(false);
         }
 
         /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
@@ -47,8 +40,8 @@ namespace ZeroC.Ice
             {
                 if (_shutdownTask == null)
                 {
-                    _shutdownTaskSemaphore ??= new SemaphoreSlim(0);
-                    shutdownTask = _shutdownTaskSemaphore.WaitAsync();
+                    _shutdownCompletionSource ??= new TaskCompletionSource<object?>();
+                    shutdownTask = _shutdownCompletionSource.Task;
                 }
                 else
                 {
@@ -271,18 +264,22 @@ namespace ZeroC.Ice
             }
         }
 
+        // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
         private async Task PerformShutdownAsync()
         {
-            lock (_mutex)
+            try
             {
-                Debug.Assert(!_isShutdown);
-                _isShutdown = true;
+                lock (_mutex)
+                {
+                    Debug.Assert(!_isShutdown);
+                    _isShutdown = true;
+                }
+                await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
             }
-
-            // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
-            foreach (ObjectAdapter adapter in _adapters)
+            finally
             {
-                await adapter.DeactivateAsync().ConfigureAwait(false);
+                // Don't call SetResult directly to avoid continuations running synchronously
+                _ = Task.Run(() => _shutdownCompletionSource?.SetResult(null));
             }
         }
     }

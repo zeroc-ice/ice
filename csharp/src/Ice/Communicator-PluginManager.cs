@@ -78,7 +78,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -91,7 +91,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -104,7 +104,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }

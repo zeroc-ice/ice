@@ -102,7 +102,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 var adapter = communicator.CreateObjectAdapter();
                 connection.Adapter = adapter;
                 connection.Adapter = null;
-                adapter.DeactivateAsync().Wait();
+                adapter.Dispose();
                 // Setting a deactivated adapter on a connection no longer raise ObjectAdapterDeactivatedException
                 connection.Adapter = adapter;
                 output.WriteLine("ok");

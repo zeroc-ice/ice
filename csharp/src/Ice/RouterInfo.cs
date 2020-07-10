@@ -141,9 +141,9 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IReadOnlyList<Endpoint> GetServerEndpoints()
+        internal async Task<IReadOnlyList<Endpoint>> GetServerEndpointsAsync()
         {
-            IObjectPrx? serverProxy = Router.GetServerProxy();
+            IObjectPrx? serverProxy = await Router.GetServerProxyAsync().ConfigureAwait(false);
             if (serverProxy == null)
             {
                 throw new InvalidConfigurationException($"router `{Router.Identity}' has no server endpoints");

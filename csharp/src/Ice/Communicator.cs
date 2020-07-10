@@ -160,6 +160,8 @@ namespace ZeroC.Ice
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
+        internal bool IsDisposed => _disposeTask != null && _disposeTask.IsCompleted;
+
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
         {
@@ -173,10 +175,6 @@ namespace ZeroC.Ice
             "Context\\..*"
         };
         private static readonly object _staticLock = new object();
-
-        private const int StateActive = 0;
-        private const int StateDestroyInProgress = 1;
-        private const int StateDestroyed = 2;
 
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
@@ -199,11 +197,11 @@ namespace ZeroC.Ice
         private volatile IRouterPrx? _defaultRouter;
         private Task? _disposeTask;
         private bool _isShutdown = false;
-        private readonly object _mutex = new object();
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
         private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
             new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
+        private readonly object _mutex = new object();
         private static bool _oneOffDone = false;
         private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
@@ -214,8 +212,7 @@ namespace ZeroC.Ice
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
         private Task? _shutdownTask;
-        private SemaphoreSlim? _shutdownTaskSemaphore;
-        private int _state;
+        private TaskCompletionSource<object?>? _shutdownCompletionSource;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<Transport, IEndpointFactory>();
         private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
@@ -276,7 +273,6 @@ namespace ZeroC.Ice
                             TlsClientOptions? tlsClientOptions = null,
                             TlsServerOptions? tlsServerOptions = null)
         {
-            _state = StateActive;
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
 
@@ -740,7 +736,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -798,7 +794,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -880,7 +876,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -899,7 +895,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -944,7 +940,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -1153,7 +1149,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDestroyedException();
                 }
@@ -1276,40 +1272,25 @@ namespace ZeroC.Ice
 
         private async Task PerformDisposeAsync()
         {
-            lock (_mutex)
-            {
-                Debug.Assert(_state < StateDestroyInProgress);
-                _state = StateDestroyInProgress;
-            }
-
             // Cancel operations that are waiting and using the communicator's cancellation token
             _cancellationTokenSource.Cancel();
 
+            Task shutdownTask = ShutdownAsync();
+
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
             // finished.
-            _ = ShutdownAsync();
-
-            _outgoingConnectionFactory?.DestroyAsync();
-
-            await WaitForShutdownAsync().ConfigureAwait(false);
-            _shutdownTaskSemaphore?.Dispose();
-
-            // At this point adapters are immutable
-            foreach (ObjectAdapter adapter in _adapters)
-            {
-                await adapter.DisposeAsync().ConfigureAwait(false);
-            }
-
-            // _adminAdapter is disposed above when iterating over all adapters, we call DisposeAsync here to avoid the
-            // compiler warning about disposable field not being dispose.
-            if (_adminAdapter != null)
-            {
-                await _adminAdapter.DisposeAsync().ConfigureAwait(false);
-            }
-
             if (_outgoingConnectionFactory != null)
             {
                 await _outgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
+            }
+
+            await shutdownTask.ConfigureAwait(false);
+
+            // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
+            // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.
+            if (_adminAdapter != null)
+            {
+                await _adminAdapter.DisposeAsync().ConfigureAwait(false);
             }
 
             Observer?.SetObserverUpdater(null);
@@ -1335,13 +1316,7 @@ namespace ZeroC.Ice
             }
 
             // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
-            List<(string Name, IPlugin Plugin)> plugins;
-            lock (_mutex)
-            {
-                plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
-            }
-            plugins.Reverse();
-            foreach ((string name, IPlugin plugin) in plugins)
+            foreach ((string name, IPlugin plugin) in Enumerable.Reverse(_plugins))
             {
                 try
                 {
@@ -1351,11 +1326,6 @@ namespace ZeroC.Ice
                 {
                     Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
                 }
-            }
-
-            lock (_mutex)
-            {
-                _state = StateDestroyed;
             }
 
             if (Logger is FileLogger fileLogger)

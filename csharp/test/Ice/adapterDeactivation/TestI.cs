@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 
         public void deactivate(Current current)
         {
-            _ = current.Adapter.DeactivateAsync();
+            current.Adapter.DisposeAsync();
             System.Threading.Thread.Sleep(100);
             Task.Delay(100).ContinueWith(t => current.Communicator.ShutdownAsync());
         }

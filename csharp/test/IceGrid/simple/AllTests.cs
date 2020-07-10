@@ -54,59 +54,57 @@ namespace ZeroC.IceGrid.Test.Simple
                 properties["AdapterForDiscoveryTest.AdapterId"] = "discoveryAdapter";
                 properties["AdapterForDiscoveryTest.Endpoints"] = "default";
 
-                var com = new Communicator(properties);
-                TestHelper.Assert(com.DefaultLocator != null);
-                IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
-                IObjectPrx.Parse("test", com).IcePing();
+                {
+                    using var com = new Communicator(properties);
+                    TestHelper.Assert(com.DefaultLocator != null);
+                    IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                    IObjectPrx.Parse("test", com).IcePing();
 
-                TestHelper.Assert(com.DefaultLocator!.GetRegistry() != null);
-                TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry() != null);
-                TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
+                    TestHelper.Assert(com.DefaultLocator!.GetRegistry() != null);
+                    TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry() != null);
+                    TestHelper.Assert(ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalQuery() != null);
 
-                ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                adapter.Activate();
-                adapter.DeactivateAsync();
-                com.Dispose();
-
+                    ObjectAdapter adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
+                    adapter.Activate();
+                }
                 //
                 // Now, ensure that the IceGrid discovery locator correctly
                 // handles failure to find a locator.
                 //
-                properties["IceLocatorDiscovery.InstanceName"] = "unknown";
-                properties["IceLocatorDiscovery.RetryCount"] = "1";
-                properties["IceLocatorDiscovery.Timeout"] = "100ms";
-                com = new Communicator(properties);
-                TestHelper.Assert(com.DefaultLocator != null);
-                try
                 {
-                    IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
-                }
-                catch (NoEndpointException)
-                {
-                }
-                try
-                {
-                    IObjectPrx.Parse("test", com).IcePing();
-                }
-                catch (NoEndpointException)
-                {
-                }
+                    properties["IceLocatorDiscovery.InstanceName"] = "unknown";
+                    properties["IceLocatorDiscovery.RetryCount"] = "1";
+                    properties["IceLocatorDiscovery.Timeout"] = "100ms";
+                    using var com = new Communicator(properties);
+                    TestHelper.Assert(com.DefaultLocator != null);
+                    try
+                    {
+                        IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                    }
+                    catch (NoEndpointException)
+                    {
+                    }
+                    try
+                    {
+                        IObjectPrx.Parse("test", com).IcePing();
+                    }
+                    catch (NoEndpointException)
+                    {
+                    }
 
-                TestHelper.Assert(com.DefaultLocator!.GetRegistry() == null);
-                TestHelper.Assert(ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
-                try
-                {
-                    ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
-                }
-                catch (OperationNotExistException)
-                {
-                }
+                    TestHelper.Assert(com.DefaultLocator!.GetRegistry() == null);
+                    TestHelper.Assert(ILocatorPrx.CheckedCast(com.DefaultLocator!) == null);
+                    try
+                    {
+                        ILocatorPrx.UncheckedCast(com.DefaultLocator!).GetLocalRegistry();
+                    }
+                    catch (OperationNotExistException)
+                    {
+                    }
 
-                adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
-                adapter.Activate();
-                adapter.DeactivateAsync();
-
-                com.Dispose();
+                    using var adapter = com.CreateObjectAdapter("AdapterForDiscoveryTest");
+                    adapter.Activate();
+                }
 
                 string multicast;
                 if (communicator.GetProperty("Ice.IPv6") == "1")
@@ -121,64 +119,67 @@ namespace ZeroC.IceGrid.Test.Simple
                 //
                 // Test invalid lookup endpoints
                 //
-                properties = communicator.GetProperties();
-                properties.Remove("Ice.Default.Locator");
-                properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
-                properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
-                com = new Communicator(properties);
-                TestHelper.Assert(com.DefaultLocator != null);
-                try
                 {
-                    IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
-                    TestHelper.Assert(false);
-                }
-                catch (NoEndpointException)
-                {
-                }
-                com.Dispose();
-
-                properties = communicator.GetProperties();
-                properties.Remove("Ice.Default.Locator");
-                properties["IceLocatorDiscovery.RetryCount"] = "0";
-                properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
-                properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
-                com = new Communicator(properties);
-                TestHelper.Assert(com.DefaultLocator != null);
-                try
-                {
-                    IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
-                    TestHelper.Assert(false);
-                }
-                catch (NoEndpointException)
-                {
-                }
-                com.Dispose();
-
-                properties = communicator.GetProperties();
-                properties.Remove("Ice.Default.Locator");
-                properties["IceLocatorDiscovery.RetryCount"] = "1";
-                properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
-                {
-                    string intf = communicator.GetProperty("IceLocatorDiscovery.Interface") ?? "";
-                    if (intf != "")
+                    properties = communicator.GetProperties();
+                    properties.Remove("Ice.Default.Locator");
+                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
+                    properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
+                    using var com = new Communicator(properties);
+                    TestHelper.Assert(com.DefaultLocator != null);
+                    try
                     {
-                        intf = $" --interface \"{intf}\"";
+                        IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                        TestHelper.Assert(false);
                     }
-                    string port = helper.GetTestPort(99).ToString();
-                    properties["IceLocatorDiscovery.Lookup"] =
-                        $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
+                    catch (NoEndpointException)
+                    {
+                    }
                 }
-                com = new Communicator(properties);
-                TestHelper.Assert(com.DefaultLocator != null);
-                try
+
                 {
-                    IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                    properties = communicator.GetProperties();
+                    properties.Remove("Ice.Default.Locator");
+                    properties["IceLocatorDiscovery.RetryCount"] = "0";
+                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
+                    properties["IceLocatorDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
+                    using var com = new Communicator(properties);
+                    TestHelper.Assert(com.DefaultLocator != null);
+                    try
+                    {
+                        IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                        TestHelper.Assert(false);
+                    }
+                    catch (NoEndpointException)
+                    {
+                    }
                 }
-                catch (NoEndpointException)
+
                 {
-                    TestHelper.Assert(false);
+                    properties = communicator.GetProperties();
+                    properties.Remove("Ice.Default.Locator");
+                    properties["IceLocatorDiscovery.RetryCount"] = "1";
+                    properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
+                    {
+                        string intf = communicator.GetProperty("IceLocatorDiscovery.Interface") ?? "";
+                        if (intf != "")
+                        {
+                            intf = $" --interface \"{intf}\"";
+                        }
+                        string port = helper.GetTestPort(99).ToString();
+                        properties["IceLocatorDiscovery.Lookup"] =
+                            $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
+                    }
+                    using var com = new Communicator(properties);
+                    TestHelper.Assert(com.DefaultLocator != null);
+                    try
+                    {
+                        IObjectPrx.Parse("test @ TestAdapter", com).IcePing();
+                    }
+                    catch (NoEndpointException)
+                    {
+                        TestHelper.Assert(false);
+                    }
                 }
-                com.Dispose();
             }
             Console.Out.WriteLine("ok");
 
