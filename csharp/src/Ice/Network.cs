@@ -1336,14 +1336,16 @@ namespace ZeroC.Ice
             return "";
         }
 
-        public static int
-        EndpointPort(EndPoint? endpoint)
+        internal static ushort EndpointPort(EndPoint? endpoint)
         {
             if (endpoint != null && endpoint is IPEndPoint ipEndpoint)
             {
-                return ipEndpoint.Port;
+                return (ushort)ipEndpoint.Port;
             }
-            return -1;
+            else
+            {
+                return 0;
+            }
         }
     }
 }

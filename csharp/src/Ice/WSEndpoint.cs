@@ -27,6 +27,7 @@ namespace ZeroC.Ice
             return other is WSEndpoint wsEndpoint && Resource == wsEndpoint.Resource && base.Equals(wsEndpoint);
         }
 
+        // TODO: why not hashcode caching?
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Resource);
 
         public override string OptionsToString()
@@ -51,6 +52,14 @@ namespace ZeroC.Ice
 
         public override bool IsLocal(Endpoint endpoint) => endpoint is WSEndpoint && base.IsLocal(endpoint);
 
+        protected internal override void WriteOptions(OutputStream ostr)
+        {
+            Debug.Assert(Protocol == Protocol.Ice2);
+            ostr.WriteSize(1);
+            ostr.WriteString("resource");
+            ostr.WriteString(Resource);
+        }
+
         public override void IceWritePayload(OutputStream ostr)
         {
             base.IceWritePayload(ostr);
@@ -64,7 +73,7 @@ namespace ZeroC.Ice
             Protocol protocol,
             Transport transport,
             string host,
-            int port,
+            ushort port,
             IPAddress? sourceAddress,
             int timeout,
             bool compressionFlag,
@@ -79,6 +88,8 @@ namespace ZeroC.Ice
                    compressionFlag) =>
             Resource = resource;
 
+        // Constructor for parsing with the old format.
+        // TODO: remove protocol, as it should be ice1-only.
         internal WSEndpoint(
             Communicator communicator,
             Transport transport,
@@ -101,13 +112,37 @@ namespace ZeroC.Ice
             }
         }
 
-        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
-            : base(istr, communicator, transport, protocol) =>
+        // Constructor for ice1 unmarshaling.
+        internal WSEndpoint(InputStream istr, Communicator communicator, Transport transport)
+            : base(istr, communicator, transport) =>
             Resource = istr.ReadString();
+
+        // Constructor used for both URI parsing and ice2 unmarshaling.
+        internal WSEndpoint(
+            Communicator communicator,
+            Transport transport,
+            Protocol protocol,
+            string host,
+            ushort port,
+            Dictionary<string, string> options,
+            bool oaEndpoint,
+            string? endpointString)
+            : base(communicator, transport, protocol, host, port, options, oaEndpoint, endpointString)
+        {
+            if (options.TryGetValue("resource", out string? value))
+            {
+                Resource = value;
+                options.Remove("resource");
+            }
+            else
+            {
+                Resource = "/";
+            }
+        }
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
-            int port,
+            ushort port,
             bool compressionFlag,
             int timeout) =>
             new WSEndpoint(Communicator,

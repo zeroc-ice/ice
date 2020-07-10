@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -13,10 +14,10 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the TCP transport.</summary>
     public class TcpEndpoint : IPEndpoint
     {
-        public override bool HasCompressionFlag { get; }
+        public override bool HasCompressionFlag { get; } = false;
         public override bool IsDatagram => false;
         public override bool IsSecure => Transport == Transport.SSL;
-        public override int Timeout { get; }
+        public override int Timeout { get; } = -1;
         public override Transport Transport { get; }
 
         private int _hashCode = 0;
@@ -28,23 +29,16 @@ namespace ZeroC.Ice
                 return true;
             }
 
-            if (other is TcpEndpoint tcpEndpoint)
+            if (Protocol == Protocol.Ice1)
             {
-                if (HasCompressionFlag != tcpEndpoint.HasCompressionFlag)
-                {
-                    return false;
-                }
-
-                if (Timeout != tcpEndpoint.Timeout)
-                {
-                    return false;
-                }
-
-                return base.Equals(tcpEndpoint);
+                return other is TcpEndpoint tcpEndpoint &&
+                    HasCompressionFlag == tcpEndpoint.HasCompressionFlag &&
+                    Timeout == tcpEndpoint.Timeout &&
+                    base.Equals(tcpEndpoint);
             }
             else
             {
-                return false;
+                return base.Equals(other);
             }
         }
 
@@ -58,11 +52,16 @@ namespace ZeroC.Ice
             }
             else
             {
-                var hash = new HashCode();
-                hash.Add(base.GetHashCode());
-                hash.Add(HasCompressionFlag);
-                hash.Add(Timeout);
-                int hashCode = hash.ToHashCode();
+                int hashCode;
+                if (Protocol == Protocol.Ice1)
+                {
+                    hashCode = HashCode.Combine(base.GetHashCode(), HasCompressionFlag, Timeout);
+                }
+                else
+                {
+                    hashCode = base.GetHashCode();
+                }
+
                 if (hashCode == 0) // 0 is not a valid value as it means "not initialized".
                 {
                     hashCode = 1;
@@ -74,27 +73,34 @@ namespace ZeroC.Ice
 
         public override string OptionsToString()
         {
-            var sb = new StringBuilder(base.OptionsToString());
-
-            if (Timeout == -1)
+            if (Protocol == Protocol.Ice1) // TODO: temporary, Protocol should always be ice1
             {
-                sb.Append(" -t infinite");
+                var sb = new StringBuilder(base.OptionsToString());
+                if (Timeout == -1)
+                {
+                    sb.Append(" -t infinite");
+                }
+                else
+                {
+                    sb.Append(" -t ");
+                    sb.Append(Timeout.ToString(CultureInfo.InvariantCulture));
+                }
+
+                if (HasCompressionFlag)
+                {
+                    sb.Append(" -z");
+                }
+                return sb.ToString();
             }
             else
             {
-                sb.Append(" -t ");
-                sb.Append(Timeout.ToString(CultureInfo.InvariantCulture));
+                return base.OptionsToString();
             }
-
-            if (HasCompressionFlag)
-            {
-                sb.Append(" -z");
-            }
-            return sb.ToString();
         }
 
         public override void IceWritePayload(OutputStream ostr)
         {
+            Debug.Assert(Protocol == Protocol.Ice1);
             base.IceWritePayload(ostr);
             ostr.WriteInt(Timeout);
             ostr.WriteBool(HasCompressionFlag);
@@ -112,7 +118,7 @@ namespace ZeroC.Ice
             Transport transport,
             Protocol protocol,
             string host,
-            int port,
+            ushort port,
             IPAddress? sourceAddress,
             int timeout,
             bool compressionFlag)
@@ -123,12 +129,63 @@ namespace ZeroC.Ice
             Timeout = timeout;
         }
 
-        internal TcpEndpoint(InputStream istr, Communicator communicator, Transport transport, Protocol protocol)
-            : base(istr, communicator, protocol)
+        // Constructor for ice1 unmarshaling
+        internal TcpEndpoint(InputStream istr, Communicator communicator, Transport transport)
+            : base(istr, communicator)
         {
             Transport = transport;
             Timeout = istr.ReadInt();
             HasCompressionFlag = istr.ReadBool();
+        }
+
+        // Constructor used for both URI parsing and ice2 unmarshaling.
+        internal TcpEndpoint(
+            Communicator communicator,
+            Transport transport,
+            Protocol protocol,
+            string host,
+            ushort port,
+            Dictionary<string, string> options,
+            bool oaEndpoint,
+            string? endpointString)
+            : base(communicator, protocol, host, port, options, oaEndpoint, endpointString)
+        {
+            Transport = transport;
+            if (protocol == Protocol.Ice1)
+            {
+                if (options.TryGetValue("compress", out string? value))
+                {
+                    if (value == "true")
+                    {
+                        HasCompressionFlag = true;
+                    }
+                    else if (value != "false")
+                    {
+                        Debug.Assert(endpointString != null); // we're not unmarshaling an ice1 endpoint
+                        throw new FormatException(
+                            $"invalid compress value `{value}' in endpoint `{endpointString}'");
+                    }
+                    options.Remove("compress");
+                }
+
+                if (options.TryGetValue("timeout", out value))
+                {
+                    if (value == "infinite")
+                    {
+                        Timeout = -1;
+                    }
+                    else
+                    {
+                        Timeout = int.Parse(value, CultureInfo.InvariantCulture);
+                        if (Timeout < -1)
+                        {
+                            Debug.Assert(endpointString != null);
+                            throw new FormatException(
+                                $"invalid timeout value `{value}' in endpoint `{endpointString}'");
+                        }
+                    }
+                }
+            }
         }
 
         internal TcpEndpoint(
@@ -162,7 +219,7 @@ namespace ZeroC.Ice
                         throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'",
                              ex);
                     }
-                    if (Timeout < 1)
+                    if (Timeout < -1)
                     {
                         throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'");
                     }
@@ -196,7 +253,7 @@ namespace ZeroC.Ice
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
-            int port,
+            ushort port,
             bool compressionFlag,
             int timeout) =>
             new TcpEndpoint(Communicator,

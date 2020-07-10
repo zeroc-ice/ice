@@ -13,11 +13,14 @@ namespace ZeroC.Ice.Test.Background
     // TODO: Endpoint is an awful name for this class.
     internal class Endpoint : ZeroC.Ice.Endpoint
     {
-        public override Communicator Communicator => _endpoint.Communicator;
         public override bool HasCompressionFlag => _endpoint.HasCompressionFlag;
+
+        public override string Host => _endpoint.Host;
         public override bool IsDatagram => _endpoint.IsDatagram;
 
         public override bool IsSecure => _endpoint.IsSecure;
+
+        public override ushort Port => _endpoint.Port;
 
         public override int Timeout => _endpoint.Timeout;
         public override Transport Transport => (Transport)(TransportBase + (short)_endpoint.Transport);
@@ -134,7 +137,7 @@ namespace ZeroC.Ice.Test.Background
         }
 
         internal Endpoint(ZeroC.Ice.Endpoint endpoint)
-            : base(endpoint.Protocol)
+            : base(endpoint.Communicator, endpoint.Protocol)
         {
             _endpoint = endpoint;
             _configuration = Configuration.GetInstance();

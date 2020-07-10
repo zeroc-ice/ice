@@ -110,13 +110,13 @@ namespace ZeroC.Ice
             return s.ToString();
         }
 
-        public int EffectivePort() => _addr.Port;
+        public ushort EffectivePort() => (ushort)_addr.Port;
 
         internal TcpAcceptor(
             TcpEndpoint endpoint,
             Communicator communicator,
             string host,
-            int port,
+            ushort port,
             string adapterName)
         {
             _adapterName = adapterName;

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -23,7 +24,6 @@ namespace ZeroC.Ice
         /// <summary>The time-to-live of the multicast datagrams, in milliseconds.</summary>
         public int McastTtl { get; } = -1;
 
-        public override int Timeout => -1;
         public override Transport Transport => Transport.UDP;
 
         private readonly bool _connect;
@@ -35,30 +35,12 @@ namespace ZeroC.Ice
             {
                 return true;
             }
-            if (other is UdpEndpoint udpEndpoint)
-            {
-                if (HasCompressionFlag != udpEndpoint.HasCompressionFlag)
-                {
-                    return false;
-                }
-                if (_connect != udpEndpoint._connect)
-                {
-                    return false;
-                }
-                if (McastInterface != udpEndpoint.McastInterface)
-                {
-                    return false;
-                }
-                if (McastTtl != udpEndpoint.McastTtl)
-                {
-                    return false;
-                }
-                return base.Equals(udpEndpoint);
-            }
-            else
-            {
-                return false;
-            }
+            return other is UdpEndpoint udpEndpoint &&
+                HasCompressionFlag == udpEndpoint.HasCompressionFlag &&
+                _connect == udpEndpoint._connect &&
+                McastInterface == udpEndpoint.McastInterface &&
+                McastTtl == udpEndpoint.McastTtl &&
+                base.Equals(udpEndpoint);
         }
 
         public override int GetHashCode()
@@ -126,6 +108,7 @@ namespace ZeroC.Ice
 
         public override void IceWritePayload(OutputStream ostr)
         {
+            Debug.Assert(Protocol == Protocol.Ice1);
             base.IceWritePayload(ostr);
             ostr.WriteBool(HasCompressionFlag);
         }
@@ -141,7 +124,7 @@ namespace ZeroC.Ice
             Communicator communicator,
             Protocol protocol,
             string host,
-            int port,
+            ushort port,
             IPAddress? sourceAddress,
             string mcastInterface,
             int mttl,
@@ -155,11 +138,85 @@ namespace ZeroC.Ice
             HasCompressionFlag = compressionFlag;
         }
 
-        internal UdpEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
-            : base(istr, communicator, protocol)
+        // Constructor for ice1 unmarshaling.
+        internal UdpEndpoint(InputStream istr, Communicator communicator)
+            : base(istr, communicator)
         {
             _connect = false;
             HasCompressionFlag = istr.ReadBool();
+        }
+
+        // Constructor for URI parsing and temporarily for ice2 unmarshaling.
+        internal UdpEndpoint(
+            Communicator communicator,
+            Protocol protocol,           // TODO: temporary, should always be ice1
+            string host,
+            ushort port,
+            Dictionary<string, string> options,
+            bool oaEndpoint,
+            string? endpointString) // TODO: switch to non-nullable string
+            : base(communicator, protocol, host, port, options, oaEndpoint, endpointString)
+        {
+            _connect = false; // TODO: what is this connect about?
+            string? value;
+
+            if (protocol == Protocol.Ice1)
+            {
+                if (options.TryGetValue("compress", out value))
+                {
+                    if (value == "true")
+                    {
+                        HasCompressionFlag = true;
+                    }
+                    else if (value != "false")
+                    {
+                        Debug.Assert(endpointString != null); // we're not unmarshaling an ice1 endpoint
+                        throw new FormatException(
+                            $"invalid compress value `{value}' in endpoint `{endpointString}'");
+                    }
+                    options.Remove("compress");
+                }
+            }
+
+            // Parse local options
+            if (endpointString != null) // TODO: temporary, should always be non-null.
+            {
+                if (options.TryGetValue("ttl", out value))
+                {
+                    try
+                    {
+                        McastTtl = int.Parse(value, CultureInfo.InvariantCulture);
+                    }
+                    catch (FormatException ex)
+                    {
+                        throw new FormatException($"invalid ttl value `{value}' in endpoint `{endpointString}'", ex);
+                    }
+
+                    if (McastTtl < 0)
+                    {
+                        throw new FormatException($"ttl value `{value}' out of range in endpoint `{endpointString}'");
+                    }
+                    options.Remove("ttl");
+                }
+
+                if (options.TryGetValue("interface", out value))
+                {
+                    McastInterface = value;
+                    if (McastInterface == "*")
+                    {
+                        if (oaEndpoint)
+                        {
+                            McastInterface = "";
+                        }
+                        else
+                        {
+                            throw new FormatException(
+                                $"`interface=*' is not valid for proxy endpoint `{endpointString}'");
+                        }
+                    }
+                    options.Remove("interface");
+                }
+            }
         }
 
         internal UdpEndpoint(
@@ -239,7 +296,7 @@ namespace ZeroC.Ice
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
-            int port,
+            ushort port,
             bool compressionFlag,
             int timeout) =>
             new UdpEndpoint(Communicator,

@@ -1186,37 +1186,57 @@ namespace ZeroC.Ice
         internal Endpoint ReadEndpoint(Protocol protocol, Communicator communicator)
         {
             var transport = (Transport)ReadShort();
-            (int size, Encoding encoding) = ReadEncapsulationHeader();
-
+            IEndpointFactory? factory = communicator.IceFindEndpointFactory(transport);
             Endpoint endpoint;
-            if (encoding.IsSupported && communicator.IceFindEndpointFactory(transport) is IEndpointFactory factory)
+
+            if (protocol == Protocol.Ice1)
             {
-                Encoding oldEncoding = Encoding;
-                ArraySegment<byte> oldBuffer = _buffer;
-                int oldPos = _pos;
-                int oldMinTotalSeqSize = _minTotalSeqSize;
-                Encoding = encoding;
-                _buffer = _buffer.Slice(_pos, size - 2);
-                _pos = 0;
-                _minTotalSeqSize = 0;
+                (int size, Encoding encoding) = ReadEncapsulationHeader();
 
-                endpoint = factory.Read(this, transport, protocol);
-                CheckEndOfBuffer();
+                if (encoding.IsSupported && factory != null)
+                {
+                    Encoding oldEncoding = Encoding;
+                    ArraySegment<byte> oldBuffer = _buffer;
+                    int oldPos = _pos;
+                    int oldMinTotalSeqSize = _minTotalSeqSize;
+                    Encoding = encoding;
+                    _buffer = _buffer.Slice(_pos, size - 2);
+                    _pos = 0;
+                    _minTotalSeqSize = 0;
+                    endpoint = factory.Read(this, transport);
+                    CheckEndOfBuffer();
 
-                // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
-                // anything unless we succeed.
-                Encoding = oldEncoding;
-                _buffer = oldBuffer;
-                _pos = oldPos + size - 2;
-                _minTotalSeqSize = oldMinTotalSeqSize;
+                    // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
+                    // anything unless we succeed.
+                    Encoding = oldEncoding;
+                    _buffer = oldBuffer;
+                    _pos = oldPos + size - 2;
+                    _minTotalSeqSize = oldMinTotalSeqSize;
+                }
+                else
+                {
+                    endpoint = new OpaqueEndpoint(
+                        _communicator!, transport, encoding, _buffer.Slice(_pos, size - 2).ToArray());
+                    _pos += size - 2;
+                }
             }
             else
             {
-                endpoint = new OpaqueEndpoint(
-                    _communicator!, transport, protocol, encoding, _buffer.Slice(_pos, size - 2).ToArray());
-                _pos += size - 2;
+                string host = ReadString();
+                ushort port = ReadUShort();
+                Dictionary<string, string> options = ReadDictionary(1, 1, IceReaderIntoString, IceReaderIntoString);
+                if (factory != null)
+                {
+                    endpoint = factory.Create(transport, Protocol.Ice2, host, port, options);
+                    // Ignore and drop unknown option(s), if any.
+                    // TODO: should we log these unknown options?
+                    Debug.Assert(options.Count == 0); // TODO: temporary, remove before release!
+                }
+                else
+                {
+                    endpoint = new OpaqueEndpoint(communicator, transport, host, port, options);
+                }
             }
-
             return endpoint;
         }
 

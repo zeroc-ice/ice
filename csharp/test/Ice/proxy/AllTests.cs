@@ -241,7 +241,7 @@ namespace ZeroC.Ice.Test.Proxy
             b1 = IObjectPrx.Parse("test -p ice1 -e 1.0", communicator);
             TestHelper.Assert(b1.ToString()!.Equals("test -t -p ice1 -e 1.0"));
 
-            b1 = IObjectPrx.Parse("test -p 1.0 -e 1.0", communicator);
+            b1 = IObjectPrx.Parse("test -p ice1 -e 1.0", communicator);
             TestHelper.Assert(b1.ToString()!.Equals("test -t -p ice1 -e 1.0"));
 
             b1 = IObjectPrx.Parse("test -p ice2 -e 1.0", communicator);
@@ -1008,24 +1008,24 @@ namespace ZeroC.Ice.Test.Proxy
 
             // Legal TCP endpoint expressed as opaque endpoint
             // Opaque endpoint encoded with 1.1 encoding.
-            var p1 = IObjectPrx.Parse("test -e 1.1 -p ice2:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
+            var p1 = IObjectPrx.Parse("test -e 1.1 -p ice1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==",
                                       communicator);
-            TestHelper.Assert(p1.ToString()!.Equals("test -t -p ice2 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+            TestHelper.Assert(p1.ToString()!.Equals("test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
             if (!(communicator.GetPropertyAsBool("Ice.IPv6") ?? false))
             {
                 // Two legal TCP endpoints expressed as opaque endpoints
-                p1 = IObjectPrx.Parse("test -e 1.1 -p ice2:" + "" +
+                p1 = IObjectPrx.Parse("test -e 1.1 -p ice1:" + "" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:" +
                     "opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==", communicator);
                 TestHelper.Assert(p1.ToString() ==
-                    "test -t -p ice2 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+                    "test -t -p ice1 -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
                 // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
-                p1 = IObjectPrx.Parse("test -e 1.1 -p ice2:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
+                p1 = IObjectPrx.Parse("test -e 1.1 -p ice1:opaque -e 1.1 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.1 -t 99 -v abch",
                                       communicator);
                 TestHelper.Assert(p1.ToString() ==
-                    "test -t -p ice2 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch");
+                    "test -t -p ice1 -e 1.1:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.1 -v abch");
             }
 
             output.WriteLine("ok");

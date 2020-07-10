@@ -1637,23 +1637,40 @@ namespace ZeroC.Ice
 
         internal void WriteEndpoint(Endpoint endpoint)
         {
-            int sizeLength = OldEncoding ? 4 : 2;
-
-            // Encoding does not change at all in this method.
-
             WriteShort((short)endpoint.Transport);
-            if (endpoint is OpaqueEndpoint opaqueEndpoint)
+
+            if (endpoint.Protocol == Protocol.Ice1)
             {
-                // 2 bytes for the encoding value (e.g. 20 for 2.0)
-                WriteEncapsulationHeader(2 + opaqueEndpoint.Bytes.Length, opaqueEndpoint.Encoding, sizeLength);
-                WriteByteSpan(opaqueEndpoint.Bytes.Span); // WriteByteSpan is not encoding-sensitive
+                int sizeLength = OldEncoding ? 4 : 2;
+                if (endpoint is OpaqueEndpoint opaqueEndpoint)
+                {
+                    // 2 bytes for the encoding value (e.g. 20 for 2.0)
+                    WriteEncapsulationHeader(2 + opaqueEndpoint.Bytes.Length, opaqueEndpoint.Encoding, sizeLength);
+                    WriteByteSpan(opaqueEndpoint.Bytes.Span); // WriteByteSpan is not encoding-sensitive
+                }
+                else
+                {
+                    Position startPos = _tail;
+
+                    // We use the protocol's encoding for the encaps. 0 is a placeholder for the size.
+                    WriteEncapsulationHeader(0, Ice1Definitions.Encoding, sizeLength);
+                    var oldEncoding = Encoding;
+                    Encoding = Ice1Definitions.Encoding;
+                    endpoint.IceWritePayload(this);
+                    Encoding = oldEncoding;
+                    RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
+                }
+            }
+            else if (OldEncoding)
+            {
+                throw new InvalidOperationException(
+                    "cannot marshal an endpoint for an ice2 proxy with the 1.1 encoding");
             }
             else
             {
-                Position startPos = _tail;
-                WriteEncapsulationHeader(0, Encoding, sizeLength); // 0 is a placeholder for the size
-                endpoint.IceWritePayload(this);
-                RewriteEncapsulationSize(Distance(startPos) - sizeLength, startPos, sizeLength);
+                WriteString(endpoint.Host);
+                WriteUShort(endpoint.Port);
+                endpoint.WriteOptions(this);
             }
         }
 
