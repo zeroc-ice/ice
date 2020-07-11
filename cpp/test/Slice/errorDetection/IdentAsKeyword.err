@@ -10,8 +10,6 @@ IdentAsKeyword.ice:8: note: interface `INTERFACE' is defined here
 IdentAsKeyword.ice:25: keyword `module' cannot be used as class name
 IdentAsKeyword.ice:25: class definition `module' is capitalized inconsistently with its previous name: `MOdule'
 IdentAsKeyword.ice:24: note: class `MOdule' was originally defined here
-IdentAsKeyword.ice:25: redefinition of data member `l'
-IdentAsKeyword.ice:24: note: data member `l' was originally defined here
 IdentAsKeyword.ice:28: redefinition of class `C'
 IdentAsKeyword.ice:27: note: class `C' was originally defined here
 IdentAsKeyword.ice:28: keyword `extends' cannot be used as data member name
@@ -19,22 +17,18 @@ IdentAsKeyword.ice:29: keyword `extends' cannot be used as data member name
 IdentAsKeyword.ice:31: keyword `Object' cannot be used as interface name
 IdentAsKeyword.ice:32: interface definition `object' is capitalized inconsistently with its previous name: `Object'
 IdentAsKeyword.ice:31: note: interface `Object' was originally defined here
-IdentAsKeyword.ice:32: redefinition of operation `op'
-IdentAsKeyword.ice:31: note: operation `op' was originally defined here
 IdentAsKeyword.ice:33: keyword `long' cannot be used as interface name
 IdentAsKeyword.ice:36: sequence `implements' differs only in capitalization from the sequence named `impLEments'
 IdentAsKeyword.ice:35: note: sequence `impLEments' is defined here
 IdentAsKeyword.ice:36: keyword `implements' cannot be used as sequence name
 IdentAsKeyword.ice:37: keyword `short' cannot be used as sequence name
 IdentAsKeyword.ice:39: syntax error
-IdentAsKeyword.ice:40: class name `moDule' is capitalized inconsistently with its previous name: `::Test::MOdule'
-IdentAsKeyword.ice:40: class name `moDule' is capitalized inconsistently with its previous name: `::Test::module'
+IdentAsKeyword.ice:40: class `moDule' is capitalized inconsistently with its previous name: `::Test::MOdule'
 IdentAsKeyword.ice:42: keyword `throws' cannot be used as dictionary name
 IdentAsKeyword.ice:43: dictionary `thRows' differs only in capitalization from the dictionary named `throws'
 IdentAsKeyword.ice:42: note: dictionary `throws' is defined here
 IdentAsKeyword.ice:46: syntax error
-IdentAsKeyword.ice:47: class name `MODULE' is capitalized inconsistently with its previous name: `::Test::MOdule'
-IdentAsKeyword.ice:47: class name `MODULE' is capitalized inconsistently with its previous name: `::Test::module'
+IdentAsKeyword.ice:47: class `MODULE' is capitalized inconsistently with its previous name: `::Test::MOdule'
 IdentAsKeyword.ice:47: dictionary `d2' uses an illegal key type
 IdentAsKeyword.ice:49: syntax error
 IdentAsKeyword.ice:52: syntax error

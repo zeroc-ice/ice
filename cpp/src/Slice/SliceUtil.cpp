@@ -505,6 +505,7 @@ Slice::checkForRedefinition(const ContainerPtr& container, const string& name, c
             unit->error(type + " `" + name + "' differs only in capitalization from the " + match->kindOf() + " named `"
                         + match->name() + "'");
             unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
+            return false;
         }
         else if (match->kindOf() != type)
         {

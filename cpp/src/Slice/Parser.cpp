@@ -1229,22 +1229,20 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError, boo
     vector<string> errors;
 
     ContainedList matches = _unit->findContents(thisScope() + sc);
-    for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
+    for (const auto& match : matches)
     {
-        if (InterfaceDefPtr::dynamicCast(*p) || ClassDefPtr::dynamicCast(*p))
+        if (InterfaceDefPtr::dynamicCast(match) || ClassDefPtr::dynamicCast(match))
         {
             continue; // Ignore interface and class definitions.
         }
 
-        if (printError && (*p)->scoped() != (thisScope() + sc))
+        if (printError && match->scoped() != (thisScope() + sc))
         {
-            string msg = (*p)->kindOf() + " name `" + scoped;
-            msg += "' is capitalized inconsistently with its previous name: `";
-            msg += (*p)->scoped() + "'";
-            errors.push_back(msg);
+            errors.push_back(match->kindOf() + " `" + scoped
+                             + "' is capitalized inconsistently with its previous name: `" + match->scoped() + "'");
         }
 
-        ExceptionPtr ex = ExceptionPtr::dynamicCast(*p);
+        ExceptionPtr ex = ExceptionPtr::dynamicCast(match);
         if (ex)
         {
             if (printError)
@@ -1257,7 +1255,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError, boo
             return TypeList();
         }
 
-        TypePtr type = TypePtr::dynamicCast(*p);
+        TypePtr type = TypePtr::dynamicCast(match);
         if (!type)
         {
             typeError = true;
@@ -1329,20 +1327,30 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
 
     ContainedList matches = _unit->findContents(thisScope() + sc);
     ContainedList results;
-    for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
+    for (const auto& match : matches)
     {
-        if(InterfaceDefPtr::dynamicCast(*p) || ClassDefPtr::dynamicCast(*p))
+        if(InterfaceDefPtr::dynamicCast(match) || ClassDefPtr::dynamicCast(match))
         {
             continue; // ignore definitions
         }
 
-        results.push_back(*p);
+        results.push_back(match);
 
-        if (printError && (*p)->scoped() != (thisScope() + sc))
+        if (printError && match->scoped() != (thisScope() + sc))
         {
-            string msg = (*p)->kindOf() + " name `" + scoped;
-            msg += "' is capitalized inconsistently with its previous name: `" + (*p)->scoped() + "'";
-            _unit->error(msg);
+            string containerName;
+            if (ContainedPtr container = ContainedPtr::dynamicCast(match->container()))
+            {
+                containerName = "in " + container->kindOf() + " `" + container->scoped() + "'";
+            }
+            else
+            {
+                containerName = "at global scope";
+            }
+
+            _unit->error(match->kindOf() + " `" + scoped + "' is capitalized inconsistently with its previous name: `"
+                         + match->scoped() + "'");
+            _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined " + containerName);
         }
     }
 
@@ -1952,13 +1960,11 @@ Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& bas
                 _unit->error("class definition `" + name
                              + "' is capitalized inconsistently with its previous name: `" + match->name() + "'");
                 _unit->note(match, "class `" + match->name() + "' was originally defined here");
-                break;
             }
             else
             {
                 _unit->error("redefinition of class `" + name + "'");
                 _unit->note(match, "class `" + name + "' was originally defined here");
-                return nullptr;
             }
         }
         else if(differsOnlyInCase)
@@ -1966,7 +1972,6 @@ Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& bas
             _unit->error("class definition `" + name + "' differs only in capitalization from the "
                         + match->kindOf() + " named `" + match->name() + "'");
             _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
-            break;
         }
         else
         {
@@ -1974,8 +1979,8 @@ Slice::Module::createClassDef(const string& name, int id, const ClassDefPtr& bas
             _unit->error("class `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
                         + prependA(match->kindOf()));
             _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
-            return nullptr;
         }
+        return nullptr;
     }
 
     if(!checkIdentifier(name))
@@ -2025,7 +2030,6 @@ Slice::Module::createClassDecl(const string& name)
             _unit->error("class declaration `" + name + "' differs only in capitalization from the " + match->kindOf()
                         + " named `" + match->name() + "'");
             _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
-            break;
         }
         else
         {
@@ -2033,8 +2037,8 @@ Slice::Module::createClassDecl(const string& name)
             _unit->error("class `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
                         + prependA(match->kindOf()));
             _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
-            return nullptr;
         }
+        return nullptr;
     }
 
     if(!checkIdentifier(name))
@@ -2098,13 +2102,11 @@ Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases
                 _unit->error("interface definition `" + name
                              + "' is capitalized inconsistently with its previous name: `" + match->name() + "'");
                 _unit->note(match, "interface `" + match->name() + "' was originally defined here");
-                break;
             }
             else
             {
                 _unit->error("redefinition of interface `" + name + "'");
                 _unit->note(match, "interface `" + name + "' was originally defined here");
-                return nullptr;
             }
         }
         else if (differsOnlyInCase)
@@ -2112,7 +2114,6 @@ Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases
             _unit->error("interface definition `" + name + "' differs only in capitalization from the "
                         + match->kindOf() + " named `" + match->name() + "'");
             _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
-            break;
         }
         else
         {
@@ -2120,8 +2121,8 @@ Slice::Module::createInterfaceDef(const string& name, const InterfaceList& bases
             _unit->error("interface `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
                         + prependA(match->kindOf()));
             _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
-            return nullptr;
         }
+        return nullptr;
     }
 
     if (!checkIdentifier(name))
@@ -2173,7 +2174,6 @@ Slice::Module::createInterfaceDecl(const string& name)
             _unit->error("interface declaration `" + name + "' differs only in capitalization from the "
                         + match->kindOf() + " named `" + match->name() + "'");
             _unit->note(match, match->kindOf() + " `" + match->name() + "' is defined here");
-            break;
         }
         else
         {
@@ -2181,8 +2181,8 @@ Slice::Module::createInterfaceDecl(const string& name)
             _unit->error("interface `" + name + "' was previously " + (declared ? "declared" : "defined") + " as "
                         + prependA(match->kindOf()));
             _unit->note(match, match->kindOf() + " `" + name + "' was originally defined here");
-            return nullptr;
         }
+        return nullptr;
     }
 
     if (!checkIdentifier(name))
@@ -2839,14 +2839,20 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         {
             if (member->name() == name)
             {
-                _unit->error("data member `" + name + "' is already defined as data member in a base class");
+                ClassDefPtr container = ClassDefPtr::dynamicCast(member->container());
+                _unit->error("data member `" + name + "' is already defined in a base class");
+                _unit->note(member, "data member `" + name + "' was originally defined in class `" + container->name()
+                            + "'");
                 return nullptr;
             }
 
             if (ciequals(member->name(), name))
             {
-                _unit->error("data member `" + name + "' differs only in capitalization from data member" + " `"
+                ClassDefPtr container = ClassDefPtr::dynamicCast(member->container());
+                _unit->error("data member `" + name + "' differs only in capitalization from the data member named `"
                              + member->name() + "', which is defined in a base class");
+                _unit->note(member, "data member `" + member->name() + "' is defined in the class `" + container->name()
+                            + "'");
             }
         }
     }
@@ -3368,15 +3374,20 @@ Slice::InterfaceDef::createOperation(const string& name,
         {
             if (operation->name() == name)
             {
-                _unit->error("operation `" + name + "' is already defined as an operation in a base interface");
+                InterfaceDefPtr container = InterfaceDefPtr::dynamicCast(operation->container());
+                _unit->error("operation `" + name + "' is already defined in a base interface");
+                _unit->note(operation, "operation `" + name + "' was originally defined in interface `"
+                            + container->name() + "'");
                 return nullptr;
             }
 
             if (ciequals(operation->name(), name))
             {
-                _unit->error("operation `" + name + "' differs only in capitalization from operation `"
+                InterfaceDefPtr container = InterfaceDefPtr::dynamicCast(operation->container());
+                _unit->error("operation `" + name + "' differs only in capitalization from the operation named `"
                              + operation->name() + "', which is defined in a base interface");
-                return nullptr;
+                _unit->note(operation, "operation `" + operation->name() + "' is defined in the interface `"
+                            + container->name() + "'");
             }
         }
     }
@@ -3622,14 +3633,20 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         {
             if (member->name() == name)
             {
-                _unit->error("exception member `" + name + "' is already defined in a base exception");
+                ExceptionPtr container = ExceptionPtr::dynamicCast(member->container());
+                _unit->error("data member `" + name + "' is already defined in a base exception");
+                _unit->note(member, "data member `" + name + "' was originally defined in exception `"
+                            + container->name() + "'");
                 return nullptr;
             }
 
             if (ciequals(member->name(), name))
             {
-                _unit->error("exception member `" + name + "' differs only in capitalization from exception member `"
+                ExceptionPtr container = ExceptionPtr::dynamicCast(member->container());
+                _unit->error("data member `" + name + "' differs only in capitalization from the data member named `"
                              + member->name() + "', which is defined in a base exception");
+                _unit->note(member, "data member `" + member->name() + "' is defined in the exception `"
+                            + container->name() + "'");
             }
         }
     }
