@@ -12,9 +12,10 @@ using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Describes an endpoint with a transport that the local Ice runtime does not know. The local Ice runtime
-    /// cannot send a request to this endpoint; it can however marshal this endpoint (within a proxy) and send this
-    /// proxy to another application that may know this transport.</summary>
+    /// <summary>Describes an endpoint with a transport that the associated communicator does not know. See also
+    /// <see cref="Communicator.IceAddEndpointFactory"/>. The communicator cannot send a request to this endpoint; it
+    /// can however marshal this endpoint (within a proxy) and send this proxy to another application that may know this
+    /// transport.</summary>
     internal sealed class OpaqueEndpoint : Endpoint
     {
         public override bool HasCompressionFlag => false;
@@ -49,7 +50,7 @@ namespace ZeroC.Ice
         public override ushort Port { get; }
 
         public override Transport Transport { get; }
-        public override string TransportName => "opaque"; // TODO: revisit
+        public override string TransportName => Protocol == Protocol.Ice1 ? "opaque" : base.TransportName;
 
         internal ReadOnlyMemory<byte> Value { get; }
 
