@@ -22,7 +22,7 @@ namespace ZeroC.Ice
             option switch
             {
                 "interface" => McastInterface,
-                "ttl" => McastTtl.ToString(CultureInfo.InvariantCulture),
+                "ttl" => _mcastTtl.ToString(CultureInfo.InvariantCulture),
                 _ => base[option],
             };
 
@@ -31,11 +31,11 @@ namespace ZeroC.Ice
         /// <summary>The local network interface used to send multicast datagrams.</summary>
         internal string McastInterface { get; } = "";
 
-        /// <summary>The time-to-live of the multicast datagrams, in milliseconds.</summary>
-        internal int McastTtl { get; } = -1;
-
         private readonly bool _connect;
         private int _hashCode = 0;
+
+        /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
+        private int _mcastTtl { get; } = -1;
 
         public override bool Equals(Endpoint? other)
         {
@@ -47,7 +47,7 @@ namespace ZeroC.Ice
                 HasCompressionFlag == udpEndpoint.HasCompressionFlag &&
                 _connect == udpEndpoint._connect &&
                 McastInterface == udpEndpoint.McastInterface &&
-                McastTtl == udpEndpoint.McastTtl &&
+                _mcastTtl == udpEndpoint._mcastTtl &&
                 base.Equals(udpEndpoint);
         }
 
@@ -66,7 +66,7 @@ namespace ZeroC.Ice
                 hash.Add(_connect);
                 hash.Add(HasCompressionFlag);
                 hash.Add(McastInterface);
-                hash.Add(McastTtl);
+                hash.Add(_mcastTtl);
                 int hashCode = hash.ToHashCode();
                 if (hashCode == 0) // 0 is not a valid value as it means "not initialized".
                 {
@@ -96,10 +96,10 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (McastTtl != -1)
+            if (_mcastTtl != -1)
             {
                 sb.Append(" --ttl ");
-                sb.Append(McastTtl.ToString(CultureInfo.InvariantCulture));
+                sb.Append(_mcastTtl.ToString(CultureInfo.InvariantCulture));
             }
 
             if (_connect)
@@ -141,7 +141,7 @@ namespace ZeroC.Ice
             : base(communicator, protocol, host, port, sourceAddress)
         {
             McastInterface = mcastInterface;
-            McastTtl = mttl;
+            _mcastTtl = mttl;
             _connect = connect;
             HasCompressionFlag = compressionFlag;
         }
@@ -198,14 +198,14 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    McastTtl = int.Parse(value, CultureInfo.InvariantCulture);
+                    _mcastTtl = int.Parse(value, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {
                     throw new FormatException($"invalid ttl value `{value}' in endpoint `{endpointString}'", ex);
                 }
 
-                if (McastTtl < 0)
+                if (_mcastTtl < 0)
                 {
                     throw new FormatException($"ttl value `{value}' out of range in endpoint `{endpointString}'");
                 }
@@ -269,14 +269,14 @@ namespace ZeroC.Ice
                 }
                 try
                 {
-                    McastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
+                    _mcastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {
                     throw new FormatException($"invalid TTL value `{argument}' in endpoint `{endpointString}'", ex);
                 }
 
-                if (McastTtl < 0)
+                if (_mcastTtl < 0)
                 {
                     throw new FormatException($"TTL value `{argument}' out of range in endpoint `{endpointString}'");
                 }
@@ -304,7 +304,7 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, McastTtl);
+            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, _mcastTtl);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
@@ -317,7 +317,7 @@ namespace ZeroC.Ice
                             port,
                             SourceAddress,
                             McastInterface,
-                            McastTtl,
+                            _mcastTtl,
                             _connect,
                             compressionFlag);
     }

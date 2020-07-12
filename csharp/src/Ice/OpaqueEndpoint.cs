@@ -15,11 +15,8 @@ namespace ZeroC.Ice
     /// <summary>Describes an endpoint with a transport that the local Ice runtime does not know. The local Ice runtime
     /// cannot send a request to this endpoint; it can however marshal this endpoint (within a proxy) and send this
     /// proxy to another application that may know this transport.</summary>
-    public sealed class OpaqueEndpoint : Endpoint
+    internal sealed class OpaqueEndpoint : Endpoint
     {
-        public ReadOnlyMemory<byte> Bytes { get; }
-
-        public Encoding Encoding { get; }
         public override bool HasCompressionFlag => false;
 
         public override string Host { get; } = "";
@@ -28,10 +25,19 @@ namespace ZeroC.Ice
         {
             get
             {
-                if (Protocol != Protocol.Ice1 && option == "options" && Options.Count > 0)
+                if (Protocol == Protocol.Ice1)
+                {
+                    return option switch
+                    {
+                        "bytes" => Bytes.Length > 0 ? System.Convert.ToBase64String(Bytes.Span) : null,
+                        "payload-encoding" => PayloadEncoding.ToString(),
+                        _ => null,
+                    };
+                }
+                else if (option == "options" && _options.Count > 0)
                 {
                     // TODO: need to escape each option
-                    return string.Join(",", Options);
+                    return string.Join(",", _options);
                 }
                 else
                 {
@@ -40,14 +46,19 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>The options of this endpoint. Only applicable to the ice2 protocol.</summary>
-        public IReadOnlyList<string> Options { get; } = Array.Empty<string>();
         public override ushort Port { get; }
 
         public override Transport Transport { get; }
-        public override string TransportName => "opaque"; // TODO: is this always correct?
+        public override string TransportName => "opaque"; // TODO: revisit
+
+        internal ReadOnlyMemory<byte> Bytes { get; }
+
+        internal Encoding PayloadEncoding { get; }
 
         private int _hashCode = 0; // 0 is a special value that means not initialized.
+
+        /// <summary>The options of this endpoint. Only applicable to the ice2 protocol.</summary>
+        private readonly IReadOnlyList<string> _options = Array.Empty<string>();
 
         public override bool Equals(Endpoint? other)
         {
@@ -59,13 +70,13 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice1)
                 {
-                    return Encoding == opaqueEndpoint.Encoding &&
+                    return PayloadEncoding == opaqueEndpoint.PayloadEncoding &&
                         Bytes.Span.SequenceEqual(opaqueEndpoint.Bytes.Span) &&
                         base.Equals(other);
                 }
                 else
                 {
-                    return Options.SequenceEqual(opaqueEndpoint.Options) && base.Equals(other);
+                    return _options.SequenceEqual(opaqueEndpoint._options) && base.Equals(other);
                 }
             }
             else
@@ -85,13 +96,13 @@ namespace ZeroC.Ice
                int hashCode;
                if (Protocol == Protocol.Ice1)
                {
-                    hashCode = HashCode.Combine(base.GetHashCode(), Encoding, Bytes);
+                    hashCode = HashCode.Combine(base.GetHashCode(), PayloadEncoding, Bytes);
                }
                else
                {
                    var hash = new HashCode();
                    hash.Add(base.GetHashCode());
-                   foreach (string option in Options)
+                   foreach (string option in _options)
                    {
                        hash.Add(option);
                    }
@@ -112,7 +123,7 @@ namespace ZeroC.Ice
             sb.Append(((short)Transport).ToString(CultureInfo.InvariantCulture));
 
             sb.Append(" -e ");
-            sb.Append(Encoding.ToString());
+            sb.Append(PayloadEncoding.ToString());
             if (Bytes.Length > 0)
             {
                 sb.Append(" -v ");
@@ -127,11 +138,11 @@ namespace ZeroC.Ice
         {
             string val = System.Convert.ToBase64String(Bytes.Span);
             short transportNum = (short)Transport;
-            return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {Encoding} -v {val}";
+            return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {PayloadEncoding} -v {val}";
         }
 
         protected internal override void WriteOptions(OutputStream ostr) =>
-            ostr.WriteSequence(Options, OutputStream.IceWriterFromString);
+            ostr.WriteSequence(_options, OutputStream.IceWriterFromString);
 
         public override void IceWritePayload(OutputStream ostr)
         {
@@ -203,7 +214,7 @@ namespace ZeroC.Ice
                 }
                 try
                 {
-                    Encoding = Encoding.Parse(argument);
+                    PayloadEncoding = Encoding.Parse(argument);
                 }
                 catch (FormatException ex)
                 {
@@ -214,7 +225,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                Encoding = Encoding.Latest; // TODO: should be the default encoding for this communicator
+                PayloadEncoding = Encoding.V1_1;
             }
 
             if (options.TryGetValue("-v", out argument))
@@ -246,12 +257,12 @@ namespace ZeroC.Ice
         internal OpaqueEndpoint(
             Communicator communicator,
             Transport transport,
-            Encoding encoding,
+            Encoding payloadEncoding,
             byte[] bytes)
             : base(communicator, Protocol.Ice1)
         {
             Transport = transport;
-            Encoding = encoding;
+            PayloadEncoding = payloadEncoding;
             Bytes = bytes;
         }
 
@@ -264,10 +275,10 @@ namespace ZeroC.Ice
             : base(communicator, protocol)
         {
             Transport = transport;
-            Encoding = istr.Encoding;
+            PayloadEncoding = istr.Encoding;
             Host = istr.ReadString();
             Port = istr.ReadUShort();
-            Options = istr.ReadArray(1, InputStream.IceReaderIntoString);
+            _options = istr.ReadArray(1, InputStream.IceReaderIntoString);
         }
 
         // Constructor for URI parsing with ice2 or later.
@@ -283,11 +294,11 @@ namespace ZeroC.Ice
             Transport = transport;
             Host = host;
             Port = port;
-            Encoding = Ice2Definitions.Encoding; // not used
+            PayloadEncoding = Ice2Definitions.Encoding; // not used
 
             if (options.TryGetValue("options", out string? value))
             {
-                Options = value.Split(","); // TODO: proper un-escaping
+                _options = value.Split(","); // TODO: proper un-escaping
                 options.Remove("options");
             }
         }

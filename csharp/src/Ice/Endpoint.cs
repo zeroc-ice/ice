@@ -50,8 +50,8 @@ namespace ZeroC.Ice
                     // Convert ice1 API into options
                     return option switch
                     {
-                        "compress" => HasCompressionFlag ? "true" : "false",
-                        "timeout" => Timeout.ToString(CultureInfo.InvariantCulture),
+                        "compress" => HasCompressionFlag ? "true" : null,
+                        "timeout" => Timeout > -1 ? Timeout.ToString(CultureInfo.InvariantCulture) : null,
                         _ => null,
                     };
                 }
@@ -271,7 +271,7 @@ namespace ZeroC.Ice
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
 
-                if (opaqueEndpoint.Encoding.IsSupported &&
+                if (opaqueEndpoint.PayloadEncoding.IsSupported &&
                     communicator.IceFindEndpointFactory(opaqueEndpoint.Transport) != null)
                 {
                     // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then

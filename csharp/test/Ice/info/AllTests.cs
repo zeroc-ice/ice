@@ -45,16 +45,16 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(udpEndpoint["interface"] == "eth0");
                 TestHelper.Assert(udpEndpoint["ttl"] == "5");
                 TestHelper.Assert(udpEndpoint["source-address"] == "10.10.10.10");
-                TestHelper.Assert(udpEndpoint["timeout"] == "-1");
-                TestHelper.Assert(udpEndpoint["compress"] == "false");
+                TestHelper.Assert(udpEndpoint["timeout"] == null);
+                TestHelper.Assert(udpEndpoint["compress"] == null);
 
                 TestHelper.Assert(!udpEndpoint.IsSecure);
                 TestHelper.Assert(udpEndpoint.IsDatagram);
                 TestHelper.Assert(udpEndpoint.Transport == Transport.UDP);
 
-                OpaqueEndpoint opaqueEndpoint = (OpaqueEndpoint)endps[2];
-                TestHelper.Assert(opaqueEndpoint.Bytes.Length > 0);
-                TestHelper.Assert(opaqueEndpoint.Encoding == new Encoding(1, 8));
+                Endpoint opaqueEndpoint = endps[2];
+                TestHelper.Assert(opaqueEndpoint["bytes"] == "ABCD");
+                TestHelper.Assert(opaqueEndpoint["payload-encoding"] == "1.8");
             }
             output.WriteLine("ok");
 
@@ -135,7 +135,7 @@ namespace ZeroC.Ice.Test.Info
 
                 if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
-                    TestHelper.Assert(tcpEndpoint["compress"] == "false");
+                    TestHelper.Assert(tcpEndpoint["compress"] == null);
                 }
                 else
                 {

@@ -14,11 +14,11 @@ namespace ZeroC.Ice
     {
         public override bool IsSecure => Transport == Transport.WSS;
 
-        public override string? this[string option] => option == "resource" ? Resource : base[option];
+        public override string? this[string option] => option == "resource" ? _resource : base[option];
 
         /// <summary>A URI specifying the resource associated with this endpoint. The value is passed as the target for
         /// GET in the WebSocket upgrade request.</summary>
-        internal string Resource { get; } = "/";
+        private readonly string _resource = "/";
 
         public override bool Equals(Endpoint? other)
         {
@@ -26,24 +26,24 @@ namespace ZeroC.Ice
             {
                 return true;
             }
-            return other is WSEndpoint wsEndpoint && Resource == wsEndpoint.Resource && base.Equals(wsEndpoint);
+            return other is WSEndpoint wsEndpoint && _resource == wsEndpoint._resource && base.Equals(wsEndpoint);
         }
 
         // TODO: why no hashcode caching?
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Resource);
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _resource);
 
         public override string OptionsToString()
         {
             var sb = new StringBuilder(base.OptionsToString());
-            if (Resource != "/")
+            if (_resource != "/")
             {
                 sb.Append(" -r ");
-                bool addQuote = Resource.IndexOf(':') != -1;
+                bool addQuote = _resource.IndexOf(':') != -1;
                 if (addQuote)
                 {
                     sb.Append("\"");
                 }
-                sb.Append(Resource);
+                sb.Append(_resource);
                 if (addQuote)
                 {
                     sb.Append("\"");
@@ -57,10 +57,10 @@ namespace ZeroC.Ice
         protected internal override void WriteOptions(OutputStream ostr)
         {
             Debug.Assert(Protocol != Protocol.Ice1);
-            if (Resource != "/")
+            if (_resource != "/")
             {
                 ostr.WriteSize(1);
-                ostr.WriteString(Resource);
+                ostr.WriteString(_resource);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace ZeroC.Ice
         public override void IceWritePayload(OutputStream ostr)
         {
             base.IceWritePayload(ostr);
-            ostr.WriteString(Resource);
+            ostr.WriteString(_resource);
         }
 
         public override ITransceiver? GetTransceiver() => null;
@@ -94,7 +94,7 @@ namespace ZeroC.Ice
                    sourceAddress,
                    timeout,
                    compressionFlag) =>
-            Resource = resource;
+            _resource = resource;
 
         // Constructor for parsing with the old format.
         // TODO: remove protocol, as it should be ice1-only.
@@ -109,7 +109,7 @@ namespace ZeroC.Ice
         {
             if (options.TryGetValue("-r", out string? argument))
             {
-                Resource = argument ?? throw new FormatException(
+                _resource = argument ?? throw new FormatException(
                         $"no argument provided for -r option in endpoint `{endpointString}'");
 
                 options.Remove("-r");
@@ -122,14 +122,14 @@ namespace ZeroC.Ice
         {
             if (protocol == Protocol.Ice1)
             {
-                Resource = istr.ReadString();
+                _resource = istr.ReadString();
             }
             else
             {
                 int optionCount = istr.ReadSize();
                 if (optionCount > 0)
                 {
-                    Resource = istr.ReadString();
+                    _resource = istr.ReadString();
                     optionCount--;
                     SkipUnknownOptions(istr, optionCount);
                 }
@@ -150,7 +150,7 @@ namespace ZeroC.Ice
         {
             if (options.TryGetValue("resource", out string? value))
             {
-                Resource = value;
+                _resource = value;
                 options.Remove("resource");
             }
         }
@@ -168,7 +168,7 @@ namespace ZeroC.Ice
                            SourceAddress,
                            timeout,
                            compressionFlag,
-                           Resource);
+                           _resource);
 
         internal override ITransceiver CreateTransceiver(StreamSocket socket, string? adapterName)
         {
@@ -179,7 +179,7 @@ namespace ZeroC.Ice
             else
             {
                 return new WSTransceiver(Communicator, base.CreateTransceiver(socket, adapterName),
-                    Host, Resource);
+                    Host, _resource);
             }
         }
     }
