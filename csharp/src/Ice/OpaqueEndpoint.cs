@@ -29,8 +29,8 @@ namespace ZeroC.Ice
                 {
                     return option switch
                     {
-                        "bytes" => Bytes.Length > 0 ? System.Convert.ToBase64String(Bytes.Span) : null,
-                        "payload-encoding" => PayloadEncoding.ToString(),
+                        "value" => Value.Length > 0 ? System.Convert.ToBase64String(Value.Span) : null,
+                        "value-encoding" => ValueEncoding.ToString(),
                         _ => null,
                     };
                 }
@@ -51,9 +51,9 @@ namespace ZeroC.Ice
         public override Transport Transport { get; }
         public override string TransportName => "opaque"; // TODO: revisit
 
-        internal ReadOnlyMemory<byte> Bytes { get; }
+        internal ReadOnlyMemory<byte> Value { get; }
 
-        internal Encoding PayloadEncoding { get; }
+        internal Encoding ValueEncoding { get; }
 
         private int _hashCode = 0; // 0 is a special value that means not initialized.
 
@@ -70,8 +70,8 @@ namespace ZeroC.Ice
             {
                 if (Protocol == Protocol.Ice1)
                 {
-                    return PayloadEncoding == opaqueEndpoint.PayloadEncoding &&
-                        Bytes.Span.SequenceEqual(opaqueEndpoint.Bytes.Span) &&
+                    return ValueEncoding == opaqueEndpoint.ValueEncoding &&
+                        Value.Span.SequenceEqual(opaqueEndpoint.Value.Span) &&
                         base.Equals(other);
                 }
                 else
@@ -96,7 +96,7 @@ namespace ZeroC.Ice
                int hashCode;
                if (Protocol == Protocol.Ice1)
                {
-                    hashCode = HashCode.Combine(base.GetHashCode(), PayloadEncoding, Bytes);
+                    hashCode = HashCode.Combine(base.GetHashCode(), ValueEncoding, Value);
                }
                else
                {
@@ -123,11 +123,11 @@ namespace ZeroC.Ice
             sb.Append(((short)Transport).ToString(CultureInfo.InvariantCulture));
 
             sb.Append(" -e ");
-            sb.Append(PayloadEncoding.ToString());
-            if (Bytes.Length > 0)
+            sb.Append(ValueEncoding.ToString());
+            if (Value.Length > 0)
             {
                 sb.Append(" -v ");
-                sb.Append(System.Convert.ToBase64String(Bytes.Span));
+                sb.Append(System.Convert.ToBase64String(Value.Span));
             }
             return sb.ToString();
         }
@@ -136,9 +136,9 @@ namespace ZeroC.Ice
 
         public override string ToString()
         {
-            string val = System.Convert.ToBase64String(Bytes.Span);
+            string val = System.Convert.ToBase64String(Value.Span);
             short transportNum = (short)Transport;
-            return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {PayloadEncoding} -v {val}";
+            return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {ValueEncoding} -v {val}";
         }
 
         protected internal override void WriteOptions(OutputStream ostr) =>
@@ -214,7 +214,7 @@ namespace ZeroC.Ice
                 }
                 try
                 {
-                    PayloadEncoding = Encoding.Parse(argument);
+                    ValueEncoding = Encoding.Parse(argument);
                 }
                 catch (FormatException ex)
                 {
@@ -225,7 +225,7 @@ namespace ZeroC.Ice
             }
             else
             {
-                PayloadEncoding = Encoding.V1_1;
+                ValueEncoding = Encoding.V1_1;
             }
 
             if (options.TryGetValue("-v", out argument))
@@ -237,7 +237,7 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    Bytes = Convert.FromBase64String(argument);
+                    Value = Convert.FromBase64String(argument);
                 }
                 catch (FormatException ex)
                 {
@@ -262,8 +262,8 @@ namespace ZeroC.Ice
             : base(communicator, Protocol.Ice1)
         {
             Transport = transport;
-            PayloadEncoding = payloadEncoding;
-            Bytes = bytes;
+            ValueEncoding = payloadEncoding;
+            Value = bytes;
         }
 
         // Constructor for ice2 or later unmarshaling
@@ -275,7 +275,7 @@ namespace ZeroC.Ice
             : base(communicator, protocol)
         {
             Transport = transport;
-            PayloadEncoding = istr.Encoding;
+            ValueEncoding = istr.Encoding;
             Host = istr.ReadString();
             Port = istr.ReadUShort();
             _options = istr.ReadArray(1, InputStream.IceReaderIntoString);
@@ -294,7 +294,7 @@ namespace ZeroC.Ice
             Transport = transport;
             Host = host;
             Port = port;
-            PayloadEncoding = Ice2Definitions.Encoding; // not used
+            ValueEncoding = Ice2Definitions.Encoding; // not used
 
             if (options.TryGetValue("options", out string? value))
             {

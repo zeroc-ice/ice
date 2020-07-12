@@ -1645,10 +1645,10 @@ namespace ZeroC.Ice
                 if (endpoint.Protocol == Protocol.Ice1 && endpoint is OpaqueEndpoint opaqueEndpoint)
                 {
                     // 2 bytes for the encoding value (e.g. 20 for 2.0)
-                    WriteEncapsulationHeader(2 + opaqueEndpoint.Bytes.Length,
-                                             opaqueEndpoint.PayloadEncoding,
+                    WriteEncapsulationHeader(2 + opaqueEndpoint.Value.Length,
+                                             opaqueEndpoint.ValueEncoding,
                                              sizeLength);
-                    WriteByteSpan(opaqueEndpoint.Bytes.Span); // WriteByteSpan is not encoding-sensitive
+                    WriteByteSpan(opaqueEndpoint.Value.Span); // WriteByteSpan is not encoding-sensitive
                 }
                 else
                 {

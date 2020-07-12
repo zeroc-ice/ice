@@ -271,7 +271,7 @@ namespace ZeroC.Ice
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
 
-                if (opaqueEndpoint.PayloadEncoding.IsSupported &&
+                if (opaqueEndpoint.ValueEncoding.IsSupported &&
                     communicator.IceFindEndpointFactory(opaqueEndpoint.Transport) != null)
                 {
                     // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
@@ -279,14 +279,14 @@ namespace ZeroC.Ice
                     var bufferList = new List<ArraySegment<byte>>
                     {
                         // 8 = size of short + size of encapsulation header with 1.1 encoding
-                        new byte[8 + opaqueEndpoint.Bytes.Length]
+                        new byte[8 + opaqueEndpoint.Value.Length]
                     };
 
                     var ostr = new OutputStream(Ice1Definitions.Encoding, bufferList);
                     ostr.WriteEndpoint(opaqueEndpoint);
                     OutputStream.Position tail = ostr.Save();
                     Debug.Assert(bufferList.Count == 1);
-                    Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);
+                    Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Value.Length);
 
                     return
                         new InputStream(Ice1Definitions.Encoding, bufferList[0]).ReadEndpoint(protocol, communicator);

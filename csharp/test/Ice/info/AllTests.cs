@@ -53,8 +53,8 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(udpEndpoint.Transport == Transport.UDP);
 
                 Endpoint opaqueEndpoint = endps[2];
-                TestHelper.Assert(opaqueEndpoint["bytes"] == "ABCD");
-                TestHelper.Assert(opaqueEndpoint["payload-encoding"] == "1.8");
+                TestHelper.Assert(opaqueEndpoint["value"] == "ABCD");
+                TestHelper.Assert(opaqueEndpoint["value-encoding"] == "1.8");
             }
             output.WriteLine("ok");
 
