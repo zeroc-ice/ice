@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.AMI
 {
     public class Collocated : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
 
@@ -38,6 +38,6 @@ namespace ZeroC.Ice.Test.AMI
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }
 }

@@ -21,9 +21,7 @@ namespace ZeroC.Ice
     {
         internal string AdapterId { get; }
         internal Communicator Communicator { get; }
-        internal bool? Compress { get; }
         internal string ConnectionId { get; }
-        internal int? ConnectionTimeout { get; }
         internal IReadOnlyDictionary<string, string> Context { get; }
         internal Encoding Encoding { get; }
         internal EndpointSelectionType EndpointSelection { get; }
@@ -102,10 +100,6 @@ namespace ZeroC.Ice
                 {
                     return false;
                 }
-                if (ConnectionTimeout != other.ConnectionTimeout)
-                {
-                    return false;
-                }
                 if (EndpointSelection != other.EndpointSelection)
                 {
                     return false;
@@ -137,10 +131,6 @@ namespace ZeroC.Ice
             }
 
             // Compare common properties
-            if (Compress != other.Compress)
-            {
-                return false;
-            }
             if (!Context.DictionaryEqual(other.Context))
             {
                 return false;
@@ -190,10 +180,6 @@ namespace ZeroC.Ice
                 var hash = new HashCode();
 
                 // common properties
-                if (Compress != null)
-                {
-                    hash.Add(Compress.Value);
-                }
                 hash.Add(Context.GetDictionaryHashCode());
                 hash.Add(Encoding);
                 hash.Add(Facet);
@@ -209,7 +195,6 @@ namespace ZeroC.Ice
                 {
                     hash.Add(AdapterId);
                     hash.Add(ConnectionId);
-                    hash.Add(ConnectionTimeout);
                     foreach (Endpoint e in Endpoints)
                     {
                         hash.Add(e);
@@ -734,9 +719,7 @@ namespace ZeroC.Ice
             : this(adapterId: adapterId,
                    cacheConnection: true,
                    communicator: communicator,
-                   compress: null,
                    connectionId: "",
-                   connectionTimeout: null,
                    context: communicator.DefaultContext,
                    encoding: encoding,
                    endpointSelection: communicator.DefaultEndpointSelection,
@@ -756,7 +739,6 @@ namespace ZeroC.Ice
         // Helper constructor for fixed references. Uses the communicator's defaults.
         internal Reference(Communicator communicator, Connection fixedConnection, Identity identity)
             : this(communicator: communicator,
-                   compress: null,
                    context: communicator.DefaultContext,
                    encoding: communicator.DefaultEncoding,
                    facet: "",
@@ -778,7 +760,7 @@ namespace ZeroC.Ice
             //
             if (sent && !idempotent && !(ex is ObjectNotExistException) && !(ex is ConnectionClosedByPeerException))
             {
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
 
             //
@@ -787,7 +769,7 @@ namespace ZeroC.Ice
             //
             if (IsFixed)
             {
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
 
             if (ex is ObjectNotExistException one)
@@ -830,7 +812,7 @@ namespace ZeroC.Ice
                     //
                     // For all other cases, we don't retry ObjectNotExistException.
                     //
-                    throw ex;
+                    throw ExceptionUtil.Throw(ex);
                 }
             }
 
@@ -840,7 +822,7 @@ namespace ZeroC.Ice
             //
             if (ex is ObjectDisposedException || ex is ConnectionClosedLocallyException)
             {
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
 
             ++cnt;
@@ -862,7 +844,7 @@ namespace ZeroC.Ice
                     Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory,
                         $"cannot retry operation call because retry limit has been exceeded\n{ex}");
                 }
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
             else
             {
@@ -893,9 +875,7 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? compress = null,
                                  string? connectionId = null,
-                                 int? connectionTimeout = null,
                                  IReadOnlyDictionary<string, string>? context = null, // can be provided by app
                                  Encoding? encoding = null,
                                  EndpointSelectionType? endpointSelection = null,
@@ -959,11 +939,6 @@ namespace ZeroC.Ice
                     throw new ArgumentException("cannot change the connection ID of a fixed proxy",
                         nameof(connectionId));
                 }
-                if (connectionTimeout != null)
-                {
-                    throw new ArgumentException("cannot change the connection timeout of a fixed proxy",
-                        nameof(connectionTimeout));
-                }
                 if (endpointSelection != null)
                 {
                     throw new ArgumentException("cannot change the endpoint selection policy of a fixed proxy",
@@ -1008,7 +983,6 @@ namespace ZeroC.Ice
                 }
 
                 var clone = new Reference(Communicator,
-                                          compress ?? Compress,
                                           context?.ToImmutableDictionary() ?? Context,
                                           encoding ?? Encoding,
                                           facet ?? Facet,
@@ -1030,11 +1004,6 @@ namespace ZeroC.Ice
                     throw new ArgumentException($"cannot set both {nameof(router)} and {nameof(clearRouter)}");
                 }
 
-                if (connectionTimeout != null && connectionTimeout.Value < 1 && connectionTimeout.Value != -1)
-                {
-                    throw new ArgumentException($"invalid {nameof(connectionTimeout)}: {connectionTimeout.Value}",
-                        nameof(connectionTimeout));
-                }
                 if (locatorCacheTimeout != null &&
                     locatorCacheTimeout < TimeSpan.Zero && locatorCacheTimeout != Timeout.InfiniteTimeSpan)
                 {
@@ -1079,36 +1048,10 @@ namespace ZeroC.Ice
                     routerInfo = null;
                 }
 
-                // Update/create the newEndpoints if needed
-                if (compress != null || connectionTimeout != null || newEndpoints != null)
-                {
-                    newEndpoints ??= Endpoints;
-                    if (newEndpoints.Count > 0)
-                    {
-                        compress ??= Compress;
-                        connectionTimeout ??= ConnectionTimeout;
-
-                        newEndpoints = newEndpoints.Select(endpoint =>
-                        {
-                            if (compress != null)
-                            {
-                                endpoint = endpoint.NewCompressionFlag(compress.Value);
-                            }
-                            if (connectionTimeout != null)
-                            {
-                                endpoint = endpoint.NewTimeout(connectionTimeout.Value);
-                            }
-                            return endpoint;
-                        }).ToArray();
-                    }
-                }
-
                 var clone = new Reference(adapterId ?? AdapterId,
                                       cacheConnection ?? IsConnectionCached,
                                       Communicator,
-                                      compress ?? Compress,
                                       connectionId ?? ConnectionId,
-                                      connectionTimeout ?? ConnectionTimeout,
                                       context?.ToImmutableDictionary() ?? Context,
                                       encoding ?? Encoding,
                                       endpointSelection ?? EndpointSelection,
@@ -1186,22 +1129,7 @@ namespace ZeroC.Ice
             }
 
             // Apply overrides and filter endpoints
-            IEnumerable<Endpoint> filteredEndpoints = endpoints.Select(endpoint =>
-            {
-                if (Compress != null)
-                {
-                    endpoint = endpoint.NewCompressionFlag(Compress.Value);
-                }
-                if (ConnectionTimeout != null)
-                {
-                    endpoint = endpoint.NewTimeout(ConnectionTimeout.Value);
-                }
-                if (Communicator.OverrideTimeout != null)
-                {
-                    endpoint = endpoint.NewTimeout(Communicator.OverrideTimeout.Value);
-                }
-                return endpoint;
-            }).Where(endpoint =>
+            IEnumerable<Endpoint> filteredEndpoints = endpoints.Where(endpoint =>
             {
                 // Filter out opaque endpoints
                 if (endpoint is OpaqueEndpoint)
@@ -1267,12 +1195,6 @@ namespace ZeroC.Ice
                 {
                     // Get an existing connection or create one if there's no existing connection to one of
                     // the given endpoints.
-                    //
-                    // TODO: The factory uses endpoint equality to lookup for existing connections. To ignore
-                    // the compression flag we only compare endpoints with the flag set to false. It would be
-                    // better to fix endpoint equality or use a custom equality method (we'll also need to do
-                    // the same for timeouts).
-                    endpoints = new List<Endpoint>(endpoints.Select(endpoint => endpoint.NewCompressionFlag(false)));
                     connection = await factory.CreateAsync(endpoints,
                                                            false,
                                                            EndpointSelection,
@@ -1288,11 +1210,7 @@ namespace ZeroC.Ice
                     {
                         try
                         {
-                            // TODO: The factory uses endpoint equality to lookup for existing connections. To ignore
-                            // the compression flag we only compare endpoints with the flag set to false. It would be
-                            // better to fix endpoint equality or use a custom equality method  (we'll also need to do
-                            // the same for timeouts).
-                            connection = await factory.CreateAsync(new Endpoint[] { endpoint.NewCompressionFlag(false) },
+                            connection = await factory.CreateAsync(new Endpoint[] { endpoint },
                                                                    endpoint != lastEndpoint,
                                                                    EndpointSelection,
                                                                    ConnectionId).ConfigureAwait(false);
@@ -1328,12 +1246,10 @@ namespace ZeroC.Ice
                 bool compress = false;
                 if (Protocol == Protocol.Ice1)
                 {
-                    // The connection endpoint is always a non-compressed endpoint. If one of the resolved endpoints
-                    // matches the connection endpoint, we don't use compression. Otherwise, if we don't find the
-                    // matching endpoint, it implies that we got a connection for one the compressed resolved endpoints.
-                    compress = !endpoints.Select(endpoint => connection.Endpoint == endpoint).Any();
-
-                    Debug.Assert(!compress || endpoints.Contains(connection.Endpoint.NewCompressionFlag(true)));
+                    // Use compression if the first matching endpoint uses compression. We make sure to compare
+                    // endpoints with the same timeout value to ignore the timeout.
+                    compress = endpoints.First(endpoint => connection.Endpoints.Exists(connectionEndpoint =>
+                        endpoint.NewTimeout(connectionEndpoint.Timeout).Equals(connectionEndpoint))).HasCompressionFlag;
                 }
                 return new ConnectionRequestHandler(connection, compress);
             }
@@ -1549,9 +1465,7 @@ namespace ZeroC.Ice
             return new Reference(adapterId: adapterId,
                                  cacheConnection: cacheConnection ?? true,
                                  communicator: communicator,
-                                 compress: null,
                                  connectionId: "",
-                                 connectionTimeout: null,
                                  context: context ?? communicator.DefaultContext,
                                  encoding: encoding,
                                  endpointSelection: endpointSelection ?? communicator.DefaultEndpointSelection,
@@ -1572,9 +1486,7 @@ namespace ZeroC.Ice
         private Reference(string adapterId,
                           bool cacheConnection,
                           Communicator communicator,
-                          bool? compress,
                           string connectionId,
-                          int? connectionTimeout,
                           IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
                           Encoding encoding,
                           EndpointSelectionType endpointSelection,
@@ -1591,9 +1503,7 @@ namespace ZeroC.Ice
         {
             AdapterId = adapterId;
             Communicator = communicator;
-            Compress = compress;
             ConnectionId = connectionId;
-            ConnectionTimeout = connectionTimeout;
             Context = context;
             Encoding = encoding;
             EndpointSelection = endpointSelection;
@@ -1612,7 +1522,6 @@ namespace ZeroC.Ice
 
         // Constructor for fixed references.
         private Reference(Communicator communicator,
-                          bool? compress,
                           IReadOnlyDictionary<string, string> context, // already a copy provided by Ice
                           Encoding encoding,
                           string facet,
@@ -1623,9 +1532,7 @@ namespace ZeroC.Ice
         {
             AdapterId = "";
             Communicator = communicator;
-            Compress = compress;
             ConnectionId = "";
-            ConnectionTimeout = null;
             Context = context;
             Encoding = encoding;
             EndpointSelection = EndpointSelectionType.Random;
@@ -1657,8 +1564,7 @@ namespace ZeroC.Ice
             }
 
             _fixedConnection.ThrowException(); // Throw in case our connection is already destroyed.
-            _requestHandler = new ConnectionRequestHandler(_fixedConnection,
-                                                           Communicator.OverrideCompress ?? compress ?? false);
+            _requestHandler = new ConnectionRequestHandler(_fixedConnection, false);
         }
     }
 }

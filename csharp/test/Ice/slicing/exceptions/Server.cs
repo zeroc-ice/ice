@@ -21,6 +21,6 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             await communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

@@ -33,6 +33,6 @@ namespace ZeroC.Ice.Test.Logger
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

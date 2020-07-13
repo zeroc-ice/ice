@@ -3,27 +3,22 @@
 //
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Metrics
 {
     public sealed class Controller : IController
     {
-        public Controller(Func<ObjectAdapter> factory)
-        {
-            _factory = factory;
-            _adapter = factory();
-            _adapter.Activate();
-        }
+        private readonly TaskScheduler _scheduler;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
 
-        public void hold(Current current)
-        {
-            _adapter.Dispose();
-            _adapter = _factory(); // Recreate the adapter without activating it
-        }
+        public Controller(TaskScheduler scheduler) => _scheduler = scheduler;
 
-        public void resume(Current current) => _adapter.Activate();
+        public void hold(Current current) =>
+            _ = Task.Factory.StartNew(() => _semaphore.Wait(), default, TaskCreationOptions.None, _scheduler);
 
-        private readonly Func<ObjectAdapter> _factory;
-        private ObjectAdapter _adapter;
+        public void resume(Current current) => _semaphore.Release();
+
     }
 }

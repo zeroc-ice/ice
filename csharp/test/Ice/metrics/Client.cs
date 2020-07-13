@@ -20,6 +20,7 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.Admin.DelayCreation"] = "1";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Default.Host"] = "127.0.0.1";
+            properties["Ice.ConnectTimeout"] = "500ms";
 
             using var communicator = Initialize(properties, observer: observer);
             IMetricsPrx metrics = AllTests.allTests(this, observer);
@@ -27,6 +28,6 @@ namespace ZeroC.Ice.Test.Metrics
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

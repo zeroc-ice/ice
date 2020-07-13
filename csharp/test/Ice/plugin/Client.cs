@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Plugin
 {
     public class Client : TestHelper
     {
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
 
         public override Task Run(string[] args)
         {

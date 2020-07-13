@@ -1,4 +1,5 @@
 DummyAtGlobalLevel.ice:6: `Foo': an interface can only be defined at module scope
+DummyAtGlobalLevel.ice:6: `Foo': an interface can only be defined at module scope
 DummyAtGlobalLevel.ice:7: `UndefinedException' is not defined
 DummyAtGlobalLevel.ice:8: keyword `class' cannot be used as exception name
 DummyAtGlobalLevel.ice:11: `IntSeq': a sequence can only be defined at module scope

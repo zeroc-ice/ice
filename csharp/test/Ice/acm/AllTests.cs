@@ -558,10 +558,12 @@ namespace ZeroC.Ice.Test.ACM
                                                                     ("OnIdleForceful", "Off")
                                                                 })
                 {
-                    Dictionary<string, string>? properties = proxy.Communicator.GetProperties();
-                    properties["Ice.ACM.Client.Close"] = close;
-                    properties["Ice.ACM.Client.Heartbeat"] = hearbeat;
-                    using var communicator = new Communicator(properties);
+                    using var communicator = new Communicator(
+                        new Dictionary<string, string>(proxy.Communicator.GetProperties())
+                        {
+                            ["Ice.ACM.Client.Close"] = close,
+                            ["Ice.ACM.Client.Heartbeat"] = hearbeat
+                        });
 
                     proxy = ITestIntfPrx.Parse(proxy.ToString()!, communicator);
                     Connection? connection = proxy.GetConnection()!;

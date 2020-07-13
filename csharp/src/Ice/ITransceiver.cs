@@ -154,7 +154,7 @@ namespace ZeroC.Ice
         }
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
-        async ValueTask<bool> ClosingAsync(System.Exception ex)
+        async ValueTask<bool> ClosingAsync(System.Exception ex, CancellationToken cancel)
         {
             bool initiator = !(ex is ConnectionClosedByPeerException);
             int status;
@@ -169,26 +169,27 @@ namespace ZeroC.Ice
                     // If initiator, ReadAsync is already pending
                     return false;
                 }
-                await ReadImplAsync(new ArraySegment<byte>(new byte[Ice1Definitions.HeaderSize]), 0, false).ConfigureAwait(false);
+                await ReadImplAsync(new ArraySegment<byte>(new byte[Ice1Definitions.HeaderSize]),
+                                    0,
+                                    false).WaitAsync(cancel).ConfigureAwait(false);
             }
             else if (status == SocketOperation.Write)
             {
-                await WriteImplAsync(new List<ArraySegment<byte>>(), 0, false).ConfigureAwait(false);
+                await WriteImplAsync(new List<ArraySegment<byte>>(), 0, false).WaitAsync(cancel).ConfigureAwait(false);
             }
             return true;
         }
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
         ValueTask<int> WriteAsync(IList<ArraySegment<byte>> buffer, int offset, CancellationToken cancel = default) =>
-            WriteImplAsync(buffer, offset, true, cancel);
+            WriteImplAsync(buffer, offset, true).WaitAsync(cancel);
 
         // TODO: Benoit: temporary hack, it will be removed with the transport refactoring
         private async ValueTask<int> WriteImplAsync(IList<ArraySegment<byte>> buffer,
                                                     int offset,
-                                                    bool partial,
-                                                    CancellationToken cancel = default)
+                                                    bool partial)
         {
-            return await Write(this, buffer, offset, partial).WaitAsync(cancel).ConfigureAwait(false) - offset;
+            return await Write(this, buffer, offset, partial).ConfigureAwait(false) - offset;
 
             static async Task<int> Write(ITransceiver self, IList<ArraySegment<byte>> buffer, int offset, bool partial)
             {

@@ -39,13 +39,13 @@ private:
 
         ImportVisitor(IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        bool visitClassDefStart(const ClassDefPtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        bool visitStructStart(const StructPtr&) override;
+        bool visitExceptionStart(const ExceptionPtr&) override;
+        void visitSequence(const SequencePtr&) override;
+        void visitDictionary(const DictionaryPtr&) override;
 
         void writeImports();
 
@@ -65,14 +65,14 @@ private:
 
         TypesVisitor(IceUtilInternal::Output&);
 
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
-        virtual void visitEnum(const EnumPtr&);
-        virtual void visitConst(const ConstPtr&);
+        bool visitClassDefStart(const ClassDefPtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        bool visitExceptionStart(const ExceptionPtr&) override;
+        bool visitStructStart(const StructPtr&) override;
+        void visitSequence(const SequencePtr&) override;
+        void visitDictionary(const DictionaryPtr&) override;
+        void visitEnum(const EnumPtr&) override;
+        void visitConst(const ConstPtr&) override;
 
     private:
 
@@ -85,11 +85,11 @@ private:
 
         ProxyVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
 
     private:
 
@@ -104,8 +104,8 @@ private:
 
         ValueVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        bool visitClassDefStart(const ClassDefPtr&) override;
+        void visitClassDefEnd(const ClassDefPtr&) override;
 
     private:
 
@@ -119,11 +119,11 @@ private:
 
         ObjectVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
 
     private:
 
@@ -136,11 +136,11 @@ private:
 
         ObjectExtVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
 
     private:
 

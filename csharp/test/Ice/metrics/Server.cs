@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Metrics
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Admin.Endpoints"] = "tcp";
@@ -23,17 +23,26 @@ namespace ZeroC.Ice.Test.Metrics
             using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
 
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            adapter.Add("metrics", new Metrics());
+            adapter.Activate();
+
+            var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default);
+            var adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(2),
+                taskScheduler: schedulerPair.ExclusiveScheduler);
+            adapter2.Add("metrics", new Metrics());
+            adapter2.Activate();
+
             communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
             ObjectAdapter controllerAdapter = communicator.CreateObjectAdapter("ControllerAdapter");
-            controllerAdapter.Add("controller", new Controller(() => {
-                ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-                adapter.Add("metrics", new Metrics());
-                return adapter;
-            }));
+
+            controllerAdapter.Add("controller", new Controller(schedulerPair.ExclusiveScheduler));
+            controllerAdapter.Activate();
+
             await controllerAdapter.ActivateAsync();
             await communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

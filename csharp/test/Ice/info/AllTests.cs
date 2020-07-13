@@ -33,7 +33,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(tcpEndpoint.Host.Equals("tcphost"));
                 TestHelper.Assert(tcpEndpoint.Port == 10000);
                 TestHelper.Assert(tcpEndpoint.SourceAddress!.ToString().Equals("10.10.10.10"));
-                TestHelper.Assert(tcpEndpoint.Timeout == 1200);
+                TestHelper.Assert(tcpEndpoint.Timeout == TimeSpan.FromMilliseconds(1200));
                 TestHelper.Assert(tcpEndpoint.HasCompressionFlag);
                 TestHelper.Assert(!tcpEndpoint.IsDatagram);
                 TestHelper.Assert((tcpEndpoint.Transport == Transport.TCP && !endpoint.IsSecure) ||
@@ -47,7 +47,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(udpEndpoint.McastInterface.Equals("eth0"));
                 TestHelper.Assert(udpEndpoint.McastTtl == 5);
                 TestHelper.Assert(udpEndpoint.SourceAddress!.ToString().Equals("10.10.10.10"));
-                TestHelper.Assert(udpEndpoint.Timeout == -1);
+                TestHelper.Assert(udpEndpoint.Timeout == System.Threading.Timeout.InfiniteTimeSpan);
                 TestHelper.Assert(!udpEndpoint.HasCompressionFlag);
                 TestHelper.Assert(!udpEndpoint.IsSecure);
                 TestHelper.Assert(udpEndpoint.IsDatagram);
@@ -82,7 +82,7 @@ namespace ZeroC.Ice.Test.Info
 
                 TestHelper.Assert(tcpEndpoint.Host.Equals(host));
                 TestHelper.Assert(tcpEndpoint.Port > 0);
-                TestHelper.Assert(tcpEndpoint.Timeout == 15000);
+                TestHelper.Assert(tcpEndpoint.Timeout == TimeSpan.FromMilliseconds(15000));
 
                 UdpEndpoint udpEndpoint = (UdpEndpoint)endpoints[1];
                 TestHelper.Assert(udpEndpoint.Host.Equals(host));

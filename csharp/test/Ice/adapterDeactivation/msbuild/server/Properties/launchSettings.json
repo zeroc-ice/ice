@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "server": {
+      "commandName": "Project",
+      "commandLineArgs": "--Ice.Default.Host=127.0.0.1 --Ice.Warn.Connections=1 --Ice.IPv6=0 --Ice.Default.Transport=tcp --Ice.PrintAdapterReady=1"
+    }
+  }
+}

@@ -20,6 +20,6 @@ namespace ZeroC.Ice.Test.DictMapping
             await communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);
     }
 }

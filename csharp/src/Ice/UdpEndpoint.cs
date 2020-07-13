@@ -13,7 +13,7 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the UDP transport.</summary>
     public sealed class UdpEndpoint : IPEndpoint
     {
-        // We cannot move HashCompressFlag to IPEndpoint because of the way we marshal it in TcpEndpoint
+        // We cannot move HasCompressionFlag to IPEndpoint because of it's marshaled after the timeout in TcpEndpoint
         public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => true;
 
@@ -23,7 +23,7 @@ namespace ZeroC.Ice
         /// <summary>The time-to-live of the multicast datagrams, in milliseconds.</summary>
         public int McastTtl { get; } = -1;
 
-        public override int Timeout => -1;
+        public override TimeSpan Timeout => System.Threading.Timeout.InfiniteTimeSpan;
         public override Transport Transport => Transport.UDP;
 
         private readonly bool _connect;
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
             ostr.WriteBool(HasCompressionFlag);
         }
 
-        public override Endpoint NewTimeout(int timeout) => this;
+        public override Endpoint NewTimeout(TimeSpan timeout) => this;
 
         public override IAcceptor? GetAcceptor(string adapterName) => null;
 
@@ -234,14 +234,14 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, McastTtl);
+        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
+            new UdpConnector(this, addr);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
             int port,
             bool compressionFlag,
-            int timeout) =>
+            TimeSpan timeout) =>
             new UdpEndpoint(Communicator,
                             Protocol,
                             host,

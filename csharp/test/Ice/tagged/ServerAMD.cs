@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Tagged
 {
     public class ServerAMD : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
@@ -20,6 +20,6 @@ namespace ZeroC.Ice.Test.Tagged
             await communicator.WaitForShutdownAsync();
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);
     }
 }

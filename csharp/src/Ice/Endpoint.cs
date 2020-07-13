@@ -37,8 +37,8 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this endpoint.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
-        public abstract int Timeout { get; }
+        /// <summary>The legacy timeout for the endpoint. This timeout is no longer used since Ice 4.0.</summary>
+        public abstract TimeSpan Timeout { get; }
 
         /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
         public abstract Transport Transport { get; }
@@ -84,7 +84,7 @@ namespace ZeroC.Ice
 
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.
-        public abstract Endpoint NewTimeout(int t);
+        public abstract Endpoint NewTimeout(TimeSpan t);
 
         // Returns a new endpoint with a different compression flag, provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.

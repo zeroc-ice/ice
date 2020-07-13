@@ -23,6 +23,6 @@ namespace ZeroC.Ice.Test.Proxy
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }
 }

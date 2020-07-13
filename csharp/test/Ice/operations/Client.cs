@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.Operations
             myClass.shutdown();
             try
             {
-                myClass.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
+                myClass.IcePing();
                 Assert(false);
             }
             catch (Exception)
@@ -30,6 +30,6 @@ namespace ZeroC.Ice.Test.Operations
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

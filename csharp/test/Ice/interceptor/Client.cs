@@ -171,7 +171,7 @@ namespace ZeroC.Ice.Test.Interceptor
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
 
         private void TestInterceptorExceptions(IMyObjectPrx prx)
         {

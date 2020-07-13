@@ -20,6 +20,6 @@ namespace ZeroC.Ice.Test.SeqMapping
             return Task.CompletedTask;
         }
 
-        public static Task<int> Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }
 }

@@ -98,7 +98,7 @@ private:
 
         UnitVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitUnitStart(const UnitPtr&);
+        bool visitUnitStart(const UnitPtr&) override;
     };
 
     class TypesVisitor : public CsVisitor
@@ -107,18 +107,18 @@ private:
 
         TypesVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitExceptionEnd(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitStructEnd(const StructPtr&);
-        virtual void visitEnum(const EnumPtr&);
-        virtual void visitDataMember(const DataMemberPtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitClassDefStart(const ClassDefPtr&) override;
+        void visitClassDefEnd(const ClassDefPtr&) override;
+        bool visitExceptionStart(const ExceptionPtr&) override;
+        void visitExceptionEnd(const ExceptionPtr&) override;
+        bool visitStructStart(const StructPtr&) override;
+        void visitStructEnd(const StructPtr&) override;
+        void visitEnum(const EnumPtr&) override;
+        void visitDataMember(const DataMemberPtr&) override;
+        void visitSequence(const SequencePtr&) override;
+        void visitDictionary(const DictionaryPtr&) override;
 
     private:
 
@@ -131,11 +131,11 @@ private:
 
         ProxyVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
 
         void writeOutgoingRequestReader(const OperationPtr&);
         void writeOutgoingRequestWriter(const OperationPtr&);
@@ -147,11 +147,11 @@ private:
 
         DispatcherVisitor(::IceUtilInternal::Output&, bool);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
 
     protected:
 
@@ -169,11 +169,11 @@ private:
 
         ImplVisitor(::IceUtilInternal::Output&);
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) override;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) override;
+        void visitOperation(const OperationPtr&) override;
     };
 
     class ClassFactoryVisitor : public CsVisitor
@@ -181,9 +181,9 @@ private:
     public:
 
         ClassFactoryVisitor(IceUtilInternal::Output&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitClassDefStart(const ClassDefPtr&) override;
     };
 
     class CompactIdVisitor : public CsVisitor
@@ -191,9 +191,9 @@ private:
     public:
 
         CompactIdVisitor(IceUtilInternal::Output&);
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
+        bool visitUnitStart(const UnitPtr&) override;
+        void visitUnitEnd(const UnitPtr&) override;
+        bool visitClassDefStart(const ClassDefPtr&) override;
     };
 
     class RemoteExceptionFactoryVisitor : public CsVisitor
@@ -201,9 +201,9 @@ private:
     public:
 
         RemoteExceptionFactoryVisitor(IceUtilInternal::Output&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
+        bool visitModuleStart(const ModulePtr&) override;
+        void visitModuleEnd(const ModulePtr&) override;
+        bool visitExceptionStart(const ExceptionPtr&) override;
     };
 };
 

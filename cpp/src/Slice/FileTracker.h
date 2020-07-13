@@ -16,10 +16,10 @@ class FileException : public ::IceUtil::Exception
 public:
 
     FileException(const char*, int, const std::string&);
-    virtual std::string ice_id() const;
-    virtual void ice_print(std::ostream&) const;
-    virtual FileException* ice_cloneImpl() const;
-    virtual void ice_throw() const;
+    std::string ice_id() const override;
+    void ice_print(std::ostream&) const override;
+    FileException* ice_cloneImpl() const override;
+    void ice_throw() const override;
 
     std::string reason() const;
 

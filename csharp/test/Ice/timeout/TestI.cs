@@ -43,29 +43,22 @@ namespace ZeroC.Ice.Test.Timeout
 
     internal class Controller : IController
     {
-        public Controller(Communicator communicator)
-        {
-            _adapter = communicator.CreateObjectAdapter("TestAdapter", serializeDispatch: true);
-            _adapter.Add("timeout", new Timeout());
-            _adapter.Activate();
-        }
+        private readonly TaskScheduler _scheduler;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
+
+        public Controller(TaskScheduler scheduler) => _scheduler = scheduler;
 
         public void holdAdapter(int to, Current current)
         {
-            _adapter.Dispose();
-            _adapter = _adapter.Communicator.CreateObjectAdapter("TestAdapter", serializeDispatch: true);
-            _adapter.Add("timeout", new Timeout());
-
+            Task.Factory.StartNew(() => _semaphore.Wait(), default, TaskCreationOptions.None, _scheduler);
             if (to >= 0)
             {
-                Task.Delay(1000).ContinueWith(t => _adapter.Activate());
+                Task.Delay(to).ContinueWith(t => _semaphore.Release());
             }
         }
 
-        public void resumeAdapter(Current current) => _adapter.Activate();
+        public void resumeAdapter(Current current) => _ = _semaphore.Release();
 
         public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
-
-        private ObjectAdapter _adapter;
     }
 }
