@@ -24,9 +24,7 @@ namespace ZeroC.Ice
 
     public delegate T ProxyFactory<T>(Reference reference) where T : IObjectPrx;
 
-    /// <summary>
-    /// Base interface of all object proxies.
-    /// </summary>
+    /// <summary>Base interface of all object proxies.</summary>
     public interface IObjectPrx : IEquatable<IObjectPrx>
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -51,18 +49,12 @@ namespace ZeroC.Ice
         protected IObjectPrx IceClone(Reference reference) => new ObjectPrx(reference);
         internal IObjectPrx Clone(Reference reference) => IceClone(reference);
 
-        /// <summary>
-        /// Returns the communicator that created this proxy.
-        /// </summary>
+        /// <summary>Returns the communicator that created this proxy.</summary>
         /// <returns>The communicator that created this proxy.</returns>
         public Communicator Communicator => IceReference.Communicator;
 
-        /// <summary>
-        /// Convert a proxy to a set of proxy properties.
-        /// </summary>
-        /// <param name="property">
-        /// The base property name.
-        /// </param>
+        /// <summary>Convert a proxy to a set of proxy properties.</summary>
+        /// <param name="property">The base property name.</param>
         /// <returns>The property set.</returns>
         public Dictionary<string, string> ToProperty(string property) => IceReference.ToProperty(property);
 
@@ -73,9 +65,7 @@ namespace ZeroC.Ice
         public bool IceIsA(string id, IReadOnlyDictionary<string, string>? context = null) =>
             IceI_IsARequest.Invoke(this, id, context);
 
-        /// <summary>
-        /// Tests whether this object supports a specific Slice interface.
-        /// </summary>
+        /// <summary>Tests whether this object supports a specific Slice interface.</summary>
         /// <param name="id">The type ID of the Slice interface to test against.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="progress">Sent progress provider.</param>
@@ -87,16 +77,12 @@ namespace ZeroC.Ice
                                       CancellationToken cancel = default) =>
             IceI_IsARequest.InvokeAsync(this, id, context, progress, cancel);
 
-        /// <summary>
-        /// Tests whether the target object of this proxy can be reached.
-        /// </summary>
+        /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         public void IcePing(IReadOnlyDictionary<string, string>? context = null) =>
             IceI_PingRequest.Invoke(this, context);
 
-        /// <summary>
-        /// Tests whether the target object of this proxy can be reached.
-        /// </summary>
+        /// <summary>Tests whether the target object of this proxy can be reached.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
@@ -106,17 +92,14 @@ namespace ZeroC.Ice
                                  CancellationToken cancel = default) =>
             IceI_PingRequest.InvokeAsync(this, context, progress, cancel);
 
-        /// <summary>
-        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
-        /// </summary>
+        /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
         /// order. The first element of the returned array is always ::Ice::IObject.</returns>
         public string[] IceIds(IReadOnlyDictionary<string, string>? context = null) =>
             IceI_IdsRequest.Invoke(this, context);
 
-        /// <summary>
-        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// <summary>Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
         /// </summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="progress">Sent progress provider.</param>
@@ -127,16 +110,14 @@ namespace ZeroC.Ice
                                           CancellationToken cancel = default) =>
             IceI_IdsRequest.InvokeAsync(this, context, progress, cancel);
 
-        /// <summary>
-        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
-        /// </summary>
+        /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
+        /// proxy.</summary>
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         public string IceId(IReadOnlyDictionary<string, string>? context = null) =>
             IceI_IdRequest.Invoke(this, context);
 
-        /// <summary>
-        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
-        /// </summary>
+        /// <summary>Returns the Slice type ID of the most-derived interface supported by the target object of this
+        /// proxy.</summary>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <param name="progress">Sent progress provider.</param>
         /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
@@ -149,7 +130,8 @@ namespace ZeroC.Ice
         /// <summary>The identity of the target Ice object.</summary>
         public Identity Identity => IceReference.Identity;
 
-        /// <summary>The context of this proxy, which will be sent with each invocation made using this proxy.</summary>
+        /// <summary>The context of this proxy, which will be sent with each invocation made using this proxy.
+        /// </summary>
         public IReadOnlyDictionary<string, string> Context => IceReference.Context;
 
         /// <summary>The facet to use on the target Ice object. The empty string corresponds to the default facet.
@@ -206,17 +188,6 @@ namespace ZeroC.Ice
 
         /// <summary>The invocation mode of this proxy. </summary>
         public InvocationMode InvocationMode => IceReference.InvocationMode;
-
-        /// <summary>The compression override setting of this proxy.</summary>
-        /// <value>When null, no override is set and the compress setting of the endpoint(s) is used. When true,
-        /// override the compress setting of all endpoints to enable compression. When false, override the compress
-        /// setting of all endpoint to disable compression.</value>
-        public bool? Compress => IceReference.Compress;
-
-        /// <summary>The connection timeout override setting of this proxy, in milliseconds.</summary>
-        /// <value>When null, no override is set and the timeout setting of the endpoint(s) is used. When non-null,
-        /// overrides the timeout setting of all endpoints.</value>
-        public int? ConnectionTimeout => IceReference.ConnectionTimeout;
 
         /// <summary>The connection ID of this proxy.</summary>
         public string ConnectionId => IceReference.ConnectionId;

@@ -212,7 +212,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
             output.Flush();
             try
             {
-                obj.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
+                obj.IcePing();
                 TestHelper.Assert(false);
             }
             catch (Exception)

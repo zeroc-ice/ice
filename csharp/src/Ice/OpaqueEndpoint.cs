@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -151,10 +152,10 @@ namespace ZeroC.Ice
             throw new NotImplementedException("cannot write the payload for an opaque endpoint");
         }
 
-        public override Endpoint NewTimeout(int t) => this;
+        public override Endpoint NewTimeout(TimeSpan t) => this;
         public override Endpoint NewCompressionFlag(bool compress) => this;
 
-        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endSel) =>
+        public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>
             new ValueTask<IEnumerable<IConnector>>(new List<IConnector>());
 
         public override IEnumerable<Endpoint> ExpandHost(out Endpoint? publishedEndpoint)

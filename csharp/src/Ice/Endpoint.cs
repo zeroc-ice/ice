@@ -51,7 +51,8 @@ namespace ZeroC.Ice
                     return option switch
                     {
                         "compress" => HasCompressionFlag ? "true" : null,
-                        "timeout" => Timeout > -1 ? Timeout.ToString(CultureInfo.InvariantCulture) : null,
+                        "timeout" => Timeout != DefaultTimeout ?
+                            Timeout.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) : null,
                         _ => null,
                     };
                 }
@@ -68,15 +69,16 @@ namespace ZeroC.Ice
         /// <summary>The Ice protocol of this endpoint.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout. Applies
-        /// only to ice1.</summary>
-        public virtual int Timeout => -1;
+        /// <summary>The legacy timeout for the endpoint. This timeout is no longer used since Ice 4.0.</summary>
+        public virtual TimeSpan Timeout => DefaultTimeout;
 
         /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
         public abstract Transport Transport { get; }
 
         /// <summary>The name of the endpoint's transport in lowercase.</summary>
         public virtual string TransportName => Transport.ToString().ToLowerInvariant();
+
+        protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {
@@ -142,7 +144,7 @@ namespace ZeroC.Ice
 
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.
-        public abstract Endpoint NewTimeout(int t);
+        public abstract Endpoint NewTimeout(TimeSpan t);
 
         // Returns a new endpoint with a different compression flag, provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.

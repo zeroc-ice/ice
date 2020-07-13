@@ -322,7 +322,9 @@ generated from the section label.
         <property name="ChangeUser" />
         <property name="ClassGraphDepthMax" />
         <property name="ClientAccessPolicyProtocol" />
+        <property name="CloseTimeout" />
         <property name="Compression.Level" />
+        <property name="ConnectTimeout" />
         <property name="CollectObjects"/>
         <property name="Config" />
         <property name="ConsoleListener" />
@@ -343,6 +345,7 @@ generated from the section label.
         <property name="Default.Router" class="proxy" />
         <property name="Default.SlicedFormat" />
         <property name="Default.SourceAddress" />
+        <!-- TODO: remove Default.Timeout -->
         <property name="Default.Timeout" />
         <!-- TODO: do we really need a default transport? -->
         <property name="Default.Transport" />
@@ -360,11 +363,11 @@ generated from the section label.
         <property name="MessageSizeMax" />
         <property name="Nohup" />
         <property name="NullHandleAbort" />
+        <!-- TODO: remove Override.* properties -->
         <property name="Override.CloseTimeout" />
         <property name="Override.Compress" />
         <property name="Override.ConnectTimeout" />
         <property name="Override.Timeout" />
-        <!-- TODO: remove Override.Secure -->
         <property name="Override.Secure" />
         <property name="Package.[any]" />
         <property name="Plugin.[any]" />

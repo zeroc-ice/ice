@@ -14,7 +14,7 @@ namespace ZeroC.Ice
     /// <summary>The Endpoint class for the UDP transport.</summary>
     internal sealed class UdpEndpoint : IPEndpoint
     {
-        // We cannot move HashCompressFlag to IPEndpoint because of the way we marshal it in TcpEndpoint
+        // We cannot move HasCompressionFlag to IPEndpoint because of it's marshaled after the timeout in TcpEndpoint
         public override bool HasCompressionFlag { get; }
         public override bool IsDatagram => true;
 
@@ -22,7 +22,7 @@ namespace ZeroC.Ice
             option switch
             {
                 "interface" => McastInterface,
-                "ttl" => _mcastTtl.ToString(CultureInfo.InvariantCulture),
+                "ttl" => McastTtl.ToString(CultureInfo.InvariantCulture),
                 _ => base[option],
             };
 
@@ -31,11 +31,11 @@ namespace ZeroC.Ice
         /// <summary>The local network interface used to send multicast datagrams.</summary>
         internal string McastInterface { get; } = "";
 
+        /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
+        internal int McastTtl { get; } = -1;
+
         private readonly bool _connect;
         private int _hashCode = 0;
-
-        /// <summary>The time-to-live of the multicast datagrams, in hops.</summary>
-        private int _mcastTtl { get; } = -1;
 
         public override bool Equals(Endpoint? other)
         {
@@ -47,7 +47,7 @@ namespace ZeroC.Ice
                 HasCompressionFlag == udpEndpoint.HasCompressionFlag &&
                 _connect == udpEndpoint._connect &&
                 McastInterface == udpEndpoint.McastInterface &&
-                _mcastTtl == udpEndpoint._mcastTtl &&
+                McastTtl == udpEndpoint.McastTtl &&
                 base.Equals(udpEndpoint);
         }
 
@@ -66,7 +66,7 @@ namespace ZeroC.Ice
                 hash.Add(_connect);
                 hash.Add(HasCompressionFlag);
                 hash.Add(McastInterface);
-                hash.Add(_mcastTtl);
+                hash.Add(McastTtl);
                 int hashCode = hash.ToHashCode();
                 if (hashCode == 0) // 0 is not a valid value as it means "not initialized".
                 {
@@ -96,10 +96,10 @@ namespace ZeroC.Ice
                 }
             }
 
-            if (_mcastTtl != -1)
+            if (McastTtl != -1)
             {
                 sb.Append(" --ttl ");
-                sb.Append(_mcastTtl.ToString(CultureInfo.InvariantCulture));
+                sb.Append(McastTtl.ToString(CultureInfo.InvariantCulture));
             }
 
             if (_connect)
@@ -121,7 +121,7 @@ namespace ZeroC.Ice
             ostr.WriteBool(HasCompressionFlag);
         }
 
-        public override Endpoint NewTimeout(int timeout) => this;
+        public override Endpoint NewTimeout(TimeSpan timeout) => this;
 
         public override IAcceptor? GetAcceptor(string adapterName) => null;
 
@@ -141,7 +141,7 @@ namespace ZeroC.Ice
             : base(communicator, protocol, host, port, sourceAddress)
         {
             McastInterface = mcastInterface;
-            _mcastTtl = mttl;
+            McastTtl = mttl;
             _connect = connect;
             HasCompressionFlag = compressionFlag;
         }
@@ -198,14 +198,14 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    _mcastTtl = int.Parse(value, CultureInfo.InvariantCulture);
+                    McastTtl = int.Parse(value, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {
                     throw new FormatException($"invalid ttl value `{value}' in endpoint `{endpointString}'", ex);
                 }
 
-                if (_mcastTtl < 0)
+                if (McastTtl < 0)
                 {
                     throw new FormatException($"ttl value `{value}' out of range in endpoint `{endpointString}'");
                 }
@@ -269,14 +269,14 @@ namespace ZeroC.Ice
                 }
                 try
                 {
-                    _mcastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
+                    McastTtl = int.Parse(argument, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {
                     throw new FormatException($"invalid TTL value `{argument}' in endpoint `{endpointString}'", ex);
                 }
 
-                if (_mcastTtl < 0)
+                if (McastTtl < 0)
                 {
                     throw new FormatException($"TTL value `{argument}' out of range in endpoint `{endpointString}'");
                 }
@@ -303,21 +303,21 @@ namespace ZeroC.Ice
             }
         }
 
-        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new UdpConnector(Communicator, addr, SourceAddress, McastInterface, _mcastTtl);
+        private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? _) =>
+            new UdpConnector(this, addr);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
             ushort port,
             bool compressionFlag,
-            int timeout) =>
+            TimeSpan timeout) =>
             new UdpEndpoint(Communicator,
                             Protocol,
                             host,
                             port,
                             SourceAddress,
                             McastInterface,
-                            _mcastTtl,
+                            McastTtl,
                             _connect,
                             compressionFlag);
     }

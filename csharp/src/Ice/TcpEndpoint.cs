@@ -17,7 +17,7 @@ namespace ZeroC.Ice
         public override bool HasCompressionFlag { get; } = false;
         public override bool IsDatagram => false;
         public override bool IsSecure => Transport == Transport.SSL;
-        public override int Timeout { get; } = -1;
+        public override TimeSpan Timeout { get; } = DefaultTimeout;
         public override Transport Transport { get; }
 
         private int _hashCode = 0;
@@ -76,14 +76,14 @@ namespace ZeroC.Ice
             if (Protocol == Protocol.Ice1) // TODO: temporary, Protocol should always be ice1
             {
                 var sb = new StringBuilder(base.OptionsToString());
-                if (Timeout == -1)
+                if (Timeout == System.Threading.Timeout.InfiniteTimeSpan)
                 {
                     sb.Append(" -t infinite");
                 }
                 else
                 {
                     sb.Append(" -t ");
-                    sb.Append(Timeout.ToString(CultureInfo.InvariantCulture));
+                    sb.Append(Timeout.TotalMilliseconds);
                 }
 
                 if (HasCompressionFlag)
@@ -102,11 +102,11 @@ namespace ZeroC.Ice
         {
             Debug.Assert(Protocol == Protocol.Ice1);
             base.IceWritePayload(ostr);
-            ostr.WriteInt(Timeout);
+            ostr.WriteInt((int)Timeout.TotalMilliseconds);
             ostr.WriteBool(HasCompressionFlag);
         }
 
-        public override Endpoint NewTimeout(int timeout) =>
+        public override Endpoint NewTimeout(TimeSpan timeout) =>
             timeout == Timeout ? this : CreateIPEndpoint(Host, Port, HasCompressionFlag, timeout);
 
         public override IAcceptor GetAcceptor(string adapterName) =>
@@ -120,7 +120,7 @@ namespace ZeroC.Ice
             string host,
             ushort port,
             IPAddress? sourceAddress,
-            int timeout,
+            TimeSpan timeout,
             bool compressionFlag)
             : base(communicator, protocol, host, port, sourceAddress)
         {
@@ -141,7 +141,7 @@ namespace ZeroC.Ice
             Transport = transport;
             if (protocol == Protocol.Ice1)
             {
-                Timeout = istr.ReadInt();
+                Timeout = TimeSpan.FromMilliseconds(istr.ReadInt());
                 HasCompressionFlag = istr.ReadBool();
             }
             else if (mostDerived)
@@ -183,12 +183,20 @@ namespace ZeroC.Ice
                 {
                     if (value == "infinite")
                     {
-                        Timeout = -1;
+                        Timeout = System.Threading.Timeout.InfiniteTimeSpan;
                     }
                     else
                     {
-                        Timeout = int.Parse(value, CultureInfo.InvariantCulture);
-                        if (Timeout < -1)
+                        try
+                        {
+                            Timeout = TimeSpan.FromMilliseconds(int.Parse(value, CultureInfo.InvariantCulture));
+                        }
+                        catch (FormatException ex)
+                        {
+                            throw new FormatException(
+                                $"invalid timeout value `{value}' in endpoint `{endpointString}'", ex);
+                        }
+                        if (Timeout <= TimeSpan.Zero)
                         {
                             throw new FormatException(
                                 $"invalid timeout value `{value}' in endpoint `{endpointString}'");
@@ -216,29 +224,25 @@ namespace ZeroC.Ice
                 }
                 if (argument == "infinite")
                 {
-                    Timeout = -1;
+                    Timeout = System.Threading.Timeout.InfiniteTimeSpan;
                 }
                 else
                 {
                     try
                     {
-                        Timeout = int.Parse(argument, CultureInfo.InvariantCulture);
+                        Timeout = TimeSpan.FromMilliseconds(int.Parse(argument, CultureInfo.InvariantCulture));
                     }
                     catch (FormatException ex)
                     {
                         throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'",
                              ex);
                     }
-                    if (Timeout < -1)
+                    if (Timeout <= TimeSpan.Zero)
                     {
                         throw new FormatException($"invalid timeout value `{argument}' in endpoint `{endpointString}'");
                     }
                 }
                 options.Remove("-t");
-            }
-            else
-            {
-                Timeout = Communicator.DefaultTimeout;
             }
 
             if (options.TryGetValue("-z", out argument))
@@ -254,18 +258,13 @@ namespace ZeroC.Ice
         }
 
         private protected override IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy) =>
-            new TcpConnector(this,
-                             Communicator,
-                             addr,
-                             proxy,
-                             SourceAddress,
-                             Timeout);
+            new TcpConnector(this, addr, proxy);
 
         private protected override IPEndpoint CreateIPEndpoint(
             string host,
             ushort port,
             bool compressionFlag,
-            int timeout) =>
+            TimeSpan timeout) =>
             new TcpEndpoint(Communicator,
                             Transport,
                             Protocol,

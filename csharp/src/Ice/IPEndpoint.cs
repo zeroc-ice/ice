@@ -23,7 +23,7 @@ namespace ZeroC.Ice
         public override ushort Port { get; }
 
         /// <summary>The source address of this IP endpoint.</summary>
-        private protected IPAddress? SourceAddress { get; }
+        internal IPAddress? SourceAddress { get; }
 
         public override bool Equals(Endpoint? other) =>
             other is IPEndpoint ipEndpoint &&
@@ -113,8 +113,7 @@ namespace ZeroC.Ice
         public override Endpoint NewCompressionFlag(bool compressionFlag) =>
             compressionFlag == HasCompressionFlag ? this : CreateIPEndpoint(Host, Port, compressionFlag, Timeout);
 
-        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(
-            EndpointSelectionType endptSelection)
+        public override async ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType endptSelection)
         {
             Instrumentation.IObserver? observer = Communicator.Observer?.GetEndpointLookupObserver(this);
             observer?.Attach();
@@ -131,9 +130,12 @@ namespace ZeroC.Ice
                     }
                 }
 
-                IEnumerable<IPEndPoint> addrs = await Network.GetAddressesForClientEndpointAsync(Host, Port, ipVersion,
-                    endptSelection, Communicator.PreferIPv6).ConfigureAwait(false);
-
+                IEnumerable<IPEndPoint> addrs =
+                    await Network.GetAddressesForClientEndpointAsync(Host,
+                                                                     Port,
+                                                                     ipVersion,
+                                                                     endptSelection,
+                                                                     Communicator.PreferIPv6).ConfigureAwait(false);
                 return addrs.Select(item => CreateConnector(item, networkProxy));
             }
             catch (Exception ex)
@@ -331,6 +333,10 @@ namespace ZeroC.Ice
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
         // TODO: rename to Clone and make parameters optional?
-        private protected abstract IPEndpoint CreateIPEndpoint(string host, ushort port, bool compressionFlag, int timeout);
+        private protected abstract IPEndpoint CreateIPEndpoint(
+            string host,
+            ushort port,
+            bool compressionFlag,
+            TimeSpan timeout);
     }
 }

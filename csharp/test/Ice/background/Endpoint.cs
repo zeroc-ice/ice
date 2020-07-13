@@ -21,8 +21,7 @@ namespace ZeroC.Ice.Test.Background
         public override bool IsSecure => _endpoint.IsSecure;
 
         public override ushort Port => _endpoint.Port;
-
-        public override int Timeout => _endpoint.Timeout;
+        public override TimeSpan Timeout => _endpoint.Timeout;
         public override Transport Transport => (Transport)(TransportBase + (short)_endpoint.Transport);
 
         internal const short TransportBase = 100;
@@ -82,7 +81,7 @@ namespace ZeroC.Ice.Test.Background
             }
         }
 
-        public override ZeroC.Ice.Endpoint NewTimeout(int timeout)
+        public override ZeroC.Ice.Endpoint NewTimeout(TimeSpan timeout)
         {
             var endpoint = _endpoint.NewTimeout(timeout);
             if (endpoint == _endpoint)

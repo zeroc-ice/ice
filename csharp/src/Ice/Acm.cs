@@ -168,9 +168,7 @@ namespace ZeroC.Ice
     {
         public Acm Acm { get; }
 
-        private Connection? _connection;
         private readonly ILogger _logger;
-        private readonly object _mutex = new object();
         private readonly ConnectionFactoryAcmMonitor _parent;
         private Timer? _timer;
 
@@ -183,55 +181,23 @@ namespace ZeroC.Ice
 
         public void Add(Connection connection)
         {
-            lock (_mutex)
+            _timer = new Timer(_ =>
             {
-                Debug.Assert(_connection == null);
-                _connection = connection;
-                if (Acm.Timeout != TimeSpan.Zero && Acm.Timeout != Timeout.InfiniteTimeSpan)
+                try
                 {
-                    _timer = new Timer(RunTimerTask, this, Acm.Timeout, Acm.Timeout);
+                    connection!.Monitor(Time.Elapsed, Acm);
                 }
-            }
+                catch (Exception ex)
+                {
+                    _logger.Error($"exception in connection monitor:\n{ex}");
+                }
+            }, null, Acm.Timeout, Acm.Timeout);
         }
 
         public IAcmMonitor Create(Acm acm) => _parent.Create(acm);
 
         public void Reap(Connection connection) => _parent.Reap(connection);
 
-        public void Remove(Connection connection)
-        {
-            lock (_mutex)
-            {
-                Debug.Assert(_connection == connection);
-                _connection = null;
-                if (_timer != null)
-                {
-                    _timer.Dispose();
-                    _timer = null;
-                }
-            }
-        }
-
-        private void RunTimerTask(object? state)
-        {
-            Connection connection;
-            lock (_mutex)
-            {
-                if (_connection == null)
-                {
-                    return;
-                }
-                connection = _connection;
-            }
-
-            try
-            {
-                connection.Monitor(Time.Elapsed, Acm);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"exception in connection monitor:\n{ex}");
-            }
-        }
+        public void Remove(Connection _) => _timer!.Dispose();
     }
 }

@@ -26,9 +26,7 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="compress">Determines whether or not the clone compresses requests (optional).</param>
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
-        /// <param name="connectionTimeout">The connection timeout of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
         /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
@@ -54,9 +52,7 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? compress = null,
                                  string? connectionId = null,
-                                 int? connectionTimeout = null,
                                  IReadOnlyDictionary<string, string>? context = null,
                                  Encoding? encoding = null,
                                  EndpointSelectionType? endpointSelection = null,
@@ -76,9 +72,7 @@ namespace ZeroC.Ice
                                                   cacheConnection,
                                                   clearLocator,
                                                   clearRouter,
-                                                  compress,
                                                   connectionId,
-                                                  connectionTimeout,
                                                   context,
                                                   encoding,
                                                   endpointSelection,
@@ -107,9 +101,7 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="compress">Determines whether or not the clone compresses requests (optional).</param>
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
-        /// <param name="connectionTimeout">The connection timeout of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
         /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
@@ -134,9 +126,7 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? compress = null,
                                  string? connectionId = null,
-                                 int? connectionTimeout = null,
                                  IReadOnlyDictionary<string, string>? context = null,
                                  Encoding? encoding = null,
                                  EndpointSelectionType? endpointSelection = null,
@@ -155,9 +145,7 @@ namespace ZeroC.Ice
                                                   cacheConnection,
                                                   clearLocator,
                                                   clearRouter,
-                                                  compress,
                                                   connectionId,
-                                                  connectionTimeout,
                                                   context,
                                                   encoding,
                                                   endpointSelection,
@@ -185,9 +173,7 @@ namespace ZeroC.Ice
         /// </param>
         /// <param name="clearRouter">When set to true, the clone does not have an associated router proxy (optional).
         /// </param>
-        /// <param name="compress">Determines whether or not the clone compresses requests (optional).</param>
         /// <param name="connectionId">The connection ID of the clone (optional).</param>
-        /// <param name="connectionTimeout">The connection timeout of the clone (optional).</param>
         /// <param name="context">The context of the clone (optional).</param>
         /// <param name="encoding">The encoding of the clone (optional).</param>
         /// <param name="endpointSelection">The encoding selection policy of the clone (optional).</param>
@@ -210,9 +196,7 @@ namespace ZeroC.Ice
                                  bool? cacheConnection = null,
                                  bool clearLocator = false,
                                  bool clearRouter = false,
-                                 bool? compress = null,
                                  string? connectionId = null,
-                                 int? connectionTimeout = null,
                                  IReadOnlyDictionary<string, string>? context = null,
                                  Encoding? encoding = null,
                                  EndpointSelectionType? endpointSelection = null,
@@ -231,9 +215,7 @@ namespace ZeroC.Ice
                                                      cacheConnection,
                                                      clearLocator,
                                                      clearRouter,
-                                                     compress,
                                                      connectionId,
-                                                     connectionTimeout,
                                                      context,
                                                      encoding,
                                                      endpointSelection,
