@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             ITestIntfPrx test = AllTests.allTests(this);

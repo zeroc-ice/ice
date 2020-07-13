@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Invoke
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
             IMyClassPrx myClass = AllTests.allTests(this);

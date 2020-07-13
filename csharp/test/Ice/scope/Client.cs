@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Scope
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             var output = GetWriter();

@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.DefaultValue
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             AllTests.allTests(this);
             return Task.CompletedTask;

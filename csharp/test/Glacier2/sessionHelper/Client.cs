@@ -143,7 +143,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator != null);
         }
 
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";

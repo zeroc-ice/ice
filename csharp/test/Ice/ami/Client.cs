@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.AMI
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.AMICallback"] = "0";

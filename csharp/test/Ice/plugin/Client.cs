@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Plugin
     {
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
 
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             string pluginPath =
                 string.Format("msbuild/plugin/{0}/Plugin.dll",

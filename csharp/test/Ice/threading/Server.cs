@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Threading
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
 

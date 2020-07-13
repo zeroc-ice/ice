@@ -146,7 +146,7 @@ namespace ZeroC.Ice.Test.Interceptor
             output.WriteLine("ok");
         }
 
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Communicator communicator = Initialize(ref args);
             //

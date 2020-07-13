@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Operations
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             var myClass = AllTests.allTests(this);

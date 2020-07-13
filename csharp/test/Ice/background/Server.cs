@@ -52,7 +52,7 @@ namespace ZeroC.Ice.Test.Background
             private readonly BackgroundController _controller;
         }
 
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             //

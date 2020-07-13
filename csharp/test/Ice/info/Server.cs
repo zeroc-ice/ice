@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Info
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0) + ":" + GetTestEndpoint(0, "udp"));

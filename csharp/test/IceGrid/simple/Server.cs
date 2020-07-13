@@ -11,7 +11,7 @@ namespace ZeroC.IceGrid.Test.Simple
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = new Dictionary<string, string>();
             properties.ParseArgs(ref args, "TestAdapter");

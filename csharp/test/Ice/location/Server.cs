@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Location
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             //
             // Register the server manager. The server manager creates a new

@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.AMI
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             System.Collections.Generic.Dictionary<string, string> properties = CreateTestProperties(ref args);
 

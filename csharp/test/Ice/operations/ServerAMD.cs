@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Operations
 {
     public class ServerAMD : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             // We don't want connection warnings because of the timeout test.

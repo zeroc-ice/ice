@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Proxy
 {
     public class Collocated : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";

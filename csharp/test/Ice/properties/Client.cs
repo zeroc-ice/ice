@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Properties
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             {
                 Console.Out.Write("testing load properties from UTF-8 path... ");

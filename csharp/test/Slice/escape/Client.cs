@@ -100,7 +100,7 @@ public class Client : TestHelper
         Assert(k == 1);
     }
 
-    public override async Task Run(string[] args)
+    public override async Task RunAsync(string[] args)
     {
         using (var communicator = Initialize(ref args))
         {

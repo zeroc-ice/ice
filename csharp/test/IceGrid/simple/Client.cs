@@ -11,7 +11,7 @@ namespace ZeroC.IceGrid.Test.Simple
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args,
                 new Dictionary<string, string> { ["Ice.Default.Protocol"] = "ice1", ["Ice.Default.Encoding"] = "1.1" });

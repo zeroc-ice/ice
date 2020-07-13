@@ -10,7 +10,7 @@ namespace ZeroC.Slice.Test.Macros
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Console.Out.Write("testing Slice predefined macros... ");
             Console.Out.Flush();

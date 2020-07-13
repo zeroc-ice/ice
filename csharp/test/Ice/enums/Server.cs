@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Enums
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.ServerIdleTime"] = "30";

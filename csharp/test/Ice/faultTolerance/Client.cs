@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";

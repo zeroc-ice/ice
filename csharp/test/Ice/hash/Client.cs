@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Hash
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
             Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");

@@ -11,7 +11,7 @@ namespace ZeroC.IceUtil.Test.InputUtil
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] argvs)
+        public override Task RunAsync(string[] argvs)
         {
             Console.Out.Write("testing string to command line arguments... ");
             Console.Out.Flush();

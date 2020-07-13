@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Assemblies
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Console.Out.Write("testing preloading assemblies... ");
             Console.Out.Flush();

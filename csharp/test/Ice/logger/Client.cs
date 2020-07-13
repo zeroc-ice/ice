@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Logger
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Console.Out.Write("testing Ice.LogFile... ");
             Console.Out.Flush();

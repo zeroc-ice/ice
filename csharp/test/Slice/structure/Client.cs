@@ -42,7 +42,7 @@ namespace ZeroC.Slice.Test.Structure
             Console.Out.WriteLine("ok");
         }
 
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             allTests(communicator);

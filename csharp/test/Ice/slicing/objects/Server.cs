@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Slicing.Objects
 {
     public class Server : TestHelper
     {
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";

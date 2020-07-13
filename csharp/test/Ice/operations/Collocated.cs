@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Operations
 {
     public class Collocated : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.AdapterId", "test");

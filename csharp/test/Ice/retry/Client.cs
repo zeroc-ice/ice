@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Retry
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.RetryIntervals"] = "0 1 10 1";

@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.DictMapping
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
             System.IO.TextWriter output = GetWriter();

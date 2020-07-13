@@ -10,7 +10,7 @@ namespace ZeroC.IceSSL.Test.Configuration
 {
     public class Client : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             using var communicator = Initialize(ref args);
             if (args.Length < 1)

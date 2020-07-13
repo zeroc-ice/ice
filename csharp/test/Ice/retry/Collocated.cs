@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Retry
 {
     public class Collocated : TestHelper
     {
-        public override Task Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             var observer = Instrumentation.GetObserver();
             var properties = CreateTestProperties(ref args);

@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Echo
             public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
-        public override async Task Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
