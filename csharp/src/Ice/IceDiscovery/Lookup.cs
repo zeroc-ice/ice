@@ -95,16 +95,16 @@ namespace ZeroC.IceDiscovery
             ILookupReplyPrx lookupReply = _replyAdapter.CreateProxy(
                 "dummy", ILookupReplyPrx.Factory).Clone(invocationMode: InvocationMode.Datagram);
             var single = new Endpoint[1];
-            foreach (UdpEndpoint endpoint in lookup.Endpoints.Cast<UdpEndpoint>())
+            foreach (Endpoint endpoint in lookup.Endpoints)
             {
+                // TODO: throw an exception if any endpoint is not a UDP endpoint?
+
                 single[0] = endpoint;
 
                 ILookupPrx? key = lookup.Clone(endpoints: single);
-                if (endpoint.McastInterface.Length > 0)
+                if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
-                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(
-                        e => e is IPEndpoint ipEndpoint && ipEndpoint.Host.Equals(endpoint.McastInterface));
-
+                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
                     if (q != null)
                     {
                         single[0] = q;
