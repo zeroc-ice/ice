@@ -30,7 +30,7 @@ namespace ZeroC.Ice
                 {
                     return option switch
                     {
-                        "value" => Value.Length > 0 ? System.Convert.ToBase64String(Value.Span) : null,
+                        "value" => Value.Length > 0 ? Convert.ToBase64String(Value.Span) : null,
                         "value-encoding" => ValueEncoding.ToString(),
                         _ => null,
                     };

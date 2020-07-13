@@ -1211,15 +1211,9 @@ namespace ZeroC.Ice
                     _pos = 0;
                     _minTotalSeqSize = 0;
 
-                    if (factory != null)
-                    {
-                        endpoint = factory.Read(this, transport, protocol);
-                    }
-                    else
-                    {
-                        // protocol is ice2 or greater
-                        endpoint = new OpaqueEndpoint(this, communicator, transport, protocol);
-                    }
+                    endpoint = factory?.Read(this, transport, protocol) ??
+                        new OpaqueEndpoint(this, communicator, transport, protocol);  // protocol is ice2 or greater
+
                     CheckEndOfBuffer();
 
                     // Exceptions when reading InputStream are considered fatal to the InputStream so no need to restore
@@ -1239,14 +1233,8 @@ namespace ZeroC.Ice
             }
             else
             {
-                if (factory != null)
-                {
-                    endpoint = factory.Read(this, transport, protocol);
-                }
-                else
-                {
-                    endpoint = new OpaqueEndpoint(this, communicator, transport, protocol);
-                }
+                endpoint = factory?.Read(this, transport, protocol) ??
+                    new OpaqueEndpoint(this, communicator, transport, protocol);
             }
             return endpoint;
         }
@@ -1270,20 +1258,6 @@ namespace ZeroC.Ice
                 throw new IndexOutOfRangeException($"cannot skip {size} bytes");
             }
             _pos += size;
-        }
-
-        /// <summary>Skips over an encapsulation without reading it.</summary>
-        /// <returns>The encoding version of the skipped encapsulation.</returns>
-        internal Encoding SkipEncapsulation()
-        {
-            (int size, Encoding encoding) = ReadEncapsulationHeader();
-            _pos += size - 2;
-            if (_pos > _buffer.Count)
-            {
-                throw new InvalidDataException(
-                    $"the encapsulation's size ({size}) extends beyond the end of the frame");
-            }
-            return encoding;
         }
 
         private static int ReadSize11(ReadOnlySpan<byte> buffer)

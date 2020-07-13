@@ -15,26 +15,15 @@ namespace ZeroC.Ice
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
     internal abstract class IPEndpoint : Endpoint
     {
-        public override string? this[string option]
-        {
-            get
-            {
-                if (option == "source-address")
-                {
-                    return SourceAddress?.ToString();
-                }
-                else
-                {
-                    return base[option];
-                }
-            }
-        }
-
         public override string Host { get; }
+
+        public override string? this[string option] =>
+            option == "source-address" ? SourceAddress?.ToString() : base[option];
+
         public override ushort Port { get; }
 
         /// <summary>The source address of this IP endpoint.</summary>
-        internal IPAddress? SourceAddress { get; }
+        private protected IPAddress? SourceAddress { get; }
 
         public override bool Equals(Endpoint? other) =>
             other is IPEndpoint ipEndpoint &&
