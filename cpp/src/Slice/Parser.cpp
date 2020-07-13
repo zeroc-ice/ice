@@ -4934,7 +4934,7 @@ Slice::Unit::createModule(const string& name)
     _unit->addTopLevelModule(_unit->currentFile(), name);
 
     // We use binary or here to avoid short-circuiting and ensure both checks are always run.
-    if(!checkForRedefinition(this, name, "module") | !checkIdentifier(name))
+    if (!checkForRedefinition(this, name, "module") | !checkIdentifier(name))
     {
         return nullptr;
     }
@@ -4970,33 +4970,29 @@ Slice::Unit::setComment(const string& comment)
     _currentComment = "";
 
     string::size_type end = 0;
-    while(true)
+    while (true)
     {
         string::size_type begin;
-        if(end == 0)
+        if (end == 0)
         {
-            //
             // Skip past the initial whitespace.
-            //
             begin = comment.find_first_not_of(" \t\r\n*", end);
         }
         else
         {
-            //
             // Skip more whitespace but retain blank lines.
-            //
             begin = comment.find_first_not_of(" \t*", end);
         }
 
-        if(begin == string::npos)
+        if (begin == string::npos)
         {
             break;
         }
 
         end = comment.find('\n', begin);
-        if(end != string::npos)
+        if (end != string::npos)
         {
-            if(end + 1 > begin)
+            if (end + 1 > begin)
             {
                 _currentComment += comment.substr(begin, end + 1 - begin);
             }
@@ -5005,9 +5001,9 @@ Slice::Unit::setComment(const string& comment)
         else
         {
             end = comment.find_last_not_of(" \t\r\n*");
-            if(end != string::npos)
+            if (end != string::npos)
             {
-                if(end + 1 > begin)
+                if (end + 1 > begin)
                 {
                     _currentComment += comment.substr(begin, end + 1 - begin);
                 }
@@ -5020,7 +5016,7 @@ Slice::Unit::setComment(const string& comment)
 void
 Slice::Unit::addToComment(const string& comment)
 {
-    if(!_currentComment.empty())
+    if (!_currentComment.empty())
     {
         _currentComment += '\n';
     }
@@ -5038,8 +5034,7 @@ Slice::Unit::currentComment()
 string
 Slice::Unit::currentFile() const
 {
-    DefinitionContextPtr dc = currentDefinitionContext();
-    if(dc)
+    if (DefinitionContextPtr dc = currentDefinitionContext())
     {
         return dc->filename();
     }
@@ -5065,53 +5060,34 @@ int
 Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
 {
     enum LineType { File, Push, Pop };
-
     LineType type = File;
 
-    if(lineNumber == 0)
+    if (lineNumber == 0 && (_currentIncludeLevel > 0 || currentFile != _topLevelFile))
     {
-        if(_currentIncludeLevel > 0 || currentFile != _topLevelFile)
+        if (++_currentIncludeLevel == 1)
         {
-            type = Push;
+            if (find(_includeFiles.begin(), _includeFiles.end(), currentFile) == _includeFiles.end())
+            {
+                _includeFiles.push_back(currentFile);
+            }
         }
+        pushDefinitionContext();
+        _currentComment = "";
+        type = Push;
     }
     else
     {
         DefinitionContextPtr dc = currentDefinitionContext();
-        if(dc != 0 && !dc->filename().empty() && dc->filename() != currentFile)
-        {
-            type = Pop;
-        }
-    }
-
-    switch(type)
-    {
-        case Push:
-        {
-            if(++_currentIncludeLevel == 1)
-            {
-                if(find(_includeFiles.begin(), _includeFiles.end(), currentFile) == _includeFiles.end())
-                {
-                    _includeFiles.push_back(currentFile);
-                }
-            }
-            pushDefinitionContext();
-            _currentComment = "";
-            break;
-        }
-        case Pop:
+        if (dc != 0 && !dc->filename().empty() && dc->filename() != currentFile)
         {
             --_currentIncludeLevel;
             popDefinitionContext();
             _currentComment = "";
-            break;
-        }
-        default:
-        {
-            break; // Do nothing
+            type = Pop;
         }
     }
-    if(!currentFile.empty())
+
+    if (!currentFile.empty())
     {
         DefinitionContextPtr dc = currentDefinitionContext();
         assert(dc);
@@ -5125,14 +5101,7 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
 int
 Slice::Unit::currentIncludeLevel() const
 {
-    if(_all)
-    {
-        return 0;
-    }
-    else
-    {
-        return _currentIncludeLevel;
-    }
+    return _all ? 0 : _currentIncludeLevel;
 }
 
 void
@@ -5140,9 +5109,7 @@ Slice::Unit::addFileMetaData(const StringList& metaData)
 {
     DefinitionContextPtr dc = currentDefinitionContext();
     assert(dc);
-    //
     // Append the file metadata to any existing metadata (e.g., default file metadata).
-    //
     StringList l = dc->getMetaData();
     copy(metaData.begin(), metaData.end(), back_inserter(l));
     dc->setMetaData(l);
@@ -5158,7 +5125,7 @@ Slice::Unit::error(const string& s)
 void
 Slice::Unit::warning(WarningCategory category, const string& msg) const
 {
-    if(_definitionContextStack.empty())
+    if (_definitionContextStack.empty())
     {
         emitWarning(currentFile(), currentLine(), msg);
     }
@@ -5219,7 +5186,7 @@ DefinitionContextPtr
 Slice::Unit::currentDefinitionContext() const
 {
     DefinitionContextPtr dc;
-    if(!_definitionContextStack.empty())
+    if (!_definitionContextStack.empty())
     {
         dc = _definitionContextStack.top();
     }
@@ -5242,10 +5209,10 @@ Slice::Unit::popDefinitionContext()
 DefinitionContextPtr
 Slice::Unit::findDefinitionContext(const string& file) const
 {
-    map<string, DefinitionContextPtr>::const_iterator p = _definitionContextMap.find(file);
-    if(p != _definitionContextMap.end())
+    const auto& def = _definitionContextMap.find(file);
+    if (def != _definitionContextMap.end())
     {
-        return p->second;
+        return def->second;
     }
     return nullptr;
 }
@@ -5261,13 +5228,13 @@ void
 Slice::Unit::removeContent(const ContainedPtr& contained)
 {
     string scoped = IceUtilInternal::toLower(contained->scoped());
-    map<string, ContainedList>::iterator p = _contentMap.find(scoped);
-    assert(p != _contentMap.end());
-    for (ContainedList::iterator q = p->second.begin(); q != p->second.end(); ++q)
+    auto def = _contentMap.find(scoped);
+    assert(def != _contentMap.end());
+    for (ContainedList::iterator q = def->second.begin(); q != def->second.end(); ++q)
     {
-        if(q->get() == contained.get())
+        if (q->get() == contained.get())
         {
-            p->second.erase(q);
+            def->second.erase(q);
             return;
         }
     }
@@ -5281,10 +5248,10 @@ Slice::Unit::findContents(const string& scoped) const
     assert(scoped[0] == ':');
 
     string name = IceUtilInternal::toLower(scoped);
-    map<string, ContainedList>::const_iterator p = _contentMap.find(name);
-    if(p != _contentMap.end())
+    const auto content = _contentMap.find(name);
+    if (content != _contentMap.end())
     {
-        return p->second;
+        return content->second;
     }
     else
     {
@@ -5296,14 +5263,14 @@ ClassList
 Slice::Unit::findDerivedClasses(const ClassDefPtr& cl) const
 {
     ClassList derived;
-    for (map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    for (const auto& content : _contentMap)
     {
-        for (ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        for (const auto& contained : content.second)
         {
-            ClassDefPtr r = ClassDefPtr::dynamicCast(*q);
-            if(r && r->base() == cl)
+            ClassDefPtr match = ClassDefPtr::dynamicCast(contained);
+            if (match && match->base() == cl)
             {
-                derived.push_back(r);
+                derived.push_back(match);
             }
         }
     }
@@ -5316,18 +5283,14 @@ ExceptionList
 Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex) const
 {
     ExceptionList derived;
-    for (map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    for (const auto& content : _contentMap)
     {
-        for (ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        for (const auto& contained : content.second)
         {
-            ExceptionPtr r = ExceptionPtr::dynamicCast(*q);
-            if(r)
+            ExceptionPtr match = ExceptionPtr::dynamicCast(contained);
+            if(match && match->base() == ex)
             {
-                ExceptionPtr base = r->base();
-                if(base && base == ex)
-                {
-                    derived.push_back(r);
-                }
+                derived.push_back(match);
             }
         }
     }
@@ -5340,13 +5303,13 @@ ContainedList
 Slice::Unit::findUsedBy(const ContainedPtr& contained) const
 {
     ContainedList usedBy;
-    for (map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    for (const auto& content : _contentMap)
     {
-        for (ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        for (const auto& match : content.second)
         {
-            if((*q)->uses(contained))
+            if (match->uses(contained))
             {
-                usedBy.push_back(*q);
+                usedBy.push_back(match);
             }
         }
     }
@@ -5364,8 +5327,8 @@ Slice::Unit::addTypeId(int compactId, const std::string& typeId)
 std::string
 Slice::Unit::getTypeId(int compactId) const
 {
-    map<int, string>::const_iterator p = _typeIds.find(compactId);
-    if(p != _typeIds.end())
+    const auto& p = _typeIds.find(compactId);
+    if (p != _typeIds.end())
     {
         return p->second;
     }
@@ -5381,18 +5344,16 @@ Slice::Unit::hasCompactTypeId() const
 bool
 Slice::Unit::usesConsts() const
 {
-    for (map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    for (const auto& content : _contentMap)
     {
-        for (ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        for (const auto& contained : content.second)
         {
-            ConstPtr cd = ConstPtr::dynamicCast(*q);
-            if(cd)
+            if (ConstPtr::dynamicCast(contained))
             {
                 return true;
             }
         }
     }
-
     return false;
 }
 
@@ -5406,10 +5367,9 @@ StringList
 Slice::Unit::allFiles() const
 {
     StringList result;
-    for (map<string, DefinitionContextPtr>::const_iterator p = _definitionContextMap.begin();
-        p != _definitionContextMap.end(); ++p)
+    for (const auto& def : _definitionContextMap)
     {
-        result.push_back(p->first);
+        result.push_back(def.first);
     }
     return result;
 }
@@ -5432,18 +5392,18 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug)
 
     slice_in = file;
     int status = slice_parse();
-    if(_errors)
+    if (_errors)
     {
         status = EXIT_FAILURE;
     }
 
-    if(status == EXIT_FAILURE)
+    if (status == EXIT_FAILURE)
     {
-        while(!_containerStack.empty())
+        while (!_containerStack.empty())
         {
             popContainer();
         }
-        while(!_definitionContextStack.empty())
+        while (!_definitionContextStack.empty())
         {
             popDefinitionContext();
         }
@@ -5473,7 +5433,7 @@ Slice::Unit::destroy()
 void
 Slice::Unit::visit(ParserVisitor* visitor, bool all)
 {
-    if(visitor->visitUnitStart(this))
+    if (visitor->visitUnitStart(this))
     {
         for (const auto& module : _modules)
         {
@@ -5655,7 +5615,7 @@ Slice::Unit::hasOtherConstructedOrExceptions() const
 {
     for (const auto& module : _modules)
     {
-        if(module->hasOtherConstructedOrExceptions())
+        if (module->hasOtherConstructedOrExceptions())
         {
             return true;
         }
@@ -5680,7 +5640,7 @@ BuiltinPtr
 Slice::Unit::builtin(Builtin::Kind kind)
 {
     auto p = _builtins.find(kind);
-    if(p != _builtins.end())
+    if (p != _builtins.end())
     {
         return p->second;
     }
@@ -5693,7 +5653,7 @@ OptionalPtr
 Slice::Unit::optionalBuiltin(Builtin::Kind kind)
 {
     auto p = _optionalBuiltins.find(kind);
-    if(p != _optionalBuiltins.end())
+    if (p != _optionalBuiltins.end())
     {
         return p->second;
     }
@@ -5705,8 +5665,8 @@ Slice::Unit::optionalBuiltin(Builtin::Kind kind)
 void
 Slice::Unit::addTopLevelModule(const string& file, const string& module)
 {
-    map<string, set<string> >::iterator i = _fileTopLevelModules.find(file);
-    if(i == _fileTopLevelModules.end())
+    auto i = _fileTopLevelModules.find(file);
+    if (i == _fileTopLevelModules.end())
     {
         set<string> modules;
         modules.insert(module);
@@ -5721,8 +5681,8 @@ Slice::Unit::addTopLevelModule(const string& file, const string& module)
 set<string>
 Slice::Unit::getTopLevelModules(const string& file) const
 {
-    map<string, set<string> >::const_iterator i = _fileTopLevelModules.find(file);
-    if(i == _fileTopLevelModules.end())
+    const auto i = _fileTopLevelModules.find(file);
+    if (i == _fileTopLevelModules.end())
     {
         return set<string>();
     }
