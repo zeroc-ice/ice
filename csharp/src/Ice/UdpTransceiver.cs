@@ -15,11 +15,11 @@ namespace ZeroC.Ice
         internal System.Net.IPEndPoint? McastAddress { get; private set; } = null;
 
         public Connection CreateConnection(
+            IConnectionFactory factory,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             IConnector? connector,
             string connectionId,
-            ObjectAdapter? adapter) => new UdpConnection(endpoint, monitor, this, connector, connectionId, adapter);
+            ObjectAdapter? adapter) => new UdpConnection(factory, endpoint, this, connector, connectionId, adapter);
         public Socket? Fd() => _fd;
 
         public int Initialize(ref ArraySegment<byte> readBuffer, IList<ArraySegment<byte>> writeBuffer)

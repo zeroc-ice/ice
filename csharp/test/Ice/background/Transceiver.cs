@@ -184,12 +184,12 @@ namespace ZeroC.Ice.Test.Background
 
         public ITransceiver GetDelegate() => _transceiver;
         public Connection CreateConnection(
+            IConnectionFactory factory,
             ZeroC.Ice.Endpoint endpoint,
-            IAcmMonitor? monitor,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
-            _transceiver.CreateConnection(endpoint, monitor, connector, connectionId, adapter);
+            _transceiver.CreateConnection(factory, endpoint, connector, connectionId, adapter);
 
         //
         // Only for use by Connector, Acceptor

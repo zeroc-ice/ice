@@ -17,8 +17,8 @@ namespace ZeroC.Ice
     public interface ITransceiver
     {
         /// <summary>Creates a new connection to the given endpoint.</summary>
+        /// <param name="factory">The parent connection factory.</param>
         /// <param name="endpoint">The endpoint to connect to.</param>
-        /// <param name="monitor">The ACM monitor object.</param>
         /// <param name="connector">The connector associated with the new connection, this is always null for incoming
         /// connections.</param>
         /// <param name="connectionId">The connection ID associated with the new connection. This is always an empty
@@ -27,8 +27,8 @@ namespace ZeroC.Ice
         /// connections.</param>
         /// <returns>A new connection to the given endpoint.</returns>
         public Connection CreateConnection(
+            IConnectionFactory factory,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter);

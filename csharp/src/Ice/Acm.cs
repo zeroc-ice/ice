@@ -10,6 +10,96 @@ using System.Threading;
 
 namespace ZeroC.Ice
 {
+    /// <summary>Specifies the close semantics for ACM (Active Connection Management).</summary>
+    public enum AcmClose
+    {
+        /// <summary>Disables automatic connection closure.</summary>
+        Off,
+        /// <summary>Gracefully closes a connection that has been idle for the configured timeout period.</summary>
+        OnIdle,
+        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, but only if
+        /// the connection has pending invocations.</summary>
+        OnInvocation,
+        /// <summary>Combines the behaviors of CloseOnIdle and CloseOnInvocation.</summary>
+        OnInvocationAndIdle,
+        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, regardless of
+        /// whether the connection has pending invocations or dispatch.</summary>
+        OnIdleForceful
+    }
+
+    /// <summary>Specifies the heartbeat semantics for ACM (Active Connection Management).</summary>
+    public enum AcmHeartbeat
+    {
+        /// <summary>Disables heartbeats.</summary>
+        Off,
+        /// <summary>Send a heartbeat at regular intervals if the connection is idle and only if there are pending
+        /// dispatch.</summary>
+        OnDispatch,
+        /// <summary>Send a heartbeat at regular intervals when the connection is idle.</summary>
+        OnIdle,
+        /// <summary>Send a heartbeat at regular intervals until the connection is closed.</summary>
+        Always
+    }
+
+    /// <summary>This struct represents the Acm (Active Connection Management) configuration.</summary>
+    public readonly struct Acm : IEquatable<Acm>
+    {
+        /// <summary>Gets the Acm configuration for disabling activation connection management.</summary>
+        public static Acm Disabled =>
+            new Acm(System.Threading.Timeout.InfiniteTimeSpan, AcmClose.Off, AcmHeartbeat.Off);
+
+        /// <summary>Gets the <see cref="AcmClose"/> setting for the Acm configuration.</summary>
+        public AcmClose Close { get; }
+        /// <summary>Gets <see cref="AcmHeartbeat"/> setting for the Acm configuration.</summary>
+        public AcmHeartbeat Heartbeat { get; }
+        /// <summary>Gets the timeout setting for the Acm configuration.</summary>
+        public TimeSpan Timeout { get; }
+
+        internal static Acm ServerDefault =>
+            new Acm(TimeSpan.FromSeconds(60), AcmClose.OnInvocation, AcmHeartbeat.OnDispatch);
+        internal static Acm ClientDefault =>
+            new Acm(TimeSpan.FromSeconds(60), AcmClose.OnInvocationAndIdle, AcmHeartbeat.OnDispatch);
+
+        /// <summary>Creates an Acm configuration structure.</summary>
+        /// <param name="timeout">The timeout setting. The timeout must be a positive, non-zero value.</param>
+        /// <param name="close">The close setting.</param>
+        /// <param name="heartbeat">The heartbeat setting.</param>
+        public Acm(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
+        {
+            if (timeout <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException($"invalid {nameof(timeout)} argument");
+            }
+
+            Timeout = timeout;
+            Close = close;
+            Heartbeat = heartbeat;
+        }
+
+        public override int GetHashCode() => HashCode.Combine(Timeout, Close, Heartbeat);
+
+        public bool Equals(Acm other) =>
+            Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
+
+        public override bool Equals(object? other) => other is Acm value && Equals(value);
+
+        public static bool operator ==(Acm lhs, Acm rhs) => Equals(lhs, rhs);
+
+        public static bool operator !=(Acm lhs, Acm rhs) => !Equals(lhs, rhs);
+
+        internal Acm(Communicator communicator, string prefix, Acm defaults)
+        {
+            Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
+            if (Timeout <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException($"invalid `{prefix}.Timeout' property value");
+            }
+
+            Heartbeat = communicator.GetPropertyAsEnum<AcmHeartbeat>($"{prefix}.Heartbeat") ?? defaults.Heartbeat;
+            Close = communicator.GetPropertyAsEnum<AcmClose>($"{prefix}.Close") ?? defaults.Close;
+        }
+    }
+
     /// <summary>This interface represents a monitor for the Acm (Active Connection Management)</summary>
     public interface IAcmMonitor
     {
@@ -20,15 +110,11 @@ namespace ZeroC.Ice
         /// <param name="connection">The connection to monitor for activity.</param>
         void Add(Connection connection);
 
-        /// <summary>Adds a connection to the set of reaped connections.</summary>
-        /// <param name="connection">The connection to reap.</param>
-        void Reap(Connection connection);
-
         /// <summary>Removes a connection from the set of monitored connections.</summary>
         /// <param name="connection">The connection to remove.</param>
         void Remove(Connection connection);
 
-        /// <summary>Creates a child Acm monitor with a specific Acm configuration.</summary>
+        /// <summary>Creates an Acm monitor with a specific Acm configuration.</summary>
         /// <param name="acm">The monitor Acm configuration.</param>
         /// <returns>Returns a new Acm monitor with the given configuration.</returns>
         IAcmMonitor Create(Acm acm);
@@ -43,16 +129,10 @@ namespace ZeroC.Ice
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
         private readonly object _mutex = new object();
-        private List<Connection> _reapedConnections = new List<Connection>();
         private Timer? _timer;
 
         public void Add(Connection connection)
         {
-            if (Acm.Timeout == TimeSpan.Zero || Acm.Timeout == Timeout.InfiniteTimeSpan)
-            {
-                return;
-            }
-
             lock (_mutex)
             {
                 if (_connections.Count == 0)
@@ -69,21 +149,8 @@ namespace ZeroC.Ice
 
         public IAcmMonitor Create(Acm acm) => new ConnectionAcmMonitor(this, acm, _communicator.Logger);
 
-        public void Reap(Connection connection)
-        {
-            lock (_mutex)
-            {
-                _reapedConnections.Add(connection);
-            }
-        }
-
         public void Remove(Connection connection)
         {
-            if (Acm.Timeout == TimeSpan.Zero || Acm.Timeout == Timeout.InfiniteTimeSpan)
-            {
-                return;
-            }
-
             lock (_mutex)
             {
                 _changes.Add((connection, true));
@@ -94,29 +161,6 @@ namespace ZeroC.Ice
         {
             _communicator = communicator;
             Acm = acm;
-        }
-
-        internal void Destroy()
-        {
-            lock (_mutex)
-            {
-                _timer?.Dispose();
-                _timer = null;
-            }
-        }
-
-        internal IEnumerable<Connection> SwapReapedConnections()
-        {
-            lock (_mutex)
-            {
-                if (_reapedConnections.Count == 0)
-                {
-                    return Enumerable.Empty<Connection>();
-                }
-                List<Connection> connections = _reapedConnections;
-                _reapedConnections = new List<Connection>();
-                return connections;
-            }
         }
 
         private void RunTimerTask(object? state)
@@ -181,23 +225,25 @@ namespace ZeroC.Ice
 
         public void Add(Connection connection)
         {
-            _timer = new Timer(_ =>
+            if (Acm.Timeout != Timeout.InfiniteTimeSpan &&
+                (Acm.Close != AcmClose.Off || Acm.Heartbeat != AcmHeartbeat.Off))
             {
-                try
+                _timer = new Timer(_ =>
                 {
-                    connection!.Monitor(Time.Elapsed, Acm);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"exception in connection monitor:\n{ex}");
-                }
-            }, null, Acm.Timeout, Acm.Timeout);
+                    try
+                    {
+                        connection!.Monitor(Time.Elapsed, Acm);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"exception in connection monitor:\n{ex}");
+                    }
+                }, null, Acm.Timeout, Acm.Timeout);
+            }
         }
 
         public IAcmMonitor Create(Acm acm) => _parent.Create(acm);
 
-        public void Reap(Connection connection) => _parent.Reap(connection);
-
-        public void Remove(Connection _) => _timer!.Dispose();
+        public void Remove(Connection _) => _timer?.Dispose();
     }
 }
