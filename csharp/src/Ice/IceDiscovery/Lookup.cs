@@ -97,7 +97,8 @@ namespace ZeroC.IceDiscovery
             var single = new Endpoint[1];
             foreach (Endpoint endpoint in lookup.Endpoints)
             {
-                // TODO: throw an exception if any endpoint is not a UDP endpoint?
+                // lookup's invocation mode is Datagram
+                Debug.Assert(endpoint.Transport == Transport.UDP);
 
                 single[0] = endpoint;
 
