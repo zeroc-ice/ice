@@ -159,6 +159,14 @@ namespace ZeroC.Ice
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
+        private const GenericUriParserOptions UriParserOptions =
+            GenericUriParserOptions.AllowEmptyAuthority |
+            GenericUriParserOptions.DontConvertPathBackslashes |
+            GenericUriParserOptions.DontUnescapePathDotsAndSlashes |
+            GenericUriParserOptions.Idn |
+            GenericUriParserOptions.IriParsing |
+            GenericUriParserOptions.NoUserInfo;
+
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
         {
@@ -338,6 +346,8 @@ namespace ZeroC.Ice
                                 Console.SetError(errStream);
                             }
                         }
+
+                        UriParser.Register(new GenericUriParser(UriParserOptions), "ice+universal", 4062);
 
                         _oneOffDone = true;
                     }
@@ -1110,6 +1120,16 @@ namespace ZeroC.Ice
         {
             _transportNameToEndpointFactory.Add(transportName, (factory, transport));
             _transportToEndpointFactory.Add(transport, factory);
+
+            // Also register URI parser if not registered yet. TODO: the default port should be a parameter.
+            try
+            {
+                UriParser.Register(new GenericUriParser(UriParserOptions), $"ice+{transportName}", 4062);
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignored, already registered
+            }
         }
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory.

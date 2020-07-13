@@ -18,6 +18,37 @@ namespace ZeroC.Ice.Test.Proxy
             System.IO.TextWriter output = helper.GetWriter();
             output.Write("testing stringToProxy... ");
             output.Flush();
+
+            var uri = new Uri("ice+tcp://com.zeroc.ice.foo.bar:10000/a/b/c/d?source-address=xyz");
+
+            output.WriteLine($"scheme = {uri.Scheme}");
+            output.WriteLine($"host = {uri.Host}");
+            output.WriteLine($"hostname type = {uri.HostNameType}");
+            output.WriteLine($"port = {uri.Port}");
+            output.WriteLine($"path = {uri.AbsolutePath}");
+            output.WriteLine($"query = {uri.Query}");
+            output.WriteLine($"fragment = {uri.Fragment}");
+
+            uri = new Uri("ice+tcp:///a/b/c/d?source-address=xyz");
+
+            output.WriteLine($"scheme = {uri.Scheme}");
+            output.WriteLine($"host = {uri.Host}");
+            output.WriteLine($"hostname type = {uri.HostNameType}");
+            output.WriteLine($"port = {uri.Port}");
+            output.WriteLine($"path = {uri.AbsolutePath}");
+            output.WriteLine($"query = {uri.Query}");
+            output.WriteLine($"fragment = {uri.Fragment}");
+
+            uri = new Uri("ice+tcp:///a/b/c/d?source-address=xyz");
+
+            output.WriteLine($"scheme = {uri.Scheme}");
+            output.WriteLine($"host = {uri.Host}");
+            output.WriteLine($"hostname type = {uri.HostNameType}");
+            output.WriteLine($"port = {uri.Port}");
+            output.WriteLine($"path = {uri.AbsolutePath}");
+            output.WriteLine($"query = {uri.Query}");
+            output.WriteLine($"fragment = {uri.Fragment}");
+
             string rf = "test:" + helper.GetTestEndpoint(0);
             var baseProxy = IObjectPrx.Parse(rf, communicator);
             TestHelper.Assert(baseProxy != null);
