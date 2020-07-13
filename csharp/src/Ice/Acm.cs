@@ -198,9 +198,6 @@ namespace ZeroC.Ice
 
         public void Reap(Connection connection) => _parent.Reap(connection);
 
-        public void Remove(Connection _)
-        {
-            _timer!.Dispose();
-        }
+        public void Remove(Connection _) => _timer!.Dispose();
     }
 }

@@ -177,31 +177,36 @@ namespace ZeroC.Ice
                 throw ExceptionUtil.Throw(ex.InnerException);
             }
 
-            lock (_mutex)
+            // Search for connections to the router's client proxy endpoints, and update the object adapter for
+            // such connections, so that callbacks from the router can be received over such connections.
+            foreach (Endpoint endpoint in endpoints)
             {
-                if (_destroyTask != null)
+                try
                 {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                //
-                // Search for connections to the router's client proxy
-                // endpoints, and update the object adapter for such
-                // connections, so that callbacks from the router can be
-                // received over such connections.
-                //
-                for (int i = 0; i < endpoints.Count; ++i)
-                {
-                    foreach (ICollection<Connection> connections in _connectionsByConnector.Values)
+                    foreach (IConnector connector in
+                        endpoint.ConnectorsAsync(EndpointSelectionType.Ordered).AsTask().Result)
                     {
-                        foreach (Connection connection in connections)
+                        lock (_mutex)
                         {
-                            if (connection.Endpoint == endpoints[i])
+                            if (_destroyTask != null)
                             {
-                                connection.Adapter = adapter;
+                                throw new CommunicatorDestroyedException();
+                            }
+
+                            if (_connectionsByConnector.TryGetValue((connector, routerInfo.Router.ConnectionId),
+                                out ICollection<Connection>? connections))
+                            {
+                                foreach (Connection connection in connections)
+                                {
+                                    connection.Adapter = adapter;
+                                }
                             }
                         }
                     }
+                }
+                catch
+                {
+                    // Ignore
                 }
             }
         }
@@ -633,7 +638,7 @@ namespace ZeroC.Ice
                         }
                     }
                     _communicator.Logger.Error($"failed to accept connection:\n{ex}\n{_acceptor}");
-                    await Task.Delay(1000); // Retry in 1 second
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                     continue;
                 }
 
