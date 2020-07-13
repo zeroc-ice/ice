@@ -5,47 +5,80 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
-     /// <summary>An endpoint describes a server-side network sink for Ice requests: an object adapter listens on one or
-     /// more endpoints and a client establishes a connection to a given object adapter endpoint. An endpoint
-     /// encapsulates a network transport protocol such as TCP or Bluetooth RFCOMM, plus transport-specific addressing
-     /// information. The Endpoint class is the base class for all endpoint classes.</summary>
+    /// <summary>An endpoint describes a server-side network sink for Ice requests: an object adapter listens on one or
+    /// more endpoints and a client establishes a connection to a given object adapter endpoint. Its properties are
+    /// a network transport protocol such as TCP or Bluetooth RFCOMM, a host or address, a port number, and
+    /// transport-specific options.</summary>
     public abstract class Endpoint : IEquatable<Endpoint>
     {
-        /// <summary>Get the communicator from which the endpoint was created.</summary>
-        public abstract Communicator Communicator { get; }
+        /// <summary>Gets the communicator that created this endpoint.</summary>
+        public Communicator Communicator { get; }
 
         /// <summary>Indicates whether or not this endpoint's compression flag is set. When the compression flag is
         /// set, a request sent to this endpoint using the ice1 protocol is automatically compressed using bzip2 if
-        /// the request's uncompressed size is greater than 100 bytes.</summary>
+        /// the request's uncompressed size is greater than 100 bytes. Only applies to ice1.</summary>
         /// <value>True when the compression flag is set; otherwise, false.</value>
-        public abstract bool HasCompressionFlag { get; }
+        public virtual bool HasCompressionFlag => false;
+
+        /// <summary>The host name or address.</summary>
+        public abstract string Host { get; }
 
         /// <summary>Indicates whether or not this endpoint's transport uses datagrams with no ordering or delivery
         /// guarantees.</summary>
         /// <value>True when this endpoint's transport is datagram-based; otherwise, false.</value>
-        public abstract bool IsDatagram { get; }
+        public virtual bool IsDatagram => false;
 
-        /// <summary>Indicates whether or not this endpoint's transport is secure.</summary>
+        /// <summary>Indicates whether or not this endpoint's transport is secure. Only applies to ice1.</summary>
         /// <value>True when this endpoint's transport is secure; otherwise, false.</value>
-        public abstract bool IsSecure { get; }
+        public virtual bool IsSecure => false;
+
+        /// <summary>Gets an option of the endpoint.</summary>
+        /// <param name="option">The name of the option to retrieve.</param>
+        /// <value>The value of this option, or null if this option is not set.</value>
+        public virtual string? this[string option]
+        {
+            get
+            {
+                if (Protocol == Protocol.Ice1)
+                {
+                    // Convert ice1 API into options
+                    return option switch
+                    {
+                        "compress" => HasCompressionFlag ? "true" : null,
+                        "timeout" => Timeout != DefaultTimeout ?
+                            Timeout.TotalMilliseconds.ToString(CultureInfo.InvariantCulture) : null,
+                        _ => null,
+                    };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>The port number. 0 means undefined/not applicable to the transport.</summary>
+        public virtual ushort Port => 0;
 
         /// <summary>The Ice protocol of this endpoint.</summary>
         public Protocol Protocol { get; }
 
-        /// <summary>The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.</summary>
-        public abstract int Timeout { get; }
+        /// <summary>The legacy timeout for the endpoint. This timeout is no longer used since Ice 4.0.</summary>
+        public virtual TimeSpan Timeout => DefaultTimeout;
 
         /// <summary>The <see cref="ZeroC.Ice.Transport"></see> of this endpoint.</summary>
         public abstract Transport Transport { get; }
 
-        /// <summary>The name of the endpoint's transport in lowercase, or "opaque" when the transport's name is
-        /// unknown.</summary>
+        /// <summary>The name of the endpoint's transport in lowercase.</summary>
         public virtual string TransportName => Transport.ToString().ToLowerInvariant();
+
+        protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(60);
 
         public static bool operator ==(Endpoint? lhs, Endpoint? rhs)
         {
@@ -65,26 +98,53 @@ namespace ZeroC.Ice
 
         public override bool Equals(object? obj) => obj is Endpoint other && Equals(other);
 
-        public virtual bool Equals(Endpoint? other) => Protocol == other?.Protocol;
+        public virtual bool Equals(Endpoint? other) =>
+            other is Endpoint endpoint &&
+                Communicator == endpoint.Communicator &&
+                Protocol == endpoint.Protocol &&
+                Transport == endpoint.Transport &&
+                Host == endpoint.Host &&
+                Port == endpoint.Port;
 
-        public override int GetHashCode() => Protocol.GetHashCode();
+        public override int GetHashCode()
+        {
+            var hash = new HashCode();
+            hash.Add(Communicator);
+            hash.Add(Protocol);
+            hash.Add(Transport);
+            hash.Add(Host);
+            hash.Add(Port);
+            return hash.ToHashCode();
+        }
 
+        /// <summary>Converts the endpoint into a string, using the old string format.</summary>
+        // TODO: add a parameter to select the format?
         public override string ToString() => $"{TransportName}{OptionsToString()}";
 
-        // Converts all the options to a string with a leading empty space character.
+        /// <summary>Converts all the options to a string with a leading empty space character, using the old format
+        /// for stringified proxies/endpoints.</summary>
         public abstract string OptionsToString();
 
         // Checks whether this endpoint and the given endpoint point to the same local peer. This is used for the
         // collocation optimization check to figure out whether or not a proxy endpoint points to a local adapter.
         public abstract bool IsLocal(Endpoint endpoint);
 
-        /// <summary>Writes the payload of this endpoint to the output stream. The payload does not include the type nor
-        /// the enclosing encapsulation header.</summary>
+        /// <summary>Writes the options of an ice2 endpoint to the output stream.</summary>
+        // TODO: should this method be public and renamed IceWriteOptions?
+        protected internal virtual void WriteOptions(OutputStream ostr)
+        {
+            Debug.Assert(Protocol != Protocol.Ice1);
+            ostr.WriteSize(0); // empty sequence
+        }
+
+        /// <summary>Writes the payload of an ice1 endpoint to the output stream. The payload does not include the type
+        /// nor the enclosing encapsulation header.</summary>
+        // TODO: should this method be protected internal and renamed WritePayload?
         public abstract void IceWritePayload(OutputStream ostr);
 
         // Returns a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
         // Otherwise the same endpoint is returned.
-        public abstract Endpoint NewTimeout(int t);
+        public abstract Endpoint NewTimeout(TimeSpan t);
 
         // Returns a new endpoint with a different compression flag, provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.
@@ -110,7 +170,23 @@ namespace ZeroC.Ice
         // acceptor.
         public abstract ITransceiver? GetTransceiver();
 
-        protected Endpoint(Protocol protocol) => Protocol = protocol;
+        protected Endpoint(
+            Communicator communicator,
+            Protocol protocol)
+        {
+            Communicator = communicator;
+            Protocol = protocol;
+        }
+
+        protected void SkipUnknownOptions(InputStream istr, int count)
+        {
+            Debug.Assert(count == 0); // TODO: temporary, remove before release
+            while (count > 0)
+            {
+                istr.Skip(istr.ReadSize());
+                count--;
+            }
+        }
 
         /// <summary>Creates an endpoint from a string.</summary>
         /// <param name="endpointString">The string parsed by this method.</param>
@@ -197,7 +273,7 @@ namespace ZeroC.Ice
                         $"unrecognized option(s) `{ToString(options)}' in endpoint `{endpointString}'");
                 }
 
-                if (opaqueEndpoint.Encoding.IsSupported &&
+                if (opaqueEndpoint.ValueEncoding.IsSupported &&
                     communicator.IceFindEndpointFactory(opaqueEndpoint.Transport) != null)
                 {
                     // We may be able to unmarshal this endpoint, so we first marshal it into a byte buffer and then
@@ -205,14 +281,14 @@ namespace ZeroC.Ice
                     var bufferList = new List<ArraySegment<byte>>
                     {
                         // 8 = size of short + size of encapsulation header with 1.1 encoding
-                        new byte[8 + opaqueEndpoint.Bytes.Length]
+                        new byte[8 + opaqueEndpoint.Value.Length]
                     };
 
                     var ostr = new OutputStream(Ice1Definitions.Encoding, bufferList);
                     ostr.WriteEndpoint(opaqueEndpoint);
                     OutputStream.Position tail = ostr.Save();
                     Debug.Assert(bufferList.Count == 1);
-                    Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Bytes.Length);
+                    Debug.Assert(tail.Segment == 0 && tail.Offset == 8 + opaqueEndpoint.Value.Length);
 
                     return
                         new InputStream(Ice1Definitions.Encoding, bufferList[0]).ReadEndpoint(protocol, communicator);

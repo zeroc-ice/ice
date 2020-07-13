@@ -12,46 +12,65 @@ namespace ZeroC.Ice
     {
         private readonly Communicator _communicator;
 
+        // Parsing of old format
         public Endpoint Create(
             Transport transport,
             Protocol protocol,
             Dictionary<string, string?> options,
             bool oaEndpoint,
-            string endpointString)
-        {
-            switch (transport)
+            string endpointString) =>
+            transport switch
             {
-                case Transport.TCP:
-                case Transport.SSL:
-                    return new TcpEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString);
-                case Transport.WS:
-                case Transport.WSS:
-                    return new WSEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString);
-                case Transport.UDP:
-                    return new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString);
-                default:
-                    Debug.Assert(false);
-                    throw new NotSupportedException($"the transport `{transport}' is not supported");
-            }
-        }
+                var tv when tv == Transport.TCP || tv == Transport.SSL =>
+                    new TcpEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString),
+                var tv when tv == Transport.WS || tv == Transport.WSS =>
+                    new WSEndpoint(_communicator, transport, protocol, options, oaEndpoint, endpointString),
+                Transport.UDP =>
+                    new UdpEndpoint(_communicator, protocol, options, oaEndpoint, endpointString),
+                _ => throw new NotSupportedException(
+                    $"cannot create endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
+            };
 
-        public Endpoint Read(InputStream istr, Transport transport, Protocol protocol)
-        {
-            switch (transport)
+        // URI parsing
+        public Endpoint Create(
+            Transport transport,
+            Protocol protocol,
+            string host,
+            ushort port,
+            Dictionary<string, string> options,
+            bool oaEndpoint,
+            string endpointString) =>
+            transport switch
             {
-                case Transport.TCP:
-                case Transport.SSL:
-                    return new TcpEndpoint(istr, _communicator, transport, protocol);
-                case Transport.WS:
-                case Transport.WSS:
-                    return new WSEndpoint(istr, _communicator, transport, protocol);
-                case Transport.UDP:
-                    return new UdpEndpoint(istr, _communicator, protocol);
-                default:
-                    Debug.Assert(false);
-                    throw new NotSupportedException($"the transport `{transport}' is not supported");
-            }
-        }
+                var tv when tv == Transport.TCP || tv == Transport.SSL =>
+                    new TcpEndpoint(_communicator,
+                                    transport,
+                                    protocol,
+                                    host,
+                                    port,
+                                    options,
+                                    oaEndpoint,
+                                    endpointString),
+                var tv when tv == Transport.WS || tv == Transport.WSS =>
+                    new WSEndpoint(_communicator, transport, protocol, host, port, options, oaEndpoint, endpointString),
+                Transport.UDP =>
+                    new UdpEndpoint(_communicator, protocol, host, port, options, oaEndpoint, endpointString),
+                _ => throw new NotSupportedException(
+                    $"cannot create endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
+            };
+
+        public Endpoint Read(InputStream istr, Transport transport, Protocol protocol) =>
+            transport switch
+            {
+                var tv when tv == Transport.TCP || tv == Transport.SSL =>
+                    new TcpEndpoint(istr, _communicator, transport, protocol),
+                var tv when tv == Transport.WS || tv == Transport.WSS =>
+                    new WSEndpoint(istr, _communicator, transport, protocol),
+                Transport.UDP =>
+                    new UdpEndpoint(istr, _communicator, protocol),
+                _ => throw new NotSupportedException(
+                    $"cannot read endpoint for transport `{transport.ToString().ToLowerInvariant()}'"),
+            };
 
         internal EndpointFactory(Communicator communicator) => _communicator = communicator;
     }

@@ -52,6 +52,11 @@ namespace ZeroC.Ice
         // TODO: currently only this property is implemented and nothing else.
         public bool AcceptNonSecureConnections { get; }
 
+        /// <summary>The connection close timeout.</summary>
+        public TimeSpan CloseTimeout { get; }
+        /// <summary>The connection establishment timeout.</summary>
+        public TimeSpan ConnectTimeout { get; }
+
         /// <summary>Each time you send a request without an explicit context parameter, Ice sends automatically the
         /// per-thread CurrentContext combined with the proxy's context.</summary>
         public Dictionary<string, string> CurrentContext
@@ -121,7 +126,6 @@ namespace ZeroC.Ice
 
         public IPAddress? DefaultSourceAddress { get; }
         public string DefaultTransport { get; }
-        public int DefaultTimeout { get; }
         public int DefaultInvocationTimeout { get; }
         public TimeSpan DefaultLocatorCacheTimeout { get; }
 
@@ -133,11 +137,6 @@ namespace ZeroC.Ice
             get => _defaultRouter;
             set => _defaultRouter = value;
         }
-
-        public bool? OverrideCompress { get; }
-        public int? OverrideTimeout { get; }
-        public int? OverrideCloseTimeout { get; }
-        public int? OverrideConnectTimeout { get; }
 
         /// <summary>The logger for this communicator.</summary>
         public ILogger Logger { get; internal set; }
@@ -372,24 +371,6 @@ namespace ZeroC.Ice
 
                 TraceLevels = new TraceLevels(this);
 
-                if (GetProperty("Ice.Default.Encoding") is string encoding)
-                {
-                    try
-                    {
-                        DefaultEncoding = Encoding.Parse(encoding);
-                        DefaultEncoding.CheckSupported();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidConfigurationException(
-                            $"invalid value for Ice.Default.Encoding: `{encoding}'", ex);
-                    }
-                }
-                else
-                {
-                    DefaultEncoding = Encoding.Latest;
-                }
-
                 if (GetProperty("Ice.Default.Protocol") is string protocol)
                 {
                     try
@@ -406,6 +387,24 @@ namespace ZeroC.Ice
                 else
                 {
                     DefaultProtocol = Protocol.Ice2;
+                }
+
+                if (GetProperty("Ice.Default.Encoding") is string encoding)
+                {
+                    try
+                    {
+                        DefaultEncoding = Encoding.Parse(encoding);
+                        DefaultEncoding.CheckSupported();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"invalid value for Ice.Default.Encoding: `{encoding}'", ex);
+                    }
+                }
+                else
+                {
+                    DefaultEncoding = DefaultProtocol.GetEncoding();
                 }
 
                 string endpointSelection = GetProperty("Ice.Default.EndpointSelection") ?? "Random";
@@ -440,13 +439,6 @@ namespace ZeroC.Ice
 
                 DefaultTransport = GetProperty("Ice.Default.Transport") ?? "tcp";
 
-                DefaultTimeout = GetPropertyAsInt("Ice.Default.Timeout") ?? 60000;
-                if (DefaultTimeout < 1 && DefaultTimeout != -1)
-                {
-                    throw new InvalidConfigurationException(
-                        $"invalid value for Ice.Default.Timeout: `{DefaultTimeout}'");
-                }
-
                 DefaultInvocationTimeout = GetPropertyAsInt("Ice.Default.InvocationTimeout") ?? -1;
                 if (DefaultInvocationTimeout < 1 && DefaultInvocationTimeout != -1)
                 {
@@ -463,53 +455,16 @@ namespace ZeroC.Ice
                         $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
                 }
 
-                if (GetPropertyAsBool("Ice.Override.Compress") is bool compress)
+                CloseTimeout = GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(10);
+                if (CloseTimeout < TimeSpan.Zero)
                 {
-                    OverrideCompress = compress;
-                    if (!BZip2.IsLoaded && compress)
-                    {
-                        throw new InvalidConfigurationException($"compression not supported, bzip2 library not found");
-                    }
-                }
-                else if (!BZip2.IsLoaded)
-                {
-                    OverrideCompress = false;
+                    throw new InvalidConfigurationException($"invalid value for Ice.CloseTimeout: `{CloseTimeout}'");
                 }
 
+                ConnectTimeout = GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(10);
+                if (ConnectTimeout < TimeSpan.Zero)
                 {
-                    if (GetPropertyAsInt("Ice.Override.Timeout") is int timeout)
-                    {
-                        OverrideTimeout = timeout;
-                        if (timeout < 1 && timeout != -1)
-                        {
-                            throw new InvalidConfigurationException(
-                                $"invalid value for Ice.Override.Timeout: `{timeout}'");
-                        }
-                    }
-                }
-
-                {
-                    if (GetPropertyAsInt("Ice.Override.CloseTimeout") is int timeout)
-                    {
-                        OverrideCloseTimeout = timeout;
-                        if (timeout < 1 && timeout != -1)
-                        {
-                            throw new InvalidConfigurationException(
-                                $"invalid value for Ice.Override.CloseTimeout: `{timeout}'");
-                        }
-                    }
-                }
-
-                {
-                    if (GetPropertyAsInt("Ice.Override.ConnectTimeout") is int timeout)
-                    {
-                        OverrideConnectTimeout = timeout;
-                        if (timeout < 1 && timeout != -1)
-                        {
-                            throw new InvalidConfigurationException(
-                                $"invalid value for Ice.Override.ConnectTimeout: `{timeout}'");
-                        }
-                    }
+                    throw new InvalidConfigurationException($"invalid value for Ice.ConnectTimeout: `{ConnectTimeout}'");
                 }
 
                 ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", new Acm(false)));

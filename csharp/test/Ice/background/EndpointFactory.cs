@@ -25,7 +25,7 @@ namespace ZeroC.Ice.Test.Background
 
         public ZeroC.Ice.Endpoint Create(
             Transport transport,
-            Protocol protocol,
+            Protocol protocol, // temporary, will be ice1-only once we implement URI parsing.
             Dictionary<string, string?> options,
             bool server,
             string endpointString)
@@ -34,6 +34,20 @@ namespace ZeroC.Ice.Test.Background
 
             return new Endpoint(_underlyingFactory.Create(
                 _underlyingTransport, protocol, options, server, endpointString));
+        }
+
+        public ZeroC.Ice.Endpoint Create(
+            Transport transport,
+            Protocol protocol,
+            string host,
+            ushort port,
+            Dictionary<string, string> options,
+            bool oaEndpoint,
+            string endpointString)
+        {
+            // TODO: implement
+            Debug.Assert(false);
+            return null!;
         }
 
         public ZeroC.Ice.Endpoint Read(InputStream istr, Transport transport, Protocol protocol)
