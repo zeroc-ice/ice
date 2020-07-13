@@ -158,6 +158,12 @@ namespace ZeroC.Ice
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
+        // The default port number for all Ice IP-based transports.
+        private const int DefaultIPPort = 4062;
+
+        // Options for the ice[+transport] parsers we register for each transport. Unfortunately there is no way to
+        // make authority optional - authority is mandatory, but we can have an empty authority. This means we need to
+        // fix up URI strings before parsing (to add an empty authority).
         private const GenericUriParserOptions UriParserOptions =
             GenericUriParserOptions.AllowEmptyAuthority |
             GenericUriParserOptions.DontConvertPathBackslashes |
@@ -346,7 +352,8 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        UriParser.Register(new GenericUriParser(UriParserOptions), "ice+universal", 4062);
+                        // "ice+universal" does not have a default port
+                        UriParser.Register(new GenericUriParser(UriParserOptions), "ice+universal", -1);
 
                         _oneOffDone = true;
                     }
@@ -552,11 +559,11 @@ namespace ZeroC.Ice
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
                 var endpointFactory = new EndpointFactory(this);
-                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory);
-                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory);
-                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory);
-                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory);
-                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory);
+                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory, DefaultIPPort);
 
                 _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -1071,15 +1078,23 @@ namespace ZeroC.Ice
         }
 
         // Registers an endpoint factory.
-        public void IceAddEndpointFactory(Transport transport, string transportName, IEndpointFactory factory)
+        public void IceAddEndpointFactory(
+            Transport transport,
+            string transportName,
+            IEndpointFactory factory,
+            int defaultPort = -1)
         {
             _transportNameToEndpointFactory.Add(transportName, (factory, transport));
             _transportToEndpointFactory.Add(transport, factory);
 
-            // Also register URI parser if not registered yet. TODO: the default port should be a parameter.
+            // Also register URI parser if not registered yet.
             try
             {
-                UriParser.Register(new GenericUriParser(UriParserOptions), $"ice+{transportName}", 4062);
+                UriParser.Register(new GenericUriParser(UriParserOptions), $"ice+{transportName}", defaultPort);
+                if (transport == Transport.TCP)
+                {
+                    UriParser.Register(new GenericUriParser(UriParserOptions), "ice", defaultPort);
+                }
             }
             catch (InvalidOperationException)
             {
