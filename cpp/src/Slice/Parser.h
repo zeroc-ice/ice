@@ -452,7 +452,7 @@ public:
     void setMetaData(const std::list<std::string>&);
     void addMetaData(const std::string&); // TODO: remove this method once "cs:" and "vb:" are hard errors.
 
-    static FormatType parseFormatMetaData(const std::list<std::string>&);
+    FormatType parseFormatMetaData() const;
 
     virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
