@@ -24,6 +24,44 @@ namespace ZeroC.Ice
                 _shutdownTask ??= PerformShutdownAsync();
             }
             await _shutdownTask.ConfigureAwait(false);
+
+            // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
+            async Task PerformShutdownAsync()
+            {
+                try
+                {
+                    lock (_mutex)
+                    {
+                        Debug.Assert(!_isShutdown);
+                        _isShutdown = true;
+                    }
+                    await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
+                }
+                finally
+                {
+                    // Don't call SetResult directly to avoid continuations running synchronously
+                    _ = Task.Run(() => _shutdownCompletionSource?.SetResult(null));
+                }
+            }
+        }
+
+        /// <summary>Block the calling thread until the communicator has been shutdown. On the server side, the
+        /// operation completes once all executing operations have completed. On the client side, it completes once
+        /// <see cref="ShutdownAsync"/> has been called. A typical use of this method is to call it from the main
+        /// thread of a server, which will be completed once the shutdown process completes, and then the caller can
+        /// do some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally exists the
+        /// application.</summary>
+        public void WaitForShutdown()
+        {
+            try
+            {
+                WaitForShutdownAsync().Wait();
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
         }
 
         /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
@@ -173,7 +211,7 @@ namespace ZeroC.Ice
                         return adapter;
                     }
                 }
-                catch (ObjectAdapterDeactivatedException)
+                catch (ObjectDisposedException)
                 {
                     // Ignore.
                 }
@@ -215,7 +253,7 @@ namespace ZeroC.Ice
             {
                 if (_isShutdown)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (name != null)
@@ -239,7 +277,7 @@ namespace ZeroC.Ice
                 {
                     if (_isShutdown)
                     {
-                        throw new CommunicatorDestroyedException();
+                        throw new CommunicatorDisposedException();
                     }
                     _adapters.Add(adapter);
                     return adapter;
@@ -260,25 +298,6 @@ namespace ZeroC.Ice
                     }
                 }
                 throw;
-            }
-        }
-
-        // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
-        private async Task PerformShutdownAsync()
-        {
-            try
-            {
-                lock (_mutex)
-                {
-                    Debug.Assert(!_isShutdown);
-                    _isShutdown = true;
-                }
-                await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
-            }
-            finally
-            {
-                // Don't call SetResult directly to avoid continuations running synchronously
-                _ = Task.Run(() => _shutdownCompletionSource?.SetResult(null));
             }
         }
     }

@@ -122,7 +122,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     throw exception;
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -322,7 +322,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     IObjectPrx.Parse("dummy", session.Communicator!).IcePing();
                     Assert(false);
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -390,7 +390,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     IObjectPrx.Parse("dummy", session.Communicator!).IcePing();
                     Assert(false);
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                 }
                 Console.Out.WriteLine("ok");

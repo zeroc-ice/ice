@@ -21,13 +21,7 @@ namespace ZeroC.IceGrid.Test.Simple
             using var communicator = Initialize(ref args, properties);
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
-            try
-            {
-                await adapter.ActivateAsync();
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-            }
+            await adapter.ActivateAsync();
             await communicator.WaitForShutdownAsync();
         }
 

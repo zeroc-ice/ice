@@ -308,13 +308,9 @@ namespace ZeroC.IceBox
 
                 await _communicator.WaitForShutdownAsync().ConfigureAwait(false);
             }
-            catch (CommunicatorDestroyedException)
+            catch (ObjectDisposedException)
             {
-                // Expected if the communicator is shutdown
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-                // Expected if the communicator is shutdown
+                // Expected if the communicator or ObjectAdater are disposed
             }
             catch (Exception ex)
             {
@@ -612,7 +608,7 @@ namespace ZeroC.IceBox
                     // CommunicatorDestroyedException may occur during shutdown. The observer notification has been sent,
                     // but the communicator was destroyed before the reply was received. We do not log a message for this
                     // exception.
-                    if (_traceServiceObserver >= 1 && !(ex is CommunicatorDestroyedException))
+                    if (_traceServiceObserver >= 1 && !(ex is CommunicatorDisposedException))
                     {
                         _logger.Trace("IceBox.ServiceObserver",
                                       $"Removed service observer {observer}\nafter catching {ex}");
@@ -648,7 +644,7 @@ namespace ZeroC.IceBox
                 {
                     communicator.ShutdownAsync().Wait();
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                     // Ignore, the service might have already destroyed the communicator for its own reasons.
                 }
@@ -704,13 +700,9 @@ namespace ZeroC.IceBox
                     }
                 }
             }
-            catch (CommunicatorDestroyedException)
+            catch (ObjectDisposedException)
             {
-                // Ignored
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-                // Ignored
+                // Expected if the communicator or ObjectAdapter are disposed.
             }
         }
 

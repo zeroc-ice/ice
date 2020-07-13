@@ -17,12 +17,12 @@ namespace ZeroC.Ice
 
         /// <summary>Called by the Ice run time during communicator initialization. The derived class can override this
         /// method to perform any initialization that might be required by a custom logger.</summary>
-        public void Initialize()
+        public virtual void Initialize()
         {
         }
 
         /// <summary>Called by the Ice run time when the communicator is destroyed. The derived class can override this
         /// method to perform any finalization that might be required by a custom logger.</summary>
-        public ValueTask DisposeAsync() => new ValueTask(Task.CompletedTask);
+        public virtual ValueTask DisposeAsync() => new ValueTask(Task.CompletedTask);
     }
 }

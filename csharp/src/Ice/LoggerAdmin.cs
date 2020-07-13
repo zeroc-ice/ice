@@ -255,7 +255,7 @@ namespace ZeroC.Ice
         {
             if (RemoveLogForwarder(remoteLogger.Identity))
             {
-                if (!(ex is CommunicatorDestroyedException))
+                if (!(ex is CommunicatorDisposedException))
                 {
                     if (TraceLevel > 0)
                     {

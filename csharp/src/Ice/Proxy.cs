@@ -503,7 +503,7 @@ namespace ZeroC.Ice
                         }
                         else if (proxy.Communicator.CancellationToken.IsCancellationRequested)
                         {
-                            ex = new CommunicatorDestroyedException();
+                            ex = new CommunicatorDisposedException();
                             observer?.Failed(ex.GetType().FullName ?? "System.Exception");
                             throw ex;
                         }

@@ -350,7 +350,7 @@ namespace ZeroC.Glacier2
                         finder = IRouterFinderPrx.Parse(_finderStr, _communicator);
                         _communicator.DefaultRouter = finder.GetRouter();
                     }
-                    catch (CommunicatorDestroyedException ex)
+                    catch (CommunicatorDisposedException ex)
                     {
                         _callback.ConnectFailed(this, ex);
                         return;

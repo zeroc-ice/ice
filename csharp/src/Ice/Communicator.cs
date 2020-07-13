@@ -75,7 +75,7 @@ namespace ZeroC.Ice
                 catch (ObjectDisposedException ex)
                 {
 #pragma warning disable CA1065
-                    throw new CommunicatorDestroyedException(ex);
+                    throw new CommunicatorDisposedException(ex);
 #pragma warning restore CA1065
                 }
             }
@@ -87,7 +87,7 @@ namespace ZeroC.Ice
                 }
                 catch (ObjectDisposedException ex)
                 {
-                    throw new CommunicatorDestroyedException(ex);
+                    throw new CommunicatorDisposedException(ex);
                 }
             }
         }
@@ -738,7 +738,7 @@ namespace ZeroC.Ice
             {
                 if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet))
@@ -760,14 +760,14 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Add the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
+        /// <summary>Adds the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
         /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with the
         /// Locator's LocatorRegistry. CreateAdmin can only be called once; subsequent calls raise
         /// InvalidOperationException.</summary>
         /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
         /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.</param>
         /// <param name="adminIdentity">The identity of the Admin object.</param>
-        /// <returns>A proxy to the main ("") facet of the Admin object.</returns>
+        /// <returns>A proxy to the Admin object.</returns>
         public IObjectPrx CreateAdmin(ObjectAdapter? adminAdapter, Identity adminIdentity)
         {
             try
@@ -796,7 +796,7 @@ namespace ZeroC.Ice
             {
                 if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (_adminAdapter != null)
@@ -851,20 +851,84 @@ namespace ZeroC.Ice
             return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Destroy the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
+        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
         /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
         public async ValueTask DisposeAsync()
         {
-            // If destroy is in progress just await the _disposeTask, otherwise call PerformDisposeAsync and then await
+            // If Dispose is in progress just await the _disposeTask, otherwise call PerformDisposeAsync and then await
             // the _disposeTask.
             lock (_mutex)
             {
                 _disposeTask ??= PerformDisposeAsync();
             }
             await _disposeTask.ConfigureAwait(false);
+
+            async Task PerformDisposeAsync()
+            {
+                // Cancel operations that are waiting and using the communicator's cancellation token
+                _cancellationTokenSource.Cancel();
+
+                // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
+                // finished.
+                if (_outgoingConnectionFactory != null)
+                {
+                    await _outgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
+                }
+
+                await ShutdownAsync().ConfigureAwait(false);
+
+                // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
+                // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.
+                if (_adminAdapter != null)
+                {
+                    await _adminAdapter.DisposeAsync().ConfigureAwait(false);
+                }
+
+                Observer?.SetObserverUpdater(null);
+
+                if (Logger is LoggerAdminLogger adminLogger)
+                {
+                    await adminLogger.DisposeAsync().ConfigureAwait(false);
+                }
+
+                if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
+                {
+                    List<string> unusedProperties = GetUnusedProperties();
+                    if (unusedProperties.Count != 0)
+                    {
+                        var message = new StringBuilder("The following properties were set but never read:");
+                        foreach (string s in unusedProperties)
+                        {
+                            message.Append("\n    ");
+                            message.Append(s);
+                        }
+                        Logger.Warning(message.ToString());
+                    }
+                }
+
+                // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
+                foreach ((string name, IPlugin plugin) in Enumerable.Reverse(_plugins))
+                {
+                    try
+                    {
+                        await plugin.DisposeAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
+                    }
+                }
+
+                if (Logger is FileLogger fileLogger)
+                {
+                    fileLogger.Dispose();
+                }
+                _currentContext.Dispose();
+                _cancellationTokenSource.Dispose();
+            }
         }
 
-        /// <summary>Destroy the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
+        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
         /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
         public void Dispose() => DisposeAsync().AsTask().Wait();
 
@@ -878,7 +942,7 @@ namespace ZeroC.Ice
             {
                 if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (!_adminFacets.TryGetValue(facet, out IObject? result))
@@ -897,7 +961,7 @@ namespace ZeroC.Ice
             {
                 if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
                 return _adminFacets.ToImmutableDictionary();
             }
@@ -942,7 +1006,7 @@ namespace ZeroC.Ice
             {
                 if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (_adminAdapter != null)
@@ -1151,7 +1215,7 @@ namespace ZeroC.Ice
             {
                 if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
                 return _outgoingConnectionFactory;
             }
@@ -1228,7 +1292,7 @@ namespace ZeroC.Ice
                     adapter.UpdateConnectionObservers();
                 }
             }
-            catch (CommunicatorDestroyedException)
+            catch (CommunicatorDisposedException)
             {
             }
         }
@@ -1268,70 +1332,6 @@ namespace ZeroC.Ice
             }
 
             return null;
-        }
-
-        private async Task PerformDisposeAsync()
-        {
-            // Cancel operations that are waiting and using the communicator's cancellation token
-            _cancellationTokenSource.Cancel();
-
-            // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
-            // finished.
-            if (_outgoingConnectionFactory != null)
-            {
-                await _outgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
-            }
-
-            await ShutdownAsync().ConfigureAwait(false);
-
-            // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
-            // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.
-            if (_adminAdapter != null)
-            {
-                await _adminAdapter.DisposeAsync().ConfigureAwait(false);
-            }
-
-            Observer?.SetObserverUpdater(null);
-
-            if (Logger is LoggerAdminLogger adminLogger)
-            {
-                await adminLogger.DisposeAsync().ConfigureAwait(false);
-            }
-
-            if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
-            {
-                List<string> unusedProperties = GetUnusedProperties();
-                if (unusedProperties.Count != 0)
-                {
-                    var message = new StringBuilder("The following properties were set but never read:");
-                    foreach (string s in unusedProperties)
-                    {
-                        message.Append("\n    ");
-                        message.Append(s);
-                    }
-                    Logger.Warning(message.ToString());
-                }
-            }
-
-            // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
-            foreach ((string name, IPlugin plugin) in Enumerable.Reverse(_plugins))
-            {
-                try
-                {
-                    await plugin.DisposeAsync().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
-                }
-            }
-
-            if (Logger is FileLogger fileLogger)
-            {
-                fileLogger.Dispose();
-            }
-            _currentContext.Dispose();
-            _cancellationTokenSource.Dispose();
         }
 
         private static string TypeIdToClassName(string typeId)

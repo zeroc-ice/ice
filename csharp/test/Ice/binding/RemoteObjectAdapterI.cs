@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+
 namespace ZeroC.Ice.Test.Binding
 {
     public class RemoteObjectAdapter : IRemoteObjectAdapter
@@ -21,7 +23,7 @@ namespace ZeroC.Ice.Test.Binding
             {
                 _adapter.Dispose();
             }
-            catch (ObjectAdapterDeactivatedException)
+            catch (ObjectDisposedException)
             {
             }
         }

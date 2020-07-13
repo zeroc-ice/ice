@@ -50,16 +50,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public ITestIntfPrx getTestIntf(Current current) => _testIntf;
 
-        public void deactivate(Current current)
-        {
-            try
-            {
-                _adapter.Dispose();
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-            }
-        }
+        public void deactivate(Current current) => _adapter.Dispose();
 
         private readonly ObjectAdapter _adapter;
         private readonly ITestIntfPrx _testIntf;

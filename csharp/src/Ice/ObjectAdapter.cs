@@ -87,7 +87,6 @@ namespace ZeroC.Ice
             new Dictionary<IdentityPlusFacet, IObject>();
         private readonly List<IncomingConnectionFactory> _incomingConnectionFactories =
             new List<IncomingConnectionFactory>();
-        private bool _isDeactivated = false;
         private volatile LocatorInfo? _locatorInfo;
         private readonly object _mutex = new object();
         private IReadOnlyList<Endpoint> _publishedEndpoints;
@@ -118,7 +117,10 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
 
                 // Activating twice the object adapter is incorrect
                 if (_activateTask != null)
@@ -141,6 +143,54 @@ namespace ZeroC.Ice
                 _disposeTask ??= PerformDisposeAsync();
             }
             await _disposeTask.ConfigureAwait(false);
+
+            async Task PerformDisposeAsync()
+            {
+                // Wait for activation to complete. This is necessary avoid out of order locator updates.
+                if (_activateTask != null)
+                {
+                    await _activateTask.ConfigureAwait(false);
+                }
+
+                // Note: the router/locator infos and incoming connection factory list are immutable at this point.
+                try
+                {
+                    if (_routerInfo != null)
+                    {
+                        // Remove entry from the router manager.
+                        Communicator.EraseRouterInfo(_routerInfo.Router);
+
+                        // Clear this object adapter with the router.
+                        _routerInfo.Adapter = null;
+                    }
+
+                    await UpdateLocatorRegistryAsync(_locatorInfo, null).ConfigureAwait(false);
+                }
+                catch
+                {
+                    // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
+                }
+
+                lock (_mutex)
+                {
+                    if (_directCount > 0)
+                    {
+                        Debug.Assert(_directDispatchCompletionSource == null);
+                        _directDispatchCompletionSource = new TaskCompletionSource<object?>();
+                    }
+                }
+
+                if (_directDispatchCompletionSource != null)
+                {
+                    await _directDispatchCompletionSource.Task.ConfigureAwait(false);
+                }
+
+                await Task.WhenAll(
+                    _incomingConnectionFactories.Select(factory => factory.DestroyAsync())).ConfigureAwait(false);
+
+                Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
+                Communicator.RemoveObjectAdapter(this);
+            }
         }
 
         /// <summary>Finds a servant in the Active Servant Map (ASM), taking into account the servants and default
@@ -186,7 +236,10 @@ namespace ZeroC.Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
                 return CreateProxy(identity, facet, proxyFactory);
             }
@@ -207,7 +260,10 @@ namespace ZeroC.Ice
                 // We check for deactivation here because we don't want to keep this servant when the adapter is being
                 // deactivated or destroyed. In other languages, notably C++, keeping such a servant could lead to
                 // circular references and leaks.
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
                 _identityServantMap.Add(new IdentityPlusFacet(identity, facet), servant);
             }
         }
@@ -322,7 +378,10 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
                 _categoryServantMap.Add(new CategoryPlusFacet(category, facet), servant);
             }
         }
@@ -360,7 +419,10 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
                 _defaultServantMap.Add(facet, servant);
             }
         }
@@ -556,7 +618,10 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
 
                 (publishedEndpoints, _publishedEndpoints) = (_publishedEndpoints, publishedEndpoints);
             }
@@ -598,7 +663,11 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
+
                 if (_routerInfo != null)
                 {
                     throw new InvalidOperationException(
@@ -786,7 +855,10 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    CheckForDeactivation();
+                    if (_disposeTask != null)
+                    {
+                        throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                    }
 
                     // Proxies which have at least one endpoint in common with the endpoints used by this object
                     // adapter's incoming connection factories are considered local.
@@ -809,7 +881,10 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
                 Debug.Assert(_directCount >= 0);
                 ++_directCount;
             }
@@ -829,15 +904,6 @@ namespace ZeroC.Ice
             }
         }
 
-        private void CheckForDeactivation()
-        {
-            // Must be called with _mutex locked.
-            if (_isDeactivated)
-            {
-                throw new ObjectAdapterDeactivatedException(Name);
-            }
-        }
-
         private static void CheckIdentity(Identity ident)
         {
             if (ident.Name.Length == 0)
@@ -851,7 +917,10 @@ namespace ZeroC.Ice
             CheckIdentity(identity);
             lock (_mutex)
             {
-                CheckForDeactivation();
+                if (_disposeTask != null)
+                {
+                    throw new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{Name}");
+                }
                 Debug.Assert(_reference != null);
                 return new Reference(adapterId: adapterId,
                                      communicator: Communicator,
@@ -1014,13 +1083,9 @@ namespace ZeroC.Ice
                                                                                proxy).ConfigureAwait(false);
                 }
             }
-            catch (ObjectAdapterDeactivatedException)
+            catch (ObjectDisposedException)
             {
-                // Expected if colocated call and OA is deactivated, ignore.
-            }
-            catch (CommunicatorDestroyedException)
-            {
-                // Ignore
+                // Expected if colocated call and OA is deactivated or the communicator is disposed, ignore.
             }
             catch (Exception ex)
             {
@@ -1110,54 +1175,6 @@ namespace ZeroC.Ice
                     factory.Activate();
                 }
             }
-        }
-
-        private async Task PerformDisposeAsync()
-        {
-            // Wait for activation to complete. This is necessary avoid out of order locator updates.
-            if (_activateTask != null)
-            {
-                await _activateTask.ConfigureAwait(false);
-            }
-
-            // Note: the router/locator infos and incoming connection factory list are immutable at this point.
-            try
-            {
-                if (_routerInfo != null)
-                {
-                    // Remove entry from the router manager.
-                    Communicator.EraseRouterInfo(_routerInfo.Router);
-
-                    // Clear this object adapter with the router.
-                    _routerInfo.Adapter = null;
-                }
-
-                await UpdateLocatorRegistryAsync(_locatorInfo, null).ConfigureAwait(false);
-            }
-            catch
-            {
-                // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
-            }
-
-            lock (_mutex)
-            {
-                if (_directCount > 0)
-                {
-                    Debug.Assert(_directDispatchCompletionSource == null);
-                    _directDispatchCompletionSource = new TaskCompletionSource<object?>();
-                }
-            }
-
-            if (_directDispatchCompletionSource != null)
-            {
-                await _directDispatchCompletionSource.Task.ConfigureAwait(false);
-            }
-
-            await Task.WhenAll(
-                _incomingConnectionFactories.Select(factory => factory.DestroyAsync())).ConfigureAwait(false);
-
-            Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
-            Communicator.RemoveObjectAdapter(this);
         }
 
         private readonly struct IdentityPlusFacet : IEquatable<IdentityPlusFacet>

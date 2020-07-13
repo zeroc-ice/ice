@@ -124,11 +124,7 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         throw new ObjectNotExistException(current);
                     }
-                    catch (ObjectAdapterDeactivatedException)
-                    {
-                        throw new ObjectNotExistException(current);
-                    }
-                    catch (CommunicatorDestroyedException)
+                    catch (ObjectDisposedException)
                     {
                         throw new ObjectNotExistException(current);
                     }

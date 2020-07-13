@@ -322,7 +322,7 @@ namespace ZeroC.Ice.Test.AMI
                         p2.opAsync();
                         TestHelper.Assert(false);
                     }
-                    catch (CommunicatorDestroyedException)
+                    catch (CommunicatorDisposedException)
                     {
                         // Expected.
                     }
