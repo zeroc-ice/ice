@@ -674,6 +674,10 @@ namespace ZeroC.Ice
                 throw new InvalidDataException($"received proxy with protocol set to {major}.{minor}");
             }
             var protocol = (Protocol)major;
+            if (protocol == 0)
+            {
+                throw new InvalidDataException($"received proxy with protocol set to 0");
+            }
 
             major = istr.ReadByte();
             minor = istr.ReadByte();

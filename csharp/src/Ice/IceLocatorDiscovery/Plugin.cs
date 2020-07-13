@@ -71,14 +71,15 @@ namespace ZeroC.IceLocatorDiscovery
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
             // datagram on each endpoint.
             var single = new Endpoint[1];
-            foreach (UdpEndpoint endpoint in lookup.Endpoints.Cast<UdpEndpoint>())
+            foreach (Endpoint endpoint in lookup.Endpoints)
             {
+                // TODO: throw an exception if any endpoint is not a UDP endpoint?
+
                 single[0] = endpoint;
                 ILookupPrx key = lookup.Clone(endpoints: single);
-                if (endpoint.McastInterface.Length > 0)
+                if (endpoint["interface"] is string mcastInterface && mcastInterface.Length > 0)
                 {
-                    IPEndpoint? q = lookupReply.Endpoints.Cast<IPEndpoint>().FirstOrDefault(
-                        e => e is IPEndpoint ipEndpoint && ipEndpoint.Host.Equals(endpoint.McastInterface));
+                    Endpoint? q = lookupReply.Endpoints.FirstOrDefault(e => e.Host == mcastInterface);
 
                     if (q != null)
                     {
