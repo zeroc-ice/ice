@@ -66,7 +66,7 @@ namespace ZeroC.Ice
             string host,
             int port,
             IPAddress? sourceAddress,
-            int timeout,
+            TimeSpan timeout,
             bool compressionFlag,
             string resource)
             : base(communicator,
@@ -109,7 +109,7 @@ namespace ZeroC.Ice
             string host,
             int port,
             bool compressionFlag,
-            int timeout) =>
+            TimeSpan timeout) =>
             new WSEndpoint(Communicator,
                            Protocol,
                            Transport,

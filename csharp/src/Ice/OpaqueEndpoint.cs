@@ -22,7 +22,7 @@ namespace ZeroC.Ice
         public override bool HasCompressionFlag => false;
         public override bool IsDatagram => false;
         public override bool IsSecure => false;
-        public override int Timeout => -1;
+        public override TimeSpan Timeout => System.Threading.Timeout.InfiniteTimeSpan;
         public override Transport Transport { get; }
         public override string TransportName => "opaque";
 
@@ -104,7 +104,7 @@ namespace ZeroC.Ice
             throw new NotImplementedException("cannot write the payload for an opaque endpoint");
         }
 
-        public override Endpoint NewTimeout(int t) => this;
+        public override Endpoint NewTimeout(TimeSpan t) => this;
         public override Endpoint NewCompressionFlag(bool compress) => this;
 
         public override ValueTask<IEnumerable<IConnector>> ConnectorsAsync(EndpointSelectionType _) =>

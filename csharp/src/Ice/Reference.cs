@@ -760,7 +760,7 @@ namespace ZeroC.Ice
             //
             if (sent && !idempotent && !(ex is ObjectNotExistException) && !(ex is ConnectionClosedByPeerException))
             {
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
 
             //
@@ -769,7 +769,7 @@ namespace ZeroC.Ice
             //
             if (IsFixed)
             {
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
 
             if (ex is ObjectNotExistException one)
@@ -812,7 +812,7 @@ namespace ZeroC.Ice
                     //
                     // For all other cases, we don't retry ObjectNotExistException.
                     //
-                    throw ex;
+                    throw ExceptionUtil.Throw(ex);
                 }
             }
 
@@ -824,7 +824,7 @@ namespace ZeroC.Ice
                 ex is ObjectAdapterDeactivatedException ||
                 ex is ConnectionClosedLocallyException)
             {
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
 
             ++cnt;
@@ -846,7 +846,7 @@ namespace ZeroC.Ice
                     Communicator.Logger.Trace(Communicator.TraceLevels.RetryCategory,
                         $"cannot retry operation call because retry limit has been exceeded\n{ex}");
                 }
-                throw ex;
+                throw ExceptionUtil.Throw(ex);
             }
             else
             {
@@ -1248,10 +1248,10 @@ namespace ZeroC.Ice
                 bool compress = false;
                 if (Protocol == Protocol.Ice1)
                 {
-                    // If one of the resolved proxy's endpoints matches one of the connection endpoint and this endpoint
-                    // doesn't have the compression flag set, we don't use compression.
-                    compress = !endpoints.Where(endpoint =>
-                        connection.Endpoints.Contains(endpoint) && !endpoint.HasCompressionFlag).Any();
+                    // Use compression if the first matching endpoint uses compression. We make sure to compare
+                    // endpoints with the same timeout value to ignore the timeout.
+                    compress = endpoints.First(endpoint => connection.Endpoints.Exists(connectionEndpoint =>
+                        endpoint.NewTimeout(connectionEndpoint.Timeout).Equals(connectionEndpoint))).HasCompressionFlag;
                 }
                 return new ConnectionRequestHandler(connection, compress);
             }

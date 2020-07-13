@@ -346,6 +346,10 @@ namespace ZeroC.Ice
         private protected abstract IConnector CreateConnector(EndPoint addr, INetworkProxy? proxy);
 
         // TODO: rename to Clone and make parameters optional?
-        private protected abstract IPEndpoint CreateIPEndpoint(string host, int port, bool compressionFlag, int timeout);
+        private protected abstract IPEndpoint CreateIPEndpoint(
+            string host,
+            int port,
+            bool compressionFlag,
+            TimeSpan timeout);
     }
 }

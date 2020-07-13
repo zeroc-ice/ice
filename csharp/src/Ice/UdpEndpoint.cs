@@ -23,7 +23,7 @@ namespace ZeroC.Ice
         /// <summary>The time-to-live of the multicast datagrams, in milliseconds.</summary>
         public int McastTtl { get; } = -1;
 
-        public override int Timeout => -1;
+        public override TimeSpan Timeout => System.Threading.Timeout.InfiniteTimeSpan;
         public override Transport Transport => Transport.UDP;
 
         private readonly bool _connect;
@@ -130,7 +130,7 @@ namespace ZeroC.Ice
             ostr.WriteBool(HasCompressionFlag);
         }
 
-        public override Endpoint NewTimeout(int timeout) => this;
+        public override Endpoint NewTimeout(TimeSpan timeout) => this;
 
         public override IAcceptor? GetAcceptor(string adapterName) => null;
 
@@ -241,7 +241,7 @@ namespace ZeroC.Ice
             string host,
             int port,
             bool compressionFlag,
-            int timeout) =>
+            TimeSpan timeout) =>
             new UdpEndpoint(Communicator,
                             Protocol,
                             host,

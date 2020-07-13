@@ -445,13 +445,13 @@ namespace ZeroC.Ice
                         $"invalid value for Ice.Default.LocatorCacheTimeout: `{DefaultLocatorCacheTimeout}'");
                 }
 
-                CloseTimeout = GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(60);
+                CloseTimeout = GetPropertyAsTimeSpan("Ice.CloseTimeout") ?? TimeSpan.FromSeconds(10);
                 if (CloseTimeout < TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException($"invalid value for Ice.CloseTimeout: `{CloseTimeout}'");
                 }
 
-                ConnectTimeout = GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(60);
+                ConnectTimeout = GetPropertyAsTimeSpan("Ice.ConnectTimeout") ?? TimeSpan.FromSeconds(10);
                 if (ConnectTimeout < TimeSpan.Zero)
                 {
                     throw new InvalidConfigurationException($"invalid value for Ice.ConnectTimeout: `{ConnectTimeout}'");
