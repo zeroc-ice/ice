@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -21,7 +22,7 @@ namespace ZeroC.Ice.Test.Metrics
                 s = (ConnectionMetrics?)metrics.GetMetricsView("View").ReturnValue["Connection"][0];
                 TestHelper.Assert(s != null);
                 int nRetry = 30;
-                while (s.SentBytes != expected && nRetry-- > 0)
+                while (s.SentBytes < expected && nRetry-- > 0)
                 {
                     // On some platforms, it's necessary to wait a little before obtaining the server metrics
                     // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
@@ -31,6 +32,7 @@ namespace ZeroC.Ice.Test.Metrics
                     s = (ConnectionMetrics?)metrics.GetMetricsView("View").ReturnValue["Connection"][0];
                     TestHelper.Assert(s != null);
                 }
+                TestHelper.Assert(s.SentBytes >= expected);
                 return s;
             }
             catch (UnknownMetricsView)
@@ -41,7 +43,8 @@ namespace ZeroC.Ice.Test.Metrics
         }
 
         public static string
-        getPort(IPropertiesAdminPrx p) => TestHelper.GetTestPort(p.Communicator.GetProperties(), 0).ToString();
+        getPort(IPropertiesAdminPrx p, int port) =>
+            TestHelper.GetTestPort(p.Communicator.GetProperties(), port).ToString();
 
         private static Dictionary<string, string>
         getClientProps(IPropertiesAdminPrx p, Dictionary<string, string> orig, string m)
@@ -61,7 +64,7 @@ namespace ZeroC.Ice.Test.Metrics
                 map += "Map." + m + '.';
             }
             props[$"IceMX.Metrics.View.{map}Reject.parent"] = "Ice\\.Admin";
-            props[$"IceMX.Metrics.View.{map}Accept.endpointPort"] = getPort(p);
+            props[$"IceMX.Metrics.View.{map}Accept.endpointPort"] = $"{getPort(p, 0)}|{getPort(p, 2)}";
             props[$"IceMX.Metrics.View.{map}Reject.identity"] = ".*/admin|controller";
             return props;
         }
@@ -84,7 +87,7 @@ namespace ZeroC.Ice.Test.Metrics
                 map += "Map." + m + '.';
             }
             props[$"IceMX.Metrics.View.{map}Reject.parent"] = "Ice\\.Admin|Controller";
-            props[$"IceMX.Metrics.View.{map}Accept.endpointPort"] = getPort(p);
+            props[$"IceMX.Metrics.View.{map}Accept.endpointPort"] = $"{getPort(p, 0)}|{getPort(p, 2)}";
             return props;
         }
 
@@ -329,6 +332,10 @@ namespace ZeroC.Ice.Test.Metrics
             if (!f.Failures.ContainsKey(failure))
             {
                 output.WriteLine($"couldn't find failure `{failure}' for `{id}'");
+                foreach (KeyValuePair<string, int> value in f.Failures)
+                {
+                    output.WriteLine($"{value.Key} = {value.Value}");
+                }
                 TestHelper.Assert(false);
             }
             if (count > 0 && f.Failures[failure] != count)
@@ -357,10 +364,11 @@ namespace ZeroC.Ice.Test.Metrics
             string port = helper.GetTestPort(0).ToString();
             string hostAndPort = host + ":" + port;
             string transport = helper.GetTestTransport();
-            string endpoint = transport + " -h " + host + " -p " + port;
-            string timeout = communicator.GetProperty("Ice.Default.Timeout") ?? "60000";
+            string timeout = "60000";
+            string endpoint = $"{transport} -h {host} -p {port} -t {timeout}";
 
-            IMetricsPrx metrics = IMetricsPrx.Parse($"metrics:{endpoint}", communicator);
+            var metrics = IMetricsPrx.Parse($"metrics:{endpoint}", communicator);
+
             bool collocated = metrics.GetConnection() == null;
             var output = helper.GetWriter();
             output.Write("testing metrics admin facet checkedCast... ");
@@ -489,12 +497,12 @@ namespace ZeroC.Ice.Test.Metrics
 
                 ConnectionMetrics cm1, sm1, cm2, sm2;
                 cm1 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                sm1 = getServerConnectionMetrics(serverMetrics, 25)!;
+                sm1 = getServerConnectionMetrics(serverMetrics, 22)!;
 
                 metrics.IcePing();
 
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
-                sm2 = getServerConnectionMetrics(serverMetrics, 50)!;
+                sm2 = getServerConnectionMetrics(serverMetrics, 44)!;
 
                 if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
@@ -561,9 +569,6 @@ namespace ZeroC.Ice.Test.Metrics
                 map = toMap(serverMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
 
                 TestHelper.Assert(map["active"].Current == 1);
-
-                var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
-
                 metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
                 map = toMap(clientMetrics.GetMetricsView("View").ReturnValue["Connection"]!);
@@ -572,50 +577,53 @@ namespace ZeroC.Ice.Test.Metrics
 
                 props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
                 updateProps(clientProps, serverProps, update, props, "Connection");
-
                 metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
 
-                // TODO: remove or refactor depending on what we decide for connection timeouts
-                // metrics.Clone(connectionTimeout: 500).IcePing();
-                // controller.hold();
-                // try
-                // {
-                //     metrics.Clone(connectionTimeout: 500).opByteS(new byte[10000000]);
-                //     TestHelper.Assert(false);
-                // }
-                // catch (Ice.ConnectTimeoutException)
-                // {
-                // }
-                // controller.resume();
+                var controller = IControllerPrx.Parse($"controller:{helper.GetTestEndpoint(1)}", communicator);
+                var metricsWithHold = IMetricsPrx.Parse($"metrics:{helper.GetTestEndpoint(2)}", communicator);
 
-                // cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-                // while (true)
-                // {
-                //     sm1 = (IceMX.ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0];
-                //     if (sm1.Failures >= 2)
-                //     {
-                //         break;
-                //     }
-                //     Thread.Sleep(10);
-                // }
-                // TestHelper.Assert(cm1.Failures == 2 && sm1.Failures >= 2);
+                metricsWithHold.GetConnection()!.Acm = new Acm(TimeSpan.FromMilliseconds(50),
+                                                               AcmClose.OnInvocation,
+                                                               AcmHeartbeat.Off);
+                controller.hold();
+                metricsWithHold.IcePingAsync(); // Ensure the server stops reading
+                try
+                {
+                    metricsWithHold.opByteS(new byte[10000000]);
+                    TestHelper.Assert(false);
+                }
+                catch (ConnectTimeoutException)
+                {
+                }
+                controller.resume();
 
-                // checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectionTimeoutException", 1, output);
-                // checkFailure(clientMetrics, "Connection", cm1.Id, "Ice.ConnectTimeoutException", 1, output);
-                // checkFailure(serverMetrics, "Connection", sm1.Id, "Ice.ConnectionLostException", 0, output);
+                cm1 = (IceMX.ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+                while (true)
+                {
+                    sm1 = (IceMX.ConnectionMetrics)serverMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
+                    if (sm1.Failures >= 2)
+                    {
+                        break;
+                    }
+                    Thread.Sleep(10);
+                }
+                TestHelper.Assert(cm1.Failures == 2 && sm1.Failures >= 2);
 
-                IMetricsPrx m = metrics.Clone(connectionTimeout: 500, connectionId: "Con1");
+                checkFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectionTimeoutException", 1, output);
+                checkFailure(clientMetrics, "Connection", cm1.Id, "ZeroC.Ice.ConnectTimeoutException", 1, output);
+                checkFailure(serverMetrics, "Connection", sm1.Id, "ZeroC.Ice.ConnectionLostException", 0, output);
+
+                IMetricsPrx m = metrics.Clone(connectionId: "Con1");
                 m.IcePing();
 
                 testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
                 //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-                testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
-                            endpoint + " -t 500", output);
+                testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint", endpoint, output);
 
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTransport", transportName, output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "False", output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", isSecure, output);
-                testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500", output);
+                testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "60000", output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "False", output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", host, output);
                 testAttribute(clientMetrics, clientProps, update, "Connection", "endpointPort", port, output);
@@ -652,10 +660,14 @@ namespace ZeroC.Ice.Test.Metrics
                 TestHelper.Assert(m1.Current == 0 && m1.Total == 1 && m1.Id.Equals(hostAndPort));
 
                 metrics.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
+
+                clearView(clientProps, serverProps, update);
+                TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 0);
+
                 controller.hold();
                 try
                 {
-                    IObjectPrx.Parse($"test:tcp -h 127.0.0.1 -p {port}", communicator).Clone(connectionTimeout: 10).IcePing();
+                    IObjectPrx.Parse($"test:{helper.GetTestEndpoint(2)}", communicator).IcePing();
                     TestHelper.Assert(false);
                 }
                 catch (ConnectTimeoutException)
@@ -666,24 +678,24 @@ namespace ZeroC.Ice.Test.Metrics
                     TestHelper.Assert(false);
                 }
                 controller.resume();
+
                 TestHelper.Assert(clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"].Length == 1);
                 m1 = clientMetrics.GetMetricsView("View").ReturnValue["ConnectionEstablishment"][0]!;
-                TestHelper.Assert(m1.Id.Equals(hostAndPort) && m1.Total == 3 && m1.Failures == 2);
+                TestHelper.Assert(m1.Total == 2 && m1.Failures == 2);
 
                 checkFailure(clientMetrics, "ConnectionEstablishment", m1.Id, "ZeroC.Ice.ConnectTimeoutException", 2, output);
 
                 System.Action c = () => { connect(metrics); };
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
-                testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                            endpoint + " -t " + timeout, c, output);
+                testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint", endpoint, c, output);
 
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTransport", transportName, c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
                             c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
                             c, output);
-                testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", timeout, c, output);
+                testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
                             c, output);
                 testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c, output);
@@ -851,8 +863,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!collocated)
             {
-                testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint",
-                            endpoint + " -t 60000", op, output);
+                testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", endpoint, op, output);
                 //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
                 testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTransport", transportName, op, output);
@@ -1093,7 +1104,7 @@ namespace ZeroC.Ice.Test.Metrics
             testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", $"{defaultEncoding}", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint} -t {timeout}", op, output);
+                $"metrics -t -p {defaultProtocolName} -e {defaultEncoding}:{endpoint}", op, output);
 
             testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
             testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);

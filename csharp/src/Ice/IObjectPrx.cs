@@ -189,17 +189,6 @@ namespace ZeroC.Ice
         /// <summary>The invocation mode of this proxy. </summary>
         public InvocationMode InvocationMode => IceReference.InvocationMode;
 
-        /// <summary>The compression override setting of this proxy.</summary>
-        /// <value>When null, no override is set and the compress setting of the endpoint(s) is used. When true,
-        /// override the compress setting of all endpoints to enable compression. When false, override the compress
-        /// setting of all endpoint to disable compression.</value>
-        public bool? Compress => IceReference.Compress;
-
-        /// <summary>The connection timeout override setting of this proxy, in milliseconds.</summary>
-        /// <value>When null, no override is set and the timeout setting of the endpoint(s) is used. When non-null,
-        /// overrides the timeout setting of all endpoints.</value>
-        public int? ConnectionTimeout => IceReference.ConnectionTimeout;
-
         /// <summary>The connection ID of this proxy.</summary>
         public string ConnectionId => IceReference.ConnectionId;
 

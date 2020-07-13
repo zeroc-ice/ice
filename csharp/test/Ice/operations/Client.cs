@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Operations
             myClass.shutdown();
             try
             {
-                myClass.Clone(connectionTimeout: 100).IcePing(); // Use timeout to speed up testing on Windows
+                myClass.IcePing();
                 Assert(false);
             }
             catch (Exception)

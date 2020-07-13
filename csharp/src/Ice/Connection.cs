@@ -22,13 +22,13 @@ namespace ZeroC.Ice
         Off,
         /// <summary>Gracefully closes a connection that has been idle for the configured timeout period.</summary>
         OnIdle,
-        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, regardless of
-        /// whether the connection has pending invocations or dispatch.</summary>
-        OnInvocation,
         /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, but only if
         /// the connection has pending invocations.</summary>
-        OnInvocationAndIdle,
+        OnInvocation,
         /// <summary>Combines the behaviors of CloseOnIdle and CloseOnInvocation.</summary>
+        OnInvocationAndIdle,
+        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, regardless of
+        /// whether the connection has pending invocations or dispatch.</summary>
         OnIdleForceful
     }
 
@@ -134,7 +134,7 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    if (_monitor == null || _state >= ConnectionState.Closed)
+                    if (_monitor == null || _state >= ConnectionState.Closing)
                     {
                         return;
                     }
@@ -145,14 +145,12 @@ namespace ZeroC.Ice
                     }
                     _monitor = _monitor.Create(value);
 
-                    if (_monitor.Acm.Timeout == TimeSpan.Zero ||
-                        _monitor.Acm.Timeout == System.Threading.Timeout.InfiniteTimeSpan)
+                    if (_monitor.Acm.Timeout == TimeSpan.Zero || _monitor.Acm.Timeout == Timeout.InfiniteTimeSpan)
                     {
                         // Disable the recording of last activity.
-                        _acmLastActivity = System.Threading.Timeout.InfiniteTimeSpan;
+                        _acmLastActivity = Timeout.InfiniteTimeSpan;
                     }
-                    else if (_state == ConnectionState.Active &&
-                             _acmLastActivity == System.Threading.Timeout.InfiniteTimeSpan)
+                    else if (_state == ConnectionState.Active && _acmLastActivity == Timeout.InfiniteTimeSpan)
                     {
                         _acmLastActivity = Time.Elapsed;
                     }
@@ -211,9 +209,6 @@ namespace ZeroC.Ice
         // or "localhost" are different endpoints but they all end up resolving to the same connector and can use
         // the same connection).
         internal List<Endpoint> Endpoints { get; }
-
-        // TODO: Remove Timeout after reviewing its usages, it's no longer used by the connection
-        internal int Timeout => Endpoint.Timeout;
 
         internal bool Active
         {
@@ -423,14 +418,13 @@ namespace ZeroC.Ice
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = _communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
 
-            if (_monitor?.Acm.Timeout != TimeSpan.Zero &&
-                _monitor?.Acm.Timeout != System.Threading.Timeout.InfiniteTimeSpan)
+            if (_monitor?.Acm.Timeout != TimeSpan.Zero && _monitor?.Acm.Timeout != Timeout.InfiniteTimeSpan)
             {
                 _acmLastActivity = Time.Elapsed;
             }
             else
             {
-                _acmLastActivity = System.Threading.Timeout.InfiniteTimeSpan;
+                _acmLastActivity = Timeout.InfiniteTimeSpan;
             }
             _nextRequestId = 1;
             _frameSizeMax = adapter != null ? adapter.FrameSizeMax : _communicator.FrameSizeMax;
@@ -507,7 +501,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state < ConnectionState.Active || _state >= ConnectionState.Closed)
+                if (_state != ConnectionState.Active)
                 {
                     return;
                 }
@@ -541,21 +535,9 @@ namespace ZeroC.Ice
                     }
                 }
 
-                // TODO: We still rely on the endpoint timeout here, remove and change the override close timeout to
-                // Ice.CloseTimeout (or just rely on ACM timeout)
-                TimeSpan timeout = acm.Timeout;
-                if (_state >= ConnectionState.Closing)
+                if (acm.Close != AcmClose.Off && now >= _acmLastActivity + acm.Timeout)
                 {
-                    timeout = TimeSpan.FromMilliseconds(
-                        _communicator.OverrideCloseTimeout ?? Endpoint.Timeout);
-                }
-
-                // ACM close is always enabled when in the closing state for connection close timeouts.
-                if ((_state >= ConnectionState.Closing || acm.Close != AcmClose.Off) &&
-                    now >= _acmLastActivity + timeout)
-                {
-                    if (_state == ConnectionState.Closing || acm.Close == AcmClose.OnIdleForceful ||
-                        (acm.Close != AcmClose.OnIdle && (_requests.Count > 0)))
+                    if (acm.Close == AcmClose.OnIdleForceful || (acm.Close != AcmClose.OnIdle && (_requests.Count > 0)))
                     {
                         // Close the connection if we didn't receive a heartbeat or if read/write didn't update the
                         // ACM activity in the last period.
@@ -649,6 +631,8 @@ namespace ZeroC.Ice
                 childObserver?.Detach();
                 throw;
             }
+
+            // The request is sent
             progress.Report(false); // sentSynchronously: false
 
             if (responseTask == null)
@@ -678,16 +662,14 @@ namespace ZeroC.Ice
 
         internal async Task StartAsync()
         {
+            CancellationTokenSource? source = null;
             try
             {
-                // TODO: for now, we continue using the endpoint timeout as the default connect timeout. This is
-                // use for both connect/accept timeouts. We're leaning toward adding Ice.ConnectTimeout for
-                // connection establishment and using the ACM timeout for accepting connections.
-                int timeout = _communicator.OverrideConnectTimeout ?? Endpoint.Timeout;
                 CancellationToken timeoutToken;
-                if (timeout > 0)
+                TimeSpan timeout = _communicator.ConnectTimeout;
+                if (timeout > TimeSpan.Zero)
                 {
-                    var source = new CancellationTokenSource();
+                    source = new CancellationTokenSource();
                     source.CancelAfter(timeout);
                     timeoutToken = source.Token;
                 }
@@ -833,7 +815,7 @@ namespace ZeroC.Ice
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory, s.ToString());
                     }
 
-                    if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
+                    if (_acmLastActivity != Timeout.InfiniteTimeSpan)
                     {
                         _acmLastActivity = Time.Elapsed;
                     }
@@ -854,6 +836,10 @@ namespace ZeroC.Ice
             {
                 _ = CloseAsync(ex);
                 throw;
+            }
+            finally
+            {
+                source?.Dispose();
             }
         }
 
@@ -1418,7 +1404,7 @@ namespace ZeroC.Ice
             // continuations or the callback are not run from this thread which might still lock the connection's mutex.
             await Task.Run(() =>
             {
-                foreach ((TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource, bool synchronous) request in
+                foreach ((TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource, bool _) request in
                     _requests.Values)
                 {
                     request.TaskCompletionSource.SetException(_exception!);
@@ -1454,12 +1440,26 @@ namespace ZeroC.Ice
                 {
                     await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
                 }
+            }
 
+            CancellationToken timeoutToken;
+            CancellationTokenSource? source = null;
+            TimeSpan timeout = _communicator.CloseTimeout;
+            if (timeout > TimeSpan.Zero)
+            {
+                source = new CancellationTokenSource();
+                source.CancelAfter(timeout);
+                timeoutToken = source.Token;
+            }
+
+            if (!(_exception is ConnectionClosedByPeerException))
+            {
                 // Write and wait for the close connection frame to be written
                 try
                 {
                     await SendFrameAsync(() => GetProtocolFrameData(
-                        OldProtocol ? _closeConnectionFrameIce1 : _closeConnectionFrameIce2)).ConfigureAwait(false);
+                        OldProtocol ? _closeConnectionFrameIce1 : _closeConnectionFrameIce2),
+                        timeoutToken).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -1470,21 +1470,24 @@ namespace ZeroC.Ice
             // Notify the transport of the graceful connection closure.
             try
             {
-                await Transceiver.ClosingAsync(_exception!).ConfigureAwait(false);
+                await Transceiver.ClosingAsync(_exception!, timeoutToken).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch
             {
-                _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
+                // Ignore
             }
 
             // Wait for the connection closure from the peer
             try
             {
-                await _receiveTask.ConfigureAwait(false);
+                await _receiveTask.WaitAsync(timeoutToken).ConfigureAwait(false);
             }
             catch
             {
+                // Ignore
             }
+
+            source?.Dispose();
         }
 
         private async ValueTask<ArraySegment<byte>> PerformReceiveFrameAsync()
@@ -1549,7 +1552,7 @@ namespace ZeroC.Ice
                 }
 
                 TraceReceivedAndUpdateObserver(readBuffer.Count);
-                if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
+                if (_acmLastActivity != Timeout.InfiniteTimeSpan)
                 {
                     _acmLastActivity = Time.Elapsed;
                 }
@@ -1594,7 +1597,7 @@ namespace ZeroC.Ice
                         }
 
                         TraceReceivedAndUpdateObserver(bytesReceived);
-                        if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
+                        if (_acmLastActivity != Timeout.InfiniteTimeSpan)
                         {
                             _acmLastActivity = Time.Elapsed;
                         }
@@ -1655,13 +1658,13 @@ namespace ZeroC.Ice
                 offset += bytesSent;
                 lock (_mutex)
                 {
-                    if (_state > ConnectionState.Closing)
+                    if (_state >= ConnectionState.Closed)
                     {
-                        return;
+                        throw _exception!;
                     }
 
                     TraceSentAndUpdateObserver(bytesSent);
-                    if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
+                    if (_acmLastActivity != Timeout.InfiniteTimeSpan)
                     {
                         _acmLastActivity = Time.Elapsed;
                     }
@@ -1897,7 +1900,7 @@ namespace ZeroC.Ice
             {
                 if (state == ConnectionState.Active)
                 {
-                    if (_acmLastActivity != System.Threading.Timeout.InfiniteTimeSpan)
+                    if (_acmLastActivity != Timeout.InfiniteTimeSpan)
                     {
                         _acmLastActivity = Time.Elapsed;
                     }
