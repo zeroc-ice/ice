@@ -1,0 +1,28 @@
+-- 7/13/2020 17:57:45:368 server: Network: attempting to bind to tcp socket 127.0.0.1:0
+-- 7/13/2020 17:57:45:374 server: Network: listening for tcp connections
+   local address = 127.0.0.1:54548
+-- 7/13/2020 17:57:45:377 server: Network: published endpoints for object adapter `Ice.Admin':
+   tcp -h 127.0.0.1 -p 54548 -t 60000
+-- 7/13/2020 17:57:45:387 server: Network: accepting tcp connections at 127.0.0.1:54548
+-- 7/13/2020 17:57:45:389 server: Network: attempting to bind to tcp socket 127.0.0.1:12010
+-- 7/13/2020 17:57:45:389 server: Network: listening for tcp connections
+   local address = 127.0.0.1:12010
+-- 7/13/2020 17:57:45:390 server: Network: published endpoints for object adapter `TestAdapter':
+   tcp -h 127.0.0.1 -p 12010 -t 60000
+-- 7/13/2020 17:57:45:392 server: Network: accepting tcp connections at 127.0.0.1:12010
+-- 7/13/2020 17:57:45:393 server: Network: attempting to bind to tcp socket 127.0.0.1:12012
+-- 7/13/2020 17:57:45:393 server: Network: listening for tcp connections
+   local address = 127.0.0.1:12012
+-- 7/13/2020 17:57:45:393 server: Network: published endpoints for object adapter `TestAdapterExclusiveTS':
+   tcp -h 127.0.0.1 -p 12012 -t 60000
+-- 7/13/2020 17:57:45:393 server: Network: accepting tcp connections at 127.0.0.1:12012
+-- 7/13/2020 17:57:45:393 server: Network: attempting to bind to tcp socket 127.0.0.1:12011
+-- 7/13/2020 17:57:45:393 server: Network: listening for tcp connections
+   local address = 127.0.0.1:12011
+-- 7/13/2020 17:57:45:393 server: Network: published endpoints for object adapter `ControllerAdapter':
+   tcp -h 127.0.0.1 -p 12011 -t 60000
+-- 7/13/2020 17:57:45:394 server: Network: accepting tcp connections at 127.0.0.1:12011
+-- 7/13/2020 17:57:45:404 server: Network: stopping to accept tcp connections at 127.0.0.1:54548
+-- 7/13/2020 17:57:45:405 server: Network: stopping to accept tcp connections at 127.0.0.1:12010
+-- 7/13/2020 17:57:45:405 server: Network: stopping to accept tcp connections at 127.0.0.1:12012
+-- 7/13/2020 17:57:45:405 server: Network: stopping to accept tcp connections at 127.0.0.1:12011

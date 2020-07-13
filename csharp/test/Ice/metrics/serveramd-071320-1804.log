@@ -1,0 +1,28 @@
+-- 7/13/2020 18:04:23:809 serveramd: Network: attempting to bind to tcp socket 127.0.0.1:0
+-- 7/13/2020 18:04:23:813 serveramd: Network: listening for tcp connections
+   local address = 127.0.0.1:54631
+-- 7/13/2020 18:04:23:815 serveramd: Network: published endpoints for object adapter `Ice.Admin':
+   tcp -h 127.0.0.1 -p 54631 -t 60000
+-- 7/13/2020 18:04:23:822 serveramd: Network: accepting tcp connections at 127.0.0.1:54631
+-- 7/13/2020 18:04:23:823 serveramd: Network: attempting to bind to tcp socket 127.0.0.1:12010
+-- 7/13/2020 18:04:23:824 serveramd: Network: listening for tcp connections
+   local address = 127.0.0.1:12010
+-- 7/13/2020 18:04:23:824 serveramd: Network: published endpoints for object adapter `TestAdapter':
+   tcp -h 127.0.0.1 -p 12010 -t 60000
+-- 7/13/2020 18:04:23:824 serveramd: Network: accepting tcp connections at 127.0.0.1:12010
+-- 7/13/2020 18:04:23:825 serveramd: Network: attempting to bind to tcp socket 127.0.0.1:12012
+-- 7/13/2020 18:04:23:825 serveramd: Network: listening for tcp connections
+   local address = 127.0.0.1:12012
+-- 7/13/2020 18:04:23:825 serveramd: Network: published endpoints for object adapter `TestAdapterExclusiveTS':
+   tcp -h 127.0.0.1 -p 12012 -t 60000
+-- 7/13/2020 18:04:23:825 serveramd: Network: accepting tcp connections at 127.0.0.1:12012
+-- 7/13/2020 18:04:23:825 serveramd: Network: attempting to bind to tcp socket 127.0.0.1:12011
+-- 7/13/2020 18:04:23:826 serveramd: Network: listening for tcp connections
+   local address = 127.0.0.1:12011
+-- 7/13/2020 18:04:23:826 serveramd: Network: published endpoints for object adapter `ControllerAdapter':
+   tcp -h 127.0.0.1 -p 12011 -t 60000
+-- 7/13/2020 18:04:23:826 serveramd: Network: accepting tcp connections at 127.0.0.1:12011
+-- 7/13/2020 18:04:23:834 serveramd: Network: stopping to accept tcp connections at 127.0.0.1:54631
+-- 7/13/2020 18:04:23:835 serveramd: Network: stopping to accept tcp connections at 127.0.0.1:12010
+-- 7/13/2020 18:04:23:835 serveramd: Network: stopping to accept tcp connections at 127.0.0.1:12012
+-- 7/13/2020 18:04:23:835 serveramd: Network: stopping to accept tcp connections at 127.0.0.1:12011

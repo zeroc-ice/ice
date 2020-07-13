@@ -617,7 +617,7 @@ namespace ZeroC.Ice
             return s.ToString();
         }
 
-        public int EffectivePort() => Network.EndpointPort(_addr);
+        public ushort EffectivePort() => Network.EndpointPort(_addr);
 
         //
         // Only for use by UdpConnector.
@@ -668,7 +668,7 @@ namespace ZeroC.Ice
         // Only for use by UdpEndpoint.
         //
         internal UdpTransceiver(UdpEndpoint endpoint, Communicator communicator, string host,
-            int port, string mcastInterface, bool connect)
+            ushort port, string mcastInterface, bool connect)
         {
             _endpoint = endpoint;
             _communicator = communicator;

@@ -1,0 +1,8 @@
+-- 7/13/2020 17:57:45:591 client: Network: trying to establish tcp connection to 127.0.0.1:12010
+-- 7/13/2020 17:57:46:121 client: Network: closed tcp connection
+   
+   ZeroC.Ice.ConnectTimeoutException: Exception of type 'ZeroC.Ice.ConnectTimeoutException' was thrown.
+-- 7/13/2020 17:57:46:135 client: Network: failed to establish tcp connection to 127.0.0.1:12010 and no more endpoints to try
+   ZeroC.Ice.ConnectTimeoutException: Exception of type 'ZeroC.Ice.ConnectTimeoutException' was thrown.
+      at ZeroC.Ice.Connection.StartAsync() in D:\4.0\ice\csharp\src\Ice\Connection.cs:line 833
+      at ZeroC.Ice.OutgoingConnectionFactory.ConnectAsync(IReadOnlyList`1 connectors, Boolean hasMore) in D:\4.0\ice\csharp\src\Ice\ConnectionFactory.cs:line 271

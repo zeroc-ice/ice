@@ -13,63 +13,25 @@ using System.Threading.Tasks;
 namespace ZeroC.Ice
 {
     /// <summary>The base class for IP-based endpoints: TcpEndpoint, UdpEndpoint.</summary>
-    public abstract class IPEndpoint : Endpoint
+    internal abstract class IPEndpoint : Endpoint
     {
-        /// <summary>The communicator used to create this endpoint.</summary>
-        public override Communicator Communicator { get; }
+        public override string Host { get; }
 
-        /// <summary>The hostname of this IP endpoint.</summary>
-        public string Host { get; }
-        public override bool IsSecure => false;
+        public override string? this[string option] =>
+            option == "source-address" ? SourceAddress?.ToString() : base[option];
 
-        /// <summary>The port number of this IP endpoint.</summary>
-        public int Port { get; }
+        public override ushort Port { get; }
 
         /// <summary>The source address of this IP endpoint.</summary>
-        public IPAddress? SourceAddress { get; }
+        internal IPAddress? SourceAddress { get; }
 
-        public override bool Equals(Endpoint? other)
-        {
-            if (other is IPEndpoint ipEndpoint)
-            {
-                if (Transport != ipEndpoint.Transport)
-                {
-                    return false;
-                }
-                if (Host != ipEndpoint.Host)
-                {
-                    return false;
-                }
-                if (Port != ipEndpoint.Port)
-                {
-                    return false;
-                }
-                if (!Equals(SourceAddress, ipEndpoint.SourceAddress))
-                {
-                    return false;
-                }
-                return base.Equals(other);
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public override bool Equals(Endpoint? other) =>
+            other is IPEndpoint ipEndpoint &&
+                Equals(SourceAddress, ipEndpoint.SourceAddress) &&
+                base.Equals(other);
 
-        public override int GetHashCode()
-        {
-            // The hash code is cached in the derived class, not this abstract base class.
-            var hash = new HashCode();
-            hash.Add(base.GetHashCode());
-            hash.Add(Transport);
-            hash.Add(Host);
-            hash.Add(Port);
-            if (SourceAddress != null)
-            {
-                hash.Add(SourceAddress);
-            }
-            return hash.ToHashCode();
-        }
+        public override int GetHashCode() =>
+            SourceAddress != null ? HashCode.Combine(base.GetHashCode(), SourceAddress) : base.GetHashCode();
 
         public override string OptionsToString()
         {
@@ -232,7 +194,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal IPEndpoint NewPort(int port)
+        internal IPEndpoint NewPort(ushort port)
         {
             if (port == Port)
             {
@@ -248,22 +210,54 @@ namespace ZeroC.Ice
             Communicator communicator,
             Protocol protocol,
             string host,
-            int port,
+            ushort port,
             IPAddress? sourceAddress)
-            : base(protocol)
+            : base(communicator, protocol)
         {
-            Communicator = communicator;
             Host = host;
             Port = port;
             SourceAddress = sourceAddress;
         }
 
-        private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
-            : base(protocol)
+        // Constructor for URI parsing.
+        private protected IPEndpoint(
+            Communicator communicator,
+            Protocol protocol,
+            string host,
+            ushort port,
+            Dictionary<string, string> options,
+            bool oaEndpoint)
+            : base(communicator, protocol)
         {
-            Communicator = communicator;
+            Host = host;
+            Port = port;
+            if (!oaEndpoint) // parsing a URI that represents a proxy
+            {
+                if (options.TryGetValue("source-address", out string? value))
+                {
+                    SourceAddress = IPAddress.Parse(value);
+                    options.Remove("source-address");
+                }
+            }
+        }
+
+        // Constructor for unmarshaling.
+        private protected IPEndpoint(InputStream istr, Communicator communicator, Protocol protocol)
+            : base(communicator, protocol)
+        {
             Host = istr.ReadString();
-            Port = istr.ReadInt();
+
+            if (protocol == Protocol.Ice1)
+            {
+                checked
+                {
+                    Port = (ushort)istr.ReadInt();
+                }
+            }
+            else
+            {
+                Port = istr.ReadUShort();
+            }
         }
 
         private protected IPEndpoint(
@@ -272,10 +266,8 @@ namespace ZeroC.Ice
             Dictionary<string, string?> options,
             bool oaEndpoint,
             string endpointString)
-            : base(protocol)
+            : base(communicator, protocol)
         {
-            Communicator = communicator;
-
             if (options.TryGetValue("-h", out string? argument))
             {
                 Host = argument ??
@@ -302,16 +294,11 @@ namespace ZeroC.Ice
 
                 try
                 {
-                    Port = int.Parse(argument, CultureInfo.InvariantCulture);
+                  Port = ushort.Parse(argument, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException ex)
                 {
                     throw new FormatException($"invalid port value `{argument}' in endpoint `{endpointString}'", ex);
-                }
-
-                if (Port < 0 || Port > 65535)
-                {
-                    throw new FormatException($"port value `{argument}' out of range in endpoint `{endpointString}'");
                 }
                 options.Remove("-p");
             }
@@ -348,7 +335,7 @@ namespace ZeroC.Ice
         // TODO: rename to Clone and make parameters optional?
         private protected abstract IPEndpoint CreateIPEndpoint(
             string host,
-            int port,
+            ushort port,
             bool compressionFlag,
             TimeSpan timeout);
     }
