@@ -534,10 +534,8 @@ public:
                          const std::string&, const std::string&, NodeType = Real);
     EnumList enums() const;
     ConstList consts() const;
-    bool hasSequences() const;
     bool hasStructs() const;
     bool hasExceptions() const;
-    bool hasDictionaries() const;
     bool hasEnums() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
@@ -545,9 +543,7 @@ public:
     bool hasInterfaceDefs() const;
     bool hasOnlyClassDecls() const;
     bool hasOnlyInterfaces() const;
-    bool hasOperations() const; // interfaces or classes with operations
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
-    bool hasAsyncOps() const;
     bool hasOnlySubModules() const;
 
 protected:
@@ -792,7 +788,6 @@ public:
     OperationList operations() const;
     OperationList allOperations() const;
     bool isA(const std::string&) const;
-    bool hasOperations() const;
     bool inheritsMetaData(const std::string&) const;
     ContainedList contents() const override;
     bool uses(const ContainedPtr&) const override;
@@ -1195,15 +1190,10 @@ public:
     void addContent(const ContainedPtr&);
     void removeContent(const ContainedPtr&);
     ContainedList findContents(const std::string&) const;
-    ClassList findDerivedClasses(const ClassDefPtr&) const;
-    ExceptionList findDerivedExceptions(const ExceptionPtr&) const;
-    ContainedList findUsedBy(const ContainedPtr&) const;
 
     void addTypeId(int, const std::string&);
     std::string getTypeId(int) const;
     bool hasCompactTypeId() const;
-
-    bool usesConsts() const;
 
     //
     // Returns the path names of the files included directly by the top-level file.
@@ -1220,20 +1210,11 @@ public:
     void destroy() override;
     ContainedList contents() const override;
     void visit(ParserVisitor*, bool) override;
-    bool hasSequences() const;
-    bool hasStructs() const;
     bool hasExceptions() const;
-    bool hasDictionaries() const;
-    bool hasEnums() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasInterfaceDecls() const;
     bool hasInterfaceDefs() const;
-    bool hasOnlyClassDecls() const;
-    bool hasOnlyInterfaces() const;
-    bool hasOperations() const; // interfaces or classes with operations
-    bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
-    bool hasAsyncOps() const;
 
     // Not const, as builtins are created on the fly. (Lazy initialization.)
     BuiltinPtr builtin(Builtin::Kind);

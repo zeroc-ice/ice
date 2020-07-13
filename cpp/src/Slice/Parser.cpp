@@ -2156,25 +2156,6 @@ Slice::Module::consts() const
 }
 
 bool
-Slice::Module::hasSequences() const
-{
-    for (const auto& content : _contents)
-    {
-        if (SequencePtr::dynamicCast(content))
-        {
-            return true;
-        }
-
-        ModulePtr submodule = ModulePtr::dynamicCast(content);
-        if (submodule && submodule->hasSequences())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
 Slice::Module::hasStructs() const
 {
     for (const auto& content : _contents)
@@ -2205,25 +2186,6 @@ Slice::Module::hasExceptions() const
 
         ModulePtr submodule = ModulePtr::dynamicCast(content);
         if (submodule && submodule->hasExceptions())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-Slice::Module::hasDictionaries() const
-{
-    for (const auto& content : _contents)
-    {
-        if (DictionaryPtr::dynamicCast(content))
-        {
-            return true;
-        }
-
-        ModulePtr submodule = ModulePtr::dynamicCast(content);
-        if (submodule && submodule->hasDictionaries())
         {
             return true;
         }
@@ -2367,26 +2329,6 @@ Slice::Module::hasOnlyInterfaces() const
 }
 
 bool
-Slice::Module::hasOperations() const
-{
-    for (const auto& content : _contents)
-    {
-        InterfaceDefPtr def = InterfaceDefPtr::dynamicCast(content);
-        if (def && def->hasOperations())
-        {
-            return true;
-        }
-
-        ModulePtr submodule = ModulePtr::dynamicCast(content);
-        if (submodule && submodule->hasOperations())
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
 Slice::Module::hasOtherConstructedOrExceptions() const
 {
     for (const auto& content : _contents)
@@ -2408,37 +2350,6 @@ Slice::Module::hasOtherConstructedOrExceptions() const
             return true;
         }
     }
-    return false;
-}
-
-bool
-Slice::Module::hasAsyncOps() const
-{
-    for (const auto& content : _contents)
-    {
-        if (InterfaceDefPtr interface = InterfaceDefPtr::dynamicCast(content))
-        {
-            OperationList ops = interface->operations();
-            if (!ops.empty() && interface->hasMetaData("amd"))
-            {
-                return true;
-            }
-            for (const auto& op : ops)
-            {
-                if (op->hasMetaData("amd"))
-                {
-                    return true;
-                }
-            }
-        }
-
-        ModulePtr submodule = ModulePtr::dynamicCast(content);
-        if (submodule && submodule->hasAsyncOps())
-        {
-            return true;
-        }
-    }
-
     return false;
 }
 
@@ -3227,12 +3138,6 @@ Slice::InterfaceDef::isA(const string& id) const
         }
     }
     return false;
-}
-
-bool
-Slice::InterfaceDef::hasOperations() const
-{
-    return !_operations.empty();
 }
 
 bool
@@ -5254,65 +5159,6 @@ Slice::Unit::findContents(const string& scoped) const
     }
 }
 
-ClassList
-Slice::Unit::findDerivedClasses(const ClassDefPtr& cl) const
-{
-    ClassList derived;
-    for (const auto& content : _contentMap)
-    {
-        for (const auto& contained : content.second)
-        {
-            ClassDefPtr match = ClassDefPtr::dynamicCast(contained);
-            if (match && match->base() == cl)
-            {
-                derived.push_back(match);
-            }
-        }
-    }
-    derived.sort();
-    derived.unique();
-    return derived;
-}
-
-ExceptionList
-Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex) const
-{
-    ExceptionList derived;
-    for (const auto& content : _contentMap)
-    {
-        for (const auto& contained : content.second)
-        {
-            ExceptionPtr match = ExceptionPtr::dynamicCast(contained);
-            if(match && match->base() == ex)
-            {
-                derived.push_back(match);
-            }
-        }
-    }
-    derived.sort();
-    derived.unique();
-    return derived;
-}
-
-ContainedList
-Slice::Unit::findUsedBy(const ContainedPtr& contained) const
-{
-    ContainedList usedBy;
-    for (const auto& content : _contentMap)
-    {
-        for (const auto& match : content.second)
-        {
-            if (match->uses(contained))
-            {
-                usedBy.push_back(match);
-            }
-        }
-    }
-    usedBy.sort();
-    usedBy.unique();
-    return usedBy;
-}
-
 void
 Slice::Unit::addTypeId(int compactId, const std::string& typeId)
 {
@@ -5334,22 +5180,6 @@ bool
 Slice::Unit::hasCompactTypeId() const
 {
     return _typeIds.size() > 0;
-}
-
-bool
-Slice::Unit::usesConsts() const
-{
-    for (const auto& content : _contentMap)
-    {
-        for (const auto& contained : content.second)
-        {
-            if (ConstPtr::dynamicCast(contained))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 StringList
@@ -5450,32 +5280,6 @@ Slice::Unit::contents() const
 }
 
 bool
-Slice::Unit::hasSequences() const
-{
-    for (const auto& module : _modules)
-    {
-        if (module->hasSequences())
-        {
-            return true;
-        }
-    }
-    return _globalModule->hasSequences();
-}
-
-bool
-Slice::Unit::hasStructs() const
-{
-    for (const auto& module : _modules)
-    {
-        if (module->hasStructs())
-        {
-            return true;
-        }
-    }
-    return _globalModule->hasStructs();
-}
-
-bool
 Slice::Unit::hasExceptions() const
 {
     for (const auto& module : _modules)
@@ -5486,32 +5290,6 @@ Slice::Unit::hasExceptions() const
         }
     }
     return _globalModule->hasExceptions();
-}
-
-bool
-Slice::Unit::hasDictionaries() const
-{
-    for (const auto& module : _modules)
-    {
-        if (module->hasDictionaries())
-        {
-            return true;
-        }
-    }
-    return _globalModule->hasDictionaries();
-}
-
-bool
-Slice::Unit::hasEnums() const
-{
-    for (const auto& module : _modules)
-    {
-        if (module->hasEnums())
-        {
-            return true;
-        }
-    }
-    return _globalModule->hasEnums();
 }
 
 bool
@@ -5564,71 +5342,6 @@ Slice::Unit::hasInterfaceDefs() const
         }
     }
     return _globalModule->hasInterfaceDefs();
-}
-
-bool
-Slice::Unit::hasOnlyClassDecls() const
-{
-    for (const auto& module : _modules)
-    {
-        if (!module->hasOnlyClassDecls())
-        {
-            return false;
-        }
-    }
-    return _globalModule->hasOnlyClassDecls();
-}
-
-bool
-Slice::Unit::hasOnlyInterfaces() const
-{
-    for (const auto& module : _modules)
-    {
-        if (!module->hasOnlyInterfaces())
-        {
-            return false;
-        }
-    }
-    return _globalModule->hasOnlyInterfaces();
-}
-
-bool
-Slice::Unit::hasOperations() const
-{
-    for (const auto& module : _modules)
-    {
-        if (!module->hasOperations())
-        {
-            return true;
-        }
-    }
-    return _globalModule->hasOperations();
-}
-
-bool
-Slice::Unit::hasOtherConstructedOrExceptions() const
-{
-    for (const auto& module : _modules)
-    {
-        if (module->hasOtherConstructedOrExceptions())
-        {
-            return true;
-        }
-    }
-    return _globalModule->hasOtherConstructedOrExceptions();
-}
-
-bool
-Slice::Unit::hasAsyncOps() const
-{
-    for (const auto& module : _modules)
-    {
-        if (module->hasAsyncOps())
-        {
-            return true;
-        }
-    }
-    return _globalModule->hasAsyncOps();
 }
 
 BuiltinPtr
