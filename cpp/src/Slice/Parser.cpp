@@ -2711,9 +2711,7 @@ Slice::ClassDef::classDataMembers() const
     DataMemberList result;
     for (const auto& member : _dataMembers)
     {
-        TypePtr type = unwrapIfOptional(member->type());
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
+        if (unwrapIfOptional(member->type())->isClassType())
         {
             result.push_back(member);
         }
@@ -3481,9 +3479,7 @@ Slice::Exception::classDataMembers() const
     DataMemberList result;
     for (const auto& member : _dataMembers)
     {
-        TypePtr type = unwrapIfOptional(member->type());
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
+        if (unwrapIfOptional(member->type())->isClassType())
         {
             result.push_back(member);
         }
@@ -3529,14 +3525,15 @@ Slice::Exception::allBases() const
 bool
 Slice::Exception::isBaseOf(const ExceptionPtr& other) const
 {
-    if (this->scoped() == other->scoped())
+    string scoped = scoped();
+    if (scoped == other->scoped())
     {
         return false;
     }
 
     for (const auto& base : other->allBases())
     {
-        if (this->scoped() == base->scoped())
+        if (scoped == base->scoped())
         {
             return true;
         }
@@ -3694,9 +3691,7 @@ Slice::Struct::classDataMembers() const
     DataMemberList result;
     for (const auto& member : _dataMembers)
     {
-        TypePtr type = unwrapIfOptional(member->type());
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-        if ((builtin && builtin->usesClasses()) || ClassDeclPtr::dynamicCast(type))
+        if (unwrapIfOptional(member->type())->isClassType())
         {
             result.push_back(member);
         }
