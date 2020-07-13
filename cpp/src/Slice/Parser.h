@@ -72,9 +72,7 @@ enum NodeType
     Real
 };
 
-//
 // Format preference for classes and exceptions.
-//
 enum FormatType
 {
     DefaultFormat,    // No preference was specified.
@@ -241,9 +239,7 @@ public:
     // When parsing Slice definitions, apply 3.7 or 4.0 semantics for class parameters, Object etc.
     bool compatMode() const;
 
-    //
     // Emit warning unless filtered out by [["suppress-warning"]]
-    //
     void warning(WarningCategory, const std::string&, int, const std::string&) const;
 
     void error(const std::string&, int, const std::string&);
@@ -606,13 +602,11 @@ protected:
 // ClassDef
 // ----------------------------------------------------------------------
 
-//
 // Note: For the purpose of this parser, a class definition is not
 // considered to be a type, but a class declaration is. And each class
 // definition has at least one class declaration (but not vice versa),
 // so if you need the class as a "constructed type", use the
 // declaration() operation to navigate to the class declaration.
-//
 class ClassDef : public virtual Container, public virtual Contained
 {
 public:
@@ -702,10 +696,8 @@ class Operation : public virtual Contained, public virtual Container
 {
 public:
 
-    //
     // Note: The order of definitions here *must* match the order of
     // definitions of ::Ice::OperationMode in Ice/Current.h
-    //
     enum Mode
     {
         Normal,
@@ -768,13 +760,11 @@ protected:
 // InterfaceDef
 // ----------------------------------------------------------------------
 
-//
 // Note: For the purpose of this parser, an interface definition is not
 // considered to be a type, but an interface declaration is. And each interface
 // definition has at least one interface declaration (but not vice versa),
 // so if you need the interface as a "constructed type", use the
 // declaration() function to navigate to the interface declaration.
-//
 class InterfaceDef : public virtual Container, public virtual Contained
 {
 public:
@@ -1195,14 +1185,10 @@ public:
     std::string getTypeId(int) const;
     bool hasCompactTypeId() const;
 
-    //
     // Returns the path names of the files included directly by the top-level file.
-    //
     StringList includeFiles() const;
 
-    //
     // Returns the path names of all files parsed by this unit.
-    //
     StringList allFiles() const;
 
     int parse(const std::string&, FILE*, bool);
