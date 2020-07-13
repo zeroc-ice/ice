@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Retry
 {
     public class Collocated : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var observer = Instrumentation.GetObserver();
             var properties = CreateTestProperties(ref args);
@@ -19,7 +19,7 @@ namespace ZeroC.Ice.Test.Retry
             // This test kills connections, so we don't want warnings.
             //
             properties["Ice.Warn.Connections"] = "0";
-            using var communicator = Initialize(properties, observer: observer);
+            await using Communicator communicator = Initialize(properties, observer: observer);
             //
             // Configure a second communicator for the invocation timeout
             // + retry test, we need to configure a large retry interval
@@ -30,7 +30,6 @@ namespace ZeroC.Ice.Test.Retry
             communicator.CreateObjectAdapter().Add("retry", new Retry());
             communicator2.CreateObjectAdapter().Add("retry", new Retry());
             AllTests.allTests(this, communicator, communicator2, "retry").shutdown();
-            return Task.CompletedTask;
         }
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }

@@ -744,7 +744,7 @@ namespace ZeroC.Ice
         /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
         /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.</param>
         /// <param name="adminIdentity">The identity of the Admin object.</param>
-        /// <returns>A proxy to the main ("") facet of the Admin object.</returns>
+        /// <returns>A proxy to the Admin object.</returns>
         public async ValueTask<IObjectPrx> CreateAdminAsync(ObjectAdapter? adminAdapter, Identity adminIdentity)
         {
             lock (_mutex)

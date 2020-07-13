@@ -18,7 +18,7 @@ namespace ZeroC.IceGrid.Test.Simple
             properties.Add("Ice.Default.Encoding", "1.1");
             properties.Add("Ice.Default.Protocol", "ice1");
 
-            using var communicator = Initialize(ref args, properties);
+            await using Communicator communicator = Initialize(ref args, properties);
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add(communicator.GetProperty("Identity") ?? "test", new TestIntf());
             await adapter.ActivateAsync();

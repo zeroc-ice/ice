@@ -10,15 +10,14 @@ namespace ZeroC.Ice.Test.SeqMapping
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using var communicator = Initialize(ref args);
             var myClass = AllTests.allTests(this, false);
             Console.Out.Write("shutting down server... ");
             Console.Out.Flush();
             myClass.shutdown();
             Console.Out.WriteLine("ok");
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

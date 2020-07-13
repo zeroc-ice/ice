@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.AMI
 {
     public class Collocated : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
 
@@ -20,7 +20,7 @@ namespace ZeroC.Ice.Test.AMI
             //
             properties["Ice.TCP.SndSize"] = "50000";
 
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
@@ -35,7 +35,6 @@ namespace ZeroC.Ice.Test.AMI
             //adapter2.Activate();
 
             AllTests.allTests(this, true);
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

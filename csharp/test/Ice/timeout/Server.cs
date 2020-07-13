@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Timeout
             // amount of data.
             properties["Ice.TCP.RcvSize"] = "50000";
 
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
 

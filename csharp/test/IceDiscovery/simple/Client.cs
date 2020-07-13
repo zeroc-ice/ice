@@ -10,9 +10,9 @@ namespace ZeroC.IceDiscovery.Test.Simple
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Ice.Communicator communicator = Initialize(ref args);
             int num;
             try
             {
@@ -23,7 +23,6 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 num = 0;
             }
             AllTests.allTests(this, num);
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

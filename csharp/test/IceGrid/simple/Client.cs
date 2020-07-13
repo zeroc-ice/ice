@@ -11,10 +11,14 @@ namespace ZeroC.IceGrid.Test.Simple
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args,
-                new Dictionary<string, string> { ["Ice.Default.Protocol"] = "ice1", ["Ice.Default.Encoding"] = "1.1" });
+            await using var communicator = Initialize(ref args,
+                                                      new Dictionary<string, string>
+                                                      {
+                                                          ["Ice.Default.Protocol"] = "ice1",
+                                                          ["Ice.Default.Encoding"] = "1.1"
+                                                      });
             if (args.Any(v => v.Equals("--with-deploy")))
             {
                 AllTests.allTestsWithDeploy(this);
@@ -23,7 +27,6 @@ namespace ZeroC.IceGrid.Test.Simple
             {
                 AllTests.allTests(this);
             }
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

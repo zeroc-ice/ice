@@ -44,7 +44,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 throw new ArgumentException("Server: no port specified");
             }
 
-            using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(port));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());

@@ -9,9 +9,9 @@ namespace ZeroC.Ice.Test.Facets
 {
     public class Collocated : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             var d = new D();
@@ -22,7 +22,6 @@ namespace ZeroC.Ice.Test.Facets
             var h = new H(communicator);
             adapter.Add("d", "facetGH", h);
             AllTests.allTests(this);
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
 
@@ -19,9 +19,8 @@ namespace ZeroC.Ice.Test.Binding
             // the transport).
             properties["Ice.Warn.Connections"] = "0";
 
-            using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             AllTests.allTests(this);
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

@@ -11,9 +11,9 @@ namespace ZeroC.Ice.Test.Threading
 {
     public class Collocated : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
 
             var adapter1 = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter1.Add("test", new TestIntf(TaskScheduler.Default));
@@ -39,7 +39,6 @@ namespace ZeroC.Ice.Test.Threading
             try
             {
                 AllTests.allTests(this, true).AsTask().Wait();
-                return Task.CompletedTask;
             }
             catch (AggregateException ex)
             {

@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Operations
             // We don't want connection warnings because of the timeout test.
             //
             properties["Ice.Warn.Connections"] = "0";
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClass());

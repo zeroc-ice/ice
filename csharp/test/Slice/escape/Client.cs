@@ -102,37 +102,35 @@ public class Client : TestHelper
 
     public override async Task RunAsync(string[] args)
     {
-        using (var communicator = Initialize(ref args))
-        {
-            communicator.SetProperty("TestAdapter.Endpoints", "default");
-            ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
-            adapter.Add("test", new decimalI());
-            adapter.Add("test1", new Test1I());
-            adapter.Add("test2", new Test2I());
-            await adapter.ActivateAsync();
+        await using ZeroC.Ice.Communicator communicator = Initialize(ref args);
+        communicator.SetProperty("TestAdapter.Endpoints", "default");
+        ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+        adapter.Add("test", new decimalI());
+        adapter.Add("test1", new Test1I());
+        adapter.Add("test2", new Test2I());
+        await adapter.ActivateAsync();
 
-            Console.Out.Write("testing operation name... ");
-            Console.Out.Flush();
-            var p = adapter.CreateProxy("test", IdecimalPrx.Factory);
-            p.@default();
-            Console.Out.WriteLine("ok");
+        Console.Out.Write("testing operation name... ");
+        Console.Out.Flush();
+        var p = adapter.CreateProxy("test", IdecimalPrx.Factory);
+        p.@default();
+        Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing System as module name... ");
-            Console.Out.Flush();
-            ZeroC.Slice.Test.Escape.@abstract.System.ITestPrx t1 = adapter.CreateProxy("test1",
-                ZeroC.Slice.Test.Escape.@abstract.System.ITestPrx.Factory);
-            t1.op();
+        Console.Out.Write("testing System as module name... ");
+        Console.Out.Flush();
+        ZeroC.Slice.Test.Escape.@abstract.System.ITestPrx t1 = adapter.CreateProxy("test1",
+            ZeroC.Slice.Test.Escape.@abstract.System.ITestPrx.Factory);
+        t1.op();
 
-            ZeroC.Slice.Test.Escape.System.ITestPrx t2 = adapter.CreateProxy("test2",
-                ZeroC.Slice.Test.Escape.System.ITestPrx.Factory);
-            t2.op();
-            Console.Out.WriteLine("ok");
+        ZeroC.Slice.Test.Escape.System.ITestPrx t2 = adapter.CreateProxy("test2",
+            ZeroC.Slice.Test.Escape.System.ITestPrx.Factory);
+        t2.op();
+        Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing types... ");
-            Console.Out.Flush();
-            testtypes();
-            Console.Out.WriteLine("ok");
-        }
+        Console.Out.Write("testing types... ");
+        Console.Out.Flush();
+        testtypes();
+        Console.Out.WriteLine("ok");
     }
 
     public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

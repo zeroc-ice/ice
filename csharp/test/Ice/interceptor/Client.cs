@@ -146,9 +146,9 @@ namespace ZeroC.Ice.Test.Interceptor
             output.WriteLine("ok");
         }
 
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            Communicator communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             //
             // Create OA and servants
             //
@@ -168,7 +168,6 @@ namespace ZeroC.Ice.Test.Interceptor
             output.WriteLine("Now with AMD");
             interceptor.clear();
             runAmdAssert(prx, interceptor);
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

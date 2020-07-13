@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Binding
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.ServerIdleTime"] = "30";
-            using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("communicator", new RemoteCommunicator());

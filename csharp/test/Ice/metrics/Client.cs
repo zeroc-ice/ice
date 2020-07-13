@@ -10,7 +10,7 @@ namespace ZeroC.Ice.Test.Metrics
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var observer = new CommunicatorObserver();
 
@@ -22,10 +22,9 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.Default.Host"] = "127.0.0.1";
             properties["Ice.ConnectTimeout"] = "500ms";
 
-            using var communicator = Initialize(properties, observer: observer);
+            await using Communicator? communicator = Initialize(properties, observer: observer);
             IMetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

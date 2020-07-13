@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Test;
 
@@ -11,9 +12,9 @@ namespace ZeroC.Ice.Test.Objects
     {
         public override async Task RunAsync(string[] args)
         {
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("initial", new Initial(adapter));

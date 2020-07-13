@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Plugin
     {
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
 
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             string pluginPath =
                 string.Format("msbuild/plugin/{0}/Plugin.dll",
@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Plugin
             {
                 Console.Write("testing a simple plug-in... ");
                 Console.Out.Flush();
-                using var communicator = Initialize(new Dictionary<string, string>
+                await using Communicator communicator = Initialize(new Dictionary<string, string>
                 {
                     {
                         "Ice.Plugin.Test",
@@ -116,7 +116,6 @@ namespace ZeroC.Ice.Test.Plugin
                 }
                 Console.WriteLine("ok");
             }
-            return Task.CompletedTask;
         }
 
         internal class MyPlugin : IPlugin

@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Threading
     {
         public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
 
             var adapter = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter.Add("test", new TestIntf(TaskScheduler.Default));

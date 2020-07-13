@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Timeout
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
 
@@ -22,9 +22,8 @@ namespace ZeroC.Ice.Test.Timeout
             // Limit the send buffer size, this test relies on the socket send() blocking after sending a given amount
             // of data.
             properties["Ice.TCP.SndSize"] = "50000";
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             AllTests.allTests(this);
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

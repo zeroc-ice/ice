@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.Retry
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.Warn.Connections"] = "0";
-            using var communicator = Initialize(properties);
+            await using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("retry", new Retry());

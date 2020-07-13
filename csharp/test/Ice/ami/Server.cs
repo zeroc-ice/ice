@@ -29,7 +29,7 @@ namespace ZeroC.Ice.Test.AMI
             //
             properties["Ice.TCP.RcvSize"] = "50000";
 
-            using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
 

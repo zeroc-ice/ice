@@ -9,15 +9,14 @@ namespace ZeroC.Ice.Test.Scope
 {
     public class Client : TestHelper
     {
-        public override Task RunAsync(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using var communicator = Initialize(ref args);
             var output = GetWriter();
             output.Write("test using same type name in different Slice modules... ");
             output.Flush();
             AllTests.allTests(this);
             output.WriteLine("ok");
-            return Task.CompletedTask;
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

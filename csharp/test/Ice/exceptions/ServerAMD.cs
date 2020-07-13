@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.Exceptions
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.MessageSizeMax"] = "10"; // 10KB max
-            using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
             communicator.SetProperty("TestAdapter2.MessageSizeMax", "0");

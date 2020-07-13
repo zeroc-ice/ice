@@ -27,7 +27,7 @@ namespace ZeroC.Ice.Test.UDP
                 properties["Ice.IPv4"] = "0";
             }
 
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             int num = 0;
             try
             {

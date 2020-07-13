@@ -654,7 +654,7 @@ namespace ZeroC.IceBox
                         service}'\n{ex}");
                 }
 
-                RemoveAdminFacets("IceBox.Service." + service + ".");
+                RemoveAdminFacets($"IceBox.Service.{service}.");
                 communicator.Dispose();
             }
         }

@@ -14,7 +14,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
     {
         public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             int num = 0;
             try
             {

@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
 
         public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
