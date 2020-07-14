@@ -200,22 +200,22 @@ namespace ZeroC.Ice.Test.ACM
             var proxy = ITestIntfPrx.Parse(_adapter!.getTestIntf()!.ToString() ?? "", _communicator!);
             try
             {
-                proxy.GetConnection()!.SetCloseCallback(_ =>
-                {
-                    lock (this)
+                proxy.GetConnection()!.Closed += (sender, args) =>
                     {
-                        Closed = true;
-                        Monitor.Pulse(this);
-                    }
-                });
+                        lock (this)
+                        {
+                            Closed = true;
+                            Monitor.Pulse(this);
+                        }
+                    };
 
-                proxy.GetConnection()!.SetHeartbeatCallback(_ =>
-                {
-                    lock (this)
+                proxy.GetConnection()!.HeartbeatReceived += (sender, args) =>
                     {
-                        ++Heartbeat;
-                    }
-                });
+                        lock (this)
+                        {
+                            ++Heartbeat;
+                        }
+                    };
 
                 RunTestCase(_adapter, proxy);
             }
@@ -529,10 +529,13 @@ namespace ZeroC.Ice.Test.ACM
                 proxy.waitForHeartbeatCount(2);
 
                 var t1 = new TaskCompletionSource<object?>();
-                con.SetCloseCallback(_ => t1.SetResult(null));
+                var t2 = new TaskCompletionSource<object?>();
+                con.Closed += (sender, args) => t1.SetResult(null);
+                con.Closed += (sender, args) => t2.SetResult(null);
 
                 con.Close(ConnectionClose.Gracefully);
                 TestHelper.Assert(t1.Task.Result == null);
+                TestHelper.Assert(t2.Task.Result == null);
 
                 try
                 {
@@ -543,11 +546,11 @@ namespace ZeroC.Ice.Test.ACM
                 {
                 }
 
-                var t2 = new TaskCompletionSource<object?>();
-                con.SetCloseCallback(_ => t2.SetResult(null));
-                TestHelper.Assert(t2.Task.Result == null);
+                var t3 = new TaskCompletionSource<object?>();
+                con.Closed += (sender, args) => t3.SetResult(null);
+                TestHelper.Assert(t3.Task.Result == null);
 
-                con.SetHeartbeatCallback(_ => TestHelper.Assert(false));
+                con.HeartbeatReceived += (sender, args) => TestHelper.Assert(false);
 
                 foreach ((string close, string hearbeat) in new (string, string)[]
                                                                 {

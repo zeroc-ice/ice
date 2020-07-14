@@ -227,7 +227,7 @@ namespace ZeroC.Ice
 
         private TimeSpan _acmLastActivity;
         private ObjectAdapter? _adapter;
-        private Action<Connection>? _closeCallback;
+        private EventHandler? _closed;
         private Task? _closeTask = null;
         private readonly Communicator _communicator;
         private readonly int _compressionLevel;
@@ -236,7 +236,7 @@ namespace ZeroC.Ice
         private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
         private readonly int _frameSizeMax;
-        private Action<Connection>? _heartbeatCallback;
+        private EventHandler? _heartbeatReceived;
         private IAcmMonitor? _monitor;
         private readonly object _mutex = new object();
         private int _nextRequestId;
@@ -331,50 +331,50 @@ namespace ZeroC.Ice
             progress?.Report(true);
         }
 
-        /// <summary>Sets a close callback on the connection. The callback is called by the connection when it's
-        /// closed. If the callback needs more information about the closure, it can call Connection.throwException.
-        /// </summary>
-        /// <param name="callback">The close callback object.</param>
-        public void SetCloseCallback(Action<Connection> callback)
+        /// <summary>This event is raised when the connection is closed. If the connection is already closed when
+        /// subscribing the event is raised immediately. If the subscriber needs more information about the closure, it
+        /// can call Connection.ThrowException.</summary>
+        public event EventHandler? Closed
         {
-            lock (_mutex)
+            add
             {
-                if (_state >= ConnectionState.Closed)
+                lock (_mutex)
                 {
-                    if (callback != null)
+                    if (_state >= ConnectionState.Closed)
                     {
-                        Task.Run(() =>
-                        {
-                            try
-                            {
-                                callback(this);
-                            }
-                            catch (Exception ex)
-                            {
-                                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                            }
-                        });
+                        Task.Run(() => value?.Invoke(this, EventArgs.Empty));
                     }
+                    _closed += value;
                 }
-                else
+            }
+            remove
+            {
+                lock (_mutex)
                 {
-                    _closeCallback = callback;
+                    _closed -= value;
                 }
             }
         }
 
-        /// <summary>Sets a heartbeat callback on the connection. The callback is called by the connection when a
-        /// heartbeat is received.</summary>
-        /// <param name="callback">The heartbeat callback object.</param>
-        public void SetHeartbeatCallback(Action<Connection> callback)
+        /// <summary>This event is raised when the connection receives a heartbeat.</summary>
+        public event EventHandler? HeartbeatReceived
         {
-            lock (_mutex)
+            add
             {
-                if (_state >= ConnectionState.Closed)
+                lock (_mutex)
                 {
-                    return;
+                    if (_state < ConnectionState.Closed)
+                    {
+                        _heartbeatReceived += value;
+                    }
                 }
-                _heartbeatCallback = callback;
+            }
+            remove
+            {
+                lock (_mutex)
+                {
+                    _heartbeatReceived -= value;
+                }
             }
         }
 
@@ -1156,14 +1156,14 @@ namespace ZeroC.Ice
                     case Ice1Definitions.FrameType.ValidateConnection:
                     {
                         ProtocolTrace.TraceReceived(_communicator, Endpoint.Protocol, readBuffer);
-                        if (_heartbeatCallback != null)
+                        var hearbetReceived = _heartbeatReceived;
+                        if (hearbetReceived != null)
                         {
-                            Action<Connection> callback = _heartbeatCallback;
                             incoming = () =>
                             {
                                 try
                                 {
-                                    callback(this);
+                                    hearbetReceived?.Invoke(this, EventArgs.Empty);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1305,14 +1305,14 @@ namespace ZeroC.Ice
                     case Ice2Definitions.FrameType.ValidateConnection:
                     {
                         ProtocolTrace.TraceReceived(_communicator, Endpoint.Protocol, readBuffer);
-                        if (_heartbeatCallback != null)
+                        EventHandler? heartbeatReceived = _heartbeatReceived;
+                        if (heartbeatReceived != null)
                         {
-                            Action<Connection> callback = _heartbeatCallback;
                             incoming = () =>
                             {
                                 try
                                 {
-                                    callback(this);
+                                    heartbeatReceived.Invoke(this, EventArgs.Empty);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1410,14 +1410,18 @@ namespace ZeroC.Ice
                     request.TaskCompletionSource.SetException(_exception!);
                 }
 
-                // Invoke the close callback
-                try
+                // Raise the Closed event
+                EventHandler? closed = _closed;
+                if (closed != null)
                 {
-                    _closeCallback?.Invoke(this);
-                }
-                catch (Exception ex)
-                {
-                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                    try
+                    {
+                        closed.Invoke(this, EventArgs.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                    }
                 }
             });
 

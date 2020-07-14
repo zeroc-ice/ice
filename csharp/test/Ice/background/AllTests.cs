@@ -584,7 +584,7 @@ namespace ZeroC.Ice.Test.Background
         private static void CloseConnection(IObjectPrx prx)
         {
             var cb = new CloseCallback();
-            prx.GetConnection()!.SetCloseCallback(_ => cb.Closed());
+            prx.GetConnection()!.Closed += (sender, args) => cb.Closed();
             prx.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
             cb.Check();
         }

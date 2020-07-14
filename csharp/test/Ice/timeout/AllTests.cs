@@ -181,11 +181,11 @@ namespace ZeroC.Ice.Test.Timeout
                 _ = timeout.IcePingAsync();
 
                 var semaphore = new System.Threading.SemaphoreSlim(0);
-                connection.SetCloseCallback(_ => semaphore.Release());
+                connection.Closed += (sender, args) => semaphore.Release();
                 connection.Close(ConnectionClose.Gracefully);
                 TestHelper.Assert(semaphore.Wait(500));
 
-                connection2.SetCloseCallback(_ => semaphore.Release());
+                connection2.Closed += (sender, args) => semaphore.Release();
                 connection2.Close(ConnectionClose.Gracefully);
                 TestHelper.Assert(!semaphore.Wait(500));
 
