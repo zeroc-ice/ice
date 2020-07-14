@@ -3430,7 +3430,7 @@ Slice::Exception::allBases() const
 bool
 Slice::Exception::isBaseOf(const ExceptionPtr& other) const
 {
-    string scoped = scoped();
+    string scoped = this->scoped();
     if (scoped == other->scoped())
     {
         return false;
