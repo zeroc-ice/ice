@@ -1159,10 +1159,10 @@ namespace ZeroC.Ice
         {
             // Do not create unknown properties list if Ice prefix, i.e. Ice, Glacier2, etc.
             bool addUnknown = true;
-            string prefix = Name + ".";
+            string prefix = $"{Name}.";
             foreach (string propertyName in PropertyNames.ClassPropertyNames)
             {
-                if (prefix.StartsWith(string.Format("{0}.", propertyName), StringComparison.Ordinal))
+                if (prefix.StartsWith($"{propertyName}.", StringComparison.Ordinal))
                 {
                     addUnknown = false;
                     break;
