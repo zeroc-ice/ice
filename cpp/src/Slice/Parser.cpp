@@ -197,7 +197,7 @@ Slice::DefinitionContext::compatMode() const
 }
 
 void
-Slice::DefinitionContext::error(const string& file, int line, const string& msg)
+Slice::DefinitionContext::error(const string& file, int line, const string& msg) const
 {
     emitError(file, line, msg);
     throw CompilerException(__FILE__, __LINE__, msg);
@@ -1242,7 +1242,7 @@ Slice::Container::enumerators(const string& scoped) const
     EnumeratorList result;
     string::size_type lastColon = scoped.rfind(':');
 
-    if(lastColon == string::npos)
+    if (lastColon == string::npos)
     {
         // check all enclosing scopes
         ContainerPtr container = const_cast<Container*>(this);
@@ -1402,7 +1402,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
         if (it->second != namedThing)
         {
             // Parameters are in their own scope.
-            if((ParamDeclPtr::dynamicCast(it->second) && !ParamDeclPtr::dynamicCast(namedThing)) ||
+            if ((ParamDeclPtr::dynamicCast(it->second) && !ParamDeclPtr::dynamicCast(namedThing)) ||
                (!ParamDeclPtr::dynamicCast(it->second) && ParamDeclPtr::dynamicCast(namedThing)))
             {
                 return true;
@@ -2460,7 +2460,7 @@ Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
 void
 Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
 {
-    if(_definition)
+    if (_definition)
     {
         _definition->containerRecDependencies(dependencies);
         ClassDefPtr base = _definition->base();
@@ -2975,13 +2975,13 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
             {
                 for (const auto& s2 : *j)
                 {
-                    if(s1 == s2 && reported.find(s1) == reported.end())
+                    if (s1 == s2 && reported.find(s1) == reported.end())
                     {
                         ut->error("ambiguous multiple inheritance: `" + name + "' inherits operation `" + s1
                                   + "' from two or more unrelated base interfaces");
                         reported.insert(s1);
                     }
-                    else if(ciequals(s1, s2) && reported.find(s1) == reported.end()
+                    else if (ciequals(s1, s2) && reported.find(s1) == reported.end()
                             && reported.find(s2) == reported.end())
                     {
                         ut->error("ambiguous multiple inheritance: `" + name + "' inherits operations `" + s1 + "' and `"
@@ -3508,7 +3508,7 @@ Slice::Exception::kindOf() const
 void
 Slice::Exception::visit(ParserVisitor* visitor, bool all)
 {
-    if(visitor->visitExceptionStart(this))
+    if (visitor->visitExceptionStart(this))
     {
         for (const auto& member : _dataMembers)
         {
@@ -3684,7 +3684,7 @@ Slice::Struct::kindOf() const
 void
 Slice::Struct::visit(ParserVisitor* visitor, bool all)
 {
-    if(visitor->visitStructStart(this))
+    if (visitor->visitStructStart(this))
     {
         for (const auto& member : _dataMembers)
         {
@@ -3775,7 +3775,7 @@ void
 Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
 {
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(_type);
-    if(constructed && dependencies.find(constructed) != dependencies.end())
+    if (constructed && dependencies.find(constructed) != dependencies.end())
     {
         dependencies.insert(constructed);
         constructed->recDependencies(dependencies);
@@ -3935,7 +3935,7 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
         }
     }
 
-    if(EnumPtr::dynamicCast(type))
+    if (EnumPtr::dynamicCast(type))
     {
         return true;
     }
@@ -4410,7 +4410,7 @@ Slice::Operation::mode() const
 Operation::Mode
 Slice::Operation::sendMode() const
 {
-    if(_mode == Operation::Idempotent && hasMetaData("nonmutating"))
+    if (_mode == Operation::Idempotent && hasMetaData("nonmutating"))
     {
         return Operation::Nonmutating;
     }
@@ -5109,7 +5109,7 @@ Slice::Unit::popDefinitionContext()
 DefinitionContextPtr
 Slice::Unit::findDefinitionContext(const string& file) const
 {
-    const auto& def = _definitionContextMap.find(file);
+    const auto def = _definitionContextMap.find(file);
     if (def != _definitionContextMap.end())
     {
         return def->second;
@@ -5168,7 +5168,7 @@ Slice::Unit::addTypeId(int compactId, const std::string& typeId)
 std::string
 Slice::Unit::getTypeId(int compactId) const
 {
-    const auto& p = _typeIds.find(compactId);
+    const auto p = _typeIds.find(compactId);
     if (p != _typeIds.end())
     {
         return p->second;

@@ -242,7 +242,7 @@ public:
     // Emit warning unless filtered out by [["suppress-warning"]]
     void warning(WarningCategory, const std::string&, int, const std::string&) const;
 
-    void error(const std::string&, int, const std::string&);
+    void error(const std::string&, int, const std::string&) const;
 
 private:
 

@@ -1,0 +1,86 @@
+-- 7/14/2020 11:51:36:835 server: Network: attempting to bind to tcp socket ::1:0
+-- 7/14/2020 11:51:36:839 server: Network: listening for tcp connections
+   local address = ::1:61106
+-- 7/14/2020 11:51:36:841 server: Network: published endpoints for object adapter `Ice.Admin':
+   tcp -h "::1" -p 61106 -t 60000
+-- 7/14/2020 11:51:36:849 server: Network: accepting tcp connections at ::1:61106
+-- 7/14/2020 11:51:36:850 server: Network: attempting to bind to ssl socket ::1:12010
+-- 7/14/2020 11:51:36:851 server: Network: listening for ssl connections
+   local address = ::1:12010
+-- 7/14/2020 11:51:36:851 server: Network: published endpoints for object adapter `TestAdapter':
+   ssl -h "::1" -p 12010 -t 60000
+-- 7/14/2020 11:51:36:851 server: Network: accepting ssl connections at ::1:12010
+-- 7/14/2020 11:51:36:851 server: Network: attempting to bind to ssl socket ::1:12011
+-- 7/14/2020 11:51:36:851 server: Network: listening for ssl connections
+   local address = ::1:12011
+-- 7/14/2020 11:51:36:851 server: Network: published endpoints for object adapter `TestAdapter2':
+   ssl -h "::1" -p 12011 -t 60000
+-- 7/14/2020 11:51:36:851 server: Network: accepting ssl connections at ::1:12011
+-- 7/14/2020 11:51:37:306 server: Network: trying to accept ssl connection
+   local address = ::1:12010
+   remote address = ::1:61108
+-- 7/14/2020 11:51:37:425 server: Protocol: sending validate connection
+   protocol = ice2
+   frame type = validate connection
+   compression status = 0 (not compressed; do not compress response, if any)
+   frame size = 14
+-- 7/14/2020 11:51:37:425 server: Network: accepted ssl connection
+   local address = ::1:12010
+   remote address = ::1:61108
+-- 7/14/2020 11:51:37:453 server: Network: trying to accept ssl connection
+   local address = ::1:12010
+   remote address = ::1:61109
+-- 7/14/2020 11:51:37:475 server: Network: closed ssl connection
+   local address = ::1:12010
+   remote address = ::1:61108
+   ZeroC.Ice.ConnectionLostException
+    ---> System.IO.IOException: Unable to read data from the transport connection: Connection reset by peer.
+    ---> System.Net.Sockets.SocketException (54): Connection reset by peer
+      --- End of inner exception stack trace ---
+      at System.Net.Security.SslStream.<FillBufferAsync>g__InternalFillBufferAsync|215_0[TReadAdapter](TReadAdapter adap, ValueTask`1 task, Int32 min, Int32 initial)
+      at System.Net.Security.SslStream.ReadAsyncInternal[TReadAdapter](TReadAdapter adapter, Memory`1 buffer)
+      at System.Threading.Tasks.TaskToApm.End[TResult](IAsyncResult asyncResult)
+      at System.Net.Security.SslStream.EndRead(IAsyncResult asyncResult)
+      at ZeroC.Ice.SslTransceiver.FinishRead(ArraySegment`1& buffer, Int32& offset) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/SslTransceiver.cs:line 176
+      --- End of inner exception stack trace ---
+      at ZeroC.Ice.SslTransceiver.FinishRead(ArraySegment`1& buffer, Int32& offset) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/SslTransceiver.cs:line 192
+      at ZeroC.Ice.ITransceiver.<>c__DisplayClass21_0.<<ReadImplAsync>g__ReadCallback|1>d.MoveNext() in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 289
+   --- End of stack trace from previous location where exception was thrown ---
+      at ZeroC.Ice.ITransceiver.<ReadImplAsync>g__Read|21_0(ITransceiver self, ArraySegment`1 buffer, Int32 offset, Boolean partial) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 319
+      at ZeroC.Ice.ITransceiver.ReadImplAsync(ArraySegment`1 buffer, Int32 offset, Boolean partial) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 273
+      at ZeroC.Ice.TaskExtensions.WaitAsync[T](ValueTask`1 task, CancellationToken cancel) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/TaskExtensions.cs:line 59
+      at ZeroC.Ice.ITransceiver.ReadAsync(ArraySegment`1 buffer, Int32 offset, CancellationToken cancel) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 264
+      at ZeroC.Ice.Connection.PerformReceiveFrameAsync() in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/Connection.cs:line 1511
+      at ZeroC.Ice.Connection.<ReceiveFrameAsync>g__PerformAsync|83_0(Connection self) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/Connection.cs:line 1768
+-- 7/14/2020 11:51:37:484 server: Protocol: sending validate connection
+   protocol = ice2
+   frame type = validate connection
+   compression status = 0 (not compressed; do not compress response, if any)
+   frame size = 14
+-- 7/14/2020 11:51:37:484 server: Network: accepted ssl connection
+   local address = ::1:12010
+   remote address = ::1:61109
+-- 7/14/2020 11:51:37:491 server: Network: closed ssl connection
+   local address = ::1:12010
+   remote address = ::1:61109
+   ZeroC.Ice.ConnectionLostException
+    ---> System.IO.IOException: Unable to read data from the transport connection: Connection reset by peer.
+    ---> System.Net.Sockets.SocketException (54): Connection reset by peer
+      --- End of inner exception stack trace ---
+      at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+      at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.GetResult(Int16 token)
+      at System.Net.Security.SslStream.<FillBufferAsync>g__InternalFillBufferAsync|215_0[TReadAdapter](TReadAdapter adap, ValueTask`1 task, Int32 min, Int32 initial)
+      at System.Net.Security.SslStream.ReadAsyncInternal[TReadAdapter](TReadAdapter adapter, Memory`1 buffer)
+      at System.Threading.Tasks.TaskToApm.End[TResult](IAsyncResult asyncResult)
+      at System.Net.Security.SslStream.EndRead(IAsyncResult asyncResult)
+      at ZeroC.Ice.SslTransceiver.FinishRead(ArraySegment`1& buffer, Int32& offset) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/SslTransceiver.cs:line 176
+      --- End of inner exception stack trace ---
+      at ZeroC.Ice.SslTransceiver.FinishRead(ArraySegment`1& buffer, Int32& offset) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/SslTransceiver.cs:line 192
+      at ZeroC.Ice.ITransceiver.<>c__DisplayClass21_0.<<ReadImplAsync>g__ReadCallback|1>d.MoveNext() in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 289
+   --- End of stack trace from previous location where exception was thrown ---
+      at ZeroC.Ice.ITransceiver.<ReadImplAsync>g__Read|21_0(ITransceiver self, ArraySegment`1 buffer, Int32 offset, Boolean partial) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 319
+      at ZeroC.Ice.ITransceiver.ReadImplAsync(ArraySegment`1 buffer, Int32 offset, Boolean partial) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 273
+      at ZeroC.Ice.TaskExtensions.WaitAsync[T](ValueTask`1 task, CancellationToken cancel) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/TaskExtensions.cs:line 59
+      at ZeroC.Ice.ITransceiver.ReadAsync(ArraySegment`1 buffer, Int32 offset, CancellationToken cancel) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/ITransceiver.cs:line 264
+      at ZeroC.Ice.Connection.PerformReceiveFrameAsync() in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/Connection.cs:line 1511
+      at ZeroC.Ice.Connection.<ReceiveFrameAsync>g__PerformAsync|83_0(Connection self) in /Users/austin/Workspace/ZeroC/Projects/return-tuple-syntax/csharp/src/Ice/Connection.cs:line 1768
