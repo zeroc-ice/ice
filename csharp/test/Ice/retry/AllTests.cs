@@ -12,11 +12,13 @@ namespace ZeroC.Ice.Test.Retry
     {
         private class Callback
         {
+            private readonly object _mutex = new object();
+
             internal Callback() => _called = false;
 
             public void check()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_called)
                     {
@@ -29,7 +31,7 @@ namespace ZeroC.Ice.Test.Retry
 
             public void called()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(!_called);
                     _called = true;

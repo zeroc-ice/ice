@@ -93,20 +93,21 @@ namespace ZeroC.Ice.Test.Metrics
 
         public class UpdateCallbackI
         {
+            private readonly object _mutex = new object();
+
             public UpdateCallbackI(IPropertiesAdminPrx serverProps)
             {
                 _updated = false;
                 _serverProps = serverProps;
             }
 
-            public void
-            waitForUpdate()
+            public void waitForUpdate()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_updated)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
                 }
 
@@ -116,7 +117,7 @@ namespace ZeroC.Ice.Test.Metrics
                 // completed.
                 _serverProps.SetProperties(new Dictionary<string, string>());
 
-                lock (this)
+                lock (_mutex)
                 {
                     _updated = false;
                 }
@@ -124,10 +125,10 @@ namespace ZeroC.Ice.Test.Metrics
 
             public void Updated()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _updated = true;
-                    Monitor.Pulse(this);
+                    Monitor.Pulse(_mutex);
                 }
             }
 
@@ -523,7 +524,7 @@ namespace ZeroC.Ice.Test.Metrics
                 cm1 = cm2;
                 sm1 = sm2;
 
-                byte[] bs = new byte[0];
+                byte[] bs = Array.Empty<byte>();
                 metrics.opByteS(bs);
 
                 cm2 = (ConnectionMetrics)clientMetrics.GetMetricsView("View").ReturnValue["Connection"][0]!;
@@ -1228,18 +1229,18 @@ namespace ZeroC.Ice.Test.Metrics
 
             if (!collocated)
             {
-                TestHelper.Assert(obsv.connectionObserver!.getTotal() > 0);
-                TestHelper.Assert(obsv.connectionEstablishmentObserver!.getTotal() > 0);
-                TestHelper.Assert(obsv.endpointLookupObserver!.getTotal() > 0);
-                TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.getTotal() > 0);
+                TestHelper.Assert(obsv.connectionObserver!.GetTotal() > 0);
+                TestHelper.Assert(obsv.connectionEstablishmentObserver!.GetTotal() > 0);
+                TestHelper.Assert(obsv.endpointLookupObserver!.GetTotal() > 0);
+                TestHelper.Assert(obsv.invocationObserver!.remoteObserver!.GetTotal() > 0);
             }
             else
             {
-                TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.getTotal() > 0);
+                TestHelper.Assert(obsv.invocationObserver!.collocatedObserver!.GetTotal() > 0);
             }
 
-            TestHelper.Assert(obsv.dispatchObserver!.getTotal() > 0);
-            TestHelper.Assert(obsv.invocationObserver!.getTotal() > 0);
+            TestHelper.Assert(obsv.dispatchObserver!.GetTotal() > 0);
+            TestHelper.Assert(obsv.invocationObserver!.GetTotal() > 0);
 
             if (!collocated)
             {

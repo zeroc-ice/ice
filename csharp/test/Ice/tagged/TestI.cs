@@ -140,7 +140,7 @@ namespace ZeroC.Ice.Test.Tagged
             new IInitial.OpMStruct2MarshaledReturnValue(p1, p1, current);
 
         public IInitial.OpMSeq1MarshaledReturnValue
-        opMSeq1(Current current) => new IInitial.OpMSeq1MarshaledReturnValue(new string[0], current);
+        opMSeq1(Current current) => new IInitial.OpMSeq1MarshaledReturnValue(Array.Empty<string>(), current);
 
         public IInitial.OpMSeq2MarshaledReturnValue
         opMSeq2(string[]? p1, Current current) => new IInitial.OpMSeq2MarshaledReturnValue(p1, p1, current);

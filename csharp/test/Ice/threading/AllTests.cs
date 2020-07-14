@@ -75,9 +75,9 @@ namespace ZeroC.Ice.Test.Threading
                     }
                 };
             };
-            await proxy.pingSyncAsync().ContinueWith(checkScheduler("pingSyncAsync"));
+            await proxy.pingSyncAsync().ContinueWith(checkScheduler("pingSyncAsync"), TaskScheduler.Current);
             TestHelper.Assert(TaskScheduler.Current == scheduler);
-            await proxy.pingAsync().ContinueWith(checkScheduler("pingAsyncAsync"));
+            await proxy.pingAsync().ContinueWith(checkScheduler("pingAsyncAsync"), TaskScheduler.Current);
             TestHelper.Assert(TaskScheduler.Current == scheduler);
 
             // The progress Report callback is always called from the default task scheduler right now.

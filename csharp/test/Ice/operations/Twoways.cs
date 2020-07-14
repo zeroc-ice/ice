@@ -341,7 +341,7 @@ namespace ZeroC.Ice.Test.Operations
                 (rso, so) = p.opStruct(si1, si2);
                 TestHelper.Assert(rso.p == null);
                 TestHelper.Assert(rso.e == MyEnum.enum1);
-                TestHelper.Assert(rso.s.s.Equals(""));
+                TestHelper.Assert(rso.s.s.Length == 0);
                 TestHelper.Assert(so.p == null);
                 TestHelper.Assert(so.e == MyEnum.enum1);
                 TestHelper.Assert(so.s.s.Equals("a new string"));
@@ -625,7 +625,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 short[] s11 = new short[] { 1, 2, 5 };
                 short[] s12 = new short[] { 13 };
-                short[] s13 = new short[] { };
+                short[] s13 = Array.Empty<short>();
                 short[][] ssi = new short[][] { s11, s12, s13 };
 
                 int[] i11 = new int[] { 24, 98 };
@@ -671,7 +671,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 ushort[] s11 = new ushort[] { 1, 2, 5 };
                 ushort[] s12 = new ushort[] { 13 };
-                ushort[] s13 = new ushort[] { };
+                ushort[] s13 = Array.Empty<ushort>();
                 ushort[][] ssi = new ushort[][] { s11, s12, s13 };
 
                 uint[] i11 = new uint[] { 24, 98 };
@@ -717,7 +717,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 float[] f11 = new float[] { 3.14f };
                 float[] f12 = new float[] { 1.11f };
-                float[] f13 = new float[] { };
+                float[] f13 = Array.Empty<float>();
                 float[][] fsi = new float[][] { f11, f12, f13 };
 
                 double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
@@ -755,8 +755,8 @@ namespace ZeroC.Ice.Test.Operations
                 string[] s12 = new string[] { "de", "fghi" };
                 string[][] ssi1 = new string[][] { s11, s12 };
 
-                string[] s21 = new string[] { };
-                string[] s22 = new string[] { };
+                string[] s21 = Array.Empty<string>();
+                string[] s22 = Array.Empty<string>();
                 string[] s23 = new string[] { "xyz" };
                 string[][] ssi2 = new string[][] { s21, s22, s23 };
 
@@ -794,7 +794,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[][] ss21 = new string[][] { s211, s212 };
                 string[] s221 = new string[] { "" };
                 string[][] ss22 = new string[][] { s221 };
-                string[][] ss23 = new string[][] { };
+                string[][] ss23 = Array.Empty<string[]>();
                 string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
 
                 string[][][] ssso;
@@ -817,10 +817,10 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ssso[0][0][1].Equals("de"));
                 TestHelper.Assert(ssso[0][1][0].Equals("xyz"));
                 TestHelper.Assert(ssso[1][0][0].Equals("hello"));
-                TestHelper.Assert(ssso[2][0][0].Equals(""));
-                TestHelper.Assert(ssso[2][0][1].Equals(""));
+                TestHelper.Assert(ssso[2][0][0].Length == 0);
+                TestHelper.Assert(ssso[2][0][1].Length == 0);
                 TestHelper.Assert(ssso[2][1][0].Equals("abcd"));
-                TestHelper.Assert(ssso[3][0][0].Equals(""));
+                TestHelper.Assert(ssso[3][0][0].Length == 0);
 
                 TestHelper.Assert(rsso.Length == 3);
                 TestHelper.Assert(rsso[0].Length == 0);
@@ -829,9 +829,9 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rsso[2].Length == 2);
                 TestHelper.Assert(rsso[2][0].Length == 2);
                 TestHelper.Assert(rsso[2][1].Length == 1);
-                TestHelper.Assert(rsso[1][0][0].Equals(""));
-                TestHelper.Assert(rsso[2][0][0].Equals(""));
-                TestHelper.Assert(rsso[2][0][1].Equals(""));
+                TestHelper.Assert(rsso[1][0][0].Length == 0);
+                TestHelper.Assert(rsso[2][0][0].Length == 0);
+                TestHelper.Assert(rsso[2][0][1].Length == 0);
                 TestHelper.Assert(rsso[2][1][0].Equals("abcd"));
             }
 

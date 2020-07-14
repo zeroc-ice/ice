@@ -133,7 +133,7 @@ namespace ZeroC.IceSSL.Test.Configuration
             Dictionary<string, string> serverProperties;
             try
             {
-                string[] args = new string[0];
+                string[] args = Array.Empty<string>();
 
                 Console.Out.Write("testing initialization... ");
                 Console.Out.Flush();
@@ -338,9 +338,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         // Setting ServerCertificateCertificateAuthorities is incompatible with ServerCertificateValidationCallback
-                        new TlsClientOptions()
+                        _ = new TlsClientOptions()
                         {
+#pragma warning disable CA5359 // Do Not Disable Certificate Validation
                             ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+#pragma warning restore CA5359 // Do Not Disable Certificate Validation
                             ServerCertificateCertificateAuthorities = new X509Certificate2Collection()
                         };
                         TestHelper.Assert(false);
@@ -352,10 +354,12 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         // Setting ServerCertificateValidationCallback is incompatible with ServerCertificateCertificateAuthorities
-                        new TlsClientOptions()
+                        _ = new TlsClientOptions()
                         {
                             ServerCertificateCertificateAuthorities = new X509Certificate2Collection(),
+#pragma warning disable CA5359 // Do Not Disable Certificate Validation
                             ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+#pragma warning restore CA5359 // Do Not Disable Certificate Validation
                         };
                         TestHelper.Assert(false);
                     }
@@ -366,9 +370,11 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         // Setting ClientCertificateCertificateAuthorities is incompatible with ClientCertificateValidationCallback
-                        new TlsServerOptions()
+                        _ = new TlsServerOptions()
                         {
+#pragma warning disable CA5359 // Do Not Disable Certificate Validation
                             ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+#pragma warning restore CA5359 // Do Not Disable Certificate Validation
                             ClientCertificateCertificateAuthorities = new X509Certificate2Collection()
                         };
                         TestHelper.Assert(false);
@@ -380,10 +386,12 @@ namespace ZeroC.IceSSL.Test.Configuration
                     try
                     {
                         // Setting ClientCertificateValidationCallback is incompatible with ClientCertificateCertificateAuthorities
-                        new TlsServerOptions()
+                        _ = new TlsServerOptions()
                         {
                             ClientCertificateCertificateAuthorities = new X509Certificate2Collection(),
+#pragma warning disable CA5359 // Do Not Disable Certificate Validation
                             ClientCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+#pragma warning restore CA5359 // Do Not Disable Certificate Validation
                         };
                         TestHelper.Assert(false);
                     }
@@ -975,12 +983,14 @@ namespace ZeroC.IceSSL.Test.Configuration
                     var comm = new Communicator(ref args, clientProperties,
                         tlsClientOptions: new TlsClientOptions()
                         {
+#pragma warning disable CA5359 // Do Not Disable Certificate Validation
                             ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                             {
                                 hadCert = certificate != null;
                                 invoked = true;
                                 return true;
                             }
+#pragma warning restore CA5359 // Do Not Disable Certificate Validation
                         });
 
                     var fact = IServerFactoryPrx.Parse(factoryRef, comm);

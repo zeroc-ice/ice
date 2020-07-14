@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using Test;
 
@@ -188,8 +189,8 @@ namespace ZeroC.Ice.Test.Objects
             output.Flush();
             try
             {
-                Base[] inS = new Base[0];
-                var (retS, outS) = initial.opBaseSeq(inS);
+                Base[] inS = Array.Empty<Base>();
+                (Base?[] retS, Base?[] outS) = initial.opBaseSeq(inS);
 
                 inS = new Base[1];
                 inS[0] = new Base(new S(""), "");

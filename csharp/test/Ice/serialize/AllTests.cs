@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
@@ -32,7 +33,7 @@ namespace ZeroC.Ice.Test.Serialize
                                       rs: default,
                                       c: null,
                                       p: null,
-                                      vss: new ValStruct[0],
+                                      vss: Array.Empty<ValStruct>(),
                                       vsl: new List<ValStruct>(),
                                       vsll: new LinkedList<ValStruct>(),
                                       vssk: new Stack<ValStruct>(),
@@ -51,7 +52,7 @@ namespace ZeroC.Ice.Test.Serialize
 
             ex2 = inOut(ex, communicator);
 
-            TestHelper.Assert(ex2.name == "");
+            TestHelper.Assert(ex2.name.Length == 0);
             TestHelper.Assert(ex2.vss!.Length == 0);
             TestHelper.Assert(ex2.vsll!.Count == 0);
             TestHelper.Assert(ex2.vssk!.Count == 0);

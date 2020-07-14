@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Invoke
@@ -88,7 +89,7 @@ namespace ZeroC.Ice.Test.Invoke
                 IncomingResponseFrame response;
                 try
                 {
-                    response = oneway.InvokeAsync(request, oneway: true).Result;
+                    response = oneway.InvokeAsync(request, oneway: true).AsTask().Result;
                 }
                 catch (System.Exception)
                 {
@@ -98,7 +99,7 @@ namespace ZeroC.Ice.Test.Invoke
                 request = OutgoingRequestFrame.WithParamList(cl, "opString", idempotent: false,
                     format: null, context: null, _testString, OutputStream.IceWriterFromString);
 
-                response = cl.InvokeAsync(request).Result;
+                response = cl.InvokeAsync(request).AsTask().Result;
                 (string s1, string s2) = response.ReadReturnValue(communicator, istr =>
                     {
                         string s1 = istr.ReadString();
@@ -111,7 +112,7 @@ namespace ZeroC.Ice.Test.Invoke
 
             {
                 var request = OutgoingRequestFrame.WithEmptyParamList(cl, "opException", idempotent: false);
-                IncomingResponseFrame response = cl.InvokeAsync(request).Result;
+                IncomingResponseFrame response = cl.InvokeAsync(request).AsTask().Result;
 
                 try
                 {

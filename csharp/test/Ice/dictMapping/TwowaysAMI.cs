@@ -65,11 +65,12 @@ namespace ZeroC.Ice.Test.DictMapping
     {
         private class CallbackBase
         {
+            private readonly object _mutex = new object();
             internal CallbackBase() => _called = false;
 
             public virtual void Check()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_called)
                     {
@@ -82,7 +83,7 @@ namespace ZeroC.Ice.Test.DictMapping
 
             public virtual void Called()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(!_called);
                     _called = true;
