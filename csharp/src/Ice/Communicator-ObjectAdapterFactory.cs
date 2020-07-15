@@ -21,19 +21,14 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                _shutdownTask ??= PerformShutdownAsync();
+                _shutdownTask ??= PerformShutdownAsync(new List<ObjectAdapter>(_adapters));
             }
             await _shutdownTask.ConfigureAwait(false);
 
-            async Task PerformShutdownAsync()
+            async Task PerformShutdownAsync(List<ObjectAdapter> adapters)
             {
                 try
                 {
-                    List<ObjectAdapter> adapters;
-                    lock (_mutex)
-                    {
-                        adapters = new List<ObjectAdapter>(_adapters);
-                    }
                     // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
                     await Task.WhenAll(
                         adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
