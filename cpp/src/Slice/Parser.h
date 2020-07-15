@@ -40,32 +40,6 @@ private:
     const std::string _reason;
 };
 
-#if defined(_WIN32)
-
-const IceUtil::Int64 Int32Max =  0x7fffffffi64;
-const IceUtil::Int64 Int32Min = -Int32Max - 1i64;
-
-#else
-
-#   if defined(INT32_MIN) && defined(INT32_MAX)
-
-const IceUtil::Int64 Int32Max =  INT32_MAX;
-const IceUtil::Int64 Int32Min =  INT32_MIN;
-
-#   else
-
-const IceUtil::Int64 Int32Max =  0x7fffffffLL;
-const IceUtil::Int64 Int32Min = -Int32Max - 1LL;
-
-#   endif
-
-#endif
-
-const IceUtil::Int64 Int16Max =  0x7fff;
-const IceUtil::Int64 Int16Min = -Int16Max - 1;
-const IceUtil::Int64 ByteMax = 0xff;
-const IceUtil::Int64 ByteMin = 0x00;
-
 enum NodeType
 {
     Dummy,

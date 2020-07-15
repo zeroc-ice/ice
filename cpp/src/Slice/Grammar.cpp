@@ -2499,7 +2499,7 @@ yyreduce:
     IntegerTokPtr i = IntegerTokPtr::dynamicCast(yyvsp[-1]);
 
     int tag;
-    if(i->v < 0 || i->v > Int32Max)
+    if(i->v < 0 || i->v > INT32_MAX)
     {
         unit->error("tag is out of range");
         tag = -1;
@@ -2623,7 +2623,7 @@ yyreduce:
     }
 
     int tag;
-    if(i->v < 0 || i->v > Int32Max)
+    if(i->v < 0 || i->v > INT32_MAX)
     {
         unit->error("tag is out of range");
         tag = -1;
@@ -2937,7 +2937,7 @@ yyreduce:
     {
         unit->error("invalid compact id for class: id must be a positive integer");
     }
-    else if(id > Int32Max)
+    else if(id > INT32_MAX)
     {
         unit->error("invalid compact id for class: value is out of range");
     }
@@ -3018,7 +3018,7 @@ yyreduce:
         if(b && b->isIntegralType())
         {
             IceUtil::Int64 l = IceUtilInternal::strToInt64(constant->value().c_str(), 0, 0);
-            if(l < 0 || l > Int32Max)
+            if(l < 0 || l > INT32_MAX)
             {
                 unit->error("compact id for class is out of range");
             }
