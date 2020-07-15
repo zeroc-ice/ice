@@ -38,7 +38,7 @@ namespace ZeroC.Ice
             {
                 if (_destroyTask != null)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 // Try to find a connection to one of the given endpoints. Ignore the endpoint compression flag to
@@ -71,7 +71,7 @@ namespace ZeroC.Ice
                         connectors.Add((connector, endpoint, connectionId));
                     }
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                     throw; // No need to continue
                 }
@@ -99,7 +99,7 @@ namespace ZeroC.Ice
             {
                 if (_destroyTask != null)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 // Reap closed connections
@@ -190,7 +190,7 @@ namespace ZeroC.Ice
                         {
                             if (_destroyTask != null)
                             {
-                                throw new CommunicatorDestroyedException();
+                                throw new CommunicatorDisposedException();
                             }
 
                             if (_connectionsByConnector.TryGetValue((connector, routerInfo.Router.ConnectionId),
@@ -255,7 +255,7 @@ namespace ZeroC.Ice
                     {
                         if (_destroyTask != null)
                         {
-                            throw new CommunicatorDestroyedException();
+                            throw new CommunicatorDisposedException();
                         }
 
                         connection = connector.Connect().CreateConnection(endpoint,
@@ -271,7 +271,7 @@ namespace ZeroC.Ice
                     await connection.StartAsync().ConfigureAwait(false);
                     return connection;
                 }
-                catch (CommunicatorDestroyedException ex)
+                catch (CommunicatorDisposedException ex)
                 {
                     observer?.Failed(ex.GetType().FullName ?? "System.Exception");
                     throw; // No need to continue
@@ -320,7 +320,7 @@ namespace ZeroC.Ice
             // Wait for connections to be closed.
             IEnumerable<Task> tasks =
                 _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
-                    connection.GracefulCloseAsync(new CommunicatorDestroyedException()));
+                    connection.GracefulCloseAsync(new CommunicatorDisposedException()));
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
 #if DEBUG
@@ -353,7 +353,7 @@ namespace ZeroC.Ice
                 {
                     if (_destroyTask != null)
                     {
-                        throw new CommunicatorDestroyedException();
+                        throw new CommunicatorDisposedException();
                     }
 
                     // Search for pending connects for the set of connectors which weren't already tried.
@@ -703,7 +703,7 @@ namespace ZeroC.Ice
                     // and server.
                     _ = connection.StartAsync();
                 }
-                catch (ObjectAdapterDeactivatedException)
+                catch (ObjectDisposedException)
                 {
                     // Ignore
                 }
@@ -734,7 +734,8 @@ namespace ZeroC.Ice
 
             // Wait for all the connections to be closed
             IEnumerable<Task> tasks = _connections.Select(
-                connection => connection.GracefulCloseAsync(new ObjectAdapterDeactivatedException(_adapter.Name)));
+                connection => connection.GracefulCloseAsync(
+                    new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
             _monitor.Destroy();

@@ -2,25 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Admin
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            try
-            {
-                using Communicator communicator = Initialize(ref args);
-                AllTests.allTests(this);
-            }
-            catch (System.Exception ex)
-            {
-                System.Console.WriteLine(ex.ToString());
-            }
+            await using Communicator communicator = Initialize(ref args);
+            AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

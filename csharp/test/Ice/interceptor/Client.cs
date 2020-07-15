@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
@@ -145,9 +146,9 @@ namespace ZeroC.Ice.Test.Interceptor
             output.WriteLine("ok");
         }
 
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            Communicator communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             //
             // Create OA and servants
             //
@@ -169,7 +170,7 @@ namespace ZeroC.Ice.Test.Interceptor
             runAmdAssert(prx, interceptor);
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
 
         private void TestInterceptorExceptions(IMyObjectPrx prx)
         {

@@ -4,13 +4,14 @@
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.UDP
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
@@ -26,7 +27,7 @@ namespace ZeroC.Ice.Test.UDP
                 properties["Ice.IPv4"] = "0";
             }
 
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             int num = 0;
             try
             {
@@ -39,14 +40,14 @@ namespace ZeroC.Ice.Test.UDP
             communicator.SetProperty("ControlAdapter.Endpoints", GetTestEndpoint(num, "tcp"));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("ControlAdapter");
             adapter.Add("control", new TestIntf());
-            adapter.Activate();
+            await adapter.ActivateAsync();
             ServerReady();
             if (num == 0)
             {
                 communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(num, "udp"));
                 ObjectAdapter adapter2 = communicator.CreateObjectAdapter("TestAdapter");
                 adapter2.Add("test", new TestIntf());
-                adapter2.Activate();
+                await adapter2.ActivateAsync();
             }
 
             StringBuilder endpoint = new StringBuilder();
@@ -74,11 +75,11 @@ namespace ZeroC.Ice.Test.UDP
             communicator.SetProperty("McastTestAdapter.Endpoints", endpoint.ToString());
             ObjectAdapter mcastAdapter = communicator.CreateObjectAdapter("McastTestAdapter");
             mcastAdapter.Add("test", new TestIntf());
-            mcastAdapter.Activate();
+            await mcastAdapter.ActivateAsync();
 
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

@@ -92,7 +92,7 @@ namespace ZeroC.Ice
         }
     }
 
-    internal sealed class LoggerAdmin : ILoggerAdmin
+    internal sealed class LoggerAdmin : ILoggerAdmin, IAsyncDisposable
     {
         internal int TraceLevel { get; }
         internal const string TraceCategory = "Admin.Logger";
@@ -233,7 +233,7 @@ namespace ZeroC.Ice
             _logger = logger;
         }
 
-        internal void Destroy()
+        public async ValueTask DisposeAsync()
         {
             lock (_mutex)
             {
@@ -245,14 +245,17 @@ namespace ZeroC.Ice
             }
 
             // Destroy outside lock to avoid deadlock when there are outstanding calls sent to remote loggers
-            _sendLogCommunicator?.Destroy();
+            if (_sendLogCommunicator != null)
+            {
+                await _sendLogCommunicator.DisposeAsync().ConfigureAwait(false);
+            }
         }
 
         internal void DeadRemoteLogger(IRemoteLoggerPrx remoteLogger, ILogger logger, Exception ex, string operation)
         {
             if (RemoveLogForwarder(remoteLogger.Identity))
             {
-                if (!(ex is CommunicatorDestroyedException))
+                if (!(ex is CommunicatorDisposedException))
                 {
                     if (TraceLevel > 0)
                     {

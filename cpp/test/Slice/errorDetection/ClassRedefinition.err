@@ -1,2 +1,4 @@
 ClassRedefinition.ice:10: redefinition of class `Class1'
+ClassRedefinition.ice:8: note: class `Class1' was originally defined here
 ClassRedefinition.ice:14: redefinition of class `Class2'
+ClassRedefinition.ice:12: note: class `Class2' was originally defined here

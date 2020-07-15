@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace ZeroC.Ice.Test.Background
 {
     internal class Plugin : IPlugin
@@ -22,9 +24,7 @@ namespace ZeroC.Ice.Test.Background
             }
         }
 
-        public void Destroy()
-        {
-        }
+        public ValueTask DisposeAsync() => new ValueTask(Task.CompletedTask);
 
         private readonly Communicator _communicator;
     }

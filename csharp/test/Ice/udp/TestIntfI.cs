@@ -65,6 +65,6 @@ namespace ZeroC.Ice.Test.UDP
             }
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
     }
 }

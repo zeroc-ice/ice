@@ -4,13 +4,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Properties
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             {
                 Console.Out.Write("testing load properties from UTF-8 path... ");
@@ -95,7 +96,7 @@ namespace ZeroC.Ice.Test.Properties
                     { "Duration.Bad.NoUnits", "42"}
                 };
 
-                using var communicator = new Communicator(timeSpanProperties);
+                await using var communicator = new Communicator(timeSpanProperties);
 
                 {
                     var duration = communicator.GetPropertyAsTimeSpan("Duration.Milliseconds");
@@ -156,6 +157,6 @@ namespace ZeroC.Ice.Test.Properties
             }
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

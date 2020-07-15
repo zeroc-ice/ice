@@ -72,9 +72,7 @@ enum NodeType
     Real
 };
 
-//
 // Format preference for classes and exceptions.
-//
 enum FormatType
 {
     DefaultFormat,    // No preference was specified.
@@ -241,14 +239,10 @@ public:
     // When parsing Slice definitions, apply 3.7 or 4.0 semantics for class parameters, Object etc.
     bool compatMode() const;
 
-    //
     // Emit warning unless filtered out by [["suppress-warning"]]
-    //
     void warning(WarningCategory, const std::string&, int, const std::string&) const;
-    void warning(WarningCategory, const std::string&, const std::string&, const std::string&) const;
 
     void error(const std::string&, int, const std::string&) const;
-    void error(const std::string&, const std::string&, const std::string&) const;
 
 private:
 
@@ -440,12 +434,11 @@ public:
     std::string scope() const;
     std::string flattenedScope() const;
     std::string file() const;
-    std::string line() const;
+    int line() const;
     std::string comment() const;
     CommentPtr parseComment(bool) const;
 
     int includeLevel() const;
-    void updateIncludeLevel();
 
     bool hasMetaData(const std::string&) const;
     bool hasMetaDataWithPrefix(const std::string&) const;
@@ -455,7 +448,7 @@ public:
     void setMetaData(const std::list<std::string>&);
     void addMetaData(const std::string&); // TODO: remove this method once "cs:" and "vb:" are hard errors.
 
-    static FormatType parseFormatMetaData(const std::list<std::string>&);
+    FormatType parseFormatMetaData() const;
 
     virtual bool uses(const ContainedPtr&) const = 0;
     virtual std::string kindOf() const = 0;
@@ -471,7 +464,7 @@ protected:
     std::string _name;
     std::string _scoped;
     std::string _file;
-    std::string _line;
+    int _line;
     std::string _comment;
     int _includeLevel;
     std::list<std::string> _metaData;
@@ -506,7 +499,7 @@ protected:
     bool checkFileMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
 
-    std::map<std::string, ContainedPtr, CICompare> _introducedMap;
+    std::map<std::string, ContainedPtr> _introducedMap;
 };
 
 // ----------------------------------------------------------------------
@@ -537,10 +530,8 @@ public:
                          const std::string&, const std::string&, NodeType = Real);
     EnumList enums() const;
     ConstList consts() const;
-    bool hasSequences() const;
     bool hasStructs() const;
     bool hasExceptions() const;
-    bool hasDictionaries() const;
     bool hasEnums() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
@@ -548,9 +539,7 @@ public:
     bool hasInterfaceDefs() const;
     bool hasOnlyClassDecls() const;
     bool hasOnlyInterfaces() const;
-    bool hasOperations() const; // interfaces or classes with operations
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
-    bool hasAsyncOps() const;
     bool hasOnlySubModules() const;
 
 protected:
@@ -613,13 +602,11 @@ protected:
 // ClassDef
 // ----------------------------------------------------------------------
 
-//
 // Note: For the purpose of this parser, a class definition is not
 // considered to be a type, but a class declaration is. And each class
 // definition has at least one class declaration (but not vice versa),
 // so if you need the class as a "constructed type", use the
 // declaration() operation to navigate to the class declaration.
-//
 class ClassDef : public virtual Container, public virtual Contained
 {
 public:
@@ -709,10 +696,8 @@ class Operation : public virtual Contained, public virtual Container
 {
 public:
 
-    //
     // Note: The order of definitions here *must* match the order of
     // definitions of ::Ice::OperationMode in Ice/Current.h
-    //
     enum Mode
     {
         Normal,
@@ -775,13 +760,11 @@ protected:
 // InterfaceDef
 // ----------------------------------------------------------------------
 
-//
 // Note: For the purpose of this parser, an interface definition is not
 // considered to be a type, but an interface declaration is. And each interface
 // definition has at least one interface declaration (but not vice versa),
 // so if you need the interface as a "constructed type", use the
 // declaration() function to navigate to the interface declaration.
-//
 class InterfaceDef : public virtual Container, public virtual Contained
 {
 public:
@@ -795,7 +778,6 @@ public:
     OperationList operations() const;
     OperationList allOperations() const;
     bool isA(const std::string&) const;
-    bool hasOperations() const;
     bool inheritsMetaData(const std::string&) const;
     ContainedList contents() const override;
     bool uses(const ContainedPtr&) const override;
@@ -1012,7 +994,6 @@ public:
     std::string kindOf() const override;
     void visit(ParserVisitor*, bool) override;
     void recDependencies(std::set<ConstructedPtr>&) override; // Internal operation, don't use directly.
-    EnumeratorPtr validateEnumerator(const std::string&);
 
     // Sets the underlying type shortly after construction and before any enumerator is added.
     void initUnderlying(const TypePtr&);
@@ -1164,10 +1145,9 @@ class Unit : public virtual Container
 {
 public:
 
-    static UnitPtr createUnit(bool, bool, const StringList& = StringList());
+    static UnitPtr createUnit(bool, const StringList& = StringList());
     ModulePtr createModule(const std::string& name);
 
-    bool ignRedefs() const;
     bool compatMode() const;
     void checkType(const TypePtr&);
 
@@ -1185,6 +1165,7 @@ public:
 
     void error(const std::string&); // Not const because error count is increased
     void warning(WarningCategory, const std::string&) const;
+    void note(ContainedPtr, const std::string&) const;
 
     ContainerPtr currentContainer() const;
     ModulePtr currentModule() const;
@@ -1199,24 +1180,15 @@ public:
     void addContent(const ContainedPtr&);
     void removeContent(const ContainedPtr&);
     ContainedList findContents(const std::string&) const;
-    ClassList findDerivedClasses(const ClassDefPtr&) const;
-    ExceptionList findDerivedExceptions(const ExceptionPtr&) const;
-    ContainedList findUsedBy(const ContainedPtr&) const;
 
     void addTypeId(int, const std::string&);
     std::string getTypeId(int) const;
     bool hasCompactTypeId() const;
 
-    bool usesConsts() const;
-
-    //
     // Returns the path names of the files included directly by the top-level file.
-    //
     StringList includeFiles() const;
 
-    //
     // Returns the path names of all files parsed by this unit.
-    //
     StringList allFiles() const;
 
     int parse(const std::string&, FILE*, bool);
@@ -1224,20 +1196,11 @@ public:
     void destroy() override;
     ContainedList contents() const override;
     void visit(ParserVisitor*, bool) override;
-    bool hasSequences() const;
-    bool hasStructs() const;
     bool hasExceptions() const;
-    bool hasDictionaries() const;
-    bool hasEnums() const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasInterfaceDecls() const;
     bool hasInterfaceDefs() const;
-    bool hasOnlyClassDecls() const;
-    bool hasOnlyInterfaces() const;
-    bool hasOperations() const; // interfaces or classes with operations
-    bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
-    bool hasAsyncOps() const;
 
     // Not const, as builtins are created on the fly. (Lazy initialization.)
     BuiltinPtr builtin(Builtin::Kind);
@@ -1248,9 +1211,8 @@ public:
 
 private:
 
-    Unit(bool, bool, const StringList&);
+    Unit(bool, const StringList&);
 
-    bool _ignRedefs;
     bool _all;
     StringList _defaultFileMetaData;
     int _errors;

@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Timeout
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
 
@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.Timeout
             // amount of data.
             properties["Ice.TCP.RcvSize"] = "50000";
 
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("ControllerAdapter.Endpoints", GetTestEndpoint(1));
 
@@ -38,9 +38,9 @@ namespace ZeroC.Ice.Test.Timeout
             controllerAdapter.Activate();
 
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

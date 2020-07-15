@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.Location
             _registry.AddObject(_adapter1.Add("hello", new Hello(), IObjectPrx.Factory));
         }
 
-        public void shutdown(Current current) => _adapter1.Communicator.Shutdown();
+        public void shutdown(Current current) => _adapter1.Communicator.ShutdownAsync();
 
         public IHelloPrx getHello(Current current) =>
             _adapter1.CreateIndirectProxy("hello", IHelloPrx.Factory);

@@ -3,15 +3,16 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.IceDiscovery.Test.Simple
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Ice.Communicator communicator = Initialize(ref args);
             int num;
             try
             {
@@ -24,6 +25,6 @@ namespace ZeroC.IceDiscovery.Test.Simple
             AllTests.allTests(this, num);
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

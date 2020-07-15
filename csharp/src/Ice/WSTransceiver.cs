@@ -290,8 +290,7 @@ namespace ZeroC.Ice
             {
                 _closingReason = CLOSURE_NORMAL;
             }
-            else if (reason is ObjectAdapterDeactivatedException ||
-                    reason is CommunicatorDestroyedException)
+            else if (reason is ObjectDisposedException)
             {
                 _closingReason = CLOSURE_SHUTDOWN;
             }

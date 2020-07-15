@@ -881,12 +881,10 @@ namespace ZeroC.Ice
             }
 
             //
-            // Don't retry if the communicator is destroyed, object adapter is deactivated,
-            // or connection is manually closed.
+            // Don't retry if the communicator or object adapter are disposed,
+            // or the connection is manually closed.
             //
-            if (ex is CommunicatorDestroyedException ||
-                ex is ObjectAdapterDeactivatedException ||
-                ex is ConnectionClosedLocallyException)
+            if (ex is ObjectDisposedException || ex is ConnectionClosedLocallyException)
             {
                 throw ExceptionUtil.Throw(ex);
             }
@@ -1255,7 +1253,7 @@ namespace ZeroC.Ice
             //
             try
             {
-                OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
+                OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
                 Connection? connection = null;
                 if (IsConnectionCached)
                 {

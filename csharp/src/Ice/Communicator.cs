@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice
 {
@@ -31,7 +32,7 @@ namespace ZeroC.Ice
         public int RcvSize;
     }
 
-    public sealed partial class Communicator : IDisposable
+    public sealed partial class Communicator : IDisposable, IAsyncDisposable
     {
         private class ObserverUpdater : Instrumentation.IObserverUpdater
         {
@@ -76,11 +77,9 @@ namespace ZeroC.Ice
                         return _currentContext.Value;
                     }
                 }
-                catch (ObjectDisposedException ex)
+                catch (ObjectDisposedException)
                 {
-#pragma warning disable CA1065
-                    throw new CommunicatorDestroyedException(ex);
-#pragma warning restore CA1065
+                    return new Dictionary<string, string>(ImmutableDictionary<string, string>.Empty);
                 }
             }
             set
@@ -91,7 +90,7 @@ namespace ZeroC.Ice
                 }
                 catch (ObjectDisposedException ex)
                 {
-                    throw new CommunicatorDestroyedException(ex);
+                    throw new CommunicatorDisposedException(ex);
                 }
             }
         }
@@ -151,6 +150,7 @@ namespace ZeroC.Ice
         internal Acm ClientAcm { get; }
         internal int FrameSizeMax { get; }
         internal int IPVersion { get; }
+        internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int[] RetryIntervals { get; }
@@ -175,10 +175,6 @@ namespace ZeroC.Ice
         };
         private static readonly object _staticLock = new object();
 
-        private const int StateActive = 0;
-        private const int StateDestroyInProgress = 1;
-        private const int StateDestroyed = 2;
-
         private readonly HashSet<string> _adapterNamesInUse = new HashSet<string>();
         private readonly List<ObjectAdapter> _adapters = new List<ObjectAdapter>();
         private ObjectAdapter? _adminAdapter;
@@ -198,14 +194,13 @@ namespace ZeroC.Ice
             ImmutableDictionary<string, string>.Empty;
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
-        private bool _isShutdown = false;
-        private readonly object _mutex = new object();
+        private Task? _disposeTask;
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
         private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
             new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
+        private readonly object _mutex = new object();
         private static bool _oneOffDone = false;
-        private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
@@ -213,17 +208,19 @@ namespace ZeroC.Ice
             new ConcurrentDictionary<IRouterPrx, RouterInfo>();
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
-        private int _state;
+        private Task? _shutdownTask;
+        private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<Transport, IEndpointFactory>();
         private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
             new ConcurrentDictionary<string, (IEndpointFactory, Transport)>();
 
-        public Communicator(IReadOnlyDictionary<string, string> properties,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            IReadOnlyDictionary<string, string> properties,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    null,
                    properties,
@@ -234,12 +231,13 @@ namespace ZeroC.Ice
         {
         }
 
-        public Communicator(ref string[] args,
-                            IReadOnlyDictionary<string, string> properties,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            ref string[] args,
+            IReadOnlyDictionary<string, string> properties,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref args,
                    null,
                    properties,
@@ -250,12 +248,13 @@ namespace ZeroC.Ice
         {
         }
 
-        public Communicator(NameValueCollection? appSettings = null,
-                            IReadOnlyDictionary<string, string>? properties = null,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            NameValueCollection? appSettings = null,
+            IReadOnlyDictionary<string, string>? properties = null,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    appSettings,
                    properties,
@@ -266,15 +265,15 @@ namespace ZeroC.Ice
         {
         }
 
-        public Communicator(ref string[] args,
-                            NameValueCollection? appSettings,
-                            IReadOnlyDictionary<string, string>? properties = null,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            ref string[] args,
+            NameValueCollection? appSettings,
+            IReadOnlyDictionary<string, string>? properties = null,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
         {
-            _state = StateActive;
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
 
@@ -552,7 +551,7 @@ namespace ZeroC.Ice
                 IceAddEndpointFactory(Transport.WS, "ws", endpointFactory, DefaultIPPort);
                 IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory, DefaultIPPort);
 
-                _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+                OutgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
                 if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
@@ -669,29 +668,24 @@ namespace ZeroC.Ice
                     }
                 }
 
-                //
-                // An application can set Ice.InitPlugins=0 if it wants to postpone
-                // initialization until after it has interacted directly with the
-                // plug-ins.
-                //
+                // An application can set Ice.InitPlugins=0 if it wants to postpone initialization until after it has
+                // interacted directly with the plug-ins.
                 if (GetPropertyAsBool("Ice.InitPlugins") ?? true)
                 {
                     InitializePlugins();
                 }
 
-                //
-                // This must be done last as this call creates the Ice.Admin object adapter
-                // and eventually registers a process proxy with the Ice locator (allowing
-                // remote clients to invoke on Ice.Admin facets as soon as it's registered).
-                //
+                // This must be done last as this call creates the Ice.Admin object adapter and eventually registers a
+                // process proxy with the Ice locator (allowing remote clients to invoke on Ice.Admin facets as soon as
+                // it's registered).
                 if (!(GetPropertyAsBool("Ice.Admin.DelayCreation") ?? false))
                 {
                     GetAdmin();
                 }
             }
-            catch (Exception)
+            catch
             {
-                Destroy();
+                Dispose();
                 throw;
             }
         }
@@ -700,9 +694,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet))
@@ -724,31 +718,43 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>
-        /// Add the Admin object with all its facets to the provided object adapter.
-        /// If Ice.Admin.ServerId is set and the provided object adapter has a Locator,
-        /// createAdmin registers the Admin's Process facet with the Locator's LocatorRegistry.
-        ///
-        /// createAdmin call only be called once; subsequent calls raise InvalidOperationException.
-        ///
-        /// </summary>
+        /// <summary>Adds the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
+        /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with the
+        /// Locator's LocatorRegistry. CreateAdmin can only be called once; subsequent calls raise
+        /// InvalidOperationException.</summary>
         /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
-        /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
-        ///
-        /// </param>
-        /// <param name="adminIdentity">The identity of the Admin object.
-        ///
-        /// </param>
-        /// <returns>A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
-        ///
-        /// </returns>
+        /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.</param>
+        /// <param name="adminIdentity">The identity of the Admin object.</param>
+        /// <returns>A proxy to the Admin object.</returns>
         public IObjectPrx CreateAdmin(ObjectAdapter? adminAdapter, Identity adminIdentity)
+        {
+            try
+            {
+                ValueTask<IObjectPrx> task = CreateAdminAsync(adminAdapter, adminIdentity);
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
+        /// <summary>Add the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
+        /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with the
+        /// Locator's LocatorRegistry. CreateAdmin can only be called once; subsequent calls raise
+        /// InvalidOperationException.</summary>
+        /// <param name="adminAdapter">The object adapter used to host the Admin object; if null and
+        /// Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.</param>
+        /// <param name="adminIdentity">The identity of the Admin object.</param>
+        /// <returns>A proxy to the Admin object.</returns>
+        public async ValueTask<IObjectPrx> CreateAdminAsync(ObjectAdapter? adminAdapter, Identity adminIdentity)
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (_adminAdapter != null)
@@ -785,14 +791,13 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    _adminAdapter.Activate();
+                    await _adminAdapter.ActivateAsync().ConfigureAwait(false);
                 }
-                catch (Exception)
+                catch
                 {
-                    // We cleanup _adminAdapter, however this error is not recoverable
-                    // (can't call again getAdmin() after fixing the problem)
-                    // since all the facets (servants) in the adapter are lost
-                    _adminAdapter.Destroy();
+                    // We cleanup _adminAdapter, however this error is not recoverable (can't call again GetAdmin()
+                    // after fixing the problem) since all the facets (servants) in the adapter are lost
+                    await _adminAdapter.DisposeAsync().ConfigureAwait(false);
                     lock (_mutex)
                     {
                         _adminAdapter = null;
@@ -804,125 +809,94 @@ namespace ZeroC.Ice
             return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>
-        /// Destroy the communicator.
-        /// This operation calls shutdown
-        /// implicitly.  Calling destroy cleans up memory, and shuts down
-        /// this communicator's client functionality and destroys all object
-        /// adapters. Subsequent calls to destroy are ignored.
-        /// </summary>
-        public void Destroy()
+        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
+        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
+        public async ValueTask DisposeAsync()
         {
+            // If Dispose is in progress just await the _disposeTask, otherwise call PerformDisposeAsync and then await
+            // the _disposeTask.
             lock (_mutex)
             {
-                // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called
-                // concurrently by multiple threads.
-                while (_state == StateDestroyInProgress)
+                _disposeTask ??= PerformDisposeAsync();
+            }
+            await _disposeTask.ConfigureAwait(false);
+
+            async Task PerformDisposeAsync()
+            {
+                // Cancel operations that are waiting and using the communicator's cancellation token
+                _cancellationTokenSource.Cancel();
+
+                // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
+                // finished.
+                await Task.WhenAll(OutgoingConnectionFactory.DestroyAsync(),
+                                   ShutdownAsync()).ConfigureAwait(false);
+
+                // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
+                // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.
+                if (_adminAdapter != null)
                 {
-                    Monitor.Wait(_mutex);
+                    await _adminAdapter.DisposeAsync().ConfigureAwait(false);
                 }
 
-                if (_state == StateDestroyed)
+                Observer?.SetObserverUpdater(null);
+
+                if (Logger is LoggerAdminLogger adminLogger)
                 {
-                    return;
+                    await adminLogger.DisposeAsync().ConfigureAwait(false);
                 }
-                _state = StateDestroyInProgress;
-            }
 
-            // Cancel operations that are waiting and using the communicator's cancellation token
-            _cancellationTokenSource.Cancel();
-
-            // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections
-            // to be finished.
-            Shutdown();
-            _outgoingConnectionFactory?.DestroyAsync();
-
-            // First wait for shutdown to finish.
-            WaitForShutdown();
-
-            DestroyAllObjectAdapters();
-
-            _outgoingConnectionFactory?.DestroyAsync().Wait();
-
-            Observer?.SetObserverUpdater(null);
-
-            if (Logger is LoggerAdminLogger adminLogger)
-            {
-                adminLogger.Destroy();
-            }
-
-            _transportToEndpointFactory.Clear();
-            _transportNameToEndpointFactory.Clear();
-
-            if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
-            {
-                List<string> unusedProperties = GetUnusedProperties();
-                if (unusedProperties.Count != 0)
+                if (GetPropertyAsBool("Ice.Warn.UnusedProperties") ?? false)
                 {
-                    var message = new StringBuilder("The following properties were set but never read:");
-                    foreach (string s in unusedProperties)
+                    List<string> unusedProperties = GetUnusedProperties();
+                    if (unusedProperties.Count != 0)
                     {
-                        message.Append("\n    ");
-                        message.Append(s);
+                        var message = new StringBuilder("The following properties were set but never read:");
+                        foreach (string s in unusedProperties)
+                        {
+                            message.Append("\n    ");
+                            message.Append(s);
+                        }
+                        Logger.Warning(message.ToString());
                     }
-                    Logger.Warning(message.ToString());
                 }
-            }
 
-            // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
-            List<(string Name, IPlugin Plugin)> plugins;
-            lock (_mutex)
-            {
-                plugins = new List<(string Name, IPlugin Plugin)>(_plugins);
-            }
-            plugins.Reverse();
-            foreach ((string name, IPlugin plugin) in plugins)
-            {
-                try
+                // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
+                foreach ((string name, IPlugin plugin) in Enumerable.Reverse(_plugins))
                 {
-                    plugin.Destroy();
+                    try
+                    {
+                        await plugin.DisposeAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Runtime.Logger.Warning($"unexpected exception raised by plug-in `{name}' destruction:\n{ex}");
-                }
-            }
 
-            lock (_mutex)
-            {
-                _adminAdapter = null;
-                _adminFacets.Clear();
-
-                _state = StateDestroyed;
-                Monitor.PulseAll(_mutex);
-            }
-
-            {
                 if (Logger is FileLogger fileLogger)
                 {
                     fileLogger.Dispose();
                 }
+                _currentContext.Dispose();
+                _cancellationTokenSource.Dispose();
             }
-            _currentContext.Dispose();
-            _cancellationTokenSource.Dispose();
         }
 
-        public void Dispose() => Destroy();
+        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
+        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
+        public void Dispose() => DisposeAsync().AsTask().Wait();
 
-        /// <summary>
-        /// Returns a facet of the Admin object.
-        /// </summary>
-        /// <param name="facet">The name of the Admin facet.
-        /// </param>
-        /// <returns>The servant associated with this Admin facet, or
-        /// null if no facet is registered with the given name.</returns>
+        /// <summary>Returns a facet of the Admin object.</summary>
+        /// <param name="facet">The name of the Admin facet.</param>
+        /// <returns>The servant associated with this Admin facet, or null if no facet is registered with the given
+        /// name.</returns>
         public IObject? FindAdminFacet(string facet)
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (!_adminFacets.TryGetValue(facet, out IObject? result))
@@ -933,48 +907,60 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>
-        /// Returns a map of all facets of the Admin object.
-        /// </summary>
-        /// <returns>A collection containing all the facet names and
-        /// servants of the Admin object.
-        ///
-        /// </returns>
+        /// <summary>Returns a map of all facets of the Admin object.</summary>
+        /// <returns>A collection containing all the facet names and servants of the Admin object.</returns>
         public IReadOnlyDictionary<string, IObject> FindAllAdminFacets()
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
                 return _adminFacets.ToImmutableDictionary();
             }
         }
 
-        /// <summary>
-        /// Get a proxy to the main facet of the Admin object.
-        /// GetAdmin also creates the Admin object and creates and activates the Ice.Admin object
-        /// adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin
-        /// object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin
-        /// when Ice.Admin.InstanceName is not set.
+        /// <summary>Get a proxy to the main facet of the Admin object. GetAdmin also creates the Admin object and
+        /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set.
+        /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
+        /// {UUID}/admin when Ice.Admin.InstanceName is not set.
         ///
-        /// If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
-        /// initialization, after initialization of all plugins.
-        ///
-        /// </summary>
-        /// <returns>A proxy to the main ("") facet of the Admin object, or a null proxy if no
-        /// Admin object is configured.</returns>
+        /// If Ice.Admin.DelayCreation is 0 or not set, GetAdmin is called by the communicator initialization, after
+        /// initialization of all plugins.</summary>
+        /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
         public IObjectPrx? GetAdmin()
+        {
+            try
+            {
+                ValueTask<IObjectPrx?> task = GetAdminAsync();
+                return task.IsCompleted ? task.Result : task.AsTask().Result;
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
+        /// <summary>Get a proxy to the main facet of the Admin object. GetAdminAsync also creates the Admin object and
+        /// creates and activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set.
+        /// The identity of the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or
+        /// {UUID}/admin when Ice.Admin.InstanceName is not set.
+        ///
+        /// If Ice.Admin.DelayCreation is 0 or not set, GetAdminAsync is called by the communicator initialization,
+        /// after initialization of all plugins.</summary>
+        /// <returns>A proxy to the Admin object, or a null proxy if no Admin object is configured.</returns>
+        public async ValueTask<IObjectPrx?> GetAdminAsync()
         {
             ObjectAdapter adminAdapter;
             Identity adminIdentity;
 
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (_adminAdapter != null)
@@ -1011,14 +997,13 @@ namespace ZeroC.Ice
 
             try
             {
-                adminAdapter.Activate();
+                await adminAdapter.ActivateAsync().ConfigureAwait(false);
             }
-            catch (Exception)
+            catch
             {
-                // We cleanup _adminAdapter, however this error is not recoverable
-                // (can't call again getAdmin() after fixing the problem)
-                // since all the facets (servants) in the adapter are lost
-                adminAdapter.Destroy();
+                // We cleanup _adminAdapter, however this error is not recoverable (can't call again getAdmin() after
+                // fixing the problem) since all the facets (servants) in the adapter are lost
+                await adminAdapter.DisposeAsync().ConfigureAwait(false);
                 lock (_mutex)
                 {
                     _adminAdapter = null;
@@ -1028,16 +1013,6 @@ namespace ZeroC.Ice
 
             SetServerProcessProxy(adminAdapter, adminIdentity);
             return adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
-        }
-
-        /// <summary>Check whether the communicator has been shut down.</summary>
-        /// <returns>True if the communicator has been shut down; false otherwise.</returns>
-        public bool IsShutdown()
-        {
-            lock (_mutex) // TODO do we need this lock, isn't _isShutdown assignment atomic?
-            {
-                return _isShutdown;
-            }
         }
 
         /// <summary>Removes an admin facet servant previously added with AddAdminFacet.</summary>
@@ -1207,17 +1182,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal OutgoingConnectionFactory OutgoingConnectionFactory()
-        {
-            lock (_mutex)
-            {
-                if (_state == StateDestroyed)
-                {
-                    throw new CommunicatorDestroyedException();
-                }
-                return _outgoingConnectionFactory;
-            }
-        }
+        internal OutgoingConnectionFactory OutgoingConnectionFactory { get; }
 
         internal void SetRcvBufSizeWarn(Transport transport, int size)
         {
@@ -1241,10 +1206,8 @@ namespace ZeroC.Ice
                 IProcessPrx process = admin.Clone(facet: "Process", factory: IProcessPrx.Factory);
                 try
                 {
-                    //
-                    // Note that as soon as the process proxy is registered, the communicator might be
-                    // shutdown by a remote client and admin facets might start receiving calls.
-                    //
+                    // Note that as soon as the process proxy is registered, the communicator might be shutdown by a
+                    // remote client and admin facets might start receiving calls.
                     locator.GetRegistry()!.SetServerProcessProxy(serverId, process);
                 }
                 catch (Exception ex)
@@ -1279,7 +1242,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                _outgoingConnectionFactory.UpdateConnectionObservers();
+                OutgoingConnectionFactory.UpdateConnectionObservers();
 
                 ObjectAdapter[] adapters;
                 lock (_mutex)
@@ -1292,18 +1255,9 @@ namespace ZeroC.Ice
                     adapter.UpdateConnectionObservers();
                 }
             }
-            catch (CommunicatorDestroyedException)
+            catch (CommunicatorDisposedException)
             {
             }
-        }
-
-        private static string TypeIdToClassName(string typeId)
-        {
-            if (!typeId.StartsWith("::", StringComparison.Ordinal))
-            {
-                throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
-            }
-            return typeId.Substring(2).Replace("::", ".");
         }
 
         private void AddAllAdminFacets()
@@ -1341,6 +1295,15 @@ namespace ZeroC.Ice
             }
 
             return null;
+        }
+
+        private static string TypeIdToClassName(string typeId)
+        {
+            if (!typeId.StartsWith("::", StringComparison.Ordinal))
+            {
+                throw new InvalidDataException($"`{typeId}' is not a valid Ice type ID");
+            }
+            return typeId.Substring(2).Replace("::", ".");
         }
     }
 }

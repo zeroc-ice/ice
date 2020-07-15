@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.NetworkProxy
@@ -10,20 +11,19 @@ namespace ZeroC.Ice.Test.NetworkProxy
     {
         public class TestIntf : ITestIntf
         {
-            public void shutdown(ZeroC.Ice.Current current) => current.Adapter.Communicator.Shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
-            ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new TestIntf());
-            adapter.Activate();
-
-            communicator.WaitForShutdown();
+            await adapter.ActivateAsync();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

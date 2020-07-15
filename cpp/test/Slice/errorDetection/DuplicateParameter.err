@@ -1,4 +1,8 @@
 DuplicateParameter.ice:11: redefinition of parameter `s'
+DuplicateParameter.ice:11: note: parameter `s' was originally defined here
 DuplicateParameter.ice:12: redefinition of parameter `s'
+DuplicateParameter.ice:12: note: parameter `s' was originally defined here
 DuplicateParameter.ice:13: redefinition of parameter `s'
+DuplicateParameter.ice:13: note: parameter `s' was originally defined here
 DuplicateParameter.ice:14: redefinition of parameter `i'
+DuplicateParameter.ice:14: note: parameter `i' was originally defined here

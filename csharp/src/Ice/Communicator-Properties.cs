@@ -296,7 +296,7 @@ namespace ZeroC.Ice
             // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
             foreach (string name in PropertyNames.ClassPropertyNames)
             {
-                if (prefix.StartsWith(string.Format("{0}.", name), StringComparison.Ordinal))
+                if (prefix.StartsWith($"{name}.", StringComparison.Ordinal))
                 {
                     return;
                 }
