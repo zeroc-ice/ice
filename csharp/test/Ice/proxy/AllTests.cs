@@ -36,9 +36,11 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+tcp://host.zeroc.com:/identity", // another syntax for empty port
                 "ice+universal://com.zeroc.ice/identity?transport=iaps&options=a,b%2Cb,c,d",
                 "ice+universal://host.zeroc.com/identity?transport=100",
-                "ice+universal://[ab:cd:ef:00]/identity?transport=bt",
+                "ice+universal://[::ab:cd:ef:00]/identity?transport=bt", // leading :: to make the address IPv6-like
                 "ice+udp://[::1]/test?source-address=::1&interface=0:0:0:0:0:0:0:1%25lo", // unescaped as ..:1%lo
                 "ice+ws://host.zeroc.com/identity?resource=/foo%2Fbar?/xyz",
+                "ice+universal://host.zeroc.com:10000/identity?transport=tcp",
+                "ice+universal://host.zeroc.com/identity?transport=ws&options=/foo%2520/bar",
             };
 
             foreach (string uriString in uriStringArray)
@@ -53,9 +55,8 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+tcp:identity?protocol=invalid", // invalid protocol
                 "ice+universal://host.zeroc.com", // missing transport
                 "ice+universal://host.zeroc.com?transport=100&protocol=ice1", // invalid protocol
-                "ice://host:1000/identity", // host
-                "ice+tcp:location//identity", // no host
-                "ice+universal:/identity" // no host
+                "ice://host:1000/identity", // host not allowed
+                "ice+universal:/identity" // missing host
             };
 
             foreach (string uriString in badUriStringArray)

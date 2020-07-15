@@ -165,7 +165,7 @@ namespace ZeroC.Ice
         /// <summary>Registers the ice and ice+universal schemes.</summary>
         internal static void RegisterCommon()
         {
-            RegisterTransport("universal", defaultPort: 0, ipHost: false);
+            RegisterTransport("universal", defaultPort: 0);
 
             // There is actually no authority at all with the ice scheme, but we emulate it with an empty authority
             // during parsing by the Uri class and the GenericUriParser.
@@ -180,18 +180,8 @@ namespace ZeroC.Ice
         /// <summary>Registers an ice+transport scheme.</summary>
         /// <param name="transportName">The name of the transport (cannot be empty).</param>
         /// <param name="defaultPort">The default port for this transport.</param>
-        /// <param name="ipHost">When true, the host must be an IPv4 or an IPv6 address, or a valid
-        /// DNS name (but no DNS lookup is performed).</param>
-        internal static void RegisterTransport(string transportName, ushort defaultPort, bool ipHost)
-        {
-            Debug.Assert(transportName.Length > 0);
-            GenericUriParserOptions options = ParserOptions;
-            if (!ipHost)
-            {
-                options |= GenericUriParserOptions.GenericAuthority;
-            }
-            System.UriParser.Register(new GenericUriParser(options), $"ice+{transportName}", defaultPort);
-        }
+        internal static void RegisterTransport(string transportName, ushort defaultPort) =>
+            System.UriParser.Register(new GenericUriParser(ParserOptions), $"ice+{transportName}", defaultPort);
 
         private static Endpoint CreateEndpoint(
             Communicator communicator,
@@ -217,7 +207,9 @@ namespace ZeroC.Ice
                 port = (ushort)uri.Port;
             }
 
-            Endpoint result;
+            IEndpointFactory? factory = null;
+            Transport transport = default;
+
             if (transportName == "universal")
             {
                 if (protocol == Protocol.Ice1)
@@ -230,30 +222,36 @@ namespace ZeroC.Ice
                 }
 
                 // Enumerator names can only be used for "well-known" transports.
-                Transport transport = Enum.Parse<Transport>(options["transport"], ignoreCase: true);
+                transport = Enum.Parse<Transport>(options["transport"], ignoreCase: true);
                 options.Remove("transport");
-                result = new OpaqueEndpoint(communicator, transport, protocol, host, port, options);
+
+                // It's possible we have a factory for this transport:
+                factory = communicator.IceFindEndpointFactory(transport);
             }
-            else if (communicator.FindEndpointFactory(transportName) is (EndpointFactory factory, Transport transport))
+            else if (communicator.FindEndpointFactory(transportName) is (EndpointFactory f, Transport t))
             {
-                result = factory.Create(transport,
-                                        protocol,
-                                        host,
-                                        port,
-                                        options,
-                                        oaEndpoint,
-                                        uriString);
+                factory = f;
+                transport = t;
             }
             else
             {
                 throw new FormatException($"unknown transport `{transportName}'");
             }
 
+            Endpoint endpoint = factory?.Create(transport,
+                                                protocol,
+                                                host,
+                                                port,
+                                                options,
+                                                oaEndpoint,
+                                                uriString) ??
+                new OpaqueEndpoint(communicator, transport, protocol, host, port, options);
+
             if (options.Count > 0)
             {
                 throw new FormatException($"unknown option `{options.First().Key}' for transport `{transportName}'");
             }
-            return result;
+            return endpoint;
         }
 
         private static Uri InitialParse(

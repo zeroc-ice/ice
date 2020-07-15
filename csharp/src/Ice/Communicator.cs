@@ -1069,8 +1069,7 @@ namespace ZeroC.Ice
             Transport transport,
             string transportName,
             IEndpointFactory factory,
-            ushort defaultPort = 0,
-            bool ipHost = true)
+            ushort defaultPort = 0)
         {
             if (transportName.Length == 0)
             {
@@ -1083,7 +1082,7 @@ namespace ZeroC.Ice
             // Also register URI parser if not registered yet.
             try
             {
-                UriParser.RegisterTransport(transportName, defaultPort, ipHost);
+                UriParser.RegisterTransport(transportName, defaultPort);
             }
             catch (InvalidOperationException)
             {
