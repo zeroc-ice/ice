@@ -38,7 +38,8 @@ namespace ZeroC.Ice
                 }
                 else if (option == "options" && _options.Count > 0)
                 {
-                    return string.Join(",", _options.Select(s => Uri.EscapeDataString(s)));
+                    // The _options are already percent escaped.
+                    return string.Join(",", _options);
                 }
                 else
                 {
@@ -294,7 +295,9 @@ namespace ZeroC.Ice
 
             if (options.TryGetValue("options", out string? value))
             {
-                _options = value.Split(",").Select(s => Uri.UnescapeDataString(s)).ToList();
+                // The options are percent-escaped and must remain percent-escaped. If we percent-escape them again,
+                // we could not later unescape them reliably.
+                _options = value.Split(",");
                 options.Remove("options");
             }
         }

@@ -38,7 +38,7 @@ namespace ZeroC.Ice
                          IReadOnlyList<Endpoint> Endpoints,
                          string Facet,
                          InvocationMode InvocationMode,
-                         IReadOnlyList<string> Path,
+                         List<string> Path,
                          Protocol Protocol) Parse(
             string uriString,
             bool oaEndpoints,
@@ -57,7 +57,7 @@ namespace ZeroC.Ice
                 var generalOptions = new Dictionary<string, string>();
                 Dictionary<string, string>? endpointOptions = iceScheme ? null : new Dictionary<string, string>();
 
-                (Uri uri, string transportName) = InitialParse(uriString, generalOptions, endpointOptions);
+                Uri uri = InitialParse(uriString, generalOptions, endpointOptions);
 
                 Protocol protocol = Protocol.Ice2;
                 if (generalOptions.TryGetValue("protocol", out string? protocolValue))
@@ -106,7 +106,6 @@ namespace ZeroC.Ice
                                        oaEndpoints,
                                        endpointOptions,
                                        protocol,
-                                       transportName,
                                        uri,
                                        uriString)
                     };
@@ -119,7 +118,7 @@ namespace ZeroC.Ice
                             if (alt.StartsWith("ice:"))
                             {
                                 throw new FormatException(
-                                    $"invalid scheme for alt-endpoint `{alt}': must be empty or ice+transport");
+                                    $"invalid URI scheme for alt-endpoint `{alt}': must be empty or ice+transport");
                             }
 
                             string altUriString = alt;
@@ -132,7 +131,7 @@ namespace ZeroC.Ice
                             // No need to clear endpointOptions before reusing it since CreateEndpoint consumes all the
                             // endpoint options
                             Debug.Assert(endpointOptions.Count == 0);
-                            (uri, transportName) = InitialParse(altUriString, generalOptions: null, endpointOptions);
+                            uri = InitialParse(altUriString, generalOptions: null, endpointOptions);
 
                             // > 1 because there is always a first empty segment.
                             if (uri.AbsolutePath.Length > 1 || uri.Fragment.Length > 0)
@@ -143,7 +142,6 @@ namespace ZeroC.Ice
                                                          oaEndpoints,
                                                          endpointOptions,
                                                          protocol,
-                                                         transportName,
                                                          uri,
                                                          alt));
                         }
@@ -169,7 +167,8 @@ namespace ZeroC.Ice
         {
             RegisterTransport("universal", defaultPort: 0, ipHost: false);
 
-            // There is no authority at all with the ice scheme
+            // There is actually no authority at all with the ice scheme, but we emulate it with an empty authority
+            // during parsing by the Uri class and the GenericUriParser.
             GenericUriParserOptions options =
                 ParserOptions |
                 GenericUriParserOptions.AllowEmptyAuthority |
@@ -199,10 +198,19 @@ namespace ZeroC.Ice
             bool oaEndpoint,
             Dictionary<string, string> options,
             Protocol protocol,
-            string transportName,
             Uri uri,
             string uriString)
         {
+            string transportName = uri.Scheme.Substring(4); // i.e. chop-off "ice+"
+
+            // TODO: take advantage of other properties of uri such as HostNameType?
+            string host = uri.Host;
+            if (host[0] == '[' && host[^1] == ']')
+            {
+                // Remove brackets around IPv6 addresses
+                host = host[1..^1];
+            }
+
             ushort port = 0;
             checked
             {
@@ -214,20 +222,23 @@ namespace ZeroC.Ice
             {
                 if (protocol == Protocol.Ice1)
                 {
-                    throw new FormatException("the ice+universal scheme is not compatible with the ice1 protocol");
+                    throw new FormatException("ice+universal is not compatible with the ice1 protocol");
+                }
+                if (oaEndpoint)
+                {
+                    throw new FormatException("ice+universal cannot specify an object adapter endpoint");
                 }
 
-                // The transport name / number should never be escaped. Enumerator names can only be used for
-                // "well-known" transports.
+                // Enumerator names can only be used for "well-known" transports.
                 Transport transport = Enum.Parse<Transport>(options["transport"], ignoreCase: true);
                 options.Remove("transport");
-                result = new OpaqueEndpoint(communicator, transport, protocol, uri.Host, port, options);
+                result = new OpaqueEndpoint(communicator, transport, protocol, host, port, options);
             }
             else if (communicator.FindEndpointFactory(transportName) is (EndpointFactory factory, Transport transport))
             {
                 result = factory.Create(transport,
                                         protocol,
-                                        uri.Host, // can be an IPv6 address in brackets
+                                        host,
                                         port,
                                         options,
                                         oaEndpoint,
@@ -245,14 +256,14 @@ namespace ZeroC.Ice
             return result;
         }
 
-        private static (Uri Uri, string TransportName) InitialParse(
+        private static Uri InitialParse(
             string uriString,
             Dictionary<string, string>? generalOptions,
-            Dictionary<string, string>? endpointOptions = null)
+            Dictionary<string, string>? endpointOptions)
         {
-            if (uriString.StartsWith("ice:"))
+            if (endpointOptions == null) // i.e. ice scheme
             {
-                Debug.Assert(endpointOptions == null);
+                Debug.Assert(uriString.StartsWith("ice:"));
 
                 string body = uriString.Substring(4);
                 if (body.StartsWith("//"))
@@ -269,14 +280,8 @@ namespace ZeroC.Ice
                     uriString = $"ice:///{body}";
                 }
             }
-            else
-            {
-                Debug.Assert(endpointOptions != null);
-            }
 
             var uri = new Uri(uriString);
-
-            string transportName = uri.Scheme.Length >= 4 ? uri.Scheme.Substring(4) : "";
 
             string[] nvPairArray;
             if (uri.Query.Length >= 2)
@@ -326,12 +331,12 @@ namespace ZeroC.Ice
                 }
                 else
                 {
-                    // Note that the options - in particular their values - are still escaped.
+                    // The options, in particular their values, remain percent escaped.
                     endpointOptions.Add(name, value);
                 }
             }
 
-            return (uri, transportName);
+            return uri;
         }
     }
 }

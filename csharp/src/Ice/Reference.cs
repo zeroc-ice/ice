@@ -1500,7 +1500,7 @@ namespace ZeroC.Ice
              IReadOnlyList<Endpoint> endpoints,
              string facet,
              InvocationMode invocationMode,
-             IReadOnlyList<string> path,
+             List<string> path,
              Protocol protocol) = UriParser.Parse(uriString, oaEndpoints: false, communicator);
 
             string adapterId = "";

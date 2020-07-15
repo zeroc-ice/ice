@@ -34,7 +34,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice:location//identity#facet",
                 "ice+tcp://host.zeroc.com//identity",
                 "ice+tcp://host.zeroc.com:/identity", // another syntax for empty port
-                "ice+universal://com.zeroc.ice/identity?transport=iaps&options=a,b,c,d",
+                "ice+universal://com.zeroc.ice/identity?transport=iaps&options=a,b%2Cb,c,d",
                 "ice+universal://host.zeroc.com/identity?transport=100",
                 "ice+universal://[ab:cd:ef:00]/identity?transport=bt",
                 "ice+udp://[::1]/test?source-address=::1&interface=0:0:0:0:0:0:0:1%25lo", // unescaped as ..:1%lo
