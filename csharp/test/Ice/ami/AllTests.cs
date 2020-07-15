@@ -677,7 +677,7 @@ namespace ZeroC.Ice.Test.AMI
                     //
                     Connection con = p.GetConnection()!;
                     var cb = new CallbackBase();
-                    con.SetCloseCallback(_ => cb.Called());
+                    con.Closed += (sender, args) => cb.Called();
                     Task t = p.sleepAsync(100);
                     con.Close(ConnectionClose.GracefullyWithWait);
                     t.Wait(); // Should complete successfully.
@@ -769,7 +769,7 @@ namespace ZeroC.Ice.Test.AMI
                     //
                     con = p.GetConnection()!;
                     cb = new CallbackBase();
-                    con.SetCloseCallback(_ => cb.Called());
+                    con.Closed += (sender, args) => cb.Called();
                     t = p.sleepAsync(100);
                     p.close(CloseMode.Gracefully); // Close is delayed until sleep completes.
                     cb.Check();

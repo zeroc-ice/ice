@@ -102,7 +102,7 @@ namespace ZeroC.Ice.Test.ACM
         public void startHeartbeatCount(Current current)
         {
             _callback = new HeartbeatCallbackI();
-            current.Connection!.SetHeartbeatCallback(_ => _callback.Heartbeat());
+            current.Connection!.HeartbeatReceived += (sender, args) => _callback.Heartbeat();
         }
 
         public void waitForHeartbeatCount(int count, Current current)
