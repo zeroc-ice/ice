@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Proxy
     {
         public IObjectPrx? echo(IObjectPrx? obj, Current c) => obj;
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public IReadOnlyDictionary<string, string> getContext(Current current) => _ctx!;
 

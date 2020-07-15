@@ -20,6 +20,6 @@ namespace ZeroC.Ice.Test.Perf
             return new System.ReadOnlyMemory<byte>(_bytes, 0, size);
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

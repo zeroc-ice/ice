@@ -95,7 +95,7 @@ namespace ZeroC.Ice
 
         public override bool Equals(object? other) => other is Encoding value && Equals(value);
 
-        public override string ToString() => string.Format("{0}.{1}", Major, Minor);
+        public override string ToString() => $"{Major}.{Minor}";
 
         internal void CheckSupported()
         {

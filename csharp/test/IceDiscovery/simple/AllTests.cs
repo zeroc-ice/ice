@@ -212,7 +212,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 {
                     var properties = communicator.GetProperties();
                     properties["IceDiscovery.Lookup"] = $"udp -h {multicast} --interface unknown";
-                    Communicator comm = new Communicator(properties);
+                    using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
                     try
                     {
@@ -222,7 +222,6 @@ namespace ZeroC.IceDiscovery.Test.Simple
                     catch (Exception)
                     {
                     }
-                    comm.Destroy();
                 }
                 {
                     var properties = communicator.GetProperties();
@@ -234,10 +233,9 @@ namespace ZeroC.IceDiscovery.Test.Simple
                     string port = communicator.GetProperty("IceDiscovery.Port") ?? "";
                     properties["IceDiscovery.Lookup"] =
                         $"udp -h {multicast} --interface unknown:udp -h {multicast} -p {port}{intf}";
-                    var comm = new Communicator(properties);
+                    using var comm = new Communicator(properties);
                     TestHelper.Assert(comm.DefaultLocator != null);
                     IObjectPrx.Parse("controller0@control0", comm).IcePing();
-                    comm.Destroy();
                 }
             }
             output.WriteLine("ok");

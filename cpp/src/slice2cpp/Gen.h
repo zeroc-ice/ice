@@ -290,8 +290,7 @@ private:
 
     private:
 
-        StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&,
-                            bool = false);
+        StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, int, bool = false);
     };
 
     static void validateMetaData(const UnitPtr&);

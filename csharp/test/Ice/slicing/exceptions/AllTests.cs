@@ -870,7 +870,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     TestHelper.Assert(false);
                 }
 
-                adapter.Destroy();
+                adapter.Dispose();
             }
             output.WriteLine("ok");
 

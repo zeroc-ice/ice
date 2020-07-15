@@ -52,6 +52,9 @@ namespace ZeroC.Ice
         public AcmClose Close { get; }
         /// <summary>Gets <see cref="AcmHeartbeat"/> setting for the Acm configuration.</summary>
         public AcmHeartbeat Heartbeat { get; }
+        /// <summary>Returns true if ACM is disabled, false otherwise.</summary>
+        public bool IsDisabled => (Close == AcmClose.Off && Heartbeat == AcmHeartbeat.Off) ||
+            Timeout == System.Threading.Timeout.InfiniteTimeSpan || Timeout == TimeSpan.Zero;
         /// <summary>Gets the timeout setting for the Acm configuration.</summary>
         public TimeSpan Timeout { get; }
 
@@ -66,7 +69,7 @@ namespace ZeroC.Ice
         /// <param name="heartbeat">The heartbeat setting.</param>
         public Acm(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
         {
-            if (timeout <= TimeSpan.Zero)
+            if (timeout != System.Threading.Timeout.InfiniteTimeSpan && timeout < TimeSpan.Zero)
             {
                 throw new ArgumentOutOfRangeException($"invalid {nameof(timeout)} argument");
             }
@@ -90,7 +93,7 @@ namespace ZeroC.Ice
         internal Acm(Communicator communicator, string prefix, Acm defaults)
         {
             Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
-            if (Timeout <= TimeSpan.Zero)
+            if (Timeout != System.Threading.Timeout.InfiniteTimeSpan && Timeout < TimeSpan.Zero)
             {
                 throw new ArgumentOutOfRangeException($"invalid `{prefix}.Timeout' property value");
             }
@@ -113,11 +116,6 @@ namespace ZeroC.Ice
         /// <summary>Removes a connection from the set of monitored connections.</summary>
         /// <param name="connection">The connection to remove.</param>
         void Remove(Connection connection);
-
-        /// <summary>Creates an Acm monitor with a specific Acm configuration.</summary>
-        /// <param name="acm">The monitor Acm configuration.</param>
-        /// <returns>Returns a new Acm monitor with the given configuration.</returns>
-        IAcmMonitor Create(Acm acm);
     }
 
     internal class ConnectionFactoryAcmMonitor : IAcmMonitor
@@ -133,27 +131,31 @@ namespace ZeroC.Ice
 
         public void Add(Connection connection)
         {
-            lock (_mutex)
+            if (!Acm.IsDisabled)
             {
-                if (_connections.Count == 0)
+                lock (_mutex)
                 {
-                    _connections.Add(connection);
-                    _timer = new Timer(RunTimerTask, this, Acm.Timeout / 2, Acm.Timeout / 2);
-                }
-                else
-                {
-                    _changes.Add((connection, false));
+                    if (_connections.Count == 0)
+                    {
+                        _connections.Add(connection);
+                        _timer = new Timer(RunTimerTask, this, Acm.Timeout / 2, Acm.Timeout / 2);
+                    }
+                    else
+                    {
+                        _changes.Add((connection, false));
+                    }
                 }
             }
         }
 
-        public IAcmMonitor Create(Acm acm) => new ConnectionAcmMonitor(this, acm, _communicator.Logger);
-
         public void Remove(Connection connection)
         {
-            lock (_mutex)
+            if (!Acm.IsDisabled)
             {
-                _changes.Add((connection, true));
+                lock (_mutex)
+                {
+                    _changes.Add((connection, true));
+                }
             }
         }
 
@@ -213,20 +215,17 @@ namespace ZeroC.Ice
         public Acm Acm { get; }
 
         private readonly ILogger _logger;
-        private readonly ConnectionFactoryAcmMonitor _parent;
         private Timer? _timer;
 
-        internal ConnectionAcmMonitor(ConnectionFactoryAcmMonitor parent, Acm acm, ILogger logger)
+        internal ConnectionAcmMonitor(Acm acm, ILogger logger)
         {
-            _parent = parent;
             Acm = acm;
             _logger = logger;
         }
 
         public void Add(Connection connection)
         {
-            if (Acm.Timeout != Timeout.InfiniteTimeSpan &&
-                (Acm.Close != AcmClose.Off || Acm.Heartbeat != AcmHeartbeat.Off))
+            if (!Acm.IsDisabled)
             {
                 _timer = new Timer(_ =>
                 {
@@ -241,8 +240,6 @@ namespace ZeroC.Ice
                 }, null, Acm.Timeout, Acm.Timeout);
             }
         }
-
-        public IAcmMonitor Create(Acm acm) => _parent.Create(acm);
 
         public void Remove(Connection _) => _timer?.Dispose();
     }

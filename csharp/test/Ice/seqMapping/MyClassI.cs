@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.SeqMapping
 {
     public sealed class MyClass : IMyClass
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public (ReadOnlyMemory<byte>, ReadOnlyMemory<byte>) opAByteS(byte[] i, Current current) => (i, i);
 

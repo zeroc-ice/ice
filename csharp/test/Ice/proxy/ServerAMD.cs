@@ -2,13 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Proxy
 {
     public class ServerAMD : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             //
@@ -17,15 +18,15 @@ namespace ZeroC.Ice.Test.Proxy
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
 
-            using var communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClassAsync());
-            adapter.Activate();
+            await adapter.ActivateAsync();
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);
     }
 }

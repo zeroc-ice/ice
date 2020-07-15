@@ -288,8 +288,8 @@ namespace ZeroC.Ice
                         return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
                     });
                 Add("endpointCompress", obj => (obj as ConnectionHelper)?._connection.Endpoint?.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as ConnectionHelper)?._connection.Endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as ConnectionHelper)?._connection.Endpoint as IPEndpoint)?.Port);
+                Add("endpointHost", obj => (obj as ConnectionHelper)?._connection.Endpoint.Host);
+                Add("endpointPort", obj => (obj as ConnectionHelper)?._connection.Endpoint.Port);
             }
         }
     }
@@ -386,8 +386,8 @@ namespace ZeroC.Ice
                         return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
                     });
                 Add("endpointCompress", obj => (obj as DispatchHelper)?.Connection.Endpoint.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as DispatchHelper)?.Connection.Endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as DispatchHelper)?.Connection.Endpoint as IPEndpoint)?.Port);
+                Add("endpointHost", obj => (obj as DispatchHelper)?.Connection.Endpoint.Host);
+                Add("endpointPort", obj => (obj as DispatchHelper)?.Connection.Endpoint.Port);
 
                 Add("operation", obj => (obj as DispatchHelper)?._current.Operation);
                 Add("identity", obj =>
@@ -452,8 +452,8 @@ namespace ZeroC.Ice
                         return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
                     });
                 Add("endpointCompress", obj => (obj as EndpointHelper)?._endpoint?.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as EndpointHelper)?._endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as EndpointHelper)?._endpoint as IPEndpoint)?.Port);
+                Add("endpointHost", obj => (obj as EndpointHelper)?._endpoint.Host);
+                Add("endpointPort", obj => (obj as EndpointHelper)?._endpoint.Port);
             }
         }
     }
@@ -703,8 +703,8 @@ namespace ZeroC.Ice
                         return endpoint != null ? (int?)endpoint.Timeout.TotalMilliseconds : null;
                     });
                 Add("endpointCompress", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.HasCompressionFlag);
-                Add("endpointHost", obj => ((obj as RemoteInvocationHelper)?._connection.Endpoint as IPEndpoint)?.Host);
-                Add("endpointPort", obj => ((obj as RemoteInvocationHelper)?._connection.Endpoint as IPEndpoint)?.Port);
+                Add("endpointHost", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Host);
+                Add("endpointPort", obj => (obj as RemoteInvocationHelper)?._connection.Endpoint.Port);
             }
         }
     }

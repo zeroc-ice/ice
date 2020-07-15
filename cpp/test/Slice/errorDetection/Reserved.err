@@ -5,7 +5,8 @@ Reserved.ice:24: warning: identifiers with a `Ptr' suffix are reserved by Ice: u
 Reserved.ice:25: warning: identifiers with a `Helper' suffix are reserved by Ice: using `Helper' as an identifier may result in name collisions in the generated code
 Reserved.ice:26: warning: identifiers with a `Helper' suffix are reserved by Ice: using `abcHelper' as an identifier may result in name collisions in the generated code
 Reserved.ice:27: warning: identifiers with an `Ice' prefix are reserved by Ice: using `Ice' as an identifier may result in name collisions in the generated code
-Reserved.ice:28: constant `ice' differs only in capitalization from constant `Ice'
+Reserved.ice:28: constant `ice' differs only in capitalization from the constant named `Ice'
+Reserved.ice:27: note: constant `Ice' is defined here
 Reserved.ice:29: warning: identifiers with an `ice' prefix are reserved by Ice: using `icea' as an identifier may result in name collisions in the generated code
 Reserved.ice:30: warning: identifiers with an `Ice' prefix are reserved by Ice: using `Iceblah' as an identifier may result in name collisions in the generated code
 Reserved.ice:31: warning: identifiers with an `Ice' prefix are reserved by Ice: using `IceFoo' as an identifier may result in name collisions in the generated code

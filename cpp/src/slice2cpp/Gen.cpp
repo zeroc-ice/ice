@@ -1320,7 +1320,7 @@ Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 
 StringList
 Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData,
-                                      const string& file, const string& line, bool operation)
+                                      const string& file, int line, bool operation)
 {
     if (auto optional = OptionalPtr::dynamicCast(cont))
     {

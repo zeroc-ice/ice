@@ -22,6 +22,8 @@ namespace ZeroC.Ice
 
     internal sealed class OutgoingConnectionFactory : IConnectionFactory
     {
+        public IAcmMonitor AcmMonitor { get; }
+
         private readonly Communicator _communicator;
         private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector =
             new MultiDictionary<(IConnector, string), Connection>();
@@ -31,8 +33,6 @@ namespace ZeroC.Ice
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
-
-        public IAcmMonitor AcmMonitor { get; }
 
         public void Remove(Connection connection)
         {
@@ -64,7 +64,7 @@ namespace ZeroC.Ice
             {
                 if (_destroyTask != null)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 // Try to find a connection to one of the given endpoints. Ignore the endpoint compression flag to
@@ -97,7 +97,7 @@ namespace ZeroC.Ice
                         connectors.Add((connector, endpoint, connectionId));
                     }
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                     throw; // No need to continue
                 }
@@ -125,7 +125,7 @@ namespace ZeroC.Ice
             {
                 if (_destroyTask != null)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 // Try to find a connection matching one of the connector.
@@ -163,7 +163,7 @@ namespace ZeroC.Ice
                 // Wait for connections to be closed.
                 IEnumerable<Task> tasks =
                     _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
-                        connection.GracefulCloseAsync(new CommunicatorDestroyedException()));
+                        connection.GracefulCloseAsync(new CommunicatorDisposedException()));
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
 #if DEBUG
@@ -221,7 +221,7 @@ namespace ZeroC.Ice
                         {
                             if (_destroyTask != null)
                             {
-                                throw new CommunicatorDestroyedException();
+                                throw new CommunicatorDisposedException();
                             }
 
                             if (_connectionsByConnector.TryGetValue((connector, routerInfo.Router.ConnectionId),
@@ -281,7 +281,7 @@ namespace ZeroC.Ice
                     {
                         if (_destroyTask != null)
                         {
-                            throw new CommunicatorDestroyedException();
+                            throw new CommunicatorDisposedException();
                         }
 
                         connection = connector.Connect().CreateConnection(this,
@@ -297,7 +297,7 @@ namespace ZeroC.Ice
                     await connection.StartAsync().ConfigureAwait(false);
                     return connection;
                 }
-                catch (CommunicatorDestroyedException ex)
+                catch (CommunicatorDisposedException ex)
                 {
                     observer?.Failed(ex.GetType().FullName ?? "System.Exception");
                     throw; // No need to continue
@@ -354,7 +354,7 @@ namespace ZeroC.Ice
                 {
                     if (_destroyTask != null)
                     {
-                        throw new CommunicatorDestroyedException();
+                        throw new CommunicatorDisposedException();
                     }
 
                     // Search for pending connects for the set of connectors which weren't already tried.
@@ -457,6 +457,8 @@ namespace ZeroC.Ice
 
     internal sealed class IncomingConnectionFactory : IConnectionFactory
     {
+        public IAcmMonitor AcmMonitor { get; }
+
         private readonly IAcceptor? _acceptor;
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
@@ -467,8 +469,6 @@ namespace ZeroC.Ice
         private readonly Endpoint? _publishedEndpoint;
         private readonly ITransceiver? _transceiver;
         private readonly bool _warn;
-
-        public IAcmMonitor AcmMonitor { get; }
 
         public void Remove(Connection connection)
         {
@@ -610,7 +610,8 @@ namespace ZeroC.Ice
 
                 // Wait for all the connections to be closed
                 IEnumerable<Task> tasks = _connections.Select(
-                    connection => connection.GracefulCloseAsync(new ObjectAdapterDeactivatedException(_adapter.Name)));
+                    connection => connection.GracefulCloseAsync(
+                        new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
                 await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         }
@@ -727,7 +728,7 @@ namespace ZeroC.Ice
                     // and server.
                     _ = connection.StartAsync();
                 }
-                catch (ObjectAdapterDeactivatedException)
+                catch (ObjectDisposedException)
                 {
                     // Ignore
                 }

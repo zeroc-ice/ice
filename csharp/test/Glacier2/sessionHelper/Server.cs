@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
 
@@ -10,11 +11,11 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Default.Protocol"] = "ice1";
-            using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("DeactivatedAdapter.Endpoints", GetTestEndpoint(1));
             communicator.CreateObjectAdapter("DeactivatedAdapter");
 
@@ -22,10 +23,10 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             ObjectAdapter adapter = communicator.CreateObjectAdapter("CallbackAdapter");
             var callbackI = new Callback();
             adapter.Add("callback", callbackI);
-            adapter.Activate();
-            communicator.WaitForShutdown();
+            await adapter.ActivateAsync();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

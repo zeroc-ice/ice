@@ -9,28 +9,26 @@ namespace ZeroC.Ice.Test.Info
 {
     public class TestIntf : ITestIntf
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public IReadOnlyDictionary<string, string> getEndpointInfoAsContext(Current current)
         {
             TestHelper.Assert(current.Connection != null);
             var ctx = new Dictionary<string, string>();
             Endpoint endpoint = current.Connection.Endpoint;
-            ctx["timeout"] = endpoint.Timeout.ToString();
-            ctx["compress"] = endpoint.HasCompressionFlag ? "true" : "false";
+            ctx["timeout"] = endpoint["timeout"] ?? "infinite";
+            ctx["compress"] = endpoint["compress"] ?? "false";
             ctx["datagram"] = endpoint.IsDatagram ? "true" : "false";
-            ctx["secure"] = endpoint.IsDatagram ? "true" : "false";
-            ctx["transport"] = endpoint.Transport.ToString();
+            ctx["secure"] = endpoint.IsSecure ? "true" : "false";
+            ctx["transport"] = endpoint.TransportName;
 
-            IPEndpoint? ipEndpoint = endpoint as IPEndpoint;
-            TestHelper.Assert(ipEndpoint != null);
-            ctx["host"] = ipEndpoint.Host;
-            ctx["port"] = ipEndpoint.Port.ToString();
+            ctx["host"] = endpoint.Host;
+            ctx["port"] = endpoint.Port.ToString();
 
-            if (ipEndpoint is UdpEndpoint udpEndpoint)
+            if (endpoint.Transport == Transport.UDP)
             {
-                ctx["mcastInterface"] = udpEndpoint.McastInterface;
-                ctx["mcastTtl"] = udpEndpoint.McastTtl.ToString();
+                ctx["mcastInterface"] = endpoint["interface"]!;
+                ctx["mcastTtl"] = endpoint["ttl"]!;
             }
 
             return ctx;

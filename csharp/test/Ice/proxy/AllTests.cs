@@ -241,7 +241,7 @@ namespace ZeroC.Ice.Test.Proxy
             b1 = IObjectPrx.Parse("test -p ice1 -e 1.0", communicator);
             TestHelper.Assert(b1.ToString()!.Equals("test -t -p ice1 -e 1.0"));
 
-            b1 = IObjectPrx.Parse("test -p 1.0 -e 1.0", communicator);
+            b1 = IObjectPrx.Parse("test -p ice1 -e 1.0", communicator);
             TestHelper.Assert(b1.ToString()!.Equals("test -t -p ice1 -e 1.0"));
 
             b1 = IObjectPrx.Parse("test -p ice2 -e 1.0", communicator);
@@ -991,14 +991,12 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
             {
                 Communicator com = new Communicator();
-                com.Shutdown();
-                TestHelper.Assert(com.IsShutdown());
-                com.WaitForShutdown();
-                com.Destroy();
-                com.Shutdown();
-                TestHelper.Assert(com.IsShutdown());
-                com.WaitForShutdown();
-                com.Destroy();
+                com.ShutdownAsync();
+                com.WaitForShutdownAsync();
+                com.Dispose();
+                com.ShutdownAsync();
+                com.WaitForShutdownAsync();
+                com.Dispose();
             }
             output.WriteLine("ok");
 

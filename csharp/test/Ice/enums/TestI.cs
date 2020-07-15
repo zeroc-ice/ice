@@ -93,6 +93,6 @@ namespace ZeroC.Ice.Test.Enums
             MyFlags[]? f1,
             Current current) => (f1, f1);
 
-        public void Shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

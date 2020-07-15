@@ -50,34 +50,19 @@ namespace ZeroC.Ice
 
     /// <summary>This exception reports an attempt to use a destroyed communicator.</summary>
     [Serializable]
-    public class CommunicatorDestroyedException : ObjectDisposedException
+    public class CommunicatorDisposedException : ObjectDisposedException
     {
-        public CommunicatorDestroyedException()
+        public CommunicatorDisposedException()
             : base("")
         {
         }
 
-        public CommunicatorDestroyedException(Exception innerException)
+        public CommunicatorDisposedException(Exception innerException)
             : base("", innerException)
         {
         }
 
-        protected CommunicatorDestroyedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>This exception reports an attempt to use a deactivated object adapter.</summary>
-    [Serializable]
-    public class ObjectAdapterDeactivatedException : ObjectDisposedException
-    {
-        public ObjectAdapterDeactivatedException(string objectName)
-            : base(objectName)
-        {
-        }
-
-        protected ObjectAdapterDeactivatedException(SerializationInfo info, StreamingContext context)
+        protected CommunicatorDisposedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

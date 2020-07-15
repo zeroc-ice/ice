@@ -14,6 +14,6 @@ namespace ZeroC.Ice.Test.FaultTolerance
 
         public int pid(Current current) => Process.GetCurrentProcess().Id;
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
     }
 }

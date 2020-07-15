@@ -20,13 +20,13 @@ interface i2
 class c1
 {
     long l;
-    void l();
+    long l;
 }
 
 class c2
 {
     long l;
-    void L();
+    long L;
 }
 
 module m1
@@ -78,18 +78,18 @@ class c3
 
 class c4 : c3
 {
-    void l();
+    long l;
 }
 
 class c5 : c3
 {
-    void L();
+    long L;
 }
 
 class c6
 {
     long l;
-    void L();
+    int L;
 }
 
 class c7 : c3
@@ -104,7 +104,7 @@ class c8 : c3
 
 class c9
 {
-     void L();
+     int L;
      long l;
 }
 
@@ -271,9 +271,7 @@ module DI
     class base1
     {
         int base1;
-        void aa(int BASE1);
-
-        void bb(int base1, string BASE1);
+        int BASE1;
     }
 
     struct Foo

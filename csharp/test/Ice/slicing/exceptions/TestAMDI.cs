@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
     {
         public ValueTask shutdownAsync(Current current)
         {
-            current.Adapter.Communicator.Shutdown();
+            current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 

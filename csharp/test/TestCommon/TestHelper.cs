@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
-
+using System.Threading.Tasks;
 using ZeroC.Ice;
 
 namespace Test
@@ -38,7 +38,7 @@ namespace Test
                 throw new Exception();
             }
         }
-        public abstract void Run(string[] args);
+        public abstract Task RunAsync(string[] args);
 
         public string GetTestEndpoint(int num = 0, string transport = "") =>
             GetTestEndpoint(_communicator!.GetProperties(), num, transport);
@@ -167,13 +167,13 @@ namespace Test
 
     public static class TestDriver
     {
-        public static int RunTest<T>(string[] args) where T : TestHelper, new()
+        public static async Task<int> RunTestAsync<T>(string[] args) where T : TestHelper, new()
         {
             int status = 0;
             try
             {
                 var h = new T();
-                h.Run(args);
+                await h.RunAsync(args);
             }
             catch (Exception ex)
             {

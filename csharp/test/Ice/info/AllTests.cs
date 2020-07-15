@@ -21,41 +21,40 @@ namespace ZeroC.Ice.Test.Info
             output.Flush();
             {
                 var p1 = IObjectPrx.Parse(
-                                "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
-                                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
-                                "opaque -e 1.8 -t 100 -v ABCD", communicator);
+                    "test -t -p ice1:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" +
+                    "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" +
+                    "opaque -e 1.8 -t 100 -v ABCD", communicator);
 
                 var endps = p1.Endpoints;
 
-                Endpoint endpoint = endps[0];
-                var tcpEndpoint = endpoint as TcpEndpoint;
-                TestHelper.Assert(tcpEndpoint != null);
-                TestHelper.Assert(tcpEndpoint.Host.Equals("tcphost"));
+                Endpoint tcpEndpoint = endps[0];
+                TestHelper.Assert((tcpEndpoint.Transport == Transport.TCP && !tcpEndpoint.IsSecure) ||
+                                  (tcpEndpoint.Transport == Transport.SSL && tcpEndpoint.IsSecure) ||
+                                  (tcpEndpoint.Transport == Transport.WS && !tcpEndpoint.IsSecure) ||
+                                  (tcpEndpoint.Transport == Transport.WSS && tcpEndpoint.IsSecure));
+                TestHelper.Assert(tcpEndpoint.Host == "tcphost");
                 TestHelper.Assert(tcpEndpoint.Port == 10000);
-                TestHelper.Assert(tcpEndpoint.SourceAddress!.ToString().Equals("10.10.10.10"));
-                TestHelper.Assert(tcpEndpoint.Timeout == TimeSpan.FromMilliseconds(1200));
-                TestHelper.Assert(tcpEndpoint.HasCompressionFlag);
+                TestHelper.Assert(tcpEndpoint["source-address"] == "10.10.10.10");
+                TestHelper.Assert(tcpEndpoint["timeout"] == "1200");
+                TestHelper.Assert(tcpEndpoint["compress"] == "true");
                 TestHelper.Assert(!tcpEndpoint.IsDatagram);
-                TestHelper.Assert((tcpEndpoint.Transport == Transport.TCP && !endpoint.IsSecure) ||
-                                  (tcpEndpoint.Transport == Transport.SSL && endpoint.IsSecure) ||
-                                  (tcpEndpoint.Transport == Transport.WS && !endpoint.IsSecure) ||
-                                  (tcpEndpoint.Transport == Transport.WSS && endpoint.IsSecure));
 
-                UdpEndpoint udpEndpoint = (UdpEndpoint)endps[1];
-                TestHelper.Assert(udpEndpoint.Host.Equals("udphost"));
+                Endpoint udpEndpoint = endps[1];
+                TestHelper.Assert(udpEndpoint.Host == "udphost");
                 TestHelper.Assert(udpEndpoint.Port == 10001);
-                TestHelper.Assert(udpEndpoint.McastInterface.Equals("eth0"));
-                TestHelper.Assert(udpEndpoint.McastTtl == 5);
-                TestHelper.Assert(udpEndpoint.SourceAddress!.ToString().Equals("10.10.10.10"));
-                TestHelper.Assert(udpEndpoint.Timeout == System.Threading.Timeout.InfiniteTimeSpan);
-                TestHelper.Assert(!udpEndpoint.HasCompressionFlag);
+                TestHelper.Assert(udpEndpoint["interface"] == "eth0");
+                TestHelper.Assert(udpEndpoint["ttl"] == "5");
+                TestHelper.Assert(udpEndpoint["source-address"] == "10.10.10.10");
+                TestHelper.Assert(udpEndpoint["timeout"] == null);
+                TestHelper.Assert(udpEndpoint["compress"] == null);
+
                 TestHelper.Assert(!udpEndpoint.IsSecure);
                 TestHelper.Assert(udpEndpoint.IsDatagram);
                 TestHelper.Assert(udpEndpoint.Transport == Transport.UDP);
 
-                OpaqueEndpoint opaqueEndpoint = (OpaqueEndpoint)endps[2];
-                TestHelper.Assert(opaqueEndpoint.Bytes.Length > 0);
-                TestHelper.Assert(opaqueEndpoint.Encoding.Equals(new Encoding(1, 8)));
+                Endpoint opaqueEndpoint = endps[2];
+                TestHelper.Assert(opaqueEndpoint["value"] == "ABCD");
+                TestHelper.Assert(opaqueEndpoint["value-encoding"] == "1.8");
             }
             output.WriteLine("ok");
 
@@ -73,30 +72,29 @@ namespace ZeroC.Ice.Test.Info
                 var publishedEndpoints = adapter.GetPublishedEndpoints();
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
-                var tcpEndpoint = endpoints[0] as TcpEndpoint;
+                var tcpEndpoint = endpoints[0];
                 TestHelper.Assert(tcpEndpoint != null);
                 TestHelper.Assert(tcpEndpoint.Transport == Transport.TCP ||
                                   tcpEndpoint.Transport == Transport.SSL ||
                                   tcpEndpoint.Transport == Transport.WS ||
                                   tcpEndpoint.Transport == Transport.WSS);
 
-                TestHelper.Assert(tcpEndpoint.Host.Equals(host));
+                TestHelper.Assert(tcpEndpoint.Host == host);
                 TestHelper.Assert(tcpEndpoint.Port > 0);
                 TestHelper.Assert(tcpEndpoint.Timeout == TimeSpan.FromMilliseconds(15000));
 
-                UdpEndpoint udpEndpoint = (UdpEndpoint)endpoints[1];
-                TestHelper.Assert(udpEndpoint.Host.Equals(host));
+                Endpoint udpEndpoint = endpoints[1];
+                TestHelper.Assert(udpEndpoint.Host == host);
                 TestHelper.Assert(udpEndpoint.IsDatagram);
                 TestHelper.Assert(udpEndpoint.Port > 0);
 
                 endpoints = new List<Endpoint> { endpoints[0] };
-                TestHelper.Assert(endpoints.Count == 1);
 
                 adapter.SetPublishedEndpoints(endpoints);
                 publishedEndpoints = adapter.GetPublishedEndpoints();
                 TestHelper.Assert(endpoints.SequenceEqual(publishedEndpoints));
 
-                adapter.Destroy();
+                adapter.Dispose();
 
                 int port = helper.GetTestPort(1);
                 communicator.SetProperty("TestAdapter.Endpoints", $"default -h * -p {port}");
@@ -110,15 +108,14 @@ namespace ZeroC.Ice.Test.Info
 
                 foreach (var endpoint in endpoints)
                 {
-                    tcpEndpoint = endpoint as TcpEndpoint;
-                    TestHelper.Assert(tcpEndpoint!.Port == port);
+                    TestHelper.Assert(endpoint.Port == port);
                 }
 
-                tcpEndpoint = publishedEndpoints[0] as TcpEndpoint;
-                TestHelper.Assert(tcpEndpoint!.Host == "127.0.0.1");
-                TestHelper.Assert(tcpEndpoint!.Port == port);
+                tcpEndpoint = publishedEndpoints[0];
+                TestHelper.Assert(tcpEndpoint.Host == "127.0.0.1");
+                TestHelper.Assert(tcpEndpoint.Port == port);
 
-                adapter.Destroy();
+                adapter.Dispose();
             }
             output.WriteLine("ok");
 
@@ -133,23 +130,29 @@ namespace ZeroC.Ice.Test.Info
             output.Write("test connection endpoint information... ");
             output.Flush();
             {
-                Endpoint endpoint = testIntf.GetConnection()!.Endpoint;
-                var tcpEndpoint = endpoint as TcpEndpoint;
-                TestHelper.Assert(tcpEndpoint != null);
+                Endpoint tcpEndpoint = testIntf.GetConnection()!.Endpoint;
                 TestHelper.Assert(tcpEndpoint.Port == endpointPort);
-                TestHelper.Assert(!tcpEndpoint.HasCompressionFlag);
-                TestHelper.Assert(tcpEndpoint.Host.Equals(defaultHost));
+
+                if (communicator.DefaultProtocol == Protocol.Ice1)
+                {
+                    TestHelper.Assert(tcpEndpoint["compress"] == null);
+                }
+                else
+                {
+                    TestHelper.Assert(tcpEndpoint["compress"] == null);
+                }
+                TestHelper.Assert(tcpEndpoint.Host == defaultHost);
 
                 Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
-                TestHelper.Assert(ctx["host"].Equals(tcpEndpoint.Host));
-                TestHelper.Assert(ctx["compress"].Equals("false"));
+                TestHelper.Assert(ctx["host"] == tcpEndpoint.Host);
+                TestHelper.Assert(ctx["compress"] == "false");
                 int port = int.Parse(ctx["port"]);
                 TestHelper.Assert(port > 0);
 
-                endpoint = testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!.Endpoint;
-                UdpEndpoint udp = (UdpEndpoint)endpoint;
-                TestHelper.Assert(udp.Port == endpointPort);
-                TestHelper.Assert(udp.Host.Equals(defaultHost));
+                Endpoint udpEndpoint =
+                    testIntf.Clone(invocationMode: InvocationMode.Datagram).GetConnection()!.Endpoint;
+                TestHelper.Assert(udpEndpoint.Port == endpointPort);
+                TestHelper.Assert(udpEndpoint.Host == defaultHost);
             }
             output.WriteLine("ok");
 
@@ -164,8 +167,8 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(connection.LocalEndpoint!.Port > 0);
                 if (defaultHost.Equals("127.0.0.1"))
                 {
-                    TestHelper.Assert(connection.LocalEndpoint!.Address.ToString().Equals(defaultHost));
-                    TestHelper.Assert(connection.RemoteEndpoint!.Address.ToString().Equals(defaultHost));
+                    TestHelper.Assert(connection.LocalEndpoint!.Address.ToString() == defaultHost);
+                    TestHelper.Assert(connection.RemoteEndpoint!.Address.ToString() == defaultHost);
                 }
 
                 if (connection.Endpoint.IsSecure)
@@ -234,7 +237,7 @@ namespace ZeroC.Ice.Test.Info
                 TestHelper.Assert(udpConnection.LocalEndpoint?.Port > 0);
                 TestHelper.Assert(udpConnection.RemoteEndpoint?.Port == endpointPort);
 
-                if (defaultHost.Equals("127.0.0.1"))
+                if (defaultHost == "127.0.0.1")
                 {
                     TestHelper.Assert(udpConnection.RemoteEndpoint.Address.ToString().Equals(defaultHost));
                     TestHelper.Assert(udpConnection.LocalEndpoint.Address.ToString().Equals(defaultHost));
@@ -244,8 +247,8 @@ namespace ZeroC.Ice.Test.Info
 
             testIntf.shutdown();
 
-            communicator.Shutdown();
-            communicator.WaitForShutdown();
+            communicator.ShutdownAsync();
+            communicator.WaitForShutdownAsync();
         }
     }
 }

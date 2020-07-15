@@ -3,13 +3,14 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Background
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
 
@@ -42,8 +43,9 @@ namespace ZeroC.Ice.Test.Background
             communicator.AddPlugin("Test", plugin);
             IBackgroundPrx background = AllTests.allTests(this);
             background.shutdown();
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

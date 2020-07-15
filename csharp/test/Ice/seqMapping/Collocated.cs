@@ -2,15 +2,16 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.SeqMapping
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyClass());
@@ -18,6 +19,6 @@ namespace ZeroC.Ice.Test.SeqMapping
             AllTests.allTests(this, true);
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }
 }

@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace ZeroC.Ice.Test.Plugin
 {
     public abstract class BasePluginFail : IPlugin
@@ -18,7 +20,7 @@ namespace ZeroC.Ice.Test.Plugin
         public bool isDestroyed() => _destroyed;
 
         public abstract void Initialize();
-        public abstract void Destroy();
+        public abstract ValueTask DisposeAsync();
 
         protected Communicator _communicator;
         protected bool _initialized;

@@ -1,1 +1,2 @@
 InterfaceRedefinition.ice:9: redefinition of interface `Intf1'
+InterfaceRedefinition.ice:8: note: interface `Intf1' was originally defined here

@@ -3,15 +3,16 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Operations
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             var myClass = AllTests.allTests(this);
 
             Console.Out.Write("testing server shutdown... ");
@@ -22,12 +23,12 @@ namespace ZeroC.Ice.Test.Operations
                 myClass.IcePing();
                 Assert(false);
             }
-            catch (Exception)
+            catch
             {
                  Console.Out.WriteLine("ok");
             }
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }
