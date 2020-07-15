@@ -214,6 +214,7 @@ namespace ZeroC.Ice
 
             if (options.TryGetValue("interface", out value))
             {
+                // interface is percent escaped, for example "%lo" in the interface string is encoded as "%25lo".
                 McastInterface = Uri.UnescapeDataString(value);
                 if (McastInterface == "*")
                 {

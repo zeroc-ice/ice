@@ -150,7 +150,8 @@ namespace ZeroC.Ice
         {
             if (options.TryGetValue("resource", out string? value))
             {
-                // resource is percent-escaped with '/' separators, and we don't unescape it on purpose
+                // The resource value (as supplied in a URI string) must be percent-escaped with '/' separators
+                // We keep it as-is, and will marshal it as-is.
                 _resource = value;
                 options.Remove("resource");
             }

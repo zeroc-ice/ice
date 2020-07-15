@@ -38,8 +38,8 @@ namespace ZeroC.Ice
                 }
                 else if (option == "options" && _options.Count > 0)
                 {
-                    // The _options are already percent escaped.
-                    return string.Join(",", _options);
+                    // We percent-escape each option, just like in their URI form.
+                    return string.Join(",", _options.Select(s => Uri.EscapeDataString(s)));
                 }
                 else
                 {
@@ -295,9 +295,11 @@ namespace ZeroC.Ice
 
             if (options.TryGetValue("options", out string? value))
             {
-                // The options are percent-escaped and must remain percent-escaped. If we percent-escape them again,
-                // we cannot unescape them reliably.
-                _options = value.Split(",");
+                // Each option must be percent-escaped; we hold it in memory unescaped, and later marshal it unescaped.
+                // For example, a WS endpoint resource option would be provided "double-escaped", with
+                // `/` replaced by %2F and %20 (space) escaped as %2520; this unescaping would result in
+                // the memory resource value being "singled-escaped".
+                _options = value.Split(",").Select(s => Uri.UnescapeDataString(s)).ToList();
                 options.Remove("options");
             }
         }

@@ -38,6 +38,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+universal://host.zeroc.com/identity?transport=100",
                 "ice+universal://[ab:cd:ef:00]/identity?transport=bt",
                 "ice+udp://[::1]/test?source-address=::1&interface=0:0:0:0:0:0:0:1%25lo", // unescaped as ..:1%lo
+                "ice+ws://host.zeroc.com/identity?resource=/foo%2Fbar?/xyz",
             };
 
             foreach (string uriString in uriStringArray)
