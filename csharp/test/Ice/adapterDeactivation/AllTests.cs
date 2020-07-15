@@ -41,13 +41,13 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 catch (ArgumentException)
                 {
                 }
-                adapter.Destroy();
+                adapter.Dispose();
 
                 //
                 // Use a different port than the first adapter to avoid an "address already in use" error.
                 //
                 adapter = communicator.CreateObjectAdapterWithEndpoints("TransientTestAdapter", "default");
-                adapter.Destroy();
+                adapter.Dispose();
                 output.WriteLine("ok");
             }
 
@@ -62,9 +62,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 output.Flush();
                 for (int i = 0; i < 10; ++i)
                 {
-                    var comm = new Communicator(communicator.GetProperties());
+                    using var comm = new Communicator(communicator.GetProperties());
                     IObjectPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator).IcePingAsync();
-                    comm.Destroy();
                 }
                 output.WriteLine("ok");
             }
@@ -97,6 +96,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 communicator.SetProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
                 adapter.RefreshPublishedEndpoints();
                 TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 1);
+
                 if (communicator.DefaultProtocol == Protocol.Ice1)
                 {
                     TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345 -t 20000"));
@@ -105,8 +105,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 {
                     TestHelper.Assert(adapter.GetPublishedEndpoints()[0].ToString()!.Equals("tcp -h localhost -p 12345"));
                 }
-                adapter.Destroy();
-                TestHelper.Assert(adapter.GetPublishedEndpoints().Count == 0);
+                adapter.Dispose();
             }
             output.WriteLine("ok");
 
@@ -118,7 +117,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 var adapter = communicator.CreateObjectAdapter();
                 connection.Adapter = adapter;
                 connection.Adapter = null;
-                adapter.Deactivate();
+                adapter.Dispose();
                 // Setting a deactivated adapter on a connection no longer raise ObjectAdapterDeactivatedException
                 connection.Adapter = adapter;
                 output.WriteLine("ok");
@@ -160,7 +159,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                 {
                     // Expected.
                 }
-                adapter.Destroy();
+                adapter.Dispose();
 
                 try
                 {
@@ -195,11 +194,11 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
                     communicator.CreateObjectAdapterWithEndpoints("Adpt2", helper.GetTestEndpoint(10));
                     TestHelper.Assert(false);
                 }
-                catch (System.Exception)
+                catch
                 {
                     // Expected can't re-use the same endpoint.
                 }
-                adapter1.Destroy();
+                adapter1.Dispose();
             }
             output.WriteLine("ok");
 

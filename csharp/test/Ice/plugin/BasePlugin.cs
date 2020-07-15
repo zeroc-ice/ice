@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
 {
@@ -28,7 +29,7 @@ namespace ZeroC.Ice.Test.Plugin
         public bool isDestroyed() => _destroyed;
 
         public abstract void Initialize();
-        public abstract void Destroy();
+        public abstract ValueTask DisposeAsync();
 
         protected Communicator _communicator;
         protected bool _initialized = false;

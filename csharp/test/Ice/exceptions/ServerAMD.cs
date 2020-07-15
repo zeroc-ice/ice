@@ -3,19 +3,20 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Exceptions
 {
     public class ServerAMD : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.MessageSizeMax"] = "10"; // 10KB max
-            using Communicator communicator = Initialize(properties);
+            await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             communicator.SetProperty("TestAdapter2.Endpoints", GetTestEndpoint(1));
             communicator.SetProperty("TestAdapter2.MessageSizeMax", "0");
@@ -29,13 +30,13 @@ namespace ZeroC.Ice.Test.Exceptions
             adapter.Add("thrower", obj);
             adapter2.Add("thrower", obj);
             adapter3.Add("thrower", obj);
-            adapter.Activate();
-            adapter2.Activate();
-            adapter3.Activate();
+            await adapter.ActivateAsync();
+            await adapter2.ActivateAsync();
+            await adapter3.ActivateAsync();
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<ServerAMD>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<ServerAMD>(args);
     }
 }

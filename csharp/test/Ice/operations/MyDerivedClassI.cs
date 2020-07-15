@@ -32,7 +32,7 @@ namespace ZeroC.Ice.Test.Operations
             return typeof(IMyDerivedClass).GetIceTypeId()!;
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         // TODO check if compress is supported.
         public bool supportsCompress(Current current) => false;

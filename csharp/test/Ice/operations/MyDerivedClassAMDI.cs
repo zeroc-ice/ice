@@ -69,7 +69,7 @@ namespace ZeroC.Ice.Test.Operations
                 _opVoidThread = null;
             }
 
-            current.Adapter.Communicator.Shutdown();
+            current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 

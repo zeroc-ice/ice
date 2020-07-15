@@ -4,7 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ZeroC.Ice
@@ -13,58 +14,74 @@ namespace ZeroC.Ice
     {
         /// <summary>Shuts down this communicator's server functionality. This triggers the deactivation of all
         /// object adapters. After this method returns, no new requests are processed. However, requests that have
-        /// been started before Shutdown was called might still be active. You can use <see cref="WaitForShutdown"/>
-        /// to wait for the completion of all requests.</summary>
-        public void Shutdown()
+        /// been started before ShutdownAsync was called might still be active until the returned task completes. You
+        /// can also await the task returned by <see cref="WaitForShutdownAsync"/> to wait for the completion of all
+        /// requests.</summary>
+        public async Task ShutdownAsync()
         {
-            ObjectAdapter[] adapters;
             lock (_mutex)
             {
-                // Ignore shutdown requests if the communicator is already shut down.
-                if (_isShutdown)
-                {
-                    return;
-                }
-
-                adapters = _adapters.ToArray();
-                _isShutdown = true;
-                Monitor.PulseAll(_mutex);
+                _shutdownTask ??= PerformShutdownAsync(new List<ObjectAdapter>(_adapters));
             }
+            await _shutdownTask.ConfigureAwait(false);
 
-            // Deactivate outside the lock to avoid deadlocks.
-            foreach (ObjectAdapter adapter in adapters)
+            async Task PerformShutdownAsync(List<ObjectAdapter> adapters)
             {
-                adapter.Deactivate();
+                try
+                {
+                    // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
+                    await Task.WhenAll(
+                        adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
+                }
+                finally
+                {
+                    // Don't call SetResult directly to avoid continuations running synchronously
+                    _ = Task.Run(() => _waitForShutdownCompletionSource?.SetResult(null));
+                }
             }
         }
 
-        /// <summary>Waits until the application has called <see cref="Shutdown"/> directly or indirectly through
-        /// <see cref="Destroy"/>. On the server side, this operation blocks the calling thread until all executing
-        /// operations have completed. On the client side, the operation simply blocks until another thread has called
-        /// <see cref="Shutdown"/>.
-        /// <para/> A typical use of this method is to call it from the main thread of a server, which then waits until
-        /// some other thread calls <see cref="Shutdown"/>. After shutdown is complete, the main thread returns and can
-        /// do some cleanup work before calling <see cref="Destroy"/> to shut down the client functionality, and then
-        /// finally exits the application.</summary>
+        /// <summary>Block the calling thread until the communicator has been shutdown. On the server side, the
+        /// operation completes once all executing operations have completed. On the client side, it completes once
+        /// <see cref="ShutdownAsync"/> has been called. A typical use of this method is to call it from the main
+        /// thread of a server, which will be completed once the shutdown process completes, and then the caller can
+        /// do some cleanup work before calling <see cref="Dispose"/> to dispose the runtime and finally exists the
+        /// application.</summary>
         public void WaitForShutdown()
         {
-            ObjectAdapter[] adapters;
+            try
+            {
+                WaitForShutdownAsync().Wait();
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
+        /// <summary>Returns a task that completes after the communicator has been shutdown. On the server side, the
+        /// task returned by this operation completes once all executing operations have completed. On the client side,
+        /// the task simply completes once <see cref="ShutdownAsync"/> has been called. A typical use of this method is
+        /// to await the returned task from the main thread of a server, which will be completed once the shutdown
+        /// process completes, and then the caller can do some cleanup work before calling <see cref="Dispose"/> to
+        /// dispose the runtime and finally exists the application.</summary>
+        public async Task WaitForShutdownAsync()
+        {
+            Task shutdownTask;
             lock (_mutex)
             {
-                // First we wait for communicator shut down.
-                while (!_isShutdown)
+                if (_shutdownTask == null)
                 {
-                    Monitor.Wait(_mutex);
+                    _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
+                    shutdownTask = _waitForShutdownCompletionSource.Task;
                 }
-
-                adapters = _adapters.ToArray();
+                else
+                {
+                    shutdownTask = _shutdownTask;
+                }
             }
-
-            // Then wait for the deactivation of each object adapter.
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.WaitForDeactivate();
-            }
+            await shutdownTask.ConfigureAwait(false);
         }
 
         /// <summary>Creates a new object adapter. The communicator uses the object adapter's name to lookup its
@@ -74,9 +91,11 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapter(string name, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null)
-            => AddObjectAdapter(name, serializeDispatch, taskScheduler);
+        public ObjectAdapter CreateObjectAdapter(
+            string name,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null) =>
+            AddObjectAdapter(name, serializeDispatch, taskScheduler);
 
         /// <summary>Creates a new nameless object adapter. Such an object adapter has no configuration and can be
         /// associated with a bi-directional connection.</summary>
@@ -84,8 +103,10 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapter(bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
-            => AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler);
+        public ObjectAdapter CreateObjectAdapter(
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null) =>
+            AddObjectAdapter(serializeDispatch: serializeDispatch, taskScheduler: taskScheduler);
 
         /// <summary>Creates a new object adapter with the specified endpoint string. Calling this method is equivalent
         /// to setting the name.Endpoints property and then calling
@@ -116,9 +137,11 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithEndpoints(string endpoints, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null)
-            => CreateObjectAdapterWithEndpoints(Guid.NewGuid().ToString(), endpoints, serializeDispatch, taskScheduler);
+        public ObjectAdapter CreateObjectAdapterWithEndpoints(
+            string endpoints,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null) =>
+            CreateObjectAdapterWithEndpoints(Guid.NewGuid().ToString(), endpoints, serializeDispatch, taskScheduler);
 
         /// <summary>Creates a new object adapter with the specified router proxy. Calling this method is equivalent
         /// to setting the name.Router property and then calling
@@ -129,8 +152,11 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(string name, IRouterPrx router,
-            bool serializeDispatch = false, TaskScheduler? taskScheduler = null)
+        public ObjectAdapter CreateObjectAdapterWithRouter(
+            string name,
+            IRouterPrx router,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null)
         {
             if (name.Length == 0)
             {
@@ -155,20 +181,21 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapterWithRouter(IRouterPrx router, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null)
-            => CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
+        public ObjectAdapter CreateObjectAdapterWithRouter(
+            IRouterPrx router,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null) =>
+            CreateObjectAdapterWithRouter(Guid.NewGuid().ToString(), router, serializeDispatch, taskScheduler);
 
         internal ObjectAdapter? FindObjectAdapter(Reference reference)
         {
             List<ObjectAdapter> adapters;
             lock (_mutex)
             {
-                if (_isShutdown)
+                if (IsDisposed)
                 {
-                    return null;
+                    throw new CommunicatorDisposedException();
                 }
-
                 adapters = new List<ObjectAdapter>(_adapters);
             }
 
@@ -181,7 +208,7 @@ namespace ZeroC.Ice
                         return adapter;
                     }
                 }
-                catch (ObjectAdapterDeactivatedException)
+                catch (ObjectDisposedException)
                 {
                     // Ignore.
                 }
@@ -195,11 +222,6 @@ namespace ZeroC.Ice
             // Called by the object adapter to remove itself once destroyed.
             lock (_mutex)
             {
-                if (_isShutdown)
-                {
-                    return;
-                }
-
                 _adapters.Remove(adapter);
                 if (adapter.Name.Length > 0)
                 {
@@ -208,8 +230,11 @@ namespace ZeroC.Ice
             }
         }
 
-        private ObjectAdapter AddObjectAdapter(string? name = null, bool serializeDispatch = false,
-            TaskScheduler? taskScheduler = null, IRouterPrx? router = null)
+        private ObjectAdapter AddObjectAdapter(
+            string? name = null,
+            bool serializeDispatch = false,
+            TaskScheduler? taskScheduler = null,
+            IRouterPrx? router = null)
         {
             if (name != null && name.Length == 0)
             {
@@ -218,9 +243,9 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_isShutdown)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (name != null)
@@ -236,27 +261,13 @@ namespace ZeroC.Ice
 
             // Must be called outside the synchronization since the constructor can make client invocations
             // on the router if it's set.
-            ObjectAdapter? adapter = null;
+            ObjectAdapter adapter;
             try
             {
                 adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router);
-                lock (_mutex)
-                {
-                    if (_isShutdown)
-                    {
-                        throw new CommunicatorDestroyedException();
-                    }
-                    _adapters.Add(adapter);
-                    return adapter;
-                }
             }
-            catch (Exception)
+            catch
             {
-                if (adapter != null)
-                {
-                    adapter.Destroy();
-                }
-
                 if (name != null)
                 {
                     lock (_mutex)
@@ -266,24 +277,16 @@ namespace ZeroC.Ice
                 }
                 throw;
             }
-        }
-
-        private void DestroyAllObjectAdapters()
-        {
-            ObjectAdapter[] adapters;
-            lock (_mutex)
-            {
-                adapters = _adapters.ToArray();
-            }
-
-            foreach (ObjectAdapter adapter in adapters)
-            {
-                adapter.Destroy();
-            }
 
             lock (_mutex)
             {
-                _adapters.Clear();
+                if (IsDisposed)
+                {
+                    adapter.Dispose();
+                    throw new CommunicatorDisposedException();
+                }
+                _adapters.Add(adapter);
+                return adapter;
             }
         }
     }

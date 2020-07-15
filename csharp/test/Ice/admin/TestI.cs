@@ -34,13 +34,13 @@ namespace ZeroC.Ice.Test.Admin
 
         public void error(string message, Current current) => _communicator.Logger.Error(message);
 
-        public void shutdown(Current current) => _communicator.Shutdown();
+        public void shutdown(Current current) => _ = _communicator.ShutdownAsync();
 
         // Note that we are executing in a thread of the *main* communicator,
         // not the one that is being shut down.
-        public void waitForShutdown(Current current) => _communicator.WaitForShutdown();
+        public void waitForShutdown(Current current) => _communicator.WaitForShutdownAsync().Wait();
 
-        public void destroy(Current current) => _communicator.Destroy();
+        public void destroy(Current current) => _communicator.Dispose();
 
         public void Updated(IReadOnlyDictionary<string, string> changes) => _changes = changes;
     }
@@ -88,7 +88,7 @@ namespace ZeroC.Ice.Test.Admin
             return current.Adapter.AddWithUUID(servant, IRemoteCommunicatorPrx.Factory);
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private class NullLogger : ILogger
         {

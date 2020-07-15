@@ -16,10 +16,7 @@ namespace ZeroC.Ice.Test.Background
             _controller.checkCallPause(current);
         }
 
-        public void shutdown(Current current)
-        {
-            current.Adapter.Communicator.Shutdown();
-        }
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         internal Background(BackgroundController controller)
         {

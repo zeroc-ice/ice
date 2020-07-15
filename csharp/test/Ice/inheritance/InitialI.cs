@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Inheritance
 
         public IICPrx icop(Current current) => _ic;
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private readonly IIAPrx _ia;
         private readonly IIB1Prx _ib1;

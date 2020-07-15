@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
 {
@@ -23,7 +24,11 @@ namespace ZeroC.Ice.Test.Plugin
                 TestHelper.Assert(_args[2] == "C:\\Program Files\\Application\\db");
             }
 
-            public void Destroy() => _destroyed = true;
+            public ValueTask DisposeAsync()
+            {
+                _destroyed = true;
+                return new ValueTask(Task.CompletedTask);
+            }
 
             ~Plugin()
             {

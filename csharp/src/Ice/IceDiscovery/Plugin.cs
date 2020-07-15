@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
 using ZeroC.Ice;
 
 namespace ZeroC.IceDiscovery
@@ -18,11 +18,22 @@ namespace ZeroC.IceDiscovery
         private ObjectAdapter? _multicastAdapter;
         private ObjectAdapter? _replyAdapter;
 
-        public void Destroy()
+        public async ValueTask DisposeAsync()
         {
-            _multicastAdapter?.Destroy();
-            _replyAdapter?.Destroy();
-            _locatorAdapter?.Destroy();
+            if (_multicastAdapter != null)
+            {
+                await _multicastAdapter.DisposeAsync().ConfigureAwait(false);
+            }
+
+            if (_replyAdapter != null)
+            {
+                await _replyAdapter.DisposeAsync().ConfigureAwait(false);
+            }
+
+            if (_locatorAdapter != null)
+            {
+                await _locatorAdapter.DisposeAsync().ConfigureAwait(false);
+            }
 
             if (IObjectPrx.Equals(_communicator.DefaultLocator, _locator))
             {

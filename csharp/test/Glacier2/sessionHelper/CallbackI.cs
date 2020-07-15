@@ -15,6 +15,6 @@ namespace ZeroC.Glacier2.Test.SessionHelper
         initiateCallbackEx(ICallbackReceiverPrx? proxy, Current current) => proxy!.callbackEx(current.Context);
 
         public void
-        shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

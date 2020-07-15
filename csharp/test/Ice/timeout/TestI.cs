@@ -46,25 +46,19 @@ namespace ZeroC.Ice.Test.Timeout
         private readonly TaskScheduler _scheduler;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
 
-        public Controller(TaskScheduler scheduler)
-        {
-            _scheduler = scheduler;
-        }
+        public Controller(TaskScheduler scheduler) => _scheduler = scheduler;
 
         public void holdAdapter(int to, Current current)
         {
-            Task.Factory.StartNew(() => { _semaphore.Wait(); }, default, TaskCreationOptions.None, _scheduler);
+            Task.Factory.StartNew(() => _semaphore.Wait(), default, TaskCreationOptions.None, _scheduler);
             if (to >= 0)
             {
                 Task.Delay(to).ContinueWith(t => _semaphore.Release());
             }
         }
 
-        public void resumeAdapter(Current current)
-        {
-            _semaphore.Release();
-        }
+        public void resumeAdapter(Current current) => _ = _semaphore.Release();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

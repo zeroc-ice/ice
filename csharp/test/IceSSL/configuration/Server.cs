@@ -3,28 +3,29 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Ice.Communicator communicator = Initialize(ref args);
             if (args.Length < 1)
             {
                 throw new ArgumentException("Usage: server testdir");
             }
 
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0, "tcp"));
-            ZeroC.Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
+            Ice.ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("factory", new ServerFactory(args[0] + "/../certs"));
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

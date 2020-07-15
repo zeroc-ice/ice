@@ -41,7 +41,7 @@ namespace ZeroC.Ice.Test.Retry
 
         public void sleep(int delay, Current c) => Thread.Sleep(delay);
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private int _counter;
     }

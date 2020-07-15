@@ -220,7 +220,7 @@ namespace ZeroC.Ice.Test.Timeout
                 catch (AggregateException ex) when (ex.InnerException is TimeoutException)
                 {
                 }
-                adapter.Destroy();
+                adapter.Dispose();
             }
             output.WriteLine("ok");
 

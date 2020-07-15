@@ -25,7 +25,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
         public void
         deactivateObjectAdapter(string name, Current current)
         {
-            _adapters[name].Destroy();
+            _adapters[name].Dispose();
             _adapters.Remove(name);
         }
 
@@ -44,7 +44,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
         }
 
         public void
-        shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private Dictionary<string, ObjectAdapter> _adapters = new Dictionary<string, ObjectAdapter>();
     }

@@ -3,15 +3,16 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.IceSSL.Test.Configuration
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Ice.Communicator communicator = Initialize(ref args);
             if (args.Length < 1)
             {
                 throw new ArgumentException("Usage: client testdir");
@@ -22,6 +23,6 @@ namespace ZeroC.IceSSL.Test.Configuration
             factory.shutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

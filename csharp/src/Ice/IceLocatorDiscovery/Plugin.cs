@@ -126,11 +126,7 @@ namespace ZeroC.IceLocatorDiscovery
                     {
                         throw new ObjectNotExistException(current);
                     }
-                    catch (ObjectAdapterDeactivatedException)
-                    {
-                        throw new ObjectNotExistException(current);
-                    }
-                    catch (CommunicatorDestroyedException)
+                    catch (ObjectDisposedException)
                     {
                         throw new ObjectNotExistException(current);
                     }
@@ -370,10 +366,17 @@ namespace ZeroC.IceLocatorDiscovery
         private readonly string _name;
         private ObjectAdapter? _replyAdapter;
 
-        public void Destroy()
+        public async ValueTask DisposeAsync()
         {
-            _replyAdapter?.Destroy();
-            _locatorAdapter?.Destroy();
+            if (_replyAdapter != null)
+            {
+                await _replyAdapter.DisposeAsync().ConfigureAwait(false);
+            }
+
+            if (_locatorAdapter != null)
+            {
+                await _locatorAdapter.DisposeAsync().ConfigureAwait(false);
+            }
 
             if (IObjectPrx.Equals(_communicator.DefaultLocator, _locatorPrx))
             {

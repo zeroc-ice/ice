@@ -56,7 +56,7 @@ namespace ZeroC.Ice.Test.Facets
             adapter.Remove("d", "facetABCD"); // multiple Remove are fine as of Ice 4.0
             output.WriteLine("ok");
 
-            adapter.Deactivate();
+            adapter.Dispose();
 
             var prx = IObjectPrx.Parse($"d:{helper.GetTestEndpoint(0)}", communicator);
             IDPrx? d;

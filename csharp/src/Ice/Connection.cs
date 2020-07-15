@@ -1315,8 +1315,7 @@ namespace ZeroC.Ice
                 //
                 if (!(_exception is ConnectionClosedException ||
                       _exception is ConnectionIdleException ||
-                      _exception is CommunicatorDestroyedException ||
-                      _exception is ObjectAdapterDeactivatedException))
+                      _exception is ObjectDisposedException))
                 {
                     s.Append("\n");
                     s.Append(_exception);
@@ -1804,8 +1803,7 @@ namespace ZeroC.Ice
                     // Don't warn about certain expected exceptions.
                     if (!(_exception is ConnectionClosedException ||
                          _exception is ConnectionIdleException ||
-                         _exception is CommunicatorDestroyedException ||
-                         _exception is ObjectAdapterDeactivatedException ||
+                         _exception is ObjectDisposedException ||
                          (_exception is ConnectionLostException && _state >= ConnectionState.Closing)))
                     {
                         _communicator.Logger.Warning($"connection exception:\n{_exception}\n{this}");
@@ -1876,9 +1874,8 @@ namespace ZeroC.Ice
                 if (_observer != null && state == ConnectionState.Closed && _exception != null)
                 {
                     if (!(_exception is ConnectionClosedException ||
-                         _exception is ConnectionIdleException ||
-                         _exception is CommunicatorDestroyedException ||
-                         _exception is ObjectAdapterDeactivatedException ||
+                          _exception is ConnectionIdleException ||
+                          _exception is ObjectDisposedException ||
                          (_exception is ConnectionLostException && _state >= ConnectionState.Closing)))
                     {
                         _observer.Failed(_exception.GetType().FullName!);
