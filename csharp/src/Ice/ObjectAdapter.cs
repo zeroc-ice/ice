@@ -130,6 +130,26 @@ namespace ZeroC.Ice
                 _activateTask ??= PerformActivateAsync();
             }
             await _activateTask.ConfigureAwait(false);
+
+            async Task PerformActivateAsync()
+            {
+                await UpdateLocatorRegistryAsync(_locatorInfo,
+                                                 CreateDirectProxy(new Identity("dummy", ""),
+                                                 IObjectPrx.Factory)).ConfigureAwait(false);
+
+                if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
+                {
+                    Console.Out.WriteLine($"{Name} ready");
+                }
+
+                lock (_mutex)
+                {
+                    foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
+                    {
+                        factory.Activate();
+                    }
+                }
+            }
         }
 
         public void Dispose() => DisposeAsync().AsTask().Wait();
@@ -188,7 +208,7 @@ namespace ZeroC.Ice
                 await Task.WhenAll(
                     _incomingConnectionFactories.Select(factory => factory.DestroyAsync())).ConfigureAwait(false);
 
-                Communicator.OutgoingConnectionFactory().RemoveAdapter(this);
+                Communicator.OutgoingConnectionFactory.RemoveAdapter(this);
                 Communicator.RemoveObjectAdapter(this);
             }
         }
@@ -659,6 +679,22 @@ namespace ZeroC.Ice
         /// <param name="newEndpoints">The new published endpoints.</param>
         public void SetPublishedEndpoints(IEnumerable<Endpoint> newEndpoints)
         {
+            try
+            {
+                SetPublishedEndpointsAsync(newEndpoints).Wait();
+            }
+            catch (AggregateException ex)
+            {
+                Debug.Assert(ex.InnerException != null);
+                throw ExceptionUtil.Throw(ex.InnerException);
+            }
+        }
+
+        /// <summary>Sets the endpoints that from now on will be listed in the proxies created by this object adapter.
+        /// </summary>
+        /// <param name="newEndpoints">The new published endpoints.</param>
+        public async Task SetPublishedEndpointsAsync(IEnumerable<Endpoint> newEndpoints)
+        {
             IReadOnlyList<Endpoint> oldPublishedEndpoints;
 
             lock (_mutex)
@@ -684,9 +720,9 @@ namespace ZeroC.Ice
 
             try
             {
-                _ = UpdateLocatorRegistryAsync(_locatorInfo,
-                                               CreateDirectProxy(new Identity("dummy", ""),
-                                               IObjectPrx.Factory));
+                await UpdateLocatorRegistryAsync(_locatorInfo,
+                                                 CreateDirectProxy(new Identity("dummy", ""),
+                                                 IObjectPrx.Factory));
             }
             catch (Exception)
             {
@@ -788,7 +824,7 @@ namespace ZeroC.Ice
 
                     // Also modify all existing outgoing connections to the router's client proxy to use this object
                     // adapter for callbacks.
-                    Communicator.OutgoingConnectionFactory().SetRouterInfo(_routerInfo);
+                    Communicator.OutgoingConnectionFactory.SetRouterInfo(_routerInfo);
                 }
                 else
                 {
@@ -1155,26 +1191,6 @@ namespace ZeroC.Ice
                 }
             }
             return (noProps, unknownProps);
-        }
-
-        private async Task PerformActivateAsync()
-        {
-            await UpdateLocatorRegistryAsync(_locatorInfo,
-                                             CreateDirectProxy(new Identity("dummy", ""),
-                                             IObjectPrx.Factory)).ConfigureAwait(false);
-
-            if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
-            {
-                Console.Out.WriteLine($"{Name} ready");
-            }
-
-            lock (_mutex)
-            {
-                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                {
-                    factory.Activate();
-                }
-            }
         }
 
         private readonly struct IdentityPlusFacet : IEquatable<IdentityPlusFacet>

@@ -1193,7 +1193,7 @@ namespace ZeroC.Ice
             //
             try
             {
-                OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory();
+                OutgoingConnectionFactory factory = Communicator.OutgoingConnectionFactory;
                 Connection? connection = null;
                 if (IsConnectionCached)
                 {

@@ -25,22 +25,23 @@ namespace ZeroC.Ice
             }
             await _shutdownTask.ConfigureAwait(false);
 
-            // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
             async Task PerformShutdownAsync()
             {
                 try
                 {
+                    List<ObjectAdapter> adapters;
                     lock (_mutex)
                     {
-                        Debug.Assert(!_isShutdown);
-                        _isShutdown = true;
+                        adapters = new List<ObjectAdapter>(_adapters);
                     }
-                    await Task.WhenAll(_adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
+                    // Deactivate outside the lock to avoid deadlocks, _adapters are immutable at this point.
+                    await Task.WhenAll(
+                        adapters.Select(adapter => adapter.DisposeAsync().AsTask())).ConfigureAwait(false);
                 }
                 finally
                 {
                     // Don't call SetResult directly to avoid continuations running synchronously
-                    _ = Task.Run(() => _shutdownCompletionSource?.SetResult(null));
+                    _ = Task.Run(() => _waitForShutdownCompletionSource?.SetResult(null));
                 }
             }
         }
@@ -77,8 +78,8 @@ namespace ZeroC.Ice
             {
                 if (_shutdownTask == null)
                 {
-                    _shutdownCompletionSource ??= new TaskCompletionSource<object?>();
-                    shutdownTask = _shutdownCompletionSource.Task;
+                    _waitForShutdownCompletionSource ??= new TaskCompletionSource<object?>();
+                    shutdownTask = _waitForShutdownCompletionSource.Task;
                 }
                 else
                 {
@@ -95,7 +96,9 @@ namespace ZeroC.Ice
         /// of requests received over the same connection.</param>
         /// <param name="taskScheduler">The optional task scheduler to use for dispatching requests.</param>
         /// <returns>The new object adapter.</returns>
-        public ObjectAdapter CreateObjectAdapter(string name, bool serializeDispatch = false,
+        public ObjectAdapter CreateObjectAdapter(
+            string name,
+            bool serializeDispatch = false,
             TaskScheduler? taskScheduler = null) =>
             AddObjectAdapter(name, serializeDispatch, taskScheduler);
 
@@ -194,11 +197,10 @@ namespace ZeroC.Ice
             List<ObjectAdapter> adapters;
             lock (_mutex)
             {
-                if (_isShutdown)
+                if (IsDisposed)
                 {
-                    return null;
+                    throw new CommunicatorDisposedException();
                 }
-
                 adapters = new List<ObjectAdapter>(_adapters);
             }
 
@@ -225,11 +227,6 @@ namespace ZeroC.Ice
             // Called by the object adapter to remove itself once destroyed.
             lock (_mutex)
             {
-                if (_isShutdown)
-                {
-                    return;
-                }
-
                 _adapters.Remove(adapter);
                 if (adapter.Name.Length > 0)
                 {
@@ -251,7 +248,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_isShutdown)
+                if (IsDisposed)
                 {
                     throw new CommunicatorDisposedException();
                 }
@@ -269,27 +266,13 @@ namespace ZeroC.Ice
 
             // Must be called outside the synchronization since the constructor can make client invocations
             // on the router if it's set.
-            ObjectAdapter? adapter = null;
+            ObjectAdapter adapter;
             try
             {
                 adapter = new ObjectAdapter(this, name ?? "", serializeDispatch, taskScheduler, router);
-                lock (_mutex)
-                {
-                    if (_isShutdown)
-                    {
-                        throw new CommunicatorDisposedException();
-                    }
-                    _adapters.Add(adapter);
-                    return adapter;
-                }
             }
             catch
             {
-                if (adapter != null)
-                {
-                    adapter.Dispose();
-                }
-
                 if (name != null)
                 {
                     lock (_mutex)
@@ -298,6 +281,17 @@ namespace ZeroC.Ice
                     }
                 }
                 throw;
+            }
+
+            lock (_mutex)
+            {
+                if (IsDisposed)
+                {
+                    adapter.Dispose();
+                    throw new CommunicatorDisposedException();
+                }
+                _adapters.Add(adapter);
+                return adapter;
             }
         }
     }

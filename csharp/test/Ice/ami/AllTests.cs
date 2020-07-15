@@ -307,9 +307,6 @@ namespace ZeroC.Ice.Test.AMI
                     TestHelper.Assert(ex.InnerException is NoEndpointException);
                 }
 
-                //
-                // Check that CommunicatorDestroyedException is raised directly.
-                //
                 if (p.GetConnection() != null)
                 {
                     Communicator ic = helper.Initialize(communicator.GetProperties());
@@ -319,12 +316,12 @@ namespace ZeroC.Ice.Test.AMI
 
                     try
                     {
-                        p2.opAsync();
+                        p2.opAsync().Wait();
                         TestHelper.Assert(false);
                     }
-                    catch (CommunicatorDisposedException)
+                    catch (AggregateException ex)
                     {
-                        // Expected.
+                        TestHelper.Assert(ex.InnerException is CommunicatorDisposedException);
                     }
                 }
             }

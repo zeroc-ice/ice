@@ -77,11 +77,9 @@ namespace ZeroC.Ice
                         return _currentContext.Value;
                     }
                 }
-                catch (ObjectDisposedException ex)
+                catch (ObjectDisposedException)
                 {
-#pragma warning disable CA1065
-                    throw new CommunicatorDisposedException(ex);
-#pragma warning restore CA1065
+                    return new Dictionary<string, string>(ImmutableDictionary<string, string>.Empty);
                 }
             }
             set
@@ -159,7 +157,7 @@ namespace ZeroC.Ice
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
-        internal bool IsDisposed => _disposeTask != null && _disposeTask.IsCompleted;
+        internal bool IsDisposed => _disposeTask != null;
 
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
@@ -195,14 +193,12 @@ namespace ZeroC.Ice
         private volatile ILocatorPrx? _defaultLocator;
         private volatile IRouterPrx? _defaultRouter;
         private Task? _disposeTask;
-        private bool _isShutdown = false;
         private readonly ConcurrentDictionary<ILocatorPrx, LocatorInfo> _locatorInfoMap =
             new ConcurrentDictionary<ILocatorPrx, LocatorInfo>();
         private readonly ConcurrentDictionary<(Identity, Encoding), LocatorTable> _locatorTableMap =
             new ConcurrentDictionary<(Identity, Encoding), LocatorTable>();
         private readonly object _mutex = new object();
         private static bool _oneOffDone = false;
-        private readonly OutgoingConnectionFactory _outgoingConnectionFactory;
         private static bool _printProcessIdDone = false;
         private readonly ConcurrentDictionary<string, IRemoteExceptionFactory?> _remoteExceptionFactoryCache =
             new ConcurrentDictionary<string, IRemoteExceptionFactory?>();
@@ -211,17 +207,18 @@ namespace ZeroC.Ice
         private readonly Dictionary<Transport, BufSizeWarnInfo> _setBufSizeWarn =
             new Dictionary<Transport, BufSizeWarnInfo>();
         private Task? _shutdownTask;
-        private TaskCompletionSource<object?>? _shutdownCompletionSource;
+        private TaskCompletionSource<object?>? _waitForShutdownCompletionSource;
         private readonly IDictionary<Transport, IEndpointFactory> _transportToEndpointFactory =
             new ConcurrentDictionary<Transport, IEndpointFactory>();
         private readonly IDictionary<string, (IEndpointFactory, Transport)> _transportNameToEndpointFactory =
             new ConcurrentDictionary<string, (IEndpointFactory, Transport)>();
 
-        public Communicator(IReadOnlyDictionary<string, string> properties,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            IReadOnlyDictionary<string, string> properties,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    null,
                    properties,
@@ -232,12 +229,13 @@ namespace ZeroC.Ice
         {
         }
 
-        public Communicator(ref string[] args,
-                            IReadOnlyDictionary<string, string> properties,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            ref string[] args,
+            IReadOnlyDictionary<string, string> properties,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref args,
                    null,
                    properties,
@@ -248,12 +246,13 @@ namespace ZeroC.Ice
         {
         }
 
-        public Communicator(NameValueCollection? appSettings = null,
-                            IReadOnlyDictionary<string, string>? properties = null,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            NameValueCollection? appSettings = null,
+            IReadOnlyDictionary<string, string>? properties = null,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
             : this(ref _emptyArgs,
                    appSettings,
                    properties,
@@ -264,13 +263,14 @@ namespace ZeroC.Ice
         {
         }
 
-        public Communicator(ref string[] args,
-                            NameValueCollection? appSettings,
-                            IReadOnlyDictionary<string, string>? properties = null,
-                            ILogger? logger = null,
-                            Instrumentation.ICommunicatorObserver? observer = null,
-                            TlsClientOptions? tlsClientOptions = null,
-                            TlsServerOptions? tlsServerOptions = null)
+        public Communicator(
+            ref string[] args,
+            NameValueCollection? appSettings,
+            IReadOnlyDictionary<string, string>? properties = null,
+            ILogger? logger = null,
+            Instrumentation.ICommunicatorObserver? observer = null,
+            TlsClientOptions? tlsClientOptions = null,
+            TlsServerOptions? tlsServerOptions = null)
         {
             Logger = logger ?? Runtime.Logger;
             Observer = observer;
@@ -548,7 +548,7 @@ namespace ZeroC.Ice
                 IceAddEndpointFactory(Transport.WS, "ws", endpointFactory);
                 IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory);
 
-                _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+                OutgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
                 if (GetPropertyAsBool("Ice.PreloadAssemblies") ?? false)
                 {
@@ -825,10 +825,7 @@ namespace ZeroC.Ice
 
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
-                if (_outgoingConnectionFactory != null)
-                {
-                    await _outgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
-                }
+                await OutgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
 
                 await ShutdownAsync().ConfigureAwait(false);
 
@@ -1164,17 +1161,7 @@ namespace ZeroC.Ice
             }
         }
 
-        internal OutgoingConnectionFactory OutgoingConnectionFactory()
-        {
-            lock (_mutex)
-            {
-                if (IsDisposed)
-                {
-                    throw new CommunicatorDisposedException();
-                }
-                return _outgoingConnectionFactory;
-            }
-        }
+        internal OutgoingConnectionFactory OutgoingConnectionFactory { get; }
 
         internal void SetRcvBufSizeWarn(Transport transport, int size)
         {
@@ -1234,7 +1221,7 @@ namespace ZeroC.Ice
         {
             try
             {
-                _outgoingConnectionFactory.UpdateConnectionObservers();
+                OutgoingConnectionFactory.UpdateConnectionObservers();
 
                 ObjectAdapter[] adapters;
                 lock (_mutex)
