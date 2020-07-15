@@ -66,7 +66,7 @@ namespace ZeroC.Ice
             string proxyString = s.Trim();
             if (proxyString.Length == 0)
             {
-                throw new FormatException($"no non-whitespace characters found in `{s}'");
+                throw new FormatException("empty string is invalid");
             }
 
             return UriParser.IsUri(proxyString) ? ParseUri(proxyString, communicator, propertyPrefix) :
