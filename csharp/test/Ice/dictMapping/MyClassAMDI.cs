@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.DictMapping
     {
         public ValueTask shutdownAsync(Current current)
         {
-            current.Adapter.Communicator.Shutdown();
+            current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 

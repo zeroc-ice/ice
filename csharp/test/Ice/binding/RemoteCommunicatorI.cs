@@ -40,7 +40,7 @@ namespace ZeroC.Ice.Test.Binding
         public void deactivateObjectAdapter(IRemoteObjectAdapterPrx? adapter, Current current) =>
             adapter!.deactivate();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private int _nextPort = 10;
     }

@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+
 namespace ZeroC.Ice.Test.Plugin
 {
     public class PluginOneFactory : IPluginFactory
@@ -23,10 +25,11 @@ namespace ZeroC.Ice.Test.Plugin
                 _initialized = true;
             }
 
-            public override void Destroy()
+            public override ValueTask DisposeAsync()
             {
                 _destroyed = true;
                 TestHelper.Assert(_other!.isDestroyed());
+                return new ValueTask(Task.CompletedTask);
             }
         }
     }

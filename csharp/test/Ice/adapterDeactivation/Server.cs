@@ -2,23 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.AddDefault(new Servant());
-            adapter.Activate();
+            await adapter.ActivateAsync();
             ServerReady();
-            adapter.WaitForDeactivate();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

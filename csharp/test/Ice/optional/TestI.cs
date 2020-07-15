@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Optional
 {
     internal class Test : ITest
     {
-        public void Shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public void OpSingleInInt(int? i1, Current current) => TestHelper.Assert(i1 == null || i1.Value == 42);
 

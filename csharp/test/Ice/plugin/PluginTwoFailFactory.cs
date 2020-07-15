@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
 {
@@ -30,7 +31,7 @@ namespace ZeroC.Ice.Test.Plugin
                 _initialized = true;
             }
 
-            public override void Destroy()
+            public override ValueTask DisposeAsync()
             {
                 TestHelper.Assert(_one != null && !_one.isDestroyed());
                 //
@@ -38,6 +39,7 @@ namespace ZeroC.Ice.Test.Plugin
                 //
                 TestHelper.Assert(_three != null && !_three.isDestroyed());
                 _destroyed = true;
+                return new ValueTask(Task.CompletedTask);
             }
 
             ~PluginTwoFail()

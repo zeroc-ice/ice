@@ -456,7 +456,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 Dictionary<string, string> properties = communicator.GetProperties();
                 properties["Ice.BackgroundLocatorCacheUpdates"] = "1";
-                Communicator ic = helper.Initialize(properties);
+                using Communicator ic = helper.Initialize(properties);
 
                 registry.SetAdapterDirectProxy("TestAdapter5", locator.FindAdapterById("TestAdapter"));
                 registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
@@ -474,7 +474,7 @@ namespace ZeroC.Ice.Test.Location
                 IObjectPrx.Parse("test3", ic)
                     .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10)).IcePing(); // 10s timeout.
                 TestHelper.Assert(count == locator.getRequestCount());
-                System.Threading.Thread.Sleep(1200);
+                Thread.Sleep(1200);
 
                 // The following request should trigger the background
                 // updates but still use the cached endpoints and
@@ -490,10 +490,10 @@ namespace ZeroC.Ice.Test.Location
                     {
                         IObjectPrx.Parse("test@TestAdapter5", ic)
                             .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                     }
                 }
-                catch (System.Exception)
+                catch
                 {
                     // Expected to fail once they endpoints have been updated in the background.
                 }
@@ -503,14 +503,13 @@ namespace ZeroC.Ice.Test.Location
                     {
                         IObjectPrx.Parse("test3", ic)
                             .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
-                        System.Threading.Thread.Sleep(10);
+                        Thread.Sleep(10);
                     }
                 }
-                catch (System.Exception)
+                catch
                 {
                     // Expected to fail once they endpoints have been updated in the background.
                 }
-                ic.Destroy();
             }
             output.WriteLine("ok");
 

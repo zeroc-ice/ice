@@ -2,18 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Proxy
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Dispatch"] = "0";
 
-            using var communicator = Initialize(properties);
+            await using var communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("test", new MyDerivedClass());
@@ -21,6 +22,6 @@ namespace ZeroC.Ice.Test.Proxy
             AllTests.allTests(this);
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }
 }

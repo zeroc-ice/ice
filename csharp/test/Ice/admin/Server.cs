@@ -2,23 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Admin
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", $"{GetTestEndpoint(0)} -t 10000");
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("factory", new RemoteCommunicatorFactoryI());
-            adapter.Activate();
+            await adapter.ActivateAsync();
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

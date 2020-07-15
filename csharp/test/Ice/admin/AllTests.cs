@@ -131,48 +131,38 @@ namespace ZeroC.Ice.Test.Admin
             output.Write("testing communicator operations... ");
             output.Flush();
             {
-                //
                 // Test: Exercise AddAdminFacet, FindAdminFacet, RemoveAdminFacet with a typical configuration.
-                //
                 var properties = new Dictionary<string, string>
                 {
                     ["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1",
                     ["Ice.Admin.InstanceName"] = "Test"
                 };
-                var com = new Communicator(properties);
+                using var com = new Communicator(properties);
                 TestFacets(com, true, false);
-                com.Destroy();
             }
             {
-                //
                 // Test: Verify that the operations work correctly in the presence of facet filters.
-                //
                 var properties = new Dictionary<string, string>
                 {
                     ["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1",
                     ["Ice.Admin.InstanceName"] = "Test",
                     ["Ice.Admin.Facets"] = "Properties"
                 };
-                var com = new Communicator(properties);
+                using var com = new Communicator(properties);
                 TestFacets(com, false, true);
-                com.Destroy();
             }
             {
-                //
                 // Test: Verify that the operations work correctly with the Admin object disabled.
-                //
-                var com = new Communicator();
+                using var com = new Communicator();
                 TestFacets(com, false, false);
-                com.Destroy();
             }
             {
-                //
                 // Test: Verify that the operations work correctly with Ice.Admin.Enabled=1
-                //
-                var properties = new Dictionary<string, string>() {
+                var properties = new Dictionary<string, string>()
+                {
                     { "Ice.Admin.Enabled", "1" }
                 };
-                var com = new Communicator(properties);
+                using var com = new Communicator(properties);
                 TestHelper.Assert(com.GetAdmin() == null);
                 var id = Identity.Parse("test-admin");
                 try
@@ -189,7 +179,6 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(com.GetAdmin() != null);
 
                 TestFacets(com, true, false);
-                com.Destroy();
             }
             {
                 //
@@ -202,11 +191,10 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.DelayCreation", "1" }
                 };
 
-                var com = new Communicator(properties);
+                using var com = new Communicator(properties);
                 TestFacets(com, true, false);
                 com.GetAdmin();
                 TestFacets(com, true, false);
-                com.Destroy();
             }
             output.WriteLine("ok");
 

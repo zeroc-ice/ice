@@ -28,6 +28,6 @@ namespace ZeroC.Ice.Test.Metrics
 
         public IObjectPrx? getAdmin(Current current) => current.Adapter.Communicator.GetAdmin();
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

@@ -190,9 +190,9 @@ namespace ZeroC.IceBox
             }
         }
 
-        public void Shutdown(Current current) => _communicator.Shutdown();
+        public void Shutdown(Current current) => _ = _communicator.ShutdownAsync();
 
-        public int Run()
+        public async Task<int> RunAsync()
         {
             try
             {
@@ -291,7 +291,10 @@ namespace ZeroC.IceBox
                 // Start Admin (if enabled) and/or deprecated IceBox.ServiceManager OA
                 _communicator.AddAdminFacet("IceBox.ServiceManager", this);
                 _communicator.GetAdmin();
-                adapter?.Activate();
+                if (adapter != null)
+                {
+                    await adapter.ActivateAsync().ConfigureAwait(false);
+                }
 
                 // We may want to notify external scripts that the services have started and that IceBox is "ready".
                 // This is done by defining the property IceBox.PrintServicesReady=bundleName, bundleName is whatever
@@ -303,15 +306,11 @@ namespace ZeroC.IceBox
                     Console.Out.WriteLine($"{bundleName} ready");
                 }
 
-                _communicator.WaitForShutdown();
+                await _communicator.WaitForShutdownAsync().ConfigureAwait(false);
             }
-            catch (CommunicatorDestroyedException)
+            catch (ObjectDisposedException)
             {
-                // Expected if the communicator is shutdown
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-                // Expected if the communicator is shutdown
+                // Expected if the communicator or ObjectAdater are disposed
             }
             catch (Exception ex)
             {
@@ -538,7 +537,7 @@ namespace ZeroC.IceBox
 
                     try
                     {
-                        _sharedCommunicator.Destroy();
+                        _sharedCommunicator.Dispose();
                     }
                     catch (Exception ex)
                     {
@@ -609,7 +608,7 @@ namespace ZeroC.IceBox
                     // CommunicatorDestroyedException may occur during shutdown. The observer notification has been sent,
                     // but the communicator was destroyed before the reply was received. We do not log a message for this
                     // exception.
-                    if (_traceServiceObserver >= 1 && !(ex is CommunicatorDestroyedException))
+                    if (_traceServiceObserver >= 1 && !(ex is CommunicatorDisposedException))
                     {
                         _logger.Trace("IceBox.ServiceObserver",
                                       $"Removed service observer {observer}\nafter catching {ex}");
@@ -643,10 +642,9 @@ namespace ZeroC.IceBox
             {
                 try
                 {
-                    communicator.Shutdown();
-                    communicator.WaitForShutdown();
+                    communicator.ShutdownAsync().Wait();
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                     // Ignore, the service might have already destroyed the communicator for its own reasons.
                 }
@@ -656,8 +654,8 @@ namespace ZeroC.IceBox
                         service}'\n{ex}");
                 }
 
-                RemoveAdminFacets("IceBox.Service." + service + ".");
-                communicator.Destroy();
+                RemoveAdminFacets($"IceBox.Service.{service}.");
+                communicator.Dispose();
             }
         }
 
@@ -702,13 +700,9 @@ namespace ZeroC.IceBox
                     }
                 }
             }
-            catch (CommunicatorDestroyedException)
+            catch (ObjectDisposedException)
             {
-                // Ignored
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-                // Ignored
+                // Expected if the communicator or ObjectAdapter are disposed.
             }
         }
 

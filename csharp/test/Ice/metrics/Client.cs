@@ -2,17 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Test;
 
 namespace ZeroC.Ice.Test.Metrics
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             var observer = new CommunicatorObserver();
 
-            var properties = CreateTestProperties(ref args);
+            Dictionary<string, string>? properties = CreateTestProperties(ref args);
             properties["Ice.Admin.Endpoints"] = "tcp";
             properties["Ice.Admin.InstanceName"] = "client";
             properties["Ice.Admin.DelayCreation"] = "1";
@@ -20,11 +22,11 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.Default.Host"] = "127.0.0.1";
             properties["Ice.ConnectTimeout"] = "500ms";
 
-            using var communicator = Initialize(properties, observer: observer);
+            await using Communicator? communicator = Initialize(properties, observer: observer);
             IMetricsPrx metrics = AllTests.allTests(this, observer);
             metrics.shutdown();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

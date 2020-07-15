@@ -307,24 +307,21 @@ namespace ZeroC.Ice.Test.AMI
                     TestHelper.Assert(ex.InnerException is NoEndpointException);
                 }
 
-                //
-                // Check that CommunicatorDestroyedException is raised directly.
-                //
                 if (p.GetConnection() != null)
                 {
                     Communicator ic = helper.Initialize(communicator.GetProperties());
                     var p2 = ITestIntfPrx.Parse(p.ToString()!, ic);
                     TestHelper.Assert(p2 != null);
-                    ic.Destroy();
+                    ic.Dispose();
 
                     try
                     {
-                        p2.opAsync();
+                        p2.opAsync().Wait();
                         TestHelper.Assert(false);
                     }
-                    catch (CommunicatorDestroyedException)
+                    catch (AggregateException ex)
                     {
-                        // Expected.
+                        TestHelper.Assert(ex.InnerException is CommunicatorDisposedException);
                     }
                 }
             }
@@ -617,7 +614,7 @@ namespace ZeroC.Ice.Test.AMI
                     source.CancelAfter(TimeSpan.FromMilliseconds(i));
                     try
                     {
-                        p.Clone(connectionId: $"cancel{i}").sleepAsync(10 + i * 2, cancel: source.Token).Wait();
+                        p.Clone(connectionId: $"cancel{i}").sleepAsync(50, cancel: source.Token).Wait();
                         TestHelper.Assert(false);
                     }
                     catch (AggregateException ae)

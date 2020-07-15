@@ -4,15 +4,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Hash
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
             Console.Error.Flush();
             var seenProxy = new Dictionary<int, IObjectPrx>();
@@ -497,6 +498,6 @@ namespace ZeroC.Ice.Test.Hash
             Console.Error.WriteLine("ok");
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

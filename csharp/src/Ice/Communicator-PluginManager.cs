@@ -55,12 +55,11 @@ namespace ZeroC.Ice
             catch (Exception)
             {
                 // Destroy the plug-ins that have been successfully initialized, in the reverse order.
-                initializedPlugins.Reverse();
-                foreach (IPlugin p in initializedPlugins)
+                foreach (IPlugin plugin in Enumerable.Reverse(initializedPlugins))
                 {
                     try
                     {
-                        p.Destroy();
+                        plugin.DisposeAsync().AsTask().Wait();
                     }
                     catch
                     {
@@ -78,9 +77,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 return _plugins.Select(p => p.Name).ToArray();
@@ -91,9 +90,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 return FindPlugin(name);
@@ -104,9 +103,9 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                if (_state == StateDestroyed)
+                if (IsDisposed)
                 {
-                    throw new CommunicatorDestroyedException();
+                    throw new CommunicatorDisposedException();
                 }
 
                 if (FindPlugin(name) != null)

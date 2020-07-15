@@ -2,23 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Tagged
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using var communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             var adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("initial", new Initial());
-            adapter.Activate();
+            await adapter.ActivateAsync();
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }
