@@ -346,13 +346,7 @@ namespace ZeroC.Ice
                     _closed += value;
                 }
             }
-            remove
-            {
-                lock (_mutex)
-                {
-                    _closed -= value;
-                }
-            }
+            remove => _closed -= value;
         }
 
         /// <summary>This event is raised when the connection receives a heartbeat. The connection object is passed as
