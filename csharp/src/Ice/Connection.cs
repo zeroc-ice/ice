@@ -227,7 +227,6 @@ namespace ZeroC.Ice
 
         private TimeSpan _acmLastActivity;
         private ObjectAdapter? _adapter;
-        private EventHandler? _closed;
         private Task? _closeTask = null;
         private readonly Communicator _communicator;
         private readonly int _compressionLevel;
@@ -236,7 +235,6 @@ namespace ZeroC.Ice
         private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
         private readonly int _frameSizeMax;
-        private EventHandler? _heartbeatReceived;
         private IAcmMonitor? _monitor;
         private readonly object _mutex = new object();
         private int _nextRequestId;
@@ -334,49 +332,10 @@ namespace ZeroC.Ice
         /// <summary>This event is raised when the connection is closed. If the connection is already closed when
         /// subscribing the event is raised immediately. If the subscriber needs more information about the closure, it
         /// can call Connection.ThrowException.</summary>
-        public event EventHandler? Closed
-        {
-            add
-            {
-                lock (_mutex)
-                {
-                    if (_state >= ConnectionState.Closed)
-                    {
-                        Task.Run(() => value?.Invoke(this, EventArgs.Empty));
-                    }
-                    _closed += value;
-                }
-            }
-            remove
-            {
-                lock (_mutex)
-                {
-                    _closed -= value;
-                }
-            }
-        }
+        public event EventHandler? Closed;
 
         /// <summary>This event is raised when the connection receives a heartbeat.</summary>
-        public event EventHandler? HeartbeatReceived
-        {
-            add
-            {
-                lock (_mutex)
-                {
-                    if (_state < ConnectionState.Closed)
-                    {
-                        _heartbeatReceived += value;
-                    }
-                }
-            }
-            remove
-            {
-                lock (_mutex)
-                {
-                    _heartbeatReceived -= value;
-                }
-            }
-        }
+        public event EventHandler? HeartbeatReceived;
 
         /// <summary>Throws an exception indicating the reason for connection closure. For example,
         /// ConnectionClosedByPeerException is raised if the connection was closed gracefully by the peer, whereas
@@ -1156,22 +1115,18 @@ namespace ZeroC.Ice
                     case Ice1Definitions.FrameType.ValidateConnection:
                     {
                         ProtocolTrace.TraceReceived(_communicator, Endpoint.Protocol, readBuffer);
-                        var hearbetReceived = _heartbeatReceived;
-                        if (hearbetReceived != null)
+                        incoming = () =>
                         {
-                            incoming = () =>
+                            try
                             {
-                                try
-                                {
-                                    hearbetReceived?.Invoke(this, EventArgs.Empty);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                                }
-                                return default;
-                            };
-                        }
+                                HeartbeatReceived?.Invoke(this, EventArgs.Empty);
+                            }
+                            catch (Exception ex)
+                            {
+                                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                            }
+                            return default;
+                        };
                         break;
                     }
 
@@ -1305,22 +1260,18 @@ namespace ZeroC.Ice
                     case Ice2Definitions.FrameType.ValidateConnection:
                     {
                         ProtocolTrace.TraceReceived(_communicator, Endpoint.Protocol, readBuffer);
-                        EventHandler? heartbeatReceived = _heartbeatReceived;
-                        if (heartbeatReceived != null)
+                        incoming = () =>
                         {
-                            incoming = () =>
+                            try
                             {
-                                try
-                                {
-                                    heartbeatReceived.Invoke(this, EventArgs.Empty);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                                }
-                                return default;
-                            };
-                        }
+                                HeartbeatReceived?.Invoke(this, EventArgs.Empty);
+                            }
+                            catch (Exception ex)
+                            {
+                                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                            }
+                            return default;
+                        };
                         break;
                     }
 
@@ -1411,17 +1362,13 @@ namespace ZeroC.Ice
                 }
 
                 // Raise the Closed event
-                EventHandler? closed = _closed;
-                if (closed != null)
+                try
                 {
-                    try
-                    {
-                        closed.Invoke(this, EventArgs.Empty);
-                    }
-                    catch (Exception ex)
-                    {
-                        _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                    }
+                    Closed?.Invoke(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
                 }
             });
 

@@ -546,10 +546,7 @@ namespace ZeroC.Ice.Test.ACM
                 {
                 }
 
-                var t3 = new TaskCompletionSource<object?>();
-                con.Closed += (sender, args) => t3.SetResult(null);
-                TestHelper.Assert(t3.Task.Result == null);
-
+                con.Closed += (sender, args) => TestHelper.Assert(false);
                 con.HeartbeatReceived += (sender, args) => TestHelper.Assert(false);
 
                 foreach ((string close, string hearbeat) in new (string, string)[]
