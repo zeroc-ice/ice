@@ -166,7 +166,7 @@ namespace ZeroC.Ice
             {
                 try
                 {
-                    return factory(Reference.Parse(value, name, this));
+                    return factory(Reference.Parse(value, this, name));
                 }
                 catch (FormatException ex)
                 {

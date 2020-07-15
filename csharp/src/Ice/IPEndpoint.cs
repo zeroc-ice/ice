@@ -229,7 +229,16 @@ namespace ZeroC.Ice
             bool oaEndpoint)
             : base(communicator, protocol)
         {
-            Host = host;
+            // TODO: for now, we remove brackets around IPv6 addresses
+            if (host.StartsWith('['))
+            {
+                Host = host.Substring(1, host.Length - 2);
+            }
+            else
+            {
+                Host = host;
+            }
+
             Port = port;
             if (!oaEndpoint) // parsing a URI that represents a proxy
             {

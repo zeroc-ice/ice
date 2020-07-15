@@ -38,8 +38,7 @@ namespace ZeroC.Ice
                 }
                 else if (option == "options" && _options.Count > 0)
                 {
-                    // TODO: need to escape each option
-                    return string.Join(",", _options);
+                    return string.Join(",", _options.Select(s => Uri.EscapeDataString(s)));
                 }
                 else
                 {
@@ -51,7 +50,9 @@ namespace ZeroC.Ice
         public override ushort Port { get; }
 
         public override Transport Transport { get; }
-        public override string TransportName => Protocol == Protocol.Ice1 ? "opaque" : base.TransportName;
+
+        // TODO: should be Protocol == Protocol.Ice1 ? "opaque" : base.TransportName;
+        public override string TransportName => "opaque";
 
         internal ReadOnlyMemory<byte> Value { get; }
 
@@ -129,19 +130,12 @@ namespace ZeroC.Ice
             if (Value.Length > 0)
             {
                 sb.Append(" -v ");
-                sb.Append(System.Convert.ToBase64String(Value.Span));
+                sb.Append(Convert.ToBase64String(Value.Span));
             }
             return sb.ToString();
         }
 
         public override bool IsLocal(Endpoint endpoint) => false;
-
-        public override string ToString()
-        {
-            string val = System.Convert.ToBase64String(Value.Span);
-            short transportNum = (short)Transport;
-            return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {ValueEncoding} -v {val}";
-        }
 
         protected internal override void WriteOptions(OutputStream ostr) =>
             ostr.WriteSequence(_options, OutputStream.IceWriterFromString);
@@ -300,7 +294,7 @@ namespace ZeroC.Ice
 
             if (options.TryGetValue("options", out string? value))
             {
-                _options = value.Split(","); // TODO: proper un-escaping
+                _options = value.Split(",").Select(s => Uri.UnescapeDataString(s)).ToList();
                 options.Remove("options");
             }
         }

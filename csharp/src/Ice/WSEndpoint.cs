@@ -150,7 +150,7 @@ namespace ZeroC.Ice
         {
             if (options.TryGetValue("resource", out string? value))
             {
-                _resource = value;
+                _resource = Uri.UnescapeDataString(value);
                 options.Remove("resource");
             }
         }

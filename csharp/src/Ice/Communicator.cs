@@ -161,17 +161,6 @@ namespace ZeroC.Ice
         // The default port number for all Ice IP-based transports.
         private const int DefaultIPPort = 4062;
 
-        // Options for the ice[+transport] parsers we register for each transport. Unfortunately there is no way to
-        // make authority optional - authority is mandatory, but we can have an empty authority. This means we need to
-        // fix up URI strings before parsing (to add an empty authority).
-        private const GenericUriParserOptions UriParserOptions =
-            GenericUriParserOptions.AllowEmptyAuthority |
-            GenericUriParserOptions.DontConvertPathBackslashes |
-            GenericUriParserOptions.DontUnescapePathDotsAndSlashes |
-            GenericUriParserOptions.Idn |
-            GenericUriParserOptions.IriParsing |
-            GenericUriParserOptions.NoUserInfo;
-
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
         {
@@ -352,9 +341,7 @@ namespace ZeroC.Ice
                             }
                         }
 
-                        // "ice+universal" does not have a default port
-                        UriParser.Register(new GenericUriParser(UriParserOptions), "ice+universal", -1);
-
+                        UriParser.RegisterCommon();
                         _oneOffDone = true;
                     }
                 }
@@ -1082,19 +1069,21 @@ namespace ZeroC.Ice
             Transport transport,
             string transportName,
             IEndpointFactory factory,
-            int defaultPort = -1)
+            ushort defaultPort = 0,
+            bool ipHost = true)
         {
+            if (transportName.Length == 0)
+            {
+                throw new ArgumentException($"{nameof(transportName)} cannot be empty", nameof(transportName));
+            }
+
             _transportNameToEndpointFactory.Add(transportName, (factory, transport));
             _transportToEndpointFactory.Add(transport, factory);
 
             // Also register URI parser if not registered yet.
             try
             {
-                UriParser.Register(new GenericUriParser(UriParserOptions), $"ice+{transportName}", defaultPort);
-                if (transport == Transport.TCP)
-                {
-                    UriParser.Register(new GenericUriParser(UriParserOptions), "ice", defaultPort);
-                }
+                UriParser.RegisterTransport(transportName, defaultPort, ipHost);
             }
             catch (InvalidOperationException)
             {

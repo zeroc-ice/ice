@@ -16,38 +16,62 @@ namespace ZeroC.Ice.Test.Proxy
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             System.IO.TextWriter output = helper.GetWriter();
-            output.Write("testing stringToProxy... ");
+            output.Write("testing proxy parsing (URI)... ");
             output.Flush();
 
-            var uri = new Uri("ice+tcp://com.zeroc.ice.foo.bar:10000/a/b/c/d?source-address=xyz");
+            string[] uriStringArray =
+            {
+                "ice+tcp://host.zeroc.com/identity#facet",
+                "ice+tcp://host.zeroc.com:1000/category/name",
+                "ice+tcp://host.zeroc.com/category/name%20with%20space",
+                "ice+ws://host.zeroc.com//identity",
+                "ice+ws://host.zeroc.com//identity?alt-endpoints=host2.zeroc.com",
+                "ice+ws://host.zeroc.com//identity?alt-endpoints=host2.zeroc.com:10000",
+                "ice+ws://host.zeroc.com//identity?protocol=ice1&source-address=10.1.2.4&compress=true",
+                "ice+ws://host.zeroc.com//identity?protocol=ice1&alt-endpoints=host2.zeroc.com?" +
+                    "source-address=10.1.2.4$compress=true",
+                "ice+tcp://[::1]:10000/identity?alt-endpoints=host1:10000,host2,host3,host4",
+                "ice:location//identity#facet",
+                "ice+tcp://host.zeroc.com//identity",
+                "ice+tcp://host.zeroc.com:/identity", // another syntax for empty port
+                "ice+universal://com.zeroc.ice/identity?transport=iaps&options=a,b,c,d",
+                "ice+universal://host.zeroc.com/identity?transport=100",
+                "ice+universal://[ab:cd:ef:00]/identity?transport=bt",
+                "ice+udp://[::1]/test?source-address=::1&interface=0:0:0:0:0:0:0:1%25lo", // unescaped as ..:1%lo
+            };
 
-            output.WriteLine($"scheme = {uri.Scheme}");
-            output.WriteLine($"host = {uri.Host}");
-            output.WriteLine($"hostname type = {uri.HostNameType}");
-            output.WriteLine($"port = {uri.Port}");
-            output.WriteLine($"path = {uri.AbsolutePath}");
-            output.WriteLine($"query = {uri.Query}");
-            output.WriteLine($"fragment = {uri.Fragment}");
+            foreach (string uriString in uriStringArray)
+            {
+                _ = IObjectPrx.Parse(uriString, communicator);
+                // output.WriteLine($"{uriString} = {prx}");
+            }
 
-            uri = new Uri("ice+tcp:///a/b/c/d?source-address=xyz");
+            string[] badUriStringArray =
+            {
+                "ice+tcp://host.zeroc.com:foo",     // missing host
+                "ice+tcp:identity?protocol=invalid", // invalid protocol
+                "ice+universal://host.zeroc.com", // missing transport
+                "ice+universal://host.zeroc.com?transport=100&protocol=ice1", // invalid protocol
+                "ice://host:1000/identity", // host
+                "ice+tcp:location//identity", // no host
+                "ice+universal:/identity" // no host
+            };
 
-            output.WriteLine($"scheme = {uri.Scheme}");
-            output.WriteLine($"host = {uri.Host}");
-            output.WriteLine($"hostname type = {uri.HostNameType}");
-            output.WriteLine($"port = {uri.Port}");
-            output.WriteLine($"path = {uri.AbsolutePath}");
-            output.WriteLine($"query = {uri.Query}");
-            output.WriteLine($"fragment = {uri.Fragment}");
+            foreach (string uriString in badUriStringArray)
+            {
+                try
+                {
+                    _ = IObjectPrx.Parse(uriString, communicator);
+                    TestHelper.Assert(false);
+                }
+                catch (FormatException)
+                {
+                    // expected
+                }
+            }
+            output.WriteLine("ok");
 
-            uri = new Uri("ice+tcp:///a/b/c/d?source-address=xyz");
-
-            output.WriteLine($"scheme = {uri.Scheme}");
-            output.WriteLine($"host = {uri.Host}");
-            output.WriteLine($"hostname type = {uri.HostNameType}");
-            output.WriteLine($"port = {uri.Port}");
-            output.WriteLine($"path = {uri.AbsolutePath}");
-            output.WriteLine($"query = {uri.Query}");
-            output.WriteLine($"fragment = {uri.Fragment}");
+            output.Write("testing proxy parsing (old format)... ");
 
             string rf = "test:" + helper.GetTestEndpoint(0);
             var baseProxy = IObjectPrx.Parse(rf, communicator);

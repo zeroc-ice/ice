@@ -214,7 +214,7 @@ namespace ZeroC.Ice
 
             if (options.TryGetValue("interface", out value))
             {
-                McastInterface = value;
+                McastInterface = Uri.UnescapeDataString(value);
                 if (McastInterface == "*")
                 {
                     if (oaEndpoint)
