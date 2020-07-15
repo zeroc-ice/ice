@@ -3,12 +3,6 @@
 # Copyright (c) ZeroC, Inc. All rights reserved.
 #
 
-traceProps = {
-    "Ice.Trace.Network" : 2,
-    "Ice.Trace.Retry" : 1,
-    "Ice.Trace.Protocol" : 1
-}
-
 def setlimits():
     if not isinstance(platform, Windows):
         #
@@ -18,4 +12,4 @@ def setlimits():
         import resource
         resource.setrlimit(resource.RLIMIT_NOFILE, (92, 92))
 
-TestSuite(__name__, [ClientServerTestCase(server=Server(preexec_fn=setlimits), traceProps=traceProps)])
+TestSuite(__name__, [ClientServerTestCase(server=Server(preexec_fn=setlimits))])
