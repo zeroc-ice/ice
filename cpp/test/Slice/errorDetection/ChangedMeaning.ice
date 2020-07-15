@@ -84,7 +84,6 @@ class c2 {}
 
 module C
 {
-    class cc1 implements c1 {}
     class c1 {}                // Changed meaning
     class c2 : c2 {}     // Changed meaning
 }

@@ -1,1 +1,2 @@
-EnumRedefinition.ice:9: redefinition of enumeration `E1' as enumeration
+EnumRedefinition.ice:9: redefinition of enumeration `E1'
+EnumRedefinition.ice:8: note: enumeration `E1' was originally defined here
