@@ -825,9 +825,8 @@ namespace ZeroC.Ice
 
                 // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be
                 // finished.
-                await OutgoingConnectionFactory.DestroyAsync().ConfigureAwait(false);
-
-                await ShutdownAsync().ConfigureAwait(false);
+                await Task.WhenAll(OutgoingConnectionFactory.DestroyAsync(),
+                                   ShutdownAsync()).ConfigureAwait(false);
 
                 // _adminAdapter is disposed by ShutdownAsync call above when iterating over all adapters, we call
                 // DisposeAsync here to avoid the compiler warning about disposable field not being dispose.

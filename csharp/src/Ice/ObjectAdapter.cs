@@ -172,6 +172,8 @@ namespace ZeroC.Ice
                     await _activateTask.ConfigureAwait(false);
                 }
 
+                Task[] tasks = _incomingConnectionFactories.Select(factory => factory.DestroyAsync()).ToArray();
+
                 // Note: the router/locator infos and incoming connection factory list are immutable at this point.
                 try
                 {
@@ -205,8 +207,7 @@ namespace ZeroC.Ice
                     await _directDispatchCompletionSource.Task.ConfigureAwait(false);
                 }
 
-                await Task.WhenAll(
-                    _incomingConnectionFactories.Select(factory => factory.DestroyAsync())).ConfigureAwait(false);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 Communicator.OutgoingConnectionFactory.RemoveAdapter(this);
                 Communicator.RemoveObjectAdapter(this);
