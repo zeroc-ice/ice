@@ -306,6 +306,10 @@ namespace ZeroC.IceDiscovery
             // This method is called by InvokeAsync after the first reply from a replica group to wait for additional
             // replies from the replica group.
             TimeSpan latency = (Time.Elapsed - start) * latencyMultiplier;
+            if (latency == TimeSpan.Zero)
+            {
+                latency = TimeSpan.FromMilliseconds(1);
+            }
             await Task.Delay(latency);
             lock (_mutex)
             {
