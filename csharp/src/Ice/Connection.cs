@@ -329,12 +329,13 @@ namespace ZeroC.Ice
             progress?.Report(true);
         }
 
-        /// <summary>This event is raised when the connection is closed. If the connection is already closed when
-        /// subscribing the event is raised immediately. If the subscriber needs more information about the closure, it
-        /// can call Connection.ThrowException.</summary>
+        /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
+        /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender
+        /// argument.</summary>
         public event EventHandler? Closed;
 
-        /// <summary>This event is raised when the connection receives a heartbeat.</summary>
+        /// <summary>This event is raised when the connection receives a heartbeat. The connection object is passed as
+        /// the event sender argument.</summary>
         public event EventHandler? HeartbeatReceived;
 
         /// <summary>Throws an exception indicating the reason for connection closure. For example,
