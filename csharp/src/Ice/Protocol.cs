@@ -67,8 +67,14 @@ namespace ZeroC.Ice
                     {
                         str = str[0..^2];
                     }
-                    byte value = byte.Parse(str, CultureInfo.InvariantCulture);
-                    return value > 0 ? (Protocol)value : throw new FormatException("invalid protocol 0");
+                    if (byte.TryParse(str, out byte value))
+                    {
+                        return value > 0 ? (Protocol)value : throw new FormatException("invalid protocol 0");
+                    }
+                    else
+                    {
+                        throw new FormatException($"invalid protocol `{str}'");
+                    }
             }
         }
     }

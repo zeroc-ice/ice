@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
@@ -51,7 +52,7 @@ namespace ZeroC.Ice
                 bool iceScheme = uriString.StartsWith("ice:");
                 if (iceScheme && oaEndpoints)
                 {
-                    throw new FormatException("an object adapter configuration supports only ice+transport URIs");
+                    throw new FormatException("an object adapter endpoint supports only ice+transport URIs");
                 }
 
                 var generalOptions = new Dictionary<string, string>();
@@ -76,25 +77,23 @@ namespace ZeroC.Ice
                 {
                     if (protocol != Protocol.Ice1)
                     {
-                        throw new FormatException("the option invocation-mode applies only to the ice1 protocol");
+                        throw new FormatException("option `invocation-mode' requires the ice1 protocol");
                     }
                     if (oaEndpoints)
                     {
-                        throw new FormatException("the option invocation-mode applies only to proxies");
+                        throw new FormatException(
+                            "option `invocation-mode' is not applicable to object adapter endpoints");
                     }
                     if (int.TryParse(invocationModeValue, out int _))
                     {
-                        throw new FormatException("the option invocation-mode does not accept numeric values");
+                        throw new FormatException($"invalid value `{invocationModeValue}' for invocation-mode");
                     }
                     invocationMode = Enum.Parse<InvocationMode>(invocationModeValue, ignoreCase: true);
                 }
 
-                string facet = uri.Fragment.Length >= 2 ? Uri.UnescapeDataString(uri.Fragment.Substring(1)) : "";
-                List<string> path = uri.AbsolutePath.Split('/').Select(s => Uri.UnescapeDataString(s)).ToList();
-
-                Debug.Assert(path.Count > 0); // there is always a first empty segment that we drop
-                Debug.Assert(path[0].Length == 0);
-                path.RemoveAt(0);
+                string facet = uri.Fragment.Length >= 2 ? Uri.UnescapeDataString(uri.Fragment.TrimStart('#')) : "";
+                List<string> path =
+                    uri.AbsolutePath.TrimStart('/').Split('/').Select(s => Uri.UnescapeDataString(s)).ToList();
 
                 List<Endpoint>? endpoints = null;
 
@@ -113,19 +112,22 @@ namespace ZeroC.Ice
                     if (generalOptions.TryGetValue("alt-endpoints", out string? altEndpointsValue))
                     {
                         string[] altEndpoints = altEndpointsValue.Split(',');
-                        foreach (string alt in altEndpoints)
+                        foreach (string endpointStr in altEndpoints)
                         {
-                            if (alt.StartsWith("ice:"))
+                            if (endpointStr.StartsWith("ice:"))
                             {
                                 throw new FormatException(
-                                    $"invalid URI scheme for alt-endpoint `{alt}': must be empty or ice+transport");
+                                    $"invalid URI scheme for endpoint `{endpointStr}': must be empty or ice+transport");
                             }
 
-                            string altUriString = alt;
+                            string altUriString = endpointStr;
                             if (!altUriString.StartsWith("ice+"))
                             {
                                 altUriString = $"{uri.Scheme}://{altUriString}";
                             }
+
+                            // The separator for endpoint options in alt-endpoints is $, and we replace these $ by &
+                            // before sending the string the main parser (InitialParse), which uses & as separator.
                             altUriString = altUriString.Replace('$', '&');
 
                             // No need to clear endpointOptions before reusing it since CreateEndpoint consumes all the
@@ -133,23 +135,24 @@ namespace ZeroC.Ice
                             Debug.Assert(endpointOptions.Count == 0);
                             uri = InitialParse(altUriString, generalOptions: null, endpointOptions);
 
-                            // > 1 because there is always a first empty segment.
+                            Debug.Assert(uri.AbsolutePath[0] == '/'); // there is always a first segment
                             if (uri.AbsolutePath.Length > 1 || uri.Fragment.Length > 0)
                             {
-                                throw new FormatException($"alt-endpoint `{alt}' must not specify a path or fragment");
+                                throw new FormatException(
+                                    $"endpoint `{endpointStr}' must not specify a path or fragment");
                             }
                             endpoints.Add(CreateEndpoint(communicator,
                                                          oaEndpoints,
                                                          endpointOptions,
                                                          protocol,
                                                          uri,
-                                                         alt));
+                                                         endpointStr));
                         }
                     }
                 }
 
                 return (encoding,
-                        (IReadOnlyList<Endpoint>?)endpoints ?? (IReadOnlyList<Endpoint>)Array.Empty<Endpoint>(),
+                        (IReadOnlyList<Endpoint>?)endpoints ?? ImmutableArray<Endpoint>.Empty,
                         facet,
                         invocationMode,
                         path,
@@ -191,15 +194,8 @@ namespace ZeroC.Ice
             Uri uri,
             string uriString)
         {
+            Debug.Assert(uri.Scheme.StartsWith("ice+"));
             string transportName = uri.Scheme.Substring(4); // i.e. chop-off "ice+"
-
-            // TODO: take advantage of other properties of uri such as HostNameType?
-            string host = uri.Host;
-            if (host[0] == '[' && host[^1] == ']')
-            {
-                // Remove brackets around IPv6 addresses
-                host = host[1..^1];
-            }
 
             ushort port = 0;
             checked
@@ -240,12 +236,12 @@ namespace ZeroC.Ice
 
             Endpoint endpoint = factory?.Create(transport,
                                                 protocol,
-                                                host,
+                                                uri.DnsSafeHost,
                                                 port,
                                                 options,
                                                 oaEndpoint,
                                                 uriString) ??
-                new OpaqueEndpoint(communicator, transport, protocol, host, port, options);
+                new OpaqueEndpoint(communicator, transport, protocol, uri.DnsSafeHost, port, options);
 
             if (options.Count > 0)
             {
@@ -281,17 +277,9 @@ namespace ZeroC.Ice
 
             var uri = new Uri(uriString);
 
-            string[] nvPairArray;
-            if (uri.Query.Length >= 2)
-            {
-                nvPairArray = uri.Query.Substring(1).Split('&');
-            }
-            else
-            {
-                nvPairArray = Array.Empty<string>();
-            }
+            string[] nvPairs = uri.Query.Length >= 2 ? uri.Query.TrimStart('?').Split('&') : Array.Empty<string>();
 
-            foreach (string p in nvPairArray)
+            foreach (string p in nvPairs)
             {
                 int equalPos = p.IndexOf('=');
                 if (equalPos <= 0 || equalPos == p.Length - 1)
@@ -305,7 +293,7 @@ namespace ZeroC.Ice
                 {
                     if (generalOptions == null)
                     {
-                        throw new FormatException($"unexpected option `{name}' in alt-endpoint");
+                        throw new FormatException($"unexpected option `{name}' in endpoint `{uriString}'");
                     }
                     else
                     {
@@ -320,7 +308,7 @@ namespace ZeroC.Ice
                 {
                     if (generalOptions == null)
                     {
-                        throw new FormatException($"unexpected option `{name}' in alt-endpoint");
+                        throw new FormatException($"unexpected option `{name}' in endpoint `{uriString}'");
                     }
                     else
                     {
