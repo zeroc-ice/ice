@@ -227,6 +227,7 @@ namespace ZeroC.Ice
 
         private TimeSpan _acmLastActivity;
         private ObjectAdapter? _adapter;
+        private EventHandler? _closed;
         private Task? _closeTask = null;
         private readonly Communicator _communicator;
         private readonly int _compressionLevel;
@@ -332,7 +333,27 @@ namespace ZeroC.Ice
         /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
         /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender
         /// argument.</summary>
-        public event EventHandler? Closed;
+        public event EventHandler? Closed
+        {
+            add
+            {
+                lock (_mutex)
+                {
+                    if (_state >= ConnectionState.Closed)
+                    {
+                        Task.Run(() => value?.Invoke(this, EventArgs.Empty));
+                    }
+                    _closed += value;
+                }
+            }
+            remove
+            {
+                lock (_mutex)
+                {
+                    _closed -= value;
+                }
+            }
+        }
 
         /// <summary>This event is raised when the connection receives a heartbeat. The connection object is passed as
         /// the event sender argument.</summary>
@@ -1364,7 +1385,7 @@ namespace ZeroC.Ice
                 // Raise the Closed event
                 try
                 {
-                    Closed?.Invoke(this, EventArgs.Empty);
+                    _closed?.Invoke(this, EventArgs.Empty);
                 }
                 catch (Exception ex)
                 {
