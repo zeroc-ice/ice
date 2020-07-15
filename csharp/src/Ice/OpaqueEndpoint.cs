@@ -296,7 +296,7 @@ namespace ZeroC.Ice
             if (options.TryGetValue("options", out string? value))
             {
                 // The options are percent-escaped and must remain percent-escaped. If we percent-escape them again,
-                // we could not later unescape them reliably.
+                // we cannot unescape them reliably.
                 _options = value.Split(",");
                 options.Remove("options");
             }

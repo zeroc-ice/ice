@@ -65,7 +65,7 @@ namespace ZeroC.Ice
                 default:
                     if (str.EndsWith(".0"))
                     {
-                        str = str.Substring(0, str.Length - 2);
+                        str = str[0..^2];
                     }
                     byte value = byte.Parse(str, CultureInfo.InvariantCulture);
                     return value > 0 ? (Protocol)value : throw new FormatException("invalid protocol 0");
