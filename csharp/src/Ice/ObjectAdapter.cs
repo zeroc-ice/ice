@@ -127,28 +127,22 @@ namespace ZeroC.Ice
                 {
                     throw new InvalidOperationException($"object adapter {Name} already activated");
                 }
-                _activateTask ??= PerformActivateAsync();
+
+                // Activate the incoming connection factories to start accepting connections
+                foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    factory.Activate();
+                }
+
+                _activateTask ??= UpdateLocatorRegistryAsync(_locatorInfo,
+                                                             CreateDirectProxy(new Identity("dummy", ""),
+                                                             IObjectPrx.Factory));
             }
             await _activateTask.ConfigureAwait(false);
 
-            async Task PerformActivateAsync()
+            if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
             {
-                await UpdateLocatorRegistryAsync(_locatorInfo,
-                                                 CreateDirectProxy(new Identity("dummy", ""),
-                                                 IObjectPrx.Factory)).ConfigureAwait(false);
-
-                if ((Communicator.GetPropertyAsBool("Ice.PrintAdapterReady") ?? false) && Name.Length > 0)
-                {
-                    Console.Out.WriteLine($"{Name} ready");
-                }
-
-                lock (_mutex)
-                {
-                    foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
-                    {
-                        factory.Activate();
-                    }
-                }
+                Console.Out.WriteLine($"{Name} ready");
             }
         }
 
@@ -166,25 +160,19 @@ namespace ZeroC.Ice
 
             async Task PerformDisposeAsync()
             {
+                // Synchronously Dispose of the incoming connection factories to stop accepting new incoming requests
+                // or connections. This ensures that once DisposeAsync returns, no new requests will be dispatched.
+                Task[] tasks =
+                    _incomingConnectionFactories.Select(factory => factory.DisposeAsync().AsTask()).ToArray();
+
                 // Wait for activation to complete. This is necessary avoid out of order locator updates.
                 if (_activateTask != null)
                 {
                     await _activateTask.ConfigureAwait(false);
                 }
 
-                Task[] tasks = _incomingConnectionFactories.Select(factory => factory.DestroyAsync()).ToArray();
-
-                // Note: the router/locator infos and incoming connection factory list are immutable at this point.
                 try
                 {
-                    if (_routerInfo != null)
-                    {
-                        // Remove entry from the router manager.
-                        Communicator.EraseRouterInfo(_routerInfo.Router);
-
-                        // Clear this object adapter with the router.
-                        _routerInfo.Adapter = null;
-                    }
 
                     await UpdateLocatorRegistryAsync(_locatorInfo, null).ConfigureAwait(false);
                 }
@@ -207,9 +195,11 @@ namespace ZeroC.Ice
                     await _directDispatchCompletionSource.Task.ConfigureAwait(false);
                 }
 
+                // Wait for the incoming connection factories to be disposed.
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 Communicator.OutgoingConnectionFactory.RemoveAdapter(this);
+                Communicator.EraseRouterInfo(_routerInfo?.Router);
                 Communicator.RemoveObjectAdapter(this);
             }
         }

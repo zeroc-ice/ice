@@ -208,7 +208,7 @@ namespace ZeroC.Ice.Test.ACM
                         lock (_mutex)
                         {
                             Closed = true;
-                            Monitor.Pulse(this);
+                            Monitor.Pulse(_mutex);
                         }
                     };
 

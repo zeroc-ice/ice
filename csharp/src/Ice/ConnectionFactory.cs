@@ -20,7 +20,7 @@ namespace ZeroC.Ice
         void Remove(Connection connection);
     }
 
-    internal sealed class OutgoingConnectionFactory : IConnectionManager
+    internal sealed class OutgoingConnectionFactory : IConnectionManager, IAsyncDisposable
     {
         public IAcmMonitor AcmMonitor { get; }
 
@@ -29,10 +29,34 @@ namespace ZeroC.Ice
             new MultiDictionary<(IConnector, string), Connection>();
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
-        private Task? _destroyTask = null;
+        private Task? _disposeTask = null;
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
+
+        public async ValueTask DisposeAsync()
+        {
+            lock (_mutex)
+            {
+                _disposeTask ??= PerformDestroyAsync();
+            }
+            await _disposeTask.ConfigureAwait(false);
+
+            async Task PerformDestroyAsync()
+            {
+                // Wait for connections to be closed.
+                IEnumerable<Task> tasks =
+                    _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
+                        connection.GracefulCloseAsync(new CommunicatorDisposedException()));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+#if DEBUG
+                // Ensure all the connections are removed
+                Debug.Assert(_connectionsByConnector.Count == 0);
+                Debug.Assert(_connectionsByEndpoint.Count == 0);
+#endif
+            }
+        }
 
         public void Remove(Connection connection)
         {
@@ -62,7 +86,7 @@ namespace ZeroC.Ice
 
             lock (_mutex)
             {
-                if (_destroyTask != null)
+                if (_disposeTask != null)
                 {
                     throw new CommunicatorDisposedException();
                 }
@@ -125,7 +149,7 @@ namespace ZeroC.Ice
                 var tried = new HashSet<IConnector>();
                 lock (_mutex)
                 {
-                    if (_destroyTask != null)
+                    if (_disposeTask != null)
                     {
                         throw new CommunicatorDisposedException();
                     }
@@ -222,35 +246,11 @@ namespace ZeroC.Ice
             }
         }
 
-        internal Task DestroyAsync()
-        {
-            lock (_mutex)
-            {
-                _destroyTask ??= PerformDestroyAsync();
-            }
-            return _destroyTask;
-
-            async Task PerformDestroyAsync()
-            {
-                // Wait for connections to be closed.
-                IEnumerable<Task> tasks =
-                    _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
-                        connection.GracefulCloseAsync(new CommunicatorDisposedException()));
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-
-#if DEBUG
-                // Ensure all the connections are removed
-                Debug.Assert(_connectionsByConnector.Count == 0);
-                Debug.Assert(_connectionsByEndpoint.Count == 0);
-#endif
-            }
-        }
-
         internal void RemoveAdapter(ObjectAdapter adapter)
         {
             lock (_mutex)
             {
-                if (_destroyTask != null)
+                if (_disposeTask != null)
                 {
                     return;
                 }
@@ -291,7 +291,7 @@ namespace ZeroC.Ice
                     {
                         lock (_mutex)
                         {
-                            if (_destroyTask != null)
+                            if (_disposeTask != null)
                             {
                                 throw new CommunicatorDisposedException();
                             }
@@ -356,7 +356,7 @@ namespace ZeroC.Ice
                         Connection connection;
                         lock (_mutex)
                         {
-                            if (_destroyTask != null)
+                            if (_disposeTask != null)
                             {
                                 throw new CommunicatorDisposedException();
                             }
@@ -448,7 +448,7 @@ namespace ZeroC.Ice
         }
     }
 
-    internal sealed class IncomingConnectionFactory : IConnectionManager
+    internal sealed class IncomingConnectionFactory : IConnectionManager, IAsyncDisposable
     {
         public IAcmMonitor AcmMonitor { get; }
 
@@ -456,12 +456,42 @@ namespace ZeroC.Ice
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
-        private Task? _destroyTask = null;
+        private Task? _disposeTask = null;
         private readonly Endpoint _endpoint;
         private readonly object _mutex = new object();
         private readonly Endpoint? _publishedEndpoint;
         private readonly ITransceiver? _transceiver;
         private readonly bool _warn;
+
+        public async ValueTask DisposeAsync()
+        {
+            lock (_mutex)
+            {
+                _disposeTask ??= PerformDestroyAsync();
+            }
+            await _disposeTask.ConfigureAwait(false);
+
+            async Task PerformDestroyAsync()
+            {
+                // Close the acceptor
+                if (_acceptor != null)
+                {
+                    if (_communicator.TraceLevels.Network >= 1)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                            $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
+                    }
+
+                    _acceptor.Close();
+                }
+
+                // Wait for all the connections to be closed
+                IEnumerable<Task> tasks = _connections.Select(
+                    connection => connection.GracefulCloseAsync(
+                        new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+            }
+        }
 
         public void Remove(Connection connection)
         {
@@ -556,7 +586,7 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                Debug.Assert(_destroyTask == null);
+                Debug.Assert(_disposeTask == null);
                 if (_acceptor != null)
                 {
                     if (_communicator.TraceLevels.Network >= 1)
@@ -576,36 +606,6 @@ namespace ZeroC.Ice
                         Task.Run(AcceptAsync);
                     }
                 }
-            }
-        }
-
-        internal Task DestroyAsync()
-        {
-            lock (_mutex)
-            {
-                _destroyTask ??= PerformDestroyAsync();
-            }
-            return _destroyTask;
-
-            async Task PerformDestroyAsync()
-            {
-                // Close the acceptor
-                if (_acceptor != null)
-                {
-                    if (_communicator.TraceLevels.Network >= 1)
-                    {
-                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                            $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
-                    }
-
-                    _acceptor.Close();
-                }
-
-                // Wait for all the connections to be closed
-                IEnumerable<Task> tasks = _connections.Select(
-                    connection => connection.GracefulCloseAsync(
-                        new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
-                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         }
 
@@ -656,7 +656,7 @@ namespace ZeroC.Ice
                     // fatal.
                     lock (_mutex)
                     {
-                        if (_destroyTask != null)
+                        if (_disposeTask != null)
                         {
                             return;
                         }
@@ -670,7 +670,7 @@ namespace ZeroC.Ice
                 lock (_mutex)
                 {
                     Debug.Assert(transceiver != null);
-                    if (_destroyTask != null)
+                    if (_disposeTask != null)
                     {
                         try
                         {
