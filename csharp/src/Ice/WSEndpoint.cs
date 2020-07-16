@@ -156,7 +156,7 @@ namespace ZeroC.Ice
                 _resource = value;
                 options.Remove("resource");
             }
-            else if (options.TryGetValue("options", out value))
+            else if (options.TryGetValue("option", out value))
             {
                 // We are parsing a ice+universal endpoint
                 if (value.Contains(','))
@@ -165,7 +165,7 @@ namespace ZeroC.Ice
                 }
                 // Each option of a universal endpoint needs to be unescaped
                 _resource = Uri.UnescapeDataString(value);
-                options.Remove("options");
+                options.Remove("option");
             }
         }
 

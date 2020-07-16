@@ -25,22 +25,23 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+tcp://host.zeroc.com:1000/category/name",
                 "ice+tcp://host.zeroc.com/category/name%20with%20space",
                 "ice+ws://host.zeroc.com//identity",
-                "ice+ws://host.zeroc.com//identity?alt-endpoints=host2.zeroc.com",
-                "ice+ws://host.zeroc.com//identity?alt-endpoints=host2.zeroc.com:10000",
+                "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com",
+                "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com:10000",
                 "ice+ws://host.zeroc.com//identity?protocol=ice1&source-address=10.1.2.4&compress=true",
-                "ice+ws://host.zeroc.com//identity?protocol=ice1&alt-endpoints=host2.zeroc.com?" +
+                "ice+ws://host.zeroc.com//identity?protocol=ice1&alt-endpoint=host2.zeroc.com?" +
                     "source-address=10.1.2.4$compress=true",
-                "ice+tcp://[::1]:10000/identity?alt-endpoints=host1:10000,host2,host3,host4",
+                "ice+tcp://[::1]:10000/identity?alt-endpoint=host1:10000,host2,host3,host4",
+                "ice+ssl://[::1]:10000/identity?alt-endpoint=host1:10000&alt-endpoint=host2,host3&alt-endpoint=[::2]",
                 "ice:location//identity#facet",
                 "ice+tcp://host.zeroc.com//identity",
                 "ice+tcp://host.zeroc.com:/identity", // another syntax for empty port
-                "ice+universal://com.zeroc.ice/identity?transport=iaps&options=a,b%2Cb,c,d",
+                "ice+universal://com.zeroc.ice/identity?transport=iaps&option=a,b%2Cb,c&option=d",
                 "ice+universal://host.zeroc.com/identity?transport=100",
                 "ice+universal://[::ab:cd:ef:00]/identity?transport=bt", // leading :: to make the address IPv6-like
                 "ice+udp://[::1]/test?source-address=::1&interface=0:0:0:0:0:0:0:1%25lo", // unescaped as ..:1%lo
                 "ice+ws://host.zeroc.com/identity?resource=/foo%2Fbar?/xyz",
                 "ice+universal://host.zeroc.com:10000/identity?transport=tcp",
-                "ice+universal://host.zeroc.com/identity?transport=ws&options=/foo%2520/bar",
+                "ice+universal://host.zeroc.com/identity?transport=ws&option=/foo%2520/bar",
             };
 
             foreach (string uriString in uriStringArray)

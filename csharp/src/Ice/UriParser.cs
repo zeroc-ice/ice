@@ -109,10 +109,9 @@ namespace ZeroC.Ice
                                        uriString)
                     };
 
-                    if (generalOptions.TryGetValue("alt-endpoints", out string? altEndpointsValue))
+                    if (generalOptions.TryGetValue("alt-endpoint", out string? altEndpointValue))
                     {
-                        string[] altEndpoints = altEndpointsValue.Split(',');
-                        foreach (string endpointStr in altEndpoints)
+                        foreach (string endpointStr in altEndpointValue.Split(','))
                         {
                             if (endpointStr.StartsWith("ice:"))
                             {
@@ -126,7 +125,7 @@ namespace ZeroC.Ice
                                 altUriString = $"{uri.Scheme}://{altUriString}";
                             }
 
-                            // The separator for endpoint options in alt-endpoints is $, and we replace these $ by &
+                            // The separator for endpoint options in alt-endpoint is $, and we replace these $ by &
                             // before sending the string the main parser (InitialParse), which uses & as separator.
                             altUriString = altUriString.Replace('$', '&');
 
@@ -258,6 +257,7 @@ namespace ZeroC.Ice
             if (endpointOptions == null) // i.e. ice scheme
             {
                 Debug.Assert(uriString.StartsWith("ice:"));
+                Debug.Assert(generalOptions != null);
 
                 string body = uriString.Substring(4);
                 if (body.StartsWith("//"))
@@ -291,38 +291,40 @@ namespace ZeroC.Ice
 
                 if (name == "protocol" || name == "encoding" || name == "invocation-mode")
                 {
-                    if (generalOptions == null)
-                    {
-                        throw new FormatException($"unexpected option `{name}' in endpoint `{uriString}'");
-                    }
-                    else
-                    {
-                        generalOptions.Add(name, value);
-                    }
+                    AppendValue(generalOptions, name, value, uriString);
                 }
                 else if (endpointOptions == null)
                 {
                     throw new FormatException($"the ice URI scheme does not support option `{name}'");
                 }
-                else if (name == "alt-endpoints")
+                else if (name == "alt-endpoint")
                 {
-                    if (generalOptions == null)
-                    {
-                        throw new FormatException($"unexpected option `{name}' in endpoint `{uriString}'");
-                    }
-                    else
-                    {
-                        generalOptions.Add(name, value);
-                    }
+                    AppendValue(generalOptions, name, value, uriString);
                 }
                 else
                 {
-                    // The options, in particular their values, remain percent escaped.
-                    endpointOptions.Add(name, value);
+                    AppendValue(endpointOptions, name, value, uriString);
                 }
             }
 
             return uri;
+
+            static void AppendValue(Dictionary<string, string>? options, string name, string value, string uriString)
+            {
+                if (options == null)
+                {
+                    throw new FormatException($"unexpected option `{name}' in endpoint `{uriString}'");
+                }
+
+                if (options.TryGetValue(name, out string? existingValue))
+                {
+                    options[name] = $"{existingValue},{value}";
+                }
+                else
+                {
+                    options.Add(name, value);
+                }
+            }
         }
     }
 }
