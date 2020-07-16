@@ -806,8 +806,8 @@ namespace ZeroC.Ice
             return _adminAdapter.CreateProxy(adminIdentity, IObjectPrx.Factory);
         }
 
-        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
-        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
+        /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
+        /// implicitly.</summary>
         public async ValueTask DisposeAsync()
         {
             // If Dispose is in progress just await the _disposeTask, otherwise call PerformDisposeAsync and then await
@@ -879,8 +879,8 @@ namespace ZeroC.Ice
             }
         }
 
-        /// <summary>Dispose the communicator. This operation calls <see cref=" ShutdownAsync"/> implicitly. Dispose
-        /// resources, shuts down this communicator's client functionality and destroys all object adapters.</summary>
+        /// <summary>Releases resources used by the communicator. This operation calls <see cref="ShutdownAsync"/>
+        /// implicitly.</summary>
         public void Dispose() => DisposeAsync().AsTask().Wait();
 
         /// <summary>Returns a facet of the Admin object.</summary>
