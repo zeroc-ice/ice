@@ -1793,8 +1793,9 @@ namespace ZeroC.Ice
                     }
                     _monitor.Add(this);
                 }
-                else if (state == ConnectionState.Closed)
+                else if (_state == ConnectionState.Active)
                 {
+                    Debug.Assert(state > ConnectionState.Active);
                     _monitor.Remove(this);
                 }
             }
