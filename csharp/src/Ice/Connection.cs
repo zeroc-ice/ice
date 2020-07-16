@@ -15,80 +15,6 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Specifies the close semantics for ACM (Active Connection Management).</summary>
-    public enum AcmClose
-    {
-        /// <summary>Disables automatic connection closure.</summary>
-        Off,
-        /// <summary>Gracefully closes a connection that has been idle for the configured timeout period.</summary>
-        OnIdle,
-        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, but only if
-        /// the connection has pending invocations.</summary>
-        OnInvocation,
-        /// <summary>Combines the behaviors of CloseOnIdle and CloseOnInvocation.</summary>
-        OnInvocationAndIdle,
-        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, regardless of
-        /// whether the connection has pending invocations or dispatch.</summary>
-        OnIdleForceful
-    }
-
-    /// <summary>Specifies the heartbeat semantics for ACM (Active Connection Management).</summary>
-    public enum AcmHeartbeat
-    {
-        /// <summary>Disables heartbeats.</summary>
-        Off,
-        /// <summary>Send a heartbeat at regular intervals if the connection is idle and only if there are pending
-        /// dispatch.</summary>
-        OnDispatch,
-        /// <summary>Send a heartbeat at regular intervals when the connection is idle.</summary>
-        OnIdle,
-        /// <summary>Send a heartbeat at regular intervals until the connection is closed.</summary>
-        Always
-    }
-
-    /// <summary>This struct represents the Acm (Active Connection Management) configuration.</summary>
-    public readonly struct Acm : IEquatable<Acm>
-    {
-        /// <summary>Gets the <see cref="AcmClose"/> setting for the Acm configuration.</summary>
-        public AcmClose Close { get; }
-        /// <summary>Gets <see cref="AcmHeartbeat"/> setting for the Acm configuration.</summary>
-        public AcmHeartbeat Heartbeat { get; }
-        /// <summary>Gets the timeout setting for the Acm configuration.</summary>
-        public TimeSpan Timeout { get; }
-
-        public Acm(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
-        {
-            Timeout = timeout;
-            Close = close;
-            Heartbeat = heartbeat;
-        }
-
-        public override int GetHashCode() => HashCode.Combine(Timeout, Close, Heartbeat);
-
-        public bool Equals(Acm other) =>
-            Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
-
-        public override bool Equals(object? other) => other is Acm value && Equals(value);
-
-        public static bool operator ==(Acm lhs, Acm rhs) => Equals(lhs, rhs);
-
-        public static bool operator !=(Acm lhs, Acm rhs) => !Equals(lhs, rhs);
-
-        internal Acm(bool server)
-        {
-            Timeout = TimeSpan.FromSeconds(60);
-            Heartbeat = AcmHeartbeat.OnDispatch;
-            Close = server ? AcmClose.OnInvocation : AcmClose.OnInvocationAndIdle;
-        }
-
-        internal Acm(Communicator communicator, string prefix, Acm defaults)
-        {
-            Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
-            Heartbeat = communicator.GetPropertyAsEnum<AcmHeartbeat>($"{prefix}.Heartbeat") ?? defaults.Heartbeat;
-            Close = communicator.GetPropertyAsEnum<AcmClose>($"{prefix}.Close") ?? defaults.Close;
-        }
-    }
-
     /// <summary>Determines the behavior when manually closing a connection.</summary>
     public enum ConnectionClose
     {
@@ -127,14 +53,14 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _monitor?.Acm ?? new Acm(TimeSpan.FromSeconds(0), AcmClose.Off, AcmHeartbeat.Off);
+                    return _monitor.Acm;
                 }
             }
             set
             {
                 lock (_mutex)
                 {
-                    if (_monitor == null || _state >= ConnectionState.Closing)
+                    if (_state >= ConnectionState.Closing)
                     {
                         return;
                     }
@@ -143,9 +69,11 @@ namespace ZeroC.Ice
                     {
                         _monitor.Remove(this);
                     }
-                    _monitor = _monitor.Create(value);
 
-                    if (_monitor.Acm.Timeout == TimeSpan.Zero || _monitor.Acm.Timeout == Timeout.InfiniteTimeSpan)
+                    _monitor = value == _manager.AcmMonitor.Acm ?
+                        _manager.AcmMonitor : new ConnectionAcmMonitor(value, _communicator.Logger);
+
+                    if (_monitor.Acm.IsDisabled)
                     {
                         // Disable the recording of last activity.
                         _acmLastActivity = Timeout.InfiniteTimeSpan;
@@ -235,8 +163,9 @@ namespace ZeroC.Ice
         private int _dispatchCount;
         private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
+        private readonly IConnectionManager _manager;
         private readonly int _frameSizeMax;
-        private IAcmMonitor? _monitor;
+        private IAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private int _nextRequestId;
         private IConnectionObserver? _observer;
@@ -375,15 +304,16 @@ namespace ZeroC.Ice
         public override string ToString() => Transceiver.ToString()!;
 
         internal Connection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
         {
             _communicator = endpoint.Communicator;
-            _monitor = monitor;
+            _manager = manager;
+            _monitor = manager.AcmMonitor;
             Transceiver = transceiver;
             _connector = connector;
             ConnectionId = connectionId;
@@ -392,15 +322,7 @@ namespace ZeroC.Ice
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = _communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
-
-            if (_monitor?.Acm.Timeout != TimeSpan.Zero && _monitor?.Acm.Timeout != Timeout.InfiniteTimeSpan)
-            {
-                _acmLastActivity = Time.Elapsed;
-            }
-            else
-            {
-                _acmLastActivity = Timeout.InfiniteTimeSpan;
-            }
+            _acmLastActivity = _monitor.Acm.IsDisabled ? Timeout.InfiniteTimeSpan : Time.Elapsed;
             _nextRequestId = 1;
             _frameSizeMax = adapter != null ? adapter.FrameSizeMax : _communicator.FrameSizeMax;
             _dispatchCount = 0;
@@ -1393,7 +1315,7 @@ namespace ZeroC.Ice
                 await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
             }
 
-            _monitor?.Reap(this);
+            _manager.Remove(this);
             _observer?.Detach();
         }
 
@@ -1871,8 +1793,9 @@ namespace ZeroC.Ice
                     }
                     _monitor.Add(this);
                 }
-                else if (state == ConnectionState.Closed)
+                else if (_state == ConnectionState.Active)
                 {
+                    Debug.Assert(state > ConnectionState.Active);
                     _monitor.Remove(this);
                 }
             }
@@ -1966,13 +1889,13 @@ namespace ZeroC.Ice
         }
 
         protected IPConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2012,13 +1935,13 @@ namespace ZeroC.Ice
             (Transceiver as WSTransceiver)?.SslStream;
 
         protected internal TcpConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2030,13 +1953,13 @@ namespace ZeroC.Ice
         public System.Net.IPEndPoint? McastEndpoint => (Transceiver as UdpTransceiver)?.McastAddress;
 
         protected internal UdpConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2048,13 +1971,13 @@ namespace ZeroC.Ice
         public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
 
         protected internal WSConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }

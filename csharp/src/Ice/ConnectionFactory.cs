@@ -13,18 +13,44 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    internal sealed class OutgoingConnectionFactory
+    public interface IConnectionManager
     {
+        IAcmMonitor AcmMonitor { get; }
+
+        void Remove(Connection connection);
+    }
+
+    internal sealed class OutgoingConnectionFactory : IConnectionManager
+    {
+        public IAcmMonitor AcmMonitor { get; }
+
         private readonly Communicator _communicator;
         private readonly MultiDictionary<(IConnector, string), Connection> _connectionsByConnector =
             new MultiDictionary<(IConnector, string), Connection>();
         private readonly MultiDictionary<(Endpoint, string), Connection> _connectionsByEndpoint =
             new MultiDictionary<(Endpoint, string), Connection>();
         private Task? _destroyTask = null;
-        private readonly ConnectionFactoryAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private readonly Dictionary<(IConnector, string), Task<Connection>> _pending =
             new Dictionary<(IConnector, string), Task<Connection>>();
+
+        public void Remove(Connection connection)
+        {
+            lock (_mutex)
+            {
+                _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
+                foreach (Endpoint endpoint in connection.Endpoints)
+                {
+                    _connectionsByEndpoint.Remove((endpoint, connection.ConnectionId), connection);
+                }
+            }
+        }
+
+        internal OutgoingConnectionFactory(Communicator communicator)
+        {
+            _communicator = communicator;
+            AcmMonitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
+        }
 
         internal async ValueTask<Connection> CreateAsync(
             IReadOnlyList<Endpoint> endpoints,
@@ -196,16 +222,31 @@ namespace ZeroC.Ice
             }
         }
 
-        public Task DestroyAsync()
+        internal Task DestroyAsync()
         {
             lock (_mutex)
             {
                 _destroyTask ??= PerformDestroyAsync();
             }
             return _destroyTask;
+
+            async Task PerformDestroyAsync()
+            {
+                // Wait for connections to be closed.
+                IEnumerable<Task> tasks =
+                    _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
+                        connection.GracefulCloseAsync(new CommunicatorDisposedException()));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+#if DEBUG
+                // Ensure all the connections are removed
+                Debug.Assert(_connectionsByConnector.Count == 0);
+                Debug.Assert(_connectionsByEndpoint.Count == 0);
+#endif
+            }
         }
 
-        public void RemoveAdapter(ObjectAdapter adapter)
+        internal void RemoveAdapter(ObjectAdapter adapter)
         {
             lock (_mutex)
             {
@@ -224,7 +265,7 @@ namespace ZeroC.Ice
             }
         }
 
-        public void SetRouterInfo(RouterInfo routerInfo)
+        internal void SetRouterInfo(RouterInfo routerInfo)
         {
             ObjectAdapter? adapter = routerInfo.Adapter;
             IReadOnlyList<Endpoint> endpoints;
@@ -272,7 +313,8 @@ namespace ZeroC.Ice
                 }
             }
         }
-        public void UpdateConnectionObservers()
+
+        internal void UpdateConnectionObservers()
         {
             lock (_mutex)
             {
@@ -284,12 +326,6 @@ namespace ZeroC.Ice
                     }
                 }
             }
-        }
-
-        internal OutgoingConnectionFactory(Communicator communicator)
-        {
-            _communicator = communicator;
-            _monitor = new ConnectionFactoryAcmMonitor(communicator, communicator.ClientAcm);
         }
 
         private async Task<Connection> ConnectAsync(
@@ -325,11 +361,11 @@ namespace ZeroC.Ice
                                 throw new CommunicatorDisposedException();
                             }
 
-                            connection = connector.Connect().CreateConnection(endpoint,
-                                                                             _monitor,
-                                                                             connector,
-                                                                             connectionId,
-                                                                             null);
+                            connection = connector.Connect().CreateConnection(this,
+                                                                              endpoint,
+                                                                              connector,
+                                                                              connectionId,
+                                                                              null);
 
                             _connectionsByConnector.Add((connector, connectionId), connection);
                             _connectionsByEndpoint.Add((endpoint, connectionId), connection);
@@ -388,30 +424,6 @@ namespace ZeroC.Ice
             return null!;
         }
 
-        private async Task PerformDestroyAsync()
-        {
-            // Wait for connections to be closed.
-            IEnumerable<Task> tasks =
-                _connectionsByConnector.Values.SelectMany(connections => connections).Select(connection =>
-                    connection.GracefulCloseAsync(new CommunicatorDisposedException()));
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-#if DEBUG
-            // Ensure all the connections are finished and reapable at this point.
-            foreach (Connection connection in _monitor.SwapReapedConnections())
-            {
-                _connectionsByConnector.Remove((connection.Connector, connection.ConnectionId), connection);
-                foreach (Endpoint endpoint in connection.Endpoints)
-                {
-                    _connectionsByEndpoint.Remove((endpoint, connection.ConnectionId), connection);
-                }
-            }
-            Debug.Assert(_connectionsByConnector.Count == 0);
-            Debug.Assert(_connectionsByEndpoint.Count == 0);
-#endif
-
-            _monitor.Destroy();
-        }
         private class MultiDictionary<TKey, TValue> : Dictionary<TKey, ICollection<TValue>> where TKey : notnull
         {
             public void Add(TKey key, TValue value)
@@ -436,21 +448,42 @@ namespace ZeroC.Ice
         }
     }
 
-    internal sealed class IncomingConnectionFactory
+    internal sealed class IncomingConnectionFactory : IConnectionManager
     {
+        public IAcmMonitor AcmMonitor { get; }
+
         private readonly IAcceptor? _acceptor;
         private readonly ObjectAdapter _adapter;
         private readonly Communicator _communicator;
         private readonly HashSet<Connection> _connections = new HashSet<Connection>();
         private Task? _destroyTask = null;
         private readonly Endpoint _endpoint;
-        private readonly ConnectionFactoryAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private readonly Endpoint? _publishedEndpoint;
         private readonly ITransceiver? _transceiver;
         private readonly bool _warn;
 
-        public IncomingConnectionFactory(
+        public void Remove(Connection connection)
+        {
+            lock (_mutex)
+            {
+                _connections.Remove(connection);
+            }
+        }
+
+        public override string ToString()
+        {
+            if (_transceiver != null)
+            {
+                return _transceiver.ToString()!;
+            }
+            else
+            {
+                return _acceptor!.ToString();
+            }
+        }
+
+        internal IncomingConnectionFactory(
             ObjectAdapter adapter,
             Endpoint endpoint,
             Endpoint? publish,
@@ -461,7 +494,7 @@ namespace ZeroC.Ice
             _publishedEndpoint = publish;
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
-            _monitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
+            AcmMonitor = new ConnectionFactoryAcmMonitor(_communicator, acm);
 
             try
             {
@@ -475,7 +508,8 @@ namespace ZeroC.Ice
                     }
                     _endpoint = _transceiver.Bind();
 
-                    Connection connection = _transceiver.CreateConnection(_endpoint, null, null, "", _adapter);
+                    Connection connection = _transceiver.CreateConnection(this, _endpoint, null, "", _adapter);
+                    connection.Acm = Acm.Disabled; // Don't enable ACM for this connection
                     _ = connection.StartAsync();
                     _connections.Add(connection);
                 }
@@ -512,14 +546,13 @@ namespace ZeroC.Ice
                     // Ignore
                 }
 
-                _monitor.Destroy();
                 _connections.Clear();
 
                 throw;
             }
         }
 
-        public void Activate()
+        internal void Activate()
         {
             lock (_mutex)
             {
@@ -546,16 +579,37 @@ namespace ZeroC.Ice
             }
         }
 
-        public Task DestroyAsync()
+        internal Task DestroyAsync()
         {
             lock (_mutex)
             {
                 _destroyTask ??= PerformDestroyAsync();
             }
             return _destroyTask;
+
+            async Task PerformDestroyAsync()
+            {
+                // Close the acceptor
+                if (_acceptor != null)
+                {
+                    if (_communicator.TraceLevels.Network >= 1)
+                    {
+                        _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
+                            $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
+                    }
+
+                    _acceptor.Close();
+                }
+
+                // Wait for all the connections to be closed
+                IEnumerable<Task> tasks = _connections.Select(
+                    connection => connection.GracefulCloseAsync(
+                        new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+            }
         }
 
-        public Endpoint Endpoint()
+        internal Endpoint Endpoint()
         {
             if (_publishedEndpoint != null)
             {
@@ -563,7 +617,7 @@ namespace ZeroC.Ice
             }
             return _endpoint;
         }
-        public bool IsLocal(Endpoint endpoint)
+        internal bool IsLocal(Endpoint endpoint)
         {
             if (_publishedEndpoint != null && endpoint.IsLocal(_publishedEndpoint))
             {
@@ -572,19 +626,7 @@ namespace ZeroC.Ice
             return endpoint.IsLocal(_endpoint);
         }
 
-        public override string ToString()
-        {
-            if (_transceiver != null)
-            {
-                return _transceiver.ToString()!;
-            }
-            else
-            {
-                return _acceptor!.ToString();
-            }
-        }
-
-        public void UpdateConnectionObservers()
+        internal void UpdateConnectionObservers()
         {
             lock (_mutex)
             {
@@ -640,12 +682,6 @@ namespace ZeroC.Ice
                         return;
                     }
 
-                    // Reap closed connections
-                    foreach (Connection c in _monitor.SwapReapedConnections())
-                    {
-                        _connections.Remove(c);
-                    }
-
                     if (_communicator.TraceLevels.Network >= 2)
                     {
                         _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
@@ -654,7 +690,7 @@ namespace ZeroC.Ice
 
                     try
                     {
-                        connection = transceiver.CreateConnection(_endpoint, _monitor, null, "", _adapter);
+                        connection = transceiver.CreateConnection(this, _endpoint, null, "", _adapter);
                     }
                     catch (Exception ex)
                     {
@@ -698,29 +734,6 @@ namespace ZeroC.Ice
                     }
                 }
             }
-        }
-
-        private async Task PerformDestroyAsync()
-        {
-            // Close the acceptor
-            if (_acceptor != null)
-            {
-                if (_communicator.TraceLevels.Network >= 1)
-                {
-                    _communicator.Logger.Trace(_communicator.TraceLevels.NetworkCategory,
-                        $"stopping to accept {_endpoint.TransportName} connections at {_acceptor}");
-                }
-
-                _acceptor.Close();
-            }
-
-            // Wait for all the connections to be closed
-            IEnumerable<Task> tasks = _connections.Select(
-                connection => connection.GracefulCloseAsync(
-                    new ObjectDisposedException($"{typeof(ObjectAdapter).FullName}:{_adapter.Name}")));
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            _monitor.Destroy();
         }
     }
 }

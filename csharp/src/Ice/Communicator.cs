@@ -457,8 +457,8 @@ namespace ZeroC.Ice
                     throw new InvalidConfigurationException($"invalid value for Ice.ConnectTimeout: `{ConnectTimeout}'");
                 }
 
-                ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", new Acm(false)));
-                ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", new Acm(true)));
+                ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
+                ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
 
                 {
                     int num = GetPropertyAsInt("Ice.MessageSizeMax") ?? 1024;
