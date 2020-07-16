@@ -17,7 +17,7 @@ namespace ZeroC.Ice.Test.Metrics
             properties["Ice.Admin.InstanceName"] = "server";
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
-            properties["Ice.MessageSizeMax"] = "50MB";
+            properties["Ice.MessageSizeMax"] = "50KB";
             properties["Ice.Default.Host"] = "127.0.0.1";
 
             await using Communicator communicator = Initialize(properties);

@@ -21,7 +21,7 @@ namespace ZeroC.Ice.Test.Timeout
 
             // Limit the recv buffer size, this test relies on the socket send() blocking after sending a given
             // amount of data.
-            properties["Ice.TCP.RcvSize"] = "50MB";
+            properties["Ice.TCP.RcvSize"] = "50KB";
 
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));

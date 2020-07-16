@@ -18,7 +18,7 @@ namespace ZeroC.Ice.Test.AMI
             // Limit the send buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.
             //
-            properties["Ice.TCP.SndSize"] = "50MB";
+            properties["Ice.TCP.SndSize"] = "50KB";
 
             await using Communicator communicator = Initialize(properties);
 

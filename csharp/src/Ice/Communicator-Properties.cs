@@ -66,7 +66,7 @@ namespace ZeroC.Ice
                     }
 
                     // Match an integer followed letters
-                    Match match = Regex.Match(pv.Val, @"^([0-9]+[\.|,]?[0-9]*)([A-Z]+)$");
+                    Match match = Regex.Match(pv.Val, @"^([0-9]+[\.]?[0-9]*)([A-Z]+)$");
 
                     if (!match.Success)
                     {
@@ -94,7 +94,7 @@ namespace ZeroC.Ice
 
                         if (size <= 0)
                         {
-                            throw new FormatException("size properties must be a positive numeric value greater than 0");
+                            throw new FormatException("size must be a positive numeric value greater than 0");
                         }
                         checked
                         {
