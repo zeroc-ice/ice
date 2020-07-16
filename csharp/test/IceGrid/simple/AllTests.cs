@@ -161,7 +161,7 @@ namespace ZeroC.IceGrid.Test.Simple
                     properties["Ice.Plugin.IceLocatorDiscovery"] = "Ice:ZeroC.IceLocatorDiscovery.PluginFactory";
                     {
                         string intf = communicator.GetProperty("IceLocatorDiscovery.Interface") ?? "";
-                        if (intf != "")
+                        if (intf.Length > 0)
                         {
                             intf = $" --interface \"{intf}\"";
                         }

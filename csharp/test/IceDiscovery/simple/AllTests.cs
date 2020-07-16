@@ -226,7 +226,7 @@ namespace ZeroC.IceDiscovery.Test.Simple
                 {
                     var properties = communicator.GetProperties();
                     string intf = communicator.GetProperty("IceDiscovery.Interface") ?? "";
-                    if (intf != "")
+                    if (intf.Length > 0)
                     {
                         intf = $" --interface \"{intf}\"";
                     }

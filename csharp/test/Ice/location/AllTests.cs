@@ -290,16 +290,18 @@ namespace ZeroC.Ice.Test.Location
             hello = hello.Clone(adapterId: "unknown");
             for (int i = 0; i < 1000; i++)
             {
-                results.Add(hello.sayHelloAsync().ContinueWith((Task t) =>
-                {
-                    try
+                results.Add(hello.sayHelloAsync().ContinueWith(
+                    t =>
                     {
-                        t.Wait();
-                    }
-                    catch (AggregateException ex) when (ex.InnerException is AdapterNotFoundException)
-                    {
-                    }
-                }));
+                        try
+                        {
+                            t.Wait();
+                        }
+                        catch (AggregateException ex) when (ex.InnerException is AdapterNotFoundException)
+                        {
+                        }
+                    },
+                    TaskScheduler.Default));
             }
             Task.WaitAll(results.ToArray());
             results.Clear();

@@ -13,12 +13,14 @@ namespace ZeroC.Ice.Test.Operations
 {
     public sealed class MyDerivedClassAsync : IMyDerivedClassAsync
     {
-
+        private readonly object _mutex = new object();
         internal class Thread_opVoid : TaskCompletionSource<object?>
         {
+            private readonly object _mutex = new object();
+
             public void Start()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _thread = new Thread(new ThreadStart(Run));
                     _thread.Start();
@@ -29,7 +31,7 @@ namespace ZeroC.Ice.Test.Operations
 
             public void Join()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _thread!.Join();
                 }
@@ -73,7 +75,7 @@ namespace ZeroC.Ice.Test.Operations
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<bool> supportsCompressAsync(Current current) => MakeValueTask(true);
+        public ValueTask<bool> supportsCompressAsync(Current current) => new ValueTask<bool>(true);
 
         public ValueTask opVoidAsync(Current current)
         {
@@ -90,7 +92,8 @@ namespace ZeroC.Ice.Test.Operations
             return new ValueTask(_opVoidThread.Task);
         }
 
-        public ValueTask<(bool, bool)> opBoolAsync(bool p1, bool p2, Current current) => MakeValueTask((p2, p1));
+        public ValueTask<(bool, bool)> opBoolAsync(bool p1, bool p2, Current current) =>
+            new ValueTask<(bool, bool)>((p2, p1));
 
         public ValueTask<(ReadOnlyMemory<bool>, ReadOnlyMemory<bool>)> opBoolSAsync(bool[] p1, bool[] p2,
             Current current)
@@ -124,7 +127,8 @@ namespace ZeroC.Ice.Test.Operations
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(byte, byte)> opByteAsync(byte p1, byte p2, Current current) => MakeValueTask((p1, (byte)(p1 ^ p2)));
+        public ValueTask<(byte, byte)> opByteAsync(byte p1, byte p2, Current current) =>
+            new ValueTask<(byte, byte)>((p1, (byte)(p1 ^ p2)));
 
         public ValueTask<(IReadOnlyDictionary<byte, bool>, IReadOnlyDictionary<byte, bool>)>
         opByteBoolDAsync(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2, Current current)
@@ -174,8 +178,8 @@ namespace ZeroC.Ice.Test.Operations
             return ToReturnValue(r, p3);
         }
 
-        public ValueTask<(double, float, double)>
-        opFloatDoubleAsync(float p1, double p2, Current current) => MakeValueTask((p2, p1, p2));
+        public ValueTask<(double, float, double)> opFloatDoubleAsync(float p1, double p2, Current current) =>
+            new ValueTask<(double, float, double)>((p2, p1, p2));
 
         public ValueTask<(ReadOnlyMemory<double>, ReadOnlyMemory<float>, ReadOnlyMemory<double>)> opFloatDoubleSAsync(
             float[] p1, double[] p2, Current current)
@@ -195,7 +199,7 @@ namespace ZeroC.Ice.Test.Operations
                 r[p2.Length + i] = p1[i];
             }
 
-            return MakeValueTask(((ReadOnlyMemory<double>)r, (ReadOnlyMemory<float>)p3, (ReadOnlyMemory<double>)p4));
+            return new ValueTask<(ReadOnlyMemory<double>, ReadOnlyMemory<float>, ReadOnlyMemory<double>)>((r, p3, p4));
         }
 
         public ValueTask<(IEnumerable<double[]>, IEnumerable<float[]>, IEnumerable<double[]>)>
@@ -220,7 +224,7 @@ namespace ZeroC.Ice.Test.Operations
                 }
             }
 
-            return MakeValueTask((r as IEnumerable<double[]>, p3 as IEnumerable<float[]>, p4 as IEnumerable<double[]>));
+            return new ValueTask<(IEnumerable<double[]>, IEnumerable<float[]>, IEnumerable<double[]>)>((r, p3, p4 ));
         }
 
         public ValueTask<(IReadOnlyDictionary<long, float>, IReadOnlyDictionary<long, float>)>
@@ -266,8 +270,8 @@ namespace ZeroC.Ice.Test.Operations
                 current.Adapter.CreateProxy(current.Identity, IMyClassPrx.Factory), p2, p3));
         }
 
-        public ValueTask<(MyEnum, MyEnum)>
-        opMyEnumAsync(MyEnum p1, Current current) => MakeValueTask((MyEnum.enum3, p1));
+        public ValueTask<(MyEnum, MyEnum)> opMyEnumAsync(MyEnum p1, Current current) =>
+            new ValueTask<(MyEnum, MyEnum)>((MyEnum.enum3, p1));
 
         public ValueTask<(IReadOnlyDictionary<short, int>, IReadOnlyDictionary<short, int>)>
         opShortIntDAsync(Dictionary<short, int> p1, Dictionary<short, int> p2, Current current)
@@ -302,16 +306,16 @@ namespace ZeroC.Ice.Test.Operations
         }
 
         public ValueTask<(long, short, int, long)> opShortIntLongAsync(short p1, int p2, long p3, Current current) =>
-            MakeValueTask((p3, p1, p2, p3));
+            new ValueTask<(long, short, int, long)>((p3, p1, p2, p3));
 
         public ValueTask<(ulong, ushort, uint, ulong)> opUShortUIntULongAsync(
             ushort p1, uint p2, ulong p3, Current current) =>
-            MakeValueTask((p3, p1, p2, p3));
+            new ValueTask<(ulong, ushort, uint, ulong)>((p3, p1, p2, p3));
 
-        public ValueTask<int> opVarIntAsync(int v, Current current) => MakeValueTask(v);
-        public ValueTask<uint> opVarUIntAsync(uint v, Current current) => MakeValueTask(v);
-        public ValueTask<long> opVarLongAsync(long v, Current current) => MakeValueTask(v);
-        public ValueTask<ulong> opVarULongAsync(ulong v, Current current) => MakeValueTask(v);
+        public ValueTask<int> opVarIntAsync(int v, Current current) => new ValueTask<int>(v);
+        public ValueTask<uint> opVarUIntAsync(uint v, Current current) => new ValueTask<uint>(v);
+        public ValueTask<long> opVarLongAsync(long v, Current current) => new ValueTask<long>(v);
+        public ValueTask<ulong> opVarULongAsync(ulong v, Current current) => new ValueTask<ulong>(v);
 
         public ValueTask<(ReadOnlyMemory<long>, ReadOnlyMemory<short>, ReadOnlyMemory<int>, ReadOnlyMemory<long>)>
         opShortIntLongSAsync(short[] p1, int[] p2, long[] p3, Current current)
@@ -325,8 +329,11 @@ namespace ZeroC.Ice.Test.Operations
             var p6 = new long[p3.Length + p3.Length];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-            return MakeValueTask(((ReadOnlyMemory<long>)p3, (ReadOnlyMemory<short>)p4, (ReadOnlyMemory<int>)p5,
-                (ReadOnlyMemory<long>)p6));
+            return new ValueTask<(
+                ReadOnlyMemory<long>,
+                ReadOnlyMemory<short>,
+                ReadOnlyMemory<int>,
+                ReadOnlyMemory<long>)>((p3, p4, p5, p6));
         }
 
         public ValueTask<(ReadOnlyMemory<ulong>, ReadOnlyMemory<ushort>, ReadOnlyMemory<uint>, ReadOnlyMemory<ulong>)>
@@ -341,8 +348,11 @@ namespace ZeroC.Ice.Test.Operations
             var p6 = new ulong[p3.Length + p3.Length];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-            return MakeValueTask(((ReadOnlyMemory<ulong>)p3, (ReadOnlyMemory<ushort>)p4, (ReadOnlyMemory<uint>)p5,
-                (ReadOnlyMemory<ulong>)p6));
+            return new ValueTask<(
+                ReadOnlyMemory<ulong>,
+                ReadOnlyMemory<ushort>,
+                ReadOnlyMemory<uint>,
+                ReadOnlyMemory<ulong>)>((p3, p4, p5, p6));
         }
 
         public ValueTask<(IEnumerable<long>, IEnumerable<int>, IEnumerable<long>)>
@@ -358,7 +368,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p2, p5, p2.Length);
             Array.Copy(p2, 0, p5, p2.Length, p2.Length);
 
-            return MakeValueTask(((IEnumerable<long>)p2, (IEnumerable<int>)p4, (IEnumerable<long>)p5));
+            return new ValueTask<(IEnumerable<long>, IEnumerable<int>, IEnumerable<long>)>((p2, p4, p5));
         }
 
         public ValueTask<(IEnumerable<ulong>, IEnumerable<uint>, IEnumerable<ulong>)>
@@ -374,7 +384,7 @@ namespace ZeroC.Ice.Test.Operations
             Array.Copy(p2, p5, p2.Length);
             Array.Copy(p2, 0, p5, p2.Length, p2.Length);
 
-            return MakeValueTask(((IEnumerable<ulong>)p2, (IEnumerable<uint>)p4, (IEnumerable<ulong>)p5));
+            return new ValueTask<(IEnumerable<ulong>, IEnumerable<uint>, IEnumerable<ulong>)>((p2, p4, p5));
         }
 
         public ValueTask<(IEnumerable<long[]>, IEnumerable<short[]>, IEnumerable<int[]>, IEnumerable<long[]>)>
@@ -391,8 +401,8 @@ namespace ZeroC.Ice.Test.Operations
             var p6 = new long[p3.Length + p3.Length][];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-            return MakeValueTask((p3 as IEnumerable<long[]>, p4 as IEnumerable<short[]>, p5 as IEnumerable<int[]>,
-                p6 as IEnumerable<long[]>));
+            return new ValueTask<(IEnumerable<long[]>, IEnumerable<short[]>, IEnumerable<int[]>, IEnumerable<long[]>)>(
+                (p3, p4, p5, p6));
         }
 
         public ValueTask<(IEnumerable<ulong[]>, IEnumerable<ushort[]>, IEnumerable<uint[]>, IEnumerable<ulong[]>)>
@@ -409,12 +419,16 @@ namespace ZeroC.Ice.Test.Operations
             var p6 = new ulong[p3.Length + p3.Length][];
             Array.Copy(p3, p6, p3.Length);
             Array.Copy(p3, 0, p6, p3.Length, p3.Length);
-            return MakeValueTask((p3 as IEnumerable<ulong[]>, p4 as IEnumerable<ushort[]>, p5 as IEnumerable<uint[]>,
-                p6 as IEnumerable<ulong[]>));
+            return new ValueTask<(
+                IEnumerable<ulong[]>,
+                IEnumerable<ushort[]>,
+                IEnumerable<uint[]>,
+                IEnumerable<ulong[]>)>((p3, p4, p5, p6));
         }
 
         public ValueTask<(string, string)>
-        opStringAsync(string p1, string p2, Current current) => MakeValueTask(($"{p1} {p2}", $"{p2} {p1}"));
+        opStringAsync(string p1, string p2, Current current) =>
+            new ValueTask<(string, string)>(($"{p1} {p2}", $"{p2} {p1}"));
 
         public ValueTask<(IReadOnlyDictionary<string, MyEnum>, IReadOnlyDictionary<string, MyEnum>)>
         opStringMyEnumDAsync(Dictionary<string, MyEnum> p1, Dictionary<string, MyEnum> p2, Current current)
@@ -802,16 +816,16 @@ namespace ZeroC.Ice.Test.Operations
             {
                 r[i] = -s[i];
             }
-            return MakeValueTask((ReadOnlyMemory<int>)r);
+            return new ValueTask<ReadOnlyMemory<int>>(r);
         }
 
         public ValueTask<IReadOnlyDictionary<string, string>> opContextAsync(Current current) =>
-            MakeValueTask(current.Context as IReadOnlyDictionary<string, string>);
+            new ValueTask<IReadOnlyDictionary<string, string>>(current.Context);
 
         public ValueTask
         opByteSOnewayAsync(byte[] s, Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++_opByteSOnewayCallCount;
             }
@@ -821,11 +835,11 @@ namespace ZeroC.Ice.Test.Operations
         public ValueTask<int>
         opByteSOnewayCallCountAsync(Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 var count = _opByteSOnewayCallCount;
                 _opByteSOnewayCallCount = 0;
-                return MakeValueTask(count);
+                return new ValueTask<int>(count);
             }
         }
 
@@ -906,7 +920,7 @@ namespace ZeroC.Ice.Test.Operations
         {
             var p3 = p1;
             p3.s.s = "a new string";
-            return MakeValueTask((p2, p3));
+            return new ValueTask<(Structure, Structure)>((p2, p3));
         }
 
         public ValueTask
@@ -929,49 +943,49 @@ namespace ZeroC.Ice.Test.Operations
         opDerivedAsync(Current current) => new ValueTask(Task.CompletedTask);
 
         public ValueTask<byte>
-        opByte1Async(byte value, Current current) => MakeValueTask(value);
+        opByte1Async(byte value, Current current) => new ValueTask<byte>(value);
 
-        public ValueTask<short> opShort1Async(short value, Current current) => MakeValueTask(value);
-        public ValueTask<int> opInt1Async(int value, Current current) => MakeValueTask(value);
-        public ValueTask<long> opLong1Async(long value, Current current) => MakeValueTask(value);
+        public ValueTask<short> opShort1Async(short value, Current current) => new ValueTask<short>(value);
+        public ValueTask<int> opInt1Async(int value, Current current) => new ValueTask<int>(value);
+        public ValueTask<long> opLong1Async(long value, Current current) => new ValueTask<long>(value);
 
-        public ValueTask<ushort> opUShort1Async(ushort value, Current current) => MakeValueTask(value);
-        public ValueTask<uint> opUInt1Async(uint value, Current current) => MakeValueTask(value);
-        public ValueTask<ulong> opULong1Async(ulong value, Current current) => MakeValueTask(value);
+        public ValueTask<ushort> opUShort1Async(ushort value, Current current) => new ValueTask<ushort>(value);
+        public ValueTask<uint> opUInt1Async(uint value, Current current) => new ValueTask<uint>(value);
+        public ValueTask<ulong> opULong1Async(ulong value, Current current) => new ValueTask<ulong>(value);
 
         public ValueTask<float>
-        opFloat1Async(float value, Current current) => MakeValueTask(value);
+        opFloat1Async(float value, Current current) => new ValueTask<float>(value);
 
         public ValueTask<double>
-        opDouble1Async(double value, Current current) => MakeValueTask(value);
+        opDouble1Async(double value, Current current) => new ValueTask<double>(value);
 
         public ValueTask<string>
-        opString1Async(string value, Current current) => MakeValueTask(value);
+        opString1Async(string value, Current current) => new ValueTask<string>(value);
 
         public ValueTask<IEnumerable<string>>
-        opStringS1Async(string[] value, Current current) => MakeValueTask(value as IEnumerable<string>);
+        opStringS1Async(string[] value, Current current) => new ValueTask<IEnumerable<string>>(value);
 
         public ValueTask<IReadOnlyDictionary<byte, bool>>
         opByteBoolD1Async(Dictionary<byte, bool> value, Current current) =>
-            MakeValueTask(value as IReadOnlyDictionary<byte, bool>);
+            new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
 
         public ValueTask<IEnumerable<string>>
-        opStringS2Async(string[] value, Current current) => MakeValueTask(value as IEnumerable<string>);
+        opStringS2Async(string[] value, Current current) => new ValueTask<IEnumerable<string>>(value);
 
         public ValueTask<IReadOnlyDictionary<byte, bool>>
         opByteBoolD2Async(Dictionary<byte, bool> value, Current current) =>
-            MakeValueTask(value as IReadOnlyDictionary<byte, bool>);
+            new ValueTask<IReadOnlyDictionary<byte, bool>>(value);
 
         public ValueTask<MyClass1?>
-        opMyClass1Async(MyClass1? value, Current current) => MakeValueTask(value);
+        opMyClass1Async(MyClass1? value, Current current) => new ValueTask<MyClass1?>(value);
 
         public ValueTask<MyStruct1>
-        opMyStruct1Async(MyStruct1 value, Current current) => MakeValueTask(value);
+        opMyStruct1Async(MyStruct1 value, Current current) => new ValueTask<MyStruct1>(value);
 
         public ValueTask<IEnumerable<string>>
         opStringLiteralsAsync(Current current)
         {
-            return MakeValueTask(new string[]
+            return new ValueTask<IEnumerable<string>>(new string[]
                 {
                         Constants.s0,
                         Constants.s1,
@@ -1006,13 +1020,13 @@ namespace ZeroC.Ice.Test.Operations
                         Constants.su0,
                         Constants.su1,
                         Constants.su2
-                } as IEnumerable<string>);
+                });
         }
 
         public ValueTask<IEnumerable<string>>
         opWStringLiteralsAsync(Current current)
         {
-            return MakeValueTask(new string[]
+            return new ValueTask<IEnumerable<string>>(new string[]
                 {
                         Constants.s0,
                         Constants.s1,
@@ -1048,7 +1062,7 @@ namespace ZeroC.Ice.Test.Operations
                         Constants.su0,
                         Constants.su1,
                         Constants.su2
-                } as IEnumerable<string>);
+                });
         }
 
         public async ValueTask<IMyClass.OpMStruct1MarshaledReturnValue>
@@ -1070,7 +1084,7 @@ namespace ZeroC.Ice.Test.Operations
         opMSeq1Async(Current current)
         {
             await Task.Delay(0);
-            return new IMyClass.OpMSeq1MarshaledReturnValue(new string[0], current);
+            return new IMyClass.OpMSeq1MarshaledReturnValue(Array.Empty<string>(), current);
         }
 
         public async ValueTask<IMyClass.OpMSeq2MarshaledReturnValue>
@@ -1093,9 +1107,6 @@ namespace ZeroC.Ice.Test.Operations
             await Task.Delay(0);
             return new IMyClass.OpMDict2MarshaledReturnValue(p1, p1, current);
         }
-
-        // Type-inference helper method
-        private static ValueTask<T> MakeValueTask<T>(T result) => new ValueTask<T>(result);
 
         private static ValueTask<(ReadOnlyMemory<T>, ReadOnlyMemory<T>)> ToReturnValue<T>(T[] input1,
             T[] input2) where T : struct =>

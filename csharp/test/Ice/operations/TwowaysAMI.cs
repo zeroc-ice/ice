@@ -15,69 +15,58 @@ namespace ZeroC.Ice.Test.Operations
     {
         private class CallbackBase
         {
-            internal CallbackBase()
-            {
-                _called = false;
-            }
+            private bool _called = false;
+            private readonly object _mutex = new object();
 
-            public virtual void check()
+            public virtual void Check()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_called)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
                     _called = false;
                 }
             }
 
-            public virtual void called()
+            public virtual void Called()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(!_called);
                     _called = true;
-                    Monitor.Pulse(this);
+                    Monitor.Pulse(_mutex);
                 }
             }
-
-            public bool _called;
         }
 
         private class GenericCallback<T> : CallbackBase
         {
-            public GenericCallback(T value)
-            {
-                this._value = value;
-            }
+            public T Value { get; private set; }
 
-            public void response(T value)
+            private bool _succeeded = false;
+
+            public GenericCallback(T value) => Value = value;
+
+            public void Response(T value)
             {
-                _value = value;
+                Value = value;
                 _succeeded = true;
-                called();
+                Called();
             }
 
-            public void exception()
+            public void Exception()
             {
                 _succeeded = false;
-                called();
+                Called();
             }
 
-            public bool succeeded()
+            public bool Succeeded()
             {
-                check();
+                Check();
                 return _succeeded;
             }
-
-            public T value()
-            {
-                return _value;
-            }
-
-            private T _value;
-            private bool _succeeded = false;
         }
 
         private class Callback : CallbackBase
@@ -92,22 +81,22 @@ namespace ZeroC.Ice.Test.Operations
 
             public Callback(Dictionary<string, string> d) => _d = d;
 
-            public void opVoid() => called();
+            public void opVoid() => Called();
 
-            public void opContext() => called();
+            public void opContext() => Called();
 
             public void opByte(byte r, byte b)
             {
                 TestHelper.Assert(b == 0xf0);
                 TestHelper.Assert(r == 0xff);
-                called();
+                Called();
             }
 
             public void opBool(bool r, bool b)
             {
                 TestHelper.Assert(b);
                 TestHelper.Assert(!r);
-                called();
+                Called();
             }
 
             public void opShortIntLong(long r, short s, int i, long l)
@@ -116,7 +105,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(i == 11);
                 TestHelper.Assert(l == 12);
                 TestHelper.Assert(r == 12);
-                called();
+                Called();
             }
 
             public void opUShortUIntULong(ulong r, ushort s, uint i, ulong l)
@@ -125,7 +114,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(i == 11);
                 TestHelper.Assert(l == 12);
                 TestHelper.Assert(r == 12);
-                called();
+                Called();
             }
 
             public void opFloatDouble(double r, float f, double d)
@@ -133,21 +122,21 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(f == 3.14f);
                 TestHelper.Assert(d == 1.1e10);
                 TestHelper.Assert(r == 1.1e10);
-                called();
+                Called();
             }
 
             public void opString(string r, string s)
             {
                 TestHelper.Assert(s.Equals("world hello"));
                 TestHelper.Assert(r.Equals("hello world"));
-                called();
+                Called();
             }
 
             public void opMyEnum(MyEnum r, MyEnum e)
             {
                 TestHelper.Assert(e == MyEnum.enum2);
                 TestHelper.Assert(r == MyEnum.enum3);
-                called();
+                Called();
             }
 
             public void opMyClass(IMyClassPrx? r, IMyClassPrx? c1, IMyClassPrx? c2)
@@ -155,7 +144,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(c1!.Identity.Equals(Identity.Parse("test")));
                 TestHelper.Assert(c2!.Identity.Equals(Identity.Parse("noSuchIdentity")));
                 TestHelper.Assert(r!.Identity.Equals(Identity.Parse("test")));
-                called();
+                Called();
             }
 
             public void opStruct(Structure rso, Structure so)
@@ -165,7 +154,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso.s.s.Equals("def"));
                 TestHelper.Assert(so.e == MyEnum.enum3);
                 TestHelper.Assert(so.s.s.Equals("a new string"));
-                called();
+                Called();
             }
 
             public void opByteS(byte[] rso, byte[] bso)
@@ -184,7 +173,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[5] == 0xf2);
                 TestHelper.Assert(rso[6] == 0xf3);
                 TestHelper.Assert(rso[7] == 0xf4);
-                called();
+                Called();
             }
 
             public void opBoolS(bool[] rso, bool[] bso)
@@ -198,7 +187,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(!rso[0]);
                 TestHelper.Assert(rso[1]);
                 TestHelper.Assert(rso[2]);
-                called();
+                Called();
             }
 
             public void opShortIntLongS(long[] rso, short[] sso, int[] iso, long[] lso)
@@ -223,7 +212,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[0] == 10);
                 TestHelper.Assert(rso[1] == 30);
                 TestHelper.Assert(rso[2] == 20);
-                called();
+                Called();
             }
 
             public void opFloatDoubleS(double[] rso, float[] fso, double[] dso)
@@ -241,7 +230,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[2] == 1.3e10);
                 TestHelper.Assert((float)rso[3] == 3.14f);
                 TestHelper.Assert((float)rso[4] == 1.11f);
-                called();
+                Called();
             }
 
             public void opStringS(string[] rso, string[] sso)
@@ -255,7 +244,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[0].Equals("fghi"));
                 TestHelper.Assert(rso[1].Equals("de"));
                 TestHelper.Assert(rso[2].Equals("abc"));
-                called();
+                Called();
             }
 
             public void opByteSS(byte[][] rso, byte[][] bso)
@@ -279,7 +268,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[3].Length == 2);
                 TestHelper.Assert(rso[3][0] == 0xf2);
                 TestHelper.Assert(rso[3][1] == 0xf1);
-                called();
+                Called();
             }
 
             public void opBoolSS(bool[][] rso, bool[][] bso)
@@ -304,7 +293,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(!rso[1][0]);
                 TestHelper.Assert(rso[2].Length == 1);
                 TestHelper.Assert(rso[2][0]);
-                called();
+                Called();
             }
 
             public void opShortIntLongSS(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
@@ -334,7 +323,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(lso[1].Length == 2);
                 TestHelper.Assert(lso[1][0] == 496);
                 TestHelper.Assert(lso[1][1] == 1729);
-                called();
+                Called();
             }
 
             public void opFloatDoubleSS(double[][] rso, float[][] fso, double[][] dso)
@@ -359,7 +348,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[1][0] == 1.1e10);
                 TestHelper.Assert(rso[1][1] == 1.2e10);
                 TestHelper.Assert(rso[1][2] == 1.3e10);
-                called();
+                Called();
             }
 
             public void opStringSS(string[][] rso, string[][] sso)
@@ -379,7 +368,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rso[0][0].Equals("xyz"));
                 TestHelper.Assert(rso[1].Length == 0);
                 TestHelper.Assert(rso[2].Length == 0);
-                called();
+                Called();
             }
 
             public void opStringSSS(string[][][] rsso, string[][][] ssso)
@@ -400,10 +389,10 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ssso[0][0][1].Equals("de"));
                 TestHelper.Assert(ssso[0][1][0].Equals("xyz"));
                 TestHelper.Assert(ssso[1][0][0].Equals("hello"));
-                TestHelper.Assert(ssso[2][0][0].Equals(""));
-                TestHelper.Assert(ssso[2][0][1].Equals(""));
+                TestHelper.Assert(ssso[2][0][0].Length == 0);
+                TestHelper.Assert(ssso[2][0][1].Length == 0);
                 TestHelper.Assert(ssso[2][1][0].Equals("abcd"));
-                TestHelper.Assert(ssso[3][0][0].Equals(""));
+                TestHelper.Assert(ssso[3][0][0].Length == 0);
 
                 TestHelper.Assert(rsso.Length == 3);
                 TestHelper.Assert(rsso[0].Length == 0);
@@ -412,16 +401,16 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(rsso[2].Length == 2);
                 TestHelper.Assert(rsso[2][0].Length == 2);
                 TestHelper.Assert(rsso[2][1].Length == 1);
-                TestHelper.Assert(rsso[1][0][0].Equals(""));
-                TestHelper.Assert(rsso[2][0][0].Equals(""));
-                TestHelper.Assert(rsso[2][0][1].Equals(""));
+                TestHelper.Assert(rsso[1][0][0].Length == 0);
+                TestHelper.Assert(rsso[2][0][0].Length == 0);
+                TestHelper.Assert(rsso[2][0][1].Length == 0);
                 TestHelper.Assert(rsso[2][1][0].Equals("abcd"));
-                called();
+                Called();
             }
 
             public void opByteBoolD(Dictionary<byte, bool> ro, Dictionary<byte, bool> _do)
             {
-                Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
+                var di1 = new Dictionary<byte, bool>();
                 di1[10] = true;
                 di1[100] = false;
                 TestHelper.Assert(_do.DictionaryEqual(di1));
@@ -430,12 +419,12 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[11] == false);
                 TestHelper.Assert(ro[100] == false);
                 TestHelper.Assert(ro[101] == true);
-                called();
+                Called();
             }
 
             public void opShortIntD(Dictionary<short, int> ro, Dictionary<short, int> _do)
             {
-                Dictionary<short, int> di1 = new Dictionary<short, int>();
+                var di1 = new Dictionary<short, int>();
                 di1[110] = -1;
                 di1[1100] = 123123;
                 TestHelper.Assert(_do.DictionaryEqual(di1));
@@ -444,7 +433,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[111] == -100);
                 TestHelper.Assert(ro[1100] == 123123);
                 TestHelper.Assert(ro[1101] == 0);
-                called();
+                Called();
             }
 
             public void opLongFloatD(Dictionary<long, float> ro, Dictionary<long, float> _do)
@@ -458,7 +447,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[999999120L] == -100.4f);
                 TestHelper.Assert(ro[999999111L] == 123123.2f);
                 TestHelper.Assert(ro[999999130L] == 0.5f);
-                called();
+                Called();
             }
 
             public void opStringStringD(Dictionary<string, string> ro, Dictionary<string, string> _do)
@@ -472,7 +461,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["FOO"].Equals("abc -100.4"));
                 TestHelper.Assert(ro["bar"].Equals("abc 123123.2"));
                 TestHelper.Assert(ro["BAR"].Equals("abc 0.5"));
-                called();
+                Called();
             }
 
             public void opStringMyEnumD(Dictionary<string, MyEnum> ro, Dictionary<string, MyEnum> _do)
@@ -486,7 +475,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["qwerty"] == MyEnum.enum3);
                 TestHelper.Assert(ro[""] == MyEnum.enum2);
                 TestHelper.Assert(ro["Hello!!"] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opMyEnumStringD(Dictionary<MyEnum, string> ro, Dictionary<MyEnum, string> _do)
@@ -498,7 +487,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[MyEnum.enum1].Equals("abc"));
                 TestHelper.Assert(ro[MyEnum.enum2].Equals("Hello!!"));
                 TestHelper.Assert(ro[MyEnum.enum3].Equals("qwerty"));
-                called();
+                Called();
             }
 
             public void opMyStructMyEnumD(Dictionary<MyStruct, MyEnum> ro,
@@ -517,7 +506,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[s12] == MyEnum.enum2);
                 TestHelper.Assert(ro[s22] == MyEnum.enum3);
                 TestHelper.Assert(ro[s23] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opByteBoolDS(Dictionary<byte, bool>[] ro,
@@ -543,7 +532,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][10]);
                 TestHelper.Assert(!_do[2][11]);
                 TestHelper.Assert(_do[2][101]);
-                called();
+                Called();
             }
 
             public void opShortIntDS(Dictionary<short, int>[] ro,
@@ -568,7 +557,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][110] == -1);
                 TestHelper.Assert(_do[2][111] == -100);
                 TestHelper.Assert(_do[2][1101] == 0);
-                called();
+                Called();
             }
 
             public void opLongFloatDS(Dictionary<long, float>[] ro,
@@ -593,7 +582,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][999999110L] == -1.1f);
                 TestHelper.Assert(_do[2][999999120L] == -100.4f);
                 TestHelper.Assert(_do[2][999999130L] == 0.5f);
-                called();
+                Called();
             }
 
             public void opStringStringDS(Dictionary<string, string>[] ro,
@@ -618,7 +607,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2]["foo"].Equals("abc -1.1"));
                 TestHelper.Assert(_do[2]["FOO"].Equals("abc -100.4"));
                 TestHelper.Assert(_do[2]["BAR"].Equals("abc 0.5"));
-                called();
+                Called();
             }
 
             public void opStringMyEnumDS(Dictionary<string, MyEnum>[] ro,
@@ -643,7 +632,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2]["abc"] == MyEnum.enum1);
                 TestHelper.Assert(_do[2]["qwerty"] == MyEnum.enum3);
                 TestHelper.Assert(_do[2]["Hello!!"] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opMyEnumStringDS(Dictionary<MyEnum, string>[] ro,
@@ -664,7 +653,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2].Count == 2);
                 TestHelper.Assert(_do[2][MyEnum.enum2].Equals("Hello!!"));
                 TestHelper.Assert(_do[2][MyEnum.enum3].Equals("qwerty"));
-                called();
+                Called();
             }
 
             public void opMyStructMyEnumDS(Dictionary<MyStruct, MyEnum>[] ro,
@@ -694,7 +683,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(_do[2][s11] == MyEnum.enum1);
                 TestHelper.Assert(_do[2][s22] == MyEnum.enum3);
                 TestHelper.Assert(_do[2][s23] == MyEnum.enum2);
-                called();
+                Called();
             }
 
             public void opByteByteSD(Dictionary<byte, byte[]> ro,
@@ -714,7 +703,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[0xf1].Length == 2);
                 TestHelper.Assert(ro[0xf1][0] == 0xf2);
                 TestHelper.Assert(ro[0xf1][1] == 0xf3);
-                called();
+                Called();
             }
 
             public void opBoolBoolSD(Dictionary<bool, bool[]> ro,
@@ -732,7 +721,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(!ro[true][0]);
                 TestHelper.Assert(ro[true][1]);
                 TestHelper.Assert(ro[true][2]);
-                called();
+                Called();
             }
 
             public void opShortShortSD(Dictionary<short, short[]> ro,
@@ -754,7 +743,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[4].Length == 2);
                 TestHelper.Assert(ro[4][0] == 6);
                 TestHelper.Assert(ro[4][1] == 7);
-                called();
+                Called();
             }
 
             public void opIntIntSD(Dictionary<int, int[]> ro,
@@ -776,7 +765,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[400].Length == 2);
                 TestHelper.Assert(ro[400][0] == 600);
                 TestHelper.Assert(ro[400][1] == 700);
-                called();
+                Called();
             }
 
             public void opLongLongSD(Dictionary<long, long[]> ro,
@@ -797,7 +786,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[999999992L].Length == 2);
                 TestHelper.Assert(ro[999999992L][0] == 999999110L);
                 TestHelper.Assert(ro[999999992L][1] == 999999120L);
-                called();
+                Called();
             }
 
             public void opStringFloatSD(Dictionary<string, float[]> ro,
@@ -819,7 +808,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["aBc"].Length == 2);
                 TestHelper.Assert(ro["aBc"][0] == -3.14f);
                 TestHelper.Assert(ro["aBc"][1] == 3.14f);
-                called();
+                Called();
             }
 
             public void opStringDoubleSD(Dictionary<string, double[]> ro,
@@ -840,7 +829,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[""].Length == 2);
                 TestHelper.Assert(ro[""][0] == 1.6E10);
                 TestHelper.Assert(ro[""][1] == 1.7E10);
-                called();
+                Called();
             }
 
             public void opStringStringSD(Dictionary<string, string[]> ro,
@@ -862,7 +851,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro["ghi"].Length == 2);
                 TestHelper.Assert(ro["ghi"][0].Equals("and"));
                 TestHelper.Assert(ro["ghi"][1].Equals("xor"));
-                called();
+                Called();
             }
 
             public void opMyEnumMyEnumSD(Dictionary<MyEnum, MyEnum[]> ro,
@@ -883,7 +872,7 @@ namespace ZeroC.Ice.Test.Operations
                 TestHelper.Assert(ro[MyEnum.enum1].Length == 2);
                 TestHelper.Assert(ro[MyEnum.enum1][0] == MyEnum.enum3);
                 TestHelper.Assert(ro[MyEnum.enum1][1] == MyEnum.enum3);
-                called();
+                Called();
             }
 
             public void opIntS(int[] r)
@@ -893,19 +882,19 @@ namespace ZeroC.Ice.Test.Operations
                 {
                     TestHelper.Assert(r[j] == -j);
                 }
-                called();
+                Called();
             }
 
             public void opContextNotEqual(Dictionary<string, string> r)
             {
                 TestHelper.Assert(!r.DictionaryEqual(_d));
-                called();
+                Called();
             }
 
             public void opContextEqual(Dictionary<string, string> r)
             {
                 TestHelper.Assert(r.DictionaryEqual(_d));
-                called();
+                Called();
             }
 
             private Communicator? _communicator;
@@ -1080,7 +1069,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 short[] s11 = new short[] { 1, 2, 5 };
                 short[] s12 = new short[] { 13 };
-                short[] s13 = new short[] { };
+                short[] s13 = Array.Empty<short>();
                 short[][] ssi = new short[][] { s11, s12, s13 };
 
                 int[] i11 = new int[] { 24, 98 };
@@ -1098,7 +1087,7 @@ namespace ZeroC.Ice.Test.Operations
             {
                 float[] f11 = new float[] { 3.14f };
                 float[] f12 = new float[] { 1.11f };
-                float[] f13 = new float[] { };
+                float[] f13 = Array.Empty<float>();
                 float[][] fsi = new float[][] { f11, f12, f13 };
 
                 double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
@@ -1114,8 +1103,8 @@ namespace ZeroC.Ice.Test.Operations
                 string[] s12 = new string[] { "de", "fghi" };
                 string[][] ssi1 = new string[][] { s11, s12 };
 
-                string[] s21 = new string[] { };
-                string[] s22 = new string[] { };
+                string[] s21 = Array.Empty<string>();
+                string[] s22 = Array.Empty<string>();
                 string[] s23 = new string[] { "xyz" };
                 string[][] ssi2 = new string[][] { s21, s22, s23 };
 
@@ -1137,7 +1126,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[][] ss21 = new string[][] { s211, s212 };
                 string[] s221 = new string[] { "" };
                 string[][] ss22 = new string[][] { s221 };
-                string[][] ss23 = new string[][] { };
+                string[][] ss23 = Array.Empty<string[]>();
                 string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
 
                 var cb = new Callback();
@@ -1641,7 +1630,7 @@ namespace ZeroC.Ice.Test.Operations
                 p.opOnewayAsync().Wait();
                 TestHelper.Assert(false);
             }
-            catch (System.AggregateException ex)
+            catch (AggregateException ex)
             {
                 TestHelper.Assert(ex.InnerException is SomeException);
             }

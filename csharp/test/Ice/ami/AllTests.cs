@@ -28,14 +28,14 @@ namespace ZeroC.Ice.Test.AMI
             {
                 get
                 {
-                    lock (this)
+                    lock (_mutex)
                     {
                         return _sent;
                     }
                 }
                 set
                 {
-                    lock (this)
+                    lock (_mutex)
                     {
                         _sent = value;
                     }
@@ -46,41 +46,43 @@ namespace ZeroC.Ice.Test.AMI
             {
                 get
                 {
-                    lock (this)
+                    lock (_mutex)
                     {
                         return _sentSynchronously;
                     }
                 }
                 set
                 {
-                    lock (this)
+                    lock (_mutex)
                     {
                         _sentSynchronously = value;
                     }
                 }
             }
 
+            private readonly object _mutex = new object();
+            private bool _sent = false;
+            private bool _sentSynchronously = false;
+
             public void Report(bool sentSynchronously)
             {
                 SentSynchronously = sentSynchronously;
                 Sent = true;
             }
-
-            private bool _sent = false;
-            private bool _sentSynchronously = false;
         }
 
         private class CallbackBase
         {
-            internal CallbackBase() => _called = false;
+            private bool _called = false;
+            private readonly object _mutex = new object();
 
             public virtual void Check()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (!_called)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
                     _called = false;
                 }
@@ -88,15 +90,13 @@ namespace ZeroC.Ice.Test.AMI
 
             public virtual void Called()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(!_called);
                     _called = true;
-                    Monitor.Pulse(this);
+                    Monitor.Pulse(_mutex);
                 }
             }
-
-            private bool _called;
         }
 
         private class SentCallback : CallbackBase
@@ -142,7 +142,7 @@ namespace ZeroC.Ice.Test.AMI
 
                 if (!collocated)
                 {
-                    TestHelper.Assert(p.GetConnectionAsync().Result != null);
+                    TestHelper.Assert(p.GetConnectionAsync().AsTask().Result != null);
                 }
 
                 p.opAsync().Wait();
@@ -238,35 +238,47 @@ namespace ZeroC.Ice.Test.AMI
             {
                 var ctx = new Dictionary<string, string>();
 
-                p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf").ContinueWith(previous => TestHelper.Assert(previous.Result)).Wait();
+                p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf").ContinueWith(
+                    previous => TestHelper.Assert(previous.Result), TaskScheduler.Default).Wait();
 
-                p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf", ctx).ContinueWith(previous => TestHelper.Assert(previous.Result)).Wait();
+                p.IceIsAAsync("::ZeroC::Ice::Test::AMI::TestIntf", ctx).ContinueWith(
+                    previous => TestHelper.Assert(previous.Result), TaskScheduler.Default).Wait();
 
-                p.IcePingAsync().ContinueWith(previous => previous.Wait()).Wait();
+                p.IcePingAsync().ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
 
-                p.IcePingAsync(ctx).ContinueWith(previous => previous.Wait()).Wait();
+                p.IcePingAsync(ctx).ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
 
-                p.IceIdAsync().ContinueWith(previous => TestHelper.Assert(previous.Result.Equals("::ZeroC::Ice::Test::AMI::TestIntf"))).Wait();
+                p.IceIdAsync().ContinueWith(
+                    previous => TestHelper.Assert(previous.Result == "::ZeroC::Ice::Test::AMI::TestIntf"),
+                    TaskScheduler.Default).Wait();
 
-                p.IceIdAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result.Equals("::ZeroC::Ice::Test::AMI::TestIntf"))).Wait();
+                p.IceIdAsync(ctx).ContinueWith(
+                    previous => TestHelper.Assert(previous.Result == "::ZeroC::Ice::Test::AMI::TestIntf"),
+                    TaskScheduler.Default).Wait();
 
-                p.IceIdsAsync().ContinueWith(previous => TestHelper.Assert(previous.Result.Length == 2)).Wait();
+                p.IceIdsAsync().ContinueWith(previous => TestHelper.Assert(previous.Result.Length == 2),
+                                             TaskScheduler.Default).Wait();
 
-                p.IceIdsAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result.Length == 2)).Wait();
+                p.IceIdsAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result.Length == 2),
+                                                TaskScheduler.Default).Wait();
 
                 if (!collocated)
                 {
-                    p.GetConnectionAsync().AsTask().ContinueWith(previous => TestHelper.Assert(previous.Result != null)).Wait();
+                    p.GetConnectionAsync().AsTask().ContinueWith(
+                        previous => TestHelper.Assert(previous.Result != null), TaskScheduler.Default).Wait();
                 }
 
-                p.opAsync().ContinueWith(previous => previous.Wait()).Wait();
-                p.opAsync(ctx).ContinueWith(previous => previous.Wait()).Wait();
+                p.opAsync().ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
+                p.opAsync(ctx).ContinueWith(previous => previous.Wait(), TaskScheduler.Default).Wait();
 
-                p.opWithResultAsync().ContinueWith(previous => TestHelper.Assert(previous.Result == 15)).Wait();
+                p.opWithResultAsync().ContinueWith(
+                    previous => TestHelper.Assert(previous.Result == 15), TaskScheduler.Default).Wait();
 
-                p.opWithResultAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result == 15)).Wait();
+                p.opWithResultAsync(ctx).ContinueWith(previous => TestHelper.Assert(previous.Result == 15),
+                                                      TaskScheduler.Default).Wait();
 
-                p.opWithUEAsync().ContinueWith(previous =>
+                p.opWithUEAsync().ContinueWith(
+                    previous =>
                     {
                         try
                         {
@@ -276,9 +288,11 @@ namespace ZeroC.Ice.Test.AMI
                         {
                             ae.Handle(ex => ex is TestIntfException);
                         }
-                    }).Wait();
+                    },
+                    TaskScheduler.Default).Wait();
 
-                p.opWithUEAsync(ctx).ContinueWith(previous =>
+                p.opWithUEAsync(ctx).ContinueWith(
+                    previous =>
                     {
                         try
                         {
@@ -288,7 +302,8 @@ namespace ZeroC.Ice.Test.AMI
                         {
                             ae.Handle(ex => ex is TestIntfException);
                         }
-                    }).Wait();
+                    },
+                    TaskScheduler.Default).Wait();
             }
             output.WriteLine("ok");
 
@@ -829,7 +844,8 @@ namespace ZeroC.Ice.Test.AMI
                         (int ReturnValue, int j) = t.Result;
                         TestHelper.Assert(ReturnValue == 1);
                         TestHelper.Assert(j == 1);
-                    }).Wait();
+                    },
+                    TaskScheduler.Default).Wait();
             }
             output.WriteLine("ok");
 

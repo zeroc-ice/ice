@@ -53,7 +53,7 @@ namespace ZeroC.Ice.Test.Timeout
             Task.Factory.StartNew(() => _semaphore.Wait(), default, TaskCreationOptions.None, _scheduler);
             if (to >= 0)
             {
-                Task.Delay(to).ContinueWith(t => _semaphore.Release());
+                Task.Delay(to).ContinueWith(t => _semaphore.Release(), TaskScheduler.Default);
             }
         }
 

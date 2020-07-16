@@ -2,14 +2,15 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-using Test;
-using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace ZeroC.Ice.Test.AMI
 {
     public class TestIntf : ITestIntf
     {
+        private readonly object _mutex = new object();
+
         public void
         op(Current current)
         {
@@ -43,7 +44,7 @@ namespace ZeroC.Ice.Test.AMI
 
         public void shutdown(Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _shutdown = true;
                 if (_pending != null)
@@ -86,7 +87,7 @@ namespace ZeroC.Ice.Test.AMI
 
         public ValueTask startDispatchAsync(Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_shutdown)
                 {
@@ -107,7 +108,7 @@ namespace ZeroC.Ice.Test.AMI
 
         public void finishDispatch(Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 if (_shutdown)
                 {

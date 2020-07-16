@@ -82,12 +82,19 @@ namespace ZeroC.IceDiscovery
             _registry = registry;
             _lookup = lookup;
             _timeout = communicator.GetPropertyAsTimeSpan("IceDiscovery.Timeout") ?? TimeSpan.FromMilliseconds(300);
-            if (_timeout == System.Threading.Timeout.InfiniteTimeSpan)
+            if (_timeout == Timeout.InfiniteTimeSpan)
             {
                 _timeout = TimeSpan.FromMilliseconds(300);
             }
             _retryCount = communicator.GetPropertyAsInt("IceDiscovery.RetryCount") ?? 3;
+
             _latencyMultiplier = communicator.GetPropertyAsInt("IceDiscovery.LatencyMultiplier") ?? 1;
+            if (_latencyMultiplier < 1)
+            {
+                throw new InvalidConfigurationException(
+                    "The value of `IceDiscovery.LatencyMultiplier' must be a positive integer greater than 0");
+            }
+
             _domainId = communicator.GetProperty("IceDiscovery.DomainId") ?? "";
 
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
@@ -219,7 +226,7 @@ namespace ZeroC.IceDiscovery
             {
                 for (int i = 0; i < _retryCount; ++i)
                 {
-                    long start = DateTime.Now.Ticks;
+                    TimeSpan start = Time.Elapsed;
                     int failureCount = 0;
                     foreach ((ILookupPrx lookup, ILookupReplyPrx? reply) in _lookups)
                     {
@@ -293,15 +300,15 @@ namespace ZeroC.IceDiscovery
             }
         }
 
-        internal async Task<IObjectPrx?> WaitForReplicaGroupRepliesAsync(long start, int latencyMultiplier)
+        internal async Task<IObjectPrx?> WaitForReplicaGroupRepliesAsync(TimeSpan start, int latencyMultiplier)
         {
             Debug.Assert(_proxies.Count > 0);
             // This method is called by InvokeAsync after the first reply from a replica group to wait for additional
             // replies from the replica group.
-            int latency = (int)((DateTime.Now.Ticks - start) * latencyMultiplier / 10000.0);
-            if (latency == 0)
+            TimeSpan latency = (Time.Elapsed - start) * latencyMultiplier;
+            if (latency == TimeSpan.Zero)
             {
-                latency = 1;
+                latency = TimeSpan.FromMilliseconds(1);
             }
             await Task.Delay(latency);
             lock (_mutex)

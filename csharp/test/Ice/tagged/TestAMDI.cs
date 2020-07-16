@@ -181,7 +181,7 @@ namespace ZeroC.Ice.Test.Tagged
         opMSeq1Async(Current current)
         {
             await Task.Delay(0);
-            return new IInitial.OpMSeq1MarshaledReturnValue(new string[0], current);
+            return new IInitial.OpMSeq1MarshaledReturnValue(Array.Empty<string>(), current);
         }
 
         public async ValueTask<IInitial.OpMSeq2MarshaledReturnValue>

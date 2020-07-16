@@ -11,6 +11,8 @@ namespace ZeroC.Ice.Test.Operations
 {
     public sealed class MyDerivedClass : IMyDerivedClass, IObject
     {
+        private readonly object _mutex = new object();
+
         // Override the Object "pseudo" operations to verify the operation mode.
         public bool IceIsA(string id, Current current)
         {
@@ -720,7 +722,7 @@ namespace ZeroC.Ice.Test.Operations
 
         public void opByteSOneway(byte[] s, Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 ++_opByteSOnewayCallCount;
             }
@@ -728,7 +730,7 @@ namespace ZeroC.Ice.Test.Operations
 
         public int opByteSOnewayCallCount(Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
                 int count = _opByteSOnewayCallCount;
                 _opByteSOnewayCallCount = 0;
@@ -911,7 +913,7 @@ namespace ZeroC.Ice.Test.Operations
             new IMyClass.OpMStruct2MarshaledReturnValue(p1, p1, current);
 
         public IMyClass.OpMSeq1MarshaledReturnValue opMSeq1(Current current) =>
-            new IMyClass.OpMSeq1MarshaledReturnValue(new string[0], current);
+            new IMyClass.OpMSeq1MarshaledReturnValue(Array.Empty<string>(), current);
 
         public IMyClass.OpMSeq2MarshaledReturnValue opMSeq2(string[] p1, Current current) =>
             new IMyClass.OpMSeq2MarshaledReturnValue(p1, p1, current);

@@ -58,40 +58,42 @@ namespace ZeroC.Ice.Test.ACM
 
     public class TestIntf : ITestIntf
     {
+        private readonly object _mutex = new object();
         public void sleep(int delay, Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
-                System.Threading.Monitor.Wait(this, TimeSpan.FromSeconds(delay));
+                System.Threading.Monitor.Wait(_mutex, TimeSpan.FromSeconds(delay));
             }
         }
 
         public void interruptSleep(Current current)
         {
-            lock (this)
+            lock (_mutex)
             {
-                System.Threading.Monitor.PulseAll(this);
+                System.Threading.Monitor.PulseAll(_mutex);
             }
         }
 
         public class HeartbeatCallbackI
         {
+            private readonly object _mutex = new object();
             public void Heartbeat()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     ++_count;
-                    System.Threading.Monitor.PulseAll(this);
+                    System.Threading.Monitor.PulseAll(_mutex);
                 }
             }
 
             public void WaitForCount(int count)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     while (_count < count)
                     {
-                        System.Threading.Monitor.Wait(this);
+                        System.Threading.Monitor.Wait(_mutex);
                     }
                 }
             }

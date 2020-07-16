@@ -45,7 +45,7 @@ namespace ZeroC.Ice.Test.Perf
             Action<ReadOnlyMemory<T>> invocation, int size) where T : struct
         {
             var seq = new T[size];
-            var emptySeq = new T[0];
+            T[] emptySeq = Array.Empty<T>();
             RunTest(output, repetitions, name, () => invocation(seq), () => invocation(emptySeq));
         }
 

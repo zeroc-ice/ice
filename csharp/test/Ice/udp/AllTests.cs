@@ -12,18 +12,20 @@ namespace ZeroC.Ice.Test.UDP
     {
         public class PingReplyI : IPingReply
         {
+            private readonly object _mutex = new object();
+
             public void reply(Current current)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     ++_replies;
-                    System.Threading.Monitor.Pulse(this);
+                    System.Threading.Monitor.Pulse(_mutex);
                 }
             }
 
             public void reset()
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _replies = 0;
                 }
@@ -31,7 +33,7 @@ namespace ZeroC.Ice.Test.UDP
 
             public bool waitReply(int expectedReplies, TimeSpan timeout)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TimeSpan end = Time.Elapsed + timeout;
                     while (_replies < expectedReplies)
@@ -39,7 +41,7 @@ namespace ZeroC.Ice.Test.UDP
                         TimeSpan delay = end - Time.Elapsed;
                         if (delay > TimeSpan.Zero)
                         {
-                            System.Threading.Monitor.Wait(this, delay);
+                            System.Threading.Monitor.Wait(_mutex, delay);
                         }
                         else
                         {

@@ -37,7 +37,7 @@ namespace ZeroC.Ice.Test.Operations
 
             output.Write("testing oneway operations with AMI... ");
             output.Flush();
-            OnewaysAMI.onewaysAMI(helper, cl);
+            OnewaysAMI.Run(helper, cl);
             output.WriteLine("ok");
 
             return cl;

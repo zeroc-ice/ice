@@ -244,7 +244,7 @@ namespace ZeroC.Ice.Test.Admin
                 // Test: PropertiesAdmin::getProperty()
                 //
                 TestHelper.Assert(pa.GetProperty("Prop2") == "2");
-                TestHelper.Assert(pa.GetProperty("Bogus") == "");
+                TestHelper.Assert(pa.GetProperty("Bogus").Length == 0);
 
                 //
                 // Test: PropertiesAdmin::getProperties()
@@ -274,14 +274,14 @@ namespace ZeroC.Ice.Test.Admin
                 pa.SetProperties(setProps);
                 TestHelper.Assert(pa.GetProperty("Prop1").Equals("10"));
                 TestHelper.Assert(pa.GetProperty("Prop2").Equals("20"));
-                TestHelper.Assert(pa.GetProperty("Prop3").Equals(""));
+                TestHelper.Assert(pa.GetProperty("Prop3").Length == 0);
                 TestHelper.Assert(pa.GetProperty("Prop4").Equals("4"));
                 TestHelper.Assert(pa.GetProperty("Prop5").Equals("5"));
                 changes = com.getChanges();
                 TestHelper.Assert(changes.Count == 5);
                 TestHelper.Assert(changes["Prop1"].Equals("10"));
                 TestHelper.Assert(changes["Prop2"].Equals("20"));
-                TestHelper.Assert(changes["Prop3"].Equals(""));
+                TestHelper.Assert(changes["Prop3"].Length == 0);
                 TestHelper.Assert(changes["Prop4"].Equals("4"));
                 TestHelper.Assert(changes["Prop5"].Equals("5"));
                 pa.SetProperties(setProps);
@@ -651,9 +651,10 @@ namespace ZeroC.Ice.Test.Admin
 
         private class RemoteLogger : IRemoteLogger
         {
+            private readonly object _mutex = new object();
             public void Init(string prefix, LogMessage[] messages, Current current)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _prefix = prefix;
                     foreach (LogMessage message in messages)
@@ -661,23 +662,23 @@ namespace ZeroC.Ice.Test.Admin
                         _initMessages.Enqueue(message);
                     }
                     _receivedCalls++;
-                    Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
             }
 
             public void Log(LogMessage message, Current current)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _logMessages.Enqueue(message);
                     _receivedCalls++;
-                    Monitor.PulseAll(this);
+                    Monitor.PulseAll(_mutex);
                 }
             }
 
             internal void CheckNextInit(string prefix, LogMessageType type, string message, string category)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(_prefix != null);
                     TestHelper.Assert(_prefix.Equals(prefix));
@@ -691,7 +692,7 @@ namespace ZeroC.Ice.Test.Admin
 
             internal void CheckNextLog(LogMessageType type, string message, string category)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(_logMessages.Count > 0);
                     LogMessage logMessage = _logMessages.Dequeue();
@@ -703,13 +704,13 @@ namespace ZeroC.Ice.Test.Admin
 
             internal void Wait(int calls)
             {
-                lock (this)
+                lock (_mutex)
                 {
                     _receivedCalls -= calls;
 
                     while (_receivedCalls < 0)
                     {
-                        Monitor.Wait(this);
+                        Monitor.Wait(_mutex);
                     }
                 }
             }

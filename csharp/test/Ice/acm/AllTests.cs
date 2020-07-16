@@ -14,6 +14,7 @@ namespace ZeroC.Ice.Test.ACM
 {
     public class Logger : ILogger
     {
+        private readonly object _mutex = new object();
         public Logger(string name, TextWriter output)
         {
             _name = name;
@@ -22,7 +23,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Start()
         {
-            lock (this)
+            lock (_mutex)
             {
                 _started = true;
                 Dump();
@@ -31,7 +32,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Print(string msg)
         {
-            lock (this)
+            lock (_mutex)
             {
                 _messages.Add(msg);
                 if (_started)
@@ -43,7 +44,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Trace(string category, string message)
         {
-            lock (this)
+            lock (_mutex)
             {
                 var s = new System.Text.StringBuilder(_name);
                 s.Append(' ');
@@ -65,7 +66,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Warning(string message)
         {
-            lock (this)
+            lock (_mutex)
             {
                 var s = new System.Text.StringBuilder(_name);
                 s.Append(' ');
@@ -84,7 +85,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Error(string message)
         {
-            lock (this)
+            lock (_mutex)
             {
                 var s = new System.Text.StringBuilder(_name);
                 s.Append(' ');
@@ -124,6 +125,8 @@ namespace ZeroC.Ice.Test.ACM
 
     public abstract class TestCase
     {
+        protected readonly object _mutex = new object();
+
         public TestCase(string name, IRemoteCommunicatorPrx com, TestHelper helper)
         {
             _name = name;
@@ -202,7 +205,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 proxy.GetConnection()!.Closed += (sender, args) =>
                     {
-                        lock (this)
+                        lock (_mutex)
                         {
                             Closed = true;
                             Monitor.Pulse(this);
@@ -211,7 +214,7 @@ namespace ZeroC.Ice.Test.ACM
 
                 proxy.GetConnection()!.HeartbeatReceived += (sender, args) =>
                     {
-                        lock (this)
+                        lock (_mutex)
                         {
                             ++Heartbeat;
                         }
@@ -227,12 +230,12 @@ namespace ZeroC.Ice.Test.ACM
 
         public void WaitForClosed()
         {
-            lock (this)
+            lock (_mutex)
             {
                 TimeSpan now = Time.Elapsed;
                 while (!Closed)
                 {
-                    Monitor.Wait(this, TimeSpan.FromSeconds(30));
+                    Monitor.Wait(_mutex, TimeSpan.FromSeconds(30));
                     if (Time.Elapsed - now > TimeSpan.FromSeconds(30))
                     {
                         TestHelper.Assert(false); // Waited for more than 30s for close, something's wrong.
@@ -291,7 +294,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 proxy.sleep(4);
 
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat >= 4);
                 }
@@ -318,7 +321,7 @@ namespace ZeroC.Ice.Test.ACM
                     proxy.interruptSleep();
 
                     WaitForClosed();
-                    lock (this)
+                    lock (_mutex)
                     {
                         TestHelper.Assert(Heartbeat == 0);
                     }
@@ -340,7 +343,7 @@ namespace ZeroC.Ice.Test.ACM
                 // No close on invocation, the call should succeed this time.
                 proxy.sleep(3);
 
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                     TestHelper.Assert(!Closed);
@@ -358,7 +361,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Connection connection = proxy.GetConnection()!;
                 WaitForClosed();
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                     try
@@ -383,7 +386,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Thread.Sleep(3000); // Idle for 3 seconds
 
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                     TestHelper.Assert(!Closed);
@@ -401,7 +404,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Connection connection = proxy.GetConnection()!;
                 WaitForClosed();
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                 }
@@ -426,7 +429,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Connection connection = proxy.GetConnection()!;
                 WaitForClosed();
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat == 0);
                 }
@@ -451,7 +454,7 @@ namespace ZeroC.Ice.Test.ACM
             {
                 Thread.Sleep(3000);
 
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat >= 3);
                 }
@@ -472,7 +475,7 @@ namespace ZeroC.Ice.Test.ACM
                     Thread.Sleep(300);
                 }
 
-                lock (this)
+                lock (_mutex)
                 {
                     TestHelper.Assert(Heartbeat >= 3);
                 }

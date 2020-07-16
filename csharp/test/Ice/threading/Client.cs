@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Threading
             await using Communicator communicator = Initialize(ref args);
             try
             {
-                AllTests.allTests(this, false).Result.shutdown();
+                AllTests.allTests(this, false).AsTask().Result.shutdown();
             }
             catch (AggregateException ex)
             {
