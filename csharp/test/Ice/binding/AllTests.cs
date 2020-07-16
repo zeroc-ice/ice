@@ -241,11 +241,11 @@ namespace ZeroC.Ice.Test.Binding
                     var connections = new List<Connection>();
                     for (i = 0; i < proxies.Length; i++)
                     {
-                        if (proxies[i].GetCachedConnection() != null)
+                        if (proxies[i].GetCachedConnection() is Connection connection)
                         {
-                            if (!connections.Contains(proxies[i].GetCachedConnection()!))
+                            if (!connections.Contains(connection))
                             {
-                                connections.Add(proxies[i].GetCachedConnection()!);
+                                connections.Add(connection);
                             }
                         }
                     }

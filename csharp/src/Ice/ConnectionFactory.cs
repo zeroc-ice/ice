@@ -144,14 +144,6 @@ namespace ZeroC.Ice
                         foreach ((IConnector connector, Endpoint endpoint) in connectors)
                         {
                             // Use TryAdd in case there are duplicates.
-                            if (_pending.ContainsKey((connector, connectionId)) &&
-                                connectors.Count(v => v.Equals((connector, endpoint))) <= 1)
-                            {
-                                foreach(var t in connectors)
-                                {
-                                    System.Console.WriteLine(t.ToString());
-                                }
-                            }
                             Debug.Assert(!_pending.ContainsKey((connector, connectionId)) ||
                                          connectors.Count(v => v.Equals((connector, endpoint))) > 1);
                             _pending.TryAdd((connector, connectionId), connectTask);
@@ -198,6 +190,7 @@ namespace ZeroC.Ice
                 // failure.
                 if (connectors.Count == 0)
                 {
+                    Debug.Assert(completedTask.IsFaulted);
                     return await completedTask.ConfigureAwait(false);
                 }
             }
@@ -333,10 +326,10 @@ namespace ZeroC.Ice
                             }
 
                             connection = connector.Connect().CreateConnection(endpoint,
-                                                                            _monitor,
-                                                                            connector,
-                                                                            connectionId,
-                                                                            null);
+                                                                             _monitor,
+                                                                             connector,
+                                                                             connectionId,
+                                                                             null);
 
                             _connectionsByConnector.Add((connector, connectionId), connection);
                             _connectionsByEndpoint.Add((endpoint, connectionId), connection);
