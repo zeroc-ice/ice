@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.UDP.RcvSize"] = "16384";
+            properties["Ice.UDP.RcvSize"] = "16K";
 
             string? value;
             int ipv6;

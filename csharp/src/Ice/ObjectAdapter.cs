@@ -786,18 +786,8 @@ namespace ZeroC.Ice
             _reference = Reference.Parse($"dummy {proxyOptions}", Communicator);
 
             _acm = new Acm(Communicator, $"{Name}.ACM", Communicator.ServerAcm);
-            {
-                int defaultFrameSizeMax = Communicator.FrameSizeMax / 1024;
-                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultFrameSizeMax;
-                if (num < 1 || num > 0x7fffffff / 1024)
-                {
-                    FrameSizeMax = 0x7fffffff;
-                }
-                else
-                {
-                    FrameSizeMax = num * 1024; // Property is in kilobytes, FrameSizeMax in bytes
-                }
-            }
+            int frameSizeMax = Communicator.GetPropertyAsByteSize($"{Name}.MessageSizeMax") ?? Communicator.FrameSizeMax;
+            FrameSizeMax = frameSizeMax == 0 ? int.MaxValue : frameSizeMax;
 
             try
             {

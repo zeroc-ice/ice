@@ -712,20 +712,12 @@ namespace ZeroC.Ice
             return false;
         }
 
-        public static void
-        SetTcpBufSize(Socket socket, Communicator communicator)
+        public static void SetTcpBufSize(Socket socket, Communicator communicator)
         {
-            //
-            // By default, on Windows we use a 128KB buffer size. On Unix
-            // platforms, we use the system defaults.
-            //
-            int dfltBufSize = 0;
-            if (AssemblyUtil.IsWindows)
-            {
-                dfltBufSize = 128 * 1024;
-            }
-            int rcvSize = communicator.GetPropertyAsInt("Ice.TCP.RcvSize") ?? dfltBufSize;
-            int sndSize = communicator.GetPropertyAsInt("Ice.TCP.SndSize") ?? dfltBufSize;
+            // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
+            int dfltBufSize = AssemblyUtil.IsWindows ? 128 * 1024 : 0;
+            int rcvSize = communicator.GetPropertyAsByteSize("Ice.TCP.RcvSize") ?? dfltBufSize;
+            int sndSize = communicator.GetPropertyAsByteSize("Ice.TCP.SndSize") ?? dfltBufSize;
             SetTcpBufSize(socket, rcvSize, sndSize, communicator);
         }
 

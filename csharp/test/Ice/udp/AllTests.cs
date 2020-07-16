@@ -129,7 +129,7 @@ namespace ZeroC.Ice.Test.UDP
                     TestHelper.Assert(seq.Length > 16384);
                 }
                 obj.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-                communicator.SetProperty("Ice.UDP.SndSize", "64000");
+                communicator.SetProperty("Ice.UDP.SndSize", "64K");
                 seq = new byte[50000];
                 try
                 {

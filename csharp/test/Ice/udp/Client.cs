@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             var properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
-            properties["Ice.UDP.SndSize"] = "16384";
+            properties["Ice.UDP.SndSize"] = "16K";
             await using var communicator = Initialize(properties);
             AllTests.allTests(this);
 

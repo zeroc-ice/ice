@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Exceptions
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
             properties["Ice.Warn.Dispatch"] = "0";
-            properties["Ice.MessageSizeMax"] = "10"; // 10KB max
+            properties["Ice.MessageSizeMax"] = "10K";
             using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");

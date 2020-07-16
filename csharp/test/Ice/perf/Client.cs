@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Perf
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            AllTests.allTests(this).shutdown();
+            await AllTests.allTests(this).shutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
