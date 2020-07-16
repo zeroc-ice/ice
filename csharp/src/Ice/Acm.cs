@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 
 namespace ZeroC.Ice
@@ -45,7 +44,7 @@ namespace ZeroC.Ice
     public readonly struct Acm : IEquatable<Acm>
     {
         /// <summary>Gets the Acm configuration for disabling activation connection management.</summary>
-        public static Acm Disabled =>
+        public static readonly Acm Disabled =
             new Acm(System.Threading.Timeout.InfiniteTimeSpan, AcmClose.Off, AcmHeartbeat.Off);
 
         /// <summary>Gets the <see cref="AcmClose"/> setting for the Acm configuration.</summary>
@@ -135,6 +134,12 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
+                    // Unless it's the first connection, we don't add the connection directly to the _connections set.
+                    // The _connections set can only be accessed by the timer when it's set. The goal here is to avoid
+                    // copying _connections or holding a lock while iterating over all the connections to call Monitor.
+                    // There could be thousands of connection in this set. So instead of modifying the connection set
+                    // in Add/Remove, we add the Add/Remove request to the _changes list which is then processed by
+                    // the timer to add/remove connections from the connection set.
                     if (_connections.Count == 0)
                     {
                         _connections.Add(connection);
@@ -152,8 +157,10 @@ namespace ZeroC.Ice
         {
             if (!Acm.IsDisabled)
             {
+                // See Add comment for the reason why we don't directly modify the _connections set.
                 lock (_mutex)
                 {
+                    Debug.Assert(_connections.Count > 0);
                     _changes.Add((connection, true));
                 }
             }
@@ -231,7 +238,7 @@ namespace ZeroC.Ice
                 {
                     try
                     {
-                        connection!.Monitor(Time.Elapsed, Acm);
+                        connection.Monitor(Time.Elapsed, Acm);
                     }
                     catch (Exception ex)
                     {

@@ -34,14 +34,14 @@ namespace ZeroC.Ice
         private IAsyncResult? _writeResult;
 
         public Connection CreateConnection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
         {
             Debug.Assert(endpoint.IsSecure);
-            return new TcpConnection(factory, endpoint, this, connector, connectionId, adapter);
+            return new TcpConnection(manager, endpoint, this, connector, connectionId, adapter);
         }
 
         public Socket? Fd() => _delegate.Fd();

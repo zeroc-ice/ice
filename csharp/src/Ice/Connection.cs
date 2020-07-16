@@ -70,8 +70,8 @@ namespace ZeroC.Ice
                         _monitor.Remove(this);
                     }
 
-                    _monitor = value == _factory.AcmMonitor.Acm ?
-                        _factory.AcmMonitor :  new ConnectionAcmMonitor(value, _communicator.Logger);
+                    _monitor = value == _manager.AcmMonitor.Acm ?
+                        _manager.AcmMonitor : new ConnectionAcmMonitor(value, _communicator.Logger);
 
                     if (_monitor.Acm.IsDisabled)
                     {
@@ -163,7 +163,7 @@ namespace ZeroC.Ice
         private int _dispatchCount;
         private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
-        private readonly IConnectionFactory _factory;
+        private readonly IConnectionManager _manager;
         private readonly int _frameSizeMax;
         private IAcmMonitor _monitor;
         private readonly object _mutex = new object();
@@ -304,7 +304,7 @@ namespace ZeroC.Ice
         public override string ToString() => Transceiver.ToString()!;
 
         internal Connection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             ITransceiver transceiver,
             IConnector? connector,
@@ -312,8 +312,8 @@ namespace ZeroC.Ice
             ObjectAdapter? adapter)
         {
             _communicator = endpoint.Communicator;
-            _factory = factory;
-            _monitor = factory.AcmMonitor;
+            _manager = manager;
+            _monitor = manager.AcmMonitor;
             Transceiver = transceiver;
             _connector = connector;
             ConnectionId = connectionId;
@@ -1315,7 +1315,7 @@ namespace ZeroC.Ice
                 await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
             }
 
-            _factory.Remove(this);
+            _manager.Remove(this);
             _observer?.Detach();
         }
 
@@ -1888,13 +1888,13 @@ namespace ZeroC.Ice
         }
 
         protected IPConnection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(factory, endpoint, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -1934,13 +1934,13 @@ namespace ZeroC.Ice
             (Transceiver as WSTransceiver)?.SslStream;
 
         protected internal TcpConnection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(factory, endpoint, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -1952,13 +1952,13 @@ namespace ZeroC.Ice
         public System.Net.IPEndPoint? McastEndpoint => (Transceiver as UdpTransceiver)?.McastAddress;
 
         protected internal UdpConnection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(factory, endpoint, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -1970,13 +1970,13 @@ namespace ZeroC.Ice
         public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
 
         protected internal WSConnection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(factory, endpoint, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }

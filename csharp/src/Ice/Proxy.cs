@@ -376,8 +376,9 @@ namespace ZeroC.Ice
             {
                 Reference reference = proxy.IceReference;
 
-                IReadOnlyDictionary<string, string>? context = request.Context ?? reference.CurrentContext();
-                IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy, request.Operation, context);
+                IInvocationObserver? observer = ObserverHelper.GetInvocationObserver(proxy,
+                                                                                     request.Operation,
+                                                                                     request.Context);
                 int retryCount = 0;
                 CancellationTokenSource? invocationTimeout = null;
                 if (reference.InvocationTimeout > 0)

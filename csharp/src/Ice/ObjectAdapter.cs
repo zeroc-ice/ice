@@ -152,10 +152,10 @@ namespace ZeroC.Ice
             }
         }
 
+        /// <summary>Releases resources used by the object adapter.</summary>
         public void Dispose() => DisposeAsync().AsTask().Wait();
 
-        /// <summary>Destroys the object adapter and cleans up all resources held by the object adapter. DisposeAsync
-        /// first deactivate the object adapter (if needed).</summary>
+        /// <summary>Releases resources used by the object adapter.</summary>
         public async ValueTask DisposeAsync()
         {
             lock (_mutex)

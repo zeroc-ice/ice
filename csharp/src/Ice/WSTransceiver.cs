@@ -35,12 +35,12 @@ namespace ZeroC.Ice
         internal SslStream? SslStream => (_delegate as SslTransceiver)?.SslStream;
 
         public Connection CreateConnection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
-            new WSConnection(factory, endpoint, this, connector, connectionId, adapter);
+            new WSConnection(manager, endpoint, this, connector, connectionId, adapter);
 
         public Socket? Fd() => _delegate.Fd();
 

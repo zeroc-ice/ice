@@ -17,7 +17,7 @@ namespace ZeroC.Ice
     public interface ITransceiver
     {
         /// <summary>Creates a new connection to the given endpoint.</summary>
-        /// <param name="factory">The parent connection factory.</param>
+        /// <param name="manager">The connection manager which owns the connection.</param>
         /// <param name="endpoint">The endpoint to connect to.</param>
         /// <param name="connector">The connector associated with the new connection, this is always null for incoming
         /// connections.</param>
@@ -27,7 +27,7 @@ namespace ZeroC.Ice
         /// connections.</param>
         /// <returns>A new connection to the given endpoint.</returns>
         public Connection CreateConnection(
-            IConnectionFactory factory,
+            IConnectionManager manager,
             Endpoint endpoint,
             IConnector? connector,
             string connectionId,
