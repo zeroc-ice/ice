@@ -36,10 +36,10 @@ namespace ZeroC.Ice
                         _ => null,
                     };
                 }
-                else if (option == "options" && _options.Count > 0)
+                else if (option == "option" && _options.Count > 0)
                 {
-                    // TODO: need to escape each option
-                    return string.Join(",", _options);
+                    // We percent-escape each option, just like in their URI form.
+                    return string.Join(",", _options.Select(s => Uri.EscapeDataString(s)));
                 }
                 else
                 {
@@ -51,7 +51,9 @@ namespace ZeroC.Ice
         public override ushort Port { get; }
 
         public override Transport Transport { get; }
-        public override string TransportName => Protocol == Protocol.Ice1 ? "opaque" : base.TransportName;
+
+        // TODO: should be Protocol == Protocol.Ice1 ? "opaque" : base.TransportName;
+        public override string TransportName => "opaque";
 
         internal ReadOnlyMemory<byte> Value { get; }
 
@@ -129,19 +131,12 @@ namespace ZeroC.Ice
             if (Value.Length > 0)
             {
                 sb.Append(" -v ");
-                sb.Append(System.Convert.ToBase64String(Value.Span));
+                sb.Append(Convert.ToBase64String(Value.Span));
             }
             return sb.ToString();
         }
 
         public override bool IsLocal(Endpoint endpoint) => false;
-
-        public override string ToString()
-        {
-            string val = System.Convert.ToBase64String(Value.Span);
-            short transportNum = (short)Transport;
-            return $"opaque -t {transportNum.ToString(CultureInfo.InvariantCulture)} -e {ValueEncoding} -v {val}";
-        }
 
         protected internal override void WriteOptions(OutputStream ostr) =>
             ostr.WriteSequence(_options, OutputStream.IceWriterFromString);
@@ -298,10 +293,14 @@ namespace ZeroC.Ice
             Port = port;
             ValueEncoding = Ice2Definitions.Encoding; // not used
 
-            if (options.TryGetValue("options", out string? value))
+            if (options.TryGetValue("option", out string? value))
             {
-                _options = value.Split(","); // TODO: proper un-escaping
-                options.Remove("options");
+                // Each option must be percent-escaped; we hold it in memory unescaped, and later marshal it unescaped.
+                // For example, a WS endpoint resource option can be provided "double-escaped", with
+                // `/` replaced by %2F and %20 (space) escaped as %2520; this unescaping would result in
+                // the memory resource value being "singled-escaped".
+                _options = value.Split(",").Select(s => Uri.UnescapeDataString(s)).ToList();
+                options.Remove("option");
             }
         }
     }

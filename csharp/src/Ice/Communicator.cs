@@ -150,6 +150,7 @@ namespace ZeroC.Ice
         internal Acm ClientAcm { get; }
         internal int FrameSizeMax { get; }
         internal int IPVersion { get; }
+        internal bool IsDisposed => _disposeTask != null;
         internal INetworkProxy? NetworkProxy { get; }
         internal bool PreferIPv6 { get; }
         internal int[] RetryIntervals { get; }
@@ -157,7 +158,8 @@ namespace ZeroC.Ice
         internal SslEngine SslEngine { get; }
         internal TraceLevels TraceLevels { get; private set; }
 
-        internal bool IsDisposed => _disposeTask != null;
+        // The default port number for all Ice IP-based transports.
+        private const int DefaultIPPort = 4062;
 
         private static string[] _emptyArgs = Array.Empty<string>();
         private static readonly string[] _suffixes =
@@ -338,6 +340,7 @@ namespace ZeroC.Ice
                             }
                         }
 
+                        UriParser.RegisterCommon();
                         _oneOffDone = true;
                     }
                 }
@@ -542,11 +545,11 @@ namespace ZeroC.Ice
                 SslEngine = new SslEngine(this, tlsClientOptions, tlsServerOptions);
 
                 var endpointFactory = new EndpointFactory(this);
-                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory);
-                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory);
-                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory);
-                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory);
-                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory);
+                IceAddEndpointFactory(Transport.TCP, "tcp", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.SSL, "ssl", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.UDP, "udp", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.WS, "ws", endpointFactory, DefaultIPPort);
+                IceAddEndpointFactory(Transport.WSS, "wss", endpointFactory, DefaultIPPort);
 
                 OutgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -1037,10 +1040,29 @@ namespace ZeroC.Ice
         }
 
         // Registers an endpoint factory.
-        public void IceAddEndpointFactory(Transport transport, string transportName, IEndpointFactory factory)
+        public void IceAddEndpointFactory(
+            Transport transport,
+            string transportName,
+            IEndpointFactory factory,
+            ushort defaultPort = 0)
         {
+            if (transportName.Length == 0)
+            {
+                throw new ArgumentException($"{nameof(transportName)} cannot be empty", nameof(transportName));
+            }
+
             _transportNameToEndpointFactory.Add(transportName, (factory, transport));
             _transportToEndpointFactory.Add(transport, factory);
+
+            // Also register URI parser if not registered yet.
+            try
+            {
+                UriParser.RegisterTransport(transportName, defaultPort);
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignored, already registered
+            }
         }
 
         // Finds an endpoint factory previously registered using IceAddEndpointFactory.

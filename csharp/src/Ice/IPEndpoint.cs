@@ -235,6 +235,7 @@ namespace ZeroC.Ice
             {
                 if (options.TryGetValue("source-address", out string? value))
                 {
+                    // IPAddress.Parse apparently accepts IPv6 addresses in square brackets
                     SourceAddress = IPAddress.Parse(value);
                     options.Remove("source-address");
                 }

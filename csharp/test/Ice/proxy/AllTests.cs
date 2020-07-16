@@ -16,8 +16,66 @@ namespace ZeroC.Ice.Test.Proxy
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
             System.IO.TextWriter output = helper.GetWriter();
-            output.Write("testing stringToProxy... ");
+            output.Write("testing proxy parsing (URI)... ");
             output.Flush();
+
+            string[] uriStringArray =
+            {
+                "ice+tcp://host.zeroc.com/identity#facet",
+                "ice+tcp://host.zeroc.com:1000/category/name",
+                "ice+tcp://host.zeroc.com/category/name%20with%20space",
+                "ice+ws://host.zeroc.com//identity",
+                "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com",
+                "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com:10000",
+                "ice+ws://host.zeroc.com//identity?protocol=ice1&source-address=[::2]&compress=true",
+                "ice+ws://host.zeroc.com//identity?protocol=ice1&alt-endpoint=host2.zeroc.com?" +
+                    "source-address=10.1.2.4$compress=true",
+                "ice+tcp://[::1]:10000/identity?alt-endpoint=host1:10000,host2,host3,host4",
+                "ice+ssl://[::1]:10000/identity?alt-endpoint=host1:10000&alt-endpoint=host2,host3&alt-endpoint=[::2]",
+                "ice:location//identity#facet",
+                "ice+tcp://host.zeroc.com//identity",
+                "ice+tcp://host.zeroc.com:/identity", // another syntax for empty port
+                "ice+universal://com.zeroc.ice/identity?transport=iaps&option=a,b%2Cb,c&option=d",
+                "ice+universal://host.zeroc.com/identity?transport=100",
+                "ice+universal://[::ab:cd:ef:00]/identity?transport=bt", // leading :: to make the address IPv6-like
+                "ice+udp://[::1]/test?source-address=::1&interface=0:0:0:0:0:0:0:1%25lo", // unescaped as ..:1%lo
+                "ice+ws://host.zeroc.com/identity?resource=/foo%2Fbar?/xyz",
+                "ice+universal://host.zeroc.com:10000/identity?transport=tcp",
+                "ice+universal://host.zeroc.com/identity?transport=ws&option=/foo%2520/bar",
+            };
+
+            foreach (string uriString in uriStringArray)
+            {
+                _ = IObjectPrx.Parse(uriString, communicator);
+                // output.WriteLine($"{uriString} = {prx}");
+            }
+
+            string[] badUriStringArray =
+            {
+                "ice+tcp://host.zeroc.com:foo",     // missing host
+                "ice+tcp:identity?protocol=invalid", // invalid protocol
+                "ice+universal://host.zeroc.com", // missing transport
+                "ice+universal://host.zeroc.com?transport=100&protocol=ice1", // invalid protocol
+                "ice://host:1000/identity", // host not allowed
+                "ice+universal:/identity" // missing host
+            };
+
+            foreach (string uriString in badUriStringArray)
+            {
+                try
+                {
+                    _ = IObjectPrx.Parse(uriString, communicator);
+                    TestHelper.Assert(false);
+                }
+                catch (FormatException)
+                {
+                    // expected
+                }
+            }
+            output.WriteLine("ok");
+
+            output.Write("testing proxy parsing (old format)... ");
+
             string rf = "test:" + helper.GetTestEndpoint(0);
             var baseProxy = IObjectPrx.Parse(rf, communicator);
             TestHelper.Assert(baseProxy != null);
