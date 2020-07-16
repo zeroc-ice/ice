@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace ZeroC.Ice
 {
@@ -51,6 +51,65 @@ namespace ZeroC.Ice
         /// is parsed into an integer smaller or equal to 0.</returns>
         public bool? GetPropertyAsBool(string name) =>
             GetPropertyAsInt(name) is int intValue ? intValue > 0 : (bool?)null;
+
+        public int? GetPropertyAsByteSize(string name)
+        {
+            lock (_properties)
+            {
+                if (_properties.TryGetValue(name, out PropertyValue? pv))
+                {
+                    pv.Used = true;
+
+                    if (pv.Val == "unlimited")
+                    {
+                        return 0;
+                    }
+
+                    // Match an integer followed letters
+                    Match match = Regex.Match(pv.Val, @"^([0-9]+[\.|,]?[0-9]*)([A-Z]+)$");
+
+                    if (!match.Success)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"the value `{pv.Val}' of property `{name}' is not a byte size");
+                    }
+
+                    try
+                    {
+                        double value = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        string unit = match.Groups[2].Value;
+                        double size = unit switch
+                        {
+                            "B" => value,
+                            "KB" => 1024 * value,
+                            "MB" => 1024 * 1024 * value,
+                            "GB" => 1024 * 1024 * 1024 * value,
+                            _ => throw new FormatException($"unknown size unit `{unit}'"),
+                        };
+
+                        if (size > int.MaxValue)
+                        {
+                            throw new ArgumentOutOfRangeException($"the maximum size value is {int.MaxValue}B");
+                        }
+
+                        if (size <= 0)
+                        {
+                            throw new FormatException("size properties must be a positive numeric value greater than 0");
+                        }
+                        checked
+                        {
+                            return (int)size;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidConfigurationException(
+                            $"the value `{pv.Val}' of property `{name}' is not a byte size", ex);
+                    }
+                }
+                return null;
+            }
+        }
 
         /// <summary>Gets the value of a property as an enumerated type, the conversion does a case insensitive
         /// comparison of the property value with the enumerators and returns the matching enumerator or throws and

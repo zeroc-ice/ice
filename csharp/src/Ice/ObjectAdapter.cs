@@ -787,15 +787,15 @@ namespace ZeroC.Ice
 
             _acm = new Acm(Communicator, $"{Name}.ACM", Communicator.ServerAcm);
             {
-                int defaultFrameSizeMax = Communicator.FrameSizeMax / 1024;
-                int num = Communicator.GetPropertyAsInt($"{Name}.MessageSizeMax") ?? defaultFrameSizeMax;
+                int defaultFrameSizeMax = Communicator.FrameSizeMax;
+                int num = Communicator.GetPropertyAsByteSize($"{Name}.MessageSizeMax") ?? defaultFrameSizeMax;
                 if (num < 1 || num > 0x7fffffff / 1024)
                 {
                     FrameSizeMax = 0x7fffffff;
                 }
                 else
                 {
-                    FrameSizeMax = num * 1024; // Property is in kilobytes, FrameSizeMax in bytes
+                    FrameSizeMax = num;
                 }
             }
 

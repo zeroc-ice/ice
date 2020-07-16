@@ -463,31 +463,26 @@ namespace ZeroC.Ice
                 ClientAcm = new Acm(this, "Ice.ACM.Client", new Acm(this, "Ice.ACM", Acm.ClientDefault));
                 ServerAcm = new Acm(this, "Ice.ACM.Server", new Acm(this, "Ice.ACM", Acm.ServerDefault));
 
+                int frameSizeMax = GetPropertyAsByteSize("Ice.MessageSizeMax") ?? 1024 * 1024;
+                if (frameSizeMax < 1 || frameSizeMax > 0x7fffffff / 1024)
                 {
-                    int num = GetPropertyAsInt("Ice.MessageSizeMax") ?? 1024;
-                    if (num < 1 || num > 0x7fffffff / 1024)
-                    {
-                        FrameSizeMax = 0x7fffffff;
-                    }
-                    else
-                    {
-                        FrameSizeMax = num * 1024; // Property is in kilobytes, FrameSizeMax in bytes
-                    }
+                    FrameSizeMax = 0x7fffffff;
+                }
+                else
+                {
+                    FrameSizeMax = frameSizeMax;
                 }
 
                 // TODO: switch to 0 default
                 AcceptNonSecureConnections = GetPropertyAsBool("Ice.AcceptNonSecureConnections") ?? true;
-
+                int classGraphDepthMax = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
+                if (classGraphDepthMax < 1 || classGraphDepthMax > 0x7fffffff)
                 {
-                    int num = GetPropertyAsInt("Ice.ClassGraphDepthMax") ?? 100;
-                    if (num < 1 || num > 0x7fffffff)
-                    {
-                        ClassGraphDepthMax = 0x7fffffff;
-                    }
-                    else
-                    {
-                        ClassGraphDepthMax = num;
-                    }
+                    ClassGraphDepthMax = 0x7fffffff;
+                }
+                else
+                {
+                    ClassGraphDepthMax = classGraphDepthMax;
                 }
 
                 ToStringMode = Enum.Parse<ToStringMode>(GetProperty("Ice.ToStringMode") ?? "Unicode");

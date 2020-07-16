@@ -693,7 +693,7 @@ namespace ZeroC.Ice
                 SetBufSize(-1, -1);
                 Network.SetBlock(_fd, false);
             }
-            catch (System.Exception)
+            catch
             {
                 if (_readEventArgs != null)
                 {
@@ -742,7 +742,7 @@ namespace ZeroC.Ice
                 //
                 if (sizeRequested == -1)
                 {
-                    sizeRequested = _communicator.GetPropertyAsInt(prop) ?? dfltSize;
+                    sizeRequested = _communicator.GetPropertyAsByteSize(prop) ?? dfltSize;
                 }
                 //
                 // Check for sanity.

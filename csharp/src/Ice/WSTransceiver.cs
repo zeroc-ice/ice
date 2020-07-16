@@ -9,7 +9,6 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace ZeroC.Ice
