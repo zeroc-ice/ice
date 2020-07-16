@@ -38,11 +38,11 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                _disposeTask ??= PerformDestroyAsync();
+                _disposeTask ??= PerformDisposeAsync();
             }
             await _disposeTask.ConfigureAwait(false);
 
-            async Task PerformDestroyAsync()
+            async Task PerformDisposeAsync()
             {
                 // Wait for connections to be closed.
                 IEnumerable<Task> tasks =
@@ -467,11 +467,11 @@ namespace ZeroC.Ice
         {
             lock (_mutex)
             {
-                _disposeTask ??= PerformDestroyAsync();
+                _disposeTask ??= PerformDisposeAsync();
             }
             await _disposeTask.ConfigureAwait(false);
 
-            async Task PerformDestroyAsync()
+            async Task PerformDisposeAsync()
             {
                 // Close the acceptor
                 if (_acceptor != null)

@@ -168,7 +168,14 @@ namespace ZeroC.Ice
                 // Wait for activation to complete. This is necessary avoid out of order locator updates.
                 if (_activateTask != null)
                 {
-                    await _activateTask.ConfigureAwait(false);
+                    try
+                    {
+                        await _activateTask.ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // Ignore
+                    }
                 }
 
                 try
