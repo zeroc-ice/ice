@@ -17,11 +17,11 @@ namespace ZeroC.Ice.Test.Timeout
             properties["Ice.Warn.Connections"] = "0";
 
             // The client sends large messages to cause the transport buffers to fill up.
-            properties["Ice.MessageSizeMax"] = "20MB";
+            properties["Ice.MessageSizeMax"] = "20M";
 
             // Limit the recv buffer size, this test relies on the socket send() blocking after sending a given
             // amount of data.
-            properties["Ice.TCP.RcvSize"] = "50KB";
+            properties["Ice.TCP.RcvSize"] = "50K";
 
             await using Communicator communicator = Initialize(properties);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));

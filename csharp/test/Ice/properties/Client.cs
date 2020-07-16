@@ -160,54 +160,62 @@ namespace ZeroC.Ice.Test.Properties
                 Console.Out.Write("testing configuration properties as byte size... ");
                 var sizeProperties = new Dictionary<string, string>
                 {
-                    { "Size.B", "1B" },
-                    { "Size.KB", "1KB" },
-                    { "Size.MB", "1MB" },
-                    { "Size.GB", "1GB" },
+                    { "Size", "1" },
+                    { "Size.K", "1K" },
+                    { "Size.M", "1M" },
+                    { "Size.G", "1G" },
 
-                    { "Size.Double.B", "1.0B" },
-                    { "Size.Double.KB", "1.0KB" },
-                    { "Size.Double.MB", "1.0MB" },
-                    { "Size.Double.GB", "1.0GB" },
+                    { "Size.Zero", "0" },
+                    { "Size.Zero.K", "0K" },
+                    { "Size.Zero.M", "0M" },
+                    { "Size.Zero.G", "0G" },
 
-                    { "Size.Unlimited", "unlimited" },
+                    { "Size.MaxValue.K", $"{int.MaxValue}K" },
+                    { "Size.MaxValue.M", $"{int.MaxValue}M" },
+                    { "Size.MaxValue.G", $"{int.MaxValue}G" },
 
                     { "Size.Bad.Word", "x"},
                     { "Size.Bad.Negative", "-1B"},
-                    { "Size.Bad.Zero", "0B"},
                     { "Size.Bad.InvalidUnit", "1b"},
                     { "Size.Bad.NotANumber", "NaN"},
+                    { "Size.Bad.Double.B", "1.0" },
                 };
 
                 await using var communicator = new Communicator(sizeProperties);
 
                 {
-                    int? size = communicator.GetPropertyAsByteSize("Size.B");
+                    int? size = communicator.GetPropertyAsByteSize("Size");
                     Assert(size == 1);
 
-                    size = communicator.GetPropertyAsByteSize("Size.KB");
+                    size = communicator.GetPropertyAsByteSize("Size.K");
                     Assert(size == 1024);
 
-                    size = communicator.GetPropertyAsByteSize("Size.MB");
+                    size = communicator.GetPropertyAsByteSize("Size.M");
                     Assert(size == 1024 * 1024);
 
-                    size = communicator.GetPropertyAsByteSize("Size.GB");
+                    size = communicator.GetPropertyAsByteSize("Size.G");
                     Assert(size == 1024 * 1024 * 1024);
 
-                    size = communicator.GetPropertyAsByteSize("Size.Double.B");
-                    Assert(size == 1);
-
-                    size = communicator.GetPropertyAsByteSize("Size.Double.KB");
-                    Assert(size == 1024);
-
-                    size = communicator.GetPropertyAsByteSize("Size.Double.MB");
-                    Assert(size == 1024 * 1024);
-
-                    size = communicator.GetPropertyAsByteSize("Size.Double.GB");
-                    Assert(size == 1024 * 1024 * 1024);
-
-                    size = communicator.GetPropertyAsByteSize("Size.Unlimited");
+                    size = communicator.GetPropertyAsByteSize("Size.Zero");
                     Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.K");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.M");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.Zero.G");
+                    Assert(size == 0);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.K");
+                    Assert(size == int.MaxValue);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.M");
+                    Assert(size == int.MaxValue);
+
+                    size = communicator.GetPropertyAsByteSize("Size.MaxValue.G");
+                    Assert(size == int.MaxValue);
                 }
 
                 foreach (string property in communicator.GetProperties("Size.Bad").Keys)
