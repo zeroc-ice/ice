@@ -13,15 +13,10 @@ namespace ZeroC.Ice.Test.Metrics
         private readonly TaskScheduler _scheduler;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
 
-        public Controller(TaskScheduler scheduler)
-        {
-            _scheduler = scheduler;
-        }
+        public Controller(TaskScheduler scheduler) => _scheduler = scheduler;
 
-        public void hold(Current current)
-        {
-            Task.Factory.StartNew(() => { _semaphore.Wait(); }, default, TaskCreationOptions.None, _scheduler);
-        }
+        public void hold(Current current) =>
+            _ = Task.Factory.StartNew(() => _semaphore.Wait(), default, TaskCreationOptions.None, _scheduler);
 
         public void resume(Current current) => _semaphore.Release();
 

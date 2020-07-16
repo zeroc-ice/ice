@@ -15,80 +15,6 @@ using ZeroC.Ice.Instrumentation;
 
 namespace ZeroC.Ice
 {
-    /// <summary>Specifies the close semantics for ACM (Active Connection Management).</summary>
-    public enum AcmClose
-    {
-        /// <summary>Disables automatic connection closure.</summary>
-        Off,
-        /// <summary>Gracefully closes a connection that has been idle for the configured timeout period.</summary>
-        OnIdle,
-        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, but only if
-        /// the connection has pending invocations.</summary>
-        OnInvocation,
-        /// <summary>Combines the behaviors of CloseOnIdle and CloseOnInvocation.</summary>
-        OnInvocationAndIdle,
-        /// <summary>Forcefully closes a connection that has been idle for the configured timeout period, regardless of
-        /// whether the connection has pending invocations or dispatch.</summary>
-        OnIdleForceful
-    }
-
-    /// <summary>Specifies the heartbeat semantics for ACM (Active Connection Management).</summary>
-    public enum AcmHeartbeat
-    {
-        /// <summary>Disables heartbeats.</summary>
-        Off,
-        /// <summary>Send a heartbeat at regular intervals if the connection is idle and only if there are pending
-        /// dispatch.</summary>
-        OnDispatch,
-        /// <summary>Send a heartbeat at regular intervals when the connection is idle.</summary>
-        OnIdle,
-        /// <summary>Send a heartbeat at regular intervals until the connection is closed.</summary>
-        Always
-    }
-
-    /// <summary>This struct represents the Acm (Active Connection Management) configuration.</summary>
-    public readonly struct Acm : IEquatable<Acm>
-    {
-        /// <summary>Gets the <see cref="AcmClose"/> setting for the Acm configuration.</summary>
-        public AcmClose Close { get; }
-        /// <summary>Gets <see cref="AcmHeartbeat"/> setting for the Acm configuration.</summary>
-        public AcmHeartbeat Heartbeat { get; }
-        /// <summary>Gets the timeout setting for the Acm configuration.</summary>
-        public TimeSpan Timeout { get; }
-
-        public Acm(TimeSpan timeout, AcmClose close, AcmHeartbeat heartbeat)
-        {
-            Timeout = timeout;
-            Close = close;
-            Heartbeat = heartbeat;
-        }
-
-        public override int GetHashCode() => HashCode.Combine(Timeout, Close, Heartbeat);
-
-        public bool Equals(Acm other) =>
-            Timeout == other.Timeout && Close == other.Close && Heartbeat == other.Heartbeat;
-
-        public override bool Equals(object? other) => other is Acm value && Equals(value);
-
-        public static bool operator ==(Acm lhs, Acm rhs) => Equals(lhs, rhs);
-
-        public static bool operator !=(Acm lhs, Acm rhs) => !Equals(lhs, rhs);
-
-        internal Acm(bool server)
-        {
-            Timeout = TimeSpan.FromSeconds(60);
-            Heartbeat = AcmHeartbeat.OnDispatch;
-            Close = server ? AcmClose.OnInvocation : AcmClose.OnInvocationAndIdle;
-        }
-
-        internal Acm(Communicator communicator, string prefix, Acm defaults)
-        {
-            Timeout = communicator.GetPropertyAsTimeSpan($"{prefix}.Timeout") ?? defaults.Timeout;
-            Heartbeat = communicator.GetPropertyAsEnum<AcmHeartbeat>($"{prefix}.Heartbeat") ?? defaults.Heartbeat;
-            Close = communicator.GetPropertyAsEnum<AcmClose>($"{prefix}.Close") ?? defaults.Close;
-        }
-    }
-
     /// <summary>Determines the behavior when manually closing a connection.</summary>
     public enum ConnectionClose
     {
@@ -127,14 +53,14 @@ namespace ZeroC.Ice
             {
                 lock (_mutex)
                 {
-                    return _monitor?.Acm ?? new Acm(TimeSpan.FromSeconds(0), AcmClose.Off, AcmHeartbeat.Off);
+                    return _monitor.Acm;
                 }
             }
             set
             {
                 lock (_mutex)
                 {
-                    if (_monitor == null || _state >= ConnectionState.Closing)
+                    if (_state >= ConnectionState.Closing)
                     {
                         return;
                     }
@@ -143,9 +69,11 @@ namespace ZeroC.Ice
                     {
                         _monitor.Remove(this);
                     }
-                    _monitor = _monitor.Create(value);
 
-                    if (_monitor.Acm.Timeout == TimeSpan.Zero || _monitor.Acm.Timeout == Timeout.InfiniteTimeSpan)
+                    _monitor = value == _manager.AcmMonitor.Acm ?
+                        _manager.AcmMonitor : new ConnectionAcmMonitor(value, _communicator.Logger);
+
+                    if (_monitor.Acm.IsDisabled)
                     {
                         // Disable the recording of last activity.
                         _acmLastActivity = Timeout.InfiniteTimeSpan;
@@ -227,7 +155,7 @@ namespace ZeroC.Ice
 
         private TimeSpan _acmLastActivity;
         private ObjectAdapter? _adapter;
-        private Action<Connection>? _closeCallback;
+        private EventHandler? _closed;
         private Task? _closeTask = null;
         private readonly Communicator _communicator;
         private readonly int _compressionLevel;
@@ -235,9 +163,9 @@ namespace ZeroC.Ice
         private int _dispatchCount;
         private TaskCompletionSource<bool>? _dispatchTaskCompletionSource;
         private Exception? _exception;
+        private readonly IConnectionManager _manager;
         private readonly int _frameSizeMax;
-        private Action<Connection>? _heartbeatCallback;
-        private IAcmMonitor? _monitor;
+        private IAcmMonitor _monitor;
         private readonly object _mutex = new object();
         private int _nextRequestId;
         private IConnectionObserver? _observer;
@@ -331,52 +259,28 @@ namespace ZeroC.Ice
             progress?.Report(true);
         }
 
-        /// <summary>Sets a close callback on the connection. The callback is called by the connection when it's
-        /// closed. If the callback needs more information about the closure, it can call Connection.throwException.
-        /// </summary>
-        /// <param name="callback">The close callback object.</param>
-        public void SetCloseCallback(Action<Connection> callback)
+        /// <summary>This event is raised when the connection is closed. If the subscriber needs more information about
+        /// the closure, it can call Connection.ThrowException. The connection object is passed as the event sender
+        /// argument.</summary>
+        public event EventHandler? Closed
         {
-            lock (_mutex)
+            add
             {
-                if (_state >= ConnectionState.Closed)
+                lock (_mutex)
                 {
-                    if (callback != null)
+                    if (_state >= ConnectionState.Closed)
                     {
-                        Task.Run(() =>
-                        {
-                            try
-                            {
-                                callback(this);
-                            }
-                            catch (Exception ex)
-                            {
-                                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                            }
-                        });
+                        Task.Run(() => value?.Invoke(this, EventArgs.Empty));
                     }
-                }
-                else
-                {
-                    _closeCallback = callback;
+                    _closed += value;
                 }
             }
+            remove => _closed -= value;
         }
 
-        /// <summary>Sets a heartbeat callback on the connection. The callback is called by the connection when a
-        /// heartbeat is received.</summary>
-        /// <param name="callback">The heartbeat callback object.</param>
-        public void SetHeartbeatCallback(Action<Connection> callback)
-        {
-            lock (_mutex)
-            {
-                if (_state >= ConnectionState.Closed)
-                {
-                    return;
-                }
-                _heartbeatCallback = callback;
-            }
-        }
+        /// <summary>This event is raised when the connection receives a heartbeat. The connection object is passed as
+        /// the event sender argument.</summary>
+        public event EventHandler? HeartbeatReceived;
 
         /// <summary>Throws an exception indicating the reason for connection closure. For example,
         /// ConnectionClosedByPeerException is raised if the connection was closed gracefully by the peer, whereas
@@ -400,15 +304,16 @@ namespace ZeroC.Ice
         public override string ToString() => Transceiver.ToString()!;
 
         internal Connection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
         {
             _communicator = endpoint.Communicator;
-            _monitor = monitor;
+            _manager = manager;
+            _monitor = manager.AcmMonitor;
             Transceiver = transceiver;
             _connector = connector;
             ConnectionId = connectionId;
@@ -417,15 +322,7 @@ namespace ZeroC.Ice
             _adapter = adapter;
             _warn = _communicator.GetPropertyAsBool("Ice.Warn.Connections") ?? false;
             _warnUdp = _communicator.GetPropertyAsBool("Ice.Warn.Datagrams") ?? false;
-
-            if (_monitor?.Acm.Timeout != TimeSpan.Zero && _monitor?.Acm.Timeout != Timeout.InfiniteTimeSpan)
-            {
-                _acmLastActivity = Time.Elapsed;
-            }
-            else
-            {
-                _acmLastActivity = Timeout.InfiniteTimeSpan;
-            }
+            _acmLastActivity = _monitor.Acm.IsDisabled ? Timeout.InfiniteTimeSpan : Time.Elapsed;
             _nextRequestId = 1;
             _frameSizeMax = adapter != null ? adapter.FrameSizeMax : _communicator.FrameSizeMax;
             _dispatchCount = 0;
@@ -1156,22 +1053,18 @@ namespace ZeroC.Ice
                     case Ice1Definitions.FrameType.ValidateConnection:
                     {
                         ProtocolTrace.TraceReceived(_communicator, Endpoint.Protocol, readBuffer);
-                        if (_heartbeatCallback != null)
+                        incoming = () =>
                         {
-                            Action<Connection> callback = _heartbeatCallback;
-                            incoming = () =>
+                            try
                             {
-                                try
-                                {
-                                    callback(this);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                                }
-                                return default;
-                            };
-                        }
+                                HeartbeatReceived?.Invoke(this, EventArgs.Empty);
+                            }
+                            catch (Exception ex)
+                            {
+                                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                            }
+                            return default;
+                        };
                         break;
                     }
 
@@ -1305,22 +1198,18 @@ namespace ZeroC.Ice
                     case Ice2Definitions.FrameType.ValidateConnection:
                     {
                         ProtocolTrace.TraceReceived(_communicator, Endpoint.Protocol, readBuffer);
-                        if (_heartbeatCallback != null)
+                        incoming = () =>
                         {
-                            Action<Connection> callback = _heartbeatCallback;
-                            incoming = () =>
+                            try
                             {
-                                try
-                                {
-                                    callback(this);
-                                }
-                                catch (Exception ex)
-                                {
-                                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                                }
-                                return default;
-                            };
-                        }
+                                HeartbeatReceived?.Invoke(this, EventArgs.Empty);
+                            }
+                            catch (Exception ex)
+                            {
+                                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+                            }
+                            return default;
+                        };
                         break;
                     }
 
@@ -1364,8 +1253,7 @@ namespace ZeroC.Ice
                 //
                 if (!(_exception is ConnectionClosedException ||
                       _exception is ConnectionIdleException ||
-                      _exception is CommunicatorDestroyedException ||
-                      _exception is ObjectAdapterDeactivatedException))
+                      _exception is ObjectDisposedException))
                 {
                     s.Append("\n");
                     s.Append(_exception);
@@ -1410,10 +1298,10 @@ namespace ZeroC.Ice
                     request.TaskCompletionSource.SetException(_exception!);
                 }
 
-                // Invoke the close callback
+                // Raise the Closed event
                 try
                 {
-                    _closeCallback?.Invoke(this);
+                    _closed?.Invoke(this, EventArgs.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -1427,7 +1315,7 @@ namespace ZeroC.Ice
                 await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
             }
 
-            _monitor?.Reap(this);
+            _manager.Remove(this);
             _observer?.Detach();
         }
 
@@ -1853,8 +1741,7 @@ namespace ZeroC.Ice
                     // Don't warn about certain expected exceptions.
                     if (!(_exception is ConnectionClosedException ||
                          _exception is ConnectionIdleException ||
-                         _exception is CommunicatorDestroyedException ||
-                         _exception is ObjectAdapterDeactivatedException ||
+                         _exception is ObjectDisposedException ||
                          (_exception is ConnectionLostException && _state >= ConnectionState.Closing)))
                     {
                         _communicator.Logger.Warning($"connection exception:\n{_exception}\n{this}");
@@ -1906,8 +1793,9 @@ namespace ZeroC.Ice
                     }
                     _monitor.Add(this);
                 }
-                else if (state == ConnectionState.Closed)
+                else if (_state == ConnectionState.Active)
                 {
+                    Debug.Assert(state > ConnectionState.Active);
                     _monitor.Remove(this);
                 }
             }
@@ -1925,9 +1813,8 @@ namespace ZeroC.Ice
                 if (_observer != null && state == ConnectionState.Closed && _exception != null)
                 {
                     if (!(_exception is ConnectionClosedException ||
-                         _exception is ConnectionIdleException ||
-                         _exception is CommunicatorDestroyedException ||
-                         _exception is ObjectAdapterDeactivatedException ||
+                          _exception is ConnectionIdleException ||
+                          _exception is ObjectDisposedException ||
                          (_exception is ConnectionLostException && _state >= ConnectionState.Closing)))
                     {
                         _observer.Failed(_exception.GetType().FullName!);
@@ -2002,13 +1889,13 @@ namespace ZeroC.Ice
         }
 
         protected IPConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2048,13 +1935,13 @@ namespace ZeroC.Ice
             (Transceiver as WSTransceiver)?.SslStream;
 
         protected internal TcpConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2066,13 +1953,13 @@ namespace ZeroC.Ice
         public System.Net.IPEndPoint? McastEndpoint => (Transceiver as UdpTransceiver)?.McastAddress;
 
         protected internal UdpConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }
@@ -2084,13 +1971,13 @@ namespace ZeroC.Ice
         public IReadOnlyDictionary<string, string> Headers => ((WSTransceiver)Transceiver).Headers;
 
         protected internal WSConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             ITransceiver transceiver,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter)
-            : base(endpoint, monitor, transceiver, connector, connectionId, adapter)
+            : base(manager, endpoint, transceiver, connector, connectionId, adapter)
         {
         }
     }

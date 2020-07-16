@@ -1,1 +1,2 @@
-RedefinitionAsModule.ice:9: redefinition of sequence `Seq' as module
+RedefinitionAsModule.ice:9: module `Seq' was previously defined as a sequence
+RedefinitionAsModule.ice:8: note: sequence `Seq' was originally defined here

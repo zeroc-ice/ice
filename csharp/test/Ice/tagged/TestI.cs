@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.Tagged
 {
     public class Initial : IInitial
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public AnyClass? pingPong(AnyClass? obj, Current current) => obj;
 

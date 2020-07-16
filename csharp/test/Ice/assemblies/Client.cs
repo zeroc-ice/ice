@@ -8,12 +8,13 @@ using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 using Test;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Assemblies
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
             Console.Out.Write("testing preloading assemblies... ");
             Console.Out.Flush();
@@ -25,13 +26,13 @@ namespace ZeroC.Ice.Test.Assemblies
             string assembly =
                 $"{Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase))}/core.dll";
 
-            using (Communicator communicator = Initialize(properties))
+            await using (Communicator communicator = Initialize(properties))
             {
                 Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
                     e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) == null);
             }
             properties["Ice.PreloadAssemblies"] = "1";
-            using (Communicator communicator = Initialize(properties))
+            await using (Communicator communicator = Initialize(properties))
             {
                 Assert(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
                     e => e.CodeBase!.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase)) != null);
@@ -40,6 +41,6 @@ namespace ZeroC.Ice.Test.Assemblies
             Console.Out.WriteLine("ok");
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

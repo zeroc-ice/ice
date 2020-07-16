@@ -1,2 +1,4 @@
 RedefinitionAsInterface.ice:9: interface `Sequence1' was previously defined as a sequence
+RedefinitionAsInterface.ice:8: note: sequence `Sequence1' was originally defined here
 RedefinitionAsInterface.ice:12: interface `Sequence2' was previously defined as a sequence
+RedefinitionAsInterface.ice:11: note: sequence `Sequence2' was originally defined here

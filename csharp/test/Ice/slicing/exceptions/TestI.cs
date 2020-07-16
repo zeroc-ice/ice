@@ -8,7 +8,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
 {
     public sealed class TestIntf : ITestIntf
     {
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         public void baseAsBase(Current current) => throw new Base("Base.b");
 

@@ -35,8 +35,7 @@ namespace ZeroC.Ice.Test.ACM
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
-        public void
-        shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
 
     }
 
@@ -51,16 +50,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public ITestIntfPrx getTestIntf(Current current) => _testIntf;
 
-        public void deactivate(Current current)
-        {
-            try
-            {
-                _adapter.Destroy();
-            }
-            catch (ObjectAdapterDeactivatedException)
-            {
-            }
-        }
+        public void deactivate(Current current) => _adapter.Dispose();
 
         private readonly ObjectAdapter _adapter;
         private readonly ITestIntfPrx _testIntf;
@@ -114,7 +104,7 @@ namespace ZeroC.Ice.Test.ACM
         public void startHeartbeatCount(Current current)
         {
             _callback = new HeartbeatCallbackI();
-            current.Connection!.SetHeartbeatCallback(_ => _callback.Heartbeat());
+            current.Connection!.HeartbeatReceived += (sender, args) => _callback.Heartbeat();
         }
 
         public void waitForHeartbeatCount(int count, Current current)

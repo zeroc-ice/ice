@@ -26,7 +26,7 @@ namespace ZeroC.Glacier2.Test.Router
             }
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 
     public sealed class CallbackReceiver : ICallbackReceiver

@@ -1,1 +1,2 @@
-StructRedefinition.ice:9: redefinition of struct `Struct1' as struct
+StructRedefinition.ice:9: redefinition of struct `Struct1'
+StructRedefinition.ice:8: note: struct `Struct1' was originally defined here

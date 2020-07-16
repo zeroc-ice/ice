@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.SeqMapping
     {
         public ValueTask shutdownAsync(Current current)
         {
-            current.Adapter.Communicator.Shutdown();
+            current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 

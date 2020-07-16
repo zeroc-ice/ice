@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 using ZeroC.Ice;
 
@@ -123,7 +124,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 {
                     throw exception;
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                     Console.Out.WriteLine("ok");
                 }
@@ -144,7 +145,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             public void CreatedCommunicator(Glacier2.SessionHelper session) => Assert(session.Communicator != null);
         }
 
-        public override void Run(string[] args)
+        public override Task RunAsync(string[] args)
         {
             Dictionary<string, string> properties = CreateTestProperties(ref args);
             properties["Ice.Warn.Connections"] = "0";
@@ -323,7 +324,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     IObjectPrx.Parse("dummy", session.Communicator!).IcePing();
                     Assert(false);
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -391,7 +392,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                     IObjectPrx.Parse("dummy", session.Communicator!).IcePing();
                     Assert(false);
                 }
-                catch (CommunicatorDestroyedException)
+                catch (CommunicatorDisposedException)
                 {
                 }
                 Console.Out.WriteLine("ok");
@@ -401,6 +402,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
                 session.Destroy();
                 Console.Out.WriteLine("ok");
             }
+            return Task.CompletedTask;
         }
 
         public void WakeUp()
@@ -411,6 +413,6 @@ namespace ZeroC.Glacier2.Test.SessionHelper
             }
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

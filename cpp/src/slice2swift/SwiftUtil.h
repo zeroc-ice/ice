@@ -153,7 +153,7 @@ private:
 
     private:
 
-        StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&);
+        StringList validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, int);
 
         typedef std::map<std::string, std::string> ModuleMap;
         typedef std::map<std::string, ModuleMap> ModulePrefix;

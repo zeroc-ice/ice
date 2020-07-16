@@ -3,6 +3,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 namespace ZeroC.Ice.Test.Scope
@@ -31,7 +32,7 @@ namespace ZeroC.Ice.Test.Scope
 
             public C1? opC1(C1? c1, Current current) => c1;
 
-            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
         private class I2 : Inner.II
@@ -54,7 +55,7 @@ namespace ZeroC.Ice.Test.Scope
             public (IReadOnlyDictionary<string, Inner.Inner2.C?>, IReadOnlyDictionary<string, Inner.Inner2.C?>)
             opCMap(Dictionary<string, Inner.Inner2.C?> c1, Current current) => (c1, c1);
 
-            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
         private class I3 : Inner.Inner2.II
@@ -77,7 +78,7 @@ namespace ZeroC.Ice.Test.Scope
             public (IReadOnlyDictionary<string, Inner.Inner2.C?>, IReadOnlyDictionary<string, Inner.Inner2.C?>)
             opCMap(Dictionary<string, Inner.Inner2.C?> c1, Current current) => (c1, c1);
 
-            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
         private class I4 : Inner.Test.Inner2.II
@@ -96,23 +97,23 @@ namespace ZeroC.Ice.Test.Scope
             public (IReadOnlyDictionary<string, C?>, IReadOnlyDictionary<string, C?>)
             opCMap(Dictionary<string, C?> c1, Current current) => (c1, c1);
 
-            public void shutdown(Current current) => current.Adapter.Communicator.Shutdown();
+            public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using Communicator communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
             communicator.SetProperty("TestAdapter.Endpoints", GetTestEndpoint(0));
             ObjectAdapter adapter = communicator.CreateObjectAdapter("TestAdapter");
             adapter.Add("i1", new I1());
             adapter.Add("i2", new I2());
             adapter.Add("i3", new I3());
             adapter.Add("i4", new I4());
-            adapter.Activate();
+            await adapter.ActivateAsync();
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

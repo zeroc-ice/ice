@@ -35,12 +35,12 @@ namespace ZeroC.Ice
         internal SslStream? SslStream => (_delegate as SslTransceiver)?.SslStream;
 
         public Connection CreateConnection(
+            IConnectionManager manager,
             Endpoint endpoint,
-            IAcmMonitor? monitor,
             IConnector? connector,
             string connectionId,
             ObjectAdapter? adapter) =>
-            new WSConnection(endpoint, monitor, this, connector, connectionId, adapter);
+            new WSConnection(manager, endpoint, this, connector, connectionId, adapter);
 
         public Socket? Fd() => _delegate.Fd();
 
@@ -290,8 +290,7 @@ namespace ZeroC.Ice
             {
                 _closingReason = CLOSURE_NORMAL;
             }
-            else if (reason is ObjectAdapterDeactivatedException ||
-                    reason is CommunicatorDestroyedException)
+            else if (reason is ObjectDisposedException)
             {
                 _closingReason = CLOSURE_SHUTDOWN;
             }

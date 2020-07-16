@@ -2362,7 +2362,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             ostringstream os;
             os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", "", os.str());
+            dc->warning(InvalidMetaData, "", -1, os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -2376,7 +2376,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for class `" << p->scoped()
                        << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", "", os.str());
+                    dc->warning(InvalidMetaData, "", -1, os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -2946,7 +2946,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             ostringstream os;
             os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", "", os.str());
+            dc->warning(InvalidMetaData, "", -1, os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -2960,7 +2960,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
                        << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", "", os.str());
+                    dc->warning(InvalidMetaData, "", -1, os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }
@@ -3265,7 +3265,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             ostringstream os;
             os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
-            dc->warning(InvalidMetaData, "", "", os.str());
+            dc->warning(InvalidMetaData, "", -1, os.str());
             out << computeSerialVersionUUID(p);
         }
         else
@@ -3279,7 +3279,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
                        << "'; generating default value";
-                    dc->warning(InvalidMetaData, "", "", os.str());
+                    dc->warning(InvalidMetaData, "", -1, os.str());
                     out << computeSerialVersionUUID(p);
                 }
             }

@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace ZeroC.Ice.Test.Plugin
 {
@@ -19,7 +20,11 @@ namespace ZeroC.Ice.Test.Plugin
 
             public override void Initialize() => throw new PluginInitializeFailException();
 
-            public override void Destroy() => TestHelper.Assert(false);
+            public override ValueTask DisposeAsync()
+            {
+                TestHelper.Assert(false);
+                return new ValueTask(Task.CompletedTask);
+            }
 
             ~PluginThreeFail()
             {

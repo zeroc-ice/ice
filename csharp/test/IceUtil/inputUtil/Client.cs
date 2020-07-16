@@ -5,12 +5,13 @@
 using System;
 using ZeroC.Ice;
 using Test;
+using System.Threading.Tasks;
 
 namespace ZeroC.IceUtil.Test.InputUtil
 {
     public class Client : TestHelper
     {
-        public override void Run(string[] argvs)
+        public override Task RunAsync(string[] argvs)
         {
             Console.Out.Write("testing string to command line arguments... ");
             Console.Out.Flush();
@@ -94,8 +95,9 @@ namespace ZeroC.IceUtil.Test.InputUtil
                 }
             }
             Console.Out.WriteLine("ok");
+            return Task.CompletedTask;
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Client>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);
     }
 }

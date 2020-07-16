@@ -10,25 +10,25 @@ namespace ZeroC.Ice.Test.Threading
 {
     public class Server : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
 
             var adapter = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter.Add("test", new TestIntf(TaskScheduler.Default));
-            adapter.Activate();
+            await adapter.ActivateAsync();
 
             var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, 5);
 
             var adapter2 = communicator.CreateObjectAdapterWithEndpoints("TestAdapterExclusiveTS", GetTestEndpoint(1),
                 taskScheduler: schedulerPair.ExclusiveScheduler);
             adapter2.Add("test", new TestIntf(schedulerPair.ExclusiveScheduler));
-            adapter2.Activate();
+            await adapter2.ActivateAsync();
 
             var adapter3 = communicator.CreateObjectAdapterWithEndpoints("TestAdapteConcurrentTS", GetTestEndpoint(2),
                 taskScheduler: schedulerPair.ConcurrentScheduler);
             adapter3.Add("test", new TestIntf(schedulerPair.ConcurrentScheduler));
-            adapter3.Activate();
+            await adapter3.ActivateAsync();
 
             // Setup 20 worker threads for the .NET thread pool (we setup the minimum to avoid delays from the
             // thread pool thread creation).
@@ -39,9 +39,9 @@ namespace ZeroC.Ice.Test.Threading
             ThreadPool.SetMaxThreads(20, 4);
 
             ServerReady();
-            communicator.WaitForShutdown();
+            await communicator.WaitForShutdownAsync();
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Server>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Server>(args);
     }
 }

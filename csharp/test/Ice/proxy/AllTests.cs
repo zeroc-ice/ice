@@ -991,14 +991,12 @@ namespace ZeroC.Ice.Test.Proxy
             output.Flush();
             {
                 Communicator com = new Communicator();
-                com.Shutdown();
-                TestHelper.Assert(com.IsShutdown());
-                com.WaitForShutdown();
-                com.Destroy();
-                com.Shutdown();
-                TestHelper.Assert(com.IsShutdown());
-                com.WaitForShutdown();
-                com.Destroy();
+                com.ShutdownAsync();
+                com.WaitForShutdownAsync();
+                com.Dispose();
+                com.ShutdownAsync();
+                com.WaitForShutdownAsync();
+                com.Dispose();
             }
             output.WriteLine("ok");
 

@@ -11,9 +11,9 @@ namespace ZeroC.Ice.Test.Threading
 {
     public class Collocated : TestHelper
     {
-        public override void Run(string[] args)
+        public override async Task RunAsync(string[] args)
         {
-            using var communicator = Initialize(ref args);
+            await using Communicator communicator = Initialize(ref args);
 
             var adapter1 = communicator.CreateObjectAdapterWithEndpoints("TestAdapter", GetTestEndpoint(0));
             adapter1.Add("test", new TestIntf(TaskScheduler.Default));
@@ -53,9 +53,10 @@ namespace ZeroC.Ice.Test.Threading
             {
                 GetWriter().WriteLine($"test failed: {ex.reason}");
                 Assert(false);
+                throw;
             }
         }
 
-        public static int Main(string[] args) => TestDriver.RunTest<Collocated>(args);
+        public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);
     }
 }

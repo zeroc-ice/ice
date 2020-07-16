@@ -2,18 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System;
+
 namespace ZeroC.Ice
 {
-    public partial interface IPlugin
+    public interface IPlugin : IAsyncDisposable
     {
-        /// <summary>
-        /// Perform any necessary initialization steps.
-        /// </summary>
+        /// <summary>Perform any necessary initialization steps.</summary>
         void Initialize();
-
-        /// <summary>
-        /// Called when the communicator is being destroyed.
-        /// </summary>
-        void Destroy();
     }
 }
