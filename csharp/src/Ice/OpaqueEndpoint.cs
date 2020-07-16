@@ -36,7 +36,7 @@ namespace ZeroC.Ice
                         _ => null,
                     };
                 }
-                else if (option == "options" && _options.Count > 0)
+                else if (option == "option" && _options.Count > 0)
                 {
                     // We percent-escape each option, just like in their URI form.
                     return string.Join(",", _options.Select(s => Uri.EscapeDataString(s)));

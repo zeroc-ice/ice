@@ -27,7 +27,7 @@ namespace ZeroC.Ice.Test.Proxy
                 "ice+ws://host.zeroc.com//identity",
                 "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com",
                 "ice+ws://host.zeroc.com//identity?alt-endpoint=host2.zeroc.com:10000",
-                "ice+ws://host.zeroc.com//identity?protocol=ice1&source-address=10.1.2.4&compress=true",
+                "ice+ws://host.zeroc.com//identity?protocol=ice1&source-address=[::2]&compress=true",
                 "ice+ws://host.zeroc.com//identity?protocol=ice1&alt-endpoint=host2.zeroc.com?" +
                     "source-address=10.1.2.4$compress=true",
                 "ice+tcp://[::1]:10000/identity?alt-endpoint=host1:10000,host2,host3,host4",
