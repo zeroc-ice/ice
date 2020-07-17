@@ -1288,34 +1288,37 @@ namespace ZeroC.Ice
                 _communicator.Logger.Error($"unexpected connection exception:\n{ex}\n{Transceiver}");
             }
 
-            // Notify pending requests of the failure and the close callback. We use the thread pool to ensure the
-            // continuations or the callback are not run from this thread which might still lock the connection's mutex.
-            await Task.Run(() =>
+            // Yield to ensure the code below is executed from a separate thread pool thread. PerformCloseAsync
+            // is called with the connection's mutex locked and the code below is not safe to call with this
+            // mutex locked.
+            await Task.Yield();
+
+            // Notify the pending requests of the connection closure
+            foreach ((TaskCompletionSource<IncomingResponseFrame> CompletionSource, bool _) request in _requests.Values)
             {
-                foreach ((TaskCompletionSource<IncomingResponseFrame> TaskCompletionSource, bool _) request in
-                    _requests.Values)
-                {
-                    request.TaskCompletionSource.SetException(_exception!);
-                }
+                request.CompletionSource.SetException(_exception!);
+            }
 
-                // Raise the Closed event
-                try
-                {
-                    _closed?.Invoke(this, EventArgs.Empty);
-                }
-                catch (Exception ex)
-                {
-                    _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
-                }
-            });
+            // Raise the Closed event
+            try
+            {
+                _closed?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                _communicator.Logger.Error($"connection callback exception:\n{ex}\n{this}");
+            }
 
-            // Wait for all the dispatch to complete before reaping the connection and notifying the observer
+            // Wait for all the dispatch to complete before removing the connection from the factory and notifying
+            // the observer
             if (_dispatchTaskCompletionSource != null)
             {
                 await _dispatchTaskCompletionSource.Task.ConfigureAwait(false);
             }
 
+            // Remove the connection from the factory, must be called without the connection mutex locked
             _manager.Remove(this);
+
             _observer?.Detach();
         }
 
