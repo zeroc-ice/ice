@@ -54,7 +54,7 @@ namespace ZeroC.Ice
 
         /// <summary>Gets the value of a property as a size in bytes. If the property is not set, returns null.
         /// The value must be an integer followed immediately by an optional size unit of 'K', 'M' or 'G'.
-        /// These correspond to kilobytes, megabytes, or gigabytes, respectively.
+        /// These correspond to kilobytes, megabytes, or gigabytes, respectively.</summary>
         /// <param name="name">The property name.</param>
         /// <returns>The property value parsed into an integer representing the number of bytes or null.</returns>
         public int? GetPropertyAsByteSize(string name)
