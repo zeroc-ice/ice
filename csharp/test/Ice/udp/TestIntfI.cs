@@ -8,17 +8,17 @@ namespace ZeroC.Ice.Test.UDP
 {
     public sealed class TestIntf : ITestIntf
     {
-        public int getValue(Current current)
+        public int GetValue(Current current)
         {
             TestHelper.Assert(false); // a two-way operation cannot be reached through UDP
             return 42;
         }
 
-        public void ping(IPingReplyPrx? reply, Current current)
+        public void Ping(IPingReplyPrx? reply, Current current)
         {
             try
             {
-                reply!.reply();
+                reply!.Reply();
             }
             catch (System.Exception)
             {
@@ -26,19 +26,19 @@ namespace ZeroC.Ice.Test.UDP
             }
         }
 
-        public void sendByteSeq(byte[] seq, IPingReplyPrx? reply, Current current)
+        public void SendByteSeq(byte[] seq, IPingReplyPrx? reply, Current current)
         {
             try
             {
-                reply!.reply();
+                reply!.Reply();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
         }
 
-        public void pingBiDir(Identity id, Current current)
+        public void PingBiDir(Identity id, Current current)
         {
             try
             {
@@ -50,21 +50,21 @@ namespace ZeroC.Ice.Test.UDP
                 try
                 {
                     byte[] seq = new byte[32 * 1024];
-                    current.Connection.CreateProxy(id, ITestIntfPrx.Factory).sendByteSeq(seq, null);
+                    current.Connection.CreateProxy(id, ITestIntfPrx.Factory).SendByteSeq(seq, null);
                 }
                 catch (DatagramLimitException)
                 {
                     // Expected.
                 }
 
-                current.Connection.CreateProxy(id, IPingReplyPrx.Factory).reply();
+                current.Connection.CreateProxy(id, IPingReplyPrx.Factory).Reply();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
         }
 
-        public void shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
     }
 }

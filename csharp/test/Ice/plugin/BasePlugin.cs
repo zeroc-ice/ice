@@ -29,7 +29,13 @@ namespace ZeroC.Ice.Test.Plugin
         public bool isDestroyed() => _destroyed;
 
         public abstract void Initialize();
-        public abstract ValueTask DisposeAsync();
+        public virtual async ValueTask DisposeAsync()
+        {
+            if (_other != null)
+            {
+                await _other.DisposeAsync();
+            }
+        }
 
         protected Communicator _communicator;
         protected bool _initialized = false;

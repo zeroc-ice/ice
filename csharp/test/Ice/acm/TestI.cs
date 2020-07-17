@@ -9,7 +9,7 @@ namespace ZeroC.Ice.Test.ACM
 {
     public class RemoteCommunicator : IRemoteCommunicator
     {
-        public IRemoteObjectAdapterPrx createObjectAdapter(int timeout, string? close, string? heartbeat, Current current)
+        public IRemoteObjectAdapterPrx CreateObjectAdapter(int timeout, string? close, string? heartbeat, Current current)
         {
             Communicator communicator = current.Adapter.Communicator;
             string transport = communicator.GetProperty("Ice.Default.Transport") ?? "tcp";
@@ -35,7 +35,7 @@ namespace ZeroC.Ice.Test.ACM
             return current.Adapter.AddWithUUID(new RemoteObjectAdapter(adapter), IRemoteObjectAdapterPrx.Factory);
         }
 
-        public void shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => _ = current.Adapter.Communicator.ShutdownAsync();
 
     }
 
@@ -48,9 +48,9 @@ namespace ZeroC.Ice.Test.ACM
             _adapter.Activate();
         }
 
-        public ITestIntfPrx getTestIntf(Current current) => _testIntf;
+        public ITestIntfPrx GetTestIntf(Current current) => _testIntf;
 
-        public void deactivate(Current current) => _adapter.Dispose();
+        public void Deactivate(Current current) => _adapter.Dispose();
 
         private readonly ObjectAdapter _adapter;
         private readonly ITestIntfPrx _testIntf;
@@ -59,7 +59,7 @@ namespace ZeroC.Ice.Test.ACM
     public class TestIntf : ITestIntf
     {
         private readonly object _mutex = new object();
-        public void sleep(int delay, Current current)
+        public void Sleep(int delay, Current current)
         {
             lock (_mutex)
             {
@@ -67,7 +67,7 @@ namespace ZeroC.Ice.Test.ACM
             }
         }
 
-        public void interruptSleep(Current current)
+        public void InterruptSleep(Current current)
         {
             lock (_mutex)
             {
@@ -101,13 +101,13 @@ namespace ZeroC.Ice.Test.ACM
             private int _count = 0;
         }
 
-        public void startHeartbeatCount(Current current)
+        public void StartHeartbeatCount(Current current)
         {
             _callback = new HeartbeatCallbackI();
             current.Connection!.HeartbeatReceived += (sender, args) => _callback.Heartbeat();
         }
 
-        public void waitForHeartbeatCount(int count, Current current)
+        public void WaitForHeartbeatCount(int count, Current current)
         {
             TestHelper.Assert(_callback != null);
             _callback.WaitForCount(count);

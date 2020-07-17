@@ -26,7 +26,7 @@ namespace ZeroC.Ice.Test.Retry
             //
             properties["Ice.RetryIntervals"] = "0 1 10000";
             await using var communicator2 = Initialize(properties, observer: Instrumentation.GetObserver());
-            AllTests.allTests(this, communicator, communicator2, $"retry:{GetTestEndpoint(0)}").shutdown();
+            AllTests.allTests(this, communicator, communicator2, $"retry:{GetTestEndpoint(0)}").Shutdown();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

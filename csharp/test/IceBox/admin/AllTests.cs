@@ -74,7 +74,7 @@ namespace ZeroC.IceBox.Test.Admin
                 TestHelper.Assert(pa.GetProperty("Prop3").Length == 0);
                 TestHelper.Assert(pa.GetProperty("Prop4") == "4");
                 TestHelper.Assert(pa.GetProperty("Prop5") == "5");
-                changes = facet.getChanges();
+                changes = facet.GetChanges();
                 TestHelper.Assert(changes.Count == 5);
                 TestHelper.Assert(changes["Prop1"] == "10");
                 TestHelper.Assert(changes["Prop2"] == "20");
@@ -82,7 +82,7 @@ namespace ZeroC.IceBox.Test.Admin
                 TestHelper.Assert(changes["Prop4"] == "4");
                 TestHelper.Assert(changes["Prop5"] == "5");
                 pa.SetProperties(setProps);
-                changes = facet.getChanges();
+                changes = facet.GetChanges();
                 TestHelper.Assert(changes.Count == 0);
             }
             Console.Out.WriteLine("ok");

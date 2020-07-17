@@ -63,29 +63,29 @@ namespace ZeroC.Ice.Test.Operations
 
             {
                 var cb = new Callback();
-                p.opVoidAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
+                p.OpVoidAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
                 cb.Check();
             }
 
             {
                 var cb = new Callback();
-                p.opIdempotentAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
+                p.OpIdempotentAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
                 cb.Check();
             }
 
             {
                 var cb = new Callback();
-                p.opOnewayAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
+                p.OpOnewayAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
                 cb.Check();
             }
 
             {
                 var cb = new Callback();
-                p.opOnewayMetadataAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
+                p.OpOnewayMetadataAsync(progress: new Progress<bool>(sentSynchronously => cb.Sent()));
                 cb.Check();
             }
 
-            (byte ReturnValue, byte p3) = p.opByteAsync(0xff, 0x0f).Result;
+            (byte ReturnValue, byte p3) = p.OpByteAsync(0xff, 0x0f).Result;
         }
     }
 }

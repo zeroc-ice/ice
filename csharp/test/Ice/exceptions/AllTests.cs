@@ -94,12 +94,12 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwAasA(1);
+                thrower.ThrowAasA(1);
                 TestHelper.Assert(false);
             }
             catch (A ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.AMem == 1);
             }
             catch (Exception ex)
             {
@@ -109,12 +109,12 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwAorDasAorD(1);
+                thrower.ThrowAorDasAorD(1);
                 TestHelper.Assert(false);
             }
             catch (A ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.AMem == 1);
             }
             catch (Exception)
             {
@@ -123,12 +123,12 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwAorDasAorD(-1);
+                thrower.ThrowAorDasAorD(-1);
                 TestHelper.Assert(false);
             }
             catch (D ex)
             {
-                TestHelper.Assert(ex.dMem == -1);
+                TestHelper.Assert(ex.DMem == -1);
             }
             catch (Exception)
             {
@@ -137,13 +137,13 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwBasB(1, 2);
+                thrower.ThrowBasB(1, 2);
                 TestHelper.Assert(false);
             }
             catch (B ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
-                TestHelper.Assert(ex.bMem == 2);
+                TestHelper.Assert(ex.AMem == 1);
+                TestHelper.Assert(ex.BMem == 2);
             }
             catch (Exception)
             {
@@ -152,14 +152,14 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwCasC(1, 2, 3);
+                thrower.ThrowCasC(1, 2, 3);
                 TestHelper.Assert(false);
             }
             catch (C ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
-                TestHelper.Assert(ex.bMem == 2);
-                TestHelper.Assert(ex.cMem == 3);
+                TestHelper.Assert(ex.AMem == 1);
+                TestHelper.Assert(ex.BMem == 2);
+                TestHelper.Assert(ex.CMem == 3);
             }
             catch (Exception)
             {
@@ -173,12 +173,12 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwBasB(1, 2);
+                thrower.ThrowBasB(1, 2);
                 TestHelper.Assert(false);
             }
             catch (A ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
+                TestHelper.Assert(ex.AMem == 1);
             }
             catch (Exception)
             {
@@ -187,13 +187,13 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwCasC(1, 2, 3);
+                thrower.ThrowCasC(1, 2, 3);
                 TestHelper.Assert(false);
             }
             catch (B ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
-                TestHelper.Assert(ex.bMem == 2);
+                TestHelper.Assert(ex.AMem == 1);
+                TestHelper.Assert(ex.BMem == 2);
             }
             catch (Exception)
             {
@@ -207,13 +207,13 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwBasA(1, 2);
+                thrower.ThrowBasA(1, 2);
                 TestHelper.Assert(false);
             }
             catch (B ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
-                TestHelper.Assert(ex.bMem == 2);
+                TestHelper.Assert(ex.AMem == 1);
+                TestHelper.Assert(ex.BMem == 2);
             }
             catch (Exception)
             {
@@ -222,14 +222,14 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwCasA(1, 2, 3);
+                thrower.ThrowCasA(1, 2, 3);
                 TestHelper.Assert(false);
             }
             catch (C ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
-                TestHelper.Assert(ex.bMem == 2);
-                TestHelper.Assert(ex.cMem == 3);
+                TestHelper.Assert(ex.AMem == 1);
+                TestHelper.Assert(ex.BMem == 2);
+                TestHelper.Assert(ex.CMem == 3);
             }
             catch (Exception)
             {
@@ -238,14 +238,14 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwCasB(1, 2, 3);
+                thrower.ThrowCasB(1, 2, 3);
                 TestHelper.Assert(false);
             }
             catch (C ex)
             {
-                TestHelper.Assert(ex.aMem == 1);
-                TestHelper.Assert(ex.bMem == 2);
-                TestHelper.Assert(ex.cMem == 3);
+                TestHelper.Assert(ex.AMem == 1);
+                TestHelper.Assert(ex.BMem == 2);
+                TestHelper.Assert(ex.CMem == 3);
             }
             catch (Exception)
             {
@@ -259,7 +259,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwUndeclaredA(1);
+                thrower.ThrowUndeclaredA(1);
                 TestHelper.Assert(false);
             }
             catch (A)
@@ -272,7 +272,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwUndeclaredB(1, 2);
+                thrower.ThrowUndeclaredB(1, 2);
                 TestHelper.Assert(false);
             }
             catch (B)
@@ -285,7 +285,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwUndeclaredC(1, 2, 3);
+                thrower.ThrowUndeclaredC(1, 2, 3);
                 TestHelper.Assert(false);
             }
             catch (C)
@@ -304,7 +304,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 output.Flush();
                 try
                 {
-                    thrower.throwMemoryLimitException(Array.Empty<byte>());
+                    thrower.ThrowMemoryLimitException(Array.Empty<byte>());
                     TestHelper.Assert(false);
                 }
                 catch (InvalidDataException)
@@ -317,7 +317,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
                 try
                 {
-                    thrower.throwMemoryLimitException(new byte[20 * 1024]); // 20KB
+                    thrower.ThrowMemoryLimitException(new byte[20 * 1024]); // 20KB
                     TestHelper.Assert(false);
                 }
                 catch (ConnectionLostException)
@@ -337,7 +337,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     var thrower2 = IThrowerPrx.Parse("thrower:" + helper.GetTestEndpoint(1), communicator);
                     try
                     {
-                        thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
+                        thrower2.ThrowMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB(no limits)
                     }
                     catch (InvalidDataException)
                     {
@@ -345,7 +345,7 @@ namespace ZeroC.Ice.Test.Exceptions
                     var thrower3 = IThrowerPrx.Parse("thrower:" + helper.GetTestEndpoint(2), communicator);
                     try
                     {
-                        thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
+                        thrower3.ThrowMemoryLimitException(new byte[1024]); // 1KB limit
                         TestHelper.Assert(false);
                     }
                     catch (ConnectionLostException)
@@ -414,7 +414,7 @@ namespace ZeroC.Ice.Test.Exceptions
             try
             {
                 var thrower2 = IWrongOperationPrx.UncheckedCast(thrower);
-                thrower2.noSuchOperation();
+                thrower2.NoSuchOperation();
                 TestHelper.Assert(false);
             }
             catch (OperationNotExistException ex)
@@ -434,7 +434,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwLocalException();
+                thrower.ThrowLocalException();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException ex)
@@ -447,7 +447,7 @@ namespace ZeroC.Ice.Test.Exceptions
             }
             try
             {
-                thrower.throwLocalExceptionIdempotent();
+                thrower.ThrowLocalExceptionIdempotent();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -464,7 +464,7 @@ namespace ZeroC.Ice.Test.Exceptions
             output.Flush();
             try
             {
-                thrower.throwNonIceException();
+                thrower.ThrowNonIceException();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -480,7 +480,7 @@ namespace ZeroC.Ice.Test.Exceptions
             output.Flush();
             try
             {
-                thrower.throwAConvertedToUnhandled();
+                thrower.ThrowAConvertedToUnhandled();
                 TestHelper.Assert(false);
             }
             catch (UnhandledException)
@@ -497,7 +497,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwAfterResponse();
+                thrower.ThrowAfterResponse();
             }
             catch (Exception)
             {
@@ -506,7 +506,7 @@ namespace ZeroC.Ice.Test.Exceptions
 
             try
             {
-                thrower.throwAfterException();
+                thrower.ThrowAfterException();
                 TestHelper.Assert(false);
             }
             catch (A)
@@ -523,19 +523,19 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwAasAAsync(1).Wait();
+                    thrower.ThrowAasAAsync(1).Wait();
                 }
                 catch (AggregateException ex)
                 {
                     TestHelper.Assert(ex.InnerException != null);
-                    TestHelper.Assert(((A)ex.InnerException).aMem == 1);
+                    TestHelper.Assert(((A)ex.InnerException).AMem == 1);
                 }
             }
 
             {
                 try
                 {
-                    thrower.throwAorDasAorDAsync(1).Wait();
+                    thrower.ThrowAorDasAorDAsync(1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -547,11 +547,11 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (A ex)
                     {
-                        TestHelper.Assert(ex.aMem == 1);
+                        TestHelper.Assert(ex.AMem == 1);
                     }
                     catch (D ex)
                     {
-                        TestHelper.Assert(ex.dMem == -1);
+                        TestHelper.Assert(ex.DMem == -1);
                     }
                     catch (Exception)
                     {
@@ -563,7 +563,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwAorDasAorDAsync(-1).Wait();
+                    thrower.ThrowAorDasAorDAsync(-1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -575,11 +575,11 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (A ex)
                     {
-                        TestHelper.Assert(ex.aMem == 1);
+                        TestHelper.Assert(ex.AMem == 1);
                     }
                     catch (D ex)
                     {
-                        TestHelper.Assert(ex.dMem == -1);
+                        TestHelper.Assert(ex.DMem == -1);
                     }
                     catch (Exception)
                     {
@@ -591,7 +591,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwBasBAsync(1, 2).Wait();
+                    thrower.ThrowBasBAsync(1, 2).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -603,8 +603,8 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (B ex)
                     {
-                        TestHelper.Assert(ex.aMem == 1);
-                        TestHelper.Assert(ex.bMem == 2);
+                        TestHelper.Assert(ex.AMem == 1);
+                        TestHelper.Assert(ex.BMem == 2);
                     }
                     catch (Exception)
                     {
@@ -616,7 +616,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwCasCAsync(1, 2, 3).Wait();
+                    thrower.ThrowCasCAsync(1, 2, 3).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -628,9 +628,9 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (C ex)
                     {
-                        TestHelper.Assert(ex.aMem == 1);
-                        TestHelper.Assert(ex.bMem == 2);
-                        TestHelper.Assert(ex.cMem == 3);
+                        TestHelper.Assert(ex.AMem == 1);
+                        TestHelper.Assert(ex.BMem == 2);
+                        TestHelper.Assert(ex.CMem == 3);
                     }
                     catch (Exception)
                     {
@@ -647,7 +647,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwBasAAsync(1, 2).Wait();
+                    thrower.ThrowBasAAsync(1, 2).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -659,8 +659,8 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (B ex)
                     {
-                        TestHelper.Assert(ex.aMem == 1);
-                        TestHelper.Assert(ex.bMem == 2);
+                        TestHelper.Assert(ex.AMem == 1);
+                        TestHelper.Assert(ex.BMem == 2);
                     }
                     catch (Exception)
                     {
@@ -672,7 +672,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwCasAAsync(1, 2, 3).Wait();
+                    thrower.ThrowCasAAsync(1, 2, 3).Wait();
                 }
                 catch (AggregateException exc)
                 {
@@ -683,9 +683,9 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (C ex)
                     {
-                        TestHelper.Assert(ex.aMem == 1);
-                        TestHelper.Assert(ex.bMem == 2);
-                        TestHelper.Assert(ex.cMem == 3);
+                        TestHelper.Assert(ex.AMem == 1);
+                        TestHelper.Assert(ex.BMem == 2);
+                        TestHelper.Assert(ex.CMem == 3);
                     }
                     catch (Exception)
                     {
@@ -697,7 +697,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwCasBAsync(1, 2, 3).Wait();
+                    thrower.ThrowCasBAsync(1, 2, 3).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -709,9 +709,9 @@ namespace ZeroC.Ice.Test.Exceptions
                     }
                     catch (C ex)
                     {
-                        TestHelper.Assert(ex.aMem == 1);
-                        TestHelper.Assert(ex.bMem == 2);
-                        TestHelper.Assert(ex.cMem == 3);
+                        TestHelper.Assert(ex.AMem == 1);
+                        TestHelper.Assert(ex.BMem == 2);
+                        TestHelper.Assert(ex.CMem == 3);
                     }
                     catch (Exception)
                     {
@@ -728,7 +728,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwUndeclaredAAsync(1).Wait();
+                    thrower.ThrowUndeclaredAAsync(1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -751,7 +751,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwUndeclaredBAsync(1, 2).Wait();
+                    thrower.ThrowUndeclaredBAsync(1, 2).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -774,7 +774,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
+                    thrower.ThrowUndeclaredCAsync(1, 2, 3).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -804,7 +804,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 IThrowerPrx thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                 try
                 {
-                    thrower2.throwAasAAsync(1).Wait();
+                    thrower2.ThrowAasAAsync(1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -834,7 +834,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 IThrowerPrx thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
-                    thrower2.throwAasAAsync(1).Wait();
+                    thrower2.ThrowAasAAsync(1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -864,7 +864,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 try
                 {
                     var thrower4 = IWrongOperationPrx.UncheckedCast(thrower);
-                    thrower4.noSuchOperationAsync().Wait();
+                    thrower4.NoSuchOperationAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -893,7 +893,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwLocalExceptionAsync().Wait();
+                    thrower.ThrowLocalExceptionAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -916,7 +916,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwLocalExceptionIdempotentAsync().Wait();
+                    thrower.ThrowLocalExceptionIdempotentAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -943,7 +943,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwNonIceExceptionAsync().Wait();
+                    thrower.ThrowNonIceExceptionAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -970,7 +970,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwUndeclaredAAsync(1).Wait();
+                    thrower.ThrowUndeclaredAAsync(1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -993,7 +993,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwUndeclaredBAsync(1, 2).Wait();
+                    thrower.ThrowUndeclaredBAsync(1, 2).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1016,7 +1016,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwUndeclaredCAsync(1, 2, 3).Wait();
+                    thrower.ThrowUndeclaredCAsync(1, 2, 3).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1046,7 +1046,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 IThrowerPrx thrower2 = thrower.Clone(identity, IThrowerPrx.Factory);
                 try
                 {
-                    thrower2.throwAasAAsync(1).Wait();
+                    thrower2.ThrowAasAAsync(1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1076,7 +1076,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 IThrowerPrx thrower2 = thrower.Clone(facet: "no such facet", IThrowerPrx.Factory);
                 try
                 {
-                    thrower2.throwAasAAsync(1).Wait();
+                    thrower2.ThrowAasAAsync(1).Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1106,7 +1106,7 @@ namespace ZeroC.Ice.Test.Exceptions
                 var thrower4 = IWrongOperationPrx.UncheckedCast(thrower);
                 try
                 {
-                    thrower4.noSuchOperationAsync().Wait();
+                    thrower4.NoSuchOperationAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1135,7 +1135,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwLocalExceptionAsync().Wait();
+                    thrower.ThrowLocalExceptionAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1158,7 +1158,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwLocalExceptionIdempotentAsync().Wait();
+                    thrower.ThrowLocalExceptionIdempotentAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1185,7 +1185,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwNonIceExceptionAsync().Wait();
+                    thrower.ThrowNonIceExceptionAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)
@@ -1211,7 +1211,7 @@ namespace ZeroC.Ice.Test.Exceptions
             {
                 try
                 {
-                    thrower.throwAConvertedToUnhandledAsync().Wait();
+                    thrower.ThrowAConvertedToUnhandledAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException exc)

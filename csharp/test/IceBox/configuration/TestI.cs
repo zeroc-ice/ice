@@ -14,8 +14,8 @@ namespace ZeroC.IceBox.Test.Configuration
 
         public TestIntf(string[] args) => _args = args;
 
-        public string getProperty(string name, Current current) => current.Adapter.Communicator.GetProperty(name) ?? "";
+        public string GetProperty(string name, Current current) => current.Adapter.Communicator.GetProperty(name) ?? "";
 
-        public IEnumerable<string> getArgs(Current current) => _args;
+        public IEnumerable<string> GetArgs(Current current) => _args;
     }
 }

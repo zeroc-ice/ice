@@ -143,7 +143,7 @@ namespace ZeroC.Ice.Test.Info
                 }
                 TestHelper.Assert(tcpEndpoint.Host == defaultHost);
 
-                Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
+                Dictionary<string, string> ctx = testIntf.GetEndpointInfoAsContext();
                 TestHelper.Assert(ctx["host"] == tcpEndpoint.Host);
                 TestHelper.Assert(ctx["compress"] == "false");
                 int port = int.Parse(ctx["port"]);
@@ -206,7 +206,7 @@ namespace ZeroC.Ice.Test.Info
                     TestHelper.Assert(((TcpConnection)connection).SslProtocol == null);
                 }
 
-                Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
+                Dictionary<string, string> ctx = testIntf.GetConnectionInfoAsContext();
                 TestHelper.Assert(ctx["incoming"].Equals("true"));
                 TestHelper.Assert(ctx["adapterName"].Equals("TestAdapter"));
                 TestHelper.Assert(ctx["remoteAddress"].Equals(connection.LocalEndpoint!.Address.ToString()));
@@ -245,7 +245,7 @@ namespace ZeroC.Ice.Test.Info
             }
             output.WriteLine("ok");
 
-            testIntf.shutdown();
+            testIntf.Shutdown();
 
             communicator.ShutdownAsync();
             communicator.WaitForShutdownAsync();

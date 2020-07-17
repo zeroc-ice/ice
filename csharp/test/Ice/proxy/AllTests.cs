@@ -824,14 +824,14 @@ namespace ZeroC.Ice.Test.Proxy
             output.Write("testing checked cast with context... ");
             output.Flush();
 
-            Dictionary<string, string> c = cl.getContext();
+            Dictionary<string, string> c = cl.GetContext();
             TestHelper.Assert(c == null || c.Count == 0);
 
             c = new Dictionary<string, string>();
             c["one"] = "hello";
             c["two"] = "world";
             cl = IMyClassPrx.CheckedCast(baseProxy, c);
-            Dictionary<string, string> c2 = cl!.getContext();
+            Dictionary<string, string> c2 = cl!.GetContext();
             TestHelper.Assert(c.DictionaryEqual(c2));
             output.WriteLine("ok");
 

@@ -16,7 +16,7 @@ namespace ZeroC.Ice.Test.DictMapping
             IMyClassPrx myClass = AllTests.allTests(this, false);
             output.Write("shutting down server... ");
             output.Flush();
-            myClass.shutdown();
+            myClass.Shutdown();
             output.WriteLine("ok");
         }
 

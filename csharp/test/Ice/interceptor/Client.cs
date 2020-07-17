@@ -31,13 +31,13 @@ namespace ZeroC.Ice.Test.Interceptor
             Assert(prx.IceIsA(typeId));
             Assert(interceptor.getLastOperation()!.Equals("ice_isA"));
             Assert(!interceptor.AsyncCompletion);
-            Assert(prx.add(33, 12) == 45);
+            Assert(prx.Add(33, 12) == 45);
             Assert(interceptor.getLastOperation()!.Equals("add"));
             Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
             output.Write("testing retry... ");
             output.Flush();
-            Assert(prx.addWithRetry(33, 12) == 45);
+            Assert(prx.AddWithRetry(33, 12) == 45);
             Assert(interceptor.getLastOperation()!.Equals("addWithRetry"));
             Assert(!interceptor.AsyncCompletion);
             output.WriteLine("ok");
@@ -45,7 +45,7 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Flush();
             try
             {
-                prx.badAdd(33, 12);
+                prx.BadAdd(33, 12);
                 Assert(false);
             }
             catch (InvalidInputException)
@@ -60,7 +60,7 @@ namespace ZeroC.Ice.Test.Interceptor
             interceptor.clear();
             try
             {
-                prx.notExistAdd(33, 12);
+                prx.NotExistAdd(33, 12);
                 Assert(false);
             }
             catch (ObjectNotExistException)
@@ -84,14 +84,14 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Flush();
             Assert(interceptor.getLastOperation() == null);
             Assert(!interceptor.AsyncCompletion);
-            Assert(prx.amdAdd(33, 12) == 45);
+            Assert(prx.AmdAdd(33, 12) == 45);
             Assert(interceptor.getLastOperation()!.Equals("amdAdd"));
             Assert(interceptor.AsyncCompletion);
             output.WriteLine("ok");
 
             output.Write("testing retry... ");
             output.Flush();
-            Assert(prx.amdAddWithRetry(33, 12) == 45);
+            Assert(prx.AmdAddWithRetry(33, 12) == 45);
             Assert(interceptor.getLastOperation()!.Equals("amdAddWithRetry"));
             Assert(interceptor.AsyncCompletion);
 
@@ -102,7 +102,7 @@ namespace ZeroC.Ice.Test.Interceptor
                 };
                 for (int i = 0; i < 10; ++i)
                 {
-                    Assert(prx.amdAdd(33, 12, ctx) == 45);
+                    Assert(prx.AmdAdd(33, 12, ctx) == 45);
                     Assert(interceptor.getLastOperation()!.Equals("amdAdd"));
                     Assert(interceptor.AsyncCompletion);
                 }
@@ -113,7 +113,7 @@ namespace ZeroC.Ice.Test.Interceptor
             output.Write("testing user exception... ");
             try
             {
-                prx.amdBadAdd(33, 12);
+                prx.AmdBadAdd(33, 12);
                 Assert(false);
             }
             catch (InvalidInputException)
@@ -129,7 +129,7 @@ namespace ZeroC.Ice.Test.Interceptor
             interceptor.clear();
             try
             {
-                prx.amdNotExistAdd(33, 12);
+                prx.AmdNotExistAdd(33, 12);
                 Assert(false);
             }
             catch (ObjectNotExistException)

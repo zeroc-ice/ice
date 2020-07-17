@@ -12,7 +12,7 @@ namespace ZeroC.Ice.Test.Facets
         public override Task RunAsync(string[] args)
         {
             using Communicator communicator = Initialize(ref args);
-            AllTests.allTests(this).shutdown();
+            AllTests.allTests(this).Shutdown();
             return Task.CompletedTask;
         }
 

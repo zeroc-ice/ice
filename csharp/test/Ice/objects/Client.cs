@@ -12,8 +12,7 @@ namespace ZeroC.Ice.Test.Objects
         public override async Task RunAsync(string[] args)
         {
             await using Communicator communicator = Initialize(ref args);
-            var initial = AllTests.allTests(this);
-            initial.shutdown();
+            await AllTests.allTests(this).ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

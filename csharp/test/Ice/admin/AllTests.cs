@@ -212,14 +212,14 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                     { "Ice.Admin.InstanceName", "Test" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 IProcessPrx proc = obj.Clone("Process", IProcessPrx.Factory);
                 proc.Shutdown();
-                com.waitForShutdown();
-                com.destroy();
+                com.WaitForShutdown();
+                com.Destroy();
             }
             output.WriteLine("ok");
 
@@ -234,9 +234,9 @@ namespace ZeroC.Ice.Test.Admin
                     { "Prop2", "2" },
                     { "Prop3", "3" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 IPropertiesAdminPrx pa = obj.Clone("Properties", IPropertiesAdminPrx.Factory);
 
@@ -277,7 +277,7 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(pa.GetProperty("Prop3").Length == 0);
                 TestHelper.Assert(pa.GetProperty("Prop4").Equals("4"));
                 TestHelper.Assert(pa.GetProperty("Prop5").Equals("5"));
-                changes = com.getChanges();
+                changes = com.GetChanges();
                 TestHelper.Assert(changes.Count == 5);
                 TestHelper.Assert(changes["Prop1"].Equals("10"));
                 TestHelper.Assert(changes["Prop2"].Equals("20"));
@@ -285,10 +285,10 @@ namespace ZeroC.Ice.Test.Admin
                 TestHelper.Assert(changes["Prop4"].Equals("4"));
                 TestHelper.Assert(changes["Prop5"].Equals("5"));
                 pa.SetProperties(setProps);
-                changes = com.getChanges();
+                changes = com.GetChanges();
                 TestHelper.Assert(changes.Count == 0);
 
-                com.destroy();
+                com.Destroy();
             }
             output.WriteLine("ok");
 
@@ -301,14 +301,14 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.InstanceName", "Test" },
                     { "NullLogger", "1" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                com.trace("testCat", "trace");
-                com.warning("warning");
-                com.error("error");
-                com.print("print");
+                com.Trace("testCat", "trace");
+                com.Warning("warning");
+                com.Error("error");
+                com.Print("print");
 
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 ILoggerAdminPrx logger = obj.Clone("Logger", ILoggerAdminPrx.Factory);
 
@@ -328,10 +328,10 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 // Get only errors and warnings
                 //
-                com.error("error2");
-                com.print("print2");
-                com.trace("testCat", "trace2");
-                com.warning("warning2");
+                com.Error("error2");
+                com.Print("print2");
+                com.Trace("testCat", "trace2");
+                com.Warning("warning2");
 
                 LogMessageType[] messageTypes = { LogMessageType.ErrorMessage, LogMessageType.WarningMessage };
 
@@ -348,9 +348,9 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 // Get only errors and traces with Cat = "testCat"
                 //
-                com.trace("testCat2", "A");
-                com.trace("testCat", "trace3");
-                com.trace("testCat2", "B");
+                com.Trace("testCat2", "A");
+                com.Trace("testCat", "trace3");
+                com.Trace("testCat2", "B");
 
                 messageTypes = new LogMessageType[] { LogMessageType.ErrorMessage, LogMessageType.TraceMessage };
                 string[] categories = { "testCat" };
@@ -367,7 +367,7 @@ namespace ZeroC.Ice.Test.Admin
                 //
                 // Same, but limited to last 2 messages(trace3 + error3)
                 //
-                com.error("error3");
+                com.Error("error3");
 
                 (logMessages, prefix) = logger.GetLog(messageTypes, categories, 2);
                 TestHelper.Assert(logMessages.Length == 2);
@@ -401,10 +401,10 @@ namespace ZeroC.Ice.Test.Admin
                     remoteLogger.CheckNextInit(prefix, m.Type, m.Message, m.TraceCategory);
                 }
 
-                com.trace("testCat", "rtrace");
-                com.warning("rwarning");
-                com.error("rerror");
-                com.print("rprint");
+                com.Trace("testCat", "rtrace");
+                com.Warning("rwarning");
+                com.Error("rerror");
+                com.Print("rprint");
 
                 remoteLogger.Wait(4);
 
@@ -430,11 +430,11 @@ namespace ZeroC.Ice.Test.Admin
                     remoteLogger.CheckNextInit(prefix, m.Type, m.Message, m.TraceCategory);
                 }
 
-                com.warning("rwarning2");
-                com.trace("testCat", "rtrace2");
-                com.warning("rwarning3");
-                com.error("rerror2");
-                com.print("rprint2");
+                com.Warning("rwarning2");
+                com.Trace("testCat", "rtrace2");
+                com.Warning("rwarning3");
+                com.Error("rerror2");
+                com.Print("rprint2");
 
                 remoteLogger.Wait(2);
 
@@ -454,7 +454,7 @@ namespace ZeroC.Ice.Test.Admin
                     // expected
                 }
 
-                com.destroy();
+                com.Destroy();
             }
             output.WriteLine("ok");
 
@@ -469,13 +469,13 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" },
                     { "Ice.Admin.InstanceName", "Test" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 ITestFacetPrx tf = obj.Clone("TestFacet", ITestFacetPrx.Factory);
-                tf.op();
-                com.destroy();
+                tf.Op();
+                com.Destroy();
             }
             output.WriteLine("ok");
 
@@ -492,9 +492,9 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Properties" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 try
                 {
@@ -513,7 +513,7 @@ namespace ZeroC.Ice.Test.Admin
                 catch (ObjectNotExistException)
                 {
                 }
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -526,9 +526,9 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Process" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 try
                 {
@@ -547,7 +547,7 @@ namespace ZeroC.Ice.Test.Admin
                 catch (ObjectNotExistException)
                 {
                 }
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -560,9 +560,9 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "TestFacet" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 try
                 {
@@ -581,7 +581,7 @@ namespace ZeroC.Ice.Test.Admin
                 catch (ObjectNotExistException)
                 {
                 }
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -594,14 +594,14 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "Properties TestFacet" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 IPropertiesAdminPrx pa = obj.Clone("Properties", IPropertiesAdminPrx.Factory);
                 TestHelper.Assert(pa.GetProperty("Ice.Admin.InstanceName").Equals("Test"));
                 var tf = ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet", IObjectPrx.Factory));
-                tf!.op();
+                tf!.Op();
                 try
                 {
                     IProcessPrx.CheckedCast(obj.Clone(facet: "Process", IObjectPrx.Factory));
@@ -610,7 +610,7 @@ namespace ZeroC.Ice.Test.Admin
                 catch (ObjectNotExistException)
                 {
                 }
-                com.destroy();
+                com.Destroy();
             }
             {
                 //
@@ -623,9 +623,9 @@ namespace ZeroC.Ice.Test.Admin
                     { "Ice.Admin.InstanceName", "Test" },
                     { "Ice.Admin.Facets", "TestFacet, Process" }
                 };
-                IRemoteCommunicatorPrx? com = factory.createCommunicator(props);
+                IRemoteCommunicatorPrx? com = factory.CreateCommunicator(props);
                 TestHelper.Assert(com != null);
-                IObjectPrx? obj = com.getAdmin();
+                IObjectPrx? obj = com.GetAdmin();
                 TestHelper.Assert(obj != null);
                 try
                 {
@@ -637,16 +637,16 @@ namespace ZeroC.Ice.Test.Admin
                 }
                 var tf = ITestFacetPrx.CheckedCast(obj.Clone(facet: "TestFacet", IObjectPrx.Factory));
                 TestHelper.Assert(tf != null);
-                tf.op();
+                tf.Op();
                 var proc = IProcessPrx.CheckedCast(obj.Clone(facet: "Process", IObjectPrx.Factory));
                 TestHelper.Assert(proc != null);
                 proc.Shutdown();
-                com.waitForShutdown();
-                com.destroy();
+                com.WaitForShutdown();
+                com.Destroy();
             }
             output.WriteLine("ok");
 
-            factory.shutdown();
+            factory.Shutdown();
         }
 
         private class RemoteLogger : IRemoteLogger

@@ -12,23 +12,23 @@ namespace ZeroC.Ice.Test.AMI
         private readonly object _mutex = new object();
 
         public void
-        op(Current current)
+        Op(Current current)
         {
         }
 
-        public int opWithResult(Current current) => 15;
+        public int OpWithResult(Current current) => 15;
 
-        public void opWithUE(Current current) => throw new TestIntfException();
+        public void OpWithUE(Current current) => throw new TestIntfException();
 
         public void
-        opWithPayload(byte[] seq, Current current)
+        OpWithPayload(byte[] seq, Current current)
         {
         }
 
         public void
-        close(CloseMode mode, Current current) => current.Connection!.Close((ConnectionClose)(int)mode);
+        Close(CloseMode mode, Current current) => current.Connection!.Close((ConnectionClose)(int)mode);
 
-        public void sleep(int ms, Current current)
+        public void Sleep(int ms, Current current)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public void shutdown(Current current)
+        public void Shutdown(Current current)
         {
             lock (_mutex)
             {
@@ -56,24 +56,24 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public bool supportsAMD(Current current) => true;
+        public bool SupportsAMD(Current current) => true;
 
-        public bool supportsFunctionalTests(Current current) => false;
+        public bool SupportsFunctionalTests(Current current) => false;
 
-        public async ValueTask opAsyncDispatchAsync(Current current) => await Task.Delay(10);
+        public async ValueTask OpAsyncDispatchAsync(Current current) => await Task.Delay(10);
 
-        public async ValueTask<int> opWithResultAsyncDispatchAsync(Current current)
+        public async ValueTask<int> OpWithResultAsyncDispatchAsync(Current current)
         {
             await Task.Delay(10);
-            return await Self(current).opWithResultAsync();
+            return await Self(current).OpWithResultAsync();
         }
 
-        public async ValueTask opWithUEAsyncDispatchAsync(Current current)
+        public async ValueTask OpWithUEAsyncDispatchAsync(Current current)
         {
             await Task.Delay(10);
             try
             {
-                await Self(current).opWithUEAsync();
+                await Self(current).OpWithUEAsync();
             }
             catch (RemoteException ex)
             {
@@ -85,7 +85,7 @@ namespace ZeroC.Ice.Test.AMI
         private ITestIntfPrx Self(Current current) =>
             current.Adapter.CreateProxy(current.Identity, ITestIntfPrx.Factory);
 
-        public ValueTask startDispatchAsync(Current current)
+        public ValueTask StartDispatchAsync(Current current)
         {
             lock (_mutex)
             {
@@ -106,7 +106,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public void finishDispatch(Current current)
+        public void FinishDispatch(Current current)
         {
             lock (_mutex)
             {
@@ -122,7 +122,7 @@ namespace ZeroC.Ice.Test.AMI
             }
         }
 
-        public int set(int newValue, Current current)
+        public int Set(int newValue, Current current)
         {
             int oldValue = _value;
             _value = newValue;
@@ -136,6 +136,6 @@ namespace ZeroC.Ice.Test.AMI
 
     public class TestIntf2 : Outer.Inner.ITestIntf
     {
-        public (int, int) op(int i, Current current) => (i, i);
+        public (int, int) Op(int i, Current current) => (i, i);
     }
 }

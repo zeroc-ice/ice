@@ -21,7 +21,7 @@ namespace ZeroC.Ice.Test.Operations
             output.Flush();
             Twoways.twoways(helper, cl);
             Twoways.twoways(helper, derivedProxy);
-            derivedProxy.opDerived();
+            derivedProxy.OpDerived();
             output.WriteLine("ok");
 
             output.Write("testing oneway operations... ");

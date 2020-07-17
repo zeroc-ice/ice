@@ -28,7 +28,7 @@ namespace ZeroC.Ice.Test.Metrics
             //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
             IMetricsPrx metrics = AllTests.allTests(this, observer);
-            metrics.shutdown();
+            await metrics.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Collocated>(args);

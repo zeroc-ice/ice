@@ -97,41 +97,41 @@ namespace ZeroC.Ice.Test.Facets
             d = IDPrx.CheckedCast(prx);
             TestHelper.Assert(d != null);
             TestHelper.Assert(d.Equals(prx));
-            TestHelper.Assert(d.callA().Equals("A"));
-            TestHelper.Assert(d.callB().Equals("B"));
-            TestHelper.Assert(d.callC().Equals("C"));
-            TestHelper.Assert(d.callD().Equals("D"));
+            TestHelper.Assert(d.CallA().Equals("A"));
+            TestHelper.Assert(d.CallB().Equals("B"));
+            TestHelper.Assert(d.CallC().Equals("C"));
+            TestHelper.Assert(d.CallD().Equals("D"));
             output.WriteLine("ok");
 
             output.Write("testing facets A, B, C, and D... ");
             output.Flush();
             df = d.Clone(facet: "facetABCD", IDPrx.Factory);
             TestHelper.Assert(df != null);
-            TestHelper.Assert(df.callA().Equals("A"));
-            TestHelper.Assert(df.callB().Equals("B"));
-            TestHelper.Assert(df.callC().Equals("C"));
-            TestHelper.Assert(df.callD().Equals("D"));
+            TestHelper.Assert(df.CallA().Equals("A"));
+            TestHelper.Assert(df.CallB().Equals("B"));
+            TestHelper.Assert(df.CallC().Equals("C"));
+            TestHelper.Assert(df.CallD().Equals("D"));
             output.WriteLine("ok");
 
             output.Write("testing facets E and F... ");
             output.Flush();
             IFPrx ff = d.Clone(facet: "facetEF", IFPrx.Factory);
-            TestHelper.Assert(ff.callE().Equals("E"));
-            TestHelper.Assert(ff.callF().Equals("F"));
+            TestHelper.Assert(ff.CallE().Equals("E"));
+            TestHelper.Assert(ff.CallF().Equals("F"));
             output.WriteLine("ok");
 
             output.Write("testing facet G... ");
             output.Flush();
             IGPrx gf = ff.Clone(facet: "facetGH", IGPrx.Factory);
-            TestHelper.Assert(gf.callG().Equals("G"));
+            TestHelper.Assert(gf.CallG().Equals("G"));
             output.WriteLine("ok");
 
             output.Write("testing whether casting preserves the facet... ");
             output.Flush();
             var hf = IHPrx.CheckedCast(gf);
             TestHelper.Assert(hf != null);
-            TestHelper.Assert(hf.callG().Equals("G"));
-            TestHelper.Assert(hf.callH().Equals("H"));
+            TestHelper.Assert(hf.CallG().Equals("G"));
+            TestHelper.Assert(hf.CallH().Equals("H"));
             output.WriteLine("ok");
             return gf;
         }

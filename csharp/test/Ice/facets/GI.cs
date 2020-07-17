@@ -8,9 +8,9 @@ namespace ZeroC.Ice.Test.Facets
     {
         public G(Communicator communicator) => _communicator = communicator;
 
-        public string callG(Current current) => "G";
+        public string CallG(Current current) => "G";
 
-        public void shutdown(Current current) => _communicator.ShutdownAsync();
+        public void Shutdown(Current current) => _communicator.ShutdownAsync();
 
         private readonly Communicator _communicator;
     }

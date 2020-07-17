@@ -47,19 +47,19 @@ namespace ZeroC.Ice.Test.Threading
                 // With collocation, synchronous calls dispatched on an object adapter which doesn't set a task
                 // scheduler are dispatched from the client invocation task scheduler.
                 var context = new Dictionary<string, string>() { { "scheduler", scheduler.Id.ToString() } };
-                proxy.pingSync(context);
-                proxy.ping(context);
+                proxy.PingSync(context);
+                proxy.Ping(context);
             }
             else
             {
-                proxy.pingSync();
-                proxy.ping();
+                proxy.PingSync();
+                proxy.Ping();
             }
 
             // Ensure the continuation is ran on the current task scheduler
-            await proxy.pingSyncAsync();
+            await proxy.PingSyncAsync();
             TestHelper.Assert(TaskScheduler.Current == scheduler);
-            await proxy.pingAsync();
+            await proxy.PingAsync();
             TestHelper.Assert(TaskScheduler.Current == scheduler);
 
             // The continuation set with ContinueWith are expected to be ran on the Current task
@@ -75,26 +75,26 @@ namespace ZeroC.Ice.Test.Threading
                     }
                 };
             };
-            await proxy.pingSyncAsync().ContinueWith(checkScheduler("pingSyncAsync"), TaskScheduler.Current);
+            await proxy.PingSyncAsync().ContinueWith(checkScheduler("pingSyncAsync"), TaskScheduler.Current);
             TestHelper.Assert(TaskScheduler.Current == scheduler);
-            await proxy.pingAsync().ContinueWith(checkScheduler("pingAsyncAsync"), TaskScheduler.Current);
+            await proxy.PingAsync().ContinueWith(checkScheduler("pingAsyncAsync"), TaskScheduler.Current);
             TestHelper.Assert(TaskScheduler.Current == scheduler);
 
             // The progress Report callback is always called from the default task scheduler right now.
             Progress progress;
             progress = new Progress();
-            await proxy.pingSyncAsync(progress: progress);
+            await proxy.PingSyncAsync(progress: progress);
             TestHelper.Assert(progress.Scheduler == TaskScheduler.Default);
             progress = new Progress();
-            await proxy.pingAsync(progress: progress);
+            await proxy.PingAsync(progress: progress);
             TestHelper.Assert(progress.Scheduler == TaskScheduler.Default);
 
             // The continuation of an awaitable setup with ConfigureAwait(false) is ran with the default
             // scheduler unless it completes synchronously in which cause it will run on the current
             // scheduler.
-            await proxy.pingSyncAsync().ConfigureAwait(false);
+            await proxy.PingSyncAsync().ConfigureAwait(false);
             TestHelper.Assert(TaskScheduler.Current == TaskScheduler.Default);
-            await proxy.pingAsync().ConfigureAwait(false);
+            await proxy.PingAsync().ConfigureAwait(false);
             TestHelper.Assert(TaskScheduler.Current == TaskScheduler.Default);
         }
 
@@ -141,7 +141,7 @@ namespace ZeroC.Ice.Test.Threading
                 var proxy = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(0), communicator);
                 try
                 {
-                    Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.concurrentAsync(20)).ToArray());
+                    Task.WaitAll(Enumerable.Range(0, 25).Select(idx => proxy.ConcurrentAsync(20)).ToArray());
                 }
                 catch (AggregateException ex)
                 {
@@ -150,7 +150,7 @@ namespace ZeroC.Ice.Test.Threading
                     // 4 additional concurrent calls.
                     TestHelper.Assert(ex.InnerExceptions.Count < 5);
                 }
-                proxy.reset();
+                proxy.Reset();
             }
             output.WriteLine("ok");
 
@@ -158,7 +158,7 @@ namespace ZeroC.Ice.Test.Threading
             {
                 // With the exclusive task scheduler, at most one request can be dispatched concurrently.
                 var proxy = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(1), communicator);
-                Task.WaitAll(Enumerable.Range(0, 10).Select(idx => proxy.concurrentAsync(1)).ToArray());
+                Task.WaitAll(Enumerable.Range(0, 10).Select(idx => proxy.ConcurrentAsync(1)).ToArray());
             }
             output.WriteLine("ok");
 
@@ -167,7 +167,7 @@ namespace ZeroC.Ice.Test.Threading
                 // With the concurrent task scheduler, at most 5 requests can be dispatched concurrently (this is
                 // configured on the server side).
                 var proxy = ITestIntfPrx.Parse("test:" + helper.GetTestEndpoint(2), communicator);
-                Task.WaitAll(Enumerable.Range(0, 20).Select(idx => proxy.concurrentAsync(5)).ToArray());
+                Task.WaitAll(Enumerable.Range(0, 20).Select(idx => proxy.ConcurrentAsync(5)).ToArray());
             }
             output.WriteLine("ok");
 

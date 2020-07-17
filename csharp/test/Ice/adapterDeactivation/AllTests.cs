@@ -53,8 +53,8 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 
             output.Write("creating/activating/deactivating object adapter in one operation... ");
             output.Flush();
-            obj.transient();
-            obj.transientAsync().Wait();
+            obj.Transient();
+            obj.TransientAsync().Wait();
             output.WriteLine("ok");
 
             {
@@ -204,7 +204,7 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 
             output.Write("deactivating object adapter in the server... ");
             output.Flush();
-            obj.deactivate();
+            obj.Deactivate();
             output.WriteLine("ok");
 
             output.Write("testing whether server is gone... ");

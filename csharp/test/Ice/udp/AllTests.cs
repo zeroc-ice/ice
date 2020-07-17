@@ -14,7 +14,7 @@ namespace ZeroC.Ice.Test.UDP
         {
             private readonly object _mutex = new object();
 
-            public void reply(Current current)
+            public void Reply(Current current)
             {
                 lock (_mutex)
                 {
@@ -23,7 +23,7 @@ namespace ZeroC.Ice.Test.UDP
                 }
             }
 
-            public void reset()
+            public void Reset()
             {
                 lock (_mutex)
                 {
@@ -31,7 +31,7 @@ namespace ZeroC.Ice.Test.UDP
                 }
             }
 
-            public bool waitReply(int expectedReplies, TimeSpan timeout)
+            public bool WaitReply(int expectedReplies, TimeSpan timeout)
             {
                 lock (_mutex)
                 {
@@ -73,10 +73,10 @@ namespace ZeroC.Ice.Test.UDP
 
             try
             {
-                int val = obj.getValue();
+                int val = obj.GetValue();
                 TestHelper.Assert(false);
             }
-            catch (System.InvalidOperationException)
+            catch (InvalidOperationException)
             {
                 // expected
             }
@@ -85,11 +85,11 @@ namespace ZeroC.Ice.Test.UDP
             bool ret = false;
             while (nRetry-- > 0)
             {
-                replyI.reset();
-                obj.ping(reply);
-                obj.ping(reply);
-                obj.ping(reply);
-                ret = replyI.waitReply(3, TimeSpan.FromSeconds(2));
+                replyI.Reset();
+                obj.Ping(reply);
+                obj.Ping(reply);
+                obj.Ping(reply);
+                ret = replyI.WaitReply(3, TimeSpan.FromSeconds(2));
                 if (ret)
                 {
                     break; // Success
@@ -115,9 +115,9 @@ namespace ZeroC.Ice.Test.UDP
                     while (true)
                     {
                         seq = new byte[seq.Length * 2 + 10];
-                        replyI.reset();
-                        obj.sendByteSeq(seq, reply);
-                        replyI.waitReply(1, TimeSpan.FromSeconds(10));
+                        replyI.Reset();
+                        obj.SendByteSeq(seq, reply);
+                        replyI.WaitReply(1, TimeSpan.FromSeconds(10));
                     }
                 }
                 catch (DatagramLimitException)
@@ -133,10 +133,10 @@ namespace ZeroC.Ice.Test.UDP
                 seq = new byte[50000];
                 try
                 {
-                    replyI.reset();
-                    obj.sendByteSeq(seq, reply);
+                    replyI.Reset();
+                    obj.SendByteSeq(seq, reply);
 
-                    bool b = replyI.waitReply(1, TimeSpan.FromMilliseconds(500));
+                    bool b = replyI.WaitReply(1, TimeSpan.FromMilliseconds(500));
                     //
                     // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
                     // should not be delivered.
@@ -184,9 +184,9 @@ namespace ZeroC.Ice.Test.UDP
             nRetry = 5;
             while (nRetry-- > 0)
             {
-                replyI.reset();
-                objMcast.ping(reply);
-                ret = replyI.waitReply(5, TimeSpan.FromSeconds(5));
+                replyI.Reset();
+                objMcast.Ping(reply);
+                ret = replyI.WaitReply(5, TimeSpan.FromSeconds(5));
                 if (ret)
                 {
                     break;
@@ -211,11 +211,11 @@ namespace ZeroC.Ice.Test.UDP
             nRetry = 5;
             while (nRetry-- > 0)
             {
-                replyI.reset();
-                obj.pingBiDir(reply.Identity);
-                obj.pingBiDir(reply.Identity);
-                obj.pingBiDir(reply.Identity);
-                ret = replyI.waitReply(3, TimeSpan.FromSeconds(2));
+                replyI.Reset();
+                obj.PingBiDir(reply.Identity);
+                obj.PingBiDir(reply.Identity);
+                obj.PingBiDir(reply.Identity);
+                ret = replyI.WaitReply(3, TimeSpan.FromSeconds(2));
                 if (ret)
                 {
                     break; // Success

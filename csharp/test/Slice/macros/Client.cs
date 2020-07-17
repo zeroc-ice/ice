@@ -15,16 +15,16 @@ namespace ZeroC.Slice.Test.Macros
             Console.Out.Write("testing Slice predefined macros... ");
             Console.Out.Flush();
             var d = new Default();
-            Assert(d.x == 10);
-            Assert(d.y == 10);
+            Assert(d.X == 10);
+            Assert(d.Y == 10);
 
             var nd = new NoDefault();
-            Assert(nd.x != 10);
-            Assert(nd.y != 10);
+            Assert(nd.X != 10);
+            Assert(nd.Y != 10);
 
             var c = new CsOnly();
-            Assert(c.lang.Equals("cs"));
-            Assert(c.version == Ice.Runtime.IntVersion);
+            Assert(c.Lang.Equals("cs"));
+            Assert(c.Version == Ice.Runtime.IntVersion);
             Console.Out.WriteLine("ok");
             return Task.CompletedTask;
         }

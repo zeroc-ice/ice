@@ -149,11 +149,11 @@ namespace ZeroC.Ice.Test.Operations
 
             public void opStruct(Structure rso, Structure so)
             {
-                TestHelper.Assert(rso.p == null);
-                TestHelper.Assert(rso.e == MyEnum.enum2);
-                TestHelper.Assert(rso.s.s.Equals("def"));
-                TestHelper.Assert(so.e == MyEnum.enum3);
-                TestHelper.Assert(so.s.s.Equals("a new string"));
+                TestHelper.Assert(rso.P == null);
+                TestHelper.Assert(rso.E == MyEnum.enum2);
+                TestHelper.Assert(rso.S.S.Equals("def"));
+                TestHelper.Assert(so.E == MyEnum.enum3);
+                TestHelper.Assert(so.S.S.Equals("a new string"));
                 Called();
             }
 
@@ -924,71 +924,71 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                p.opVoidAsync().Wait();
+                p.OpVoidAsync().Wait();
             }
 
             {
-                var ret = p.opByteAsync(0xff, 0x0f).Result;
+                var ret = p.OpByteAsync(0xff, 0x0f).Result;
                 TestHelper.Assert(ret.p3 == 0xf0);
                 TestHelper.Assert(ret.ReturnValue == 0xff);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opBoolAsync(true, false).Result;
+                var ret = p.OpBoolAsync(true, false).Result;
                 cb.opBool(ret.ReturnValue, ret.p3);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opShortIntLongAsync(10, 11, 12).Result;
+                var ret = p.OpShortIntLongAsync(10, 11, 12).Result;
                 cb.opShortIntLong(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opUShortUIntULongAsync(10, 11, 12).Result;
+                var ret = p.OpUShortUIntULongAsync(10, 11, 12).Result;
                 cb.opUShortUIntULong(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opFloatDoubleAsync(3.14f, 1.1E10).Result;
+                var ret = p.OpFloatDoubleAsync(3.14f, 1.1E10).Result;
                 cb.opFloatDouble(ret.ReturnValue, ret.p3, ret.p4);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opStringAsync("hello", "world").Result;
+                var ret = p.OpStringAsync("hello", "world").Result;
                 cb.opString(ret.ReturnValue, ret.p3);
             }
 
             {
                 var cb = new Callback();
-                var ret = p.opMyEnumAsync(MyEnum.enum2).Result;
+                var ret = p.OpMyEnumAsync(MyEnum.enum2).Result;
                 cb.opMyEnum(ret.ReturnValue, ret.p2);
             }
 
             {
                 var cb = new Callback(communicator);
-                var ret = p.opMyClassAsync(p).Result;
+                var ret = p.OpMyClassAsync(p).Result;
                 cb.opMyClass(ret.ReturnValue, ret.p2, ret.p3);
             }
 
             {
                 var si1 = new Structure();
-                si1.p = p;
-                si1.e = MyEnum.enum3;
-                si1.s = new AnotherStruct();
-                si1.s.s = "abc";
+                si1.P = p;
+                si1.E = MyEnum.enum3;
+                si1.S = new AnotherStruct();
+                si1.S.S = "abc";
                 var si2 = new Structure();
-                si2.p = null;
-                si2.e = MyEnum.enum2;
-                si2.s = new AnotherStruct();
-                si2.s.s = "def";
+                si2.P = null;
+                si2.E = MyEnum.enum2;
+                si2.S = new AnotherStruct();
+                si2.S.S = "def";
 
                 var cb = new Callback(communicator);
-                var ret = p.opStructAsync(si1, si2).Result;
+                var ret = p.OpStructAsync(si1, si2).Result;
                 cb.opStruct(ret.ReturnValue, ret.p3);
             }
 
@@ -997,7 +997,7 @@ namespace ZeroC.Ice.Test.Operations
                 byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
 
                 var cb = new Callback();
-                var ret = p.opByteSAsync(bsi1, bsi2).Result;
+                var ret = p.OpByteSAsync(bsi1, bsi2).Result;
                 cb.opByteS(ret.ReturnValue, ret.p3);
             }
 
@@ -1006,7 +1006,7 @@ namespace ZeroC.Ice.Test.Operations
                 bool[] bsi2 = new bool[] { false };
 
                 var cb = new Callback();
-                var ret = p.opBoolSAsync(bsi1, bsi2).Result;
+                var ret = p.OpBoolSAsync(bsi1, bsi2).Result;
                 cb.opBoolS(ret.ReturnValue, ret.p3);
             }
 
@@ -1016,7 +1016,7 @@ namespace ZeroC.Ice.Test.Operations
                 long[] lsi = new long[] { 10, 30, 20 };
 
                 var cb = new Callback();
-                var ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
+                var ret = p.OpShortIntLongSAsync(ssi, isi, lsi).Result;
                 cb.opShortIntLongS(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
@@ -1025,7 +1025,7 @@ namespace ZeroC.Ice.Test.Operations
                 double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
 
                 var cb = new Callback();
-                var ret = p.opFloatDoubleSAsync(fsi, dsi).Result;
+                var ret = p.OpFloatDoubleSAsync(fsi, dsi).Result;
                 cb.opFloatDoubleS(ret.ReturnValue, ret.p3, ret.p4);
             }
 
@@ -1034,7 +1034,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[] ssi2 = new string[] { "xyz" };
 
                 var cb = new Callback();
-                var ret = p.opStringSAsync(ssi1, ssi2).Result;
+                var ret = p.OpStringSAsync(ssi1, ssi2).Result;
                 cb.opStringS(ret.ReturnValue, ret.p3);
             }
 
@@ -1048,7 +1048,7 @@ namespace ZeroC.Ice.Test.Operations
                 byte[][] bsi2 = new byte[][] { s21, s22 };
 
                 var cb = new Callback();
-                var ret = p.opByteSSAsync(bsi1, bsi2).Result;
+                var ret = p.OpByteSSAsync(bsi1, bsi2).Result;
                 cb.opByteSS(ret.ReturnValue, ret.p3);
             }
 
@@ -1062,7 +1062,7 @@ namespace ZeroC.Ice.Test.Operations
                 bool[][] bsi2 = new bool[][] { s21 };
 
                 var cb = new Callback();
-                var ret = p.opBoolSSAsync(bsi1, bsi2).Result;
+                var ret = p.OpBoolSSAsync(bsi1, bsi2).Result;
                 cb.opBoolSS(ret.ReturnValue, ret.p3);
             }
 
@@ -1080,7 +1080,7 @@ namespace ZeroC.Ice.Test.Operations
                 long[][] lsi = new long[][] { l11 };
 
                 var cb = new Callback();
-                var ret = p.opShortIntLongSSAsync(ssi, isi, lsi).Result;
+                var ret = p.OpShortIntLongSSAsync(ssi, isi, lsi).Result;
                 cb.opShortIntLongSS(ret.ReturnValue, ret.p4, ret.p5, ret.p6);
             }
 
@@ -1094,7 +1094,7 @@ namespace ZeroC.Ice.Test.Operations
                 double[][] dsi = new double[][] { d11 };
 
                 var cb = new Callback();
-                var ret = p.opFloatDoubleSSAsync(fsi, dsi).Result;
+                var ret = p.OpFloatDoubleSSAsync(fsi, dsi).Result;
                 cb.opFloatDoubleSS(ret.ReturnValue, ret.p3, ret.p4);
             }
 
@@ -1109,7 +1109,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[][] ssi2 = new string[][] { s21, s22, s23 };
 
                 var cb = new Callback();
-                var ret = p.opStringSSAsync(ssi1, ssi2).Result;
+                var ret = p.OpStringSSAsync(ssi1, ssi2).Result;
                 cb.opStringSS(ret.ReturnValue, ret.p3);
             }
 
@@ -1130,7 +1130,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
 
                 var cb = new Callback();
-                var ret = p.opStringSSSAsync(sssi1, sssi2).Result;
+                var ret = p.OpStringSSSAsync(sssi1, sssi2).Result;
                 cb.opStringSSS(ret.ReturnValue, ret.p3);
             }
 
@@ -1144,7 +1144,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[101] = true;
 
                 var cb = new Callback();
-                var ret = p.opByteBoolDAsync(di1, di2).Result;
+                var ret = p.OpByteBoolDAsync(di1, di2).Result;
                 cb.opByteBoolD(ret.ReturnValue, ret.p3);
             }
 
@@ -1158,7 +1158,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[1101] = 0;
 
                 var cb = new Callback();
-                var ret = p.opShortIntDAsync(di1, di2).Result;
+                var ret = p.OpShortIntDAsync(di1, di2).Result;
                 cb.opShortIntD(ret.ReturnValue, ret.p3);
             }
 
@@ -1172,7 +1172,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[999999130L] = 0.5f;
 
                 var cb = new Callback();
-                var ret = p.opLongFloatDAsync(di1, di2).Result;
+                var ret = p.OpLongFloatDAsync(di1, di2).Result;
                 cb.opLongFloatD(ret.ReturnValue, ret.p3);
             }
 
@@ -1186,7 +1186,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2["BAR"] = "abc 0.5";
 
                 var cb = new Callback();
-                var ret = p.opStringStringDAsync(di1, di2).Result;
+                var ret = p.OpStringStringDAsync(di1, di2).Result;
                 cb.opStringStringD(ret.ReturnValue, ret.p3);
             }
 
@@ -1200,7 +1200,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2["Hello!!"] = MyEnum.enum2;
 
                 var cb = new Callback();
-                var ret = p.opStringMyEnumDAsync(di1, di2).Result;
+                var ret = p.OpStringMyEnumDAsync(di1, di2).Result;
                 cb.opStringMyEnumD(ret.ReturnValue, ret.p3);
             }
 
@@ -1212,7 +1212,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[MyEnum.enum3] = "qwerty";
 
                 var cb = new Callback();
-                var ret = p.opMyEnumStringDAsync(di1, di2).Result;
+                var ret = p.OpMyEnumStringDAsync(di1, di2).Result;
                 cb.opMyEnumStringD(ret.ReturnValue, ret.p3);
             }
 
@@ -1231,7 +1231,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[s23] = MyEnum.enum2;
 
                 var cb = new Callback();
-                var ret = p.opMyStructMyEnumDAsync(di1, di2).Result;
+                var ret = p.OpMyStructMyEnumDAsync(di1, di2).Result;
                 cb.opMyStructMyEnumD(ret.ReturnValue, ret.p3);
             }
 
@@ -1255,7 +1255,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opByteBoolDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpByteBoolDSAsync(dsi1, dsi2).Result;
                 cb.opByteBoolDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1278,7 +1278,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opLongFloatDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpLongFloatDSAsync(dsi1, dsi2).Result;
                 cb.opLongFloatDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1301,7 +1301,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opStringStringDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpStringStringDSAsync(dsi1, dsi2).Result;
                 cb.opStringStringDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1324,7 +1324,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opStringMyEnumDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpStringMyEnumDSAsync(dsi1, dsi2).Result;
                 cb.opStringMyEnumDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1345,7 +1345,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opMyEnumStringDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpMyEnumStringDSAsync(dsi1, dsi2).Result;
                 cb.opMyEnumStringDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1374,7 +1374,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi2[0] = di3;
 
                 var cb = new Callback();
-                var ret = p.opMyStructMyEnumDSAsync(dsi1, dsi2).Result;
+                var ret = p.OpMyStructMyEnumDSAsync(dsi1, dsi2).Result;
                 cb.opMyStructMyEnumDS(ret.ReturnValue, ret.p3);
             }
 
@@ -1391,7 +1391,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[0xf1] = si3;
 
                 var cb = new Callback();
-                var ret = p.opByteByteSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpByteByteSDAsync(sdi1, sdi2).Result;
                 cb.opByteByteSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1407,7 +1407,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[false] = si1;
 
                 var cb = new Callback();
-                var ret = p.opBoolBoolSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpBoolBoolSDAsync(sdi1, sdi2).Result;
                 cb.opBoolBoolSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1424,7 +1424,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[4] = si3;
 
                 var cb = new Callback();
-                var ret = p.opShortShortSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpShortShortSDAsync(sdi1, sdi2).Result;
                 cb.opShortShortSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1441,7 +1441,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[400] = si3;
 
                 var cb = new Callback();
-                var ret = p.opIntIntSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpIntIntSDAsync(sdi1, sdi2).Result;
                 cb.opIntIntSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1458,7 +1458,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[999999992L] = si3;
 
                 var cb = new Callback();
-                var ret = p.opLongLongSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpLongLongSDAsync(sdi1, sdi2).Result;
                 cb.opLongLongSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1475,7 +1475,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2["aBc"] = si3;
 
                 var cb = new Callback();
-                var ret = p.opStringFloatSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpStringFloatSDAsync(sdi1, sdi2).Result;
                 cb.opStringFloatSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1492,7 +1492,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[""] = si3;
 
                 var cb = new Callback();
-                var ret = p.opStringDoubleSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpStringDoubleSDAsync(sdi1, sdi2).Result;
                 cb.opStringDoubleSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1509,7 +1509,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2["ghi"] = si3;
 
                 var cb = new Callback();
-                var ret = p.opStringStringSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpStringStringSDAsync(sdi1, sdi2).Result;
                 cb.opStringStringSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1526,7 +1526,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi2[MyEnum.enum1] = si3;
 
                 var cb = new Callback();
-                var ret = p.opMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
+                var ret = p.OpMyEnumMyEnumSDAsync(sdi1, sdi2).Result;
                 cb.opMyEnumMyEnumSD(ret.ReturnValue, ret.p3);
             }
 
@@ -1542,7 +1542,7 @@ namespace ZeroC.Ice.Test.Operations
                     }
 
                     var cb = new Callback(lengths[l]);
-                    cb.opIntS(p.opIntSAsync(s).Result);
+                    cb.opIntS(p.OpIntSAsync(s).Result);
                 }
             }
 
@@ -1554,23 +1554,23 @@ namespace ZeroC.Ice.Test.Operations
                 {
                     TestHelper.Assert(p.Context.Count == 0);
                     var cb = new Callback(ctx);
-                    cb.opContextNotEqual(p.opContextAsync().Result);
+                    cb.opContextNotEqual(p.OpContextAsync().Result);
                 }
                 {
                     TestHelper.Assert(p.Context.Count == 0);
                     var cb = new Callback(ctx);
-                    cb.opContextEqual(p.opContextAsync(ctx).Result);
+                    cb.opContextEqual(p.OpContextAsync(ctx).Result);
                 }
                 {
                     var p2 = p.Clone(context: ctx);
                     TestHelper.Assert(p2.Context.DictionaryEqual(ctx));
                     var cb = new Callback(ctx);
-                    cb.opContextEqual(p2.opContextAsync().Result);
+                    cb.opContextEqual(p2.OpContextAsync().Result);
                 }
                 {
                     var p2 = p.Clone(context: ctx);
                     Callback cb = new Callback(ctx);
-                    cb.opContextEqual(p2.opContextAsync(ctx).Result);
+                    cb.opContextEqual(p2.OpContextAsync(ctx).Result);
                 }
             }
 
@@ -1584,7 +1584,7 @@ namespace ZeroC.Ice.Test.Operations
                 communicator.CurrentContext["three"] = "THREE";
 
                 var p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-                TestHelper.Assert(p3.opContextAsync().Result.DictionaryEqual(communicator.CurrentContext));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
@@ -1613,21 +1613,21 @@ namespace ZeroC.Ice.Test.Operations
 
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
                 communicator.CurrentContext.Clear();
-                TestHelper.Assert(p3.opContextAsync().Result.DictionaryEqual(prxContext));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(prxContext));
 
                 communicator.CurrentContext = ctx;
-                TestHelper.Assert(p3.opContextAsync().Result.DictionaryEqual(combined));
+                TestHelper.Assert(p3.OpContextAsync().Result.DictionaryEqual(combined));
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
                 communicator.DefaultContext = new Dictionary<string, string>();
             }
 
-            p.opIdempotentAsync().Wait();
+            p.OpIdempotentAsync().Wait();
 
             try
             {
-                p.opOnewayAsync().Wait();
+                p.OpOnewayAsync().Wait();
                 TestHelper.Assert(false);
             }
             catch (AggregateException ex)
@@ -1636,52 +1636,52 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             // This is invoked as a oneway, despite using a twoway proxy.
-            p.opOnewayMetadataAsync().Wait();
+            p.OpOnewayMetadataAsync().Wait();
 
             {
                 var derived = IMyDerivedClassPrx.CheckedCast(p);
                 TestHelper.Assert(derived != null);
-                derived.opDerivedAsync().Wait();
+                derived.OpDerivedAsync().Wait();
             }
 
             {
-                TestHelper.Assert(p.opByte1Async(0xFF).Result == 0xFF);
-                TestHelper.Assert(p.opInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
-                TestHelper.Assert(p.opLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
-                TestHelper.Assert(p.opFloat1Async(1.0f).Result == 1.0f);
-                TestHelper.Assert(p.opDouble1Async(1.0d).Result == 1.0d);
-                TestHelper.Assert(p.opString1Async("opString1").Result.Equals("opString1"));
-                TestHelper.Assert(p.opStringS1Async(Array.Empty<string>()).Result.Length == 0);
-                TestHelper.Assert(p.opByteBoolD1Async(new Dictionary<byte, bool>()).Result.Count == 0);
-                TestHelper.Assert(p.opStringS2Async(Array.Empty<string>()).Result.Length == 0);
-                TestHelper.Assert(p.opByteBoolD2Async(new Dictionary<byte, bool>()).Result.Count == 0);
+                TestHelper.Assert(p.OpByte1Async(0xFF).Result == 0xFF);
+                TestHelper.Assert(p.OpInt1Async(0x7FFFFFFF).Result == 0x7FFFFFFF);
+                TestHelper.Assert(p.OpLong1Async(0x7FFFFFFFFFFFFFFF).Result == 0x7FFFFFFFFFFFFFFF);
+                TestHelper.Assert(p.OpFloat1Async(1.0f).Result == 1.0f);
+                TestHelper.Assert(p.OpDouble1Async(1.0d).Result == 1.0d);
+                TestHelper.Assert(p.OpString1Async("opString1").Result.Equals("opString1"));
+                TestHelper.Assert(p.OpStringS1Async(Array.Empty<string>()).Result.Length == 0);
+                TestHelper.Assert(p.OpByteBoolD1Async(new Dictionary<byte, bool>()).Result.Count == 0);
+                TestHelper.Assert(p.OpStringS2Async(Array.Empty<string>()).Result.Length == 0);
+                TestHelper.Assert(p.OpByteBoolD2Async(new Dictionary<byte, bool>()).Result.Count == 0);
             }
 
             Func<Task> task = async () =>
             {
                 {
-                    var p1 = await p.opMStruct1Async();
+                    var p1 = await p.OpMStruct1Async();
 
-                    p1.e = MyEnum.enum3;
-                    var r = await p.opMStruct2Async(p1);
+                    p1.E = MyEnum.enum3;
+                    var r = await p.OpMStruct2Async(p1);
                     TestHelper.Assert(r.p2.Equals(p1) && r.ReturnValue.Equals(p1));
                 }
 
                 {
-                    await p.opMSeq1Async();
+                    await p.OpMSeq1Async();
 
                     var p1 = new string[1];
                     p1[0] = "test";
-                    var r = await p.opMSeq2Async(p1);
+                    var r = await p.OpMSeq2Async(p1);
                     TestHelper.Assert(r.p2.SequenceEqual(p1) && r.ReturnValue.SequenceEqual(p1));
                 }
 
                 {
-                    await p.opMDict1Async();
+                    await p.OpMDict1Async();
 
                     var p1 = new Dictionary<string, string>();
                     p1["test"] = "test";
-                    var r = await p.opMDict2Async(p1);
+                    var r = await p.OpMDict2Async(p1);
                     TestHelper.Assert(r.p2.DictionaryEqual(p1) && r.ReturnValue.DictionaryEqual(p1));
                 }
             };

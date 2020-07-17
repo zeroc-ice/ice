@@ -11,7 +11,7 @@ namespace ZeroC.Ice.Test.Echo
     {
         private class Echo : IEcho
         {
-            public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+            public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
         }
 
         public override async Task RunAsync(string[] args)

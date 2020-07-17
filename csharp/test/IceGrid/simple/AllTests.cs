@@ -185,7 +185,7 @@ namespace ZeroC.IceGrid.Test.Simple
 
             Console.Out.Write("shutting down server... ");
             Console.Out.Flush();
-            obj.shutdown();
+            obj.Shutdown();
             Console.Out.WriteLine("ok");
         }
 
