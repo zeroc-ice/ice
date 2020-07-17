@@ -1541,18 +1541,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             const string name = fixId(op->name());
             const ParamDeclList paramList = op->parameters();
             const TypePtr ret = op->returnType();
-            ParamDeclList inParams, outParams;
-            for (ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-            {
-                if ((*pli)->isOutParam())
-                {
-                    outParams.push_back(*pli);
-                }
-                else
-                {
-                    inParams.push_back(*pli);
-                }
-            }
+            const ParamDeclList inParams = op->inParameters();
+            const ParamDeclList outParams = op->outParameters();
 
             //
             // Each operation descriptor is a property. The key is the "on-the-wire"
@@ -2739,18 +2729,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const OperationPtr op = *q;
         const ParamDeclList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        ParamDeclList inParams, outParams;
-        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
-        {
-            if ((*r)->isOutParam())
-            {
-                outParams.push_back(*r);
-            }
-            else
-            {
-                inParams.push_back(*r);
-            }
-        }
+        const ParamDeclList inParams = op->inParameters();
+        const ParamDeclList outParams = op->outParameters();
 
         const string contextParam = escapeParam(paramList, "context");
         CommentPtr comment = op->parseComment(false);
@@ -2841,18 +2821,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const OperationPtr op = *q;
         const ParamDeclList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        ParamDeclList inParams, outParams;
-        for (ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
-        {
-            if ((*r)->isOutParam())
-            {
-                outParams.push_back(*r);
-            }
-            else
-            {
-                inParams.push_back(*r);
-            }
-        }
+        const ParamDeclList inParams = op->inParameters();
+        const ParamDeclList outParams = op->outParameters();
 
         const string currentParam = escapeParam(inParams, "current");
         CommentPtr comment = p->parseComment(false);

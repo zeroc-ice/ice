@@ -1057,7 +1057,6 @@ class ParamDecl : public virtual Contained
 public:
 
     TypePtr type() const;
-    bool isOutParam() const;
     bool tagged() const;
     int tag() const;
     bool uses(const ContainedPtr&) const override;
@@ -1066,12 +1065,11 @@ public:
 
 protected:
 
-    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
+    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, int);
 
     friend class Operation;
 
     TypePtr _type;
-    bool _isOutParam;
     bool _tagged;
     int _tag;
 };

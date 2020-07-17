@@ -4457,6 +4457,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         _unit->error("`" + name + "': in parameters cannot follow out parameters");
     }
 
+    ParamDeclList& params = isOutParam ? _outParameters : _inParameters;
     if (tagged)
     {
         // Check for a duplicate tag.
@@ -4467,7 +4468,6 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
         else
         {
-            ParamDeclList params = isOutParam ? _outParameters : _inParameters;
             for (const auto& param : params)
             {
                 if (param->tagged() && param->tag() == tag)
@@ -4478,8 +4478,8 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr param = new ParamDecl(this, name, type, isOutParam, tagged, tag);
-    (isOutParam ? _outParameters : _inParameters).push_back(param);
+    ParamDeclPtr param = new ParamDecl(this, name, type, tagged, tag);
+    params.push_back(param);
     return param;
 }
 
@@ -4698,12 +4698,6 @@ Slice::ParamDecl::type() const
 }
 
 bool
-Slice::ParamDecl::isOutParam() const
-{
-    return _isOutParam;
-}
-
-bool
 Slice::ParamDecl::tagged() const
 {
     return _tagged;
@@ -4734,12 +4728,11 @@ Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
     visitor->visitParamDecl(this);
 }
 
-Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam,
-                            bool tagged, int tag) :
+Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool tagged,
+                            int tag) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),
-    _isOutParam(isOutParam),
     _tagged(tagged),
     _tag(tag)
 {
