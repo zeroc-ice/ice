@@ -12,18 +12,20 @@ interface IFoo
 
 class Bar
 {
-    string Bar; // Valid as Ice-3.6 (member names has its own scope)
+    string Bar;
     long l;
 }
 
 exception EBar
 {
-    string EBar; // Valid as Ice-3.6 (member names has its own scope)
+    string EBar;
+    long l;
 }
 
 struct SBar
 {
-    string SBar; // Valid as Ice-3.6 (member names has its own scope)
+    string SBar;
+    long l;
 }
 
 }
