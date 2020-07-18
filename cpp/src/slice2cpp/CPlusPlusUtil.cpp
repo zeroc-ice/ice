@@ -153,7 +153,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool isTagged, const st
 }
 
 void
-writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
+writeMarshalUnmarshalParams(Output& out, const DataMemberList& params, const OperationPtr& op, bool marshal,
                             bool prepend, const string& customStream = "", const string& retP = "",
                             const string& obj = "")
 {
@@ -170,17 +170,17 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     //
     // Marshal required parameters.
     //
-    ParamDeclList requiredParams;
-    ParamDeclList taggedParams;
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    DataMemberList requiredParams;
+    DataMemberList taggedParams;
+    for (const auto& param : params)
     {
-        if((*p)->tagged())
+        if(param->tagged())
         {
-            taggedParams.push_back(*p);
+            taggedParams.push_back(param);
         }
         else
         {
-            requiredParams.push_back(*p);
+            requiredParams.push_back(param);
         }
     }
 
@@ -196,9 +196,9 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             out << stream << "->readAll";
         }
         out << spar;
-        for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+        for(const auto& param : requiredParams)
         {
-            out << objPrefix + fixKwd(prefix + (*p)->name());
+            out << objPrefix + fixKwd(prefix + param->name());
         }
         if(op && op->returnType() && !op->returnIsTagged())
         {
@@ -215,7 +215,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         class SortFn
         {
         public:
-            static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
+            static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
             {
                 return lhs->tag() < rhs->tag();
             }
@@ -241,15 +241,15 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             os << '{';
             bool checkReturnType = op && op->returnIsTagged();
             bool insertComma = false;
-            for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
+            for (const auto& param : taggedParams)
             {
-                if(checkReturnType && op->returnTag() < (*p)->tag())
+                if(checkReturnType && op->returnTag() < param->tag())
                 {
                     os << (insertComma ? ", " : "") << op->returnTag();
                     checkReturnType = false;
                     insertComma = true;
                 }
-                os << (insertComma ? ", " : "") << (*p)->tag();
+                os << (insertComma ? ", " : "") << param->tag();
                 insertComma = true;
             }
             if(checkReturnType)
@@ -265,14 +265,14 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             // Parameters
             //
             bool checkReturnType = op && op->returnIsTagged();
-            for(ParamDeclList::const_iterator p = taggedParams.begin(); p != taggedParams.end(); ++p)
+            for (const auto& param : taggedParams)
             {
-                if(checkReturnType && op->returnTag() < (*p)->tag())
+                if(checkReturnType && op->returnTag() < param->tag())
                 {
                     out << objPrefix + returnValueS;
                     checkReturnType = false;
                 }
-                out << objPrefix + fixKwd(prefix + (*p)->name());
+                out << objPrefix + fixKwd(prefix + param->name());
             }
             if(checkReturnType)
             {
@@ -798,21 +798,21 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
+Slice::writeMarshalCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
                         const string& customStream, const string& retP)
 {
     writeMarshalUnmarshalParams(out, params, op, true, prepend, customStream, retP);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
+Slice::writeUnmarshalCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
                           const string& customStream, const string& retP, const string& obj)
 {
     writeMarshalUnmarshalParams(out, params, op, false, prepend, customStream, retP, obj);
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
+Slice::writeAllocateCode(Output& out, const DataMemberList& params, const OperationPtr& op, bool prepend,
                          const string& clScope, int typeCtx, const string& customRet)
 {
     string prefix = prepend ? paramPrefix : "";
@@ -822,10 +822,10 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
         returnValueS = "ret";
     }
 
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
-        writeParamAllocateCode(out, (*p)->type(), (*p)->tagged(), clScope, fixKwd(prefix + (*p)->name()),
-                               (*p)->getMetaData(), typeCtx);
+        writeParamAllocateCode(out, param->type(), param->tagged(), clScope, fixKwd(prefix + param->name()),
+                               param->getMetaData(), typeCtx);
     }
 
     if(op && op->returnType())

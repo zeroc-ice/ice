@@ -188,10 +188,9 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             addImport(ret, p);
         }
 
-        const ParamDeclList paramList = (*i)->parameters();
-        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        for (const auto& param : (*i)->parameters())
         {
-            addImport((*j)->type(), p);
+            addImport(param->type(), p);
         }
     }
 

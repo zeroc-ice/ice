@@ -42,11 +42,11 @@ std::string opFormatTypeToString(const OperationPtr&);
 
 std::string fixKwd(const std::string&);
 
-void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
+void writeMarshalCode(::IceUtilInternal::Output&, const DataMemberList&, const OperationPtr&, bool,
                       const std::string& = "", const std::string& = "");
-void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
+void writeUnmarshalCode(::IceUtilInternal::Output&, const DataMemberList&, const OperationPtr&, bool,
                         const std::string& = "", const std::string& = "", const std::string& = "");
-void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
+void writeAllocateCode(::IceUtilInternal::Output&, const DataMemberList&, const OperationPtr&, bool, const std::string&,
                        int = 0, const std::string& = "");
 
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);

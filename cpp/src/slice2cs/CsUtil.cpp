@@ -430,11 +430,11 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 }
 
 string
-Slice::returnValueName(const ParamDeclList& outParams)
+Slice::returnValueName(const DataMemberList& outParams)
 {
-    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+    for (const auto& param : outParams)
     {
-        if((*i)->name() == "ReturnValue")
+        if (param->name() == "ReturnValue")
         {
             return "ReturnValue_";
         }
@@ -566,7 +566,7 @@ Slice::ParamInfo::ParamInfo(const OperationPtr& pOperation,
     this->param = 0;
 }
 
-Slice::ParamInfo::ParamInfo(const ParamDeclPtr& pParam, bool readOnly, const string& pPrefix)
+Slice::ParamInfo::ParamInfo(const DataMemberPtr& pParam, bool readOnly, const string& pPrefix)
 {
     this->operation = OperationPtr::dynamicCast(pParam->container());
     this->name = fixId(pPrefix + pParam->name());
@@ -1591,16 +1591,14 @@ void
 Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
     validate(p);
-
-    ParamDeclList params = p->parameters();
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    for (const auto& param : p->parameters())
     {
-        visitParamDecl(*i);
+        visitParameter(param);
     }
 }
 
 void
-Slice::CsGenerator::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
+Slice::CsGenerator::MetaDataVisitor::visitParameter(const DataMemberPtr& p)
 {
     validate(p);
 }

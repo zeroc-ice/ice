@@ -78,7 +78,6 @@ class Exception;
 class Optional;
 class Struct;
 class Operation;
-class ParamDecl;
 class DataMember;
 class Sequence;
 class Dictionary;
@@ -106,7 +105,6 @@ typedef ::IceUtil::Handle<Optional> OptionalPtr;
 typedef ::IceUtil::Handle<Exception> ExceptionPtr;
 typedef ::IceUtil::Handle<Struct> StructPtr;
 typedef ::IceUtil::Handle<Operation> OperationPtr;
-typedef ::IceUtil::Handle<ParamDecl> ParamDeclPtr;
 typedef ::IceUtil::Handle<DataMember> DataMemberPtr;
 typedef ::IceUtil::Handle<Sequence> SequencePtr;
 typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
@@ -133,7 +131,6 @@ typedef std::list<EnumPtr> EnumList;
 typedef std::list<ConstPtr> ConstList;
 typedef std::list<OperationPtr> OperationList;
 typedef std::list<DataMemberPtr> DataMemberList;
-typedef std::list<ParamDeclPtr> ParamDeclList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
 
 // ----------------------------------------------------------------------
@@ -183,7 +180,7 @@ public:
     virtual bool visitStructStart(const StructPtr&) { return true; }
     virtual void visitStructEnd(const StructPtr&) { }
     virtual void visitOperation(const OperationPtr&) { }
-    virtual void visitParamDecl(const ParamDeclPtr&) { }
+    virtual void visitParameter(const DataMemberPtr&) { }
     virtual void visitDataMember(const DataMemberPtr&) { }
     virtual void visitSequence(const SequencePtr&) { }
     virtual void visitDictionary(const DictionaryPtr&) { }
@@ -696,12 +693,12 @@ public:
     Mode mode() const;
     Mode sendMode() const;
     bool hasMarshaledResult() const;
-    ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool, bool, int);
-    ParamDeclList parameters() const;
-    ParamDeclList inParameters() const;
-    void inParameters(ParamDeclList&, ParamDeclList&) const;
-    ParamDeclList outParameters() const;
-    void outParameters(ParamDeclList&, ParamDeclList&) const;
+    DataMemberPtr createParameter(const std::string&, const TypePtr&, bool, bool, int);
+    DataMemberList parameters() const;
+    DataMemberList inParameters() const;
+    void inParameters(DataMemberList&, DataMemberList&) const;
+    DataMemberList outParameters() const;
+    void outParameters(DataMemberList&, DataMemberList&) const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
     ContainedList contents() const override;
@@ -721,8 +718,8 @@ protected:
 
     friend class InterfaceDef;
 
-    std::list<ParamDeclPtr> _inParameters;
-    std::list<ParamDeclPtr> _outParameters;
+    DataMemberList _inParameters;
+    DataMemberList _outParameters;
     TypePtr _returnType;
     bool _returnIsTagged;
     int _returnTag;
@@ -1049,32 +1046,6 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// ParamDecl
-// ----------------------------------------------------------------------
-
-class ParamDecl : public virtual Contained
-{
-public:
-
-    TypePtr type() const;
-    bool tagged() const;
-    int tag() const;
-    bool uses(const ContainedPtr&) const override;
-    std::string kindOf() const override;
-    void visit(ParserVisitor*, bool) override;
-
-protected:
-
-    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, int);
-
-    friend class Operation;
-
-    TypePtr _type;
-    bool _tagged;
-    int _tag;
-};
-
-// ----------------------------------------------------------------------
 // DataMember
 // ----------------------------------------------------------------------
 
@@ -1094,12 +1065,13 @@ public:
 
 protected:
 
-    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
-               const std::string&, const std::string&);
+    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr& = nullptr,
+               const std::string& = "", const std::string& = "");
 
     friend class ClassDef;
     friend class Struct;
     friend class Exception;
+    friend class Operation;
 
     TypePtr _type;
     bool _tagged;

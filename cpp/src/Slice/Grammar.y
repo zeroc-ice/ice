@@ -2053,12 +2053,12 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        DataMemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        unit->currentContainer()->checkIntroduced(tsp->name, param);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
         if(!metaData->v.empty())
         {
-            pd->setMetaData(metaData->v);
+            param->setMetaData(metaData->v);
         }
     }
 }
@@ -2069,12 +2069,12 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
-        unit->currentContainer()->checkIntroduced(tsp->name, pd);
+        DataMemberPtr param = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isTagged, tsp->tag);
+        unit->currentContainer()->checkIntroduced(tsp->name, param);
         StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
         if(!metaData->v.empty())
         {
-            pd->setMetaData(metaData->v);
+            param->setMetaData(metaData->v);
         }
     }
 }
@@ -2086,7 +2086,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
         unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -2098,7 +2098,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
         unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -2109,7 +2109,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         unit->error("missing parameter name");
     }
 }
@@ -2120,7 +2120,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-        op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(IceUtil::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         unit->error("missing parameter name");
     }
 }

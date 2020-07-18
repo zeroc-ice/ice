@@ -217,8 +217,7 @@ public:
         }
         p->setMetaData(metaData);
 
-        ParamDeclList params = p->parameters();
-        for(auto& q : params)
+        for(auto& q : p->parameters())
         {
             metaData = getMetaData(q);
             metaData = validateType(q->type(), metaData, p->file(), q->line());

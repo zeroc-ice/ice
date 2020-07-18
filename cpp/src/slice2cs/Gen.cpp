@@ -120,11 +120,9 @@ emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const
 string
 getEscapedParamName(const OperationPtr& p, const string& name)
 {
-    ParamDeclList params = p->parameters();
-
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    for (const auto& param : p->parameters())
     {
-        if((*i)->name() == name)
+        if (param->name() == name)
         {
             return name + "_";
         }
@@ -339,7 +337,7 @@ Slice::CsVisitor::writeUnmarshalDataMembers(const DataMemberList& p, const strin
 }
 
 string
-getParamAttributes(const ParamDeclPtr& p)
+getParamAttributes(const DataMemberPtr& p)
 {
     string result;
     for(const auto& s : p->getMetaData())
@@ -940,7 +938,7 @@ void
 Slice::CsVisitor::writeParamDocComment(const OperationPtr& op, const CommentInfo& comment, ParamDir paramType)
 {
     // Collect the names of the in- or -out parameters to be documented.
-    ParamDeclList parameters = (paramType == InParam) ? op->inParameters() : op->outParameters();
+    DataMemberList parameters = (paramType == InParam) ? op->inParameters() : op->outParameters();
     for (const auto param : parameters)
     {
         auto i = comment.params.find(param->name());
@@ -1538,13 +1536,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string innerExceptionParamName = getEscapedParamName(p, "innerException");
 
     bool hasPublicParameterlessCtor = true;
-    vector<string> allParamDecl;
+    vector<string> allParameters;
     for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
         string memberName = fixId(member->name());
         string memberType = typeToString(member->type(), ns);
-        allParamDecl.push_back(memberType + " " + memberName);
+        allParameters.push_back(memberType + " " + memberName);
 
         if (hasPublicParameterlessCtor)
         {
@@ -1568,10 +1566,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     // Up to 3 "one-shot" constructors
     for (int i = 0; i < 3; i++)
     {
-        if (allParamDecl.size() > 0)
+        if (allParameters.size() > 0)
         {
             _out << sp;
-            _out << nl << "public " << name << spar << allParamDecl << epar;
+            _out << nl << "public " << name << spar << allParameters << epar;
             _out.inc();
             if (baseParamNames.size() > 0)
             {
@@ -1594,13 +1592,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if (i == 0)
         {
             // Insert message first
-            allParamDecl.insert(allParamDecl.cbegin(), "string? " + messageParamName);
+            allParameters.insert(allParameters.cbegin(), "string? " + messageParamName);
             baseParamNames.insert(baseParamNames.cbegin(), messageParamName);
         }
         else if (i == 1)
         {
             // Also add innerException
-            allParamDecl.push_back("global::System.Exception? " + innerExceptionParamName);
+            allParameters.push_back("global::System.Exception? " + innerExceptionParamName);
             baseParamNames.push_back(innerExceptionParamName);
         }
     }

@@ -95,10 +95,10 @@ namespace
     }
 
     void
-    sortTaggedParameters(ParamDeclList& params)
+    sortTaggedParameters(DataMemberList& params)
     {
         // Sort tagged parameters by tag.
-        params.sort([](const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
+        params.sort([](const DataMemberPtr& lhs, const DataMemberPtr& rhs)
         {
             return lhs->tag() < rhs->tag();
         });
@@ -1401,14 +1401,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second != namedThing)
         {
-            // Parameters are in their own scope.
-            if ((ParamDeclPtr::dynamicCast(it->second) && !ParamDeclPtr::dynamicCast(namedThing)) ||
-               (!ParamDeclPtr::dynamicCast(it->second) && ParamDeclPtr::dynamicCast(namedThing)))
-            {
-                return true;
-            }
-
-            // Data members are in their own scope.
+            // Data members and parameters are in their own scope.
             if ((DataMemberPtr::dynamicCast(it->second) && !DataMemberPtr::dynamicCast(namedThing)) ||
                (!DataMemberPtr::dynamicCast(it->second) && DataMemberPtr::dynamicCast(namedThing)))
             {
@@ -4442,8 +4435,8 @@ Slice::Operation::hasMarshaledResult() const
     return false;
 }
 
-ParamDeclPtr
-Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
+DataMemberPtr
+Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOutParam, bool tagged, int tag)
 {
     _unit->checkType(type);
     if (!checkForRedefinition(this, name, "parameter"))
@@ -4457,7 +4450,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         _unit->error("`" + name + "': in parameters cannot follow out parameters");
     }
 
-    ParamDeclList& params = isOutParam ? _outParameters : _inParameters;
+    DataMemberList& params = isOutParam ? _outParameters : _inParameters;
     if (tagged)
     {
         // Check for a duplicate tag.
@@ -4478,28 +4471,28 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr param = new ParamDecl(this, name, type, tagged, tag);
+    DataMemberPtr param = new DataMember(this, name, type, tagged, tag);
     params.push_back(param);
     return param;
 }
 
-ParamDeclList
+DataMemberList
 Slice::Operation::parameters() const
 {
-    ParamDeclList result;
+    DataMemberList result;
     result.insert(result.end(), _inParameters.begin(), _inParameters.end());
     result.insert(result.end(), _outParameters.begin(), _outParameters.end());
     return result;
 }
 
-ParamDeclList
+DataMemberList
 Slice::Operation::inParameters() const
 {
     return _inParameters;
 }
 
 void
-Slice::Operation::inParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
+Slice::Operation::inParameters(DataMemberList& requiredParams, DataMemberList& taggedParams) const
 {
     for (const auto& param : _inParameters)
     {
@@ -4508,14 +4501,14 @@ Slice::Operation::inParameters(ParamDeclList& requiredParams, ParamDeclList& tag
     sortTaggedParameters(taggedParams);
 }
 
-ParamDeclList
+DataMemberList
 Slice::Operation::outParameters() const
 {
     return _outParameters;
 }
 
 void
-Slice::Operation::outParameters(ParamDeclList& requiredParams, ParamDeclList& taggedParams) const
+Slice::Operation::outParameters(DataMemberList& requiredParams, DataMemberList& taggedParams) const
 {
     for (const auto& param : _outParameters)
     {
@@ -4688,57 +4681,6 @@ Slice::Operation::Operation(const ContainerPtr& container,
 }
 
 // ----------------------------------------------------------------------
-// ParamDecl
-// ----------------------------------------------------------------------
-
-TypePtr
-Slice::ParamDecl::type() const
-{
-    return _type;
-}
-
-bool
-Slice::ParamDecl::tagged() const
-{
-    return _tagged;
-}
-
-int
-Slice::ParamDecl::tag() const
-{
-    return _tag;
-}
-
-bool
-Slice::ParamDecl::uses(const ContainedPtr& contained) const
-{
-    ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
-    return (contained2 && contained2 == contained);
-}
-
-string
-Slice::ParamDecl::kindOf() const
-{
-    return "parameter";
-}
-
-void
-Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
-{
-    visitor->visitParamDecl(this);
-}
-
-Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool tagged,
-                            int tag) :
-    SyntaxTreeBase(container->unit()),
-    Contained(container, name),
-    _type(type),
-    _tagged(tagged),
-    _tag(tag)
-{
-}
-
-// ----------------------------------------------------------------------
 // DataMember
 // ----------------------------------------------------------------------
 
@@ -4788,12 +4730,17 @@ Slice::DataMember::uses(const ContainedPtr& contained) const
 string
 Slice::DataMember::kindOf() const
 {
+    if (OperationPtr::dynamicCast(this->container()))
+    {
+        return "parameter";
+    }
     return "data member";
 }
 
 void
 Slice::DataMember::visit(ParserVisitor* visitor, bool)
 {
+    assert(!OperationPtr::dynamicCast(this->container())); // Ensure this isn't being called for a parameter.
     visitor->visitDataMember(this);
 }
 
