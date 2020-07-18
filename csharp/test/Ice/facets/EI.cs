@@ -10,6 +10,6 @@ namespace ZeroC.Ice.Test.Facets
         {
         }
 
-        public string callE(Current current) => "E";
+        public string CallE(Current current) => "E";
     }
 }

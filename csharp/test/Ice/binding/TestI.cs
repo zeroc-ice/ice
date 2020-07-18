@@ -6,6 +6,6 @@ namespace ZeroC.Ice.Test.Binding
 {
     public class TestIntf : ITestIntf
     {
-        public string getAdapterName(Current current) => current.Adapter.Name;
+        public string GetAdapterName(Current current) => current.Adapter.Name;
     }
 }

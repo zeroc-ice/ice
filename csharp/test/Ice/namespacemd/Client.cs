@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.NamespaceMD
             properties["Ice.Warn.Dispatch"] = "0";
             await using var communicator = Initialize(properties);
             var initial = AllTests.allTests(this);
-            initial.shutdown();
+            await initial.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

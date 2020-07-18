@@ -6,6 +6,6 @@ namespace ZeroC.Ice.Test.Facets
 {
     public sealed class A : IA
     {
-        public string callA(Current current) => "A";
+        public string CallA(Current current) => "A";
     }
 }

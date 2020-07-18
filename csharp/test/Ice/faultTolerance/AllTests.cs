@@ -70,7 +70,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 {
                     output.Write("testing server #" + i + "... ");
                     output.Flush();
-                    int pid = obj.pid();
+                    int pid = obj.Pid();
                     TestHelper.Assert(pid != oldPid);
                     output.WriteLine("ok");
                     oldPid = pid;
@@ -79,7 +79,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                 {
                     output.Write("testing server #" + i + " with AMI... ");
                     output.Flush();
-                    int pid = obj.pidAsync().Result;
+                    int pid = obj.PidAsync().Result;
                     TestHelper.Assert(pid != oldPid);
                     output.WriteLine("ok");
                     oldPid = pid;
@@ -91,13 +91,13 @@ namespace ZeroC.Ice.Test.FaultTolerance
                     {
                         output.Write("shutting down server #" + i + "... ");
                         output.Flush();
-                        obj.shutdown();
+                        obj.Shutdown();
                         output.WriteLine("ok");
                     }
                     else
                     {
                         output.Write("shutting down server #" + i + " with AMI... ");
-                        obj.shutdownAsync().Wait();
+                        obj.ShutdownAsync().Wait();
                         output.WriteLine("ok");
                     }
                 }
@@ -109,7 +109,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                         output.Flush();
                         try
                         {
-                            obj.abort();
+                            obj.Abort();
                             TestHelper.Assert(false);
                         }
                         catch (ConnectionLostException)
@@ -131,7 +131,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                         output.Flush();
                         try
                         {
-                            obj.abortAsync().Wait();
+                            obj.AbortAsync().Wait();
                             TestHelper.Assert(false);
                         }
                         catch (AggregateException ex)
@@ -150,7 +150,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                         output.Flush();
                         try
                         {
-                            obj.idempotentAbort();
+                            obj.IdempotentAbort();
                             TestHelper.Assert(false);
                         }
                         catch (ConnectionLostException)
@@ -172,7 +172,7 @@ namespace ZeroC.Ice.Test.FaultTolerance
                         output.Flush();
                         try
                         {
-                            obj.idempotentAbortAsync().Wait();
+                            obj.IdempotentAbortAsync().Wait();
                             TestHelper.Assert(false);
                         }
                         catch (AggregateException ex)

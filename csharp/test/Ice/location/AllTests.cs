@@ -66,7 +66,7 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("starting server... ");
             output.Flush();
-            manager.startServer();
+            manager.StartServer();
             output.WriteLine("ok");
 
             output.Write("testing checked cast... ");
@@ -87,8 +87,8 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing id@AdapterId indirect proxy... ");
             output.Flush();
-            obj1.shutdown();
-            manager.startServer();
+            obj1.Shutdown();
+            manager.StartServer();
             try
             {
                 obj2.IcePing();
@@ -101,8 +101,8 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing id@ReplicaGroupId indirect proxy... ");
             output.Flush();
-            obj1.shutdown();
-            manager.startServer();
+            obj1.Shutdown();
+            manager.StartServer();
             try
             {
                 obj6.IcePing();
@@ -115,8 +115,8 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing identity indirect proxy... ");
             output.Flush();
-            obj1.shutdown();
-            manager.startServer();
+            obj1.Shutdown();
+            manager.StartServer();
             try
             {
                 obj3.IcePing();
@@ -133,8 +133,8 @@ namespace ZeroC.Ice.Test.Location
             {
                 TestHelper.Assert(false);
             }
-            obj1.shutdown();
-            manager.startServer();
+            obj1.Shutdown();
+            manager.StartServer();
             try
             {
                 obj2.IcePing();
@@ -151,8 +151,8 @@ namespace ZeroC.Ice.Test.Location
             {
                 TestHelper.Assert(false);
             }
-            obj1.shutdown();
-            manager.startServer();
+            obj1.Shutdown();
+            manager.StartServer();
             try
             {
                 obj2.IcePing();
@@ -161,8 +161,8 @@ namespace ZeroC.Ice.Test.Location
             {
                 TestHelper.Assert(false);
             }
-            obj1.shutdown();
-            manager.startServer();
+            obj1.Shutdown();
+            manager.StartServer();
             try
             {
                 obj3.IcePing();
@@ -171,8 +171,8 @@ namespace ZeroC.Ice.Test.Location
             {
                 TestHelper.Assert(false);
             }
-            obj1.shutdown();
-            manager.startServer();
+            obj1.Shutdown();
+            manager.StartServer();
             try
             {
                 obj5 = ITestIntfPrx.CheckedCast(base5);
@@ -215,39 +215,39 @@ namespace ZeroC.Ice.Test.Location
             output.Flush();
 
             IObjectPrx basencc = IObjectPrx.Parse("test@TestAdapter", communicator).Clone(cacheConnection: false);
-            int count = locator.getRequestCount();
+            int count = locator.GetRequestCount();
             basencc.Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
-            TestHelper.Assert(++count == locator.getRequestCount());
+            TestHelper.Assert(++count == locator.GetRequestCount());
             basencc.Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
-            TestHelper.Assert(++count == locator.getRequestCount());
+            TestHelper.Assert(++count == locator.GetRequestCount());
             basencc.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(2)).IcePing(); // 2s timeout.
-            TestHelper.Assert(count == locator.getRequestCount());
-            System.Threading.Thread.Sleep(1300); // 1300ms
+            TestHelper.Assert(count == locator.GetRequestCount());
+            Thread.Sleep(1300); // 1300ms
             basencc.Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout.
-            TestHelper.Assert(++count == locator.getRequestCount());
+            TestHelper.Assert(++count == locator.GetRequestCount());
 
             IObjectPrx.Parse("test", communicator)
                 .Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
             count += 2;
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
             IObjectPrx.Parse("test", communicator)
                 .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(2)).IcePing(); // 2s timeout
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
             System.Threading.Thread.Sleep(1300); // 1300ms
             IObjectPrx.Parse("test", communicator)
                 .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(1)).IcePing(); // 1s timeout
             count += 2;
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
 
             IObjectPrx.Parse("test@TestAdapter", communicator)
                 .Clone(locatorCacheTimeout: Timeout.InfiniteTimeSpan).IcePing();
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
             IObjectPrx.Parse("test", communicator).Clone(locatorCacheTimeout: Timeout.InfiniteTimeSpan).IcePing();
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
             IObjectPrx.Parse("test@TestAdapter", communicator).IcePing();
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
             IObjectPrx.Parse("test", communicator).IcePing();
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
 
             TestHelper.Assert(IObjectPrx.Parse("test", communicator)
                 .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(99)).LocatorCacheTimeout == TimeSpan.FromSeconds(99));
@@ -257,40 +257,40 @@ namespace ZeroC.Ice.Test.Location
             output.Write("testing proxy from server... ");
             output.Flush();
             obj1 = ITestIntfPrx.Parse("test@TestAdapter", communicator);
-            IHelloPrx? hello = obj1.getHello();
+            IHelloPrx? hello = obj1.GetHello();
             TestHelper.Assert(hello != null);
             TestHelper.Assert(hello.AdapterId.Equals("TestAdapter"));
-            hello.sayHello();
-            hello = obj1.getReplicatedHello();
+            hello.SayHello();
+            hello = obj1.GetReplicatedHello();
             TestHelper.Assert(hello != null);
             TestHelper.Assert(hello.AdapterId.Equals("ReplicatedAdapter"));
-            hello.sayHello();
+            hello.SayHello();
             output.WriteLine("ok");
 
             output.Write("testing locator request queuing... ");
             output.Flush();
-            hello = obj1.getReplicatedHello()!.Clone(locatorCacheTimeout: TimeSpan.Zero, cacheConnection: false);
+            hello = obj1.GetReplicatedHello()!.Clone(locatorCacheTimeout: TimeSpan.Zero, cacheConnection: false);
             TestHelper.Assert(hello != null);
-            count = locator.getRequestCount();
+            count = locator.GetRequestCount();
             hello.IcePing();
-            TestHelper.Assert(++count == locator.getRequestCount());
+            TestHelper.Assert(++count == locator.GetRequestCount());
             var results = new List<Task>();
             for (int i = 0; i < 1000; i++)
             {
-                results.Add(hello.sayHelloAsync());
+                results.Add(hello.SayHelloAsync());
             }
             Task.WaitAll(results.ToArray());
             results.Clear();
-            if (locator.getRequestCount() > count + 800)
+            if (locator.GetRequestCount() > count + 800)
             {
-                output.Write("queuing = " + (locator.getRequestCount() - count));
+                output.Write("queuing = " + (locator.GetRequestCount() - count));
             }
-            TestHelper.Assert(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
-            count = locator.getRequestCount();
+            TestHelper.Assert(locator.GetRequestCount() > count && locator.GetRequestCount() < count + 999);
+            count = locator.GetRequestCount();
             hello = hello.Clone(adapterId: "unknown");
             for (int i = 0; i < 1000; i++)
             {
-                results.Add(hello.sayHelloAsync().ContinueWith(
+                results.Add(hello.SayHelloAsync().ContinueWith(
                     t =>
                     {
                         try
@@ -307,10 +307,10 @@ namespace ZeroC.Ice.Test.Location
             results.Clear();
             // XXX:
             // Take into account the retries.
-            TestHelper.Assert(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
-            if (locator.getRequestCount() > count + 800)
+            TestHelper.Assert(locator.GetRequestCount() > count && locator.GetRequestCount() < count + 1999);
+            if (locator.GetRequestCount() > count + 800)
             {
-                output.Write("queuing = " + (locator.getRequestCount() - count));
+                output.Write("queuing = " + (locator.GetRequestCount() - count));
             }
             output.WriteLine("ok");
 
@@ -367,7 +367,7 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing well-known object locator cache... ");
             output.Flush();
-            registry.addObject(IObjectPrx.Parse("test3@TestUnknown", communicator));
+            registry.AddObject(IObjectPrx.Parse("test3@TestUnknown", communicator));
             try
             {
                 IObjectPrx.Parse("test3", communicator).IcePing();
@@ -376,7 +376,7 @@ namespace ZeroC.Ice.Test.Location
             catch (AdapterNotFoundException)
             {
             }
-            registry.addObject(IObjectPrx.Parse("test3@TestAdapter4", communicator)); // Update
+            registry.AddObject(IObjectPrx.Parse("test3@TestAdapter4", communicator)); // Update
             registry.SetAdapterDirectProxy("TestAdapter4",
                                             IObjectPrx.Parse($"dummy:{helper.GetTestEndpoint(99)}", communicator));
             try
@@ -392,7 +392,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 IObjectPrx.Parse("test3", communicator).IcePing();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -403,7 +403,7 @@ namespace ZeroC.Ice.Test.Location
             {
                 IObjectPrx.Parse("test3", communicator).IcePing();
             }
-            catch (System.Exception)
+            catch
             {
                 TestHelper.Assert(false);
             }
@@ -432,17 +432,17 @@ namespace ZeroC.Ice.Test.Location
             catch (ConnectionRefusedException)
             {
             }
-            registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
+            registry.AddObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
             try
             {
                 IObjectPrx.Parse("test3", communicator).IcePing();
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 TestHelper.Assert(false);
             }
 
-            registry.addObject(IObjectPrx.Parse("test4", communicator));
+            registry.AddObject(IObjectPrx.Parse("test4", communicator));
             try
             {
                 IObjectPrx.Parse("test4", communicator).IcePing();
@@ -461,21 +461,21 @@ namespace ZeroC.Ice.Test.Location
                 using Communicator ic = helper.Initialize(properties);
 
                 registry.SetAdapterDirectProxy("TestAdapter5", locator.FindAdapterById("TestAdapter"));
-                registry.addObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
+                registry.AddObject(IObjectPrx.Parse("test3@TestAdapter", communicator));
 
-                count = locator.getRequestCount();
+                count = locator.GetRequestCount();
                 IObjectPrx.Parse("test@TestAdapter5", ic)
                     .Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
                 IObjectPrx.Parse("test3", ic).Clone(locatorCacheTimeout: TimeSpan.Zero).IcePing(); // No locator cache.
                 count += 3;
-                TestHelper.Assert(count == locator.getRequestCount());
+                TestHelper.Assert(count == locator.GetRequestCount());
                 registry.SetAdapterDirectProxy("TestAdapter5", null);
-                registry.addObject(IObjectPrx.Parse($"test3:{helper.GetTestEndpoint(99)}", communicator));
+                registry.AddObject(IObjectPrx.Parse($"test3:{helper.GetTestEndpoint(99)}", communicator));
                 IObjectPrx.Parse("test@TestAdapter5", ic)
                     .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10)).IcePing(); // 10s timeout.
                 IObjectPrx.Parse("test3", ic)
                     .Clone(locatorCacheTimeout: TimeSpan.FromSeconds(10)).IcePing(); // 10s timeout.
-                TestHelper.Assert(count == locator.getRequestCount());
+                TestHelper.Assert(count == locator.GetRequestCount());
                 Thread.Sleep(1200);
 
                 // The following request should trigger the background
@@ -517,36 +517,36 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("testing proxy from server after shutdown... ");
             output.Flush();
-            hello = obj1.getReplicatedHello();
+            hello = obj1.GetReplicatedHello();
             TestHelper.Assert(hello != null);
-            obj1.shutdown();
-            manager.startServer();
-            hello.sayHello();
+            obj1.Shutdown();
+            manager.StartServer();
+            hello.SayHello();
             output.WriteLine("ok");
 
             output.Write("testing object migration... ");
             output.Flush();
             hello = IHelloPrx.Parse("hello", communicator);
-            obj1.migrateHello();
+            obj1.MigrateHello();
             hello.GetConnection()!.Close(ConnectionClose.GracefullyWithWait);
-            hello.sayHello();
-            obj1.migrateHello();
-            hello.sayHello();
-            obj1.migrateHello();
-            hello.sayHello();
+            hello.SayHello();
+            obj1.MigrateHello();
+            hello.SayHello();
+            obj1.MigrateHello();
+            hello.SayHello();
             output.WriteLine("ok");
 
             output.Write("testing locator encoding resolution... ");
             output.Flush();
             hello = IHelloPrx.Parse("hello", communicator);
-            count = locator.getRequestCount();
+            count = locator.GetRequestCount();
             IObjectPrx.Parse("test@TestAdapter", communicator).Clone(encoding: Encoding.V1_1).IcePing();
-            TestHelper.Assert(count == locator.getRequestCount());
+            TestHelper.Assert(count == locator.GetRequestCount());
             output.WriteLine("ok");
 
             output.Write("shutdown server... ");
             output.Flush();
-            obj1.shutdown();
+            obj1.Shutdown();
             output.WriteLine("ok");
 
             output.Write("testing whether server is gone... ");
@@ -605,7 +605,7 @@ namespace ZeroC.Ice.Test.Location
 
             output.Write("shutdown server manager... ");
             output.Flush();
-            manager.shutdown();
+            manager.Shutdown();
             output.WriteLine("ok");
         }
     }

@@ -149,7 +149,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Init()
         {
-            _adapter = _com.createObjectAdapter(_serverAcmTimeout,
+            _adapter = _com.CreateObjectAdapter(_serverAcmTimeout,
                                                 _serverAcmClose?.ToString(),
                                                 _serverAcmHeartbeat?.ToString());
 
@@ -177,7 +177,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Destroy()
         {
-            _adapter!.deactivate();
+            _adapter!.Deactivate();
             _communicator!.Dispose();
         }
 
@@ -200,7 +200,7 @@ namespace ZeroC.Ice.Test.ACM
 
         public void Run()
         {
-            var proxy = ITestIntfPrx.Parse(_adapter!.getTestIntf()!.ToString() ?? "", _communicator!);
+            var proxy = ITestIntfPrx.Parse(_adapter!.GetTestIntf()!.ToString() ?? "", _communicator!);
             try
             {
                 proxy.GetConnection()!.Closed += (sender, args) =>
@@ -292,7 +292,7 @@ namespace ZeroC.Ice.Test.ACM
                 base("invocation heartbeat", com, helper) => SetServerAcm(1, null, null);
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
-                proxy.sleep(4);
+                proxy.Sleep(4);
 
                 lock (_mutex)
                 {
@@ -313,12 +313,12 @@ namespace ZeroC.Ice.Test.ACM
                 try
                 {
                     // Heartbeats are disabled on the server, the invocation should fail since heartbeats are expected.
-                    proxy.sleep(10);
+                    proxy.Sleep(10);
                     TestHelper.Assert(false);
                 }
                 catch (ConnectionTimeoutException)
                 {
-                    proxy.interruptSleep();
+                    proxy.InterruptSleep();
 
                     WaitForClosed();
                     lock (_mutex)
@@ -341,7 +341,7 @@ namespace ZeroC.Ice.Test.ACM
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
                 // No close on invocation, the call should succeed this time.
-                proxy.sleep(3);
+                proxy.Sleep(3);
 
                 lock (_mutex)
                 {
@@ -494,14 +494,14 @@ namespace ZeroC.Ice.Test.ACM
 
             public override void RunTestCase(IRemoteObjectAdapterPrx adapter, ITestIntfPrx proxy)
             {
-                proxy.startHeartbeatCount();
+                proxy.StartHeartbeatCount();
                 Connection con = proxy.GetConnection()!;
                 con.Heartbeat();
                 con.Heartbeat();
                 con.Heartbeat();
                 con.Heartbeat();
                 con.Heartbeat();
-                proxy.waitForHeartbeatCount(5);
+                proxy.WaitForHeartbeatCount(5);
             }
         }
 
@@ -528,8 +528,8 @@ namespace ZeroC.Ice.Test.ACM
                 TestHelper.Assert(acm.Close == AcmClose.OnInvocationAndIdle);
                 TestHelper.Assert(acm.Heartbeat == AcmHeartbeat.Always);
 
-                proxy.startHeartbeatCount();
-                proxy.waitForHeartbeatCount(2);
+                proxy.StartHeartbeatCount();
+                proxy.WaitForHeartbeatCount(2);
 
                 var t1 = new TaskCompletionSource<object?>();
                 var t2 = new TaskCompletionSource<object?>();
@@ -624,7 +624,7 @@ namespace ZeroC.Ice.Test.ACM
 
             output.Write("shutting down... ");
             output.Flush();
-            com.shutdown();
+            com.Shutdown();
             output.WriteLine("ok");
         }
     }

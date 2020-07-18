@@ -12,25 +12,25 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
     {
         private class Relay : IRelay
         {
-            public void knownPreservedAsBase(Current current) =>
+            public void KnownPreservedAsBase(Current current) =>
                 throw new KnownPreservedDerived("base", "preserved", "derived");
 
-            public void knownPreservedAsKnownPreserved(Current current) =>
+            public void KnownPreservedAsKnownPreserved(Current current) =>
                 throw new KnownPreservedDerived("base", "preserved", "derived");
 
-            public void unknownPreservedAsBase(Current current)
+            public void UnknownPreservedAsBase(Current current)
             {
                 var p = new PreservedClass("bc", "pc");
                 throw new Preserved2("base", "preserved", "derived", p, p);
             }
 
-            public void unknownPreservedAsKnownPreserved(Current current)
+            public void UnknownPreservedAsKnownPreserved(Current current)
             {
                 var p = new PreservedClass("bc", "pc");
                 throw new Preserved2("base", "preserved", "derived", p, p);
             }
 
-            public void clientPrivateException(Current current) => throw new ClientPrivateException("ClientPrivate");
+            public void ClientPrivateException(Current current) => throw new ClientPrivateException("ClientPrivate");
         }
 
         public static ITestIntfPrx allTests(TestHelper helper)
@@ -48,15 +48,15 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.baseAsBase();
+                    testPrx.BaseAsBase();
                     TestHelper.Assert(false);
                 }
                 catch (Base b)
                 {
-                    TestHelper.Assert(b.b.Equals("Base.b"));
+                    TestHelper.Assert(b.B.Equals("Base.b"));
                     TestHelper.Assert(b.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.Base"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -68,7 +68,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.baseAsBaseAsync().Wait();
+                    testPrx.BaseAsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -80,10 +80,10 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (Base b)
                     {
-                        TestHelper.Assert(b.b.Equals("Base.b"));
+                        TestHelper.Assert(b.B.Equals("Base.b"));
                         TestHelper.Assert(b.GetType().Name.Equals("Base"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -96,15 +96,15 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownDerivedAsBase();
+                    testPrx.UnknownDerivedAsBase();
                     TestHelper.Assert(false);
                 }
                 catch (Base b)
                 {
-                    TestHelper.Assert(b.b.Equals("UnknownDerived.b"));
+                    TestHelper.Assert(b.B.Equals("UnknownDerived.b"));
                     TestHelper.Assert(b.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.Base"));
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -116,7 +116,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownDerivedAsBaseAsync().Wait();
+                    testPrx.UnknownDerivedAsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -128,10 +128,10 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (Base b)
                     {
-                        TestHelper.Assert(b.b.Equals("UnknownDerived.b"));
+                        TestHelper.Assert(b.B.Equals("UnknownDerived.b"));
                         TestHelper.Assert(b.GetType().Name.Equals("Base"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -144,16 +144,16 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownDerivedAsBase();
+                    testPrx.KnownDerivedAsBase();
                     TestHelper.Assert(false);
                 }
                 catch (KnownDerived k)
                 {
-                    TestHelper.Assert(k.b.Equals("KnownDerived.b"));
-                    TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                    TestHelper.Assert(k.B.Equals("KnownDerived.b"));
+                    TestHelper.Assert(k.Kd.Equals("KnownDerived.kd"));
                     TestHelper.Assert(k.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownDerived"));
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -165,7 +165,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownDerivedAsBaseAsync().Wait();
+                    testPrx.KnownDerivedAsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -177,11 +177,11 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownDerived k)
                     {
-                        TestHelper.Assert(k.b.Equals("KnownDerived.b"));
-                        TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                        TestHelper.Assert(k.B.Equals("KnownDerived.b"));
+                        TestHelper.Assert(k.Kd.Equals("KnownDerived.kd"));
                         TestHelper.Assert(k.GetType().Name.Equals("KnownDerived"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -194,16 +194,16 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownDerivedAsKnownDerived();
+                    testPrx.KnownDerivedAsKnownDerived();
                     TestHelper.Assert(false);
                 }
                 catch (KnownDerived k)
                 {
-                    TestHelper.Assert(k.b.Equals("KnownDerived.b"));
-                    TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                    TestHelper.Assert(k.B.Equals("KnownDerived.b"));
+                    TestHelper.Assert(k.Kd.Equals("KnownDerived.kd"));
                     TestHelper.Assert(k.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownDerived"));
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -215,7 +215,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownDerivedAsKnownDerivedAsync().Wait();
+                    testPrx.KnownDerivedAsKnownDerivedAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -227,11 +227,11 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownDerived k)
                     {
-                        TestHelper.Assert(k.b.Equals("KnownDerived.b"));
-                        TestHelper.Assert(k.kd.Equals("KnownDerived.kd"));
+                        TestHelper.Assert(k.B.Equals("KnownDerived.b"));
+                        TestHelper.Assert(k.Kd.Equals("KnownDerived.kd"));
                         TestHelper.Assert(k.GetType().Name.Equals("KnownDerived"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -244,15 +244,15 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownIntermediateAsBase();
+                    testPrx.UnknownIntermediateAsBase();
                     TestHelper.Assert(false);
                 }
                 catch (Base b)
                 {
-                    TestHelper.Assert(b.b.Equals("UnknownIntermediate.b"));
+                    TestHelper.Assert(b.B.Equals("UnknownIntermediate.b"));
                     TestHelper.Assert(b.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.Base"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -264,7 +264,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownIntermediateAsBaseAsync().Wait();
+                    testPrx.UnknownIntermediateAsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -276,10 +276,10 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (Base b)
                     {
-                        TestHelper.Assert(b.b.Equals("UnknownIntermediate.b"));
+                        TestHelper.Assert(b.B.Equals("UnknownIntermediate.b"));
                         TestHelper.Assert(b.GetType().Name.Equals("Base"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -292,16 +292,16 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownIntermediateAsBase();
+                    testPrx.KnownIntermediateAsBase();
                     TestHelper.Assert(false);
                 }
                 catch (KnownIntermediate ki)
                 {
-                    TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
-                    TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                    TestHelper.Assert(ki.B.Equals("KnownIntermediate.b"));
+                    TestHelper.Assert(ki.Ki.Equals("KnownIntermediate.ki"));
                     TestHelper.Assert(ki.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownIntermediate"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -313,7 +313,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownIntermediateAsBaseAsync().Wait();
+                    testPrx.KnownIntermediateAsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -325,11 +325,11 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownIntermediate ki)
                     {
-                        TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
-                        TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                        TestHelper.Assert(ki.B.Equals("KnownIntermediate.b"));
+                        TestHelper.Assert(ki.Ki.Equals("KnownIntermediate.ki"));
                         TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -342,17 +342,17 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownMostDerivedAsBase();
+                    testPrx.KnownMostDerivedAsBase();
                     TestHelper.Assert(false);
                 }
                 catch (KnownMostDerived kmd)
                 {
-                    TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
-                    TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
-                    TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    TestHelper.Assert(kmd.B.Equals("KnownMostDerived.b"));
+                    TestHelper.Assert(kmd.Ki.Equals("KnownMostDerived.ki"));
+                    TestHelper.Assert(kmd.Kmd.Equals("KnownMostDerived.kmd"));
                     TestHelper.Assert(kmd.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownMostDerived"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -364,7 +364,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownMostDerivedAsBaseAsync().Wait();
+                    testPrx.KnownMostDerivedAsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -376,12 +376,12 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownMostDerived kmd)
                     {
-                        TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
-                        TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
-                        TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                        TestHelper.Assert(kmd.B.Equals("KnownMostDerived.b"));
+                        TestHelper.Assert(kmd.Ki.Equals("KnownMostDerived.ki"));
+                        TestHelper.Assert(kmd.Kmd.Equals("KnownMostDerived.kmd"));
                         TestHelper.Assert(kmd.GetType().Name.Equals("KnownMostDerived"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -394,16 +394,16 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownIntermediateAsKnownIntermediate();
+                    testPrx.KnownIntermediateAsKnownIntermediate();
                     TestHelper.Assert(false);
                 }
                 catch (KnownIntermediate ki)
                 {
-                    TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
-                    TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                    TestHelper.Assert(ki.B.Equals("KnownIntermediate.b"));
+                    TestHelper.Assert(ki.Ki.Equals("KnownIntermediate.ki"));
                     TestHelper.Assert(ki.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownIntermediate"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -415,7 +415,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownIntermediateAsKnownIntermediateAsync().Wait();
+                    testPrx.KnownIntermediateAsKnownIntermediateAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -427,11 +427,11 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownIntermediate ki)
                     {
-                        TestHelper.Assert(ki.b.Equals("KnownIntermediate.b"));
-                        TestHelper.Assert(ki.ki.Equals("KnownIntermediate.ki"));
+                        TestHelper.Assert(ki.B.Equals("KnownIntermediate.b"));
+                        TestHelper.Assert(ki.Ki.Equals("KnownIntermediate.ki"));
                         TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -444,17 +444,17 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownMostDerivedAsKnownIntermediate();
+                    testPrx.KnownMostDerivedAsKnownIntermediate();
                     TestHelper.Assert(false);
                 }
                 catch (KnownMostDerived kmd)
                 {
-                    TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
-                    TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
-                    TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    TestHelper.Assert(kmd.B.Equals("KnownMostDerived.b"));
+                    TestHelper.Assert(kmd.Ki.Equals("KnownMostDerived.ki"));
+                    TestHelper.Assert(kmd.Kmd.Equals("KnownMostDerived.kmd"));
                     TestHelper.Assert(kmd.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownMostDerived"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -466,7 +466,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownMostDerivedAsKnownIntermediateAsync().Wait();
+                    testPrx.KnownMostDerivedAsKnownIntermediateAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -478,12 +478,12 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownMostDerived kmd)
                     {
-                        TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
-                        TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
-                        TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                        TestHelper.Assert(kmd.B.Equals("KnownMostDerived.b"));
+                        TestHelper.Assert(kmd.Ki.Equals("KnownMostDerived.ki"));
+                        TestHelper.Assert(kmd.Kmd.Equals("KnownMostDerived.kmd"));
                         TestHelper.Assert(kmd.GetType().Name.Equals("KnownMostDerived"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -496,17 +496,17 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownMostDerivedAsKnownMostDerived();
+                    testPrx.KnownMostDerivedAsKnownMostDerived();
                     TestHelper.Assert(false);
                 }
                 catch (KnownMostDerived kmd)
                 {
-                    TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
-                    TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
-                    TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                    TestHelper.Assert(kmd.B.Equals("KnownMostDerived.b"));
+                    TestHelper.Assert(kmd.Ki.Equals("KnownMostDerived.ki"));
+                    TestHelper.Assert(kmd.Kmd.Equals("KnownMostDerived.kmd"));
                     TestHelper.Assert(kmd.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownMostDerived"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -518,7 +518,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.knownMostDerivedAsKnownMostDerivedAsync().Wait();
+                    testPrx.KnownMostDerivedAsKnownMostDerivedAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -530,12 +530,12 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownMostDerived kmd)
                     {
-                        TestHelper.Assert(kmd.b.Equals("KnownMostDerived.b"));
-                        TestHelper.Assert(kmd.ki.Equals("KnownMostDerived.ki"));
-                        TestHelper.Assert(kmd.kmd.Equals("KnownMostDerived.kmd"));
+                        TestHelper.Assert(kmd.B.Equals("KnownMostDerived.b"));
+                        TestHelper.Assert(kmd.Ki.Equals("KnownMostDerived.ki"));
+                        TestHelper.Assert(kmd.Kmd.Equals("KnownMostDerived.kmd"));
                         TestHelper.Assert(kmd.GetType().Name.Equals("KnownMostDerived"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -548,16 +548,16 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownMostDerived1AsBase();
+                    testPrx.UnknownMostDerived1AsBase();
                     TestHelper.Assert(false);
                 }
                 catch (KnownIntermediate ki)
                 {
-                    TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
-                    TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                    TestHelper.Assert(ki.B.Equals("UnknownMostDerived1.b"));
+                    TestHelper.Assert(ki.Ki.Equals("UnknownMostDerived1.ki"));
                     TestHelper.Assert(ki.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownIntermediate"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -569,7 +569,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownMostDerived1AsBaseAsync().Wait();
+                    testPrx.UnknownMostDerived1AsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -581,11 +581,11 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownIntermediate ki)
                     {
-                        TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
-                        TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                        TestHelper.Assert(ki.B.Equals("UnknownMostDerived1.b"));
+                        TestHelper.Assert(ki.Ki.Equals("UnknownMostDerived1.ki"));
                         TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -598,16 +598,16 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownMostDerived1AsKnownIntermediate();
+                    testPrx.UnknownMostDerived1AsKnownIntermediate();
                     TestHelper.Assert(false);
                 }
                 catch (KnownIntermediate ki)
                 {
-                    TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
-                    TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                    TestHelper.Assert(ki.B.Equals("UnknownMostDerived1.b"));
+                    TestHelper.Assert(ki.Ki.Equals("UnknownMostDerived1.ki"));
                     TestHelper.Assert(ki.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.KnownIntermediate"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -619,7 +619,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownMostDerived1AsKnownIntermediateAsync().Wait();
+                    testPrx.UnknownMostDerived1AsKnownIntermediateAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -631,11 +631,11 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (KnownIntermediate ki)
                     {
-                        TestHelper.Assert(ki.b.Equals("UnknownMostDerived1.b"));
-                        TestHelper.Assert(ki.ki.Equals("UnknownMostDerived1.ki"));
+                        TestHelper.Assert(ki.B.Equals("UnknownMostDerived1.b"));
+                        TestHelper.Assert(ki.Ki.Equals("UnknownMostDerived1.ki"));
                         TestHelper.Assert(ki.GetType().Name.Equals("KnownIntermediate"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -648,15 +648,15 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownMostDerived2AsBase();
+                    testPrx.UnknownMostDerived2AsBase();
                     TestHelper.Assert(false);
                 }
                 catch (Base b)
                 {
-                    TestHelper.Assert(b.b.Equals("UnknownMostDerived2.b"));
+                    TestHelper.Assert(b.B.Equals("UnknownMostDerived2.b"));
                     TestHelper.Assert(b.GetType().FullName!.Equals("ZeroC.Ice.Test.Slicing.Exceptions.Base"));
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -668,7 +668,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownMostDerived2AsBaseAsync().Wait();
+                    testPrx.UnknownMostDerived2AsBaseAsync().Wait();
                     TestHelper.Assert(false);
                 }
                 catch (AggregateException ae)
@@ -680,10 +680,10 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     }
                     catch (Base b)
                     {
-                        TestHelper.Assert(b.b.Equals("UnknownMostDerived2.b"));
+                        TestHelper.Assert(b.B.Equals("UnknownMostDerived2.b"));
                         TestHelper.Assert(b.GetType().Name.Equals("Base"));
                     }
-                    catch (Exception)
+                    catch
                     {
                         TestHelper.Assert(false);
                     }
@@ -696,7 +696,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownMostDerived2AsBaseCompact();
+                    testPrx.UnknownMostDerived2AsBaseCompact();
                     TestHelper.Assert(false);
                 }
                 catch (Base)
@@ -707,7 +707,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                 catch (OperationNotExistException)
                 {
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -719,7 +719,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.serverPrivateException();
+                    testPrx.ServerPrivateException();
                     TestHelper.Assert(false);
                 }
                 catch (RemoteException ex)
@@ -728,7 +728,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
                     TestHelper.Assert(slicedData.Slices.Count == 1);
                     TestHelper.Assert(slicedData.Slices[0].TypeId! == "::ZeroC::Ice::Test::Slicing::Exceptions::ServerPrivateException");
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
@@ -740,7 +740,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
             {
                 try
                 {
-                    testPrx.unknownPreservedAsBase();
+                    testPrx.UnknownPreservedAsBase();
                     TestHelper.Assert(false);
                 }
                 catch (Base ex)
@@ -753,12 +753,12 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
 
                 try
                 {
-                    testPrx.unknownPreservedAsKnownPreserved();
+                    testPrx.UnknownPreservedAsKnownPreserved();
                     TestHelper.Assert(false);
                 }
                 catch (KnownPreserved ex)
                 {
-                    TestHelper.Assert(ex.kp.Equals("preserved"));
+                    TestHelper.Assert(ex.Kp.Equals("preserved"));
                     IReadOnlyList<SliceInfo> slices = ex.GetSlicedData()!.Value.Slices;
                     TestHelper.Assert(slices.Count == 2);
                     TestHelper.Assert(slices[1].TypeId!.Equals("::ZeroC::Ice::Test::Slicing::Exceptions::SPreserved1"));
@@ -772,100 +772,100 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
 
                 try
                 {
-                    testPrx.relayKnownPreservedAsBase(relay);
+                    testPrx.RelayKnownPreservedAsBase(relay);
                     TestHelper.Assert(false);
                 }
                 catch (KnownPreservedDerived ex)
                 {
-                    TestHelper.Assert(ex.b.Equals("base"));
-                    TestHelper.Assert(ex.kp.Equals("preserved"));
-                    TestHelper.Assert(ex.kpd.Equals("derived"));
+                    TestHelper.Assert(ex.B.Equals("base"));
+                    TestHelper.Assert(ex.Kp.Equals("preserved"));
+                    TestHelper.Assert(ex.Kpd.Equals("derived"));
                 }
                 catch (OperationNotExistException)
                 {
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
 
                 try
                 {
-                    testPrx.relayKnownPreservedAsKnownPreserved(relay);
+                    testPrx.RelayKnownPreservedAsKnownPreserved(relay);
                     TestHelper.Assert(false);
                 }
                 catch (KnownPreservedDerived ex)
                 {
-                    TestHelper.Assert(ex.b.Equals("base"));
-                    TestHelper.Assert(ex.kp.Equals("preserved"));
-                    TestHelper.Assert(ex.kpd.Equals("derived"));
+                    TestHelper.Assert(ex.B.Equals("base"));
+                    TestHelper.Assert(ex.Kp.Equals("preserved"));
+                    TestHelper.Assert(ex.Kpd.Equals("derived"));
                 }
                 catch (OperationNotExistException)
                 {
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
 
                 try
                 {
-                    testPrx.relayUnknownPreservedAsBase(relay);
+                    testPrx.RelayUnknownPreservedAsBase(relay);
                     TestHelper.Assert(false);
                 }
                 catch (Preserved2 ex)
                 {
-                    TestHelper.Assert(ex.b.Equals("base"));
-                    TestHelper.Assert(ex.kp.Equals("preserved"));
-                    TestHelper.Assert(ex.kpd.Equals("derived"));
-                    TestHelper.Assert(ex.p1!.GetType().GetIceTypeId()!.Equals(typeof(PreservedClass).GetIceTypeId()));
-                    var pc = ex.p1 as PreservedClass;
-                    TestHelper.Assert(pc!.bc.Equals("bc"));
-                    TestHelper.Assert(pc!.pc.Equals("pc"));
-                    TestHelper.Assert(ex.p2 == ex.p1);
+                    TestHelper.Assert(ex.B.Equals("base"));
+                    TestHelper.Assert(ex.Kp.Equals("preserved"));
+                    TestHelper.Assert(ex.Kpd.Equals("derived"));
+                    TestHelper.Assert(ex.P1!.GetType().GetIceTypeId()!.Equals(typeof(PreservedClass).GetIceTypeId()));
+                    var pc = ex.P1 as PreservedClass;
+                    TestHelper.Assert(pc!.Bc.Equals("bc"));
+                    TestHelper.Assert(pc!.Pc.Equals("pc"));
+                    TestHelper.Assert(ex.P2 == ex.P1);
                 }
                 catch (OperationNotExistException)
                 {
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
 
                 try
                 {
-                    testPrx.relayUnknownPreservedAsKnownPreserved(relay);
+                    testPrx.RelayUnknownPreservedAsKnownPreserved(relay);
                     TestHelper.Assert(false);
                 }
                 catch (Preserved2 ex)
                 {
-                    TestHelper.Assert(ex.b.Equals("base"));
-                    TestHelper.Assert(ex.kp.Equals("preserved"));
-                    TestHelper.Assert(ex.kpd.Equals("derived"));
-                    TestHelper.Assert(ex.p1!.GetType().GetIceTypeId()!.Equals(typeof(PreservedClass).GetIceTypeId()));
-                    var pc = ex.p1 as PreservedClass;
-                    TestHelper.Assert(pc!.bc.Equals("bc"));
-                    TestHelper.Assert(pc!.pc.Equals("pc"));
-                    TestHelper.Assert(ex.p2 == ex.p1);
+                    TestHelper.Assert(ex.B.Equals("base"));
+                    TestHelper.Assert(ex.Kp.Equals("preserved"));
+                    TestHelper.Assert(ex.Kpd.Equals("derived"));
+                    TestHelper.Assert(ex.P1!.GetType().GetIceTypeId()!.Equals(typeof(PreservedClass).GetIceTypeId()));
+                    var pc = ex.P1 as PreservedClass;
+                    TestHelper.Assert(pc!.Bc.Equals("bc"));
+                    TestHelper.Assert(pc!.Pc.Equals("pc"));
+                    TestHelper.Assert(ex.P2 == ex.P1);
                 }
                 catch (OperationNotExistException)
                 {
                 }
-                catch (Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }
 
                 try
                 {
-                    testPrx.relayClientPrivateException(relay);
+                    testPrx.RelayClientPrivateException(relay);
                     TestHelper.Assert(false);
                 }
                 catch (ClientPrivateException ex)
                 {
-                    TestHelper.Assert(ex.cpe == "ClientPrivate");
+                    TestHelper.Assert(ex.Cpe == "ClientPrivate");
                 }
-                catch (System.Exception)
+                catch
                 {
                     TestHelper.Assert(false);
                 }

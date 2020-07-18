@@ -24,7 +24,7 @@ namespace ZeroC.Ice.Test.Metrics
 
             await using Communicator? communicator = Initialize(properties, observer: observer);
             IMetricsPrx metrics = AllTests.allTests(this, observer);
-            metrics.shutdown();
+            await metrics.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

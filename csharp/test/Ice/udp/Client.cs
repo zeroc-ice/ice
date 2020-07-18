@@ -30,7 +30,7 @@ namespace ZeroC.Ice.Test.UDP
 
             for (int i = 0; i < num; ++i)
             {
-                ITestIntfPrx.Parse("control:" + GetTestEndpoint(i, "tcp"), communicator).shutdown();
+                ITestIntfPrx.Parse("control:" + GetTestEndpoint(i, "tcp"), communicator).Shutdown();
             }
         }
 

@@ -8,8 +8,6 @@
 [[cpp:doxygen:include:Glacier2/Glacier2.h]]
 [[cpp:header-ext:h]]
 
-[[normalize-case]]
-
 [[js:module:ice]]
 
 [[python:pkgdir:Glacier2]]

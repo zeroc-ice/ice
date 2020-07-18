@@ -387,7 +387,7 @@ namespace ZeroC.Ice.Test.Hash
                     {
                         vertices.Add(new Point(rand.Next(100), rand.Next(100)));
                     }
-                    polyline.vertices = vertices.ToArray();
+                    polyline.Vertices = vertices.ToArray();
 
                     if (seenPolyline.ContainsKey(polyline.GetHashCode()))
                     {
@@ -413,10 +413,10 @@ namespace ZeroC.Ice.Test.Hash
                 for (i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
                     var colorPalette = new ColorPalette();
-                    colorPalette.colors = new Dictionary<int, Color>();
+                    colorPalette.Colors = new Dictionary<int, Color>();
                     for (int j = 0; j < 100; ++j)
                     {
-                        colorPalette.colors[j] = new Color(
+                        colorPalette.Colors[j] = new Color(
                             rand.Next(255),
                             rand.Next(255),
                             rand.Next(255),

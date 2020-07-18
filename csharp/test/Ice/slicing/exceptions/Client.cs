@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Slicing.Exceptions
         {
             await using Communicator communicator = Initialize(ref args);
             ITestIntfPrx test = AllTests.allTests(this);
-            test.shutdown();
+            await test.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

@@ -274,7 +274,7 @@ namespace ZeroC.Glacier2.Test.SessionHelper
 
                 Console.Out.Write("testing server shutdown... ");
                 Console.Out.Flush();
-                twoway.shutdown();
+                twoway.Shutdown();
                 Console.Out.WriteLine("ok");
 
                 Assert(session.Communicator != null);

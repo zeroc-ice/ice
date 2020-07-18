@@ -39,10 +39,10 @@ namespace ZeroC.Ice.Test.Location
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? proxy, Current current)
-            => new ValueTask(Task.CompletedTask);
+        public ValueTask SetServerProcessProxyAsync(string id, IProcessPrx? proxy, Current current) =>
+            new ValueTask(Task.CompletedTask);
 
-        public void addObject(IObjectPrx? obj, Current current)
+        public void AddObject(IObjectPrx? obj, Current current)
         {
             TestHelper.Assert(obj != null);
             AddObject(obj);

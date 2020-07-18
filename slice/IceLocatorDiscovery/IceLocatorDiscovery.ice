@@ -8,7 +8,6 @@
 [[cpp:header-ext:h]]
 
 [[suppress-warning:reserved-identifier]]
-[[normalize-case]]
 [[js:module:ice]]
 
 [[python:pkgdir:IceLocatorDiscovery]]

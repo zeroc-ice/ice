@@ -226,8 +226,8 @@ namespace ZeroC.Glacier2.Test.Router
                 ICallbackReceiverPrx onewayR = twowayR.Clone(oneway: true);
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "o";
-                oneway.initiateCallback(onewayR, context);
-                callbackReceiverImpl.callbackOK();
+                oneway.InitiateCallback(onewayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -236,8 +236,8 @@ namespace ZeroC.Glacier2.Test.Router
                 Console.Out.Flush();
                 Dictionary<string, string> context = new Dictionary<string, string>();
                 context["_fwd"] = "t";
-                twoway.initiateCallback(twowayR, context);
-                callbackReceiverImpl.callbackOK();
+                twoway.InitiateCallback(twowayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -248,15 +248,15 @@ namespace ZeroC.Glacier2.Test.Router
                 context["_fwd"] = "t";
                 try
                 {
-                    twoway.initiateCallbackEx(twowayR, context);
+                    twoway.InitiateCallbackEx(twowayR, context);
                     Assert(false);
                 }
                 catch (CallbackException ex)
                 {
-                    Assert(ex.someValue == 3.14);
-                    Assert(ex.someString.Equals("3.14"));
+                    Assert(ex.SomeValue == 3.14);
+                    Assert(ex.SomeString.Equals("3.14"));
                 }
-                callbackReceiverImpl.callbackOK();
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -267,7 +267,7 @@ namespace ZeroC.Glacier2.Test.Router
                 context["_fwd"] = "t";
                 try
                 {
-                    twoway.initiateCallback(fakeTwowayR, context);
+                    twoway.InitiateCallback(fakeTwowayR, context);
                     Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -283,8 +283,8 @@ namespace ZeroC.Glacier2.Test.Router
                 context["_fwd"] = "t";
                 ICallbackPrx otherCategoryTwoway =
                     twoway.Clone(Identity.Parse("c2/callback"), ICallbackPrx.Factory);
-                otherCategoryTwoway.initiateCallback(twowayR, context);
-                callbackReceiverImpl.callbackOK();
+                otherCategoryTwoway.InitiateCallback(twowayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -297,7 +297,7 @@ namespace ZeroC.Glacier2.Test.Router
                 {
                     ICallbackPrx otherCategoryTwoway =
                         twoway.Clone(Identity.Parse("c3/callback"), ICallbackPrx.Factory);
-                    otherCategoryTwoway.initiateCallback(twowayR, context);
+                    otherCategoryTwoway.InitiateCallback(twowayR, context);
                     Assert(false);
                 }
                 catch (ObjectNotExistException)
@@ -313,8 +313,8 @@ namespace ZeroC.Glacier2.Test.Router
                 context["_fwd"] = "t";
                 ICallbackPrx otherCategoryTwoway =
                     twoway.Clone(Identity.Parse("_userid/callback"), ICallbackPrx.Factory);
-                otherCategoryTwoway.initiateCallback(twowayR, context);
-                callbackReceiverImpl.callbackOK();
+                otherCategoryTwoway.InitiateCallback(twowayR, context);
+                callbackReceiverImpl.CallbackOK();
                 Console.Out.WriteLine("ok");
             }
 
@@ -322,7 +322,7 @@ namespace ZeroC.Glacier2.Test.Router
             {
                 Console.Out.Write("testing server shutdown... ");
                 Console.Out.Flush();
-                twoway.shutdown();
+                twoway.Shutdown();
                 // No ping, otherwise the router prints a warning message if it's
                 // started with --Ice.Warn.Connections.
                 Console.Out.WriteLine("ok");

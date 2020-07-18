@@ -3,17 +3,14 @@
 //
 
 using System.Threading.Tasks;
-using Test;
 
 namespace ZeroC.Ice.Test.Interceptor
 {
     public class MyObject : IMyObject
     {
-        public int
-        add(int x, int y, Current current) => x + y;
+        public int Add(int x, int y, Current current) => x + y;
 
-        public int
-        addWithRetry(int x, int y, Current current)
+        public int AddWithRetry(int x, int y, Current current)
         {
             if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
             {
@@ -22,24 +19,20 @@ namespace ZeroC.Ice.Test.Interceptor
             throw new RetryException();
         }
 
-        public int
-        badAdd(int x, int y, Current current) => throw new InvalidInputException("badAdd");
+        public int BadAdd(int x, int y, Current current) => throw new InvalidInputException("badAdd");
 
-        public int
-        notExistAdd(int x, int y, Current current) => throw new ObjectNotExistException(current);
+        public int NotExistAdd(int x, int y, Current current) => throw new ObjectNotExistException(current);
 
         //
         // AMD
         //
-        public async ValueTask<int>
-        amdAddAsync(int x, int y, Current current)
+        public async ValueTask<int> AmdAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             return x + y;
         }
 
-        public async ValueTask<int>
-        amdAddWithRetryAsync(int x, int y, Current current)
+        public async ValueTask<int> AmdAddWithRetryAsync(int x, int y, Current current)
         {
             if (current.Context.ContainsKey("retry") && current.Context["retry"].Equals("no"))
             {
@@ -52,13 +45,13 @@ namespace ZeroC.Ice.Test.Interceptor
             }
         }
 
-        public async ValueTask<int> amdBadAddAsync(int x, int y, Current current)
+        public async ValueTask<int> AmdBadAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             throw new InvalidInputException("amdBadAdd");
         }
 
-        public async ValueTask<int> amdNotExistAddAsync(int x, int y, Current current)
+        public async ValueTask<int> AmdNotExistAddAsync(int x, int y, Current current)
         {
             await Task.Delay(10);
             throw new ObjectNotExistException(current);

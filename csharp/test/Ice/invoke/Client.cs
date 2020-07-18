@@ -13,7 +13,7 @@ namespace ZeroC.Ice.Test.Invoke
         {
             await using Communicator communicator = Initialize(ref args);
             IMyClassPrx myClass = AllTests.allTests(this);
-            myClass.shutdown();
+            await myClass.ShutdownAsync();
         }
 
         public static Task<int> Main(string[] args) => TestDriver.RunTestAsync<Client>(args);

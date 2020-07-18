@@ -20,47 +20,47 @@ namespace ZeroC.IceBox.Test.Configuration
             var service3 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(2)}", communicator);
             var service4 = ITestIntfPrx.Parse($"test:{helper.GetTestEndpoint(3)}", communicator);
 
-            if (service1.getProperty("IceBox.InheritProperties").Length == 0)
+            if (service1.GetProperty("IceBox.InheritProperties").Length == 0)
             {
                 Console.Out.Write("testing service properties... ");
                 Console.Out.Flush();
 
-                TestHelper.Assert(service1.getProperty("Ice.ProgramName") == "IceBox-Service1");
-                TestHelper.Assert(service1.getProperty("Service") == "1");
-                TestHelper.Assert(service1.getProperty("Service1.Ovrd") == "2");
-                TestHelper.Assert(service1.getProperty("Service1.Unset").Length == 0);
-                TestHelper.Assert(service1.getProperty("Arg") == "1");
+                TestHelper.Assert(service1.GetProperty("Ice.ProgramName") == "IceBox-Service1");
+                TestHelper.Assert(service1.GetProperty("Service") == "1");
+                TestHelper.Assert(service1.GetProperty("Service1.Ovrd") == "2");
+                TestHelper.Assert(service1.GetProperty("Service1.Unset").Length == 0);
+                TestHelper.Assert(service1.GetProperty("Arg") == "1");
 
                 string[] args1 = { "-a", "--Arg=2" };
-                TestHelper.Assert(service1.getArgs().SequenceEqual(args1));
+                TestHelper.Assert(service1.GetArgs().SequenceEqual(args1));
 
-                TestHelper.Assert(service2.getProperty("Ice.ProgramName") == "Test");
-                TestHelper.Assert(service2.getProperty("Service") == "2");
-                TestHelper.Assert(service2.getProperty("Service1.ArgProp").Length == 0);
-                TestHelper.Assert(service2.getProperty("IceBox.InheritProperties") == "1");
+                TestHelper.Assert(service2.GetProperty("Ice.ProgramName") == "Test");
+                TestHelper.Assert(service2.GetProperty("Service") == "2");
+                TestHelper.Assert(service2.GetProperty("Service1.ArgProp").Length == 0);
+                TestHelper.Assert(service2.GetProperty("IceBox.InheritProperties") == "1");
 
                 string[] args2 = { "--Service1.ArgProp=1" };
-                TestHelper.Assert(service2.getArgs().SequenceEqual(args2));
+                TestHelper.Assert(service2.GetArgs().SequenceEqual(args2));
 
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing with shared communicator... ");
                 Console.Out.Flush();
 
-                TestHelper.Assert(service3.getProperty("Ice.ProgramName") == "IceBox-SharedCommunicator");
-                TestHelper.Assert(service3.getProperty("Service") == "4");
-                TestHelper.Assert(service3.getProperty("Prop").Length == 0);
-                TestHelper.Assert(service3.getProperty("Service3.Prop") == "1");
-                TestHelper.Assert(service3.getProperty("Ice.Trace.Slicing") == "3");
+                TestHelper.Assert(service3.GetProperty("Ice.ProgramName") == "IceBox-SharedCommunicator");
+                TestHelper.Assert(service3.GetProperty("Service") == "4");
+                TestHelper.Assert(service3.GetProperty("Prop").Length == 0);
+                TestHelper.Assert(service3.GetProperty("Service3.Prop") == "1");
+                TestHelper.Assert(service3.GetProperty("Ice.Trace.Slicing") == "3");
 
-                TestHelper.Assert(service4.getProperty("Ice.ProgramName") == "IceBox-SharedCommunicator");
-                TestHelper.Assert(service4.getProperty("Service") == "4");
-                TestHelper.Assert(service4.getProperty("Prop").Length == 0);
-                TestHelper.Assert(service4.getProperty("Service3.Prop") == "1");
-                TestHelper.Assert(service4.getProperty("Ice.Trace.Slicing") == "3");
+                TestHelper.Assert(service4.GetProperty("Ice.ProgramName") == "IceBox-SharedCommunicator");
+                TestHelper.Assert(service4.GetProperty("Service") == "4");
+                TestHelper.Assert(service4.GetProperty("Prop").Length == 0);
+                TestHelper.Assert(service4.GetProperty("Service3.Prop") == "1");
+                TestHelper.Assert(service4.GetProperty("Ice.Trace.Slicing") == "3");
 
                 string[] args4 = { "--Service3.Prop=2" };
-                TestHelper.Assert(service4.getArgs().SequenceEqual(args4));
+                TestHelper.Assert(service4.GetArgs().SequenceEqual(args4));
 
                 Console.Out.WriteLine("ok");
             }
@@ -69,18 +69,18 @@ namespace ZeroC.IceBox.Test.Configuration
                 Console.Out.Write("testing property inheritance... ");
                 Console.Out.Flush();
 
-                TestHelper.Assert(service1.getProperty("Ice.ProgramName") == "IceBox2-Service1");
-                TestHelper.Assert(service1.getProperty("ServerProp") == "1");
-                TestHelper.Assert(service1.getProperty("OverrideMe") == "2");
-                TestHelper.Assert(service1.getProperty("UnsetMe").Length == 0);
-                TestHelper.Assert(service1.getProperty("Service1.Prop") == "1");
-                TestHelper.Assert(service1.getProperty("Service1.ArgProp") == "2");
+                TestHelper.Assert(service1.GetProperty("Ice.ProgramName") == "IceBox2-Service1");
+                TestHelper.Assert(service1.GetProperty("ServerProp") == "1");
+                TestHelper.Assert(service1.GetProperty("OverrideMe") == "2");
+                TestHelper.Assert(service1.GetProperty("UnsetMe").Length == 0);
+                TestHelper.Assert(service1.GetProperty("Service1.Prop") == "1");
+                TestHelper.Assert(service1.GetProperty("Service1.ArgProp") == "2");
 
-                TestHelper.Assert(service2.getProperty("Ice.ProgramName") == "IceBox2-SharedCommunicator");
-                TestHelper.Assert(service2.getProperty("ServerProp") == "1");
-                TestHelper.Assert(service2.getProperty("OverrideMe") == "3");
-                TestHelper.Assert(service2.getProperty("UnsetMe").Length == 0);
-                TestHelper.Assert(service2.getProperty("Service2.Prop") == "1");
+                TestHelper.Assert(service2.GetProperty("Ice.ProgramName") == "IceBox2-SharedCommunicator");
+                TestHelper.Assert(service2.GetProperty("ServerProp") == "1");
+                TestHelper.Assert(service2.GetProperty("OverrideMe") == "3");
+                TestHelper.Assert(service2.GetProperty("UnsetMe").Length == 0);
+                TestHelper.Assert(service2.GetProperty("Service2.Prop") == "1");
 
                 Console.Out.WriteLine("ok");
             }

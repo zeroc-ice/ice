@@ -10,16 +10,16 @@ namespace ZeroC.Ice.Test.Perf
     {
         private static byte[] _bytes = new byte[Constants.ByteSeqSize];
 
-        public void sendBytes(byte[] seq, Current current)
+        public void SendBytes(byte[] seq, Current current)
         {
         }
 
-        public System.ReadOnlyMemory<byte> receiveBytes(int size, Current current)
+        public System.ReadOnlyMemory<byte> ReceiveBytes(int size, Current current)
         {
             Debug.Assert(size <= _bytes.Length);
             return new System.ReadOnlyMemory<byte>(_bytes, 0, size);
         }
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
     }
 }

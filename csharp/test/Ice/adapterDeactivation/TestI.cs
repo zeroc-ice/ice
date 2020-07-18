@@ -8,18 +8,18 @@ namespace ZeroC.Ice.Test.AdapterDeactivation
 {
     public sealed class TestIntf : ITestIntf
     {
-        public void transient(Current current)
+        public void Transient(Current current)
         {
             using ObjectAdapter adapter = current.Adapter.Communicator.CreateObjectAdapterWithEndpoints(
                 "TransientTestAdapter", "default");
             adapter.Activate();
         }
 
-        public void deactivate(Current current)
+        public void Deactivate(Current current)
         {
-            current.Adapter.DisposeAsync();
+            _ = current.Adapter.DisposeAsync().AsTask();
             System.Threading.Thread.Sleep(100);
-            Task.Delay(100).ContinueWith(t => current.Communicator.ShutdownAsync());
+            Task.Delay(100).ContinueWith(t => current.Communicator.ShutdownAsync(), TaskScheduler.Current);
         }
     }
 }

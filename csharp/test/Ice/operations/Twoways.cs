@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Operations
         {
             Communicator? communicator = helper.Communicator();
             TestHelper.Assert(communicator != null);
-            string[] literals = p.opStringLiterals();
+            string[] literals = p.OpStringLiterals();
 
             TestHelper.Assert(Constants.s0.Equals("\\") &&
                     Constants.s0.Equals(Constants.sw0) &&
@@ -108,14 +108,14 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                p.opVoid();
+                p.OpVoid();
             }
 
             {
                 byte b;
                 byte r;
 
-                (r, b) = p.opByte(0xff, 0x0f);
+                (r, b) = p.OpByte(0xff, 0x0f);
                 TestHelper.Assert(b == 0xf0);
                 TestHelper.Assert(r == 0xff);
             }
@@ -124,7 +124,7 @@ namespace ZeroC.Ice.Test.Operations
                 bool b;
                 bool r;
 
-                (r, b) = p.opBool(true, false);
+                (r, b) = p.OpBool(true, false);
                 TestHelper.Assert(b);
                 TestHelper.Assert(!r);
             }
@@ -135,19 +135,19 @@ namespace ZeroC.Ice.Test.Operations
                 long l;
                 long r;
 
-                (r, s, i, l) = p.opShortIntLong(10, 11, 12L);
+                (r, s, i, l) = p.OpShortIntLong(10, 11, 12L);
                 TestHelper.Assert(s == 10);
                 TestHelper.Assert(i == 11);
                 TestHelper.Assert(l == 12);
                 TestHelper.Assert(r == 12L);
 
-                (r, s, i, l) = p.opShortIntLong(short.MinValue, int.MinValue, long.MinValue);
+                (r, s, i, l) = p.OpShortIntLong(short.MinValue, int.MinValue, long.MinValue);
                 TestHelper.Assert(s == short.MinValue);
                 TestHelper.Assert(i == int.MinValue);
                 TestHelper.Assert(l == long.MinValue);
                 TestHelper.Assert(r == long.MinValue);
 
-                (r, s, i, l) = p.opShortIntLong(short.MaxValue, int.MaxValue, long.MaxValue);
+                (r, s, i, l) = p.OpShortIntLong(short.MaxValue, int.MaxValue, long.MaxValue);
                 TestHelper.Assert(s == short.MaxValue);
                 TestHelper.Assert(i == int.MaxValue);
                 TestHelper.Assert(l == long.MaxValue);
@@ -160,19 +160,19 @@ namespace ZeroC.Ice.Test.Operations
                 ulong l;
                 ulong r;
 
-                (r, s, i, l) = p.opUShortUIntULong(10, 11, 12UL);
+                (r, s, i, l) = p.OpUShortUIntULong(10, 11, 12UL);
                 TestHelper.Assert(s == 10);
                 TestHelper.Assert(i == 11);
                 TestHelper.Assert(l == 12);
                 TestHelper.Assert(r == 12UL);
 
-                (r, s, i, l) = p.opUShortUIntULong(ushort.MinValue, uint.MinValue, ulong.MinValue);
+                (r, s, i, l) = p.OpUShortUIntULong(ushort.MinValue, uint.MinValue, ulong.MinValue);
                 TestHelper.Assert(s == ushort.MinValue);
                 TestHelper.Assert(i == uint.MinValue);
                 TestHelper.Assert(l == ulong.MinValue);
                 TestHelper.Assert(r == ulong.MinValue);
 
-                (r, s, i, l) = p.opUShortUIntULong(ushort.MaxValue, uint.MaxValue, ulong.MaxValue);
+                (r, s, i, l) = p.OpUShortUIntULong(ushort.MaxValue, uint.MaxValue, ulong.MaxValue);
                 TestHelper.Assert(s == ushort.MaxValue);
                 TestHelper.Assert(i == uint.MaxValue);
                 TestHelper.Assert(l == ulong.MaxValue);
@@ -180,26 +180,26 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                TestHelper.Assert(p.opVarInt(0) == 0);
-                TestHelper.Assert(p.opVarInt(1) == 1);
-                TestHelper.Assert(p.opVarInt(-1) == -1);
-                TestHelper.Assert(p.opVarInt(5) == 5);
-                TestHelper.Assert(p.opVarInt(-5) == -5);
-                TestHelper.Assert(p.opVarInt(50) == 50);
-                TestHelper.Assert(p.opVarInt(-50) == -50);
-                TestHelper.Assert(p.opVarInt(500_000) == 500_000);
-                TestHelper.Assert(p.opVarInt(-500_000) == -500_000);
-                TestHelper.Assert(p.opVarInt(int.MaxValue) == int.MaxValue);
-                TestHelper.Assert(p.opVarInt(int.MinValue) == int.MinValue);
+                TestHelper.Assert(p.OpVarInt(0) == 0);
+                TestHelper.Assert(p.OpVarInt(1) == 1);
+                TestHelper.Assert(p.OpVarInt(-1) == -1);
+                TestHelper.Assert(p.OpVarInt(5) == 5);
+                TestHelper.Assert(p.OpVarInt(-5) == -5);
+                TestHelper.Assert(p.OpVarInt(50) == 50);
+                TestHelper.Assert(p.OpVarInt(-50) == -50);
+                TestHelper.Assert(p.OpVarInt(500_000) == 500_000);
+                TestHelper.Assert(p.OpVarInt(-500_000) == -500_000);
+                TestHelper.Assert(p.OpVarInt(int.MaxValue) == int.MaxValue);
+                TestHelper.Assert(p.OpVarInt(int.MinValue) == int.MinValue);
 
-                TestHelper.Assert(p.opVarLong(500_000) == 500_000);
-                TestHelper.Assert(p.opVarLong(-500_000) == -500_000);
-                TestHelper.Assert(p.opVarLong(2_305_843_009_213_693_951) == 2_305_843_009_213_693_951);
-                TestHelper.Assert(p.opVarLong(-2_305_843_009_213_693_952) == -2_305_843_009_213_693_952);
+                TestHelper.Assert(p.OpVarLong(500_000) == 500_000);
+                TestHelper.Assert(p.OpVarLong(-500_000) == -500_000);
+                TestHelper.Assert(p.OpVarLong(2_305_843_009_213_693_951) == 2_305_843_009_213_693_951);
+                TestHelper.Assert(p.OpVarLong(-2_305_843_009_213_693_952) == -2_305_843_009_213_693_952);
 
                 try
                 {
-                    p.opVarLong(long.MinValue);
+                    p.OpVarLong(long.MinValue);
                     TestHelper.Assert(false);
                 }
                 catch (ArgumentOutOfRangeException)
@@ -209,7 +209,7 @@ namespace ZeroC.Ice.Test.Operations
 
                 try
                 {
-                    p.opVarLong(long.MaxValue);
+                    p.OpVarLong(long.MaxValue);
                     TestHelper.Assert(false);
                 }
                 catch (ArgumentOutOfRangeException)
@@ -219,19 +219,19 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             {
-                TestHelper.Assert(p.opVarUInt(0) == 0);
-                TestHelper.Assert(p.opVarUInt(1) == 1);
-                TestHelper.Assert(p.opVarUInt(5) == 5);
-                TestHelper.Assert(p.opVarUInt(50) == 50);
-                TestHelper.Assert(p.opVarUInt(500_000) == 500_000);
-                TestHelper.Assert(p.opVarUInt(uint.MaxValue) == uint.MaxValue);
+                TestHelper.Assert(p.OpVarUInt(0) == 0);
+                TestHelper.Assert(p.OpVarUInt(1) == 1);
+                TestHelper.Assert(p.OpVarUInt(5) == 5);
+                TestHelper.Assert(p.OpVarUInt(50) == 50);
+                TestHelper.Assert(p.OpVarUInt(500_000) == 500_000);
+                TestHelper.Assert(p.OpVarUInt(uint.MaxValue) == uint.MaxValue);
 
-                TestHelper.Assert(p.opVarULong(500_000) == 500_000);
-                TestHelper.Assert(p.opVarULong(4_611_686_018_427_387_903) == 4_611_686_018_427_387_903);
+                TestHelper.Assert(p.OpVarULong(500_000) == 500_000);
+                TestHelper.Assert(p.OpVarULong(4_611_686_018_427_387_903) == 4_611_686_018_427_387_903);
 
                 try
                 {
-                    p.opVarULong(ulong.MaxValue);
+                    p.OpVarULong(ulong.MaxValue);
                     TestHelper.Assert(false);
                 }
                 catch (ArgumentOutOfRangeException)
@@ -245,17 +245,17 @@ namespace ZeroC.Ice.Test.Operations
                 double d;
                 double r;
 
-                (r, f, d) = p.opFloatDouble(3.14f, 1.1e10);
+                (r, f, d) = p.OpFloatDouble(3.14f, 1.1e10);
                 TestHelper.Assert(f == 3.14f);
                 TestHelper.Assert(d == 1.1e10);
                 TestHelper.Assert(r == 1.1e10);
 
-                (r, f, d) = p.opFloatDouble(float.Epsilon, double.MinValue);
+                (r, f, d) = p.OpFloatDouble(float.Epsilon, double.MinValue);
                 TestHelper.Assert(f == float.Epsilon);
                 TestHelper.Assert(d == double.MinValue);
                 TestHelper.Assert(r == double.MinValue);
 
-                (r, f, d) = p.opFloatDouble(float.MaxValue, double.MaxValue);
+                (r, f, d) = p.OpFloatDouble(float.MaxValue, double.MaxValue);
                 TestHelper.Assert(f == float.MaxValue);
                 TestHelper.Assert(d == double.MaxValue);
                 TestHelper.Assert(r == double.MaxValue);
@@ -265,7 +265,7 @@ namespace ZeroC.Ice.Test.Operations
                 string s;
                 string r;
 
-                (r, s) = p.opString("hello", "world");
+                (r, s) = p.OpString("hello", "world");
                 TestHelper.Assert(s.Equals("world hello"));
                 TestHelper.Assert(r.Equals("hello world"));
             }
@@ -274,7 +274,7 @@ namespace ZeroC.Ice.Test.Operations
                 MyEnum e;
                 MyEnum r;
 
-                (r, e) = p.opMyEnum(MyEnum.enum2);
+                (r, e) = p.OpMyEnum(MyEnum.enum2);
                 TestHelper.Assert(e == MyEnum.enum2);
                 TestHelper.Assert(r == MyEnum.enum3);
             }
@@ -284,67 +284,67 @@ namespace ZeroC.Ice.Test.Operations
                 IMyClassPrx? c2;
                 IMyClassPrx? r;
 
-                (r, c1, c2) = p.opMyClass(p);
+                (r, c1, c2) = p.OpMyClass(p);
                 TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(c1!, p));
                 TestHelper.Assert(!ProxyComparer.IdentityAndFacet.Equals(c2!, p));
                 TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(r!, p));
                 TestHelper.Assert(c1!.Identity.Equals(Identity.Parse("test")));
                 TestHelper.Assert(c2!.Identity.Equals(Identity.Parse("noSuchIdentity")));
                 TestHelper.Assert(r!.Identity.Equals(Identity.Parse("test")));
-                r.opVoid();
-                c1.opVoid();
+                r.OpVoid();
+                c1.OpVoid();
                 try
                 {
-                    c2.opVoid();
+                    c2.OpVoid();
                     TestHelper.Assert(false);
                 }
                 catch (ObjectNotExistException)
                 {
                 }
 
-                (r, c1, c2) = p.opMyClass(null);
+                (r, c1, c2) = p.OpMyClass(null);
                 TestHelper.Assert(c1 == null);
                 TestHelper.Assert(c2 != null);
                 TestHelper.Assert(ProxyComparer.IdentityAndFacet.Equals(r!, p));
-                r!.opVoid();
+                r!.OpVoid();
             }
 
             {
                 Structure si1 = new Structure();
-                si1.p = p;
-                si1.e = MyEnum.enum3;
-                si1.s = new AnotherStruct();
-                si1.s.s = "abc";
+                si1.P = p;
+                si1.E = MyEnum.enum3;
+                si1.S = new AnotherStruct();
+                si1.S.S = "abc";
                 Structure si2 = new Structure();
-                si2.p = null;
-                si2.e = MyEnum.enum2;
-                si2.s = new AnotherStruct();
-                si2.s.s = "def";
+                si2.P = null;
+                si2.E = MyEnum.enum2;
+                si2.S = new AnotherStruct();
+                si2.S.S = "def";
 
-                var (rso, so) = p.opStruct(si1, si2);
-                TestHelper.Assert(rso.p == null);
-                TestHelper.Assert(rso.e == MyEnum.enum2);
-                TestHelper.Assert(rso.s.s.Equals("def"));
-                TestHelper.Assert(so.p!.Equals(p));
-                TestHelper.Assert(so.e == MyEnum.enum3);
-                TestHelper.Assert(so.s.s.Equals("a new string"));
-                so.p.opVoid();
+                var (rso, so) = p.OpStruct(si1, si2);
+                TestHelper.Assert(rso.P == null);
+                TestHelper.Assert(rso.E == MyEnum.enum2);
+                TestHelper.Assert(rso.S.S.Equals("def"));
+                TestHelper.Assert(so.P!.Equals(p));
+                TestHelper.Assert(so.E == MyEnum.enum3);
+                TestHelper.Assert(so.S.S.Equals("a new string"));
+                so.P.OpVoid();
 
                 //
                 // Test marshalling of null structs and structs with null members.
                 //
                 si1 = new Structure();
-                si1.s = new AnotherStruct("");
+                si1.S = new AnotherStruct("");
                 si2 = new Structure();
-                si2.s = new AnotherStruct("");
+                si2.S = new AnotherStruct("");
 
-                (rso, so) = p.opStruct(si1, si2);
-                TestHelper.Assert(rso.p == null);
-                TestHelper.Assert(rso.e == MyEnum.enum1);
-                TestHelper.Assert(rso.s.s.Length == 0);
-                TestHelper.Assert(so.p == null);
-                TestHelper.Assert(so.e == MyEnum.enum1);
-                TestHelper.Assert(so.s.s.Equals("a new string"));
+                (rso, so) = p.OpStruct(si1, si2);
+                TestHelper.Assert(rso.P == null);
+                TestHelper.Assert(rso.E == MyEnum.enum1);
+                TestHelper.Assert(rso.S.S.Length == 0);
+                TestHelper.Assert(so.P == null);
+                TestHelper.Assert(so.E == MyEnum.enum1);
+                TestHelper.Assert(so.S.S.Equals("a new string"));
             }
 
             {
@@ -354,7 +354,7 @@ namespace ZeroC.Ice.Test.Operations
                 byte[] bso;
                 byte[] rso;
 
-                (rso, bso) = p.opByteS(bsi1, bsi2);
+                (rso, bso) = p.OpByteS(bsi1, bsi2);
                 TestHelper.Assert(bso.Length == 4);
                 TestHelper.Assert(bso[0] == 0x22);
                 TestHelper.Assert(bso[1] == 0x12);
@@ -378,7 +378,7 @@ namespace ZeroC.Ice.Test.Operations
                 bool[] bso;
                 bool[] rso;
 
-                (rso, bso) = p.opBoolS(bsi1, bsi2);
+                (rso, bso) = p.OpBoolS(bsi1, bsi2);
                 TestHelper.Assert(bso.Length == 4);
                 TestHelper.Assert(bso[0]);
                 TestHelper.Assert(bso[1]);
@@ -400,7 +400,7 @@ namespace ZeroC.Ice.Test.Operations
                 long[] lso;
                 long[] rso;
 
-                (rso, sso, iso, lso) = p.opShortIntLongS(ssi, isi, lsi);
+                (rso, sso, iso, lso) = p.OpShortIntLongS(ssi, isi, lsi);
                 TestHelper.Assert(sso.Length == 3);
                 TestHelper.Assert(sso[0] == 1);
                 TestHelper.Assert(sso[1] == 2);
@@ -433,7 +433,7 @@ namespace ZeroC.Ice.Test.Operations
                 ulong[] lso;
                 ulong[] rso;
 
-                (rso, sso, iso, lso) = p.opUShortUIntULongS(ssi, isi, lsi);
+                (rso, sso, iso, lso) = p.OpUShortUIntULongS(ssi, isi, lsi);
                 TestHelper.Assert(sso.Length == 3);
                 TestHelper.Assert(sso[0] == 1);
                 TestHelper.Assert(sso[1] == 2);
@@ -464,7 +464,7 @@ namespace ZeroC.Ice.Test.Operations
                 long[] lso;
                 long[] rso;
 
-                (rso, iso, lso) = p.opVarIntVarLongS(isi, lsi);
+                (rso, iso, lso) = p.OpVarIntVarLongS(isi, lsi);
                 TestHelper.Assert(iso.Length == 4);
                 TestHelper.Assert(iso[0] == 8);
                 TestHelper.Assert(iso[1] == 7);
@@ -491,7 +491,7 @@ namespace ZeroC.Ice.Test.Operations
                 ulong[] lso;
                 ulong[] rso;
 
-                (rso, iso, lso) = p.opVarUIntVarULongS(isi, lsi);
+                (rso, iso, lso) = p.OpVarUIntVarULongS(isi, lsi);
                 TestHelper.Assert(iso.Length == 4);
                 TestHelper.Assert(iso[0] == 8);
                 TestHelper.Assert(iso[1] == 7);
@@ -518,7 +518,7 @@ namespace ZeroC.Ice.Test.Operations
                 double[] dso;
                 double[] rso;
 
-                (rso, fso, dso) = p.opFloatDoubleS(fsi, dsi);
+                (rso, fso, dso) = p.OpFloatDoubleS(fsi, dsi);
                 TestHelper.Assert(fso.Length == 2);
                 TestHelper.Assert(fso[0] == 3.14f);
                 TestHelper.Assert(fso[1] == 1.11f);
@@ -541,7 +541,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[] sso;
                 string[] rso;
 
-                (rso, sso) = p.opStringS(ssi1, ssi2);
+                (rso, sso) = p.OpStringS(ssi1, ssi2);
                 TestHelper.Assert(sso.Length == 4);
                 TestHelper.Assert(sso[0].Equals("abc"));
                 TestHelper.Assert(sso[1].Equals("de"));
@@ -565,7 +565,7 @@ namespace ZeroC.Ice.Test.Operations
                 byte[][] bso;
                 byte[][] rso;
 
-                (rso, bso) = p.opByteSS(bsi1, bsi2);
+                (rso, bso) = p.OpByteSS(bsi1, bsi2);
                 TestHelper.Assert(bso.Length == 2);
                 TestHelper.Assert(bso[0].Length == 1);
                 TestHelper.Assert(bso[0][0] == 0xff);
@@ -599,7 +599,7 @@ namespace ZeroC.Ice.Test.Operations
                 bool[][] rso;
                 bool[][] bso;
 
-                (rso, bso) = p.opBoolSS(bsi1, bsi2);
+                (rso, bso) = p.OpBoolSS(bsi1, bsi2);
                 TestHelper.Assert(bso.Length == 4);
                 TestHelper.Assert(bso[0].Length == 1);
                 TestHelper.Assert(bso[0][0]);
@@ -640,7 +640,7 @@ namespace ZeroC.Ice.Test.Operations
                 long[][] lso;
                 long[][] rso;
 
-                (rso, sso, iso, lso) = p.opShortIntLongSS(ssi, isi, lsi);
+                (rso, sso, iso, lso) = p.OpShortIntLongSS(ssi, isi, lsi);
                 TestHelper.Assert(rso.Length == 1);
                 TestHelper.Assert(rso[0].Length == 2);
                 TestHelper.Assert(rso[0][0] == 496);
@@ -686,7 +686,7 @@ namespace ZeroC.Ice.Test.Operations
                 ulong[][] lso;
                 ulong[][] rso;
 
-                (rso, sso, iso, lso) = p.opUShortUIntULongSS(ssi, isi, lsi);
+                (rso, sso, iso, lso) = p.OpUShortUIntULongSS(ssi, isi, lsi);
                 TestHelper.Assert(rso.Length == 1);
                 TestHelper.Assert(rso[0].Length == 2);
                 TestHelper.Assert(rso[0][0] == 496);
@@ -727,7 +727,7 @@ namespace ZeroC.Ice.Test.Operations
                 double[][] dso;
                 double[][] rso;
 
-                (rso, fso, dso) = p.opFloatDoubleSS(fsi, dsi);
+                (rso, fso, dso) = p.OpFloatDoubleSS(fsi, dsi);
                 TestHelper.Assert(fso.Length == 3);
                 TestHelper.Assert(fso[0].Length == 1);
                 TestHelper.Assert(fso[0][0] == 3.14f);
@@ -763,7 +763,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[][] sso;
                 string[][] rso;
 
-                (rso, sso) = p.opStringSS(ssi1, ssi2);
+                (rso, sso) = p.OpStringSS(ssi1, ssi2);
                 TestHelper.Assert(sso.Length == 5);
                 TestHelper.Assert(sso[0].Length == 1);
                 TestHelper.Assert(sso[0][0].Equals("abc"));
@@ -800,7 +800,7 @@ namespace ZeroC.Ice.Test.Operations
                 string[][][] ssso;
                 string[][][] rsso;
 
-                (rsso, ssso) = p.opStringSSS(sssi1, sssi2);
+                (rsso, ssso) = p.OpStringSSS(sssi1, sssi2);
                 TestHelper.Assert(ssso.Length == 5);
                 TestHelper.Assert(ssso[0].Length == 2);
                 TestHelper.Assert(ssso[0][0].Length == 2);
@@ -844,7 +844,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[11] = false;
                 di2[101] = true;
 
-                var (ro, _do) = p.opByteBoolD(di1, di2);
+                var (ro, _do) = p.OpByteBoolD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
@@ -863,7 +863,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[111] = -100;
                 di2[1101] = 0;
 
-                var (ro, _do) = p.opShortIntD(di1, di2);
+                var (ro, _do) = p.OpShortIntD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
@@ -882,7 +882,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[111] = 100;
                 di2[1101] = 0;
 
-                var (ro, _do) = p.opUShortUIntD(di1, di2);
+                var (ro, _do) = p.OpUShortUIntD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
@@ -901,7 +901,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[999999120L] = -100.4f;
                 di2[999999130L] = 0.5f;
 
-                var (ro, _do) = p.opLongFloatD(di1, di2);
+                var (ro, _do) = p.OpLongFloatD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
@@ -920,7 +920,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2["FOO"] = "abc -100.4";
                 di2["BAR"] = "abc 0.5";
 
-                var (ro, _do) = p.opStringStringD(di1, di2);
+                var (ro, _do) = p.OpStringStringD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
@@ -939,7 +939,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2["qwerty"] = MyEnum.enum3;
                 di2["Hello!!"] = MyEnum.enum2;
 
-                var (ro, _do) = p.opStringMyEnumD(di1, di2);
+                var (ro, _do) = p.OpStringMyEnumD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
@@ -956,7 +956,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[MyEnum.enum2] = "Hello!!";
                 di2[MyEnum.enum3] = "qwerty";
 
-                var (ro, _do) = p.opMyEnumStringD(di1, di2);
+                var (ro, _do) = p.OpMyEnumStringD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 3);
@@ -979,7 +979,7 @@ namespace ZeroC.Ice.Test.Operations
                 di2[s22] = MyEnum.enum3;
                 di2[s23] = MyEnum.enum2;
 
-                var (ro, _do) = p.opMyStructMyEnumD(di1, di2);
+                var (ro, _do) = p.OpMyStructMyEnumD(di1, di2);
 
                 TestHelper.Assert(_do.DictionaryEqual(di1));
                 TestHelper.Assert(ro.Count == 4);
@@ -1008,7 +1008,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opByteBoolDS(dsi1, dsi2);
+                var (ro, _do) = p.OpByteBoolDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1050,7 +1050,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opShortIntDS(dsi1, dsi2);
+                var (ro, _do) = p.OpShortIntDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1091,7 +1091,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opUShortUIntDS(dsi1, dsi2);
+                var (ro, _do) = p.OpUShortUIntDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1132,7 +1132,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opLongFloatDS(dsi1, dsi2);
+                var (ro, _do) = p.OpLongFloatDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1173,7 +1173,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opULongFloatDS(dsi1, dsi2);
+                var (ro, _do) = p.OpULongFloatDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1214,7 +1214,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opStringStringDS(dsi1, dsi2);
+                var (ro, _do) = p.OpStringStringDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1255,7 +1255,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opStringMyEnumDS(dsi1, dsi2);
+                var (ro, _do) = p.OpStringMyEnumDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1294,7 +1294,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opMyEnumStringDS(dsi1, dsi2);
+                var (ro, _do) = p.OpMyEnumStringDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 2);
@@ -1337,7 +1337,7 @@ namespace ZeroC.Ice.Test.Operations
                 dsi1[1] = di2;
                 dsi2[0] = di3;
 
-                var (ro, _do) = p.opMyStructMyEnumDS(dsi1, dsi2);
+                var (ro, _do) = p.OpMyStructMyEnumDS(dsi1, dsi2);
 
                 TestHelper.Assert(ro.Length == 2);
                 TestHelper.Assert(ro[0].Count == 3);
@@ -1372,7 +1372,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[0x22] = si2;
                 sdi2[0xf1] = si3;
 
-                var (ro, _do) = p.opByteByteSD(sdi1, sdi2);
+                var (ro, _do) = p.OpByteByteSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[0xf1].Length == 2);
@@ -1401,7 +1401,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[true] = si2;
                 sdi2[false] = si1;
 
-                var (ro, _do) = p.opBoolBoolSD(sdi1, sdi2);
+                var (ro, _do) = p.OpBoolBoolSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[false].Length == 2);
@@ -1429,7 +1429,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[2] = si2;
                 sdi2[4] = si3;
 
-                var (ro, _do) = p.opShortShortSD(sdi1, sdi2);
+                var (ro, _do) = p.OpShortShortSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[4].Length == 2);
@@ -1461,7 +1461,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[2] = si2;
                 sdi2[4] = si3;
 
-                var (ro, _do) = p.opUShortUShortSD(sdi1, sdi2);
+                var (ro, _do) = p.OpUShortUShortSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[4].Length == 2);
@@ -1493,7 +1493,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[200] = si2;
                 sdi2[400] = si3;
 
-                var (ro, _do) = p.opIntIntSD(sdi1, sdi2);
+                var (ro, _do) = p.OpIntIntSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[400].Length == 2);
@@ -1525,7 +1525,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[200] = si2;
                 sdi2[400] = si3;
 
-                var (ro, _do) = p.opUIntUIntSD(sdi1, sdi2);
+                var (ro, _do) = p.OpUIntUIntSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[400].Length == 2);
@@ -1557,7 +1557,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[999999991L] = si2;
                 sdi2[999999992L] = si3;
 
-                var (ro, _do) = p.opLongLongSD(sdi1, sdi2);
+                var (ro, _do) = p.OpLongLongSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[999999992L].Length == 2);
@@ -1588,7 +1588,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[999999991L] = si2;
                 sdi2[999999992L] = si3;
 
-                var (ro, _do) = p.opULongULongSD(sdi1, sdi2);
+                var (ro, _do) = p.OpULongULongSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[999999992L].Length == 2);
@@ -1619,7 +1619,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1["ABC"] = si2;
                 sdi2["aBc"] = si3;
 
-                var (ro, _do) = p.opStringFloatSD(sdi1, sdi2);
+                var (ro, _do) = p.OpStringFloatSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do["aBc"].Length == 2);
@@ -1651,7 +1651,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1["Goodbye"] = si2;
                 sdi2[""] = si3;
 
-                var (ro, _do) = p.opStringDoubleSD(sdi1, sdi2);
+                var (ro, _do) = p.OpStringDoubleSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[""].Length == 2);
@@ -1682,7 +1682,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1["def"] = si2;
                 sdi2["ghi"] = si3;
 
-                var (ro, _do) = p.opStringStringSD(sdi1, sdi2);
+                var (ro, _do) = p.OpStringStringSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do["ghi"].Length == 2);
@@ -1714,7 +1714,7 @@ namespace ZeroC.Ice.Test.Operations
                 sdi1[MyEnum.enum2] = si2;
                 sdi2[MyEnum.enum1] = si3;
 
-                var (ro, _do) = p.opMyEnumMyEnumSD(sdi1, sdi2);
+                var (ro, _do) = p.OpMyEnumMyEnumSD(sdi1, sdi2);
 
                 TestHelper.Assert(_do.Count == 1);
                 TestHelper.Assert(_do[MyEnum.enum1].Length == 2);
@@ -1744,7 +1744,7 @@ namespace ZeroC.Ice.Test.Operations
                         s[i] = i;
                     }
 
-                    int[] r = p.opIntS(s);
+                    int[] r = p.OpIntS(s);
                     TestHelper.Assert(r.Length == lengths[l]);
                     for (int j = 0; j < r.Length; ++j)
                     {
@@ -1760,19 +1760,19 @@ namespace ZeroC.Ice.Test.Operations
                 ctx["three"] = "THREE";
                 {
                     TestHelper.Assert(p.Context.Count == 0);
-                    Dictionary<string, string> r = p.opContext();
+                    Dictionary<string, string> r = p.OpContext();
                     TestHelper.Assert(!r.Equals(ctx));
                 }
                 {
-                    Dictionary<string, string> r = p.opContext(ctx);
+                    Dictionary<string, string> r = p.OpContext(ctx);
                     TestHelper.Assert(r.DictionaryEqual(ctx));
                 }
                 {
                     var p2 = p.Clone(context: ctx);
                     TestHelper.Assert(p2.Context.DictionaryEqual(ctx));
-                    Dictionary<string, string> r = p2.opContext();
+                    Dictionary<string, string> r = p2.OpContext();
                     TestHelper.Assert(r.DictionaryEqual(ctx));
-                    r = p2.opContext(ctx);
+                    r = p2.OpContext(ctx);
                     TestHelper.Assert(r.DictionaryEqual(ctx));
                 }
             }
@@ -1784,7 +1784,7 @@ namespace ZeroC.Ice.Test.Operations
                 communicator.CurrentContext["three"] = "THREE";
 
                 var p3 = IMyClassPrx.Parse($"test:{helper.GetTestEndpoint(0)}", communicator);
-                TestHelper.Assert(p3.opContext().DictionaryEqual(communicator.CurrentContext));
+                TestHelper.Assert(p3.OpContext().DictionaryEqual(communicator.CurrentContext));
 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
@@ -1813,21 +1813,21 @@ namespace ZeroC.Ice.Test.Operations
                 var ctx = new Dictionary<string, string>(communicator.CurrentContext);
 
                 communicator.CurrentContext.Clear();
-                TestHelper.Assert(p3.opContext().DictionaryEqual(prxContext));
+                TestHelper.Assert(p3.OpContext().DictionaryEqual(prxContext));
 
                 communicator.CurrentContext = ctx;
-                TestHelper.Assert(p3.opContext().DictionaryEqual(combined));
+                TestHelper.Assert(p3.OpContext().DictionaryEqual(combined));
 
                 // Cleanup
                 communicator.CurrentContext.Clear();
                 communicator.DefaultContext = new Dictionary<string, string>();
             }
 
-            p.opIdempotent();
+            p.OpIdempotent();
 
             try
             {
-                p.opOneway();
+                p.OpOneway();
                 TestHelper.Assert(false);
             }
             catch (SomeException)
@@ -1836,66 +1836,63 @@ namespace ZeroC.Ice.Test.Operations
             }
 
             // This is invoked as a oneway, despite using a twoway proxy.
-            p.opOnewayMetadata();
+            p.OpOnewayMetadata();
 
             {
-                TestHelper.Assert(p.opByte1(0xFF) == 0xFF);
-                TestHelper.Assert(p.opShort1(0x7FFF) == 0x7FFF);
-                TestHelper.Assert(p.opUShort1(ushort.MaxValue) == ushort.MaxValue);
-                TestHelper.Assert(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
-                TestHelper.Assert(p.opUInt1(uint.MaxValue) == uint.MaxValue);
-                TestHelper.Assert(p.opLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
-                TestHelper.Assert(p.opULong1(ulong.MaxValue) == ulong.MaxValue);
-                TestHelper.Assert(p.opFloat1(1.0f) == 1.0f);
-                TestHelper.Assert(p.opDouble1(1.0d) == 1.0d);
-                TestHelper.Assert(p.opString1("opString1").Equals("opString1"));
-                TestHelper.Assert(p.opStringS1(Array.Empty<string>()).Length == 0);
-                TestHelper.Assert(p.opByteBoolD1(new Dictionary<byte, bool>()).Count == 0);
-                TestHelper.Assert(p.opStringS2(Array.Empty<string>()).Length == 0);
-                TestHelper.Assert(p.opByteBoolD2(new Dictionary<byte, bool>()).Count == 0);
+                TestHelper.Assert(p.OpByte1(0xFF) == 0xFF);
+                TestHelper.Assert(p.OpShort1(0x7FFF) == 0x7FFF);
+                TestHelper.Assert(p.OpUShort1(ushort.MaxValue) == ushort.MaxValue);
+                TestHelper.Assert(p.OpInt1(0x7FFFFFFF) == 0x7FFFFFFF);
+                TestHelper.Assert(p.OpUInt1(uint.MaxValue) == uint.MaxValue);
+                TestHelper.Assert(p.OpLong1(0x7FFFFFFFFFFFFFFF) == 0x7FFFFFFFFFFFFFFF);
+                TestHelper.Assert(p.OpULong1(ulong.MaxValue) == ulong.MaxValue);
+                TestHelper.Assert(p.OpFloat1(1.0f) == 1.0f);
+                TestHelper.Assert(p.OpDouble1(1.0d) == 1.0d);
+                TestHelper.Assert(p.OpString1("opString1").Equals("opString1"));
+                TestHelper.Assert(p.OpStringS1(Array.Empty<string>()).Length == 0);
+                TestHelper.Assert(p.OpByteBoolD1(new Dictionary<byte, bool>()).Count == 0);
+                TestHelper.Assert(p.OpStringS2(Array.Empty<string>()).Length == 0);
+                TestHelper.Assert(p.OpByteBoolD2(new Dictionary<byte, bool>()).Count == 0);
 
                 var d = IMyDerivedClassPrx.UncheckedCast(p);
                 var s = new MyStruct1();
-                s.tesT = "MyStruct1.s";
-                s.myClass = null;
-                s.myStruct1 = "MyStruct1.myStruct1";
-                s = d.opMyStruct1(s);
-                TestHelper.Assert(s.tesT.Equals("MyStruct1.s"));
-                TestHelper.Assert(s.myClass == null);
-                TestHelper.Assert(s.myStruct1.Equals("MyStruct1.myStruct1"));
-                MyClass1? c = new MyClass1("MyClass1.testT", null, "MyClass1.myClass1");
-                c = d.opMyClass1(c);
+                s.TesT = "MyStruct1.s";
+                s.MyClass = null;
+                s = d.OpMyStruct1(s);
+                TestHelper.Assert(s.TesT.Equals("MyStruct1.s"));
+                TestHelper.Assert(s.MyClass == null);
+                MyClass1? c = new MyClass1("MyClass1.testT", null);
+                c = d.OpMyClass1(c);
                 TestHelper.Assert(c != null);
-                TestHelper.Assert(c.tesT.Equals("MyClass1.testT"));
-                TestHelper.Assert(c.myClass == null);
-                TestHelper.Assert(c.myClass1.Equals("MyClass1.myClass1"));
+                TestHelper.Assert(c.TesT.Equals("MyClass1.testT"));
+                TestHelper.Assert(c.MyClass == null);
             }
 
             {
-                var p1 = p.opMStruct1();
-                p1.e = MyEnum.enum3;
+                var p1 = p.OpMStruct1();
+                p1.E = MyEnum.enum3;
                 Structure p2, p3;
-                (p3, p2) = p.opMStruct2(p1);
+                (p3, p2) = p.OpMStruct2(p1);
                 TestHelper.Assert(p2.Equals(p1) && p3.Equals(p1));
             }
 
             {
-                p.opMSeq1();
+                p.OpMSeq1();
 
                 string[] p1 = new string[1];
                 p1[0] = "test";
                 string[] p2, p3;
-                (p3, p2) = p.opMSeq2(p1);
+                (p3, p2) = p.OpMSeq2(p1);
                 TestHelper.Assert(p2.SequenceEqual(p1) && p3.SequenceEqual(p1));
             }
 
             {
-                p.opMDict1();
+                p.OpMDict1();
 
                 Dictionary<string, string> p1 = new Dictionary<string, string>();
                 p1["test"] = "test";
                 Dictionary<string, string> p2, p3;
-                (p3, p2) = p.opMDict2(p1);
+                (p3, p2) = p.OpMDict2(p1);
                 TestHelper.Assert(p2.DictionaryEqual(p1) && p3.DictionaryEqual(p1));
             }
         }

@@ -25,11 +25,13 @@ namespace ZeroC.Ice.Test.Plugin
                 _initialized = true;
             }
 
-            public override ValueTask DisposeAsync()
+            public override async ValueTask DisposeAsync()
             {
-                _destroyed = true;
-                TestHelper.Assert(_other!.isDestroyed());
-                return new ValueTask(Task.CompletedTask);
+                if (!_destroyed)
+                {
+                    await base.DisposeAsync();
+                    _destroyed = true;
+                }
             }
         }
     }

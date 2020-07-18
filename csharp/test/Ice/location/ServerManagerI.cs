@@ -15,7 +15,7 @@ namespace ZeroC.Ice.Test.Location
             _helper = helper;
         }
 
-        public void startServer(Current current)
+        public void StartServer(Current current)
         {
             foreach (Communicator? c in _communicators)
             {
@@ -91,7 +91,7 @@ namespace ZeroC.Ice.Test.Location
             }
         }
 
-        public void shutdown(Current current)
+        public void Shutdown(Current current)
         {
             foreach (Communicator c in _communicators)
             {

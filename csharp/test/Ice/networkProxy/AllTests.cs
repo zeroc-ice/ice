@@ -37,7 +37,7 @@ namespace ZeroC.Ice.Test.NetworkProxy
             output.Write("shutting down server... ");
             output.Flush();
             {
-                testPrx.shutdown();
+                testPrx.Shutdown();
             }
             output.WriteLine("ok");
 

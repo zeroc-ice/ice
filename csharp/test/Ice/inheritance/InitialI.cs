@@ -17,14 +17,14 @@ namespace ZeroC.Ice.Test.Inheritance
             _ic = adapter.AddWithUUID(new IC(), IICPrx.Factory);
         }
 
-        public IIAPrx iaop(Current current) => _ia;
-        public IIB1Prx ib1op(Current current) => _ib1;
+        public IIAPrx Iaop(Current current) => _ia;
+        public IIB1Prx Ib1op(Current current) => _ib1;
 
-        public IIB2Prx ib2op(Current current) => _ib2;
+        public IIB2Prx Ib2op(Current current) => _ib2;
 
-        public IICPrx icop(Current current) => _ic;
+        public IICPrx Icop(Current current) => _ic;
 
-        public void shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
+        public void Shutdown(Current current) => current.Adapter.Communicator.ShutdownAsync();
 
         private readonly IIAPrx _ia;
         private readonly IIB1Prx _ib1;

@@ -14,21 +14,18 @@ namespace ZeroC.Ice.Test.Exceptions
         {
         }
 
-        public ValueTask
-        shutdownAsync(Current current)
+        public ValueTask ShutdownAsync(Current current)
         {
             current.Adapter.Communicator.ShutdownAsync();
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<bool>
-        supportsAssertExceptionAsync(Current current) => new ValueTask<bool>(false);
+        public ValueTask<bool> SupportsAssertExceptionAsync(Current current) =>
+            new ValueTask<bool>(false);
 
-        public ValueTask
-        throwAasAAsync(int a, Current current) => throw new A(a);
+        public ValueTask ThrowAasAAsync(int a, Current current) => throw new A(a);
 
-        public ValueTask
-        throwAorDasAorDAsync(int a, Current current)
+        public ValueTask ThrowAorDasAorDAsync(int a, Current current)
         {
             if (a > 0)
             {
@@ -40,8 +37,7 @@ namespace ZeroC.Ice.Test.Exceptions
             }
         }
 
-        public ValueTask
-        throwBasAAsync(int a, int b, Current current)
+        public ValueTask ThrowBasAAsync(int a, int b, Current current)
         {
             //throw new B(a, b);
             var s = new TaskCompletionSource<object>();
@@ -49,65 +45,45 @@ namespace ZeroC.Ice.Test.Exceptions
             return new ValueTask(s.Task);
         }
 
-        public ValueTask
-        throwBasBAsync(int a, int b, Current current) => throw new B(a, b);
+        public ValueTask ThrowBasBAsync(int a, int b, Current current) => throw new B(a, b);
 
-        public ValueTask
-        throwCasAAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
+        public ValueTask ThrowCasAAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
-        public ValueTask
-        throwCasBAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
+        public ValueTask ThrowCasBAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
-        public ValueTask
-        throwCasCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
+        public ValueTask ThrowCasCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
-        public ValueTask
-        throwUndeclaredAAsync(int a, Current current) => throw new A(a);
+        public ValueTask ThrowUndeclaredAAsync(int a, Current current) => throw new A(a);
 
-        public ValueTask
-        throwUndeclaredBAsync(int a, int b, Current current) => throw new B(a, b);
+        public ValueTask ThrowUndeclaredBAsync(int a, int b, Current current) => throw new B(a, b);
 
-        public ValueTask
-        throwUndeclaredCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
+        public ValueTask ThrowUndeclaredCAsync(int a, int b, int c, Current current) => throw new C(a, b, c);
 
-        public ValueTask
-        throwLocalExceptionAsync(Current current) => throw new ConnectionTimeoutException();
+        public ValueTask ThrowLocalExceptionAsync(Current current) => throw new ConnectionTimeoutException();
 
-        public ValueTask
-        throwNonIceExceptionAsync(Current current) => throw new Exception();
+        public ValueTask ThrowNonIceExceptionAsync(Current current) => throw new Exception();
 
-        public ValueTask
-        throwAssertExceptionAsync(Current current)
+        public ValueTask ThrowAssertExceptionAsync(Current current)
         {
             TestHelper.Assert(false);
             return new ValueTask(Task.CompletedTask);
         }
 
-        public ValueTask<ReadOnlyMemory<byte>>
-        throwMemoryLimitExceptionAsync(byte[] seq, Current current) =>
-            new ValueTask<ReadOnlyMemory<byte>>(new byte[1024 * 20]); // 20KB is over the configured 10KB message size max.
+        // 20KB is over the configured 10KB message size max.
+        public ValueTask<ReadOnlyMemory<byte>> ThrowMemoryLimitExceptionAsync(byte[] seq, Current current) =>
+            new ValueTask<ReadOnlyMemory<byte>>(new byte[1024 * 20]);
 
-        public ValueTask
-        throwLocalExceptionIdempotentAsync(Current current) =>
+        public ValueTask ThrowLocalExceptionIdempotentAsync(Current current) =>
             throw new ConnectionTimeoutException();
 
-        public ValueTask
-        throwAfterResponseAsync(Current current)
-        {
-            // Only supported with callback based AMD API
-            return new ValueTask(Task.CompletedTask);
-            //throw new Exception();
-        }
+        // Only supported with callback based AMD API
+        public ValueTask ThrowAfterResponseAsync(Current current) =>
+            new ValueTask(Task.CompletedTask); //throw new Exception();
 
-        public ValueTask
-        throwAfterExceptionAsync(Current current)
-        {
-            // Only supported with callback based AMD API
-            throw new A();
-            //throw new Exception();
-        }
+        // Only supported with callback based AMD API
+        public ValueTask ThrowAfterExceptionAsync(Current current) => throw new A(); //throw new Exception();
 
-        public ValueTask throwAConvertedToUnhandledAsync(Current current)
+        public ValueTask ThrowAConvertedToUnhandledAsync(Current current)
         {
             var a = new A();
             a.ConvertToUnhandled = true;
