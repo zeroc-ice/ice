@@ -113,7 +113,7 @@ namespace ZeroC.Ice
             }
         }
 
-        // Constructor for parsing with the original format.
+        // Constructor for parsing the ice1 string format.
         internal OpaqueEndpoint(
             Communicator communicator,
             Dictionary<string, string?> options,
